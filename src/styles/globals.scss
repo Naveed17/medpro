@@ -1,0 +1,44 @@
+@import "variables";
+html,
+body {
+  overflow: auto;
+  font-display: swap;
+}
+* {
+  box-sizing: border-box;
+  @include custom-scroll-bar();
+}
+
+main {
+  position: relative;
+  width: 100%;
+  transition: all 0.4s ease-in-out;
+  &.active-right-actionbar {
+    width: calc(100% - 208px);
+    @media (max-width: 600px) {
+      width: 100%;
+    }
+  }
+}
+//react-svg
+.react-svg {
+  line-height: 0;
+  div {
+    line-height: 0;
+  }
+}
+.d-inline-block {
+  display: inline-block;
+}
+.mr-1 {
+  margin-right: 4px;
+}
+.w-full {
+  width: 100%;
+}
+
+@media screen and (max-width: 900px) {
+  .sm-d-block {
+    display: block !important;
+  }
+}
