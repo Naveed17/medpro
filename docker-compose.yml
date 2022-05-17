@@ -1,8 +1,6 @@
 ---
 services:
   medpro:
-    build:
-      context: .
     ports:
       - 3000
     volumes:
