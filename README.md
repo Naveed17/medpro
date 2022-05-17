@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Next.js TypeScript Starter">
+  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med TypeScript Starter">
 </p>
 
 <br />
