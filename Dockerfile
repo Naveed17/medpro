@@ -9,6 +9,7 @@ COPY --chown=node:node . "${APP_ROOT}/"
 
 EXPOSE 3000
 ENV PORT 3000
+VOLUME ["$APP_ROOT"]
 
 FROM wodby/node:16 AS builder
 
