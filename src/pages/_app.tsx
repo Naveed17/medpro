@@ -2,8 +2,6 @@ import '@styles/globals.scss'
 import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import {CssBaseline} from "@mui/material";
-import {darkTheme} from "@themes/darkTheme";
-import {lightTheme} from "@themes/lightTheme";
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@app/redux/store";
@@ -24,15 +22,17 @@ function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
     return (
       <Provider store={store}>
           <AppThemeProvider theme={ theme }>
-              <GlobleStyles>
-                  <CssBaseline />
-                  <Layout>
-                      <Component {...pageProps} />
-                  </Layout>
-              </GlobleStyles>
+              <Layout>
+                  <GlobleStyles>
+                     <CssBaseline />
+                     <Component {...pageProps} />
+                  </GlobleStyles>
+              </Layout>
           </AppThemeProvider>
       </Provider>
   )
 }
+
+MyApp.displayName = 'Med Pro';
 
 export default appWithTranslation(MyApp);

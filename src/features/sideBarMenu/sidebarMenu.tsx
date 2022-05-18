@@ -67,7 +67,7 @@ const MainMenu = styled(Box)(({ theme }) => ({
                         backgroundColor: theme.palette.primary.main,
                         "& svg": {
                             "& path": {
-                                fill: theme.palette.grey,
+                                fill: theme.palette.grey[50],
                                 transition: "all ease-in 0.2s",
                             },
                         },
@@ -160,12 +160,12 @@ const MobileDrawer = styled(Drawer)(({ theme }) => ({
                     backgroundColor: `${theme.palette.primary.main}!important`,
                     "& svg": {
                         "& path": {
-                            fill: theme.palette.grey,
+                            fill: theme.palette.grey[50],
                         },
                     },
                     "& .MuiListItemText-root": {
                         "& span": {
-                            color: theme.palette.grey,
+                            color: theme.palette.grey[50],
                             fontWeight: 300,
                         },
                     },
@@ -208,7 +208,7 @@ function SideBarMenu() {
                     height={38}
                     width={38}
                     alt="company logo"
-                    src="/static/icons/Med-logo.png"
+                    src="/static/icons/Med-logo_.svg"
                 />
             </Link>
             <List>
@@ -278,7 +278,6 @@ function SideBarMenu() {
     return (
         <>
             <MainMenu className="header-main">
-                <CssBaseline />
                 <Box
                     component="nav"
                     aria-label="mailbox folders"

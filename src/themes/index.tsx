@@ -17,7 +17,6 @@ import {setConfig} from "@features/setConfig/selectors";
 
 
 export default function ThemeConfig({ children, ...pageProps }: any) {
-    console.log(pageProps.theme);
     const config = useAppSelector(setConfig);
 
     const themeOptions: any = useMemo(
