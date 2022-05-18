@@ -26,6 +26,7 @@ const Dashboard: NextPage = () => {
 
     return(
         <main className={styles.main}>
+
             <h1 className={styles.title}>
                <a> {t('welcome')}</a>
             </h1>
