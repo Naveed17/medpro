@@ -1,4 +1,4 @@
-import {RootState} from "../../app/store";
+import {RootState} from "@app/redux/store";
 import {createSelector} from "reselect";
 
 export const setConfig = (state: RootState) => state.theme;

@@ -4,5 +4,6 @@
   "powered_by": "Tous droits réservés",
   "lang" : "lang",
   "light" : "Mode lumière",
-  "dark" : "Mode sombre"
+  "dark" : "Mode sombre",
+  "dashboard" : "Page d'accueil"
 }
