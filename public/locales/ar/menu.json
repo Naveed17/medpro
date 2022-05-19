@@ -1,10 +1,10 @@
 {
-  "agenda": "جدول أعمال",
+  "agenda": "جدول مواعيدي",
   "room": "مجال",
-  "patient": "صبور",
-  "message": "رسالة",
+  "patient": "سجل مرضايا",
+  "message": "رسائلي",
   "articles": "مقالات",
-  "questions": "أسئلة",
-  "shop": "محل",
+  "questions": "أسئلة طبية",
+  "shop": "خدماتي",
   "wallet": "محفظتى"
 }
