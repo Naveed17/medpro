@@ -195,6 +195,13 @@ const MobileDrawer = styled(Drawer)(({ theme }) => ({
 
 const { sidebarItems } = siteHeader;
 
+//style
+import "@styles/sidebarMenu.module.scss";
+
+import CustomIcon from "@themes/icon";
+import StatsIcon from "@themes/overrides/icons/statsIcon";
+import SettingsIcon from "@themes/overrides/icons/settingsIcon";
+
 function SideBarMenu() {
     const router = useRouter();
     const { t, ready } = useTranslation("menu");
@@ -222,7 +229,7 @@ function SideBarMenu() {
                             button
                             className={router.pathname === item.href ? "active" : ""}>
                                 <ListItemIcon>
-                                    <Icon path={item.icon} />
+                                    <CustomIcon path={item.icon} />
                                 </ListItemIcon>
                                 <ListItemText primary={t(item.name)} />
                         </ListItem>
@@ -234,12 +241,11 @@ function SideBarMenu() {
                     disableRipple
                     button
                     onClick={() => {
-                        router.push(`/dashboard/statistics`);
+                        router.push(`/dashboard`);
                     }}
-                    className={router.pathname === "/dashboard/statistics" ? "active" : ""}
-                >
+                    className={router.pathname === "/dashboard/statistics" ? "active" : ""}>
                     <ListItemIcon>
-                        <Icon path="ic-statistique-lite" />
+                        <StatsIcon />
                     </ListItemIcon>
                     <Hidden smUp>
                         <ListItemText primary={"Statistics"} />
@@ -249,12 +255,12 @@ function SideBarMenu() {
                     disableRipple
                     button
                     onClick={() => {
-                        router.push(`/dashboard/setting`);
+                        router.push(`/dashboard`);
                     }}
                     className={router.pathname === '/dashboard/setting' ? "active mt-2" : "mt-2"}
                 >
                     <ListItemIcon>
-                        <Icon path="ic-setting" />
+                        <SettingsIcon />
                     </ListItemIcon>
                     <Hidden smUp>
                         <ListItemText primary={"Settings"} />

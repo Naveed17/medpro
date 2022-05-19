@@ -1,4 +1,4 @@
-const shadows = [
+const shadows: any = [
   "0px 1px 5px rgba(0, 85, 121, 0.44)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
   "0px 1px 5px rgba(244, 167, 170, 0.78)",

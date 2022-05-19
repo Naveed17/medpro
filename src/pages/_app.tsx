@@ -1,4 +1,3 @@
-import '@styles/globals.scss'
 import type { AppProps } from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import {CssBaseline} from "@mui/material";
@@ -9,27 +8,32 @@ import {useState} from "react";
 import Layout from "../features/layout/layout";
 import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
+import '@styles/globals.scss'
+
 interface MyAppProps extends AppProps {
     emotionCache?: EmotionCache;
 }
 
 function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
     let [theme, setTheme] = useState('light');
+    let [direction, setDirection] = useState('rtl');
+
     store.subscribe(() => {
         setTheme(store.getState().theme.mode);
+        setDirection(store.getState().theme.direction);
     });
 
     return (
-      <Provider store={store}>
-          <AppThemeProvider theme={ theme }>
-              <Layout>
+        <Provider store={store}>
+            <AppThemeProvider theme={ theme } direction={ direction }>
+                <Layout>
+                  <CssBaseline />
                   <GlobleStyles>
-                     <CssBaseline />
                      <Component {...pageProps} />
                   </GlobleStyles>
-              </Layout>
-          </AppThemeProvider>
-      </Provider>
+                </Layout>
+            </AppThemeProvider>
+        </Provider>
   )
 }
 

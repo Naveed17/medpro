@@ -1,11 +1,6 @@
 import {useAppDispatch} from "@app/redux/hooks";
-import {useEffect} from "react";
 import {setDirection} from "../setConfig/actions";
 import {useRouter} from "next/router";
-import createCache from "@emotion/cache";
-import {prefixer} from "stylis";
-import rtlPlugin from "stylis-plugin-rtl";
-import {CacheProvider} from "@emotion/react";
 import Head from "next/head";
 
 
@@ -16,18 +11,7 @@ type LayoutProps = {
 export default function Layout({ children }: LayoutProps) {
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
-    const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        dispatch(setDirection(dir));
-    }, [dir]);
-
-    // Create rtl cache
-    const cacheRtl = createCache({
-        key: dir === 'rtl' ? 'muirtl': 'css',
-        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
-    });
-    cacheRtl.compat = true;
 
     return (
         <>
@@ -37,15 +21,7 @@ export default function Layout({ children }: LayoutProps) {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main dir={dir}>
-                {dir === 'rtl' ?
-                    <CacheProvider value={cacheRtl}>
-                        {children}
-                    </CacheProvider>
-                    :
-                    <>
-                        {children}
-                    </>
-                }
+                {children}
             </main>
         </>
     )

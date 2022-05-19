@@ -42,3 +42,11 @@ main {
     display: block !important;
   }
 }
+
+.MuiListItemIcon-root{
+  width: 38px;
+  height: 38px;
+  svg{
+    height: 22px;
+  }
+}

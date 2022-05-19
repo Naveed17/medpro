@@ -19,7 +19,7 @@ function responsiveFontSizes({ sm, md, lg }: any) {
 const FONT_PRIMARY = ["Poppins"];
 // const FONT_SECONDARY = ["Montserrat"];
 
-const typography = {
+const typography: any = {
   fontFamily: FONT_PRIMARY,
   fontWeightRegular: 500,
   fontWeightMedium: 600,
