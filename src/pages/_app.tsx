@@ -5,7 +5,7 @@ import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@app/redux/store";
 import {useState} from "react";
-import Layout from "../features/layout/layout";
+import Index from "@features/base/layout";
 import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
@@ -26,12 +26,12 @@ function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
     return (
         <Provider store={store}>
             <AppThemeProvider theme={ theme } direction={ direction }>
-                <Layout>
+                <Index>
                   <CssBaseline />
                   <GlobleStyles>
                      <Component {...pageProps} />
                   </GlobleStyles>
-                </Layout>
+                </Index>
             </AppThemeProvider>
         </Provider>
   )

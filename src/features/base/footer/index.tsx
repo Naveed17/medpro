@@ -1,8 +1,8 @@
-import styles from '../../styles/Home.module.scss'
+import styles from '@styles/Home.module.scss'
 import {useTranslation} from "next-i18next";
 import Image from 'next/image'
 
-function Footer() {
+function Index() {
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
@@ -18,4 +18,4 @@ function Footer() {
 
  )
 }
-export default Footer
+export default Index

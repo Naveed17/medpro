@@ -4,7 +4,7 @@ import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import dynamic from 'next/dynamic';
-const SideBarMenu = dynamic(() => import('@features/sideBarMenu/sidebarMenu'))
+const SideBarMenu = dynamic(() => import('@features/sideBarMenu'))
 
 const Index: NextPage = () => {
     const router = useRouter();

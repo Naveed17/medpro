@@ -202,7 +202,7 @@ import CustomIcon from "@themes/icon";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 
-function SideBarMenu() {
+function Index() {
     const router = useRouter();
     const { t, ready } = useTranslation("menu");
     if (!ready) return (<>loading translations...</>);
@@ -308,4 +308,4 @@ function SideBarMenu() {
     )
 }
 
-export default SideBarMenu
+export default Index
