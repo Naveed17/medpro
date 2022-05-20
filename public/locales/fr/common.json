@@ -5,5 +5,9 @@
   "lang" : "lang",
   "light" : "Mode lumière",
   "dark" : "Mode sombre",
-  "dashboard" : "Page d'accueil"
+  "dashboard" : "Page d'accueil",
+  "search" : "Vous cherchez ?",
+  "stats": " Statistiques",
+  "settings": "Paramètres",
+  "logout": "Se déconnecter"
 }

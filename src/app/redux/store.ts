@@ -4,10 +4,12 @@ import {
     ThunkAction,
 } from '@reduxjs/toolkit';
 import {ConfigReducer} from "@features/setConfig/reducer";
+import {SideBarReducer} from "@features/sideBarMenu/reducer";
 
 export const store = configureStore({
     reducer: {
-        theme: ConfigReducer
+        theme: ConfigReducer,
+        sideBar: SideBarReducer
     },
 });
 

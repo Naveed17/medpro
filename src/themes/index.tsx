@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import { useMemo } from "react";
 // material
 import { CssBaseline } from "@mui/material";
@@ -15,32 +15,45 @@ import {useRouter} from "next/router";
 import createCache from "@emotion/cache";
 import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
+import {configSelector, setDirection} from "@features/setConfig";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 export default function ThemeConfig({ children, ...pageProps }: any) {
+    const { mode } = useAppSelector(configSelector);
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
+    const dispatch = useAppDispatch();
+    useEffect(() => {
+        dispatch(setDirection(dir));
+    }, [dir, dispatch]);
+
+    useEffect(() => {
+        document.dir = dir;
+    }, [dir]);
 
     // Create style cache
     const styleCache = createCache({
         key: dir === 'rtl' ? 'muirtl': 'css',
         stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
     });
-    // cacheRtl.compat = true;
+    // styleCache.compat = true;
 
     const themeOptions: any = useMemo(
         () => ({
-            palette: { ...palette , mode : pageProps.theme },
+            palette: { ...palette , mode : mode },
             typography,
-            direction: pageProps.direction,
+            direction: dir,
             shadows: shadows,
             shape: {
                 borderRadius: 6,
             },
         }),
-        [pageProps.theme, pageProps.direction]
+        [mode, dir]
     );
     const theme = createTheme(themeOptions);
     theme.components = componentsOverride(theme);
+
+
 
     return (
         <CacheProvider value={styleCache}>

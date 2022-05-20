@@ -1,17 +1,17 @@
 import {useAppDispatch} from "@app/redux/hooks";
-import {setDirection} from "../../setConfig/actions";
+import {setDirection} from "@features/setConfig";
 import {useRouter} from "next/router";
 import Head from "next/head";
+import {useEffect, useLayoutEffect} from "react";
 
 
 type LayoutProps = {
     children: React.ReactNode,
 };
 
-export default function Index({ children }: LayoutProps) {
+export default function Layout({ children }: LayoutProps) {
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
-
 
     return (
         <>

@@ -5,5 +5,9 @@
   "lang" : "lang",
   "light" : "Light mode",
   "dark" : "Dark mode",
-  "dashboard" : "Homepage"
+  "dashboard" : "Homepage",
+  "search" : "Looking for ?",
+  "stats": " Statistics",
+  "settings": "Settings",
+  "logout": "Log out"
 }

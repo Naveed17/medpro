@@ -9,6 +9,7 @@ import Index from "@features/base/layout";
 import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
+import Layout from "@features/base/layout";
 
 interface MyAppProps extends AppProps {
     emotionCache?: EmotionCache;
@@ -16,7 +17,7 @@ interface MyAppProps extends AppProps {
 
 function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
     let [theme, setTheme] = useState('light');
-    let [direction, setDirection] = useState('rtl');
+    let [direction, setDirection] = useState('ltr');
 
     store.subscribe(() => {
         setTheme(store.getState().theme.mode);
@@ -26,12 +27,12 @@ function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
     return (
         <Provider store={store}>
             <AppThemeProvider theme={ theme } direction={ direction }>
-                <Index>
+                <Layout>
                   <CssBaseline />
                   <GlobleStyles>
                      <Component {...pageProps} />
                   </GlobleStyles>
-                </Index>
+                </Layout>
             </AppThemeProvider>
         </Provider>
   )

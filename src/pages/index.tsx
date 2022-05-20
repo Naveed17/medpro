@@ -10,7 +10,8 @@ import HouseIcon from '@mui/icons-material/House';
 import {setTheme} from "@features/setConfig/actions";
 import {useRouter} from "next/router";
 import {useAppDispatch} from "@app/redux/hooks";
-import Index from "@features/base/footer";
+import dynamic from 'next/dynamic';
+const Footer = dynamic(() => import('@features/base/footer'));
 
 const Home: NextPage = () => {
     const router = useRouter();
@@ -73,7 +74,7 @@ const Home: NextPage = () => {
             </div>
         </main>
 
-        <Index/>
+        <Footer/>
     </div>
   )
 }
