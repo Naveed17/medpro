@@ -26,7 +26,7 @@ export const NextLinkComposed = React.forwardRef(function NextLinkComposed(props
   );
 });
 
-// A styled version of the Next.js Link component:
+// A styled version of the Next.js Link components:
 // https://nextjs.org/docs/#with-link
 const Link: any = React.forwardRef(function Link(props, ref) {
   const {

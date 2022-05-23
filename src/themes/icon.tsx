@@ -13,6 +13,7 @@ import ClocIcon from "@themes/overrides/icons/clocIcon";
 import ToggleIcon from "@themes/overrides/icons/toggleIcon";
 import FullViewIcon from "@themes/overrides/icons/fullViewIcon";
 import LogoutIcon from "@themes/overrides/icons/logoutIcon";
+import MenuIcon from "@themes/overrides/icons/MenuIcon";
 
 interface IconProps {
   path : string;
@@ -36,6 +37,7 @@ export default function Icon({ path, className, ...props }: IconProps) {
         case 'ic-toggle':  selectedIcon = <ToggleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>; break;
         case 'ic-scan':  selectedIcon = <FullViewIcon  {...props} className={`react-svg ${className ? className : ''}`}/>; break;
         case 'ic-deconnexion-1x':  selectedIcon = <LogoutIcon  {...props} className={`react-svg ${className ? className : ''}`}/>; break;
+        case 'ic-menu':  selectedIcon = <MenuIcon  {...props} className={`react-svg ${className ? className : ''}`}/>; break;
     }
     return selectedIcon;
 }

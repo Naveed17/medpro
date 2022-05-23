@@ -27,12 +27,12 @@ import "@styles/sidebarMenu.module.scss";
 
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
-import TopNavBAr from "@features/topNavBar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar} from "@features/sideBarMenu/actions";
 import {useEffect, useRef} from "react";
 import {MainMenu, MobileDrawer} from "@features/sideBarMenu";
+import {TopNavBar} from "@features/topNavBar";
 
 function SideBarMenu() {
     const router = useRouter();
@@ -72,7 +72,7 @@ function SideBarMenu() {
                                 <ListItemIcon>
                                     <Icon path={item.icon} />
                                 </ListItemIcon>
-                                <ListItemText primary={t(item.name)} />
+                                <ListItemText primary={t("main-menu." + item.name)} />
                         </ListItem>
                     </Hidden>
                 ))}
@@ -89,7 +89,7 @@ function SideBarMenu() {
                         <StatsIcon />
                     </ListItemIcon>
                     <Hidden smUp>
-                        <ListItemText primary={t("stats")} />
+                        <ListItemText primary={t("main-menu." +"stats")} />
                     </Hidden>
                 </ListItem>
                 <ListItem
@@ -103,7 +103,7 @@ function SideBarMenu() {
                         <SettingsIcon />
                     </ListItemIcon>
                     <Hidden smUp>
-                        <ListItemText primary={t("settings")} />
+                        <ListItemText primary={t("main-menu." + "settings")} />
                     </Hidden>
                 </ListItem>
                 <Hidden smUp>
@@ -113,7 +113,7 @@ function SideBarMenu() {
                         <ListItemIcon>
                             <Icon path="ic-deconnexion-1x" />
                         </ListItemIcon>
-                        <ListItemText primary={t("logout")} />
+                        <ListItemText primary={t("main-menu." + "logout")} />
                     </ListItem>
                 </Hidden>
             </List>
@@ -123,7 +123,7 @@ function SideBarMenu() {
     return (
         <MainMenu className="header-main">
             <CssBaseline />
-            <TopNavBAr />
+            <TopNavBar />
             <Box
                 component="nav"
                 aria-label="mailbox folders"

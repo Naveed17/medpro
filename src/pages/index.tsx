@@ -16,10 +16,11 @@ const Footer = dynamic(() => import('@features/base/footer'));
 const Home: NextPage = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { t, ready } = useTranslation('common');
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
 
+    const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
+
     const currentLang =  router.locale;
     const handleChange = (event: SelectChangeEvent) => {
         const lang = event.target.value as string;

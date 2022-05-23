@@ -5,11 +5,13 @@ import {
 } from '@reduxjs/toolkit';
 import {ConfigReducer} from "@features/setConfig/reducer";
 import {SideBarReducer} from "@features/sideBarMenu/reducer";
+import {ProfileMenuReducer} from "@features/profilMenu";
 
 export const store = configureStore({
     reducer: {
         theme: ConfigReducer,
-        sideBar: SideBarReducer
+        sideBar: SideBarReducer,
+        profileMenu: ProfileMenuReducer
     },
 });
 

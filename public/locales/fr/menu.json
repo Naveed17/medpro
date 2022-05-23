@@ -1,10 +1,23 @@
 {
-  "agenda": "Agenda",
-  "room": "Room",
-  "patient": "Patient",
-  "message": "Message",
-  "articles": "Articles",
-  "questions": "Questions",
-  "shop": "Shop",
-  "wallet": "My Wallet"
+  "main-menu": {
+    "agenda": "Agenda",
+    "room": "Room",
+    "patient": "Patient",
+    "message": "Message",
+    "articles": "Articles",
+    "questions": "Questions",
+    "shop": "Shop",
+    "wallet": "My Wallet"
+  },
+  "doctor-dropdown":{
+    "news": "Fil d'actualité",
+    "messages": "Mes messages",
+    "questions": "Questions médicales",
+    "articles": "Magazine Médical",
+    "wallet": "Mes services",
+    "settings": "Mon profil",
+    "statistics": "Statistiques",
+    "switch-agenda": "Réinitialiser agenda",
+    "logout": "Se déconnecter"
+  }
 }
