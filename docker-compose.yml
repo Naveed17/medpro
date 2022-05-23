@@ -1,0 +1,7 @@
+---
+services:
+  medpro:
+    ports:
+      - 3000
+    volumes:
+      - .:/usr/src/app
