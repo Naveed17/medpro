@@ -1,18 +1,19 @@
 import styles from "@styles/Home.module.scss";
-import {GetStaticProps, NextPage} from "next";
+import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import dynamic from 'next/dynamic';
-const SideBarMenu = dynamic(() => import('@features/sideBarMenu/components/sideBarMenu'))
+import {ReactElement} from "react";
+import dynamic from "next/dynamic";
+const DashLayout = dynamic(() => import('@features/base/dashLayout'))
 
-const Index: NextPage = () => {
+function Dashborad(){
 
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
     return(
         <main className={styles.main}>
-            <SideBarMenu />
+
         </main>
         )
 }
@@ -21,4 +22,12 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
         ...(await serverSideTranslations(locale as string, ['common', 'menu']))
     }
 })
-export default Index
+export default Dashborad
+
+Dashborad.getLayout = function getLayout(page: ReactElement) {
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
+}

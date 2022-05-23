@@ -18,7 +18,7 @@ import rtlPlugin from "stylis-plugin-rtl";
 import {configSelector, setDirection} from "@features/setConfig";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
-export default function ThemeConfig({ children, ...pageProps }: any) {
+export default function ThemeConfig({ children}: any) {
     const { mode } = useAppSelector(configSelector);
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';

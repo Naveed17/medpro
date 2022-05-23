@@ -17,6 +17,8 @@ const Home: NextPage = () => {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { t, ready } = useTranslation('common');
+    const dir = router.locale === 'ar' ? 'rtl': 'ltr';
+
     if (!ready) return (<>loading translations...</>);
     const currentLang =  router.locale;
     const handleChange = (event: SelectChangeEvent) => {
@@ -29,7 +31,7 @@ const Home: NextPage = () => {
     }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} dir={dir}>
 
         <main className={styles.main}>
             <h1 className={styles.title}>

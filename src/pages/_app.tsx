@@ -4,35 +4,33 @@ import {CssBaseline} from "@mui/material";
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@app/redux/store";
-import {useState} from "react";
-import Index from "@features/base/layout";
+import {ReactElement, ReactNode} from "react";
 import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
-import Layout from "@features/base/layout";
+import {NextPage} from "next";
 
 interface MyAppProps extends AppProps {
+    Component: NextPageWithLayout,
     emotionCache?: EmotionCache;
 }
 
-function MyApp({ Component, emotionCache, pageProps }: MyAppProps) {
-    let [theme, setTheme] = useState('light');
-    let [direction, setDirection] = useState('ltr');
+type NextPageWithLayout = NextPage & {
+    getLayout?: (page: ReactElement) => ReactNode
+}
 
-    store.subscribe(() => {
-        setTheme(store.getState().theme.mode);
-        setDirection(store.getState().theme.direction);
-    });
+
+function MyApp({ Component, pageProps }: MyAppProps) {
+    // Use the dashLayout defined at the page level, if available
+    const getLayout = Component.getLayout ?? ((page) => page)
 
     return (
         <Provider store={store}>
-            <AppThemeProvider theme={ theme } direction={ direction }>
-                <Layout>
+            <AppThemeProvider>
                   <CssBaseline />
                   <GlobleStyles>
-                     <Component {...pageProps} />
+                      { getLayout(<Component {...pageProps} />) }
                   </GlobleStyles>
-                </Layout>
             </AppThemeProvider>
         </Provider>
   )
