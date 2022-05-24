@@ -1,4 +1,9 @@
-import {OpenMenu, profileMenuConfig, profileMenuSelector, ProfileSection} from "@features/profilMenu";
+import {
+    OpenMenu,
+    profileMenuConfig,
+    profileMenuSelector,
+    ProfileSectionStyled
+} from "@features/profilMenu";
 import {Box, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Typography} from "@mui/material";
 import Icon from "@themes/icon";
 import {pxToRem} from "@themes/formatFontSize";
@@ -30,7 +35,7 @@ function ProfilMenu() {
     };
 
     return(
-        <ProfileSection
+        <ProfileSectionStyled
             onClick={handleToggle}
             ref={anchorRef}
             id="composition-button"
@@ -141,7 +146,7 @@ function ProfilMenu() {
                     </Grow>
                 )}
             </Popper>
-        </ProfileSection>
+        </ProfileSectionStyled>
     )
 }
 export default ProfilMenu

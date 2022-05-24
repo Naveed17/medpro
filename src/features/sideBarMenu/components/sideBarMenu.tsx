@@ -7,7 +7,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Hidden,
+    Hidden, Toolbar,
 } from "@mui/material";
 
 // utils
@@ -31,14 +31,20 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar} from "@features/sideBarMenu/actions";
 import {useEffect, useRef} from "react";
-import {MainMenu, MobileDrawer} from "@features/sideBarMenu";
+import {MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 
-function SideBarMenu() {
+type LayoutProps = {
+    children: React.ReactNode,
+};
+
+function SideBarMenu({ children }: LayoutProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { opened, mobileOpened } = useAppSelector(sideBarSelector);
     let container: any = useRef<HTMLDivElement>(null);
+    const path = router.asPath.split("/");
+    const checkAll = ['questions'].some(item => path.includes(item));
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
@@ -121,7 +127,7 @@ function SideBarMenu() {
     );
 
     return (
-        <MainMenu className="header-main">
+        <MainMenuStyled className="header-main">
             <CssBaseline />
             <TopNavBar />
             <Box
@@ -129,7 +135,7 @@ function SideBarMenu() {
                 aria-label="mailbox folders"
                 className="sidenav-main">
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                <MobileDrawer
+                <MobileDrawerStyled
                     container={ container.current }
                     open={ mobileOpened }
                     variant="temporary"
@@ -139,7 +145,7 @@ function SideBarMenu() {
                         keepMounted: true, // Better open performance on mobile.
                     }} >
                     {drawer}
-                </MobileDrawer>
+                </MobileDrawerStyled>
                 <Drawer variant="permanent" open>
                     {drawer}
                 </Drawer>
@@ -149,12 +155,21 @@ function SideBarMenu() {
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">
                     {/* side page bar */}
+
                 </div>
             </Box>
             <Box className="body-main">
                 {/* main page content */}
+                {Array.from({ length: checkAll ? 1 : 2 }).map((_, idx) => (
+                    <Toolbar key={`top-search-${idx}`} />
+                ))}
+                <Box
+                    component="main"
+                    sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                    {children}
+                </Box>
             </Box>
-    </MainMenu>
+    </MainMenuStyled>
     )
 }
 

@@ -1,2 +1,2 @@
-export { default as Navbar} from './navbar';
+export { default as NavbarStyled} from './navbarStyled';
 export { default as TopNavBar} from './topNavBar';

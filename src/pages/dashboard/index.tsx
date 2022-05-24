@@ -1,20 +1,18 @@
-import styles from "@styles/Home.module.scss";
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement} from "react";
 import dynamic from "next/dynamic";
+import {useRouter} from "next/router";
 const DashLayout = dynamic(() => import('@features/base/dashLayout'))
 
 function Dashborad(){
-
+    const router = useRouter();
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
     return(
-        <main className={styles.main}>
-
-        </main>
+        <div>Hello from {router.pathname.slice(1)}</div>
         )
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

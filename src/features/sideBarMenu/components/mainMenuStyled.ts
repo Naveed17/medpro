@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
 
-const MainMenu = styled(Box)(({ theme }) => ({
+const MainMenuStyled = styled(Box)(({ theme }) => ({
     display: "flex",
     "& .body-main": {
         flexGrow: 1,
@@ -126,4 +126,4 @@ const MainMenu = styled(Box)(({ theme }) => ({
     },
 }));
 
-export default  MainMenu;
+export default  MainMenuStyled;

@@ -1,3 +1,3 @@
 export { default as SideBarMenu } from './sideBarMenu';
-export { default as MobileDrawer } from './mobileDrawer';
-export { default as MainMenu } from './mainMenu';
+export { default as MobileDrawerStyled } from './mobileDrawerStyled';
+export { default as MainMenuStyled } from './mainMenuStyled';
