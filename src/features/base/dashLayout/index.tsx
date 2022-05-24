@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import React from "react";
 const SideBarMenu = dynamic(() => import('@features/sideBarMenu/components/sideBarMenu'))
 
 type LayoutProps = {
@@ -8,9 +9,8 @@ type LayoutProps = {
 export default function DashLayout({ children }: LayoutProps) {
 
     return (
-        <>
-            <SideBarMenu />
+        <SideBarMenu>
             {children}
-        </>
+        </SideBarMenu>
     )
 }

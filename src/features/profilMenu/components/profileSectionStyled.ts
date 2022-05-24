@@ -2,7 +2,7 @@
 import { styled } from "@mui/material/styles";
 import {pxToRem} from "@themes/formatFontSize";
 
-const ProfileSection = styled('div')(({ theme }) => ({
+const ProfileSectionStyled = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     "& .profile-btn": {
@@ -157,4 +157,4 @@ const ProfileSection = styled('div')(({ theme }) => ({
     }
 }));
 
-export default  ProfileSection;
+export default  ProfileSectionStyled;

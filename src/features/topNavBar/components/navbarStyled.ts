@@ -3,7 +3,7 @@ import {styled} from "@mui/material/styles";
 import {AppBar} from "@mui/material";
 import {pxToRem} from "@themes/formatFontSize";
 
-const Navbar = styled(AppBar)(({ theme }) => ({
+const NavbarStyled = styled(AppBar)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
     "& .btn": {
         marginRight: pxToRem(24),
@@ -71,4 +71,4 @@ const Navbar = styled(AppBar)(({ theme }) => ({
     },
 }));
 
-export default Navbar
+export default NavbarStyled

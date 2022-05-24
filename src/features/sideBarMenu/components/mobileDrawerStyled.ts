@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Drawer} from "@mui/material";
 
-const MobileDrawer = styled(Drawer)(({ theme }) => ({
+const MobileDrawerStyled = styled(Drawer)(({ theme }) => ({
     "& .MuiPaper-root": {
         padding: 20,
         "& .MuiList-root": {
@@ -47,4 +47,4 @@ const MobileDrawer = styled(Drawer)(({ theme }) => ({
     },
 }));
 
-export default MobileDrawer
+export default MobileDrawerStyled

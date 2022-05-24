@@ -51,6 +51,6 @@ export const siteHeader = {
             icon: "ic-portfeuille",
             name: "wallet",
             href: '#',
-        },
+        }
     ],
 };

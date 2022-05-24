@@ -24,8 +24,9 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
-import {Navbar} from "@features/topNavBar";
+import {NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
+import SubHeader from "../../subHeader/components/subHeader";
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
@@ -38,7 +39,7 @@ function TopNavBar(){
 
     return (
         <>
-            <Navbar
+            <NavbarStyled
                 dir={dir}
                 position="fixed"
                 className={`top-bar ${opened ? "openedSidebar" : ""}`}
@@ -111,8 +112,8 @@ function TopNavBar(){
                         </MenuItem>
                     </MenuList>
                 </Toolbar>
-                {/*<Subheader />*/}
-            </Navbar>
+                <SubHeader />
+            </NavbarStyled>
         </>
     );
 }

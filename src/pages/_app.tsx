@@ -23,7 +23,6 @@ type NextPageWithLayout = NextPage & {
 function MyApp({ Component, pageProps }: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     const getLayout = Component.getLayout ?? ((page) => page)
-
     return (
         <Provider store={store}>
             <AppThemeProvider>

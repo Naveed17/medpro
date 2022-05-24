@@ -23,13 +23,12 @@ export default function ThemeConfig({ children}: any) {
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
     const dispatch = useAppDispatch();
+
     useEffect(() => {
         dispatch(setDirection(dir));
     }, [dir, dispatch]);
 
-    useEffect(() => {
-        document.dir = dir;
-    }, [dir]);
+    // document.dir = dir;
 
     // Create style cache
     const styleCache = createCache({
@@ -59,7 +58,9 @@ export default function ThemeConfig({ children}: any) {
         <CacheProvider value={styleCache}>
             <ThemeProvider theme={theme}>
                 <CssBaseline />
-                {children}
+                <main dir={dir}>
+                    {children}
+                </main>
             </ThemeProvider>
         </CacheProvider>
 
