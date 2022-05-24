@@ -1,23 +1,36 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement} from "react";
+import React, {ReactElement, useState} from "react";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
+import {Box, Button, Typography} from "@mui/material";
+import SubHeader from "../../features/subHeader/components/subHeader";
+import CalendarToolbar from "../../features/calendarToolbar/components/calendarToolbar";
 const DashLayout = dynamic(() => import('@features/base/dashLayout'))
 
 function Dashborad(){
     const router = useRouter();
+    const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
     return(
-        <div>Hello from {router.pathname.slice(1)}</div>
+        <>
+            <SubHeader>
+                <CalendarToolbar date={date} />
+            </SubHeader>
+            <Box bgcolor="#F0FAFF"
+                 sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+
+                <div>Hello from {router.pathname.slice(1)}</div>
+            </Box>
+        </>
         )
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
     }
 })
 export default Dashborad

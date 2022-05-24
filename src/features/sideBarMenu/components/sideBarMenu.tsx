@@ -30,7 +30,7 @@ import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar} from "@features/sideBarMenu/actions";
-import {useEffect, useRef} from "react";
+import React, {useEffect, useRef} from "react";
 import {MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 
@@ -160,12 +160,11 @@ function SideBarMenu({ children }: LayoutProps) {
             </Box>
             <Box className="body-main">
                 {/* main page content */}
-                {Array.from({ length: checkAll ? 1 : 2 }).map((_, idx) => (
+                {Array.from({ length: 1 }).map((_, idx) => (
                     <Toolbar key={`top-search-${idx}`} />
                 ))}
                 <Box
-                    component="main"
-                    sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                    component="main">
                     {children}
                 </Box>
             </Box>
