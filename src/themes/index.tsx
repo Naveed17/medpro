@@ -52,8 +52,6 @@ export default function ThemeConfig({ children}: any) {
     const theme = createTheme(themeOptions);
     theme.components = componentsOverride(theme);
 
-
-
     return (
         <CacheProvider value={styleCache}>
             <ThemeProvider theme={theme}>

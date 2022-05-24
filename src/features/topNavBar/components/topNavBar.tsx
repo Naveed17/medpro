@@ -112,7 +112,6 @@ function TopNavBar(){
                         </MenuItem>
                     </MenuList>
                 </Toolbar>
-                <SubHeader />
             </NavbarStyled>
         </>
     );
