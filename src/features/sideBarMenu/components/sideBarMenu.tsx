@@ -14,24 +14,23 @@ import {
 import Icon from "@themes/icon";
 
 // config
-import { siteHeader } from "../../base/settings/headerConfig";
+import { siteHeader } from "./headerConfig";
 import {useTranslation} from "next-i18next";
 
 import {useRouter} from "next/router";
-import Link from "@themes/Link";
-
+import Link from "next/link";
 const { sidebarItems } = siteHeader;
 
 //style
 import "@styles/sidebarMenu.module.scss";
-
+import Image from 'next/image'
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar} from "@features/sideBarMenu/actions";
 import React, {useEffect, useRef} from "react";
-import {MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
+import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 
 type LayoutProps = {
@@ -44,7 +43,6 @@ function SideBarMenu({ children }: LayoutProps) {
     const { opened, mobileOpened } = useAppSelector(sideBarSelector);
     let container: any = useRef<HTMLDivElement>(null);
     const path = router.asPath.split("/");
-    const checkAll = ['questions'].some(item => path.includes(item));
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
@@ -56,62 +54,63 @@ function SideBarMenu({ children }: LayoutProps) {
 
     const drawer = (
         <div>
-            <Link href="/" className="nav-logo">
-                <Box
-                    component="img"
-                    height={38}
-                    width={38}
-                    alt="company logo"
-                    src="/static/icons/Med-logo_.svg"
-                />
+            <Link href='/'>
+                <Box sx={{ textAlign: "center", marginTop: 1}}>
+                    <Image height={38}
+                           width={38}
+                           alt="company logo"
+                           src="/static/icons/Med-logo_.svg"
+                           priority
+                    />
+                </Box>
             </Link>
+
             <List>
                 {sidebarItems.map((item) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <ListItem
-                            disableRipple
-                            onClick={() => {
-                                router.push(item.href);
-                            }}
-                            button
-                            className={router.pathname === item.href ? "active" : ""}>
-                                <ListItemIcon>
-                                    <Icon path={item.icon} />
-                                </ListItemIcon>
-                                <ListItemText primary={t("main-menu." + item.name)} />
-                        </ListItem>
+                        <Link href={item.href}>
+                            <ListItem
+                                disableRipple
+                                button
+                                className={router.pathname === item.href ? "active" : ""}>
+                                    <ListItemIcon>
+                                        <Icon path={item.icon} />
+                                    </ListItemIcon>
+                                    <ListItemTextStyled primary={t("main-menu." + item.name)} />
+                            </ListItem>
+                        </Link>
                     </Hidden>
                 ))}
             </List>
             <List className="list-bottom">
-                <ListItem
-                    disableRipple
-                    button
-                    onClick={() => {
-                        router.push(`/dashboard`);
-                    }}
-                    className={router.pathname === "/dashboard/statistics" ? "active" : ""}>
-                    <ListItemIcon>
-                        <StatsIcon />
-                    </ListItemIcon>
-                    <Hidden smUp>
-                        <ListItemText primary={t("main-menu." +"stats")} />
-                    </Hidden>
-                </ListItem>
-                <ListItem
-                    disableRipple
-                    button
-                    onClick={() => {
-                        router.push(`/dashboard`);
-                    }}
-                    className={router.pathname === '/dashboard/settings' ? "active mt-2" : "mt-2"}>
-                    <ListItemIcon>
-                        <SettingsIcon />
-                    </ListItemIcon>
-                    <Hidden smUp>
-                        <ListItemText primary={t("main-menu." + "settings")} />
-                    </Hidden>
-                </ListItem>
+                <Link href="#">
+                    <ListItem
+                        disableRipple
+                        button
+                        className={router.pathname === "/dashboard/statistics" ? "active" : ""}>
+                        <ListItemIcon>
+                            <StatsIcon />
+                        </ListItemIcon>
+                        <Hidden smUp>
+                            <ListItemText primary={t("main-menu." +"stats")} />
+                        </Hidden>
+                    </ListItem>
+                </Link>
+
+                <Link href="#">
+                    <ListItem
+                        disableRipple
+                        button
+                        className={router.pathname === '/dashboard/settings' ? "active mt-2" : "mt-2"}>
+                        <ListItemIcon>
+                            <SettingsIcon />
+                        </ListItemIcon>
+                        <Hidden smUp>
+                            <ListItemText primary={t("main-menu." + "settings")} />
+                        </Hidden>
+                    </ListItem>
+                </Link>
+
                 <Hidden smUp>
                     <ListItem
                         disableRipple

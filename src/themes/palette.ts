@@ -50,6 +50,14 @@ const ERROR = {
   darker: "#E83B68",
 };
 
+const WHITE = {
+  lighter: "#FFFFFF",
+  light: "#F2F2F2",
+  main: "#DDDDDD",
+  dark: "#C9C8C8",
+  darker: "#7C878E",
+};
+
 export const GREY = {
   0: "#FFFFFF",
   100: "#F2F2F2",
@@ -77,6 +85,7 @@ const GRADIENTS = {
   success: createGradient(SUCCESS.light, SUCCESS.main),
   warning: createGradient(WARNING.light, WARNING.main),
   error: createGradient(ERROR.light, ERROR.main),
+  white: createGradient(WHITE.lighter, WHITE.lighter),
 };
 
 const COMMON = {
@@ -87,6 +96,7 @@ const COMMON = {
   success: { ...SUCCESS, contrastText: "#fff" },
   warning: { ...WARNING, contrastText: GREY[800] },
   error: { ...ERROR, contrastText: "#fff" },
+  white: { ...WHITE, contrastText: "#fff" },
   grey: GREY,
   gradients: GRADIENTS,
   divider: "#DDDDDD",

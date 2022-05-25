@@ -1,7 +1,8 @@
 import {styled} from "@mui/system";
-
+import {useMediaQuery} from "@mui/material";
 const RootStyled = styled("div")(({ theme }) => ({
     display: "flex",
+    width:  !useMediaQuery(theme.breakpoints.down("sm")) ? "100%" : "auto",
     alignItems: "center",
     flexDirection: "column",
     padding: theme.spacing(3, 0),
