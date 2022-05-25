@@ -5,11 +5,9 @@ import React, {ReactElement, useState} from "react";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
-import SubHeader from "@features/subHeader/components/subHeader";
-import CalendarToolbar from "@features/calendarToolbar/components/calendarToolbar";
 const DashLayout = dynamic(() => import('@features/base/dashLayout'))
 
-function Dashborad(){
+function Patient(){
     const router = useRouter();
     const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
@@ -17,9 +15,6 @@ function Dashborad(){
 
     return(
         <>
-            <SubHeader>
-                <CalendarToolbar date={date} />
-            </SubHeader>
             <Box bgcolor="#F0FAFF"
                  sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
 
@@ -33,9 +28,9 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
     }
 })
-export default Dashborad
+export default Patient
 
-Dashborad.getLayout = function getLayout(page: ReactElement) {
+Patient.getLayout = function getLayout(page: ReactElement) {
     return (
         <DashLayout>
             {page}

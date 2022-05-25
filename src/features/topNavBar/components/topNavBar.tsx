@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 
 // config
-import { siteHeader } from "@features/base/settings/headerConfig";
+import { siteHeader } from "@features/sideBarMenu/components/headerConfig";
 
 // components
 import TextFieldSearch from "@features/textFieldSearch";
