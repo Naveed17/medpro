@@ -9,7 +9,7 @@ import {
     IconButton,
     Stack,
     SvgIcon,
-    ToggleButton,
+    ToggleButton, ToggleButtonGroup,
     Tooltip,
     useTheme
 } from "@mui/material";
@@ -19,11 +19,16 @@ import HourglassBottomRoundedIcon from '@mui/icons-material/HourglassBottomRound
 import React from "react";
 import {useTranslation} from "next-i18next";
 import BadgeStyled from "./badgeStyled";
-import AddEventIcon from "@themes/overrides/icons/AddEventIcon";
 import CalendarViewDayRoundedIcon from '@mui/icons-material/CalendarViewDayRounded';
 import CalendarViewMonthRoundedIcon from '@mui/icons-material/CalendarViewMonthRounded';
 import CalendarViewWeekRoundedIcon from '@mui/icons-material/CalendarViewWeekRounded';
 import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
+import TodayIcon from "@themes/overrides/icons/todayIcon";
+import AddEventIcon from "@themes/overrides/icons/addEventIcon";
+import DayIcon from "@themes/overrides/icons/dayIcon";
+import WeekIcon from "@themes/overrides/icons/weekIcon";
+import GridIcon from "@themes/overrides/icons/gridIcon";
+import ToggleButtonStyled from "./toggleButtonStyled";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -43,14 +48,17 @@ type CalendarToolbarProps = {
     date: Date
 };
 
-const VIEW_OPTIONS = [
-    { value: "dayGridMonth", label: "Month", icon: CalendarViewMonthRoundedIcon },
-    { value: "timeGridWeek", label: "Week", icon: CalendarViewWeekRoundedIcon },
-    { value: "timeGridDay", label: "Day", icon: CalendarViewDayRoundedIcon },
-    { value: "listWeek", label: "Agenda", icon: CalendarTodayRoundedIcon },
-];
+
 
 function CalendarToolbar({ date, ...props }: CalendarToolbarProps){
+    const theme = useTheme();
+    const VIEW_OPTIONS = [
+        { value: "dayGridMonth", label: "Month", icon: GridIcon , color: theme.palette.primary.main },
+        { value: "timeGridWeek", label: "Week", icon: WeekIcon },
+        { value: "timeGridDay", label: "Day", icon: DayIcon },
+        { value: "listWeek", label: "Agenda", icon: TodayIcon },
+    ];
+
     const { t, ready } = useTranslation('agenda');
     if (!ready) return (<>loading translations...</>);
 
@@ -85,15 +93,17 @@ function CalendarToolbar({ date, ...props }: CalendarToolbarProps){
                 </Hidden>
             </Box>
             <Hidden smDown>
+                {/*{...(viewOption.color !== undefined  && {  })}*/}
                 <Stack direction="row" spacing={1.5}>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
                                  title={viewOption.label}>
-                            <ToggleButton
-                                value="dayGridMonth"
-                                sx={{ width: 37, height: 37, padding: 0, marginTop : '2px!important'}} >
-                                <SvgIcon component={viewOption.icon} width={20} height={20} />
-                            </ToggleButton>
+                                <ToggleButtonStyled
+                                    value="dayGridMonth"
+                                    sx={{ width: 37, height: 37, padding: 0, marginTop : '2px!important' ,
+                                        ...(viewOption.color !== undefined  && { background : viewOption.color })}} >
+                                    <SvgIcon component={viewOption.icon}  width={20} height={20} />
+                                </ToggleButtonStyled>
                         </Tooltip>
                     ))}
                     <Button
