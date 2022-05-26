@@ -1,5 +1,5 @@
 export { default as CalendarToolbar } from './calendarToolbar';
-export { default as RootStyled } from './rootStyled';
-export { default as BadgeStyled } from './badgeStyled';
-export { default as ButtonBadgeStyled } from './buttonBadgeStyled';
-export { default as ToggleButtonStyled } from './toggleButtonStyled';
+export { default as RootStyled } from './overrides/rootStyled';
+export { default as BadgeStyled } from './overrides/badgeStyled';
+export { default as ButtonBadgeStyled } from './overrides/buttonBadgeStyled';
+export { default as ToggleButtonStyled } from './overrides/toggleButtonStyled';
