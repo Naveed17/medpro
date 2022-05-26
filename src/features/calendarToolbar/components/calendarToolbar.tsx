@@ -18,7 +18,7 @@ import HourglassBottomRoundedIcon from '@mui/icons-material/HourglassBottomRound
 
 import React from "react";
 import {useTranslation} from "next-i18next";
-import BadgeStyled from "./badgeStyled";
+import BadgeStyled from "./overrides/badgeStyled";
 import CalendarViewDayRoundedIcon from '@mui/icons-material/CalendarViewDayRounded';
 import CalendarViewMonthRoundedIcon from '@mui/icons-material/CalendarViewMonthRounded';
 import CalendarViewWeekRoundedIcon from '@mui/icons-material/CalendarViewWeekRounded';
@@ -28,7 +28,7 @@ import AddEventIcon from "@themes/overrides/icons/addEventIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import ToggleButtonStyled from "./toggleButtonStyled";
+import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
