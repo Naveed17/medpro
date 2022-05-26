@@ -2,10 +2,10 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
-const DashLayout = dynamic(() => import('@features/base/dashLayout'))
+import DashLayout from "@features/base/dashLayout";
+
 
 function Patient(){
     const router = useRouter();

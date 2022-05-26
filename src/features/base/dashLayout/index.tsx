@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic";
 import React from "react";
-const SideBarMenu = dynamic(() => import('@features/sideBarMenu/components/sideBarMenu'))
+const SideBarMenu = dynamic(() => import('@features/sideBarMenu/components/sideBarMenu'));
 import { motion } from 'framer-motion';
+
 type LayoutProps = {
     children: React.ReactNode,
 };

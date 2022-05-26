@@ -68,15 +68,15 @@ function SideBarMenu({ children }: LayoutProps) {
             <List>
                 {sidebarItems.map((item) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <Link href={item.href}>
+                        <Link href={item.href} passHref>
                             <ListItem
                                 disableRipple
                                 button
                                 className={router.pathname === item.href ? "active" : ""}>
-                                    <ListItemIcon>
-                                        <Icon path={item.icon} />
-                                    </ListItemIcon>
-                                    <ListItemTextStyled primary={t("main-menu." + item.name)} />
+                                <ListItemIcon>
+                                    <Icon path={item.icon} />
+                                </ListItemIcon>
+                                <ListItemTextStyled primary={t("main-menu." + item.name)} />
                             </ListItem>
                         </Link>
                     </Hidden>
