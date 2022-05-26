@@ -9,6 +9,7 @@ import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
 import {NextPage} from "next";
+import {AnimatePresence} from "framer-motion";
 
 interface MyAppProps extends AppProps {
     Component: NextPageWithLayout,
@@ -28,7 +29,12 @@ function MyApp({ Component, pageProps }: MyAppProps) {
             <AppThemeProvider>
                   <CssBaseline />
                   <GlobleStyles>
-                      { getLayout(<Component {...pageProps} />) }
+                      <AnimatePresence
+                          exitBeforeEnter
+                          initial={false}
+                          onExitComplete={() => window.scrollTo(0, 0)}>
+                          { getLayout(<Component {...pageProps} />) }
+                      </AnimatePresence>
                   </GlobleStyles>
             </AppThemeProvider>
         </Provider>
