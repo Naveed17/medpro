@@ -32,6 +32,7 @@ import {toggleMobileBar} from "@features/sideBarMenu/actions";
 import React, {useEffect, useRef} from "react";
 import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
+import {LeftActionBar} from "@features/leftActionBar";
 
 type LayoutProps = {
     children: React.ReactNode,
@@ -97,11 +98,11 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Link>
 
-                <Link href="#">
+                <Link href="/dashboard/settings/profil">
                     <ListItem
                         disableRipple
                         button
-                        className={router.pathname === '/dashboard/settings' ? "active mt-2" : "mt-2"}>
+                        className={router.pathname.startsWith('/dashboard/settings') ? "active mt-2" : "mt-2"}>
                         <ListItemIcon>
                             <SettingsIcon />
                         </ListItemIcon>
@@ -154,6 +155,7 @@ function SideBarMenu({ children }: LayoutProps) {
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">
                     {/* side page bar */}
+                    <LeftActionBar />
 
                 </div>
             </Box>

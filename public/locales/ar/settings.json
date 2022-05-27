@@ -1,0 +1,12 @@
+{
+  "menu": {
+    "parametres": "الإعدادات",
+    "room": "Room",
+    "patient": "Patient",
+    "message": "Message",
+    "articles": "Articles",
+    "questions": "Questions",
+    "shop": "Shop",
+    "wallet": "My Wallet"
+  }
+}
