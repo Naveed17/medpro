@@ -1,0 +1,16 @@
+{
+  "menu": {
+    "parameters": "Paramètres",
+    "profile": "Profil",
+    "acts": "Actes",
+    "motif": "Motif de consultation",
+    "lieu": "Lieux de consultation",
+    "agenda": "Agenda",
+    "horaire": "Horaire",
+    "conges": "Congés et absences",
+    "remplaçants": "Remplaçants",
+    "utilisateurs": "Utilisateurs",
+    "reseau": "Réseau d'adressage",
+    "instructions": "Instructions"
+  }
+}
