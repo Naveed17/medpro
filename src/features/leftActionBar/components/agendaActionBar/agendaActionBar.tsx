@@ -3,6 +3,7 @@ import React from 'react';
 
 import {BoxStyled} from "@features/leftActionBar/components/agendaActionBar/index";
 import {CalandarPickers} from "@features/calandarPickers";
+import {Box} from "@mui/material";
 
 function AgendaActionBar() {
 

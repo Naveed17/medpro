@@ -20,7 +20,6 @@ type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode
 }
 
-
 function MyApp({ Component, pageProps }: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     const getLayout = Component.getLayout ?? ((page) => page)

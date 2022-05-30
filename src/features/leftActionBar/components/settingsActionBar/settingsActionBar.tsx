@@ -13,7 +13,7 @@ import {
 // utils
 
 // config data
-import  settingsData  from "../settingsConfig";
+import  settingsData  from "./settingsConfig";
 import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
