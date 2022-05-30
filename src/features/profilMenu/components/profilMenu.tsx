@@ -1,6 +1,5 @@
 import {
-    OpenMenu,
-    profileMenuConfig,
+    OpenMenu, ProfileMenuConfig,
     profileMenuSelector,
     ProfileSectionStyled
 } from "@features/profilMenu";
@@ -102,7 +101,7 @@ function ProfilMenu() {
                                             </MenuItem>
                                         </MenuList>
                                     </MenuItem>
-                                    {profileMenuConfig.map((item: any, index) => (
+                                    {ProfileMenuConfig.map((item: any, index) => (
                                         <MenuItem
                                             key={`menu-${index}`}
                                             disableRipple

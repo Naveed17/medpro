@@ -1,4 +1,4 @@
-const profileMenuConfig = [
+const ProfileMenuConfig = [
     {
         name: 'News',
         icon: 'ic-magazine',
@@ -64,4 +64,4 @@ const profileMenuConfig = [
 
 ]
 
-export default profileMenuConfig
+export default ProfileMenuConfig
