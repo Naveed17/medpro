@@ -7,7 +7,10 @@
     "articles": "Articles",
     "questions": "Questions",
     "shop": "Shop",
-    "wallet": "My Wallet"
+    "wallet": "My Wallet",
+    "stats": "Statistics",
+    "settings": "My profile",
+    "logout": "Sign out"
   },
   "doctor-dropdown":{
     "news" : "News Feed",
