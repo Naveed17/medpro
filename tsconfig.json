@@ -23,7 +23,6 @@
       "@app/*": ["src/app/*"],
       "@features/*": ["src/features/*"],
       "@styles/*": ["src/styles/*"],
-      "@settings/*": ["src/settings/*"],
       "@types/*": ["src/types/*"],
       "@themes/*": ["src/themes/*"]
     }
