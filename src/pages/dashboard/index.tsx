@@ -2,12 +2,11 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
 import SubHeader from "@features/subHeader/components/subHeader";
 import CalendarToolbar from "@features/calendarToolbar/components/calendarToolbar";
-const DashLayout = dynamic(() => import('@features/base/dashLayout'))
+import DashLayout from "@features/base/dashLayout";
 
 function Dashborad(){
     const router = useRouter();
