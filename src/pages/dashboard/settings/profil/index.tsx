@@ -5,12 +5,14 @@ import React, {ReactElement, useEffect} from "react";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import DashLayout from "@features/base/dashLayout";
-import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid} from "@mui/material";
+import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
 // import BasicAlert from "@themes/overrides/Alert"
 import CardStyled from "./cardStyled";
 import SubHeader from "../../../../features/subHeader/components/subHeader";
 import CalendarToolbar from "../../../../features/calendarToolbar/components/calendarToolbar";
 import IconUrl from "@themes/urlIcon";
+import BasicAlert from "@themes/overrides/Alert"
+import {deepOrange} from "@mui/material/colors";
 
 function Profil(){
     const router = useRouter();
@@ -25,7 +27,10 @@ function Profil(){
     return(
         <>
             <SubHeader>
-                {/*<CalendarToolbar date={''} />*/}
+                <CalendarToolbar date={''} />
+                <Stack spacing={2} direction="row" alignItems="flex-start">
+                    <Typography variant="h6">Dr. tester </Typography>
+                </Stack>
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <CardStyled>
@@ -39,9 +44,9 @@ function Profil(){
                                         <Button variant="outlined" color="info" onClick={(e) => console.log(e)}>
                                             Dermatologue
                                         </Button>
-                                        {/*<BasicAlert icon="danger"
+                                        <BasicAlert icon="danger"
                                                     data={'Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495'}
-                                                    color="error" >test</BasicAlert>*/}
+                                                    color="warning">info</BasicAlert>
                                     </Stack>
                                 </Stack>
                             </ListItem>
@@ -94,7 +99,7 @@ function Profil(){
                                     <IconUrl className='left-icon' path="ic-argent" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom fontWeight={600}>Modes de règlement</Typography>
-                                        <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)} >
                                                 Espèces
@@ -115,7 +120,7 @@ function Profil(){
                                     <IconUrl className='left-icon' path="ic-langue2" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom fontWeight={600}>Langues parlées</Typography>
-                                        <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
                                                 Français
@@ -141,7 +146,7 @@ function Profil(){
                                     <IconUrl className='left-icon' path="ic-generaliste" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom fontWeight={600}>Actes principaux</Typography>
-                                        <Stack spacing={2.5} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
                                                 Relissage fractionnel
@@ -168,7 +173,7 @@ function Profil(){
                                     {/*<Icon className='left-icon' path={null} />*/}
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom fontWeight={600}>Actes Secondaries</Typography>
-                                        <Stack spacing={2.5} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
                                                 Relissage fractionnel
@@ -188,16 +193,6 @@ function Profil(){
                         </List>
                     </CardContent>
                 </CardStyled>
-                <Box mt={3}>
-                    <Typography variant="h6" gutterBottom>
-                        Qualification professionnelle Dialog
-                    </Typography>
-                    <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
-                            {/*<SettingProfileQualificationDialog />*/}
-                        </Grid>
-                    </Grid>
-                </Box>
             </Box>
         </>
     )

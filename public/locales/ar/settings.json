@@ -1,12 +1,16 @@
 {
   "menu": {
-    "parametres": "الإعدادات",
-    "room": "Room",
-    "patient": "Patient",
-    "message": "Message",
-    "articles": "Articles",
-    "questions": "Questions",
-    "shop": "Shop",
-    "wallet": "My Wallet"
+    "parameters": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "acts": "الاجراءات الطبية",
+    "motif": "سبب الاستشارة",
+    "lieu": "أماكن الاستشارات",
+    "agenda": "جدول أعمال",
+    "horaire": "ساعات العمل",
+    "conges": "العطل و الغيابات",
+    "remplaçants": "المعوضون",
+    "utilisateurs": "المستخدمون",
+    "reseau": "معالجة الشبكة",
+    "instructions": "تعليمات"
   }
 }

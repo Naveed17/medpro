@@ -57,7 +57,7 @@ function SideBarMenu({ children }: LayoutProps) {
         if (path === "/settings") {
             setTimeout(()=>{
                 dispatch(toggleSideBar(false))
-            },250);
+            },300);
         }
     };
 
