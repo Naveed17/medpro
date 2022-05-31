@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import { useMemo } from "react";
 // material
 import { CssBaseline } from "@mui/material";
@@ -15,20 +15,25 @@ import {useRouter} from "next/router";
 import createCache from "@emotion/cache";
 import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
-import {configSelector, setDirection} from "@features/setConfig";
+import {configSelector, setDirection, setLocalization} from "@features/setConfig";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {Localization} from "@app/localization";
+import * as locales from "@mui/material/locale";
+
+type SupportedLocales = keyof typeof locales;
 
 export default function ThemeConfig({ children}: any) {
     const { mode } = useAppSelector(configSelector);
     const router = useRouter();
-    const dir = router.locale === 'ar' ? 'rtl': 'ltr';
+    const lang: string | undefined = router.locale;
+    const [locale, setLocale] = useState<SupportedLocales>(Localization(lang));
+    const dir = lang === 'ar' ? 'rtl': 'ltr';
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         dispatch(setDirection(dir));
-    }, [dir, dispatch]);
-
-    // document.dir = dir;
+        dispatch(setLocalization(locale));
+    }, [locale, dir, dispatch]);
 
     // Create style cache
     const styleCache = createCache({
@@ -37,24 +42,23 @@ export default function ThemeConfig({ children}: any) {
     });
     // styleCache.compat = true;
 
-    const themeOptions: any = useMemo(
-        () => ({
-            palette: { ...palette , mode : mode },
+    const themeWithLocale = React.useMemo(
+        () => createTheme({
+            palette: {...palette, mode: mode },
             typography,
             direction: dir,
             shadows: shadows,
             shape: {
                 borderRadius: 6,
             },
-        }),
-        [mode, dir]
+        }, locales[locale]),
+        [dir, locale, mode],
     );
-    const theme = createTheme(themeOptions);
-    theme.components = componentsOverride(theme);
+    themeWithLocale.components = componentsOverride(themeWithLocale);
 
     return (
         <CacheProvider value={styleCache}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={themeWithLocale}>
                 <CssBaseline />
                 <main dir={dir}>
                     {children}
