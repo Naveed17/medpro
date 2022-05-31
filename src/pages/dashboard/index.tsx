@@ -3,7 +3,8 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
-import {Box} from "@mui/material";
+import {Box, FormControlLabel, FormGroup} from "@mui/material";
+import Checkbox from '@mui/material/Checkbox';
 import SubHeader from "@features/subHeader/components/subHeader";
 import CalendarToolbar from "@features/calendarToolbar/components/calendarToolbar";
 import DashLayout from "@features/base/dashLayout";
@@ -13,7 +14,7 @@ function Dashborad(){
     const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
-
+    const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
     return(
         <>
             <SubHeader>

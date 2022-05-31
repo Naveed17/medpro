@@ -2,14 +2,20 @@ import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
 
 const BoxStyled = styled(Box)(({ theme }) => ({
-    marginLeft: "-2.2rem",
+    marginLeft: "-20px",
     "& .MuiPickerStaticWrapper-root": {
         marginTop: "-.8rem",
+        marginLeft: "-.8rem"
     },
     '& .MuiCalendarPicker-root': {
         maxHeight: "-webkit-fill-available",
         padding: "5px 0",
         '& > [class^=css-]': {
+            backgroundColor: '#FCFCFC',
+            margin: "0 10px",
+            maxHeight: 60,
+            minHeight: 54
+        },'& > [class^=muirtl-]': {
             backgroundColor: '#FCFCFC',
             margin: "0 10px",
             maxHeight: 60,
