@@ -106,7 +106,7 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Link>
 
-                <Link href="/dashboard/settings">
+                <Link href="/dashboard/settings/profil">
                     <ListItem
                         disableRipple
                         onClick={()=>handleClick('/settings')}

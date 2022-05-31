@@ -1,36 +1,55 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect} from "react";
-import dynamic from "next/dynamic";
+import {ReactElement, useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
-// import BasicAlert from "@themes/overrides/Alert"
 import CardStyled from "./cardStyled";
 import SubHeader from "../../../../features/subHeader/components/subHeader";
-import CalendarToolbar from "../../../../features/calendarToolbar/components/calendarToolbar";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
-import {deepOrange} from "@mui/material/colors";
+import {RootStyled} from "@features/calendarToolbar";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import CloseIcon from '@mui/icons-material/Close';
+import QualificationDialog from "@features/settings/components/qualificationDialog";
+import {useSelector} from "react-redux";
+import {configSelector} from "@features/setConfig";
 
 function Profil(){
-    const router = useRouter();
-
+    const [insurance, setInsurance] = useState(false);
+    const {direction} = useSelector(configSelector);
     useEffect(() => {
-        console.log('i settings')
     }, [])
 
-    const { t, ready } = useTranslation('common');
+    const { t, ready } = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
+
+    const handleClose = () => {
+        setInsurance(false);
+    };
 
     return(
         <>
             <SubHeader>
-                <CalendarToolbar date={''} />
-                <Stack spacing={2} direction="row" alignItems="flex-start">
-                    <Typography variant="h6">Dr. tester </Typography>
-                </Stack>
+                <RootStyled>
+                    <Grid
+                        container
+                        spacing={1}
+                        direction="row"
+                        alignItems="center">
+                        <Grid item>
+                            <Avatar src="/static/img/avatar.svg"></Avatar>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="h6">Dr. Ahmed Yassine EHA</Typography>
+                        </Grid>
+                    </Grid>
+                </RootStyled>
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <CardStyled>
@@ -40,12 +59,12 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-doctor-h" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" fontWeight={600}>Spécialités</Typography>
+                                        <Typography variant="subtitle2" fontWeight={600}>{t('profil.specialities')}</Typography>
                                         <Button variant="outlined" color="info" onClick={(e) => console.log(e)}>
                                             Dermatologue
                                         </Button>
                                         <BasicAlert icon="danger"
-                                                    data={'Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495'}
+                                                    data={t('profil.contact')}
                                                     color="warning">info</BasicAlert>
                                     </Stack>
                                 </Stack>
@@ -54,7 +73,7 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-education" />
                                     <Stack spacing={0.5} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Qualification professionnelle</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.qualification')}</Typography>
                                         <Typography fontWeight={400}>
                                             Thèse de Doctorat en Médecine
                                         </Typography>
@@ -66,10 +85,9 @@ function Profil(){
                                         </Typography>
                                         <Typography>
                                             Diplôme Inter Universitaire de Laser en Dermatologie
-
                                         </Typography>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
+                                    <IconButton size="small" color="primary" onClick={() => setInsurance(true)}>
                                         <IconUrl path="ic-edit" />
                                     </IconButton>
                                 </Stack>
@@ -78,7 +96,7 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-assurance" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Assurance maladie</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             <Box component="img"
                                                  src="/static/img/assurance-1.png"
@@ -98,7 +116,7 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-argent" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Modes de règlement</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)} >
@@ -119,7 +137,7 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-langue2" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Langues parlées</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
@@ -145,7 +163,7 @@ function Profil(){
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
                                     <IconUrl className='left-icon' path="ic-generaliste" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Actes principaux</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.actes')}</Typography>
                                         <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
@@ -163,7 +181,6 @@ function Profil(){
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
-
                                         <IconUrl path="ic-edit" />
                                     </IconButton>
                                 </Stack>
@@ -172,7 +189,7 @@ function Profil(){
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
                                     {/*<Icon className='left-icon' path={null} />*/}
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>Actes Secondaries</Typography>
+                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.actesSec')}</Typography>
                                         <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
@@ -194,6 +211,30 @@ function Profil(){
                     </CardContent>
                 </CardStyled>
             </Box>
+
+
+            <Dialog
+                open={insurance}
+                onClose={handleClose}
+                scroll='paper'
+                dir={direction}
+                aria-labelledby="scroll-dialog-title"
+                aria-describedby="scroll-dialog-description">
+                <DialogTitle id="scroll-dialog-title">
+                    {t('profil.setQualification')}
+                </DialogTitle>
+                <DialogContent dividers={true}>
+                    <DialogContentText
+                        id="scroll-dialog-description"
+                        tabIndex={-1}>
+                    </DialogContentText>
+                    <QualificationDialog></QualificationDialog>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
+                    <Button variant="contained">{t('profil.save')}</Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

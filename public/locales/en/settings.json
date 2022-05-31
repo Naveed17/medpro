@@ -8,5 +8,15 @@
     "questions": "Questions",
     "shop": "Shop",
     "wallet": "My Wallet"
+  },
+  "profil": {
+    "specialities": "Spécialités",
+    "qualification": "Qualification professionnelle",
+    "assurence": "Assurance maladie",
+    "regMode": "Modes de règlement",
+    "langues": "Langues parlées",
+    "actes": "Actes principaux",
+    "actesSec": "Actes Secondaries",
+    "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495"
   }
 }
