@@ -1,11 +1,12 @@
 // ----------------------------------------------------------------------
-import Icon from "@themes/icon";
+import IconUrl from "../urlIcon";
+
 export default function Checkbox(theme) {
   return {
     MuiCheckbox: {
       defaultProps: {
-        icon: <Icon path="ic_uncheck" />,
-        checkedIcon: <Icon path="ic_check" />,
+        icon: <IconUrl path="ic_uncheck" />,
+        checkedIcon: <IconUrl path="ic_check" />,
       },
       styleOverrides: {
         root: {
