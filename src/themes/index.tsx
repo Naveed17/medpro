@@ -1,5 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
-import { useMemo } from "react";
+import React, {useEffect, useState} from "react";
 // material
 import { CssBaseline } from "@mui/material";
 import {
@@ -19,10 +18,10 @@ import {configSelector, setDirection, setLocalization} from "@features/setConfig
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {Localization} from "@app/localization";
 import * as locales from "@mui/material/locale";
-
 type SupportedLocales = keyof typeof locales;
 
-export default function ThemeConfig({ children}: any) {
+
+function ThemeConfig({ children }: LayoutProps) {
     const { mode } = useAppSelector(configSelector);
     const router = useRouter();
     const lang: string | undefined = router.locale;
@@ -69,3 +68,4 @@ export default function ThemeConfig({ children}: any) {
     );
 }
 
+export default ThemeConfig;
