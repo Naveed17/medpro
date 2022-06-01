@@ -2,9 +2,9 @@ import { Stack, Typography, TextField } from '@mui/material';
 import BasicAlert from "@themes/overrides/Alert";
 import FileuploadProgress from "@themes/overrides/FileuploadProgress"
 import UploadMultiFile from "@themes/overrides/UploadMultiFile"
-import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
+// import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {useTranslation} from "next-i18next";
-import {DragDropContext, Draggable, Droppable, DropResult} from "react-beautiful-dnd";
+// import {DragDropContext, Draggable, Droppable, DropResult} from "react-beautiful-dnd";
 import {useCallback, useState} from "react";
 
 const listQf = [
@@ -25,6 +25,7 @@ const listQf = [
         name: "Grocery Shop"
     }
 ]
+
 function QualificationDialog() {
     const [files, setFile] = useState([]);
     const [ todo, setTodo ] = useState(listQf)
@@ -42,7 +43,7 @@ function QualificationDialog() {
         setFile(files.filter((_file) => _file !== file));
     };
 
-    const onDragEnd = (result: DropResult) => {
+/*    const onDragEnd = (result: DropResult) => {
         const { source, destination } = result;
         if (!destination) return;
 
@@ -51,7 +52,7 @@ function QualificationDialog() {
         items.splice(destination.index, 0, newOrder);
 
         setTodo(items);
-    };
+    };*/
 
 
     return (
@@ -75,7 +76,7 @@ function QualificationDialog() {
             <Stack spacing={2} className="bottom-sec">
                 <Typography variant="subtitle1" fontWeight={600} marginTop={4}>{t('profil.listQ')}</Typography>
 
-                <DragDropContext onDragEnd={onDragEnd}>
+{/*                <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="todo">
                         {(provided) => (
                             <div className="todo" {...provided.droppableProps} ref={provided.innerRef}>
@@ -93,7 +94,7 @@ function QualificationDialog() {
                             </div>
                         )}
                     </Droppable>
-                </DragDropContext>
+                </DragDropContext>*/}
 
             </Stack>
 

@@ -2,11 +2,10 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
-import {useRouter} from "next/router";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
 import CardStyled from "./cardStyled";
-import SubHeader from "../../../../features/subHeader/components/subHeader";
+import { SubHeader } from "@features/subHeader";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
@@ -18,7 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
-import SettingsDialogs from "@features/settingsDialogs/components/settingsDialogs";
+import { SettingsDialogs } from "@features/settingsDialogs";
 
 function Profil(){
     const [insurance, setInsurance] = useState(false);
@@ -43,7 +42,7 @@ function Profil(){
                         direction="row"
                         alignItems="center">
                         <Grid item>
-                            <Avatar src="/static/img/avatar.svg"></Avatar>
+                            <Avatar src="/static/img/avatar.svg"/>
                         </Grid>
                         <Grid item>
                             <Typography variant="h6">Dr. Ahmed Yassine EHA</Typography>
@@ -228,11 +227,11 @@ function Profil(){
                         id="scroll-dialog-description"
                         tabIndex={-1}>
                     </DialogContentText>
-                    <SettingsDialogs action="qualification"></SettingsDialogs>
+                    <SettingsDialogs action="qualification"/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
-                    <Button variant="contained" startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
+                    <Button variant="contained" startIcon={<IconUrl path='ic-dowlaodfile'/>}>{t('profil.save')}</Button>
                 </DialogActions>
             </Dialog>
         </>

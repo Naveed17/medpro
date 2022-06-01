@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { path, ROOTS } from "@app/routes";
 
 const dialogData = [
     {

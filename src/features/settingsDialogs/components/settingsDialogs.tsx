@@ -1,7 +1,7 @@
-import {dialogData} from "@features/settingsDialogs";
+import {DialogData} from "@features/settingsDialogs";
 
 function SettingsDialogs({...props}) {
-    const selectted = dialogData.find((item) =>
+    const selectted = DialogData.find((item) =>
         item.action === props.action
     );
 
