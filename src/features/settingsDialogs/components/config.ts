@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { path, ROOTS } from "@app/routes";
 
 const dialogData = [
     {
@@ -7,6 +6,14 @@ const dialogData = [
         component: dynamic(
             ():any =>
                 import("@features/settingsDialogs/components/qualificationDialog/qualificationDialog").then((mod) => mod)
+        ),
+
+    },
+    {
+        action: 'assurance',
+        component: dynamic(
+            ():any =>
+                import("@features/settingsDialogs/components/assuranceDialog/assuranceDialog").then((mod) => mod)
         ),
     }
 ];

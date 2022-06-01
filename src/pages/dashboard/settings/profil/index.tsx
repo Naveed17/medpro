@@ -5,7 +5,7 @@ import {ReactElement, useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
-import CardStyled from "./cardStyled";
+import CardStyled from "./overrides/cardStyled";
 import SubHeader from "../../../../features/subHeader/components/subHeader";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
@@ -20,20 +20,25 @@ import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
 import SettingsDialogs from "@features/settingsDialogs/components/settingsDialogs";
 
-function Profil(){
-    const [insurance, setInsurance] = useState(false);
+function Profil() {
+    const [open, setOpen] = useState(false);
+    const [dialogContent, setdialogContent] = useState('');
     const {direction} = useSelector(configSelector);
-    useEffect(() => {
-    }, [])
 
-    const { t, ready } = useTranslation('settings');
+
+    const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
 
-    const handleClose = () => {
-        setInsurance(false);
+    const dialogClose = () => {
+        setOpen(false);
     };
 
-    return(
+    const dialogOpen = (action: string) => {
+        setdialogContent(action);
+        setOpen(true);
+    };
+
+    return (
         <>
             <SubHeader>
                 <RootStyled>
@@ -51,15 +56,18 @@ function Profil(){
                     </Grid>
                 </RootStyled>
             </SubHeader>
-            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <CardStyled>
+
                     <CardContent>
+
                         <List>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-doctor-h" />
+                                    <IconUrl className='left-icon' path="ic-doctor-h"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" fontWeight={600}>{t('profil.specialities')}</Typography>
+                                        <Typography variant="subtitle2"
+                                                    fontWeight={600}>{t('profil.specialities')}</Typography>
                                         <Button variant="outlined" color="info" onClick={(e) => console.log(e)}>
                                             Dermatologue
                                         </Button>
@@ -71,9 +79,10 @@ function Profil(){
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-education" />
+                                    <IconUrl className='left-icon' path="ic-education"/>
                                     <Stack spacing={0.5} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.qualification')}</Typography>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.qualification')}</Typography>
                                         <Typography fontWeight={400}>
                                             Thèse de Doctorat en Médecine
                                         </Typography>
@@ -87,16 +96,18 @@ function Profil(){
                                             Diplôme Inter Universitaire de Laser en Dermatologie
                                         </Typography>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={() => setInsurance(true)}>
-                                        <IconUrl path="ic-edit" />
+                                    <IconButton size="small" color="primary"
+                                                onClick={() => dialogOpen('qualification')}>
+                                        <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-assurance" />
+                                    <IconUrl className='left-icon' path="ic-assurance"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.assurence')}</Typography>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             <Box component="img"
                                                  src="/static/img/assurance-1.png"
@@ -107,19 +118,20 @@ function Profil(){
 
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
-                                        <IconUrl path="ic-edit" />
+                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('assurance')}>
+                                        <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-argent" />
+                                    <IconUrl className='left-icon' path="ic-argent"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.regMode')}</Typography>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)} >
+                                                    onClick={(e) => console.log(e)}>
                                                 Espèces
                                             </Button>
                                             <Button variant="outlined" color="info"
@@ -128,16 +140,17 @@ function Profil(){
                                             </Button>
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
-                                        <IconUrl path="ic-edit" />
+                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('')}>
+                                        <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-langue2" />
+                                    <IconUrl className='left-icon' path="ic-langue2"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.langues')}</Typography>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
@@ -154,17 +167,19 @@ function Profil(){
 
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
-                                        <IconUrl path="ic-edit" />
+                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('')}>
+                                        <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
-                                    <IconUrl className='left-icon' path="ic-generaliste" />
+                                    <IconUrl className='left-icon' path="ic-generaliste"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.actes')}</Typography>
-                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.actes')}</Typography>
+                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
+                                               width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
                                                 Relissage fractionnel
@@ -181,7 +196,7 @@ function Profil(){
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
-                                        <IconUrl path="ic-edit" />
+                                        <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -189,8 +204,10 @@ function Profil(){
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
                                     {/*<Icon className='left-icon' path={null} />*/}
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography variant="subtitle2" gutterBottom fontWeight={600}>{t('profil.actesSec')}</Typography>
-                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start" width={1}>
+                                        <Typography variant="subtitle2" gutterBottom
+                                                    fontWeight={600}>{t('profil.actesSec')}</Typography>
+                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
+                                               width={1}>
                                             <Button variant="outlined" color="info"
                                                     onClick={(e) => console.log(e)}>
                                                 Relissage fractionnel
@@ -210,31 +227,33 @@ function Profil(){
                         </List>
                     </CardContent>
                 </CardStyled>
+
+                <Dialog
+                    open={open}
+                    onClose={dialogClose}
+                    scroll='paper'
+                    //fullWidth={true}
+                    //maxWidth={'md'}
+                    dir={direction}
+                    aria-labelledby="scroll-dialog-title"
+                    aria-describedby="scroll-dialog-description">
+                    <DialogTitle id="scroll-dialog-title">
+                        {t('profil.setQualification')}
+                    </DialogTitle>
+                    <DialogContent dividers={true}>
+                        <DialogContentText
+                            id="scroll-dialog-description"
+                            tabIndex={-1}>
+                        </DialogContentText>
+                        <SettingsDialogs action={dialogContent}></SettingsDialogs>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
+                        <Button variant="contained"
+                                startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
+                    </DialogActions>
+                </Dialog>
             </Box>
-
-
-            <Dialog
-                open={insurance}
-                onClose={handleClose}
-                scroll='paper'
-                dir={direction}
-                aria-labelledby="scroll-dialog-title"
-                aria-describedby="scroll-dialog-description">
-                <DialogTitle id="scroll-dialog-title">
-                    {t('profil.setQualification')}
-                </DialogTitle>
-                <DialogContent dividers={true}>
-                    <DialogContentText
-                        id="scroll-dialog-description"
-                        tabIndex={-1}>
-                    </DialogContentText>
-                    <SettingsDialogs action="qualification"></SettingsDialogs>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
-                    <Button variant="contained" startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
-                </DialogActions>
-            </Dialog>
         </>
     )
 }

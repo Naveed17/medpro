@@ -1,1 +1,1 @@
-export { default as qualificationDialog } from './qualificationDialog';
+export { default as QualificationDialog } from './qualificationDialog';

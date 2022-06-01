@@ -5,14 +5,12 @@ function SettingsDialogs({...props}) {
         item.action === props.action
     );
 
-    const Component:any = selectted?.component;
+    const Component: any = selectted?.component;
     return selectted ? (
         <>
-            <Component />
-        </>
-    ) : (
-        <p>Hello from action bar</p>
-    );
+            <Component/>
+        </>): <></>
+
 }
 
 export default SettingsDialogs;
