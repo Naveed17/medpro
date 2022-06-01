@@ -6,7 +6,7 @@ export default function Card(theme) {
         MuiCard: {
             styleOverrides: {
                 root: {
-                    boxShadow: theme.shadows[9],
+                    //boxShadow: theme.shadows[9],
                     borderRadius: 10,
                 },
             },
