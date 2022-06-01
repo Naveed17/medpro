@@ -1,16 +1,14 @@
-import React from 'react';
 // components
-
-import {BoxStyled} from "@features/leftActionBar/components/agendaActionBar/index";
 import {CalandarPickers} from "@features/calandarPickers";
-import {Box} from "@mui/material";
+import {SideBarAccordion} from "@features/sideBarAccordion";
+import {BoxStyled} from "@features/leftActionBar";
 
 function AgendaActionBar() {
 
     return (
         <BoxStyled>
             <CalandarPickers />
-            {/*<Collapse />*/}
+            <SideBarAccordion />
         </BoxStyled>
     )
 }

@@ -1,4 +1,10 @@
 {
   "pending": "Appointment pending",
-  "add": "Add"
+  "add": "Add",
+  "side-bar" : {
+    "all" : "All",
+    "motif" : "Reason of consultation",
+    "status" : "Status",
+    "type" : "Appointment type"
+  }
 }

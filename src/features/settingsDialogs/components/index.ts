@@ -1,4 +1,4 @@
 export * from './qualificationDialog';
-export { default as settingsDialogs } from './settingsDialogs';
+export { default as SettingsDialogs } from './settingsDialogs';
 
-export { default as dialogData } from './config'
+export { default as DialogData } from './config'

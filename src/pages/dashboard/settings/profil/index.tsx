@@ -2,9 +2,10 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
-import {useRouter} from "next/router";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
+import CardStyled from "./cardStyled";
+import { SubHeader } from "@features/subHeader";
 import CardStyled from "./overrides/cardStyled";
 import SubHeader from "../../../../features/subHeader/components/subHeader";
 import IconUrl from "@themes/urlIcon";
@@ -18,7 +19,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
-import SettingsDialogs from "@features/settingsDialogs/components/settingsDialogs";
+import { SettingsDialogs } from "@features/settingsDialogs";
 
 function Profil() {
     const [open, setOpen] = useState(false);
@@ -48,7 +49,7 @@ function Profil() {
                         direction="row"
                         alignItems="center">
                         <Grid item>
-                            <Avatar src="/static/img/avatar.svg"></Avatar>
+                            <Avatar src="/static/img/avatar.svg"/>
                         </Grid>
                         <Grid item>
                             <Typography variant="h6">Dr. Ahmed Yassine EHA</Typography>

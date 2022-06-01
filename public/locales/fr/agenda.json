@@ -1,4 +1,10 @@
 {
   "pending": "Rdv en attente",
-  "add": "Ajouter"
+  "add": "Ajouter",
+  "side-bar" : {
+    "all" : "tous",
+    "motif" : "Motif de consultation",
+    "status" : "Statut",
+    "type" : "Type RDV"
+  }
 }

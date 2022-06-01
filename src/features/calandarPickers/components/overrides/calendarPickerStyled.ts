@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import {CalendarPicker, StaticDatePicker} from "@mui/x-date-pickers";
+import {StaticDatePicker} from "@mui/x-date-pickers";
 
 const CalendarPickerStyled = styled(StaticDatePicker)(({ theme }) => ({
     maxHeight: "-webkit-fill-available",

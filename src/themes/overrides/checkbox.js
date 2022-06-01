@@ -1,5 +1,6 @@
 // ----------------------------------------------------------------------
-import IconUrl from "@themes/urlIcon";
+import IconUrl from "../urlIcon";
+
 export default function Checkbox(theme) {
   return {
     MuiCheckbox: {
