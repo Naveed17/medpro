@@ -28,7 +28,7 @@ import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar} from "@features/sideBarMenu/actions";
+import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import React, {useEffect, useRef} from "react";
 import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
@@ -48,6 +48,14 @@ function SideBarMenu({ children }: LayoutProps) {
 
     const { t, ready } = useTranslation("menu");
     if (!ready) return (<>loading translations...</>);
+
+    const handleClick = (path:string) => {
+        if (path === "/settings") {
+            setTimeout(()=>{
+                dispatch(toggleSideBar(false))
+            },800);
+        }
+    };
 
     const drawer = (
         <div>
@@ -94,9 +102,10 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Link>
 
-                <Link href="/dashboard/settings">
+                <Link href="/dashboard/settings/profil">
                     <ListItem
                         disableRipple
+                        onClick={()=>handleClick('/settings')}
                         button
                         className={router.pathname.startsWith('/dashboard/settings') ? "active mt-2" : "mt-2"}>
                         <ListItemIcon>
@@ -152,7 +161,6 @@ function SideBarMenu({ children }: LayoutProps) {
                 <div className="action-bar-open">
                     {/* side page bar */}
                     <LeftActionBar />
-
                 </div>
             </Box>
             <Box className="body-main">

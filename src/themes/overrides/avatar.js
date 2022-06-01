@@ -4,8 +4,8 @@ export default function Avatar(theme) {
             styleOverrides: {
                 root: {
                     backgroundColor: '#F1F1F1',
-                    width: 45,
-                    height: 45,
+                    width: 40,
+                    height: 40,
                     borderRadius: 6,
                     fontSize: 18,
                     fontFamily: 'Poppins-Bold',

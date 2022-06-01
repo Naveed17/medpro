@@ -1,12 +1,34 @@
 {
   "menu": {
-    "parametres": "الإعدادات",
-    "room": "Room",
-    "patient": "Patient",
-    "message": "Message",
-    "articles": "Articles",
-    "questions": "Questions",
-    "shop": "Shop",
-    "wallet": "My Wallet"
+    "parameters": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "acts": "الاجراءات الطبية",
+    "motif": "سبب الاستشارة",
+    "lieu": "أماكن الاستشارات",
+    "agenda": "جدول أعمال",
+    "horaire": "ساعات العمل",
+    "conges": "العطل و الغيابات",
+    "remplaçants": "المعوضون",
+    "utilisateurs": "المستخدمون",
+    "reseau": "معالجة الشبكة",
+    "instructions": "تعليمات"
+  },
+  "profil": {
+    "specialities": "التخصصات",
+    "qualification": "التأهيل مهني",
+    "assurence": "التأمين الصحي",
+    "regMode": "طرق الدفع",
+    "langues": "اللغات",
+    "actes": "الاجراءات الطبية الرئيسية",
+    "actesSec": "الاجراءات الطبية الثانوية",
+    "contact": "اتصل بدعمنا لتغيير اسمك أو تخصصك 469 495 22 216+",
+    "setQualification": "تغيير المؤهلات المهنية",
+    "cancel": "لالغاء",
+    "save": "تسجيل",
+    "listQ": "قائمة المؤهلات المهنية",
+    "title": "عنوان",
+    "alertQ": "نظرًا لأهمية خصوصية معلوماتك ، فلن نعرض مستنداتك في ملف التعريف العام الخاص بك. سيتم استخراج البيانات التي تحتوي عليها وتحويلها إلى نص.",
+    "drop": "تحميل الملفات"
+
   }
 }
