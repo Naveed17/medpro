@@ -3,11 +3,6 @@ import React from "react";
 const SideBarMenu = dynamic(() => import('@features/sideBarMenu/components/sideBarMenu'));
 import { motion } from 'framer-motion';
 
-type LayoutProps =  {
-    children: React.ReactNode;
-    pageProps?: any
-};
-
 const variants = {
     hidden: { opacity: 0 },
     enter: { opacity: 1 },

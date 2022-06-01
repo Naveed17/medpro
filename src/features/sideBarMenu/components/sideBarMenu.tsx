@@ -34,10 +34,6 @@ import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 
-type LayoutProps = {
-    children: React.ReactNode,
-};
-
 function SideBarMenu({ children }: LayoutProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
