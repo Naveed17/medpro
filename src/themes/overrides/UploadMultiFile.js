@@ -49,7 +49,7 @@ UploadMultiFile.propTypes = {
   singleFile: PropTypes.bool,
 };
 
-function UploadMultiFile({ error, files, sx, singleFile, ...other }) {
+function UploadMultiFile({ error, files, sx, singleFile,title, ...other }) {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     ...other
   });
@@ -72,7 +72,7 @@ function UploadMultiFile({ error, files, sx, singleFile, ...other }) {
         {!singleFile ? (
           <Box sx={{ p: 1, }}>
             <Typography sx={{ color: 'text.secondary' }}>
-              Click Or Drop Files Upload
+              {title}
             </Typography>
           </Box>
         ) : (

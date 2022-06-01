@@ -16,9 +16,9 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
-import QualificationDialog from "@features/settings/components/qualificationDialog";
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
+import SettingsDialogs from "@features/settingsDialogs/components/settingsDialogs";
 
 function Profil(){
     const [insurance, setInsurance] = useState(false);
@@ -228,11 +228,11 @@ function Profil(){
                         id="scroll-dialog-description"
                         tabIndex={-1}>
                     </DialogContentText>
-                    <QualificationDialog></QualificationDialog>
+                    <SettingsDialogs action="qualification"></SettingsDialogs>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
-                    <Button variant="contained">{t('profil.save')}</Button>
+                    <Button variant="contained" startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
                 </DialogActions>
             </Dialog>
         </>

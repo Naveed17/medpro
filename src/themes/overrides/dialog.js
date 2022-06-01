@@ -7,10 +7,9 @@ export default function Dialog(theme) {
         root: {
           '& .MuiDialogTitle-root':{
             background: theme.palette.primary.main,
-            color: 'white'
+            color: 'white',
           },
           "& .MuiPaper-root": {
-
           },
         },
       },

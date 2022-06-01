@@ -1,19 +1,13 @@
-import React from 'react'
-import { Stack, Typography, TextField, List } from '@mui/material';
-import {
-    DragDropContext,
-    Droppable,
-    Draggable,
-    DraggableProvided,
-    DraggableStateSnapshot,
-    DropResult
-} from "react-beautiful-dnd";
+import { Stack, Typography, TextField } from '@mui/material';
 import BasicAlert from "@themes/overrides/Alert";
 import FileuploadProgress from "@themes/overrides/FileuploadProgress"
 import UploadMultiFile from "@themes/overrides/UploadMultiFile"
 import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
-import {isDraggable} from "framer-motion/types/render/utils/is-draggable";
-const listQlf = [
+import {useTranslation} from "next-i18next";
+import {DragDropContext, Draggable, Droppable, DropResult} from "react-beautiful-dnd";
+import {useCallback, useState} from "react";
+
+const listQf = [
     {
         id: "1",
         name: "Study Spanish"
@@ -32,14 +26,18 @@ const listQlf = [
     }
 ]
 function QualificationDialog() {
-    const [files, setFile] = React.useState([]);
-    const [ todo, setTodo ] = React.useState(listQlf)
-    const handleDrop = React.useCallback(
+    const [files, setFile] = useState([]);
+    const [ todo, setTodo ] = useState(listQf)
+    const handleDrop = useCallback(
         (acceptedFiles: any) => {
             setFile(acceptedFiles);
         },
         [setFile]
     );
+
+    const { t, ready } = useTranslation('settings');
+    if (!ready) return (<>loading translations...</>);
+
     const handleRemove = (file: any) => {
         setFile(files.filter((_file) => _file !== file));
     };
@@ -55,23 +53,14 @@ function QualificationDialog() {
         setTodo(items);
     };
 
-    const getItemStyle = (isDraggable: boolean,draggableStyle:any) =>({
-        padding:10,
-        margin: '0 50px 15px 50px',
-        background: isDraggable ? '#4a2975':'white',
-        border: '1px solid black',
-        frontSize:'20px',
-        borderRadius: '5px',
-        ...draggableStyle
-    })
 
     return (
         <>
             <Stack spacing={2} className="top-sec">
-                <Typography>Titre</Typography>
+                <Typography>{t('profil.title')}</Typography>
                 <TextField placeholder='...'/>
                 <BasicAlert icon="ic-danger"
-                            data={"Parce que la confidentialité de vos informations est importante, nous n'afficherons pas vos documents dans votre profil public.Les données qu'ils contiennent seront extraites et converties en texte."}
+                            data={t('profil.alertQ')}
                             color="warning">.</BasicAlert>
                 {files.length > 0 ?
                     <Stack spacing={2}>
@@ -81,10 +70,10 @@ function QualificationDialog() {
                     </Stack>
                     :
                     <UploadMultiFile files={files} onDrop={handleDrop} error={undefined} sx={undefined}
-                                     singleFile={undefined}/>}
+                                     singleFile={undefined} title={t('profil.drop')} />}
             </Stack>
             <Stack spacing={2} className="bottom-sec">
-                <Typography variant="subtitle1" fontWeight={600} marginTop={4}>liste des qualifications professionnelles</Typography>
+                <Typography variant="subtitle1" fontWeight={600} marginTop={4}>{t('profil.listQ')}</Typography>
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="todo">
@@ -106,27 +95,6 @@ function QualificationDialog() {
                     </Droppable>
                 </DragDropContext>
 
-                {/*<DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId="droppable">
-                        {(provided) => (
-                            <List {...provided.droppableProps} ref={provided.innerRef}>
-                                {items.map((item, index) => (
-                                    <Draggable key={item.id} draggableId={item.id} index={index}>
-                                        {(provided:DraggableProvided, snapshot:DraggableStateSnapshot) => (
-                                            <QualifactionsProfessional
-                                                provided={provided}
-                                                snapshot={snapshot}
-                                                item={item}
-                                                onClick={(e:Event) => console.log(e)}
-                                            >.</QualifactionsProfessional>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </List>
-                        )}
-                    </Droppable>
-                </DragDropContext>*/}
             </Stack>
 
         </>
