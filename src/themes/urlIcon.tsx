@@ -2,8 +2,9 @@ import React from "react";
 import { ReactSVG } from "react-svg";
 
 interface iconUrl{
-    path?: string,
+    path?: string
     className?: string
+    variant?: string
 }
 
 export default function IconUrl({ path, className, ...props }: iconUrl) {

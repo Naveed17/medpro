@@ -9,5 +9,18 @@
   "search" : "Looking for ?",
   "stats": " Statistics",
   "settings": "Settings",
-  "logout": "Log out"
+  "logout": "Log out",
+  "login": {
+    "sign_in" : "Signed in as",
+    "sign_title": "Have you ever used med.tn?",
+    "sign_sub_title_1": "Connect in one click",
+    "sign_sub_title_2": "with your favorite medical network",
+    "sign_med_connect": "Connect with Med",
+    "sign_divider": "or",
+    "sign_email_placeholder": "Email or Phone Number",
+    "sign_pass_placeholder": "Password",
+    "sign_reset_pass": "Forgot your password?",
+    "sign_forget_pass": "Rester connecté",
+    "sign_connect_btn": "Login"
+  }
 }
