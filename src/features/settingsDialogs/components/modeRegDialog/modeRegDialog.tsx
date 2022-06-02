@@ -1,6 +1,5 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import React from "react";
 
 function ModeRegDialog() {
 
@@ -14,7 +13,7 @@ function ModeRegDialog() {
     ]
 
     return (
-        <CheckList items={items} search={''} ></CheckList>
+        <CheckList items={items} search={''} />
     )
 }
 export default ModeRegDialog

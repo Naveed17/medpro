@@ -4,6 +4,7 @@ import { TextField, InputAdornment } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import {useTranslation} from "next-i18next";
+
 const SearchField = styled(TextField)(({ theme }) => ({
     borderRadius: 10,
     borderColor: theme.palette.divider,
