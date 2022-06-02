@@ -15,6 +15,20 @@ const dialogData = [
             ():any =>
                 import("@features/settingsDialogs/components/assuranceDialog/assuranceDialog").then((mod) => mod)
         ),
+    },
+    {
+        action: 'mode',
+        component: dynamic(
+            ():any =>
+                import("@features/settingsDialogs/components/modeRegDialog/modeRegDialog").then((mod) => mod)
+        ),
+    },
+    {
+        action: 'langues',
+        component: dynamic(
+            ():any =>
+                import("@features/settingsDialogs/components/languesDialog/languesDialog").then((mod) => mod)
+        ),
     }
 ];
 

@@ -1,7 +1,20 @@
-import SidebarCheckbox from "@themes/overrides/SidebarCheckbox"
+import {CheckList} from "@features/checkList";
+import {useTranslation} from "next-i18next";
+import React from "react";
+
 function ModeRegDialog() {
-    return (<>
-        <p>Mode reg</p>
-    </>)
+
+    const { t, ready } = useTranslation("settings");
+    if (!ready) return (<>loading translations...</>);
+
+    const items = [
+        {id: "1",name: 'Espèces', img: '/static/payment/ic-argent.svg'},
+        {id: "2",name: 'Chèque', img: '/static/payment/cheque.svg'},
+        {id: "3",name: 'Virement', img: '/static/payment/virement.svg'}
+    ]
+
+    return (
+        <CheckList items={items} search={''} ></CheckList>
+    )
 }
 export default ModeRegDialog

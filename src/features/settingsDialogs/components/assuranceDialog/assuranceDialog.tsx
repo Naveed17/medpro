@@ -1,9 +1,7 @@
-import SidebarCheckbox from "@themes/overrides/SidebarCheckbox"
-import {InputAdornment, TextField} from "@mui/material";
-import {ChangeEvent, useState} from "react";
-import CodeIcon from "@mui/icons-material/Code";
-import ListCheckbox from "@themes/overrides/itemCheckbox"
 import {CheckList} from "@features/checkList";
+import {useTranslation} from "next-i18next";
+import React from "react";
+
 
 const items = [
     {id: "1",name: 'CNAM', img: '/static/assurances/cnam.svg'},
@@ -20,8 +18,12 @@ const items = [
 
 
 function AssuranceDialog() {
+
+    const { t, ready } = useTranslation("settings");
+    if (!ready) return (<>loading translations...</>);
+
     return (<>
-        <CheckList key="1" items={items} search={true} ></CheckList>
+        <CheckList items={items} search={t('dialogs.search_assurance')}></CheckList>
     </>)
 }
 export default AssuranceDialog

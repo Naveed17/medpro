@@ -1,13 +1,10 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement, useEffect, useState} from "react";
+import {ReactElement, useState} from "react";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
-import CardStyled from "./cardStyled";
-import { SubHeader } from "@features/subHeader";
 import CardStyled from "./overrides/cardStyled";
-import SubHeader from "../../../../features/subHeader/components/subHeader";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
@@ -20,6 +17,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
 import { SettingsDialogs } from "@features/settingsDialogs";
+import {SubHeader} from "@features/subHeader";
 
 function Profil() {
     const [open, setOpen] = useState(false);
@@ -59,9 +57,7 @@ function Profil() {
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <CardStyled>
-
                     <CardContent>
-
                         <List>
                             <ListItem>
                                 <Stack spacing={2.3} direction="row" alignItems="flex-start" width={1}>
@@ -110,13 +106,11 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
-                                            <Box component="img"
-                                                 src="/static/img/assurance-1.png"
+                                            <Box component="img" width={35} height={35}
+                                                 src="/static/assurances/biat.svg"
                                             />
-                                            <Box component="img"
-                                                 src="/static/img/assurance-2.png"
-                                            />
-
+                                            <Box component="img" width={35} height={35}
+                                                 src="/static/assurances/carte.svg"/>
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('assurance')}>
@@ -141,7 +135,7 @@ function Profil() {
                                             </Button>
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('')}>
+                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('mode')}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
@@ -168,7 +162,7 @@ function Profil() {
 
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('')}>
+                                    <IconButton size="small" color="primary" onClick={() => dialogOpen('langues')}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
@@ -233,8 +227,6 @@ function Profil() {
                     open={open}
                     onClose={dialogClose}
                     scroll='paper'
-                    //fullWidth={true}
-                    //maxWidth={'md'}
                     dir={direction}
                     aria-labelledby="scroll-dialog-title"
                     aria-describedby="scroll-dialog-description">

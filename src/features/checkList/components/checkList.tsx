@@ -13,10 +13,10 @@ function checkList({...props}) {
     }
     return (
         <>
-            {props.search && <TextField id="standard-basic"
+            {props.search !== '' && <TextField id="standard-basic"
                         variant="outlined"
                         sx={{marginBottom: 3}}
-                        placeholder="Chercher une assurance..."
+                        placeholder={props.search}
                         onChange={(e) => {
                             handleChange(e);
                         }}
