@@ -5,6 +5,8 @@ import {pxToRem} from "@themes/formatFontSize";
 
 const NavbarStyled = styled(AppBar)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
+    paddingRight: `0 !important`,
+    paddingLeft: `0 !important`,
     "& .btn": {
         marginRight: pxToRem(24),
         [theme.breakpoints.down("sm")]: {

@@ -7,14 +7,12 @@ function LeftActionBar() {
         router.pathname.startsWith(item.pathname),
     );
 
-    const Component:any = selectted?.component;
+    const Component: any = selectted?.component;
     return selectted ? (
         <>
-            <Component />
+            <Component/>
         </>
-    ) : (
-        <p>Hello from action bar</p>
-    );
+    ) : <></>;
 }
 
 export default LeftActionBar;

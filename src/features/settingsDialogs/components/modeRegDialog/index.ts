@@ -1,0 +1,1 @@
+export { default as ModeRegDialog } from './modeRegDialog';
