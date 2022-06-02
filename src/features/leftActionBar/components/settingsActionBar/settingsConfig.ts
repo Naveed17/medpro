@@ -46,11 +46,13 @@ const settingsData = {
             icon: "setting/ic-user",
             href: "/dashboard/settings/utilisateurs",
         },
-/*        {
+        /*
+         {
             name: "reseau",
             icon: "setting/ic-message-contour",
             href: "/setting/sms",
-        },*/
+        },
+        */
         {
             name: "instructions",
             icon: "setting/ic-messagerie",
