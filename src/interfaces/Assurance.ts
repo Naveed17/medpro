@@ -1,6 +1,6 @@
-interface Assurance{
-    id:number,
+interface Assurance {
+    id: number,
     name: string,
-    img:string
+    img: string
 }
 export default Assurance;

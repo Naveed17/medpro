@@ -14,7 +14,9 @@ import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
-import Assurance from "../../../../interfaces/Assurance";
+import Assurance from "@interfaces/Assurance";
+import ModeReg from "@interfaces/ModeReg";
+import Langues from "@interfaces/Langues";
 
 function Profil() {
     const [open, setOpen] = useState(false);
@@ -22,12 +24,27 @@ function Profil() {
     const { newAssurances } = useAppSelector(checkListSelector);
 
     const [assurances, setAssurances] = useState<Assurance[]>([]);
+    const [modes, setModes] = useState<ModeReg[]>([]);
+    const [langues, setLangues] = useState<Langues[]>([]);
 
     useEffect(()=>{
+
         setAssurances([
             {id: 3,name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
             {id: 7,name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
-        ])
+        ]);
+
+        setModes([
+            {id:1,name:'Espèces',name_ar:''},
+            {id:2,name:'Chèque',name_ar:''},
+        ]);
+
+        setLangues([
+            {id: 1,name:'Français',name_ar:''},
+            {id: 2,name:'Arabe',name_ar:''},
+            {id: 3,name:'Italien',name_ar:''}
+        ]);
+
     },[]);
 
 
@@ -157,14 +174,15 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Espèces
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Chèque
-                                            </Button>
+                                            {
+                                                modes.map((mode: any) => (
+                                                    <Button key={mode.id} variant="outlined" color="info"
+                                                            onClick={(e) => console.log(e)}>
+                                                        {mode.name}
+                                                    </Button>
+                                                ))
+
+                                            }
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('mode')}>
@@ -179,18 +197,17 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Français
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Arabe
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Italien
-                                            </Button>
+
+                                            {
+                                                langues.map((langue: any) => (
+                                                    <Button key={langue.id} variant="outlined" color="info"
+                                                            onClick={(e) => console.log(e)}>
+                                                        {langue.name}
+                                                    </Button>
+                                                ))
+                                            }
+
+
 
                                         </Stack>
                                     </Stack>
