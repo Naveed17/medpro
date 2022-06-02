@@ -32,6 +32,12 @@
   },
   "dialogs": {
     "search_lang": "ابدأ الكتابة للبحث عن اللغات",
-    "search_assurance": "ابحث عن التأمين ..."
+    "search_assurance": "ابحث عن التأمين ...",
+    "titles": {
+      "qualification": "تغيير المؤهلات المهنية",
+      "assurance": "تعديل التأمين الصحي",
+      "mode": "تغيير طرق الدفع",
+      "langues": "تغيير اللغات"
+    }
   }
 }

@@ -223,29 +223,13 @@ function Profil() {
                     </CardContent>
                 </CardStyled>
 
-                <Dialog
-                    open={open}
-                    onClose={dialogClose}
-                    scroll='paper'
-                    dir={direction}
-                    aria-labelledby="scroll-dialog-title"
-                    aria-describedby="scroll-dialog-description">
-                    <DialogTitle id="scroll-dialog-title">
-                        {t('profil.setQualification')}
-                    </DialogTitle>
-                    <DialogContent dividers={true}>
-                        <DialogContentText
-                            id="scroll-dialog-description"
-                            tabIndex={-1}>
-                        </DialogContentText>
-                        <SettingsDialogs action={dialogContent}></SettingsDialogs>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
-                        <Button variant="contained"
-                                startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
-                    </DialogActions>
-                </Dialog>
+                <SettingsDialogs action={dialogContent}
+                                 open={open}
+                                 direction={direction}
+                                 title={t('dialogs.titles.'+dialogContent)}
+                                 t={t}
+                                 dialogClose={dialogClose}></SettingsDialogs>
+
             </Box>
         </>
     )

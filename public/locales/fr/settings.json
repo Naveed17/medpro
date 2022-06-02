@@ -22,7 +22,6 @@
     "actes": "Actes principaux",
     "actesSec": "Actes Secondaries",
     "contact": "Contactez notre support pour changer votre nom ou spécialité  +216 22 469 495",
-    "setQualification": "Modifier qualification professionnelle",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "listQ": "liste des qualifications professionnelles",
@@ -32,6 +31,12 @@
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
-    "search_assurance": "Chercher une assurance..."
+    "search_assurance": "Chercher une assurance...",
+    "titles": {
+      "qualification": "Modifier qualification professionnelle",
+      "assurance": "Modifier assurance maladie",
+      "mode": "Modifier modes de règlement",
+      "langues": "Modifier langues parlées"
+    }
   }
 }
