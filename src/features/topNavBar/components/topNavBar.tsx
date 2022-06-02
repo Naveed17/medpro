@@ -19,14 +19,13 @@ import {
 import { siteHeader } from "@features/sideBarMenu/components/headerConfig";
 
 // components
-import TextFieldSearch from "@features/textFieldSearch";
+import {TextFieldSearch} from "@features/textFieldSearch";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
-import SubHeader from "../../subHeader/components/subHeader";
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 

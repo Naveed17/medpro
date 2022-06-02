@@ -1,4 +1,3 @@
-import SidebarCheckbox from "@themes/overrides/SidebarCheckbox"
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
 import React from "react";

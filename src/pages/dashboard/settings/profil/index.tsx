@@ -1,29 +1,38 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
 import CardStyled from "./overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import CloseIcon from '@mui/icons-material/Close';
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
+import {useAppSelector} from "@app/redux/hooks";
+import {checkListSelector} from "@features/checkList";
+import Assurance from "../../../../interfaces/Assurance";
 
 function Profil() {
     const [open, setOpen] = useState(false);
-    const [dialogContent, setdialogContent] = useState('');
-    const {direction} = useSelector(configSelector);
 
+    const { newAssurances } = useAppSelector(checkListSelector);
+
+    const [assurances, setAssurances] = useState<Assurance[]>([]);
+
+    useEffect(()=>{
+        setAssurances([
+            {id: 3,name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
+            {id: 7,name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
+        ])
+    },[]);
+
+
+    const [dialogContent, setDialogContent] = useState('');
+    const {direction} = useSelector(configSelector);
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -32,8 +41,31 @@ function Profil() {
         setOpen(false);
     };
 
+    const dialogSave = () => {
+        setOpen(false);
+        setAssurances(newAssurances)
+        console.log(assurances);
+    };
+
     const dialogOpen = (action: string) => {
-        setdialogContent(action);
+        setDialogContent(action);
+        switch (action) {
+            case "qualification":
+                //setData([])
+                break;
+            case "assurance":
+                //setData(assurances)
+                break;
+            case "mode":
+                //setData([])
+                break;
+            case "langues":
+                //setData([])
+                break;
+            default:
+                //setData([]);
+                break;
+        }
         setOpen(true);
     };
 
@@ -106,11 +138,11 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
-                                            <Box component="img" width={35} height={35}
-                                                 src="/static/assurances/biat.svg"
-                                            />
-                                            <Box component="img" width={35} height={35}
-                                                 src="/static/assurances/carte.svg"/>
+                                            {
+                                                assurances.map((item: any) => (
+                                                    <Box key={item.id} component="img" width={35} height={35} src={item.img}></Box>
+                                                ))
+                                            }
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('assurance')}>
@@ -225,9 +257,11 @@ function Profil() {
 
                 <SettingsDialogs action={dialogContent}
                                  open={open}
+                                 data={assurances}
                                  direction={direction}
                                  title={t('dialogs.titles.'+dialogContent)}
                                  t={t}
+                                 dialogSave={dialogSave}
                                  dialogClose={dialogClose}></SettingsDialogs>
 
             </Box>

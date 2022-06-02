@@ -1,52 +1,70 @@
 import {InputAdornment, TextField} from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
-import { ChangeEvent, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
+import {useAppDispatch} from "@app/redux/hooks";
+import {SetAssurance} from "@features/checkList";
 
 
-function checkList({...props}) {
+ function CheckList ({...props}) {
 
-    const [value, setValue] = useState('');
-    const [state, setstate] = useState({});
-    const handleChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        setValue(e.target.value);
-    }
-    return (
-        <>
-            {props.search !== '' && <TextField id="standard-basic"
-                        variant="outlined"
-                        sx={{marginBottom: 3}}
-                        placeholder={props.search}
-                        onChange={(e) => {
-                            handleChange(e);
-                        }}
-                        fullWidth
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end" sx={{justifyContent: "center"}}>
-                                    <CodeIcon
-                                        sx={{
-                                            transform: "rotate(90deg)",
-                                            color: "text.secondary",
-                                            fontSize: "1rem",
-                                        }}
-                                    />
-                                </InputAdornment>
-                            ),
-                        }}/>}
+     const dispatch = useAppDispatch();
 
-            {
-                props.items.filter(
-                    (item: any) => {
-                        return item.name.toLowerCase().includes(value.toLowerCase());
-                    }
-                ).map((item: any, index: number) => (
-                    <ItemCheckbox key={index}
-                                  data={item}
-                                  onChange={(v: any) => setstate({...state, [item.name]: v})}></ItemCheckbox>
-                ))}
+     const [value, setValue] = useState('');
+     const [state, setstate] = useState(props.data.data);
+     const handleChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+         setValue(e.target.value);
+     }
+     const handleChangeCheck = (v: any, item: any) => {
+         const index = state.findIndex((v: any) => v.id === item.id)
+         v ? setstate([...state, {
+             id: item.id,
+             name: item.name,
+             img: item.img
+         }]) : setstate([...state.slice(0, index), ...state.slice(index + 1, state.length)]);
+     }
 
-        </>
-    )
-}
-export default checkList;
+     useEffect(() => {
+         dispatch(SetAssurance(state));
+     }, [state])
+
+     return (
+         <>
+             {props.search !== '' && <TextField id="standard-basic"
+                                                variant="outlined"
+                                                sx={{marginBottom: 3}}
+                                                placeholder={props.search}
+                                                onChange={(e) => {
+                                                    handleChange(e);
+                                                }}
+                                                fullWidth
+                                                InputProps={{
+                                                    endAdornment: (
+                                                        <InputAdornment position="end" sx={{justifyContent: "center"}}>
+                                                            <CodeIcon
+                                                                sx={{
+                                                                    transform: "rotate(90deg)",
+                                                                    color: "text.secondary",
+                                                                    fontSize: "1rem",
+                                                                }}
+                                                            />
+                                                        </InputAdornment>
+                                                    ),
+                                                }}/>}
+
+             {
+                 props.items.filter(
+                     (item: any) => {
+                         return item.name.toLowerCase().includes(value.toLowerCase());
+                     }
+                 ).map((item: any, index: number) => (
+                     <ItemCheckbox key={index}
+                                   data={item}
+                                   checked={props.data?.data.find((i: { id: any; }) => i.id == item.id) !== undefined}
+                                   onChange={(v: any) => handleChangeCheck(v, item)}></ItemCheckbox>
+                 ))}
+
+         </>
+     )
+ }
+export default CheckList;

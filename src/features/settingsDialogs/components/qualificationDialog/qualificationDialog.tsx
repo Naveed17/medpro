@@ -2,9 +2,7 @@ import { Stack, Typography, TextField } from '@mui/material';
 import BasicAlert from "@themes/overrides/Alert";
 import FileuploadProgress from "@themes/overrides/FileuploadProgress"
 import UploadMultiFile from "@themes/overrides/UploadMultiFile"
-// import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {useTranslation} from "next-i18next";
-// import {DragDropContext, Draggable, Droppable, DropResult} from "react-beautiful-dnd";
 import {useCallback, useState} from "react";
 
 const listQf = [

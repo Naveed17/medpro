@@ -13,6 +13,8 @@ function SettingsDialogs({...props}) {
         item.action === props.action
     );
 
+    const data =props.data
+
     const Component: any = selectted?.component;
     return selectted ? (
         <>
@@ -31,11 +33,12 @@ function SettingsDialogs({...props}) {
                         id="scroll-dialog-description"
                         tabIndex={-1}>
                     </DialogContentText>
-                    <Component/>
+                    <Component data={data}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.dialogClose} startIcon={<CloseIcon/>}>{props.t('profil.cancel')}</Button>
                     <Button variant="contained"
+                            onClick={props.dialogSave}
                             startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{props.t('profil.save')}</Button>
                 </DialogActions>
             </Dialog>

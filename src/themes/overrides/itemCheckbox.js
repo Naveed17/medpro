@@ -30,8 +30,7 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
 })
 function ItemCheckbox({...props}) {
 
-    console.log(props);
-    const [checked, setChecked] = React.useState(false);
+    const [checked, setChecked] = React.useState(props.checked);
     const handleChange = (event) => {
         setChecked(event.target.checked);
         props.onChange(event.target.checked);
@@ -47,7 +46,7 @@ function ItemCheckbox({...props}) {
             />
             {(props.data.icon || props.data.img) &&
                 <ListItemIcon>
-                    <IconUrl path={props.data?.icon} />
+                    {props.data?.icon && <IconUrl path={props.data?.icon}/>}
                     {props.data?.img && <Box component="img" src={props.data?.img} alt={props.data?.name} />}
                 </ListItemIcon>
             }
