@@ -7,6 +7,12 @@ declare global {
     type LayoutProps =  {
         children: React.ReactNode;
         pageProps?: any
-        cookies?: unknown
+        session?: any
     };
+}
+
+declare module "@mui/material/Button" {
+    interface ButtonPropsVariantOverrides {
+        google: true;
+    }
 }

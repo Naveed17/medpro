@@ -1,7 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 import {
-    OpenMenu
+    logout,
+    openMenu
 } from './actions';
+import {signOut} from "next-auth/react";
 
 export type MenuState = {
     opened: boolean;
@@ -15,7 +17,9 @@ const initialState: MenuState = {
 
 export const ProfileMenuReducer = createReducer(initialState, builder => {
     builder
-        .addCase(OpenMenu, (state, action) => {
+        .addCase(openMenu, (state, action) => {
             state.opened = action.payload;
+        }).addCase(logout, (state, action) => {
+            signOut({ callbackUrl: action.payload === 'rtl' ? '/ar' : '/'});
         });
 });
