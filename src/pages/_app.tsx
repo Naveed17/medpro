@@ -5,15 +5,14 @@ import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@app/redux/store";
 import {ReactElement, ReactNode} from "react";
-import {EmotionCache} from "@emotion/utils";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
 import {NextPage} from "next";
 import {AnimatePresence} from "framer-motion";
+import KeycloakSession from "@app/keycloak/keycloakSession";
 
 interface MyAppProps extends AppProps {
-    Component: NextPageWithLayout,
-    emotionCache?: EmotionCache;
+    Component: AppProps["Component"] & NextPageWithLayout,
 }
 
 type NextPageWithLayout = NextPage & {
@@ -26,15 +25,17 @@ function MyApp({ Component, pageProps }: MyAppProps) {
     return (
         <Provider store={store}>
             <AppThemeProvider>
-                  <CssBaseline />
-                  <GlobleStyles>
-                      <AnimatePresence
-                          exitBeforeEnter
-                          initial={false}
-                          onExitComplete={() => window.scrollTo(0, 0)}>
-                          { getLayout(<Component {...pageProps} />) }
-                      </AnimatePresence>
-                  </GlobleStyles>
+                <CssBaseline />
+                <GlobleStyles>
+                    <KeycloakSession session={pageProps.session}>
+                        <AnimatePresence
+                            exitBeforeEnter
+                            initial={false}
+                            onExitComplete={() => window.scrollTo(0, 0)}>
+                            { getLayout(<Component {...pageProps} />) }
+                        </AnimatePresence>
+                    </KeycloakSession>
+                </GlobleStyles>
             </AppThemeProvider>
         </Provider>
   )

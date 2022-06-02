@@ -5,7 +5,11 @@ const BoxStyled = styled(Box)(({ theme }) => ({
     marginLeft: "-20px",
     "& .MuiPickerStaticWrapper-root": {
         marginTop: "-.8rem",
-        marginLeft: "-.8rem"
+        marginLeft: "-.8rem",
+        '& > [class^=css-]': {
+            marginLeft: "-.6rem"
+        },'& > [class^=muirtl-]': {
+        },
     },
     '& .MuiCalendarPicker-root': {
         maxHeight: "-webkit-fill-available",

@@ -1,6 +1,5 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import React from "react";
 function LanguesDialog() {
 
     const { t, ready } = useTranslation("settings");
@@ -14,7 +13,7 @@ function LanguesDialog() {
     ]
 
     return (
-        <CheckList items={items} search={t('dialogs.search_lang')} ></CheckList>
+        <CheckList items={items} search={t('dialogs.search_lang')} />
     )
 }
 export default LanguesDialog

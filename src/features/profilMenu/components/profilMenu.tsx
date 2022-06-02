@@ -1,5 +1,6 @@
 import {
-    OpenMenu, ProfileMenuConfig,
+    logout,
+    openMenu, ProfileMenuConfig,
     profileMenuSelector,
     ProfileSectionStyled
 } from "@features/profilMenu";
@@ -11,8 +12,10 @@ import {useRef} from "react";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
+import {useSession} from "next-auth/react";
 
 function ProfilMenu() {
+    const { data: session, status } = useSession();
     const router = useRouter();
     const { opened } = useAppSelector(profileMenuSelector);
     const dispatch = useAppDispatch();
@@ -23,14 +26,20 @@ function ProfilMenu() {
     if (!ready) return (<>loading translations...</>);
 
     const handleToggle = () => {
-        dispatch(OpenMenu(!opened));
+        dispatch(openMenu(!opened));
+    };
+
+    const handleMenuItem = (action: string) => {
+        switch (action){
+            case 'logout': dispatch(logout(dir)); break;
+        }
     };
 
     const handleClose = (event: any) => {
         if (anchorRef.current && anchorRef.current.contains(event.target)) {
             return;
         }
-        dispatch(OpenMenu(false));
+        dispatch(openMenu(false));
     };
 
     return(
@@ -40,8 +49,7 @@ function ProfilMenu() {
             id="composition-button"
             aria-controls={opened ? "composition-menu" : undefined}
             aria-expanded={opened ? "true" : undefined}
-            aria-haspopup="true"
-        >
+            aria-haspopup="true">
             <IconButton color="primary" disableRipple size="small" className="profile-btn">
                 <Box
                     className="profile-img"
@@ -51,7 +59,6 @@ function ProfilMenu() {
                     width={26}
                     height={26}
                 />
-
                 <Icon path="ic-menu" />
             </IconButton>
             <Popper
@@ -61,8 +68,7 @@ function ProfilMenu() {
                 placement="bottom-start"
                 transition
                 disablePortal
-                className="profile-menu-container"
-            >
+                className="profile-menu-container">
                 {({ TransitionProps }) => (
                     <Grow
                         {...TransitionProps}
@@ -92,7 +98,7 @@ function ProfilMenu() {
                                                 />
                                                 <Box className="profile-detail">
                                                     <Typography variant="body1" className="name">
-                                                        Dr Mahfoudh
+                                                        {session?.user && (<> Dr { session.user.name} </>)}
                                                     </Typography>
                                                     <Typography variant="body2" className="des">
                                                         Agenda Cabinet
@@ -104,10 +110,10 @@ function ProfilMenu() {
                                     {ProfileMenuConfig.map((item: any, index) => (
                                         <MenuItem
                                             key={`menu-${index}`}
+                                            onClick={() => handleMenuItem(item.action)}
                                             disableRipple
                                             className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
-                                            }${item.hasOwnProperty("items") ? "has-items" : ""}`}
-                                        >
+                                            }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
                                             <IconUrl path={item.icon} />
                                             <Typography variant="body1" className="item-name">
                                                 {t("doctor-dropdown." + item.name.toLowerCase())}
@@ -123,13 +129,11 @@ function ProfilMenu() {
                                                                 className={`${item.items.length - 1 === subIndex
                                                                     ? ""
                                                                     : "border-bottom"
-                                                                }`}
-                                                            >
+                                                                }`}>
                                                                 <Icon path={subItem.icon} />
                                                                 <Typography
                                                                     variant="body1"
-                                                                    className="item-name"
-                                                                >
+                                                                    className="item-name">
                                                                     {subItem.name}
                                                                 </Typography>
                                                             </MenuItem>

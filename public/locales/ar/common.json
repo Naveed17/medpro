@@ -6,5 +6,18 @@
   "light" : "الوضع الخفيف",
   "dark" : "الوضع الليلي",
   "dashboard" : "الصفحة الرئيسية",
-  "search" : "تبحث عن؟"
+  "search" : "تبحث عن؟",
+  "login": {
+    "sign_in" : "تسجيل دخولك",
+    "sign_title": "هل سبق لك استخدام med.tn ؟",
+    "sign_sub_title_1": "اتصل بنقرة واحدة",
+    "sign_sub_title_2": "مع شبكتك الطبية المفضلة",
+    "sign_med_connect": "تواصل مع Med",
+    "sign_divider": "أو",
+    "sign_email_placeholder": "البريد الإلكتروني أو رقم الهاتف",
+    "sign_pass_placeholder": "كلمة المرور",
+    "sign_reset_pass": "نسيت رقمك السري؟",
+    "sign_forget_pass": "ابق متصلا",
+    "sign_connect_btn": "تسجيل الدخول"
+  }
 }

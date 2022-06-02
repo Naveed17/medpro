@@ -1,3 +1,4 @@
 import { createAction } from "@reduxjs/toolkit";
 
-export const OpenMenu = createAction<boolean>('profileMenu/openMenu');
+export const openMenu = createAction<boolean>('profileMenu/openMenu');
+export const logout = createAction<string>('profileMenu/logout');

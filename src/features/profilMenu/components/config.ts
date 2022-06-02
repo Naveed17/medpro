@@ -60,6 +60,7 @@ const Config = [
         name: 'Logout',
         icon: 'ic-deconnexion',
         path: '/',
+        action: 'logout',
     },
 
 ]
