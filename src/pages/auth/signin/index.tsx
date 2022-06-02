@@ -7,6 +7,8 @@ import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import dynamic from "next/dynamic";
+import { LoadingScreen } from "@features/loadingScreen";
+
 const Footer = dynamic(() => import('@features/base/footer'));
 
 function SignIn(){
@@ -18,7 +20,7 @@ function SignIn(){
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
 
     if (!ready) return (<>loading translations...</>);
-    if (loading) return (<div className={styles.container} dir={dir}><main className={styles.main}>loading session...</main></div>);
+    if (loading) return (<LoadingScreen />);
 
     const redirectSignIn = !router.pathname.startsWith('/auth/signin');
 
@@ -41,7 +43,7 @@ function SignIn(){
 
                         <Button sx={{ '& img': { mr: 2 }, fontFamily: 'Poppins', fontSize: '16px', mt: 2 }}
                                 startIcon={<Box component="img"  width={20} height={20} src="/static/icons/Med-logo_.svg"  />}
-                                variant={"google"}
+                                variant="google"
                                 onClick={(e) => {
                                     e.preventDefault()
                                     signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')})

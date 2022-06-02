@@ -10,3 +10,9 @@ declare global {
         session?: any
     };
 }
+
+declare module "@mui/material/Button" {
+    interface ButtonPropsVariantOverrides {
+        google: true;
+    }
+}
