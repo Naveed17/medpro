@@ -3,9 +3,10 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import {useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/setConfig";
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import {LocaleFnsProvider} from "@app/localization";
+import {LocaleFnsProvider} from "@app/localization/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField} from "@mui/material";
+import {StaticDatePicker} from "@mui/x-date-pickers";
 
 type CalendarPickerView = 'day' | 'month' | 'year';
 
@@ -18,17 +19,20 @@ function CalandarPickers({ props }: any){
      }
 
      return (
-         <LocalizationProvider {...props} dateAdapter={AdapterDateFns} locale={LocaleFnsProvider(locale)}>
-              <CalendarPickerStyled disablePast
-                                    disableOpenPicker
-                                    toolbarTitle={''}
-                                    value={currentDay}
-                                    renderInput={(params) => <TextField {...params} />}
-                                    displayStaticWrapperAs='desktop'
-                                    onChange={(newDate: any) => setCurrentDay(newDate)}
-                                    onViewChange={(view: CalendarPickerView) => setDefaultView(view)}
-                                    onYearChange={onYearChange} />
-         </LocalizationProvider>
+         <CalendarPickerStyled>
+             <LocalizationProvider {...props} dateAdapter={AdapterDateFns} locale={LocaleFnsProvider(locale)}>
+                 <StaticDatePicker disablePast
+                                   disableOpenPicker
+                                   toolbarTitle={''}
+                                   value={currentDay}
+                                   renderInput={(params) => <TextField {...params} />}
+                                   displayStaticWrapperAs='desktop'
+                                   onChange={(newDate: any) => setCurrentDay(newDate)}
+                                   onViewChange={(view: CalendarPickerView) => setDefaultView(view)}
+                                   onYearChange={onYearChange} />
+             </LocalizationProvider>
+         </CalendarPickerStyled>
+
      );
 }
 

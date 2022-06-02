@@ -9,7 +9,7 @@ import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss'
 import {NextPage} from "next";
 import {AnimatePresence} from "framer-motion";
-import KeycloakSession from "@app/keycloakSession";
+import KeycloakSession from "@app/keycloak/keycloakSession";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout,

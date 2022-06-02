@@ -34,6 +34,8 @@ npm run prod:up
   - [`app`](./src/app) — project config files.
   - [`features`](./src/features) — features components with redux toolkit example.
   - [`pages`](./src/pages) — pages with custom _app.js and layout.
+    - [`api`](./src/pages/api) — override next auth global configs.
+    - [`auth`](./src/pages/auth) — override next auth global pages.
   - [`styles`](./src/styles) — styles files with sass.
   - [`themes`](./src/themes) — project themes.
   - [`types`](./src/types) — custom types for typescript.
