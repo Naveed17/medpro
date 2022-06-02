@@ -1,7 +1,8 @@
 import React from 'react'
-import {ListItem, Checkbox, ListItemText, ListItemIcon, Box, FormGroup, FormControlLabel} from '@mui/material'
+import {ListItem, Checkbox, ListItemText, ListItemIcon, Box} from '@mui/material'
 import { styled } from '@mui/material/styles';
 import IconUrl from "@themes/urlIcon";
+
 const RootStyled = styled(ListItem)(({ theme, }) => {
     return {
         cursor: 'pointer',
@@ -28,14 +29,14 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
         },
     }
 })
-function ItemCheckbox({...props}) {
 
-    console.log(props);
+function ItemCheckbox({...props}) {
     const [checked, setChecked] = React.useState(false);
     const handleChange = (event) => {
         setChecked(event.target.checked);
         props.onChange(event.target.checked);
     };
+
     return (
         <RootStyled key={props.id} component='label' htmlFor={props.data.name}>
             <Checkbox

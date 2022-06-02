@@ -3,8 +3,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import { ChangeEvent, useState} from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 
-
-function checkList({...props}) {
+function CheckList({...props}) {
 
     const [value, setValue] = useState('');
     const [state, setstate] = useState({});
@@ -42,11 +41,11 @@ function checkList({...props}) {
                     }
                 ).map((item: any, index: number) => (
                     <ItemCheckbox key={index}
-                                  data={item}
-                                  onChange={(v: any) => setstate({...state, [item.name]: v})}></ItemCheckbox>
+                        data={item}
+                        onChange={(v: any) => setstate({...state, [item.name]: v})}/>
                 ))}
 
         </>
     )
 }
-export default checkList;
+export default CheckList;

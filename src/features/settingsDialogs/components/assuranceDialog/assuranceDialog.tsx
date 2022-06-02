@@ -1,7 +1,5 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import React from "react";
-
 
 const items = [
     {id: "1",name: 'CNAM', img: '/static/assurances/cnam.svg'},
@@ -23,7 +21,7 @@ function AssuranceDialog() {
     if (!ready) return (<>loading translations...</>);
 
     return (<>
-        <CheckList items={items} search={t('dialogs.search_assurance')}></CheckList>
+        <CheckList items={items} search={t('dialogs.search_assurance')}/>
     </>)
 }
 export default AssuranceDialog
