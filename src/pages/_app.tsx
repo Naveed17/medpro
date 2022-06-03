@@ -10,9 +10,11 @@ import '@styles/globals.scss'
 import {NextPage} from "next";
 import {AnimatePresence} from "framer-motion";
 import KeycloakSession from "@app/keycloak/keycloakSession";
+import { SWRConfig } from 'swr';
+import SwrProvider from "@app/swr/swrProvider";
 
 interface MyAppProps extends AppProps {
-    Component: AppProps["Component"] & NextPageWithLayout,
+    Component: AppProps["Component"] & NextPageWithLayout
 }
 
 type NextPageWithLayout = NextPage & {
@@ -20,6 +22,7 @@ type NextPageWithLayout = NextPage & {
 }
 
 function MyApp({ Component, pageProps }: MyAppProps) {
+    console.log(pageProps);
     // Use the dashLayout defined at the page level, if available
     const getLayout = Component.getLayout ?? ((page) => page)
     return (
@@ -28,12 +31,14 @@ function MyApp({ Component, pageProps }: MyAppProps) {
                 <CssBaseline />
                 <GlobleStyles>
                     <KeycloakSession session={pageProps.session}>
-                        <AnimatePresence
-                            exitBeforeEnter
-                            initial={false}
-                            onExitComplete={() => window.scrollTo(0, 0)}>
-                            { getLayout(<Component {...pageProps} />) }
-                        </AnimatePresence>
+                        <SwrProvider fallback={pageProps.fallback}>
+                            <AnimatePresence
+                                exitBeforeEnter
+                                initial={false}
+                                onExitComplete={() => window.scrollTo(0, 0)}>
+                                { getLayout(<Component {...pageProps} />) }
+                            </AnimatePresence>
+                        </SwrProvider>
                     </KeycloakSession>
                 </GlobleStyles>
             </AppThemeProvider>
