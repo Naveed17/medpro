@@ -21,32 +21,31 @@ import Langues from "@interfaces/Langues";
 function Profil() {
     const [open, setOpen] = useState(false);
 
-    const { newAssurances } = useAppSelector(checkListSelector);
+    const {newAssurances, newMode, newLangues} = useAppSelector(checkListSelector);
 
     const [assurances, setAssurances] = useState<Assurance[]>([]);
     const [modes, setModes] = useState<ModeReg[]>([]);
     const [langues, setLangues] = useState<Langues[]>([]);
+    const [data, setData] = useState<any[]>([]);
 
-    useEffect(()=>{
+    useEffect(() => {
 
         setAssurances([
-            {id: 3,name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
-            {id: 7,name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
+            {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
+            {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
         ]);
 
         setModes([
-            {id:1,name:'Espèces',name_ar:''},
-            {id:2,name:'Chèque',name_ar:''},
+            {id: 1, name: 'Espèces', name_ar: ''},
+            {id: 2, name: 'Chèque', name_ar: ''},
         ]);
 
         setLangues([
-            {id: 1,name:'Français',name_ar:''},
-            {id: 2,name:'Arabe',name_ar:''},
-            {id: 3,name:'Italien',name_ar:''}
+            {id: 1, name: 'Français', name_ar: ''},
+            {id: 4, name: 'Arabe', name_ar: ''}
         ]);
 
-    },[]);
-
+    }, []);
 
     const [dialogContent, setDialogContent] = useState('');
     const {direction} = useSelector(configSelector);
@@ -60,27 +59,37 @@ function Profil() {
 
     const dialogSave = () => {
         setOpen(false);
-        setAssurances(newAssurances)
-        console.log(assurances);
+        switch (dialogContent) {
+            case "assurance":
+                setAssurances(newAssurances);
+                break;
+            case "mode":
+                setModes(newMode);
+                break;
+            case "langues":
+                setLangues(newLangues);
+                break;
+            default:
+                break;
+        }
+
     };
 
     const dialogOpen = (action: string) => {
         setDialogContent(action);
         switch (action) {
             case "qualification":
-                //setData([])
                 break;
             case "assurance":
-                //setData(assurances)
+                setData(assurances)
                 break;
             case "mode":
-                //setData([])
+                setData(modes)
                 break;
             case "langues":
-                //setData([])
+                setData(langues)
                 break;
             default:
-                //setData([]);
                 break;
         }
         setOpen(true);
@@ -157,7 +166,8 @@ function Profil() {
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 assurances.map((item: any) => (
-                                                    <Box key={item.id} component="img" width={35} height={35} src={item.img}></Box>
+                                                    <Box key={item.id} component="img" width={35} height={35}
+                                                         src={item.img}></Box>
                                                 ))
                                             }
                                         </Stack>
@@ -206,7 +216,6 @@ function Profil() {
                                                     </Button>
                                                 ))
                                             }
-
 
 
                                         </Stack>
@@ -274,9 +283,9 @@ function Profil() {
 
                 <SettingsDialogs action={dialogContent}
                                  open={open}
-                                 data={assurances}
+                                 data={data}
                                  direction={direction}
-                                 title={t('dialogs.titles.'+dialogContent)}
+                                 title={t('dialogs.titles.' + dialogContent)}
                                  t={t}
                                  dialogSave={dialogSave}
                                  dialogClose={dialogClose}></SettingsDialogs>

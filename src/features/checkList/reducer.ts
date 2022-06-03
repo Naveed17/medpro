@@ -4,11 +4,14 @@ import {
     SetMode,
     SetLangues
 } from './actions';
+import Assurance from "@interfaces/Assurance";
+import ModeReg from "@interfaces/ModeReg";
+import Langues from "@interfaces/Langues";
 
 export type MenuState = {
-    newAssurances: [],
-    newMode: [],
-    newLangues: []
+    newAssurances: Array<Assurance>,
+    newMode: Array<ModeReg>,
+    newLangues: Array<Langues>
 };
 
 const initialState: MenuState = {
@@ -27,5 +30,6 @@ export const CheckListReducer = createReducer(initialState, builder => {
         })
         .addCase(SetLangues, (state, action) => {
             state.newLangues = action.payload;
+            console.log(state.newLangues);
         })
 });

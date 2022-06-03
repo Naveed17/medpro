@@ -3,29 +3,40 @@ import CodeIcon from "@mui/icons-material/Code";
 import {ChangeEvent, useEffect, useState} from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {useAppDispatch} from "@app/redux/hooks";
-import {SetAssurance} from "@features/checkList";
+import {SetAssurance, SetLangues, SetMode} from "@features/checkList";
 
 
  function CheckList ({...props}) {
 
+     console.log('----------',props.action);
      const dispatch = useAppDispatch();
 
      const [value, setValue] = useState('');
+
      const [state, setstate] = useState(props.data.data);
      const handleChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
          setValue(e.target.value);
      }
      const handleChangeCheck = (v: any, item: any) => {
+         console.log(item);
          const index = state.findIndex((v: any) => v.id === item.id)
-         v ? setstate([...state, {
-             id: item.id,
-             name: item.name,
-             img: item.img
-         }]) : setstate([...state.slice(0, index), ...state.slice(index + 1, state.length)]);
+         v ? setstate([...state, item]) : setstate([...state.slice(0, index), ...state.slice(index + 1, state.length)]);
      }
 
      useEffect(() => {
-         dispatch(SetAssurance(state));
+         switch (props.action){
+             case 'assurance':
+                 dispatch(SetAssurance(state));
+                 break;
+             case 'mode':
+                 dispatch(SetMode(state))
+                 break;
+             case 'langues':
+                 dispatch(SetLangues(state))
+                 break;
+             default:
+                 break;
+         }
      }, [state])
 
      return (
