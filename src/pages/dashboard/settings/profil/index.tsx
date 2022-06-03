@@ -17,15 +17,17 @@ import {checkListSelector} from "@features/checkList";
 import Assurance from "@interfaces/Assurance";
 import ModeReg from "@interfaces/ModeReg";
 import Langues from "@interfaces/Langues";
+import Qualifications from "@interfaces/Qualifications";
 
 function Profil() {
     const [open, setOpen] = useState(false);
 
-    const {newAssurances, newMode, newLangues} = useAppSelector(checkListSelector);
+    const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
 
     const [assurances, setAssurances] = useState<Assurance[]>([]);
     const [modes, setModes] = useState<ModeReg[]>([]);
     const [langues, setLangues] = useState<Langues[]>([]);
+    const [qualifications, setQualifications] = useState<Qualifications[]>([]);
     const [data, setData] = useState<any[]>([]);
 
     useEffect(() => {
@@ -45,6 +47,13 @@ function Profil() {
             {id: 4, name: 'Arabe', name_ar: ''}
         ]);
 
+        setQualifications([
+            {id:1, name:'Thèse de Doctorat en Médecine'},
+            {id: 2, name: 'Diplôme de Spécialiste en Dermatologie Vénéréologie'},
+            {id: 3, name: 'Diplôme Inter Universitaire Cosmetologie'},
+            {id: 4, name: 'Diplôme Inter Universitaire de Laser en Dermatologie'}
+        ]);
+
     }, []);
 
     const [dialogContent, setDialogContent] = useState('');
@@ -60,6 +69,9 @@ function Profil() {
     const dialogSave = () => {
         setOpen(false);
         switch (dialogContent) {
+            case "qualification":
+                setQualifications(newQualification);
+                break;
             case "assurance":
                 setAssurances(newAssurances);
                 break;
@@ -79,6 +91,7 @@ function Profil() {
         setDialogContent(action);
         switch (action) {
             case "qualification":
+                setData(qualifications)
                 break;
             case "assurance":
                 setData(assurances)
@@ -138,18 +151,15 @@ function Profil() {
                                     <Stack spacing={0.5} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.qualification')}</Typography>
-                                        <Typography fontWeight={400}>
-                                            Thèse de Doctorat en Médecine
-                                        </Typography>
-                                        <Typography fontWeight={400}>
-                                            Diplôme de Spécialiste en Dermatologie Vénéréologie
-                                        </Typography>
-                                        <Typography>
-                                            Diplôme Inter Universitaire Cosmetologie
-                                        </Typography>
-                                        <Typography>
-                                            Diplôme Inter Universitaire de Laser en Dermatologie
-                                        </Typography>
+
+                                        {
+                                            qualifications.map((item: any) => (
+                                                <Typography key={item.id} fontWeight={400}>
+                                                    {item.name}
+                                                </Typography>
+                                            ))
+                                        }
+
                                     </Stack>
                                     <IconButton size="small" color="primary"
                                                 onClick={() => dialogOpen('qualification')}>

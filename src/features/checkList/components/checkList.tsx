@@ -3,12 +3,11 @@ import CodeIcon from "@mui/icons-material/Code";
 import {ChangeEvent, useEffect, useState} from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {useAppDispatch} from "@app/redux/hooks";
-import {SetAssurance, SetLangues, SetMode} from "@features/checkList";
+import {SetAssurance, SetLangues, SetMode, SetQualifications} from "@features/checkList";
 
 
  function CheckList ({...props}) {
 
-     console.log('----------',props.action);
      const dispatch = useAppDispatch();
 
      const [value, setValue] = useState('');
@@ -18,13 +17,12 @@ import {SetAssurance, SetLangues, SetMode} from "@features/checkList";
          setValue(e.target.value);
      }
      const handleChangeCheck = (v: any, item: any) => {
-         console.log(item);
          const index = state.findIndex((v: any) => v.id === item.id)
          v ? setstate([...state, item]) : setstate([...state.slice(0, index), ...state.slice(index + 1, state.length)]);
      }
 
      useEffect(() => {
-         switch (props.action){
+         switch (props.action) {
              case 'assurance':
                  dispatch(SetAssurance(state));
                  break;
