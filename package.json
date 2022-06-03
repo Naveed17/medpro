@@ -21,6 +21,7 @@
     "@mui/material": "^5.7.0",
     "@reduxjs/toolkit": "^1.8.1",
     "axios": "^0.27.2",
+    "@thaddeusjiang/react-sortable-list": "^0.0.3",
     "cookie": "^0.5.0",
     "date-fns": "^2.28.0",
     "framer-motion": "^6.3.4",

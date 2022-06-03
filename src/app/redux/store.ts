@@ -6,12 +6,14 @@ import {
 import {ConfigReducer} from "@features/setConfig/reducer";
 import {SideBarReducer} from "@features/sideBarMenu/reducer";
 import {ProfileMenuReducer} from "@features/profilMenu";
+import {CheckListReducer} from "@features/checkList";
 
 export const store = configureStore({
     reducer: {
         theme: ConfigReducer,
         sideBar: SideBarReducer,
-        profileMenu: ProfileMenuReducer
+        profileMenu: ProfileMenuReducer,
+        checkList: CheckListReducer
     },
 });
 
