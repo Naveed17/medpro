@@ -4,6 +4,8 @@ services: #This section defines all the different containers we will create.
     build:
       context: .
       target: dev
+    env_file:
+      - .env.local
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
