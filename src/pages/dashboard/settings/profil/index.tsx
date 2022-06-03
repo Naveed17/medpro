@@ -1,29 +1,63 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement, useState} from "react";
+import {ReactElement, useEffect, useState} from "react";
 import DashLayout from "@features/base/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
 import CardStyled from "./overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import CloseIcon from '@mui/icons-material/Close';
 import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
+import {useAppSelector} from "@app/redux/hooks";
+import {checkListSelector} from "@features/checkList";
+import Assurance from "@interfaces/Assurance";
+import ModeReg from "@interfaces/ModeReg";
+import Langues from "@interfaces/Langues";
+import Qualifications from "@interfaces/Qualifications";
 
 function Profil() {
     const [open, setOpen] = useState(false);
-    const [dialogContent, setdialogContent] = useState('');
-    const {direction} = useSelector(configSelector);
 
+    const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
+
+    const [assurances, setAssurances] = useState<Assurance[]>([]);
+    const [modes, setModes] = useState<ModeReg[]>([]);
+    const [langues, setLangues] = useState<Langues[]>([]);
+    const [qualifications, setQualifications] = useState<Qualifications[]>([]);
+    const [data, setData] = useState<any[]>([]);
+
+    useEffect(() => {
+
+        setAssurances([
+            {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
+            {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
+        ]);
+
+        setModes([
+            {id: 1, name: 'Espèces', name_ar: ''},
+            {id: 2, name: 'Chèque', name_ar: ''},
+        ]);
+
+        setLangues([
+            {id: 1, name: 'Français', name_ar: ''},
+            {id: 4, name: 'Arabe', name_ar: ''}
+        ]);
+
+        setQualifications([
+            {id:1, name:'Thèse de Doctorat en Médecine'},
+            {id: 2, name: 'Diplôme de Spécialiste en Dermatologie Vénéréologie'},
+            {id: 3, name: 'Diplôme Inter Universitaire Cosmetologie'},
+            {id: 4, name: 'Diplôme Inter Universitaire de Laser en Dermatologie'}
+        ]);
+
+    }, []);
+
+    const [dialogContent, setDialogContent] = useState('');
+    const {direction} = useSelector(configSelector);
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -32,8 +66,45 @@ function Profil() {
         setOpen(false);
     };
 
+    const dialogSave = () => {
+        setOpen(false);
+        switch (dialogContent) {
+            case "qualification":
+                setQualifications(newQualification);
+                break;
+            case "assurance":
+                setAssurances(newAssurances);
+                break;
+            case "mode":
+                setModes(newMode);
+                break;
+            case "langues":
+                setLangues(newLangues);
+                break;
+            default:
+                break;
+        }
+
+    };
+
     const dialogOpen = (action: string) => {
-        setdialogContent(action);
+        setDialogContent(action);
+        switch (action) {
+            case "qualification":
+                setData(qualifications)
+                break;
+            case "assurance":
+                setData(assurances)
+                break;
+            case "mode":
+                setData(modes)
+                break;
+            case "langues":
+                setData(langues)
+                break;
+            default:
+                break;
+        }
         setOpen(true);
     };
 
@@ -80,18 +151,15 @@ function Profil() {
                                     <Stack spacing={0.5} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.qualification')}</Typography>
-                                        <Typography fontWeight={400}>
-                                            Thèse de Doctorat en Médecine
-                                        </Typography>
-                                        <Typography fontWeight={400}>
-                                            Diplôme de Spécialiste en Dermatologie Vénéréologie
-                                        </Typography>
-                                        <Typography>
-                                            Diplôme Inter Universitaire Cosmetologie
-                                        </Typography>
-                                        <Typography>
-                                            Diplôme Inter Universitaire de Laser en Dermatologie
-                                        </Typography>
+
+                                        {
+                                            qualifications.map((item: any) => (
+                                                <Typography key={item.id} fontWeight={400}>
+                                                    {item.name}
+                                                </Typography>
+                                            ))
+                                        }
+
                                     </Stack>
                                     <IconButton size="small" color="primary"
                                                 onClick={() => dialogOpen('qualification')}>
@@ -106,11 +174,12 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
-                                            <Box component="img" width={35} height={35}
-                                                 src="/static/assurances/biat.svg"
-                                            />
-                                            <Box component="img" width={35} height={35}
-                                                 src="/static/assurances/carte.svg"/>
+                                            {
+                                                assurances.map((item: any) => (
+                                                    <Box key={item.id} component="img" width={35} height={35}
+                                                         src={item.img}></Box>
+                                                ))
+                                            }
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('assurance')}>
@@ -125,14 +194,15 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Espèces
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Chèque
-                                            </Button>
+                                            {
+                                                modes.map((mode: any) => (
+                                                    <Button key={mode.id} variant="outlined" color="info"
+                                                            onClick={(e) => console.log(e)}>
+                                                        {mode.name}
+                                                    </Button>
+                                                ))
+
+                                            }
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('mode')}>
@@ -147,18 +217,16 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Français
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Arabe
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Italien
-                                            </Button>
+
+                                            {
+                                                langues.map((langue: any) => (
+                                                    <Button key={langue.id} variant="outlined" color="info"
+                                                            onClick={(e) => console.log(e)}>
+                                                        {langue.name}
+                                                    </Button>
+                                                ))
+                                            }
+
 
                                         </Stack>
                                     </Stack>
@@ -225,9 +293,11 @@ function Profil() {
 
                 <SettingsDialogs action={dialogContent}
                                  open={open}
+                                 data={data}
                                  direction={direction}
-                                 title={t('dialogs.titles.'+dialogContent)}
+                                 title={t('dialogs.titles.' + dialogContent)}
                                  t={t}
+                                 dialogSave={dialogSave}
                                  dialogClose={dialogClose}></SettingsDialogs>
 
             </Box>
