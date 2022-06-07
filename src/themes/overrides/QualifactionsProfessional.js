@@ -12,14 +12,12 @@ const RootStyle = styled(ListItem)(({ theme }) => ({
 function QualifactionsProfessional({ children, ...props }) {
     const {item, provided, snapshot, ...rest} = props
     return (
-        <RootStyle
-            secondaryAction={
-                <IconButton aria-label="delete">
-                    <IconUrl path="ic-autre" />
-                </IconButton>
-            }>
+        <RootStyle>
             <IconUrl path="ic-drag"/>
             <ListItemText sx={{margin: 2}} primary={item.name}/>
+        <IconButton aria-label="delete">
+            <IconUrl path="ic-autre" />
+        </IconButton>
         </RootStyle>
     )
 }
