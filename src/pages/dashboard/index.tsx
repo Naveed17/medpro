@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
-import {Box} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import SubHeader from "@features/subHeader/components/subHeader";
 import CalendarToolbar from "@features/calendarToolbar/components/calendarToolbar";
 import DashLayout from "@features/base/dashLayout";
@@ -25,7 +25,6 @@ function Dashborad(){
     if (error) return <div>failed to load</div>
     if (!data) return <div>loading...</div>
 
-    console.log(data);
     return(
         <>
             <SubHeader>
@@ -34,8 +33,8 @@ function Dashborad(){
             <Box bgcolor="#F0FAFF"
                  sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
 
-                <div>Hello from {router.pathname.slice(1)}</div>
-                <p>URL: {data.url}</p>
+                <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>
+                <Typography>URL: {data.url}</Typography>
             </Box>
         </>
         )

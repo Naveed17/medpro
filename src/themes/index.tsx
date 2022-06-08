@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 // material
 import { CssBaseline } from "@mui/material";
 import {
@@ -37,11 +37,12 @@ function ThemeConfig({ children }: LayoutProps) {
     // Create style cache
     const styleCache = createCache({
         key: dir === 'rtl' ? 'muirtl': 'css',
-        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
+        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : [],
+        prepend: true
     });
     // styleCache.compat = true;
 
-    const themeWithLocale = React.useMemo(
+    const themeWithLocale = useMemo(
         () => createTheme({
             palette: {...palette, mode: mode },
             typography,
@@ -64,7 +65,6 @@ function ThemeConfig({ children }: LayoutProps) {
                 </main>
             </ThemeProvider>
         </CacheProvider>
-
     );
 }
 

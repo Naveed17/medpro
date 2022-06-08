@@ -137,7 +137,7 @@ function Profil() {
                                         <Typography variant="subtitle2"
                                                     fontWeight={600}>{t('profil.specialities')}</Typography>
                                         <Button variant="outlined" color="info" onClick={(e) => console.log(e)}>
-                                            Dermatologue
+                                            { t('Dermatologue') }
                                         </Button>
                                         <BasicAlert icon="danger"
                                                     data={t('profil.contact')}
