@@ -38,5 +38,13 @@
       "mode": "Modifier modes de règlement",
       "langues": "Modifier langues parlées"
     }
+  },
+  "actes":{
+    "selectActes": "Veuillez sélectionner vos actes principaux et vos actes secondaires par ordre de croissance",
+    "main": "Vos actes principaux",
+    "secondary": "Vos actes secondaires",
+    "suggestion": "Actes suggérés",
+    "typing": "Commencer à taper pour rechercher des actes",
+    "max": "Max 10 Actes"
   }
 }

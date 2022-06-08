@@ -18,20 +18,21 @@ import Assurance from "@interfaces/Assurance";
 import ModeReg from "@interfaces/ModeReg";
 import Langues from "@interfaces/Langues";
 import Qualifications from "@interfaces/Qualifications";
+import { useRouter } from 'next/router'
 
 function Profil() {
-    const [open, setOpen] = useState(false);
 
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
 
+    const [open, setOpen] = useState(false);
     const [assurances, setAssurances] = useState<Assurance[]>([]);
     const [modes, setModes] = useState<ModeReg[]>([]);
     const [langues, setLangues] = useState<Langues[]>([]);
     const [qualifications, setQualifications] = useState<Qualifications[]>([]);
     const [data, setData] = useState<any[]>([]);
 
+    const router = useRouter()
     useEffect(() => {
-
         setAssurances([
             {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
             {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
@@ -136,8 +137,8 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2"
                                                     fontWeight={600}>{t('profil.specialities')}</Typography>
-                                        <Button variant="outlined" color="info" onClick={(e) => console.log(e)}>
-                                            { t('Dermatologue') }
+                                        <Button variant="outlined" color="info">
+                                            Dermatologue
                                         </Button>
                                         <BasicAlert icon="danger"
                                                     data={t('profil.contact')}
@@ -197,7 +198,7 @@ function Profil() {
                                             {
                                                 modes.map((mode: any) => (
                                                     <Button key={mode.id} variant="outlined" color="info"
-                                                            onClick={(e) => console.log(e)}>
+                                                            onClick={() => dialogOpen('mode')}>
                                                         {mode.name}
                                                     </Button>
                                                 ))
@@ -217,17 +218,14 @@ function Profil() {
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
-
                                             {
                                                 langues.map((langue: any) => (
                                                     <Button key={langue.id} variant="outlined" color="info"
-                                                            onClick={(e) => console.log(e)}>
+                                                            onClick={() => dialogOpen('langues')}>
                                                         {langue.name}
                                                     </Button>
                                                 ))
                                             }
-
-
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary" onClick={() => dialogOpen('langues')}>
@@ -258,7 +256,7 @@ function Profil() {
 
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={(e) => console.log(e)}>
+                                    <IconButton size="small" color="primary" onClick={() => router.push('/dashboard/settings/actes')}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
