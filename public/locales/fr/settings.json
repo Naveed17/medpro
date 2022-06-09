@@ -46,5 +46,15 @@
     "suggestion": "Actes suggérés",
     "typing": "Commencer à taper pour rechercher des actes",
     "max": "Max 10 Actes"
+  },
+  "motif": {
+    "name": "Nom",
+    "duration": "Durée",
+    "delay_min": "Délai min",
+    "delay_max": "Délai max",
+    "agenda": "Agenda",
+    "type": "Type",
+    "active": "Active",
+    "action": "Action"
   }
 }

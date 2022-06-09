@@ -15,9 +15,9 @@ function QualifactionsProfessional({ children, ...props }) {
         <RootStyle>
             <IconUrl path="ic-drag"/>
             <ListItemText sx={{margin: 2}} primary={item.name}/>
-        <IconButton aria-label="delete">
-            <IconUrl path="ic-autre" />
-        </IconButton>
+            <IconButton aria-label="delete">
+                <IconUrl path="ic-autre" />
+            </IconButton>
         </RootStyle>
     )
 }
