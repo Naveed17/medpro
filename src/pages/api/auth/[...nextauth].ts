@@ -1,9 +1,7 @@
 import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
-import axios from "axios";
-import * as jwt from "jsonwebtoken";
 import requestAxios, {setAxiosToken} from "@app/axios/config";
-import {string} from "prop-types";
+
 // import EmailProvider from "next-auth/providers/email"
 // import AppleProvider from "next-auth/providers/apple"
 
@@ -90,7 +88,7 @@ export const authOptions: NextAuthOptions = {
         url: "/api/private/user/fr",
         method: "GET",
         headers: {
-            Authorization: `Bearer ${token.accessToken}`,
+            Authorization: `Bearer ${token.accessToken}`
         }
       });
 

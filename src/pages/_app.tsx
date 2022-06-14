@@ -1,4 +1,4 @@
-import type {AppContext, AppProps} from 'next/app'
+import type { AppProps} from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
@@ -22,6 +22,7 @@ type NextPageWithLayout = NextPage & {
 }
 
 function MyApp({ Component, session, pageProps: {...pageProps } }: MyAppProps) {
+
     const router = useRouter();
     // Use the dashLayout defined at the page level, if available
     const getLayout = Component.getLayout ?? ((page) => page)
