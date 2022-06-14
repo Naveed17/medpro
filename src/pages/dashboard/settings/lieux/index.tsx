@@ -10,12 +10,6 @@ import MedTable from "@themes/overrides/MedTable";
 
 function Lieux() {
 
-    const [state, setState] = useState({
-        duration: false,
-        delay_min: false,
-        delay_max: true,
-        active: false
-    });
     const [rows, setRows] = useState([
         {
             id: 1,
@@ -75,16 +69,16 @@ function Lieux() {
         },
     ];
 
-    const editMotif = (props: any) =>{
+    const editPlaces = (props: any) =>{
         console.log('edit',props);
     }
     const handleConfig = (props: any, event: string) => {
-        console.log('handleConfig',props);
-
+        console.log('handleConfig',event);
     }
 
     const handleChange = (props: any, event: string, value: string) => {
-        console.log('handleChange',props);
+        props.actif = !props.actif;
+        setRows([...rows]);
     }
 
     return (
@@ -103,10 +97,10 @@ function Lieux() {
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <MedTable headers={headCells}
                           rows={rows}
-                          state={state}
+                          state={null}
                           from={'lieux'}
                           t={t}
-                          editMotif={editMotif}
+                          editMotif={editPlaces}
                           handleConfig={handleConfig}
                           handleChange={handleChange}></MedTable>
             </Box>

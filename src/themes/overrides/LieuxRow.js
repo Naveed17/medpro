@@ -70,7 +70,7 @@ export default function LieuxRow({ row, handleChange,editMotif, t }) {
                         size="small"
                         color="error"
                         startIcon={<IconUrl path="setting/icdelete" />}
-                        onClick={() => console.log("clicked")}
+                        onClick={() => console.log("remove",row)}
                         sx={{ mr: 1 }}>
                         {t('lieux.remove')}
                     </Button>
@@ -79,7 +79,7 @@ export default function LieuxRow({ row, handleChange,editMotif, t }) {
                         size="small"
                         color="primary"
                         startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("clicked")}>
+                        onClick={() => console.log("edit",row)}>
                         {t('lieux.update')}
                     </Button>
                 </Box>
