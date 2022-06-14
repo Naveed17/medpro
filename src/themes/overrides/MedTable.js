@@ -4,7 +4,8 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from './TableHead';
-import TableRow from './TableRow';
+import LieuxRow from "@themes/overrides/LieuxRow";
+import EnhancedTableRow from "@themes/overrides/MotifRow";
 
 function descendingComparator(a, b, orderBy) {
 
@@ -40,6 +41,8 @@ export default function MedTable(
         rows,
         headers,
         state,
+        from,
+        t,
         handleConfig,
         handleChange,
         editMotif,
@@ -72,7 +75,7 @@ export default function MedTable(
         <Box>
             <TableContainer>
                 <Table
-                    sx={{ minWidth: 750 }}
+                    sx={{minWidth: 750}}
                     aria-labelledby="tableTitle"
                     size={'medium'}>
                     <TableHead
@@ -87,9 +90,24 @@ export default function MedTable(
                     <TableBody>
                         {stableSort(rows, getComparator(order, orderBy))
                             .map((row, index) => {
-                                return (
-                                    <TableRow key={index} row={row} tableHeadData={state} handleChange={handleChange} editMotif={editMotif} active={active} ids={ids} />
-                                );
+                                if (from === 'motif') {
+                                    return (<EnhancedTableRow key={index}
+                                                              row={row}
+                                                              tableHeadData={state}
+                                                              handleChange={handleChange}
+                                                              editMotif={editMotif}
+                                                              active={active}
+                                                              ids={ids}/>)
+                                } else
+                                    return (<LieuxRow key={index}
+                                                      row={row}
+                                                      tableHeadData={state}
+                                                      handleChange={handleChange}
+                                                      editMotif={editMotif}
+                                                      t={t}
+                                                      active={active}
+                                                      ids={ids}/>
+                                    );
                             })}
                     </TableBody>
                 </Table>

@@ -57,7 +57,7 @@
     "active": "Active",
     "action": "Action",
     "add": "Ajouter motif",
-    "path": "Paramètres &gt; Motifs de consultation",
+    "path": "Paramètres > Motifs de consultation",
     "dialog": {
       "add": "Ajouter motif de consultation",
       "update": "Modifier motif de consultation",
@@ -78,5 +78,16 @@
       "cancel": "Annuler",
       "save": "Enregistrer"
     }
+  },
+  "lieux": {
+    "name": "Nom du lieu de consultation",
+    "actif": "est actif",
+    "sharedCalander": "agenda partagé",
+    "action": "action",
+    "add": "Ajouter",
+    "path": "Paramètres > Lieux de consultation",
+    "acces": "accès",
+    "remove": "Supprimer",
+    "update": "Editer"
   }
 }

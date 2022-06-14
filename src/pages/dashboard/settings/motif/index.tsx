@@ -184,6 +184,8 @@ function Motif() {
                 <MedTable headers={headCells}
                           rows={rows}
                           state={state}
+                          from={'motif'}
+                          t={t}
                           editMotif={editMotif}
                           handleConfig={handleConfig}
                           handleChange={handleChange}></MedTable>
