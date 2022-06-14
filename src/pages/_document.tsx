@@ -12,7 +12,7 @@ class MyDocument extends Document {
                 <Head>
                     <link
                         rel="stylesheet"
-                        href="https://fonts.googleapis.com/css?family=Poppins:300,400&display=swa"
+                        href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swa"
                     />
                     {/* Inject MUI styles first to match with the prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
@@ -24,7 +24,6 @@ class MyDocument extends Document {
             </Html>
         );
     }
-
 
     // `getInitialProps` belongs to `_document` (instead of `_app`),
     // it's compatible with static-site generation (SSG).

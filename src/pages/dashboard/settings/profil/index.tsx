@@ -49,7 +49,7 @@ function Profil() {
         ]);
 
         setQualifications([
-            {id:1, name:'Thèse de Doctorat en Médecine'},
+            {id: 1, name:'Thèse de Doctorat en Médecine'},
             {id: 2, name: 'Diplôme de Spécialiste en Dermatologie Vénéréologie'},
             {id: 3, name: 'Diplôme Inter Universitaire Cosmetologie'},
             {id: 4, name: 'Diplôme Inter Universitaire de Laser en Dermatologie'}

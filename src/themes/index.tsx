@@ -37,8 +37,7 @@ function ThemeConfig({ children }: LayoutProps) {
     // Create style cache
     const styleCache = createCache({
         key: dir === 'rtl' ? 'muirtl': 'css',
-        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : [],
-        prepend: true
+        stylisPlugins: dir === 'rtl' ? [prefixer, rtlPlugin] : []
     });
     // styleCache.compat = true;
 
