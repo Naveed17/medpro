@@ -5,7 +5,8 @@ export {};
 declare global {
 
     type LayoutProps =  {
-        children: React.ReactNode;
+        children: React.ReactNode
+        fallback?: any
         pageProps?: any
         session?: any
     };

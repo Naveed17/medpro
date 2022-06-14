@@ -11,6 +11,7 @@ declare module "next/app" {
     pageProps: P & {
       /** Initial session passed in from `getServerSideProps` or `getInitialProps` */
       session?: Session
+      fallback?: any
     }
   }
 }
