@@ -96,13 +96,13 @@ function Lieux() {
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <MedTable headers={headCells}
-                          rows={rows}
-                          state={null}
-                          from={'lieux'}
-                          t={t}
-                          editMotif={editPlaces}
-                          handleConfig={handleConfig}
-                          handleChange={handleChange}></MedTable>
+                            rows={rows}
+                            state={null}
+                            from={'lieux'}
+                            t={t}
+                            editMotif={editPlaces}
+                            handleConfig={handleConfig}
+                            handleChange={handleChange}/>
             </Box>
         </>)
 }
@@ -112,6 +112,8 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     }
 })
 export default Lieux
+
+Lieux.auth = true;
 
 Lieux.getLayout = function getLayout(page: ReactElement) {
     return (

@@ -8,7 +8,6 @@ import CardStyled from "./overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
-import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
@@ -58,7 +57,7 @@ function Profil() {
     }, []);
 
     const [dialogContent, setDialogContent] = useState('');
-    const {direction} = useSelector(configSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -177,8 +176,7 @@ function Profil() {
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 assurances.map((item: any) => (
-                                                    <Box key={item.id} component="img" width={35} height={35}
-                                                         src={item.img}></Box>
+                                                    <Box key={item.id} component="img" width={35} height={35} src={item.img}/>
                                                 ))
                                             }
                                         </Stack>
@@ -290,13 +288,13 @@ function Profil() {
                 </CardStyled>
 
                 <SettingsDialogs action={dialogContent}
-                                 open={open}
-                                 data={data}
-                                 direction={direction}
-                                 title={t('dialogs.titles.' + dialogContent)}
-                                 t={t}
-                                 dialogSave={dialogSave}
-                                 dialogClose={dialogClose}></SettingsDialogs>
+                                open={open}
+                                data={data}
+                                direction={direction}
+                                title={t('dialogs.titles.' + dialogContent)}
+                                t={t}
+                                dialogSave={dialogSave}
+                                dialogClose={dialogClose}/>
 
             </Box>
         </>
@@ -308,6 +306,8 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     }
 })
 export default Profil
+
+Profil.auth = true;
 
 Profil.getLayout = function getLayout(page: ReactElement) {
     return (
