@@ -1,20 +1,45 @@
+import axios from "axios";
 
-function AxiosConfig(axios: any, store: any) {
-    axios.defaults.headers.Accept = 'application/json'
-    axios.interceptors.request.use(
-        (config: any) => {
-            const {
-                auth: { accessToken },
-            } = store.getState()
+const baseURL: string = process.env.NEXT_APP_BACK_END_POINT || 'http://localhost:3000';
 
-            if (accessToken) {
-                config.headers.Authorization = `Bearer ${accessToken}`
-            }
-
-            return config
-        },
-        (err: any) => Promise.reject(err),
-    )
+export const setAxiosToken = (access_token: string) => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
 }
 
-export default AxiosConfig;
+export const clientAxios = (() => {
+    return axios.create({
+        baseURL,
+        headers: {
+            Accept: "application/json"
+        }
+    });
+})();
+
+export const clientAxiosAbsolute = (() => {
+    return axios.create({
+        headers: {
+            Accept: "application/json"
+        }
+    });
+})();
+
+// the request function which will destructure the response
+export const requestAxios = async  (options: any) =>{
+    // success handler
+    const onSuccess =  (response: any) =>{
+        const {
+            data: { message }
+        } = response;
+        return message;
+    };
+
+    // error handler
+    const onError =  (error: any) =>{
+        return Promise.reject(error.response);
+    };
+
+    // adding success and error handlers to client
+    return clientAxios(options).then(onSuccess).catch(onError);
+};
+
+export default clientAxios;

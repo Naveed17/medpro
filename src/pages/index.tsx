@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import styles from '../styles/Home.module.scss'
+import styles from '@styles/Home.module.scss'
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";

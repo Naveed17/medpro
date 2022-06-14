@@ -4,6 +4,7 @@ import {
     openMenu
 } from './actions';
 import {signOut} from "next-auth/react";
+import {string} from "prop-types";
 
 export type MenuState = {
     opened: boolean;
@@ -20,6 +21,10 @@ export const ProfileMenuReducer = createReducer(initialState, builder => {
         .addCase(openMenu, (state, action) => {
             state.opened = action.payload;
         }).addCase(logout, (state, action) => {
-            signOut({ callbackUrl: action.payload === 'rtl' ? '/ar' : '/'});
+            if(action.payload.redirect === undefined) {
+                signOut({callbackUrl: action.payload === 'rtl' ? '/ar' : '/'});
+            }else{
+                signOut({redirect: false});
+            }
         });
 });

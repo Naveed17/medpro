@@ -60,7 +60,6 @@ function Actes() {
         setSuggestion(actes.filter((nb) => {
             return !selectedActes.some((item) => item.id === nb.id);
         }));
-
     },[mainActes,secondaryActes])
 
     const onDrag = (prop: any) => (ev: any) => {
@@ -114,18 +113,19 @@ function Actes() {
                         },
                     }}>
                     {t('actes.main')} {!alert && <IconUrl onChange={() => {
-                    setAlert(true)
-                }} path="danger"/>} {alert && <BasicAlert icon="danger"
-                                                          sx={{
-                                                              width: 'fit-content',
-                                                              padding: '0  15px 0 0',
-                                                              margin: '0 10px'
-                                                          }}
-                                                          data={'Actes alert message'}
-                                                          onChange={() => {
-                                                              setAlert(false)
-                                                          }}
-                                                          color="warning">info</BasicAlert>}
+                        setAlert(true)
+                    }} path="danger"/>}
+                    {alert && <BasicAlert icon="danger"
+                          sx={{
+                              width: 'fit-content',
+                              padding: '0  15px 0 0',
+                              margin: '0 10px'
+                          }}
+                          data={'Actes alert message'}
+                          onChange={() => {
+                              setAlert(false)
+                          }}
+                          color="warning">info</BasicAlert>}
                 </Typography>
 
                 <MultiSelect

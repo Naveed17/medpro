@@ -133,7 +133,7 @@ function SideBarMenu({ children }: LayoutProps) {
 
     return (
         <MainMenuStyled className="header-main">
-            <CssBaseline />
+            {/*<CssBaseline />*/}
             <TopNavBar />
             <Box
                 component="nav"

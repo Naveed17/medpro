@@ -13,6 +13,7 @@ import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
+import requestAxios from "@app/axios/config";
 
 function ProfilMenu() {
     const { data: session, status } = useSession();
@@ -29,9 +30,18 @@ function ProfilMenu() {
         dispatch(openMenu(!opened));
     };
 
-    const handleMenuItem = (action: string) => {
-        switch (action){
-            case 'logout': dispatch(logout(dir)); break;
+    const handleMenuItem = async (action: string) => {
+        switch (action) {
+            case 'logout':
+                const {
+                    data: {path}
+                } = await requestAxios({
+                    url: "/api/auth/logout",
+                    method: "GET"
+                });
+                dispatch(logout({redirect: false}));
+                window.location.href = path;
+                break;
         }
     };
 

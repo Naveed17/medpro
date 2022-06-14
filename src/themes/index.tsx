@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 // material
 import { CssBaseline } from "@mui/material";
 import {
@@ -41,7 +41,7 @@ function ThemeConfig({ children }: LayoutProps) {
     });
     // styleCache.compat = true;
 
-    const themeWithLocale = React.useMemo(
+    const themeWithLocale = useMemo(
         () => createTheme({
             palette: {...palette, mode: mode },
             typography,
@@ -64,7 +64,6 @@ function ThemeConfig({ children }: LayoutProps) {
                 </main>
             </ThemeProvider>
         </CacheProvider>
-
     );
 }
 

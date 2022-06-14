@@ -7,13 +7,15 @@ import {ConfigReducer} from "@features/setConfig/reducer";
 import {SideBarReducer} from "@features/sideBarMenu/reducer";
 import {ProfileMenuReducer} from "@features/profilMenu";
 import {CheckListReducer} from "@features/checkList";
+import {userReducer} from "@features/user";
 
 export const store = configureStore({
     reducer: {
         theme: ConfigReducer,
         sideBar: SideBarReducer,
         profileMenu: ProfileMenuReducer,
-        checkList: CheckListReducer
+        checkList: CheckListReducer,
+        user: userReducer
     },
 });
 
