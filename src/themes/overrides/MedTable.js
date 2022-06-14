@@ -42,6 +42,7 @@ export default function MedTable(
         state,
         handleConfig,
         handleChange,
+        editMotif,
         ...rest
     }) {
     const [order, setOrder] = React.useState('asc');
@@ -87,7 +88,7 @@ export default function MedTable(
                         {stableSort(rows, getComparator(order, orderBy))
                             .map((row, index) => {
                                 return (
-                                    <TableRow key={index} row={row} tableHeadData={state} handleChange={handleChange} active={active} ids={ids} />
+                                    <TableRow key={index} row={row} tableHeadData={state} handleChange={handleChange} editMotif={editMotif} active={active} ids={ids} />
                                 );
                             })}
                     </TableBody>

@@ -55,6 +55,28 @@
     "agenda": "Agenda",
     "type": "Type",
     "active": "Active",
-    "action": "Action"
+    "action": "Action",
+    "add": "Ajouter motif",
+    "path": "Paramètres &gt; Motifs de consultation",
+    "dialog": {
+      "add": "Ajouter motif de consultation",
+      "update": "Modifier motif de consultation",
+      "enligne": "En ligne ( Consultation vidéo )",
+      "cabinet": "En cabinet",
+      "domicile": "À domicile",
+      "pro": "Dédié au professionnels de santé",
+      "info": "Information du motif",
+      "nom": "Nom motif de consultation",
+      "type": "type du motif",
+      "tapez": "Tapez le nom du motif",
+      "duree": "Durée",
+      "selectGroupe": "Sélectionner un groupe",
+      "delaiMin": "Délai min",
+      "delaiMax": "Délai max",
+      "medecin": "Médecin",
+      "selectCalander": "Veuillez sélectionner les calendriers qui affectent ce motif de consultation",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
   }
 }

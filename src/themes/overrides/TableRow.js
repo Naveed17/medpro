@@ -45,7 +45,7 @@ const RootStyle = styled(TableRow)(({ theme, styleprops }) => ({
     }
 }));
 
-export default function EnhancedTableRow({ row, tableHeadData, active, handleChange, ids }) {
+export default function EnhancedTableRow({ row, tableHeadData, active, handleChange,editMotif, ids }) {
 
     return (
         <RootStyle styleprops={row.color} key={row.name}>
@@ -125,7 +125,7 @@ export default function EnhancedTableRow({ row, tableHeadData, active, handleCha
                 <Switch name='active' onChange={(e) => handleChange(row, 'active','')} checked={row.active} />
             </TableCell>
             <TableCell align="center">
-                <IconButton size="small" sx={{ mr: { md: 1 } }} >
+                <IconButton size="small" sx={{ mr: { md: 1 } }} onClick={()=>editMotif(row)} >
                     <IconUrl path="setting/edit" />
                 </IconButton>
             </TableCell>

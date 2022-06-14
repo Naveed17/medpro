@@ -1,10 +1,15 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {ReactElement, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import DashLayout from "@features/base/dashLayout";
 import MedTable from "@themes/overrides/MedTable"
-import {Box} from "@mui/material";
+import { Box, Button, Drawer } from "@mui/material";
 import {useTranslation} from "next-i18next";
+import { EditMotifDialog } from "@features/editMotifDialog";
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/calendarToolbar";
+import {useSelector} from "react-redux";
+import {configSelector} from "@features/setConfig";
 
 function Motif() {
 
@@ -43,12 +48,15 @@ function Motif() {
             active: false
         },
     ]);
+    const [edit, setEdit] = useState(false);
     const [state, setState] = useState({
         duration: false,
         delay_min: false,
         delay_max: true,
         active: false
     });
+    const [selected, setSelected] = useState();
+    const {direction} = useSelector(configSelector);
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -154,14 +162,42 @@ function Motif() {
         setState({...state});
     }
 
+    const editMotif = (props: any) =>{
+        setEdit(true)
+        setSelected(props);
+    }
+
     return (
-        <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-            <MedTable headers={headCells}
-                      rows={rows}
-                      state={state}
-                      handleConfig={handleConfig}
-                      handleChange={handleChange}></MedTable>
-        </Box>
+        <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t('motif.path')}</p>
+                    <Button type='submit'
+                            variant="contained"
+                            onClick={()=>{editMotif(null)}}
+                            color="success">
+                        {t('motif.add')}
+                    </Button>
+                </RootStyled>
+            </SubHeader>
+            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <MedTable headers={headCells}
+                          rows={rows}
+                          state={state}
+                          editMotif={editMotif}
+                          handleConfig={handleConfig}
+                          handleChange={handleChange}></MedTable>
+
+
+                <Drawer
+                    anchor={'right'}
+                    open={edit}
+                    dir={direction}
+                    onClose={()=>{setEdit(false)}}>
+                    <EditMotifDialog data={selected} close={()=>{setEdit(false)}}></EditMotifDialog>
+                </Drawer>
+            </Box>
+        </>
     )
 }
 
