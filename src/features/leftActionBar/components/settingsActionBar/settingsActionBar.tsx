@@ -31,7 +31,7 @@ function SettingActionBar() {
             </Typography>
             <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
                 <nav aria-label="main mailbox folders">
-                    <List >
+                    <List>
                         {settingsData.data.map((v: any) => (
                             <ListItem
                                 key={v.name}
