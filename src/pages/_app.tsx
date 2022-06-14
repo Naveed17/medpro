@@ -1,4 +1,4 @@
-import type { AppProps} from 'next/app'
+import type {AppProps} from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
