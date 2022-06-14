@@ -9,14 +9,6 @@ export default function Table(theme) {
           borderCollapse: "separate",
           borderSpacing: "0px 8px",
           background: "transparent",
-          // "& .MuiTableBody-root": {
-          //   // "&:before": {
-          //   //   content: '"-"',
-          //   //   display: "block",
-          //   //   lineHeight: "0.8em",
-          //   //   color: "transparent",
-          //   // },
-          // },
           "& .MuiTableBody-root .MuiTableRow-root": {
             "& .MuiTableCell-root": {
               borderTop: "1px solid transparent",
@@ -69,6 +61,10 @@ export default function Table(theme) {
           "&:first-of-type": {
             borderTopLeftRadius: theme.shape.borderRadius,
             borderBottomLeftRadius: theme.shape.borderRadius,
+            '& span': {
+              flexDirection: 'row !important',
+              justifyContent: 'flex-start !important',
+            }
           },
           "&:last-of-type": {
             borderTopRightRadius: theme.shape.borderRadius,
@@ -85,7 +81,8 @@ export default function Table(theme) {
             cursor: "pointer",
             span: {
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
+              flexDirection: "row-reverse",
               alignItems: "center",
             },
             div: {
