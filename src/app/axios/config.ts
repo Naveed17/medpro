@@ -1,42 +1,6 @@
-// import axios from 'axios';
-// import { getSession } from 'next-auth/react';
-//
-import {getSession} from "next-auth/react";
+import axios from "axios";
 
 const baseURL: string = process.env.NEXT_APP_BACK_END_POINT || 'http://localhost:3000';
-// let accessToken: string = '';
-// let refreshToken = '';
-//
-// const ApiClient = () => {
-//
-//     const defaultOptions = {
-//         baseURL,
-//     };
-//
-//     const instance = axios.create(defaultOptions);
-//
-//     instance.interceptors.request.use(async (req: any) => {
-//         if (accessToken !== '') {
-//             req.headers.Authorization = `Bearer ${accessToken}`;
-//         }
-//         return req;
-//     });
-//
-//     instance.interceptors.response.use(
-//         (response) => {
-//             return response;
-//         },
-//         (error) => {
-//             console.log(`error`, error);
-//         },
-//     );
-//
-//     return instance;
-// };
-//
-// export default ApiClient();
-
-import axios from "axios";
 
 export const setAxiosToken = (access_token: string) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
