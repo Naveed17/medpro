@@ -10,25 +10,29 @@ import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {getToken} from "next-auth/jwt";
+import {useDispatch} from "react-redux";
+import {setAccessToken, setUserData} from "@features/user";
 
 
 const fetcher = (url: string) => requestAxios({url, method: "GET"}).then(res => res.data);
 
 const API = "/api/private/user/fr";
 
-function Dashborad({...props}: any) {
+function Dashborad() {
     const { data: session, status } = useSession();
+    const dispatch = useDispatch();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
     // const {data, error} = useSWR(API);
 
     const loading = status === 'loading'
     if (loading) return (<LoadingScreen />);
+    const { data: user, accessToken } = session as Session;
 
-    console.log("Dashborad", session);
-    const { data: user } = session as Session;
-
+    if (user) {
+        dispatch(setUserData((user as any)?.data));
+        dispatch(setAccessToken(accessToken as string));
+    }
 
     // if (error) return <div>failed to load</div>
     // if (!data) return <div>loading...</div>
@@ -62,15 +66,13 @@ function Dashborad({...props}: any) {
 // Export the `session` prop to use sessions with Server Side Rendering
 export const getServerSideProps: GetServerSideProps = async (context) => {
     // const repoInfo = await fetcher(API)
-    const request = context.req as any;
-    const token = await getToken({
-        req: request,
-        secret: process.env.JWT_SECRET
-    });
+    // const request = context.req as any;
+    // const token = await getToken({
+    //     req: request
+    // });
 
     return {
         props: {
-            accessToken: token,
             ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
         }
     }
