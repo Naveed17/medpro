@@ -1,12 +1,11 @@
-import NextAuth from "next-auth"
+import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
-
-// import EmailProvider from "next-auth/providers/email"
-// import AppleProvider from "next-auth/providers/apple"
+import requestAxios, {setAxiosToken} from "@app/axios/config";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
-export default NextAuth({
+
+export const authOptions: NextAuthOptions = {
   // https://next-auth.js.org/configuration/providers
 
   providers: [
@@ -28,7 +27,7 @@ export default NextAuth({
   // The secret should be set to a reasonably long random string.
   // It is used to sign cookies and to sign and encrypt JSON Web Tokens, unless
   // a separate secret is defined explicitly for encrypting the JWT.
-  // secret: "",
+  secret: process.env.NEXTAUTH_SECRET,
 
   session: {
     // Use JSON Web Tokens for session instead of database sessions.
@@ -49,14 +48,12 @@ export default NextAuth({
   // option is set - or by default if no database is specified.
   // https://next-auth.js.org/configuration/options#jwt
   jwt: {
-    // A secret to use for key generation (you should set this explicitly)
-    // secret: process.env.SECRET,
-    // Set to true to use encryption (default: false)
-    // encryption: true,
-    // You can define your own encode/decode functions for signing and encryption
-    // if you want to override the default behaviour.
-    // encode: async ({ secret, token, maxAge }) => {},
-    // decode: async ({ secret, token, maxAge }) => {},
+    // encode: async ({ secret, token }) => {
+    //   return jwt.sign(token as any, secret);
+    // },
+    // decode: async ({ secret, token }) => {
+    //   return jwt.verify(token as string, secret) as any;
+    // },
   },
 
   // You can define custom pages to override the built-in ones. These will be regular Next.js pages
@@ -78,8 +75,38 @@ export default NextAuth({
   callbacks: {
     // async signIn({ user, account, profile, email, credentials }) { return true },
     // async redirect({ url, baseUrl }) { return baseUrl },
-    // async session({ session, token, user }) { return session },
-    // async jwt({ token, user, account, profile, isNewUser }) { return token }
+    async session({ session, token, user }) {
+      // Send properties to the client, like an access_token from a provider.
+
+      setAxiosToken(<string>token.accessToken);
+      session.accessToken = token.accessToken;
+
+      const res = await requestAxios({
+        url: "/api/private/user/fr",
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token.accessToken}`
+        }
+      });
+
+      if(session.user?.image === undefined) {
+        Object.assign(session.user, {
+          image: null
+        });
+      }
+
+      session.data = await res?.data;
+      return session;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      // Persist the OAuth access_token to the token right after signin
+      if (account) {
+        // Send properties to the client, like an access_token from a provider.
+        setAxiosToken(<string>account.access_token);
+        token.accessToken = account.access_token
+      }
+      return token
+    }
   },
 
   // Events are useful for logging
@@ -87,5 +114,8 @@ export default NextAuth({
   events: {},
 
   // Enable debug messages in the console if you are having problems
-  debug: true,
-})
+  debug: false,
+}
+
+export default NextAuth(authOptions)
+

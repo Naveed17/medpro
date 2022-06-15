@@ -1,5 +1,9 @@
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import axios, {AxiosRequestConfig, AxiosResponse, AxiosError, Axios} from 'axios'
+import {getSession, useSession} from "next-auth/react";
+import {ApiClient} from "@app/axios/index";
+import request from "@app/axios/config";
+import clientAxios from "@app/axios/config";
 
 export type GetRequest = AxiosRequestConfig | null
 
@@ -31,10 +35,6 @@ function UseRequest<Data = unknown, Error = unknown>(
         mutate
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && JSON.stringify(request),
-        /**
-         * NOTE: Typescript thinks `request` can be `null` here, but the fetcher
-         * function is actually only called by `useSWR` when it isn't.
-         */
         () => axios.request<Data>(request!),
         {
             ...config,
@@ -57,4 +57,39 @@ function UseRequest<Data = unknown, Error = unknown>(
     }
 }
 
-export default UseRequest;
+// export default UseRequest;
+
+const baseURL = process.env.NEXT_APP_BACK_END_POINT
+let instance: Axios;
+
+async function get(URL: string, params?: any, headers?: any) {
+    let query = '';
+    if (params !== undefined) {
+        const searchParams = new URLSearchParams(params)
+        query = `?${searchParams.toString()}`
+    }
+
+    return axios.get(`${URL}`, {
+        headers: {
+            accept: `application/json`
+        }
+    });
+}
+
+const post = (URL: string, body: any) => axios.post(`${baseURL}/${URL}`, body)
+
+const put = (URL: string, body: any) => axios.put(`${baseURL}/${URL}`, body)
+
+const deletes = (URL: string) => axios.delete(`${baseURL}/${URL}`)
+
+const patch = (URL: string) => axios.patch(`${baseURL}/${URL}`)
+
+const ApiService = {
+    get,
+    post,
+    put,
+    deletes,
+    patch,
+}
+
+export default ApiService

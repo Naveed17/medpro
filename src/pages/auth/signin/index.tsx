@@ -24,6 +24,11 @@ function SignIn(){
 
     const redirectSignIn = !router.pathname.startsWith('/auth/signin');
 
+    const handleSignIn = (event: any) => {
+        event.preventDefault()
+        signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')});
+    };
+
     const login = (
             <>
                 {!session && (<Grid item xs={12} md={12}>
@@ -44,10 +49,7 @@ function SignIn(){
                         <Button sx={{ '& img': { mr: 2 }, fontFamily: 'Poppins', fontSize: '16px', mt: 2 }}
                                 startIcon={<Box component="img"  width={20} height={20} src="/static/icons/Med-logo_.svg"  />}
                                 variant="google"
-                                onClick={(e) => {
-                                    e.preventDefault()
-                                    signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')})
-                                }} fullWidth>
+                                onClick={(e) => handleSignIn(e)} fullWidth>
                             {t('login.sign_med_connect')}
                         </Button>
                         <Box sx={{ height: '2px', backgroundColor: 'divider', mt: 5, mb: 8, width: '75%', mx: 'auto', position: 'relative', '& p': { position: 'absolute', px: 1.5, backgroundColor: theme.palette.background.default, left: '50%', color: "#C9C8C8", transform: 'translateX(-50%)', top: -10 } }}>

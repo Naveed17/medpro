@@ -38,16 +38,16 @@ $lato-font-path: "/static/fonts/Lato/";
 
 // Poppins
 
-@font-face {
-  src: url("#{$poppins-font-path}Poppins-Regular.ttf");
-  font-family: "Poppins";
-  font-display: swap;
-}
-@font-face {
-  src: url("#{$poppins-font-path}Poppins-Bold.ttf");
-  font-family: "Poppins-Bold";
-  font-display: swap;
-}
+//@font-face {
+//  src: url("#{$poppins-font-path}Poppins-Regular.ttf");
+//  font-family: "Poppins";
+//  font-display: swap;
+//}
+//@font-face {
+//  src: url("#{$poppins-font-path}Poppins-Bold.ttf");
+//  font-family: "Poppins-Bold";
+//  font-display: swap;
+//}
 @font-face {
   src: url("#{$poppins-font-path}Poppins-SemiBold.ttf");
   font-family: "Poppins-SemiBold";
@@ -66,46 +66,5 @@ $lato-font-path: "/static/fonts/Lato/";
 @font-face {
   src: url("#{$poppins-font-path}Poppins-ExtraBold.ttf");
   font-family: "Poppins-ExtraBold";
-  font-display: swap;
-}
-
-// Montserrat
-
-@font-face {
-  src: url("#{$montserrat-font-path}Montserrat-Regular.ttf");
-  font-family: "Montserrat";
-  font-display: swap;
-}
-@font-face {
-  src: url("#{$montserrat-font-path}Montserrat-Medium.ttf");
-  font-family: "Montserrat-Medium";
-  font-display: swap;
-}
-@font-face {
-  src: url("#{$montserrat-font-path}Montserrat-Bold.ttf");
-  font-family: "Montserrat-Bold";
-  font-display: swap;
-}
-@font-face {
-  src: url("#{$montserrat-font-path}Montserrat-SemiBold.ttf");
-  font-family: "Montserrat-SemiBold";
-  font-display: swap;
-}
-@font-face {
-  src: url("#{$montserrat-font-path}Montserrat-Light.ttf");
-  font-family: "Montserrat-Light";
-  font-display: swap;
-}
-
-// Roboto
-@font-face {
-  src: url("#{$roboto-font-path}Roboto-Regular.ttf");
-  font-family: "Roboto";
-  font-display: swap;
-}
-//Latto
-@font-face {
-  src: url("#{$lato-font-path}Lato-Regular.ttf");
-  font-family: "Lato";
   font-display: swap;
 }

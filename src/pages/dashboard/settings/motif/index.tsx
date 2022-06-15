@@ -8,11 +8,10 @@ import {useTranslation} from "next-i18next";
 import { EditMotifDialog } from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/calendarToolbar";
-import {useSelector} from "react-redux";
 import {configSelector} from "@features/setConfig";
+import {useAppSelector} from "@app/redux/hooks";
 
 function Motif() {
-
     const [rows, setRows] = useState([
         {
             id: 1,
@@ -56,7 +55,7 @@ function Motif() {
         active: false
     });
     const [selected, setSelected] = useState();
-    const {direction} = useSelector(configSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -182,13 +181,13 @@ function Motif() {
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <MedTable headers={headCells}
-                          rows={rows}
-                          state={state}
-                          from={'motif'}
-                          t={t}
-                          editMotif={editMotif}
-                          handleConfig={handleConfig}
-                          handleChange={handleChange}></MedTable>
+                        rows={rows}
+                        state={state}
+                        from={'motif'}
+                        t={t}
+                        editMotif={editMotif}
+                        handleConfig={handleConfig}
+                        handleChange={handleChange}/>
 
 
                 <Drawer
@@ -196,7 +195,9 @@ function Motif() {
                     open={edit}
                     dir={direction}
                     onClose={()=>{setEdit(false)}}>
-                    <EditMotifDialog data={selected} close={()=>{setEdit(false)}}></EditMotifDialog>
+                    <EditMotifDialog data={selected} close={() => {
+                                        setEdit(false)
+                                    }}/>
                 </Drawer>
             </Box>
         </>
@@ -209,6 +210,8 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     }
 })
 export default Motif
+
+Motif.auth = true;
 
 Motif.getLayout = function getLayout(page: ReactElement) {
     return (

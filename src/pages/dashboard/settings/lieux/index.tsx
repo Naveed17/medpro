@@ -85,7 +85,6 @@ function Lieux() {
     const handleChange = (props: any, event: string, value: string) => {
         props.actif = !props.actif;
         setRows([...rows]);
-        console.log(props);
     }
 
     return (
@@ -122,6 +121,8 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     }
 })
 export default Lieux
+
+Lieux.auth = true;
 
 Lieux.getLayout = function getLayout(page: ReactElement) {
     return (
