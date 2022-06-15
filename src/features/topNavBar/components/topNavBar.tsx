@@ -26,6 +26,7 @@ import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
+import LangButton from "./langButton/langButton";
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
@@ -105,6 +106,7 @@ function TopNavBar(){
                             </IconButton>
                         </Badge>
                     </MenuList>
+                    <LangButton />
                     <MenuList className="topbar-account">
                         <MenuItem sx={{ pr: 0 }} disableRipple>
                             <ProfilMenuIcon />

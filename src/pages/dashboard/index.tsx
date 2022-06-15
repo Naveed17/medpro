@@ -18,7 +18,8 @@ const fetcher = (url: string) => requestAxios({url, method: "GET"}).then(res => 
 
 const API = "/api/private/user/fr";
 
-function Dashborad() {
+function Dashborad({...props}: any) {
+    console.log("Dashborad", props);
     const { data: session, status } = useSession();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -29,10 +30,7 @@ function Dashborad() {
     if (loading) return (<LoadingScreen />);
     const { data: user, accessToken } = session as Session;
 
-    if (user) {
-        dispatch(setUserData((user as any)?.data));
-        dispatch(setAccessToken(accessToken as string));
-    }
+    console.log(session);
 
     // if (error) return <div>failed to load</div>
     // if (!data) return <div>loading...</div>
@@ -70,9 +68,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // const token = await getToken({
     //     req: request
     // });
-
+    const cookie = context.req.headers.cookie;
     return {
         props: {
+            cookies: cookie,
             ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
         }
     }
