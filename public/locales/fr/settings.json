@@ -88,6 +88,24 @@
     "path": "Paramètres > Lieux de consultation",
     "acces": "accès",
     "remove": "Supprimer",
-    "update": "Editer"
+    "update": "Editer",
+    "new": {
+      "path": "Paramètres > Lieux de consultation > Ajouter",
+      "name": "Nom du lieu",
+      "adress": "Adresse",
+      "postal": "Code postal",
+      "ville": "Ville",
+      "lieu": "Lieu",
+      "info": "Information pratique",
+      "number": "Numéro",
+      "hide": "Masqué",
+      "addNumber": "Ajouter un numéro",
+      "access": "Informations d’accés",
+      "writeHere": "Tapez içi les informations",
+      "selectCity": "Sélectionner une ville",
+      "wirteName": "Tapez içi le nom de l’établissement",
+      "writeAdress": "Tapez içi l'adresse de l’établissement",
+      "writePostal": "Tapez içi code postal"
+    }
   }
 }

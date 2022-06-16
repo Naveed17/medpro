@@ -8,9 +8,11 @@ import { Box, Button } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import MedTable from "@themes/overrides/MedTable";
+import {useRouter} from "next/router";
 const Maps = dynamic(() => import("@features/maps/components/maps"), { ssr: false });
 
 function Lieux() {
+    const router = useRouter();
 
     const [rows, setRows] = useState([
         {
@@ -95,7 +97,7 @@ function Lieux() {
                     <Button type='submit'
                             variant="contained"
                             onClick={() => {
-                                console.log('add');
+                                router.push(`/dashboard/settings/lieux/new`);
                             }}
                             color="success">
                         {t('lieux.add')}
