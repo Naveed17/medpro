@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useState, useEffect} from "react";
-import DashLayout from "@features/base/dashLayout";
+import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import { Box, Typography, Paper, Chip, Stack } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";

@@ -4,7 +4,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
-import DashLayout from "@features/base/dashLayout";
+import {DashLayout} from "@features/base";
 import {useAppSelector} from "@app/redux/hooks";
 import {userSelector} from "@features/user";
 import requestAxios from "@app/axios/config";
@@ -16,17 +16,14 @@ const API = "/api/private/user/fr";
 
 function Patient(){
     const {data: user, accessToken} = useAppSelector(userSelector);
-    console.log("Patient", user);
     const router = useRouter();
-    const {data, error} = useSWR(API);
+    // const {data, error} = useSWR(API);
     const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
-    if (error) return <div>failed to load</div>
-    if (!data) return <div>loading...</div>
-
-    console.log("useSWR", data);
+    // if (error) return <div>failed to load</div>
+    // if (!data) return <div>loading...</div>
 
     return(
         <>
@@ -40,12 +37,12 @@ function Patient(){
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-    const repoInfo = await fetcher(API);
+    // const repoInfo = await fetcher(API);
     return {
         props: {
-            fallback: {
-                [API]: repoInfo
-            },
+            // fallback: {
+            //     [API]: repoInfo
+            // },
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
         }
     }

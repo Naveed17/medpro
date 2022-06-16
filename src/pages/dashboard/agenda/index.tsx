@@ -4,7 +4,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
-import DashLayout from "@features/base/dashLayout";
+import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/calendarToolbar";
 

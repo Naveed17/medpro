@@ -6,11 +6,11 @@ import {useTranslation} from "next-i18next";
 import {
     SelectChangeEvent,
 } from "@mui/material";
-import {setTheme} from "@features/setConfig/actions";
+import {setTheme} from "@features/base/actions";
 import {useRouter} from "next/router";
 import {useAppDispatch} from "@app/redux/hooks";
 import dynamic from 'next/dynamic';
-const Footer = dynamic(() => import('@features/base/footer'));
+const Footer = dynamic(() => import('@features/base/components/footer/footer'));
 const SignIn = dynamic(() => import('./auth/signin'));
 
 const Home: NextPage = () => {

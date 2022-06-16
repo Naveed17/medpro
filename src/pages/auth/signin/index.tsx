@@ -9,7 +9,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import dynamic from "next/dynamic";
 import { LoadingScreen } from "@features/loadingScreen";
 
-const Footer = dynamic(() => import('@features/base/footer'));
+const Footer = dynamic(() => import('@features/base/components/footer/footer'));
 
 function SignIn(){
     const { data: session, status } = useSession();

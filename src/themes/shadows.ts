@@ -10,7 +10,7 @@ const shadows: any = [
   "0px 1px 5px rgba(116, 95, 0, 0.72)",
   "0px 0px 16px rgba(0, 0, 0, 0.1)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
-  "0px 1px 5px rgba(0, 112, 50, 0.7)",
+  "0px 1px 5px rgba(0, 150, 214, 0.25)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",

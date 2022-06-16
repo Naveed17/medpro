@@ -22,7 +22,7 @@ export default function IconButton(theme) {
             },
             border: "1px solid transparent",
             "&:hover": {
-              border: "1px solid #E3EAEF",
+              border: `1px solid ${theme.palette.grey["A100"]}`,
               boxShadow: theme.shadows[4],
               background: theme.palette.info.main,
             },

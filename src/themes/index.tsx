@@ -14,7 +14,7 @@ import {useRouter} from "next/router";
 import createCache from "@emotion/cache";
 import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
-import {configSelector, setDirection, setLocalization} from "@features/setConfig";
+import {configSelector, setDirection, setLocalization} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {Localization} from "@app/localization/localization";
 import * as locales from "@mui/material/locale";
