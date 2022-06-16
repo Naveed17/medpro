@@ -2,13 +2,13 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
-import DashLayout from "@features/base/dashLayout";
+import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
-import CardStyled from "./overrides/cardStyled";
+import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/calendarToolbar";
-import {configSelector} from "@features/setConfig";
+import {configSelector} from "@features/base";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";

@@ -1,14 +1,14 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/dashLayout";
+import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import MedTable from "@themes/overrides/MedTable"
 import { Box, Button, Drawer } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import { EditMotifDialog } from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/calendarToolbar";
-import {configSelector} from "@features/setConfig";
+import {configSelector} from "@features/base";
 import {useAppSelector} from "@app/redux/hooks";
 
 function Motif() {

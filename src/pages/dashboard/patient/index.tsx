@@ -4,7 +4,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
-import DashLayout from "@features/base/dashLayout";
+import {DashLayout} from "@features/base";
 import {useAppSelector} from "@app/redux/hooks";
 import {userSelector} from "@features/user";
 import requestAxios from "@app/axios/config";
@@ -37,7 +37,7 @@ function Patient(){
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
-   // const repoInfo = await fetcher(API);
+    // const repoInfo = await fetcher(API);
     return {
         props: {
             // fallback: {

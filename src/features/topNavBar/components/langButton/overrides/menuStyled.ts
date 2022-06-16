@@ -14,7 +14,9 @@ const MenuStyled = styled(Menu)(({ theme }) => ({
             paddingBottom: theme.spacing(.75),
             '& .MuiTypography-root': {
                 fontSize: 12,
-                color: '#7C878E'
+                color: '#7C878E',
+                marginRight: 6
+
             },
             '& .MuiListItemIcon-root': {
                 minWidth: '20px',
