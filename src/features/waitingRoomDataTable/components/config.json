@@ -1,0 +1,70 @@
+{
+    "rows": [
+        {
+            "id": "#1",
+            "btn": "Video consultation",
+            "time": "15:00",
+            "status": "warning",
+            "time2": "30 min",
+            "time1": "15:15",
+            "name": "Mr. John",
+            "aganda": "Hospital agenda",
+            "label": "Waiting"
+        },
+        {
+            "id": "#2",
+            "btn": "Control",
+            "time": "15:30",
+            "status": "warning",
+            "time2": "1h 10min",
+            "time1": "15:45",
+            "name": "Anna",
+            "aganda": "Hospital agenda",
+            "label": "Confirmed"
+        },
+        {
+            "id": "#3",
+            "btn": "First consultation",
+            "time": "16:00",
+            "status": "success",
+            "time2": "45 min",
+            "time1": "16:15",
+            "name": "John",
+            "aganda": "Hospital agenda",
+            "label": "Confirmed"
+        },
+        {
+            "id": "#4",
+            "btn": "Binford Ltd.",
+            "time": "16:30",
+            "status": "error",
+            "time2": "20 min",
+            "time1": "16:45",
+            "name": "Barbara",
+            "aganda": "Hospital agenda",
+            "label": "Waiting"
+        },
+        {
+            "id": "#5",
+            "btn": "Video consultation",
+            "time": "17:00",
+            "status": "success",
+            "time2": "2h 5min",
+            "time1": "17:15",
+            "name": "Carl",
+            "aganda": "Hospital agenda",
+            "label": "Waiting"
+        },
+        {
+            "id": "#6",
+            "btn": "First consultation",
+            "time": "17:30",
+            "status": "warning",
+            "time2": "25 min",
+            "time1": "17:45",
+            "name": "Eric",
+            "aganda": "Hospital agenda",
+            "label": "Waiting"
+        }
+    ]
+}
