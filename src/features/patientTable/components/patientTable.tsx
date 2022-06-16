@@ -21,11 +21,26 @@ import IconButton from "@mui/material/IconButton";
 // utils
 import Icon from "@themes/urlIcon";
 import data from "./data.json";
-const { tableData } = data;
-// import BasicPagination from "@components/pagination";
-// import useSettings from "@settings/useSettings";
+import CodeIcon from "@mui/icons-material/Code";
 
-function descendingComparator(a, b, orderBy) {
+import { Pagination } from "@features/pagination";
+// import useSettings from "@settings/useSettings";
+export type DataProp = {
+  id: number;
+  name: string;
+  avatar: string;
+  time: string;
+  telephone: string;
+  idCode: string;
+  city: string;
+  nextAppointment: string;
+  lastAppointment: string;
+  addAppointment: boolean;
+  action: string;
+};
+const { tableData } = data;
+
+function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -35,7 +50,15 @@ function descendingComparator(a, b, orderBy) {
   return 0;
 }
 
-function getComparator(order, orderBy) {
+type Order = "asc" | "desc";
+
+function getComparator<Key extends keyof any>(
+  order: Order,
+  orderBy: Key
+): (
+  a: { [key in Key]: number | string },
+  b: { [key in Key]: number | string }
+) => number {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -43,8 +66,13 @@ function getComparator(order, orderBy) {
 
 // This method is created for cross-browser compatibility, if you don't
 // need to support IE11, you can use Array.prototype.sort() directly
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+function stableSort<DataProp>(
+  array: any[],
+  comparator: (a: DataProp, b: DataProp) => number
+) {
+  const stabilizedThis = array.map(
+    (el, index) => [el, index] as [DataProp, number]
+  );
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) {
@@ -54,52 +82,88 @@ function stableSort(array, comparator) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-const headCells = [
+
+interface HeadCell {
+  disablePadding: boolean;
+  id: keyof DataProp;
+  label: string;
+  numeric: boolean;
+  isSortable: boolean;
+  align: "left" | "right" | "center";
+}
+
+const headCells: readonly HeadCell[] = [
   {
     id: "name",
     numeric: false,
     disablePadding: true,
     label: "Patient's name",
+    isSortable: true,
+    align: "left",
   },
   {
     id: "telephone",
     numeric: true,
     disablePadding: false,
     label: "Telephone",
+    isSortable: true,
+    align: "left",
   },
   {
     id: "city",
     numeric: false,
     disablePadding: false,
     label: "City",
+    isSortable: true,
+    align: "left",
   },
   {
     id: "id",
     numeric: true,
     disablePadding: false,
     label: "ID",
+    isSortable: true,
+    align: "left",
   },
   {
-    id: "nextappointment",
+    id: "nextAppointment",
     numeric: false,
     disablePadding: false,
     label: "Next Appointment",
+    isSortable: false,
+    align: "left",
   },
   {
-    id: "lastappointment",
+    id: "lastAppointment",
     numeric: false,
     disablePadding: false,
     label: "Last appointment",
+    isSortable: false,
+    align: "left",
   },
   {
     id: "action",
     numeric: false,
     disablePadding: false,
     label: "Action",
+    isSortable: false,
+    align: "right",
   },
 ];
 
-function EnhancedTableHead(props) {
+interface EnhancedTableProps {
+  numSelected: number;
+  onRequestSort: (
+    event: React.MouseEvent<unknown>,
+    property: keyof DataProp
+  ) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  order: Order;
+  orderBy: string;
+  rowCount: number;
+}
+
+function EnhancedTableHead(props: EnhancedTableProps) {
   const {
     onSelectAllClick,
     order,
@@ -108,9 +172,10 @@ function EnhancedTableHead(props) {
     rowCount,
     onRequestSort,
   } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
+  const createSortHandler =
+    (property: keyof DataProp) => (event: React.MouseEvent<unknown>) => {
+      onRequestSort(event, property);
+    };
 
   return (
     <TableHead>
@@ -137,6 +202,17 @@ function EnhancedTableHead(props) {
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : "asc"}
               onClick={createSortHandler(headCell.id)}
+              IconComponent={CodeIcon}
+              sx={{
+                justifyContent:
+                  headCell.align === "center"
+                    ? "center !important"
+                    : "flex-start!important",
+                flexDirection: "row!important",
+                svg: {
+                  transform: "rotate(90deg)",
+                },
+              }}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
@@ -152,16 +228,7 @@ function EnhancedTableHead(props) {
   );
 }
 
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-const EnhancedTableToolbar = (props) => {
+const EnhancedTableToolbar = ({ ...props }) => {
   const { numSelected } = props;
 
   return (
@@ -183,7 +250,7 @@ const EnhancedTableToolbar = (props) => {
           sx={{ flex: "1 1 100%" }}
           color="inherit"
           variant="subtitle1"
-          component="div"
+          component="span"
         >
           {numSelected} selected
         </Typography>
@@ -192,7 +259,7 @@ const EnhancedTableToolbar = (props) => {
           sx={{ flex: "1 1 100%" }}
           variant="h6"
           id="tableTitle"
-          component="div"
+          component="span"
         >
           Nutrition
         </Typography>
@@ -220,45 +287,34 @@ EnhancedTableToolbar.propTypes = {
 };
 
 function PatientTable() {
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
-  const [selected, setSelected] = React.useState<any[]>([]);
+  const [order, setOrder] = React.useState<Order>("asc");
+  const [orderBy, setOrderBy] = React.useState<keyof DataProp>("name");
+  const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-  // const router = useRouter();
-  //   const settings = useSettings();
-  //   const {
-  //     ModalType,
-  //     modalSet,
-  //     modalDataSet,
-  //     popupSet,
-  //     popupDataSet,
-  //     popupTypeSet,
-  //     // sideBarDataSet,
-  //     actionRightSet,
-  //   } = settings;
-
+  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const handleRequestSort = (event: EventTarget, property: string) => {
-    const isAsc: boolean = orderBy === property && order === "asc";
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: keyof DataProp
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds: string[] = tableData.map((n) => n.name);
+      const newSelecteds = tableData.map((n) => n.name);
       setSelected(newSelecteds);
-
       return;
     }
-
     setSelected([]);
   };
 
   const handleClick = (name: string) => {
     const selectedIndex = selected.indexOf(name);
-    let newSelected: string[] = [];
+    let newSelected: readonly string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, name);
@@ -276,24 +332,29 @@ function PatientTable() {
     setSelected(newSelected);
   };
 
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - tableData.length) : 0;
+  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDense(event.target.checked);
+  };
+
+  const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box sx={{ height: `calc(100vh - 160px)`, overflow: "auto" }}>
-        <TableContainer>
+      <Box>
+        <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
           <Table
             sx={{ minWidth: 1260 }}
-            aria-labelledby="tableTitle"
             size={"medium"}
+            stickyHeader
+            aria-label="sticky table"
           >
             <EnhancedTableHead
               numSelected={selected.length}
-              order={order}
+              order={order as Order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
@@ -302,20 +363,20 @@ function PatientTable() {
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(tableData, getComparator(order, orderBy))
+              {stableSort(tableData, getComparator(order as Order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row: any, index: number) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+                .map((row) => {
+                  const isItemSelected = isSelected(row.name as string);
+                  const labelId = `enhanced-table-checkbox-${Math.random()}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={() => handleClick(row.name)}
+                      onClick={() => handleClick(row.name as string)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={Math.random()}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
@@ -334,7 +395,7 @@ function PatientTable() {
                           sx={{ img: { borderRadius: "4px" } }}
                         >
                           <img
-                            src={row.avatar}
+                            src={row.avatar as string}
                             className="avatar"
                             alt="avatar"
                             height="28px"
@@ -343,6 +404,7 @@ function PatientTable() {
                           <Box ml={1}>
                             <Typography
                               variant="body1"
+                              component="span"
                               sx={{
                                 display: "flex",
                                 alignItems: "center",
@@ -350,11 +412,12 @@ function PatientTable() {
                               }}
                               color="primary"
                             >
-                              {/* <Icon path={"ic-f"} /> */}
+                              <Icon path={"ic-f"} />
                               {row.name}
                             </Typography>
                             <Typography
                               variant="body2"
+                              component="span"
                               color="text.secondary"
                               sx={{
                                 display: "flex",
@@ -362,16 +425,22 @@ function PatientTable() {
                                 svg: { mr: 0.5 },
                               }}
                             >
-                              {/* <Icon path="ic-anniverssaire" /> */}
+                              <Icon path="ic-anniverssaire" />
                               {new Date(row.time).toLocaleDateString()} - 32 Ans
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Box display="flex" alignItems="center">
-                          {/* <Icon path="ic-tel" /> */}
-                          <Typography sx={{ ml: 0.6 }}>{row.phone}</Typography>
+                        <Box
+                          display="flex"
+                          component="span"
+                          alignItems="center"
+                        >
+                          <Icon path="ic-tel" />
+                          <Typography sx={{ ml: 0.6 }}>
+                            {row.telephone}
+                          </Typography>
                         </Box>
                       </TableCell>
                       <TableCell>{row.city}</TableCell>
@@ -402,10 +471,11 @@ function PatientTable() {
                               //     modalDataSet(row)
                               //   )}
                             >
-                              {/* <Icon path="ic-historique" /> */}
+                              <Icon path="ic-historique" />
                             </IconButton>
                             <Box ml={1}>
                               <Typography
+                                component="span"
                                 sx={{
                                   display: "flex",
                                   alignItems: "center",
@@ -418,7 +488,7 @@ function PatientTable() {
                                 variant="body2"
                                 color="text.primary"
                               >
-                                {/* <Icon path="ic-agenda" /> */}
+                                <Icon path="ic-agenda" />
                                 {new Date(
                                   row.nextAppointment
                                 ).toLocaleDateString()}
@@ -432,10 +502,11 @@ function PatientTable() {
                                     mr: 0.6,
                                   },
                                 }}
+                                component="span"
                                 variant="body2"
                                 color="text.primary"
                               >
-                                {/* <Icon path="ic-time" /> */}
+                                <Icon path="ic-time" />
                                 {new Date(row.time).toLocaleDateString()}
                               </Typography>
                             </Box>
@@ -452,10 +523,11 @@ function PatientTable() {
                             modalDataSet(row)
                           )}
                         >
-                          <Icon path="ic-historique" />
+                          // <Icon path="ic-historique" />
                         </IconButton> */}
                           <Box ml={1}>
                             <Typography
+                              component="span"
                               sx={{
                                 display: "flex",
                                 alignItems: "center",
@@ -468,7 +540,7 @@ function PatientTable() {
                               variant="body2"
                               color="text.primary"
                             >
-                              {/* <Icon path="ic-agenda" width="11px" /> */}
+                              <Icon path="ic-agenda" />
                               {new Date(
                                 row.nextAppointment
                               ).toLocaleDateString()}
@@ -482,10 +554,11 @@ function PatientTable() {
                                   mr: 0.6,
                                 },
                               }}
+                              component="span"
                               variant="body2"
                               color="text.primary"
                             >
-                              {/* <Icon path="ic-time" /> */}
+                              <Icon path="ic-time" />
                               {new Date(row.time).toLocaleDateString()}
                             </Typography>
                           </Box>
@@ -503,12 +576,12 @@ function PatientTable() {
                           size="small"
                           sx={{ ml: 0.6, path: { fill: "#000" } }}
                         >
-                          {/* <Icon path="ic-autre2" /> */}
+                          <Icon path="ic-autre2" />
                         </IconButton>
 
                         <Button
                           size="small"
-                          startIcon={<Icon path="setting/edit" />}
+                          // startIcon={<Icon path="setting/edit" />}
                           //   onClick={() => (
                           //     popupSet(true),
                           //     popupDataSet(row),
@@ -525,7 +598,7 @@ function PatientTable() {
 
                         <Button
                           size="small"
-                          startIcon={<Icon path="ic-voir" />}
+                          // startIcon={<Icon path="ic-voir" />}
                           //   onClick={() => (
                           //     popupSet(true),
                           //     popupDataSet(row),
@@ -538,31 +611,17 @@ function PatientTable() {
                     </TableRow>
                   );
                 })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
         <Box py={1} />
-        {/* <BasicPagination /> */}
+        <Pagination
+          page={page}
+          total={tableData.length}
+          count={(tableData.length / rowsPerPage + 1).toFixed(0)}
+          setPage={(v: number) => setPage(v)}
+        />
       </Box>
-      {/* <RightAction open={selected.length > 0} /> */}
-      {/* <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={tableData.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
     </Box>
   );
 }

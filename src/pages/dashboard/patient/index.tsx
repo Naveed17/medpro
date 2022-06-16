@@ -3,7 +3,7 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { useRouter } from "next/router";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import DashLayout from "@features/base/dashLayout";
 import { PatientTable } from "@features/patientTable";
 import SubHeader from "@features/subHeader/components/subHeader";
@@ -17,9 +17,12 @@ function Patient() {
   return (
     <>
       <SubHeader>
-        <Typography variant="h6" color="primary.main">
-          Hello
+        <Typography variant="subtitle2" color="text.primary">
+          Liste des patients
         </Typography>
+        <Button variant="contained" color="success" sx={{ ml: "auto" }}>
+          Liste des patients
+        </Button>
       </SubHeader>
       <Box
         bgcolor="#F0FAFF"
