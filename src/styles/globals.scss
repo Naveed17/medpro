@@ -23,7 +23,7 @@ main {
 .react-svg {
   line-height: 0;
   div {
-    line-height: 0;
+    line-height: 80%;
   }
 }
 .d-inline-block {
@@ -45,21 +45,5 @@ main {
   }
 }
 
-@media screen and (min-width: 900px) {
 
-  .MuiListItemIcon-root{
-    height: 38px;
-  }
-}
 
-.MuiListItemIcon-root{
-  width: 38px;
-
-  svg{
-    height: 22px;
-  }
-}
-.MuiIconButton-colorPrimary.MuiIconButton-sizeMedium{
-  width: 40px;
-  height: 40px;
-}

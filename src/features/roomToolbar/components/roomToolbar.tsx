@@ -1,6 +1,6 @@
 import { Box, Stack, Typography, IconButton } from '@mui/material'
 import Icon from '@themes/urlIcon'
-function roomToolbar() {
+function RoomToolbar() {
     return (
         <Stack direction='row' justifyContent="space-between" width={1} alignItems="center">
             <Typography>
@@ -23,4 +23,4 @@ function roomToolbar() {
     )
 }
 
-export default roomToolbar
+export default RoomToolbar

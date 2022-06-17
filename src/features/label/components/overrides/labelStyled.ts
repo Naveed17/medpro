@@ -1,6 +1,10 @@
 import { alpha, experimentalStyled as styled, Palette } from "@mui/material/styles";
-
-const RootStyled = styled("span")(({ theme, ...styleprops }) => {
+interface Props {
+    color: string;
+    variant: string;
+    theme: any;
+}
+const RootStyled = styled("span")(({ theme, ...styleprops }: Props) => {
     console.log(styleprops);
     const isLight = theme.palette.mode === "light";
     const { color, variant } = styleprops;

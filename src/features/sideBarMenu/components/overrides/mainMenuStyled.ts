@@ -1,5 +1,5 @@
-import {styled} from "@mui/material/styles";
-import {Box} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
 
 const MainMenuStyled = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -126,4 +126,4 @@ const MainMenuStyled = styled(Box)(({ theme }) => ({
     },
 }));
 
-export default  MainMenuStyled;
+export default MainMenuStyled;
