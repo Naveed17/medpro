@@ -106,7 +106,10 @@
       "wirteName": "Tapez içi le nom de l’établissement",
       "writeAdress": "Tapez içi l'adresse de l’établissement",
       "writePostal": "Tapez içi code postal",
-      "horaire": "Horaire d'ouverture"
+      "horaire": "Horaire d'ouverture",
+      "permissions": "Droit d'accés",
+      "user": "Utilisateur",
+      "userPermission": "permission accordée"
     }
   }
 }

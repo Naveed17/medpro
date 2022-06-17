@@ -28,6 +28,7 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker"
+import MedTable from "@themes/overrides/MedTable";
 
 const FormStyled = styled(Form)(({ theme }) => ({
     '& .MuiCard-root': {
@@ -154,9 +155,56 @@ function NewPlace() {
             opened: true
         }
     ])
+    const [rows, setRows] = useState([
+        {
+            id: 1,
+            name: 'Salma Bousaiid',
+            type: 'Sécrétaire',
+            access: 3
+        },
+        {
+            id: 2,
+            name: 'Rym Jablaoui',
+            type: 'Sécrétaire',
+            access: 1
+        }
+    ]);
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
+
+    const headCells = [
+        {
+            id: 'name',
+            numeric: false,
+            disablePadding: true,
+            label: t('lieux.new.user'),
+            align: 'left',
+            sortable: true,
+        },
+        {
+            id: 'access',
+            numeric: false,
+            disablePadding: true,
+            label: t('lieux.new.userPermission'),
+            align: 'left',
+            sortable: false,
+        }
+    ];
+
+    const editPlaces = (props: any) => {
+        console.log('edit', props);
+    }
+    const handleConfig = (props: any, event: string) => {
+        console.log('handleConfig', event);
+    }
+
+    const handleChange = (props: any, event: any) => {
+        props.access=event.target.value
+        rows.filter(row => row.id === props.id)[0].access = event.target.value
+        setRows([...rows])
+    }
+
     const handleAddPhone = () => {
         const phones = [...values.phone, {
             countryCode: '',
@@ -369,15 +417,6 @@ function NewPlace() {
                                     </Grid>
                                 </Box>
                             </CardContent>
-
-                            <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
-                                <Button onClick={() => router.back()}>
-                                    {t('motif.dialog.cancel')}
-                                </Button>
-                                <Button type='submit' variant="contained" color="primary">
-                                    {t('motif.dialog.save')}
-                                </Button>
-                            </Stack>
                         </Card>
 
                         <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
@@ -425,12 +464,12 @@ function NewPlace() {
                                     <Paper sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
                                         {value.hours?.map((hour: any, i: number) => (
                                             <Grid container spacing={1} alignItems="center" sx={{mt: 1}} key={i}>
-                                                {hour && <Grid item lg={3} md={3} sm={12} xs={12}>
+                                                {hour && <Grid item lg={3} md={3} sm={12} xs={4}>
                                                     <Box
                                                         sx={{
                                                             display: "flex",
                                                             alignItems: "center",
-                                                            svg: {mr: 0.5},
+                                                            svg: {mr: 1},
                                                             justifyContent: "end",
                                                         }}>
                                                         <IconUrl path="ic-time"/>
@@ -487,16 +526,30 @@ function NewPlace() {
                             </Card>
                         ))}
 
+                        <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
+                            {t('lieux.new.permissions')}
+                        </Typography>
+
+                        <MedTable headers={headCells}
+                                  rows={rows}
+                                  state={null}
+                                  from={'permission'}
+                                  t={t}
+                                  editMotif={editPlaces}
+                                  handleConfig={handleConfig}
+                                  handleChange={handleChange}/>
+                        <div style={{paddingBottom: '50px'}}></div>
+
+                        <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
+                            <Button onClick={() => router.back()}>
+                                {t('motif.dialog.cancel')}
+                            </Button>
+                            <Button type='submit' variant="contained" color="primary">
+                                {t('motif.dialog.save')}
+                            </Button>
+                        </Stack>
                     </FormStyled>
                 </FormikProvider>
-                <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
-                    <Button>
-                        {t('motif.dialog.cancel')}
-                    </Button>
-                    <Button>
-                        {t('motif.dialog.save')}
-                    </Button>
-                </Stack>
             </Box>
         </>
     )

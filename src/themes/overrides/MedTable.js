@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from './TableHead';
 import LieuxRow from "@themes/overrides/LieuxRow";
 import EnhancedTableRow from "@themes/overrides/MotifRow";
+import PermissionRow from "@themes/overrides/PermissionRow";
 
 function descendingComparator(a, b, orderBy) {
 
@@ -98,15 +99,25 @@ export default function MedTable(
                                                               editMotif={editMotif}
                                                               active={active}
                                                               ids={ids}/>)
-                                } else
+                                } else if (from === 'lieux')
                                     return (<LieuxRow key={index}
                                                       row={row}
                                                       tableHeadData={state}
                                                       handleChange={handleChange}
                                                       editMotif={editMotif}
-                                                      t={t}
                                                       active={active}
-                                                      ids={ids}/>
+                                                      ids={ids}
+                                                      t={t}/>
+                                    );
+                                else
+                                    return (<PermissionRow key={index}
+                                                           row={row}
+                                                           tableHeadData={state}
+                                                           handleChange={handleChange}
+                                                           editMotif={editMotif}
+                                                           active={active}
+                                                           ids={ids}
+                                                           t={t}/>
                                     );
                             })}
                     </TableBody>
