@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement} from "react";
+import React, {ReactElement, useState} from "react";
 import DashLayout from "@features/base/dashLayout";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
@@ -18,7 +18,7 @@ import {
     MenuItem,
     Grid,
     Button,
-    FormControlLabel, Switch
+    FormControlLabel, Switch, Collapse, Paper
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import {styled} from "@mui/material/styles";
@@ -26,6 +26,8 @@ import {RootStyled} from "@features/calendarToolbar";
 import {CountryCodeSelect} from "@features/countryCodeSelect";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
+import IconUrl from "@themes/urlIcon";
+import TimePicker from "@themes/overrides/TimePicker"
 
 const FormStyled = styled(Form)(({ theme }) => ({
     '& .MuiCard-root': {
@@ -110,11 +112,48 @@ function NewPlace() {
             information: ''
         },
         validationSchema,
-        onSubmit: async (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             alert(JSON.stringify(values, null, 2));
         },
     });
     const router = useRouter();
+    const [horaires, setHoraires] = useState([
+        {
+            day: 'lundi',
+            hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
+            opened: true
+        },
+        {
+            day: 'mardi',
+            hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
+            opened: true
+        },
+        {
+            day: 'mercredi',
+            hours: null,
+            opened: false
+        },
+        {
+            day: 'jeudi',
+            hours: [{start: '08:00', end: '14:00'}, null],
+            opened: true
+        },
+        {
+            day: 'vendredi',
+            hours: [null,{start: '08:00', end: '14:00'}],
+            opened: true
+        },
+        {
+            day: 'samedi',
+            hours: null,
+            opened: false
+        },
+        {
+            day: 'dimanche',
+            hours: [{start: '08:00', end: '14:00'}],
+            opened: true
+        }
+    ])
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
@@ -139,18 +178,19 @@ function NewPlace() {
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <FormikProvider value={formik}>
                     <FormStyled
-                                autoComplete="off"
-                                noValidate
-                                onSubmit={handleSubmit}>
+                        autoComplete="off"
+                        noValidate
+                        onSubmit={handleSubmit}>
                         <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
                             {t('lieux.new.lieu')}
                         </Typography>
                         <Card className='venue-card'>
                             <CardContent>
                                 <Box mb={2}>
-                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
+                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
+                                                        variant='body2' fontWeight={400}>
                                                 {t('lieux.new.name')}{" "}
                                                 <Typography component="span" color="error">
                                                     *
@@ -170,9 +210,10 @@ function NewPlace() {
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
-                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
+                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
+                                                        variant='body2' fontWeight={400}>
                                                 {t('lieux.new.adress')}{" "}
                                                 <Typography component="span" color="error">
                                                     *
@@ -192,15 +233,17 @@ function NewPlace() {
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
-                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
+                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
+                                                        variant='body2' fontWeight={400}>
                                                 {t('lieux.new.postal')}
                                             </Typography>
                                         </Grid>
 
                                         <Grid item xs={12} lg={10}>
-                                            <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center" justifyContent={{ lg: 'space-between', xs: 'flex-start' }}>
+                                            <Grid container spacing={{lg: 2, xs: 1}} alignItems="center"
+                                                  justifyContent={{lg: 'space-between', xs: 'flex-start'}}>
                                                 <Grid item xs={12} lg={5}>
                                                     <TextField
                                                         variant="outlined"
@@ -213,8 +256,11 @@ function NewPlace() {
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12} lg={6}>
-                                                    <Stack spacing={{ lg: 2, xs: 1 }} direction={{ lg: 'row', xs: 'column' }} alignItems={{ lg: 'center', xs: 'flex-start' }}>
-                                                        <Typography color="text.secondary" variant='body2' fontWeight={400}>
+                                                    <Stack spacing={{lg: 2, xs: 1}}
+                                                           direction={{lg: 'row', xs: 'column'}}
+                                                           alignItems={{lg: 'center', xs: 'flex-start'}}>
+                                                        <Typography color="text.secondary" variant='body2'
+                                                                    fontWeight={400}>
                                                             {t('lieux.new.ville')}
                                                         </Typography>
                                                         <FormControl size="small" fullWidth>
@@ -224,7 +270,7 @@ function NewPlace() {
                                                                 {...getFieldProps("town")}
                                                                 value={values.town}
                                                                 displayEmpty={true}
-                                                                sx={{ color: "text.secondary" }}
+                                                                sx={{color: "text.secondary"}}
                                                                 renderValue={(value) =>
                                                                     value?.length
                                                                         ? Array.isArray(value)
@@ -253,7 +299,7 @@ function NewPlace() {
                         <Card>
                             <CardContent>
                                 <Box mb={2}>
-                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
+                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
                                         {values.phone.map((_, index) => (
                                             <React.Fragment key={index}>
                                                 <Grid item xs={12} lg={2}>
@@ -274,19 +320,23 @@ function NewPlace() {
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
-                                                                        <CountryCodeSelect selected={(v:any) => setFieldValue(`phone[${index}].countryCode`, v?.phone)} />
+                                                                        <CountryCodeSelect
+                                                                            selected={(v: any) => setFieldValue(`phone[${index}].countryCode`, v?.phone)}/>
                                                                     </InputAdornment>
                                                                 ),
                                                             }}/>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs={12} lg={5}>
-                                                    <FormControlLabel control={<Switch checked={values.phone[index]?.hidden} onChange={(e)=> setFieldValue(`phone[${index}].hidden`, e.target.checked)} />} labelPlacement="start" label={t('lieux.new.hide')} />
+                                                    <FormControlLabel
+                                                        control={<Switch checked={values.phone[index]?.hidden}
+                                                                         onChange={(e) => setFieldValue(`phone[${index}].hidden`, e.target.checked)}/>}
+                                                        labelPlacement="start" label={t('lieux.new.hide')}/>
                                                 </Grid>
                                             </React.Fragment>
                                         ))}
                                         <Grid item xs={12} lg={10} ml="auto">
-                                            <Button onClick={handleAddPhone} startIcon={<AddIcon />}>
+                                            <Button onClick={handleAddPhone} startIcon={<AddIcon/>}>
                                                 {t('lieux.new.addNumber')}
                                             </Button>
                                         </Grid>
@@ -300,9 +350,9 @@ function NewPlace() {
                         <Card>
                             <CardContent>
                                 <Box mb={2}>
-                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="flex-start">
+                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography  color="text.secondary" variant='body2' fontWeight={400}>
+                                            <Typography color="text.secondary" variant='body2' fontWeight={400}>
                                                 {t('lieux.new.access')}
                                             </Typography>
                                         </Grid>
@@ -321,7 +371,7 @@ function NewPlace() {
                             </CardContent>
 
                             <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
-                                <Button onClick={() =>router.back()}>
+                                <Button onClick={() => router.back()}>
                                     {t('motif.dialog.cancel')}
                                 </Button>
                                 <Button type='submit' variant="contained" color="primary">
@@ -329,13 +379,121 @@ function NewPlace() {
                                 </Button>
                             </Stack>
                         </Card>
+
+                        <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
+                            {t('lieux.new.horaire')}
+                        </Typography>
+
+                        {horaires.map((value: any, ind) => (
+                            <Card key={ind}
+                                  sx={{
+                                      border: "1px solid #E4E4E4",
+                                      boxShadow: "none",
+                                      bgcolor: "#FCFCFC",
+                                      mt: 2,
+                                  }}>
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        px: 1,
+                                    }}>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.primary"
+                                        fontWeight={600}
+                                        sx={{textTransform: "uppercase", margin: '13px 15px'}}>
+                                        {value.day}
+                                    </Typography>
+
+                                    <Switch
+                                        onChange={(e) => {
+                                            const day = horaires.findIndex(d => d.day === value.day)
+                                            horaires[day].opened = e.target.checked
+                                            if (horaires[day].hours === null)
+                                                horaires[day].hours = [{start: '', end: ''}]
+                                            setHoraires([...horaires])
+                                        }
+                                        }
+                                        checked={value.opened}
+                                    />
+                                </Box>
+
+                                <Collapse
+                                    in={value.opened} sx={{bgcolor: "common.white", borderTop: "1px solid #C9C8C8"}}>
+                                    <Paper sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
+                                        {value.hours?.map((hour: any, i: number) => (
+                                            <Grid container spacing={1} alignItems="center" sx={{mt: 1}} key={i}>
+                                                {hour && <Grid item lg={3} md={3} sm={12} xs={12}>
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            svg: {mr: 0.5},
+                                                            justifyContent: "end",
+                                                        }}>
+                                                        <IconUrl path="ic-time"/>
+                                                        <Typography variant="body2" color="text.primary">
+                                                            {i + 1 > 1 ? i + 1 + 'em seance' : '1er seance'}
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>}
+                                                {hour && <Grid item lg={4} md={6} sm={12} xs={12}>
+                                                    <TimePicker
+                                                        defaultValue={[hour.start ? new Date("2013/1/16 " + hour.start) : '', hour.end ? new Date("2013/1/16 " + hour.end) : '']}
+                                                        onChange={(s: any, e: any) => console.log(s, e)}
+                                                    />
+                                                </Grid>}
+                                                {i > 0 && (
+                                                    <Grid item lg={3} md={3} sm={12} xs={12}>
+                                                        <Button
+                                                            variant="text"
+                                                            color="error"
+                                                            size="small"
+                                                            sx={{
+                                                                svg: { width: 15 },
+                                                                path: { fill: (theme) => theme.palette.error.main },
+                                                            }}
+                                                            startIcon={<IconUrl path="icdelete" />}
+                                                            onClick={() =>{
+                                                                value.hours.splice(i,1);
+                                                                setHoraires([...horaires])
+                                                                }}>
+                                                            Supprimer
+                                                        </Button>
+                                                    </Grid>
+                                                )}
+                                            </Grid>
+                                        ))}
+
+                                        <Grid container justifyContent="center">
+                                            <Grid item lg={6} md={6} sm={12} xs={12}>
+                                                <Button
+                                                    onClick={() => {
+                                                        const day = horaires.findIndex(d => d.day === value.day)
+                                                        horaires[day].hours?.push({start: '', end: ''});
+                                                        setHoraires([...horaires])
+                                                    }}
+                                                    variant="contained"
+                                                    color="success"
+                                                    sx={{mt: 1}}>
+                                                    Ajouter
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
+                                </Collapse>
+                            </Card>
+                        ))}
+
                     </FormStyled>
                 </FormikProvider>
                 <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
                     <Button>
                         {t('motif.dialog.cancel')}
                     </Button>
-                    <Button >
+                    <Button>
                         {t('motif.dialog.save')}
                     </Button>
                 </Stack>

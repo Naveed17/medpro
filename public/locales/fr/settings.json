@@ -105,7 +105,8 @@
       "selectCity": "Sélectionner une ville",
       "wirteName": "Tapez içi le nom de l’établissement",
       "writeAdress": "Tapez içi l'adresse de l’établissement",
-      "writePostal": "Tapez içi code postal"
+      "writePostal": "Tapez içi code postal",
+      "horaire": "Horaire d'ouverture"
     }
   }
 }
