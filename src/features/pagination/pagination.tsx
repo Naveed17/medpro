@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 
 export default function Pagination({ ...props }) {
   const { page, count, setPage, total } = props;
+
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
       <Typography variant="body1" color="text.primary">
@@ -15,7 +16,7 @@ export default function Pagination({ ...props }) {
       <Stack spacing={2}>
         <BasicPagination
           onChange={(e, v) => setPage(v - 1)}
-          count={count}
+          count={parseInt(count)}
           page={page + 1}
           color="primary"
         />
