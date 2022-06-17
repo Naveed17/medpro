@@ -1,44 +1,24 @@
 import * as React from "react";
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Checkbox from "@mui/material/Checkbox";
-import Tooltip from "@mui/material/Tooltip";
-import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { visuallyHidden } from "@mui/utils";
-import IconButton from "@mui/material/IconButton";
-// utils
-import Icon from "@themes/urlIcon";
-import data from "./data.json";
-import CodeIcon from "@mui/icons-material/Code";
+// material components
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Typography,
+  Checkbox,
+  Button,
+  IconButton,
+} from "@mui/material";
 
+// _________________________________
+import Icon from "@themes/urlIcon";
 import { Pagination } from "@features/pagination";
-// import useSettings from "@settings/useSettings";
-export type DataProp = {
-  id: number;
-  name: string;
-  avatar: string;
-  time: string;
-  telephone: string;
-  idCode: string;
-  city: string;
-  nextAppointment: string;
-  lastAppointment: string;
-  addAppointment: boolean;
-  action: string;
-};
-const { tableData } = data;
+import EnhancedTableHead from "./tableHead";
+import { DataProp } from "@interfaces/PatientList";
+import { tableData } from "./data.js";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -83,217 +63,13 @@ function stableSort<DataProp>(
   return stabilizedThis.map((el) => el[0]);
 }
 
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof DataProp;
-  label: string;
-  numeric: boolean;
-  isSortable: boolean;
-  align: "left" | "right" | "center";
-}
-
-const headCells: readonly HeadCell[] = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Patient's name",
-    isSortable: true,
-    align: "left",
-  },
-  {
-    id: "telephone",
-    numeric: true,
-    disablePadding: false,
-    label: "Telephone",
-    isSortable: true,
-    align: "left",
-  },
-  {
-    id: "city",
-    numeric: false,
-    disablePadding: false,
-    label: "City",
-    isSortable: true,
-    align: "left",
-  },
-  {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "ID",
-    isSortable: true,
-    align: "left",
-  },
-  {
-    id: "nextAppointment",
-    numeric: false,
-    disablePadding: false,
-    label: "Next Appointment",
-    isSortable: false,
-    align: "left",
-  },
-  {
-    id: "lastAppointment",
-    numeric: false,
-    disablePadding: false,
-    label: "Last appointment",
-    isSortable: false,
-    align: "left",
-  },
-  {
-    id: "action",
-    numeric: false,
-    disablePadding: false,
-    label: "Action",
-    isSortable: false,
-    align: "right",
-  },
-];
-
-interface EnhancedTableProps {
-  numSelected: number;
-  onRequestSort: (
-    event: React.MouseEvent<unknown>,
-    property: keyof DataProp
-  ) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  order: Order;
-  orderBy: string;
-  rowCount: number;
-}
-
-function EnhancedTableHead(props: EnhancedTableProps) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
-  const createSortHandler =
-    (property: keyof DataProp) => (event: React.MouseEvent<unknown>) => {
-      onRequestSort(event, property);
-    };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all desserts",
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.id === "action" ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-              IconComponent={CodeIcon}
-              sx={{
-                justifyContent:
-                  headCell.align === "center"
-                    ? "center !important"
-                    : "flex-start!important",
-                flexDirection: "row!important",
-                svg: {
-                  transform: "rotate(90deg)",
-                },
-              }}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
-
-const EnhancedTableToolbar = ({ ...props }) => {
-  const { numSelected } = props;
-
-  return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
-      }}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="span"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="span"
-        >
-          Nutrition
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
-  );
-};
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
-
 function PatientTable() {
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof DataProp>("name");
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+  const rowsPerPage = 10;
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
     property: keyof DataProp
@@ -330,14 +106,6 @@ function PatientTable() {
     }
 
     setSelected(newSelected);
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
   };
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
@@ -453,24 +221,12 @@ function PatientTable() {
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+" />}
                             sx={{ position: "relative", zIndex: 1000 }}
-                            // onClick={() => (
-                            //   modalSet(true),
-                            //   ModalType("MOVE_APOINT_MODAL"),
-                            //   modalDataSet(row)
-                            // )}
                           >
                             Add Apointment
                           </Button>
                         ) : (
                           <Box display="flex" alignItems="center">
-                            <IconButton
-                              size="small"
-                              //   onClick={() => (
-                              //     modalSet(true),
-                              //     ModalType("ADD_APOINT_MODAL"),
-                              //     modalDataSet(row)
-                              //   )}
-                            >
+                            <IconButton size="small">
                               <Icon path="ic-historique" />
                             </IconButton>
                             <Box ml={1}>
@@ -515,16 +271,9 @@ function PatientTable() {
                       </TableCell>
                       <TableCell>
                         <Box display="flex" alignItems="center">
-                          {/* <IconButton
-                          size="small"
-                          onClick={() => (
-                            modalSet(true),
-                            ModalType("MOVE_APOINT_MODAL"),
-                            modalDataSet(row)
-                          )}
-                        >
-                          // <Icon path="ic-historique" />
-                        </IconButton> */}
+                          <IconButton size="small">
+                            <Icon path="ic-historique" />
+                          </IconButton>
                           <Box ml={1}>
                             <Typography
                               component="span"
@@ -581,12 +330,6 @@ function PatientTable() {
 
                         <Button
                           size="small"
-                          // startIcon={<Icon path="setting/edit" />}
-                          //   onClick={() => (
-                          //     popupSet(true),
-                          //     popupDataSet(row),
-                          //     popupTypeSet("EDIT_PATIENT")
-                          //   )}
                           sx={{
                             ml: 0.6,
                             color: "#000",
@@ -596,17 +339,7 @@ function PatientTable() {
                           Modifier
                         </Button>
 
-                        <Button
-                          size="small"
-                          // startIcon={<Icon path="ic-voir" />}
-                          //   onClick={() => (
-                          //     popupSet(true),
-                          //     popupDataSet(row),
-                          //     popupTypeSet("PATIENT_DETAILS")
-                          //   )}
-                        >
-                          Voir fiche
-                        </Button>
+                        <Button size="small">Voir fiche</Button>
                       </TableCell>
                     </TableRow>
                   );
