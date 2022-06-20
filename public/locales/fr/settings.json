@@ -113,6 +113,14 @@
     }
   },
   "agenda": {
-    "path": "Paramètres > Agenda"
+    "path": "Paramètres > Agenda",
+    "name": "Nom",
+    "type": "Type",
+    "speciality": "Spécialité",
+    "place": "Lieu de consultation",
+    "nbAccess": "NBR accés",
+    "actif": "est actif",
+    "public": "public",
+    "action": "action"
   }
 }

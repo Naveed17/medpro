@@ -7,6 +7,7 @@ import TableHead from './TableHead';
 import LieuxRow from "@themes/overrides/LieuxRow";
 import EnhancedTableRow from "@themes/overrides/MotifRow";
 import PermissionRow from "@themes/overrides/PermissionRow";
+import AgendaRow from "@themes/overrides/AgendaRow";
 
 function descendingComparator(a, b, orderBy) {
 
@@ -109,6 +110,17 @@ export default function MedTable(
                                                       ids={ids}
                                                       t={t}/>
                                     );
+                                else if (from === 'agenda')
+                                    return (<AgendaRow key={index}
+                                                      row={row}
+                                                      tableHeadData={state}
+                                                      handleChange={handleChange}
+                                                      editMotif={editMotif}
+                                                      active={active}
+                                                      ids={ids}
+                                                      t={t}/>
+                                    );
+
                                 else
                                     return (<PermissionRow key={index}
                                                            row={row}

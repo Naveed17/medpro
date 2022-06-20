@@ -189,15 +189,12 @@ function Motif() {
                         handleConfig={handleConfig}
                         handleChange={handleChange}/>
 
-
                 <Drawer
                     anchor={'right'}
                     open={edit}
                     dir={direction}
                     onClose={()=>{setEdit(false)}}>
-                    <EditMotifDialog data={selected} close={() => {
-                                        setEdit(false)
-                                    }}/>
+                    <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/>
                 </Drawer>
             </Box>
         </>
