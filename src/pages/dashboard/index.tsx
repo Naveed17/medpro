@@ -1,4 +1,4 @@
-import {GetServerSideProps} from "next";
+import {GetServerSideProps, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
@@ -10,30 +10,41 @@ import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useDispatch} from "react-redux";
-import {setAccessToken, setUserData} from "@features/user";
+import {AxiosRequestHeaders} from "axios";
+import {getToken} from "next-auth/jwt";
+import useSWR, {useSWRConfig} from "swr";
+import useRequest from "@app/axios/axiosServiceApi";
 
+const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url, method: "GET", headers}).then(res => res.data);
 
-const fetcher = (url: string) => requestAxios({url, method: "GET"}).then(res => res.data);
+const API = "https://pokeapi.co/api/v2/pokemon/bulbasaur";
 
-const API = "/api/private/user/fr";
-
-function Dashborad({...props}: any) {
-    console.log("Dashborad", props);
+function Dashborad({...props}) {
+    const { cache } = useSWRConfig();
     const { data: session, status } = useSession();
-    const dispatch = useDispatch();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
-    // const {data, error} = useSWR(API);
+    const headers = {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+    }
 
-    const loading = status === 'loading'
+    const { data, error, response, mutate, isValidating} = useRequest({
+        method: "GET",
+        url: "https://pokeapi.co/api/v2/pokemon/bulbasaur",
+        headers
+    });
+    // const { data, error } = useSWR(API);
+
+    const loading = status === 'loading';
     if (loading) return (<LoadingScreen />);
+
     const { data: user, accessToken } = session as Session;
 
-    console.log(session);
+    if (error) return <div>failed to load</div>
+    if (!data) return <LoadingScreen />;
 
-    // if (error) return <div>failed to load</div>
-    // if (!data) return <div>loading...</div>
+    console.log(user);
 
     return (
         <>
@@ -49,33 +60,38 @@ function Dashborad({...props}: any) {
     )
 }
 
-// export const getStaticProps: GetStaticProps = async ({locale}) => {
-//     // const repoInfo = await fetcher(API);
-//     return {
-//         props: {
-//             // fallback: {
-//             //     [API]: repoInfo
-//             // },
-//             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
-//         }
-//     }
-// }
-
-// Export the `session` prop to use sessions with Server Side Rendering
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    // const repoInfo = await fetcher(API)
-    // const request = context.req as any;
-    // const token = await getToken({
-    //     req: request
-    // });
-    const cookie = context.req.headers.cookie;
+export const getStaticProps: GetStaticProps = async (context) => {
     return {
         props: {
-            cookies: cookie,
+            fallback: false,
             ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
         }
     }
 }
+
+// Export the `session` prop to use sessions with Server Side Rendering
+
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//     const request = context.req as any;
+//     const jwt = await getToken({
+//         req: request
+//     });
+//
+//     const headers = {
+//         Authorization: `Bearer ${jwt?.accessToken}`,
+//         'Content-Type': 'application/json',
+//     }
+//
+//     return {
+//         props: {
+//             fallback: {
+//                 [API]: await fetcher(API, headers)
+//             },
+//             ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
+//         }
+//     }
+// }
+
 
 Dashborad.auth = true
 

@@ -9,15 +9,16 @@ import {useAppSelector} from "@app/redux/hooks";
 import {userSelector} from "@features/user";
 import requestAxios from "@app/axios/config";
 import useSWR from "swr";
+import {useSession} from "next-auth/react";
 
 const fetcher = (url: string) => requestAxios({url, method: "GET"}).then(res => res.data);
 
 const API = "/api/private/user/fr";
 
 function Patient(){
-    const {data: user, accessToken} = useAppSelector(userSelector);
+    const { data: session, status } = useSession();
     const router = useRouter();
-    // const {data, error} = useSWR(API);
+    // const {data, error} = useSWR([API, session?.accessToken], fetcher);
     const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
@@ -38,6 +39,7 @@ function Patient(){
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     // const repoInfo = await fetcher(API);
+
     return {
         props: {
             // fallback: {
