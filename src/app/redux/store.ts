@@ -3,7 +3,7 @@ import {
     configureStore,
     ThunkAction,
 } from '@reduxjs/toolkit';
-import {ConfigReducer} from "@features/setConfig/reducer";
+import {ConfigReducer} from "@features/base/reducer";
 import {SideBarReducer} from "@features/sideBarMenu/reducer";
 import {ProfileMenuReducer} from "@features/profilMenu";
 import {CheckListReducer} from "@features/checkList";

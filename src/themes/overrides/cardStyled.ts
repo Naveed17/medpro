@@ -25,4 +25,5 @@ const CardStyled = styled(Card)(({ theme }) => ({
         }
     }
 }));
+
 export default CardStyled;
