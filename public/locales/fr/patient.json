@@ -12,7 +12,7 @@
     "female": "femme",
     "name": "nom",
     "telephone": "numéro de téléphone",
-    "geolocation": "Lieu",
+    "place": "Lieu",
     "city": "Ville",
     "search": "recherche",
     "appointment": "Rendez-vous",

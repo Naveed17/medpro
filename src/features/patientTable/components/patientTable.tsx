@@ -135,9 +135,9 @@ function PatientTable() {
                  rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(tableData, getComparator(order as Order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
+                .map((row, i) => {
                   const isItemSelected = isSelected(row.name as string);
-                  const labelId = `enhanced-table-checkbox-${Math.random()}`;
+                  const labelId = `enhanced-table-checkbox-${i}`;
 
                   return (
                     <TableRow

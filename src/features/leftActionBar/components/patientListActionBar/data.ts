@@ -1,6 +1,5 @@
 export const rightActionData = {
   filter: {
-    title: "Filter",
     collapse: [
       {
         heading: {
@@ -14,9 +13,9 @@ export const rightActionData = {
         },
         textField: {
           labels: [
-            { label: "name", placeholder: "Mot clé" },
+            { label: "name", placeholder: "name" },
             { label: "date-of-birth", placeholder: "--/--/----" },
-            { label: "telephone", placeholder: "Mot clé" },
+            { label: "telephone", placeholder: "telephone" },
           ],
         },
       },
@@ -46,8 +45,8 @@ export const rightActionData = {
         type: {
           heading: "type",
           types: [
-            { text: "Video", icon: "ic-video" },
-            { text: "Video", icon: "ic-cabinet" },
+            { text: "video", icon: "ic-video" },
+            { text: "appointment", icon: "ic-cabinet" },
           ],
         },
       },

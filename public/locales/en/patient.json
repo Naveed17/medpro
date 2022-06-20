@@ -12,11 +12,12 @@
     "female": "Female",
     "name": "Name",
     "telephone": "Telephone number",
-    "geolocation": "Place",
+    "place": "Place",
     "city": "City",
     "search": "Search",
     "appointment": "Appointment",
     "type": "Type",
+    "video": "Video",
     "next-appointment": "Next Appointment",
     "last-appointment": "Last Appointment"
   },
