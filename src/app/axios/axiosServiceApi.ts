@@ -1,11 +1,19 @@
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
 import axios, {AxiosRequestConfig, AxiosResponse, AxiosError, Axios} from 'axios'
-import {getSession, useSession} from "next-auth/react";
-import {ApiClient} from "@app/axios/index";
-import request from "@app/axios/config";
-import clientAxios from "@app/axios/config";
+const baseURL: string = process.env.NEXT_PUBLIC_BACK_END_POINT || 'https://coreapi.med.ovh/';
 
 export type GetRequest = AxiosRequestConfig | null
+
+export const instanceAxios = (() => {
+    return axios.create({
+        baseURL,
+        headers: {
+            Accept: "application/json",
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+        }
+    });
+})();
 
 interface Return<Data, Error>
     extends Pick<
@@ -24,7 +32,7 @@ export interface Config<Data = unknown, Error = unknown>
     fallbackData?: Data
 }
 
-function UseRequest<Data = unknown, Error = unknown>(
+function useRequest<Data = unknown, Error = unknown>(
     request: GetRequest,
     { fallbackData, ...config }: Config<Data, Error> = {}
 ): Return<Data, Error> {
@@ -35,7 +43,11 @@ function UseRequest<Data = unknown, Error = unknown>(
         mutate
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && JSON.stringify(request),
-        () => axios.request<Data>(request!),
+        /**
+         * NOTE: Typescript thinks `request` can be `null` here, but the fetcher
+         * function is actually only called by `useSWR` when it isn't.
+         */
+        () => instanceAxios.request<Data>(request!),
         {
             ...config,
             fallbackData: fallbackData && {
@@ -59,7 +71,7 @@ function UseRequest<Data = unknown, Error = unknown>(
 
 // export default UseRequest;
 
-const baseURL = process.env.NEXT_APP_BACK_END_POINT
+
 let instance: Axios;
 
 async function get(URL: string, params?: any, headers?: any) {
@@ -92,4 +104,4 @@ const ApiService = {
     patch,
 }
 
-export default ApiService
+export default useRequest;

@@ -8,7 +8,7 @@ declare module "next/app" {
     router: Router
     __N_SSG?: boolean
     __N_SSP?: boolean
-    session?: Session
+    jwt?: any
     pageProps: P & {
       /** Initial session passed in from `getServerSideProps` or `getInitialProps` */
       session?: Session
