@@ -111,5 +111,8 @@
       "user": "Utilisateur",
       "userPermission": "permission accordée"
     }
+  },
+  "agenda": {
+    "path": "Paramètres > Agenda"
   }
 }
