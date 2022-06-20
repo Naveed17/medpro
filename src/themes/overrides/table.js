@@ -35,6 +35,9 @@ export default function Table(theme) {
               },
             },
           },
+          "& .action span": {
+            float: "right",
+          },
         },
       },
     },

@@ -1,0 +1,42 @@
+{
+  "sub-header": {
+    "title": "Patient list",
+    "add-patient": "Add patient"
+  },
+  "filter": {
+    "title": "Filter",
+    "patient": "Patient",
+    "date-of-birth": "Date of birth",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "name": "Name",
+    "telephone": "Telephone number",
+    "geolocation": "Place",
+    "city": "City",
+    "search": "Search",
+    "appointment": "Appointment",
+    "type": "Type",
+    "next-appointment": "Next Appointment",
+    "last-appointment": "Last Appointment"
+  },
+  "table": {
+    "header": {
+      "name": "Patient's name",
+      "telephone": "Telephone",
+      "city": "City",
+      "id": "ID",
+      "nextAppointment": "Next Appointment",
+      "lastAppointment": "Last Appointment",
+      "action": "Action"
+    },
+    "body": {
+      "add-appointment": "Add appointment",
+      "edit": "Edit",
+      "see-card": "See card"
+    },
+    "pagination": {
+      "of": "of"
+    }
+  }
+}

@@ -17,6 +17,9 @@ import CodeIcon from "@mui/icons-material/Code";
 // inerface
 import { DataProp } from "@interfaces/PatientList";
 
+// i18
+import { useTranslation } from "next-i18next";
+
 interface HeadCell {
   disablePadding: boolean;
   id: keyof DataProp;
@@ -108,6 +111,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     rowCount,
     onRequestSort,
   } = props;
+  const { t, ready } = useTranslation("patient");
+  if (!ready) return <>loading translations...</>;
   const createSortHandler =
     (property: keyof DataProp, isSortable: boolean) =>
     (event: React.MouseEvent<unknown>) => {
@@ -134,6 +139,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             align={headCell.id === "action" ? "right" : "left"}
             padding={headCell.disablePadding ? "none" : "normal"}
             sortDirection={orderBy === headCell.id ? order : false}
+            className={headCell.id === "action" ? "action" : ""}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -152,7 +158,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
                 },
               }}
             >
-              {headCell.label}
+              {t(`table.header.${headCell.id}`)}
               {orderBy === headCell.id ? (
                 <Box component="span" sx={visuallyHidden}>
                   {order === "desc" ? "sorted descending" : "sorted ascending"}

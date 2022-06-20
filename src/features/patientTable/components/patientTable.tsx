@@ -19,6 +19,7 @@ import { Pagination } from "@features/pagination";
 import EnhancedTableHead from "./tableHead";
 import { DataProp } from "@interfaces/PatientList";
 import { tableData } from "./data.js";
+import { useTranslation } from "next-i18next";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -68,7 +69,8 @@ function PatientTable() {
   const [orderBy, setOrderBy] = React.useState<keyof DataProp>("name");
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-
+  const { t, ready } = useTranslation("patient");
+  if (!ready) return <>loading translations...</>;
   const rowsPerPage = 10;
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -222,7 +224,7 @@ function PatientTable() {
                             startIcon={<Icon path="ic-agenda-+" />}
                             sx={{ position: "relative", zIndex: 1000 }}
                           >
-                            Add Apointment
+                            {t("table.body.add-appointment")}
                           </Button>
                         ) : (
                           <Box display="flex" alignItems="center">
@@ -336,10 +338,10 @@ function PatientTable() {
                             path: { fill: "#000" },
                           }}
                         >
-                          Modifier
+                          {t("table.body.edit")}
                         </Button>
 
-                        <Button size="small">Voir fiche</Button>
+                        <Button size="small">{t("table.body.see-card")}</Button>
                       </TableCell>
                     </TableRow>
                   );

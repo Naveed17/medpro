@@ -1,27 +1,24 @@
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { useRouter } from "next/router";
+import { ReactElement } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { PatientTable } from "@features/patientTable";
 import SubHeader from "@features/subHeader/components/subHeader";
 
 function Patient() {
-  const router = useRouter();
-  const [date, setDate] = useState(new Date());
-  const { t, ready } = useTranslation("common");
+  const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
 
   return (
     <>
       <SubHeader>
         <Typography variant="subtitle2" color="text.primary">
-          Liste des patients
+          {t("sub-header.title")}
         </Typography>
         <Button variant="contained" color="success" sx={{ ml: "auto" }}>
-          Liste des patients
+          {t("sub-header.add-patient")}
         </Button>
       </SubHeader>
       <Box
@@ -35,11 +32,7 @@ function Patient() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "agenda",
-    ])),
+    ...(await serverSideTranslations(locale as string, ["patient", "menu"])),
   },
 });
 export default Patient;

@@ -1,0 +1,42 @@
+{
+  "sub-header": {
+    "title": "Liste des patients",
+    "add-patient": "Ajouter Patient"
+  },
+  "filter": {
+    "title": "Filtre",
+    "patient": "Patient",
+    "date-of-birth": "Date de naissance",
+    "gender": "Genre",
+    "male": "homme",
+    "female": "femme",
+    "name": "nom",
+    "telephone": "numéro de téléphone",
+    "geolocation": "Lieu",
+    "city": "Ville",
+    "search": "recherche",
+    "appointment": "Rendez-vous",
+    "type": "Type",
+    "next-appointment": "Prochain rendez-vous",
+    "last-appointment": "Dernier rendez-vous"
+  },
+  "table": {
+    "header": {
+      "name": "Nom du patient",
+      "telephone": "Téléphone",
+      "city": "ville",
+      "id": "id",
+      "nextAppointment": "Prochain rendez-vous",
+      "lastAppointment": "Dernier rendez-vous",
+      "action": "Action"
+    },
+    "body": {
+      "add-appointment": "Ajouter un rendez-vous",
+      "edit": "Modifier",
+      "see-card": "Voir fiche"
+    },
+    "pagination": {
+      "of": "de"
+    }
+  }
+}

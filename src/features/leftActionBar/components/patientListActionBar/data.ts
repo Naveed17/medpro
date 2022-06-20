@@ -5,29 +5,29 @@ export const rightActionData = {
       {
         heading: {
           icon: "ic-patient",
-          title: "User",
+          title: "patient",
         },
 
         gender: {
-          heading: "Gender",
+          heading: "gender",
           genders: ["male", "female"],
         },
         textField: {
           labels: [
-            { label: "Name", placeholder: "Mot clé" },
-            { label: "Date of birth", placeholder: "--/--/----" },
-            { label: "Number phone", placeholder: "Mot clé" },
+            { label: "name", placeholder: "Mot clé" },
+            { label: "date-of-birth", placeholder: "--/--/----" },
+            { label: "telephone", placeholder: "Mot clé" },
           ],
         },
       },
       {
         heading: {
           icon: "ic-pin",
-          title: "Place",
+          title: "place",
         },
         city: {
-          heading: "City",
-          placeholder: "Text",
+          heading: "city",
+          placeholder: "enter-city",
           cities: [
             "Lahore",
             "Karachi",
@@ -41,10 +41,10 @@ export const rightActionData = {
       {
         heading: {
           icon: "ic-patient",
-          title: "Appointment",
+          title: "appointment",
         },
         type: {
-          heading: "Type",
+          heading: "type",
           types: [
             { text: "Video", icon: "ic-video" },
             { text: "Video", icon: "ic-cabinet" },

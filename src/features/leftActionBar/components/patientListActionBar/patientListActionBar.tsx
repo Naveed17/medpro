@@ -26,8 +26,9 @@ import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from "@themes/urlIcon";
-import { rightActionData } from "./data.js";
+import { rightActionData } from "./data";
 import { FilterContainer } from "./overrides/patientListActionBarStyled";
+import { useTranslation } from "next-i18next";
 export default function PatientListActionBar() {
   const { title, collapse } = rightActionData.filter;
   const [state, setstate] = useState({
@@ -39,6 +40,8 @@ export default function PatientListActionBar() {
     city: "",
     expanded: "",
   });
+  const { t, ready } = useTranslation("patient");
+  if (!ready) return <>loading translations...</>;
 
   const handleChangeCity = (event: ChangeEvent<HTMLInputElement>) => {
     setstate({ ...state, city: event.target.value });
@@ -59,7 +62,7 @@ export default function PatientListActionBar() {
           sx={{ py: 5, pl: "10px", mb: "0.21em" }}
           gutterBottom
         >
-          {title}
+          {t(`filter${title}`)}
         </Typography>
         {collapse.map((item, index) => (
           <MuiAccordion
@@ -72,7 +75,7 @@ export default function PatientListActionBar() {
           >
             <MuiAccordionSummary
               expandIcon={<Icon path="ic-expand-more" />}
-              id={title}
+              id={t(`filter${title}`)}
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Icon path={item.heading?.icon} />
@@ -80,7 +83,7 @@ export default function PatientListActionBar() {
                   variant="body1"
                   sx={{ color: "text.secondary", ml: 1 }}
                 >
-                  {item.heading?.title}
+                  {t(`filter${item.heading?.title}`)}
                 </Typography>
               </Box>
             </MuiAccordionSummary>
@@ -88,7 +91,7 @@ export default function PatientListActionBar() {
               {item.heading?.title === "User" && (
                 <Box component="figure" sx={{ m: 0 }}>
                   <Typography variant="body2" color="text.secondary">
-                    {item.gender?.heading}
+                    {t(`filter${item.gender?.heading}`)}
                   </Typography>
                   <FormControl component="fieldset">
                     <RadioGroup
@@ -102,7 +105,7 @@ export default function PatientListActionBar() {
                           key={`gender-${i}`}
                           value={g}
                           control={<Radio />}
-                          label={g}
+                          label={t(`filter${g}`)}
                         />
                       ))}
                     </RadioGroup>
@@ -112,14 +115,17 @@ export default function PatientListActionBar() {
                       {lab.label === "Name" || lab.label === "Number phone" ? (
                         <>
                           <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                            {lab.label}
+                            {t(`filter${lab.label}`)}
                           </InputLabel>
-                          <TextField fullWidth placeholder={lab.placeholder} />
+                          <TextField
+                            fullWidth
+                            placeholder={t(`filter${lab.placeholder}`)}
+                          />
                         </>
                       ) : (
                         <>
                           <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                            {lab.label}
+                            {t(`filter${lab.label}`)}
                           </InputLabel>
 
                           {/* <DatePicker /> */}
