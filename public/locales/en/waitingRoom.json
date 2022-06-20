@@ -4,10 +4,34 @@
   },
   "filter": {
     "title": "filter",
-    "collapse": {
-      "reson": "Reason for the consultation",
-      "status": "Status",
-      "meetingType": "Meeting type"
-    }
+    "reson": "Reason for the consultation",
+    "status": "Status",
+    "meetingType": "Meeting type",
+    "all": "tous",
+    "1st consultation": "1ère consultation",
+    "control": "contrôle",
+    "in expectation": "en attente",
+    "in office": "au bureau",
+    "video consultation": "consultation vidéo",
+    "consultation performed": "consultation effectuée",
+    "confirme": "confirmé",
+    "expires": "expirant à",
+    "cancel": "annuler",
+    "patient did not show up": "le patient n’a pas venu",
+    "cabinet": "cabinet",
+    "at home": "à domicile",
+    "teleconsultation": "téléconsultation",
+    "meeting": "RDV"
+  },
+  "table": {
+    "Id": "Id",
+    "arrival time": "heure d'arrivée",
+    "Appointment time": "Heure du RDV",
+    "Reason": "Motif",
+    "Status": "Statut",
+    "Patient's name": "nom du patient",
+    "Agenda": "Agenda",
+    "Action": "Action",
+    "See details": "Voir les détails"
   }
 }

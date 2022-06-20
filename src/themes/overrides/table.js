@@ -56,8 +56,9 @@ export default function Table(theme) {
         },
         head: {
           color: theme.palette.text.secondary,
-          //   backgroundColor: theme.palette.background.neutral,
           backgroundColor: "rgba(6, 150, 214, 0.2)",
+          paddingTop: theme.spacing(1),
+          paddingBottom: theme.spacing(1),
           "&:first-of-type": {
             borderTopLeftRadius: theme.shape.borderRadius,
             borderBottomLeftRadius: theme.shape.borderRadius,
@@ -71,7 +72,7 @@ export default function Table(theme) {
             borderBottomRightRadius: theme.shape.borderRadius,
           },
           "&.MuiTableCell-root": {
-            padding: "0px 16px",
+            padding: theme.spacing(1, 2),
             overflow: "hidden",
             borderColor: "transparent",
             color: theme.palette.text.secondary,
@@ -88,6 +89,11 @@ export default function Table(theme) {
             div: {
               float: "right",
             },
+            '& .MuiTableSortLabel-root': {
+              '& .MuiTableSortLabel-icon': {
+                transform: 'rotate(90deg)',
+              }
+            }
           },
         },
         stickyHeader: {

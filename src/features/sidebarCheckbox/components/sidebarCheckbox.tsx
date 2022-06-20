@@ -6,15 +6,21 @@ import Icon from '@themes/urlIcon'
 interface Props {
     data: any;
     onChange: (v: any) => void;
+    translate: {
+        t: Function;
+        ready: boolean;
+    }
 
 }
 export default function SidebarCheckbox(props: Props) {
-    const { data, onChange, ...rest } = props
+    const { data, onChange, translate, ...rest } = props
+    const { t, ready } = translate;
     const [checked, setChecked] = React.useState(false);
     const handleChange = (event: any) => {
         setChecked(event.target.checked);
         onChange(event.target.checked)
     };
+    if (!ready) return (<>loading translations...</>);
     return (
         <RootStyled styleprops={data?.color ? data.color : 'primary'}
             component='label' htmlFor={data.name}>
@@ -31,7 +37,7 @@ export default function SidebarCheckbox(props: Props) {
                     {data.icon && <Icon {...(data.icon === 'ic-video') && { className: 'ic-video' }} path={data.icon} />}
                 </ListItemIcon>
             }
-            <ListItemText primary={data.text} />
+            <ListItemText primary={t(data.text)} />
         </RootStyled>
     )
 }

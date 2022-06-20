@@ -17,7 +17,6 @@ const RootStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
     '& .MuiListItemIcon-root': {
         minWidth: '15px',
         '& .react-svg':
-
         {
             '&.ic-video': {
                 svg: {
@@ -35,6 +34,11 @@ const RootStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
             width: '10px',
             height: '10px',
             color: theme.palette[styleprops].main,
+        }
+    },
+    '& .MuiListItemText-root': {
+        '& .MuiTypography-body1': {
+            textTransform: 'capitalize',
         }
     }
 

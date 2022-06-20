@@ -11,6 +11,7 @@ import { useTheme } from '@mui/material/styles';
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import config from './config.json';
+import { useTranslation } from 'next-i18next';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -49,6 +50,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
     return stabilizedThis.map((el) => el[0]);
 }
 export default function EnhancedTable() {
+    const { t, ready } = useTranslation('waitingRoom', { keyPrefix: 'table' });
     const theme = useTheme();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('patient');
@@ -58,6 +60,7 @@ export default function EnhancedTable() {
         setOrderBy(property);
     };
     const { rows } = config;
+    if (!ready) return (<>loading translations...</>);
     return (
         <Box>
             <TableContainer>
@@ -70,6 +73,10 @@ export default function EnhancedTable() {
                         order={order}
                         orderBy={orderBy}
                         onRequestSort={handleRequestSort}
+                        translate={{
+                            t: t,
+                            ready: ready,
+                        }}
                     />
                     <TableBody>
                         {stableSort(rows, getComparator(order as Order, orderBy)).map((row) => (
@@ -202,7 +209,7 @@ export default function EnhancedTable() {
                                 <TableCell align="right">
                                     <Box display="flex" sx={{ float: "right" }} alignItems="center">
                                         <Button variant="text" size="small" color="primary">
-                                            See details
+                                            {t("See details")}
                                         </Button>
                                     </Box>
                                 </TableCell>

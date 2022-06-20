@@ -4,11 +4,16 @@ import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from '@themes/urlIcon';
 import RootStyled from './overrides/accordionStyled';
-import { useTranslation } from "next-i18next";
 interface statetype {
     expanded: boolean | any;
 }
-function Accordion({ data, badge, translate }: { data: any, badge: any, translate: string }) {
+type Translate = {
+    t: Function;
+    ready: boolean;
+}
+
+function Accordion({ data, badge, translate }: { data: any, badge: any, translate: Translate }) {
+    const { t, ready } = translate;
     const [state, setstate] = useState<statetype>({
         expanded: false,
     });
@@ -19,7 +24,6 @@ function Accordion({ data, badge, translate }: { data: any, badge: any, translat
         },
         [state]
     );
-    const { t, ready } = useTranslation(translate);
     if (!ready) return (<>loading translations...</>);
 
     return (

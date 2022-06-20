@@ -1,29 +1,19 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
-import { styled } from '@mui/material/styles';
 import CodeIcon from '@mui/icons-material/Code';
-const RootStyle = styled(TableHead)(({ theme }) => ({
-    '& .MuiTableCell-head': {
-        paddingTop: '8px !important',
-        paddingBottom: '8px !important',
-    },
-    '& .MuiTableSortLabel-root': {
-        '& .MuiTableSortLabel-icon': {
-            transform: 'rotate(90deg)',
-        }
-    }
-}));
+import { TableHead } from '@mui/material';
+import { useTranslation } from 'next-i18next';
+
 const headCells = [
     {
         id: 'id',
         numeric: false,
         disablePadding: true,
-        label: 'ID',
+        label: 'Id',
         align: 'left',
         sortable: true,
     },
@@ -31,7 +21,7 @@ const headCells = [
         id: 'time',
         numeric: false,
         disablePadding: true,
-        label: "heure d'arrivée",
+        label: "arrival time",
         align: 'left',
         sortable: true,
     },
@@ -39,7 +29,7 @@ const headCells = [
         id: 'appointmentTime',
         numeric: false,
         disablePadding: true,
-        label: "Heure du RDV",
+        label: "Appointment time",
         align: 'left',
         sortable: false,
     },
@@ -47,7 +37,7 @@ const headCells = [
         id: 'motif',
         numeric: false,
         disablePadding: true,
-        label: "Motif",
+        label: "Reason",
         align: 'left',
         sortable: false,
     },
@@ -55,7 +45,7 @@ const headCells = [
         id: 'status',
         numeric: false,
         disablePadding: true,
-        label: "Statut",
+        label: "Status",
         align: 'left',
         sortable: true,
     },
@@ -63,7 +53,7 @@ const headCells = [
         id: 'name',
         numeric: false,
         disablePadding: true,
-        label: "nom du patient",
+        label: "Patient's name",
         align: 'left',
         sortable: true,
     },
@@ -86,12 +76,15 @@ const headCells = [
 
 ];
 export default function TableHeadSimple(props) {
-    const { order, orderBy, onRequestSort, } = props;
+    const { order, orderBy, onRequestSort, translate } = props;
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
+
     };
+    const { t, ready } = translate;
+    if (!ready) return (<>loading translations...</>);
     return (
-        <RootStyle >
+        <TableHead>
             <TableRow>
                 {headCells.map((headCell) => (
                     <TableCell
@@ -110,7 +103,7 @@ export default function TableHeadSimple(props) {
                                 justifyContent: headCell.align === "center" ? 'center !important' : headCell.align === 'right' ? "flex-start !important" : 'flex-end !important',
                             }}
                         >
-                            {headCell.label}
+                            {t(headCell.label)}
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -123,7 +116,7 @@ export default function TableHeadSimple(props) {
                     </TableCell>
                 ))}
             </TableRow>
-        </RootStyle>
+        </TableHead>
     );
 }
 
