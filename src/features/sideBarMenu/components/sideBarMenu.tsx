@@ -44,9 +44,16 @@ function SideBarMenu({ children }: LayoutProps) {
         container.current = document.body as HTMLDivElement;
     })
 
+    const handleRouting = (path: string) => {
+        // Always do navigations after the first render
+        router.push(path);
+    }
+
 
     const { t, ready } = useTranslation("menu");
     if (!ready) return (<>loading translations...</>);
+
+
 
     const handleClick = (path: string) => {
         if (path === "/settings") {
@@ -72,7 +79,7 @@ function SideBarMenu({ children }: LayoutProps) {
             <List>
                 {sidebarItems.map((item) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <Link href={item.href} passHref>
+                        <a onClick={() => handleRouting(item.href)}>
                             <ListItem
                                 disableRipple
                                 button
@@ -82,7 +89,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 </ListItemIcon>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)} />
                             </ListItem>
-                        </Link>
+                        </a>
                     </Hidden>
                 ))}
             </List>

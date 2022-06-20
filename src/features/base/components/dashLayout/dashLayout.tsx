@@ -10,7 +10,7 @@ const variants = {
     exit: { opacity: 0 },
 }
 
-export default function DashLayout({ children }: LayoutProps) {
+function DashLayout({ children }: LayoutProps) {
     const router = useRouter();
     return (
         <SideBarMenu>
@@ -30,3 +30,5 @@ export default function DashLayout({ children }: LayoutProps) {
         </SideBarMenu>
     )
 }
+
+export default DashLayout;

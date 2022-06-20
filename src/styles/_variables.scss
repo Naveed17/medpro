@@ -38,20 +38,20 @@ $lato-font-path: "/static/fonts/Lato/";
 
 // Poppins
 
-//@font-face {
-//  src: url("#{$poppins-font-path}Poppins-Regular.ttf");
-//  font-family: "Poppins";
-//  font-display: swap;
-//}
-//@font-face {
-//  src: url("#{$poppins-font-path}Poppins-Bold.ttf");
-//  font-family: "Poppins-Bold";
-//  font-display: swap;
-//}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Regular.ttf");
+  font-family: "Poppins";
+  font-display: auto;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Bold.ttf");
+  font-family: "Poppins-Bold";
+  font-display: auto;
+}
 @font-face {
   src: url("#{$poppins-font-path}Poppins-SemiBold.ttf");
   font-family: "Poppins-SemiBold";
-  font-display: swap;
+  font-display: auto;
 }
 @font-face {
   src: url("#{$poppins-font-path}Poppins-Light.ttf");
