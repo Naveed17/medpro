@@ -19,7 +19,7 @@ const LeftActionsData = [
         pathname: path(ROOTS.app, ''),
         component: dynamic(
             (): any =>
-                import("@features/leftActionBar/components/agendaActionBar/agendaActionBar").then((mod) => mod)
+                import("@features/leftActionBar/components/agenda/agenda").then((mod) => mod)
         ),
     },
 ];

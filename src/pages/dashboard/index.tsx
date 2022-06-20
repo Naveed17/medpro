@@ -17,7 +17,7 @@ import useRequest from "@app/axios/axiosServiceApi";
 
 const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url, method: "GET", headers}).then(res => res.data);
 
-const API = "https://pokeapi.co/api/v2/pokemon/bulbasaur";
+const API = "/api/private/user/fr";
 
 function Dashborad({...props}) {
     const { cache } = useSWRConfig();
@@ -31,7 +31,7 @@ function Dashborad({...props}) {
 
     const { data, error, response, mutate, isValidating} = useRequest({
         method: "GET",
-        url: "https://pokeapi.co/api/v2/pokemon/bulbasaur",
+        url: "/api/private/user/fr",
         headers
     });
     // const { data, error } = useSWR(API);
@@ -43,8 +43,6 @@ function Dashborad({...props}) {
 
     if (error) return <div>failed to load</div>
     if (!data) return <LoadingScreen />;
-
-    console.log(user);
 
     return (
         <>

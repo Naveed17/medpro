@@ -1,36 +1,27 @@
-import PropTypes from "prop-types";
 // material
 import RootStyled from "./overrides/labelStyled";
+import React from "react";
+import {SxProps} from "@mui/system";
+import {Theme} from "@mui/material/styles";
 
-// ----------------------------------------------------------------------
+type LabelProps = {
+    children: React.ReactNode,
+    color: string,
+    variant: string,
+    sx?: SxProps<Theme>,
+};
 
-
-
-// ----------------------------------------------------------------------
-
-export default function Label({
+function Label({
     color = "default",
     variant = "ghost",
     children,
     ...other
-}) {
+} : LabelProps) {
     return (
-        <RootStyled styleprops={{ color, variant }} {...other}>
+        <RootStyled color={color} variant={variant} {...other}>
             {children}
         </RootStyled>
     );
 }
+export default Label;
 
-Label.propTypes = {
-    children: PropTypes.node,
-    color: PropTypes.oneOf([
-        "default",
-        "primary",
-        "secondary",
-        "info",
-        "success",
-        "warning",
-        "error",
-    ]),
-    variant: PropTypes.oneOf(["filled", "outlined", "ghost"]),
-};

@@ -7,6 +7,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
 import { styled } from '@mui/material/styles';
 import CodeIcon from '@mui/icons-material/Code';
+
 const RootStyle = styled(TableHead)(({ theme }) => ({
     '& .MuiTableCell-head': {
         paddingTop: '8px !important',
@@ -18,6 +19,7 @@ const RootStyle = styled(TableHead)(({ theme }) => ({
         }
     }
 }));
+
 const headCells = [
     {
         id: 'id',
@@ -85,11 +87,14 @@ const headCells = [
     },
 
 ];
-export default function TableHeadSimple(props) {
+
+export default function TableHeadSimple({...props}) {
     const { order, orderBy, onRequestSort, } = props;
-    const createSortHandler = (property) => (event) => {
+
+    const createSortHandler = (property: string) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
+
     return (
         <RootStyle >
             <TableRow>
@@ -104,8 +109,7 @@ export default function TableHeadSimple(props) {
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
                             {...(headCell.sortable && { onClick: createSortHandler(headCell.id) })}
-
-                            IconComponent={headCell.sortable ? CodeIcon : null}
+                            IconComponent={headCell.sortable ? CodeIcon : undefined}
                             sx={{
                                 justifyContent: headCell.align === "center" ? 'center !important' : headCell.align === 'right' ? "flex-start !important" : 'flex-end !important',
                             }}
