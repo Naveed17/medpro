@@ -1,26 +1,27 @@
-import { alpha, experimentalStyled as styled, Palette } from "@mui/material/styles";
+import { alpha, experimentalStyled as styled } from "@mui/material/styles";
+
 interface Props {
     color: string;
     variant: string;
-    theme: any;
+    theme?: any;
 }
+
 const RootStyled = styled("span")(({ theme, ...styleprops }: Props) => {
-    console.log(styleprops);
     const isLight = theme.palette.mode === "light";
     const { color, variant } = styleprops;
 
-    const styleFilled = (color: (string | undefined)) => ({
+    const styleFilled = (color: string) => ({
         color: theme.palette[color].contrastText,
         backgroundColor: theme.palette[color].main,
     });
 
-    const styleOutlined = (color: (string | undefined)) => ({
+    const styleOutlined = (color: string) => ({
         color: theme.palette[color].main,
         backgroundColor: "transparent",
         border: `1px solid ${theme.palette[color].main}`,
     });
 
-    const styleGhost = (color: (string | undefined)) => ({
+    const styleGhost = (color: string) => ({
         color: theme.palette[color][isLight ? "dark" : "light"],
         backgroundColor: alpha(theme.palette[color].main, 0.16),
     });

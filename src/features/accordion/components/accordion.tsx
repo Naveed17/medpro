@@ -5,9 +5,11 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from '@themes/urlIcon';
 import RootStyled from './overrides/accordionStyled';
 import { useTranslation } from "next-i18next";
+
 interface statetype {
     expanded: boolean | any;
 }
+
 function Accordion({ data, badge, translate }: { data: any, badge: any, translate: string }) {
     const [state, setstate] = useState<statetype>({
         expanded: false,
