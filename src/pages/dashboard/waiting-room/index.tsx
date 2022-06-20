@@ -13,7 +13,7 @@ import SubHeader from "@features/subHeader/components/subHeader";
 import RoomToolbar from "@features/roomToolbar/components/roomToolbar";
 
 function Room() {
-  const { t, ready } = useTranslation('common');
+  const { t, ready } = useTranslation('waitingRoom');
   if (!ready) return (<>loading translations...</>);
 
   return (
@@ -45,7 +45,7 @@ function Room() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
+    ...(await serverSideTranslations(locale as string, ['waitingRoom']))
   }
 })
 export default Room;

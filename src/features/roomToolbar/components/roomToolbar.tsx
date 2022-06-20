@@ -1,10 +1,13 @@
 import { Box, Stack, Typography, IconButton } from '@mui/material'
+import { useTranslation } from "next-i18next";
 import Icon from '@themes/urlIcon'
 function RoomToolbar() {
+    const { t, ready } = useTranslation('waitingRoom');
+    if (!ready) return (<>loading translations...</>);
     return (
         <Stack direction='row' justifyContent="space-between" width={1} alignItems="center">
             <Typography>
-                Salle d’attente
+                {t('subheader.title')}
             </Typography>
             <IconButton
                 sx={{
