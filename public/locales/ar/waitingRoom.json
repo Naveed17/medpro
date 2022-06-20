@@ -1,0 +1,13 @@
+{
+  "subheader": {
+    "title": "قاعة داتينتي"
+  },
+  "filter": {
+    "title": "فلتر",
+    "collapse": {
+      "reson": "سبب الاستشارة",
+      "status": "حالة",
+      "meetingType": "نوع الاجتماع"
+    }
+  }
+}

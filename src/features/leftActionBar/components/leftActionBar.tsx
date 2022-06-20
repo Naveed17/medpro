@@ -1,5 +1,5 @@
-import {useRouter} from "next/router";
-import {LeftActionsData} from "@features/leftActionBar";
+import { useRouter } from "next/router";
+import { LeftActionsData } from "@features/leftActionBar";
 
 function LeftActionBar() {
     const router = useRouter();
@@ -8,11 +8,12 @@ function LeftActionBar() {
     );
 
     const Component: any = selectted?.component;
+
     return selectted ? (
         <>
-            <Component/>
+            <Component />
         </>
-    ) : <></>;
+    ) : null
 }
 
 export default LeftActionBar;
