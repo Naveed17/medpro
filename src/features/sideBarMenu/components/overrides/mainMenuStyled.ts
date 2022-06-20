@@ -1,5 +1,5 @@
-import {styled} from "@mui/material/styles";
-import {Box} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
 
 const MainMenuStyled = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -113,6 +113,7 @@ const MainMenuStyled = styled(Box)(({ theme }) => ({
             padding: "10px 0px 10px 20px",
             backgroundColor: theme.palette.background.paper,
             overflowY: "auto",
+            overflowX: "hidden",
             height: "100%",
             zIndex: 1200,
             position: "fixed",
@@ -126,4 +127,4 @@ const MainMenuStyled = styled(Box)(({ theme }) => ({
     },
 }));
 
-export default  MainMenuStyled;
+export default MainMenuStyled;

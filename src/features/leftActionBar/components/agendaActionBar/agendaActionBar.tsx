@@ -1,14 +1,12 @@
 // components
-import {CalandarPickers} from "@features/calandarPickers";
-import {SideBarAccordion} from "@features/sideBarAccordion";
-import {BoxStyled} from "@features/leftActionBar";
+import { CalandarPickers } from "@features/calandarPickers";
+import { BoxStyled } from "@features/leftActionBar";
 
 function AgendaActionBar() {
 
     return (
         <BoxStyled>
             <CalandarPickers />
-            <SideBarAccordion />
         </BoxStyled>
     )
 }

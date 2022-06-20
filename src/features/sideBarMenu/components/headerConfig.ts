@@ -20,7 +20,7 @@ export const siteHeader = {
         {
             icon: "ic-salle-sidenav",
             name: "room",
-            href: '#',
+            href: '/dashboard/waiting-room',
         },
         {
             icon: "ic-user2",
