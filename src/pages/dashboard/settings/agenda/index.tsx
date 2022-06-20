@@ -6,7 +6,7 @@ import {RootStyled} from "@features/calendarToolbar";
 import {useTranslation} from "next-i18next";
 import { Box } from "@mui/material";
 import {DashLayout} from "@features/base";
-import MedTable from "@themes/overrides/MedTable";
+import {Otable} from "@features/table";
 
 function Agenda() {
 
@@ -16,7 +16,7 @@ function Agenda() {
             name: 'Praticien agenda',
             type: 'Praticien',
             speciality: "ORL",
-            place:"Cabinet",
+            place: "Cabinet",
             nbAcces: 3,
             actif: true,
             public: true,
@@ -26,7 +26,7 @@ function Agenda() {
             name: 'Salle radiologue',
             type: 'Salle',
             speciality: "ORL",
-            place:"Radiologist",
+            place: "Radiologist",
             nbAcces: 3,
             actif: true,
             public: false,
@@ -36,7 +36,7 @@ function Agenda() {
             name: 'Calendar assistant',
             type: 'Assistant',
             speciality: "Cardiologue",
-            place:"Cabinet",
+            place: "Cabinet",
             nbAcces: 2,
             actif: false,
             public: true,
@@ -121,14 +121,14 @@ function Agenda() {
         </SubHeader>
 
         <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-            <MedTable headers={headCells}
-                      rows={rows}
-                      state={null}
-                      from={'agenda'}
-                      t={t}
-                      editMotif={null}
-                      handleConfig={null}
-                      handleChange={null}/>
+            <Otable headers={headCells}
+                    rows={rows}
+                    state={null}
+                    from={'agenda'}
+                    t={t}
+                    edit={null}
+                    handleConfig={null}
+                    handleChange={null}/>
         </Box>
 
     </>)

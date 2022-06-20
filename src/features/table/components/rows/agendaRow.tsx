@@ -1,54 +1,18 @@
+import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
 import React from 'react'
 
-import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { Typography, Box,} from '@mui/material';
-import { styled } from '@mui/material/styles';
 import Lable from "@themes/overrides/Lable";
 import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
 import IconUrl from "@themes/urlIcon";
-const RootStyle = styled(TableRow)(({ theme, styleprops }) => ({
-    '& .MuiTableCell-root': {
-        div:{
-            color: 'black'
-        },
-        '& .MuiSelect-select':{
-            background:'white',
-        },
-        position: 'relative',
-        '& .name': {
-            marginLeft: '24px',
-            height: '100%',
-            '&::after': {
-                content: '" "',
-                position: 'absolute',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                left: 24,
-                width: '4px',
-                height: 'calc(100% - 16px)',
-                //background: theme.palette[styleprops].main,
-            },
-            '&::before': {
-                content: '" "',
-                position: 'absolute',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                left: 8,
-                width: '13px',
-                height: '13px',
-                borderRadius: '50%',
-                //background: theme.palette[styleprops].main,
-            }
-        }
-    }
-}));
 
-export default function AgendaRow({ row, handleChange,editMotif, t }) {
+function AgendaRow(props: { row:any, handleChange:any,edit: any, t:any }) {
 
+    const  { row, handleChange,edit, t } = props
     return (
-        <RootStyle styleprops={row.color} key={row.name}>
+        <TableRowStyled key={row.name}>
             <TableCell>
                 <Typography className='name' variant="body1" color="text.primary">
                     {row.name}
@@ -72,7 +36,7 @@ export default function AgendaRow({ row, handleChange,editMotif, t }) {
             <TableCell align="center">
                 <Lable
                     variant="filled"
-                    sx={{ backgroundColor: theme => theme.palette.grey[300], px: 1.5 }}>
+                    sx={{ backgroundColor: (theme: { palette: { grey: any[]; }; }) => theme.palette.grey[300], px: 1.5 }}>
                     {row.nbAcces}
                 </Lable>
             </TableCell>
@@ -105,6 +69,7 @@ export default function AgendaRow({ row, handleChange,editMotif, t }) {
                     </Button>
                 </Box>
             </TableCell>
-        </RootStyle>
+        </TableRowStyled>
     )
 }
+export default AgendaRow

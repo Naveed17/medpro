@@ -1,7 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/dashLayout";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import { useFormik, Form, FormikProvider } from "formik";
@@ -28,7 +27,8 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker"
-import MedTable from "@themes/overrides/MedTable";
+import {DashLayout} from "@features/base";
+import {Otable} from "@features/table";
 
 const FormStyled = styled(Form)(({ theme }) => ({
     '& .MuiCard-root': {
@@ -530,12 +530,12 @@ function NewPlace() {
                             {t('lieux.new.permissions')}
                         </Typography>
 
-                        <MedTable headers={headCells}
+                        <Otable headers={headCells}
                                   rows={rows}
                                   state={null}
                                   from={'permission'}
                                   t={t}
-                                  editMotif={editPlaces}
+                                  edit={editPlaces}
                                   handleConfig={handleConfig}
                                   handleChange={handleChange}/>
                         <div style={{paddingBottom: '50px'}}></div>

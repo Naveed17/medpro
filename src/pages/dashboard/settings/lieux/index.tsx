@@ -7,8 +7,8 @@ import {RootStyled} from "@features/calendarToolbar";
 import { Box, Button } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
-import MedTable from "@themes/overrides/MedTable";
 import {useRouter} from "next/router";
+import {Otable} from "@features/table";
 const Maps = dynamic(() => import("@features/maps/components/maps"), { ssr: false });
 
 function Lieux() {
@@ -105,7 +105,7 @@ function Lieux() {
                 </RootStyled>
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                <MedTable headers={headCells}
+                <Otable   headers={headCells}
                           rows={rows}
                           state={null}
                           from={'lieux'}
