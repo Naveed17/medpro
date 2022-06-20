@@ -4,7 +4,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { useRouter } from "next/router";
 import { Box, Typography, Button } from "@mui/material";
-import DashLayout from "@features/base/dashLayout";
+import { DashLayout } from "@features/base";
 import { PatientTable } from "@features/patientTable";
 import SubHeader from "@features/subHeader/components/subHeader";
 

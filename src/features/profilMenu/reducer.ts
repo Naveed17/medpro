@@ -4,7 +4,6 @@ import {
     openMenu
 } from './actions';
 import {signOut} from "next-auth/react";
-import {string} from "prop-types";
 
 export type MenuState = {
     opened: boolean;
