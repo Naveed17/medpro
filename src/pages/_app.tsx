@@ -1,9 +1,9 @@
-import type {AppContext, AppProps} from 'next/app'
+import type {AppProps} from 'next/app'
 import { appWithTranslation } from 'next-i18next'
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@app/redux/store";
-import React, {ReactElement, ReactNode, useMemo} from "react";
+import React, {ReactElement, ReactNode} from "react";
 import AppThemeProvider from "@themes/index";
 import '@styles/globals.scss';
 import {NextPage} from "next";
@@ -12,8 +12,6 @@ import KeycloakSession from "@app/keycloak/keycloakSession";
 import SwrProvider from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import AuthGuard from "@app/keycloak/authGuard";
-import App from "next/app";
-import {getToken} from "next-auth/jwt";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout
