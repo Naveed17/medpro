@@ -77,10 +77,8 @@ export const authOptions: NextAuthOptions = {
     // async redirect({ url, baseUrl }) { return baseUrl },
     async session({ session, token, user }) {
       // Send properties to the client, like an access_token from a provider.
-
       setAxiosToken(<string>token.accessToken);
       session.accessToken = token.accessToken;
-
       const res = await requestAxios({
         url: "/api/private/user/fr",
         method: "GET",
@@ -102,8 +100,7 @@ export const authOptions: NextAuthOptions = {
       // Persist the OAuth access_token to the token right after signin
       if (account) {
         // Send properties to the client, like an access_token from a provider.
-        setAxiosToken(<string>account.access_token);
-        token.accessToken = account.access_token
+        token.accessToken = account.access_token;
       }
       return token
     }

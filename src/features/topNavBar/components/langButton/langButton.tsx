@@ -24,7 +24,7 @@ function LangButton() {
 
     const handleClose= ({...props}) => {
         setAnchorEl(null);
-        if (selected[1] !== props) {
+        if (props.locale !== undefined  && selected.locale !== props.locale) {
             setselected(props);
             router.push(router.pathname, router.pathname, {locale: props.locale});
         }

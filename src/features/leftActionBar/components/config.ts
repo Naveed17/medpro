@@ -10,6 +10,14 @@ const LeftActionsData = [
       ).then((mod) => mod)
     ),
   },
+  {
+    pathname: path(ROOTS.app, "/waiting-room"),
+    component: dynamic((): any =>
+      import(
+        "@features/leftActionBar/components/waitingRoom/components/waitingRoom"
+      ).then((mod) => mod)
+    ),
+  },
 
   {
     pathname: path(ROOTS.app, "/patient"),

@@ -15,24 +15,23 @@ import Icon from "@themes/icon";
 
 // config
 import { siteHeader } from "./headerConfig";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 const { sidebarItems } = siteHeader;
-
 //style
 import "@styles/sidebarMenu.module.scss";
 import Image from 'next/image'
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
-import React, {useEffect, useRef} from "react";
-import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
-import {TopNavBar} from "@features/topNavBar";
-import {LeftActionBar} from "@features/leftActionBar";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { sideBarSelector } from "@features/sideBarMenu/selectors";
+import { toggleMobileBar, toggleSideBar } from "@features/sideBarMenu/actions";
+import React, { useEffect, useRef } from "react";
+import { ListItemTextStyled, MainMenuStyled, MobileDrawerStyled } from "@features/sideBarMenu";
+import { TopNavBar } from "@features/topNavBar";
+import { LeftActionBar } from "@features/leftActionBar";
 
 function SideBarMenu({ children }: LayoutProps) {
     const router = useRouter();
@@ -45,27 +44,34 @@ function SideBarMenu({ children }: LayoutProps) {
         container.current = document.body as HTMLDivElement;
     })
 
+    const handleRouting = (path: string) => {
+        // Always do navigations after the first render
+        router.push(path);
+    }
+
 
     const { t, ready } = useTranslation("menu");
     if (!ready) return (<>loading translations...</>);
 
-    const handleClick = (path:string) => {
+
+
+    const handleClick = (path: string) => {
         if (path === "/settings") {
-            setTimeout(()=>{
+            setTimeout(() => {
                 dispatch(toggleSideBar(false))
-            },800);
+            }, 800);
         }
     };
 
     const drawer = (
         <div>
             <Link href='/'>
-                <Box sx={{ textAlign: "center", marginTop: 1}}>
+                <Box sx={{ textAlign: "center", marginTop: 1 }}>
                     <Image height={38}
-                           width={38}
-                           alt="company logo"
-                           src="/static/icons/Med-logo_.svg"
-                           priority
+                        width={38}
+                        alt="company logo"
+                        src="/static/icons/Med-logo_.svg"
+                        priority
                     />
                 </Box>
             </Link>
@@ -73,7 +79,7 @@ function SideBarMenu({ children }: LayoutProps) {
             <List>
                 {sidebarItems.map((item) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <Link href={item.href} passHref>
+                        <a onClick={() => handleRouting(item.href)}>
                             <ListItem
                                 disableRipple
                                 button
@@ -83,7 +89,7 @@ function SideBarMenu({ children }: LayoutProps) {
                                 </ListItemIcon>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)} />
                             </ListItem>
-                        </Link>
+                        </a>
                     </Hidden>
                 ))}
             </List>
@@ -97,7 +103,7 @@ function SideBarMenu({ children }: LayoutProps) {
                             <StatsIcon />
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." +"stats")} />
+                            <ListItemText primary={t("main-menu." + "stats")} />
                         </Hidden>
                     </ListItem>
                 </Link>
@@ -105,7 +111,7 @@ function SideBarMenu({ children }: LayoutProps) {
                 <Link href="/dashboard/settings/profil">
                     <ListItem
                         disableRipple
-                        onClick={()=>handleClick('/settings')}
+                        onClick={() => handleClick('/settings')}
                         button
                         className={router.pathname.startsWith('/dashboard/settings') ? "active mt-2" : "mt-2"}>
                         <ListItemIcon>
@@ -141,8 +147,8 @@ function SideBarMenu({ children }: LayoutProps) {
                 className="sidenav-main">
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <MobileDrawerStyled
-                    container={ container.current }
-                    open={ mobileOpened }
+                    container={container.current}
+                    open={mobileOpened}
                     variant="temporary"
                     className="drawer-mobile"
                     onClose={() => dispatch(toggleMobileBar(mobileOpened))}
@@ -164,16 +170,13 @@ function SideBarMenu({ children }: LayoutProps) {
                 </div>
             </Box>
             <Box className="body-main">
-                {/* main page content */}
-                {Array.from({ length: 1 }).map((_, idx) => (
-                    <Toolbar key={`top-search-${idx}`} />
-                ))}
+                <Toolbar />
                 <Box
                     component="main">
                     {children}
                 </Box>
             </Box>
-    </MainMenuStyled>
+        </MainMenuStyled>
     )
 }
 
