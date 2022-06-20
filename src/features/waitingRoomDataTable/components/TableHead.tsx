@@ -6,74 +6,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
 import CodeIcon from '@mui/icons-material/Code';
 import { TableHead } from '@mui/material';
-import { useTranslation } from 'next-i18next';
-const headCells = [
-    {
-        id: 'id',
-        numeric: false,
-        disablePadding: true,
-        label: 'Id',
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'time',
-        numeric: false,
-        disablePadding: true,
-        label: "arrival time",
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'appointmentTime',
-        numeric: false,
-        disablePadding: true,
-        label: "Appointment time",
-        align: 'left',
-        sortable: false,
-    },
-    {
-        id: 'motif',
-        numeric: false,
-        disablePadding: true,
-        label: "Reason",
-        align: 'left',
-        sortable: false,
-    },
-    {
-        id: 'status',
-        numeric: false,
-        disablePadding: true,
-        label: "Status",
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'name',
-        numeric: false,
-        disablePadding: true,
-        label: "Patient's name",
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'agenda',
-        numeric: false,
-        disablePadding: true,
-        label: "Agenda",
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'action',
-        numeric: false,
-        disablePadding: true,
-        label: "Action",
-        align: 'left',
-        sortable: false,
-    },
-
-];
+import { headCells } from './config';
 
 export default function TableHeadSimple({ ...props }) {
     const { order, orderBy, onRequestSort, translate } = props;

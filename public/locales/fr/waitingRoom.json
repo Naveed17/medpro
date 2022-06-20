@@ -32,6 +32,10 @@
     "Patient's name": "nom du patient",
     "Agenda": "Agenda",
     "Action": "Action",
-    "See details": "Voir les détails"
+    "See details": "Voir les détails",
+    "min": "min",
+    "completed": "Effectuée",
+    "canceled": "Annulée",
+    "1st consultation": "1ère consultation"
   }
 }

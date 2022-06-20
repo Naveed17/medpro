@@ -10,7 +10,7 @@ import { Button, TableCell } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
-import config from './config.json';
+import { rows } from './config';
 import { useTranslation } from 'next-i18next';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -60,8 +60,8 @@ export default function EnhancedTable() {
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
-    const { rows } = config;
     if (!ready) return (<>loading translations...</>);
+    console.log(rows);
     return (
         <Box>
             <TableContainer>
@@ -106,7 +106,7 @@ export default function EnhancedTable() {
                                             }}
                                         >
                                             <Icon path="ic-time" />
-                                            {row.time}
+                                            {row.arrivaltime}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -122,16 +122,16 @@ export default function EnhancedTable() {
                                     >
                                         <Icon path="ic-time" />
                                         <Typography color="success" sx={{ ml: 0.6 }}>
-                                            {row.time1}
+                                            {row.appointmentTime}
                                         </Typography>
                                     </Box>
                                 </TableCell>
                                 <TableCell
                                     sx={{
                                         my: 1,
-                                        borderLeft: `4px solid ${row.status === "warning"
-                                            ? theme.palette.warning.main
-                                            : row.status === "error"
+                                        borderLeft: `4px solid ${row.status === "completed"
+                                            ? theme.palette.success.main
+                                            : row.status === "canceled"
                                                 ? theme.palette.error.main
                                                 : row.status === "success"
                                                     ? theme.palette.success.main
@@ -149,15 +149,20 @@ export default function EnhancedTable() {
                                             variant="text"
                                             size="small"
                                             color="primary"
+                                            sx={{
+                                                '& .react-svg svg': {
+                                                    width: 15,
+                                                }
+                                            }}
                                             startIcon={
-                                                row.btn === "Video consultation" ? (
-                                                    <Icon path="ic-video-red" />
-                                                ) : (
-                                                    ""
-                                                )
+                                                row.type === "cabinet" ? <Icon path="ic-cabinet" /> :
+                                                    row.type === "teleconsultation" ? <Icon path="ic-video-red" />
+                                                        :
+                                                        null
+
                                             }
                                         >
-                                            {row.btn}
+                                            {t(row.reson)}
                                         </Button>
                                         <Box
                                             display="flex"
@@ -170,7 +175,7 @@ export default function EnhancedTable() {
                                         >
                                             <Icon path="ic-time" />
                                             <Typography color="success" sx={{ ml: 0.6 }}>
-                                                {row.time2}
+                                                {row.duration} {t("min")}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -178,16 +183,16 @@ export default function EnhancedTable() {
                                 <TableCell>
                                     <Label
                                         variant="filled"
-                                        color='primary'
-                                        sx={{ color: "#000", width: "100%" }}
+                                        color={row.status === "completed" ? "success" : row.status === "canceled" ? "error" : "primary"}
+                                        sx={{ color: theme.palette.text.primary, width: "100%" }}
                                     >
-                                        {row.label}
+                                        {t(row.status)}
                                     </Label>
                                 </TableCell>
                                 <TableCell>
                                     <Box display="flex" alignItems="center">
                                         <Typography color="text.primary" sx={{ ml: 0.6 }}>
-                                            {row.name}
+                                            {row.patient}
                                         </Typography>
                                     </Box>
                                 </TableCell>
@@ -203,7 +208,7 @@ export default function EnhancedTable() {
                                     >
                                         <Icon path="ic-agenda-dark" />
                                         <Typography color="text.secondary" sx={{ ml: 0.6 }}>
-                                            {row.aganda}
+                                            {row.agenda}
                                         </Typography>
                                     </Box>
                                 </TableCell>

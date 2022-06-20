@@ -39,7 +39,7 @@ export default function SidebarCheckbox(props: Props) {
                     {data.icon && <Icon {...(data.icon === 'ic-video') && { className: 'ic-video' }} path={data.icon} />}
                 </ListItemIcon>
             }
-            <ListItemText primary={data.text} />
+            <ListItemText primary={t(data.text)} />
         </SidebarCheckboxStyled>
     )
 }
