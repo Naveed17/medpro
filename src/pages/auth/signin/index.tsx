@@ -8,11 +8,15 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import dynamic from "next/dynamic";
 import { LoadingScreen } from "@features/loadingScreen";
+import axios from "axios";
+import {logout} from "@features/profilMenu";
+import {useAppDispatch} from "@app/redux/hooks";
 
 const Footer = dynamic(() => import('@features/base/components/footer/footer'));
 
 function SignIn(){
     const { data: session, status } = useSession();
+    const dispatch = useAppDispatch();
     const loading = status === 'loading'
     const { t, ready } = useTranslation(['common', 'menu']);
     const router = useRouter();
@@ -24,9 +28,19 @@ function SignIn(){
 
     const redirectSignIn = !router.pathname.startsWith('/auth/signin');
 
-    const handleSignIn = (event: any) => {
-        event.preventDefault()
+    const handleSignIn = () => {
         signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')});
+    };
+
+    const handleSignOut = async () => {
+        const {
+            data: {path}
+        } = await axios({
+            url: "/api/auth/logout",
+            method: "GET"
+        });
+        dispatch(logout({redirect: false}));
+        window.location.href = path;
     };
 
     const login = (
@@ -49,7 +63,7 @@ function SignIn(){
                         <Button sx={{ '& img': { mr: 2 }, fontFamily: 'Poppins', fontSize: '16px', mt: 2 }}
                                 startIcon={<Box component="img"  width={20} height={20} src="/static/icons/Med-logo_.svg"  />}
                                 variant="google"
-                                onClick={(e) => handleSignIn(e)} fullWidth>
+                                onClick={() => handleSignIn()} fullWidth>
                             {t('login.sign_med_connect')}
                         </Button>
                         <Box sx={{ height: '2px', backgroundColor: 'divider', mt: 5, mb: 8, width: '75%', mx: 'auto', position: 'relative', '& p': { position: 'absolute', px: 1.5, backgroundColor: theme.palette.background.default, left: '50%', color: "#C9C8C8", transform: 'translateX(-50%)', top: -10 } }}>
@@ -88,12 +102,8 @@ function SignIn(){
 
                         <Button
                             variant="google"
-                            href={`/api/auth/signout`}
                             className={styles.button}
-                            onClick={(e) => {
-                                e.preventDefault()
-                                signOut({ callbackUrl: (router.locale === 'ar' ? '/ar' : '/')})
-                            }}
+                            onClick={() => handleSignOut()}
                         >
                             {t('main-menu.logout', { ns: 'menu' })}
                         </Button>

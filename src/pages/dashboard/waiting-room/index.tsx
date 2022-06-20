@@ -42,12 +42,15 @@ function Room() {
     </>
   );
 }
+
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(locale as string, ['waitingRoom', 'menu', 'common']))
   }
 })
+
 export default Room;
+
 Room.getLayout = function getLayout(page: ReactElement) {
   return (
     <DashLayout>

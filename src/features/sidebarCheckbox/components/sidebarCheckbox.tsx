@@ -1,8 +1,9 @@
 import React from 'react'
 import { Checkbox, ListItemIcon, ListItemText } from '@mui/material'
 import CircleIcon from '@mui/icons-material/Circle';
-import RootStyled from './overrides/sidebarCheckboxStyled';
-import Icon from '@themes/urlIcon'
+import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
+import Icon from '@themes/urlIcon';
+
 interface Props {
     data: any;
     onChange: (v: any) => void;
@@ -12,6 +13,7 @@ interface Props {
     }
 
 }
+
 export default function SidebarCheckbox(props: Props) {
     const { data, onChange, translate, ...rest } = props
     const { t, ready } = translate;
@@ -22,7 +24,7 @@ export default function SidebarCheckbox(props: Props) {
     };
     if (!ready) return (<>loading translations...</>);
     return (
-        <RootStyled styleprops={data?.color ? data.color : 'primary'}
+        <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
             component='label' htmlFor={data.name}>
             <Checkbox
                 size="small"
@@ -37,7 +39,7 @@ export default function SidebarCheckbox(props: Props) {
                     {data.icon && <Icon {...(data.icon === 'ic-video') && { className: 'ic-video' }} path={data.icon} />}
                 </ListItemIcon>
             }
-            <ListItemText primary={t(data.text)} />
-        </RootStyled>
+            <ListItemText primary={data.text} />
+        </SidebarCheckboxStyled>
     )
 }

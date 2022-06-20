@@ -2,7 +2,7 @@
 import { CalandarPickers } from "@features/calandarPickers";
 import { BoxStyled } from "@features/leftActionBar";
 
-function AgendaActionBar() {
+function Agenda() {
 
     return (
         <BoxStyled>
@@ -11,4 +11,4 @@ function AgendaActionBar() {
     )
 }
 
-export default AgendaActionBar
+export default Agenda

@@ -6,7 +6,8 @@ type Props = {
     theme?: any;
     htmlFor?: string;
 }
-const RootStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
+
+const SidebarCheckboxStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
     cursor: 'pointer',
     padding: theme.spacing(0.5, 1),
     '& .MuiCheckbox-root': {
@@ -43,4 +44,4 @@ const RootStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
     }
 
 }));
-export default RootStyled;
+export default SidebarCheckboxStyled;

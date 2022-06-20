@@ -54,7 +54,8 @@ export default function EnhancedTable() {
     const theme = useTheme();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('patient');
-    const handleRequestSort = (event, property: (string | any)) => {
+    const handleRequestSort = (event: React.MouseEvent<unknown>
+        , property: (string | any)) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);

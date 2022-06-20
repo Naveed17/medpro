@@ -7,7 +7,6 @@ import { visuallyHidden } from '@mui/utils';
 import CodeIcon from '@mui/icons-material/Code';
 import { TableHead } from '@mui/material';
 import { useTranslation } from 'next-i18next';
-
 const headCells = [
     {
         id: 'id',
@@ -75,9 +74,11 @@ const headCells = [
     },
 
 ];
-export default function TableHeadSimple(props) {
+
+export default function TableHeadSimple({ ...props }) {
     const { order, orderBy, onRequestSort, translate } = props;
-    const createSortHandler = (property) => (event) => {
+
+    const createSortHandler = (property: string) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
 
     };
@@ -97,8 +98,7 @@ export default function TableHeadSimple(props) {
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
                             {...(headCell.sortable && { onClick: createSortHandler(headCell.id) })}
-
-                            IconComponent={headCell.sortable ? CodeIcon : null}
+                            IconComponent={headCell.sortable ? CodeIcon : undefined}
                             sx={{
                                 justifyContent: headCell.align === "center" ? 'center !important' : headCell.align === 'right' ? "flex-start !important" : 'flex-end !important',
                             }}
