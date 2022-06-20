@@ -2,5 +2,12 @@
   "subheader": {
     "title": "waiting room"
   },
-  "bord": {}
+  "filter": {
+    "title": "filter",
+    "collapse": {
+      "reson": "Reason for the consultation",
+      "status": "Status",
+      "meetingType": "Meeting type"
+    }
+  }
 }

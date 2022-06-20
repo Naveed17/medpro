@@ -7,15 +7,14 @@ import Icon from "@themes/urlIcon";
 // next-i18next
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
-import DashLayout from "@features/base/dashLayout";
+import { DashLayout } from "@features/base";
 import { Box } from "@mui/material";
-import SubHeader from "@features/subHeader/components/subHeader";
-import RoomToolbar from "@features/roomToolbar/components/roomToolbar";
+import { SubHeader } from "@features/subHeader";
+import { RoomToolbar } from "@features/roomToolbar";
 
 function Room() {
   const { t, ready } = useTranslation('waitingRoom');
   if (!ready) return (<>loading translations...</>);
-
   return (
     <>
       <SubHeader>
@@ -45,7 +44,7 @@ function Room() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, ['waitingRoom']))
+    ...(await serverSideTranslations(locale as string, ['waitingRoom', 'menu', 'common']))
   }
 })
 export default Room;

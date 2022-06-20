@@ -2,5 +2,12 @@
   "subheader": {
     "title": "Salle d’attente"
   },
-  "bord": {}
+  "filter": {
+    "title": "filter",
+    "collapse": {
+      "reson": "Motif de consultation",
+      "status": "Statut",
+      "meetingType": "Type RDV"
+    }
+  }
 }

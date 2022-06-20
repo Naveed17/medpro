@@ -1,16 +1,12 @@
 import { GetStaticProps } from "next";
-import React, { ReactElement } from "react";
-//components
-import { WaitingRoomDataTable } from "@features/waitingRoomDataTable";
-import { Label } from "@features/label";
-import Icon from "@themes/urlIcon";
+import { ReactElement } from "react";
 // next-i18next
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
-import DashLayout from "@features/base/dashLayout";
+import { DashLayout } from "@features/base";
 import { Box } from "@mui/material";
-import SubHeader from "@features/subHeader/components/subHeader";
-import RoomToolbar from "@features/roomToolbar/components/roomToolbar";
+import { SubHeader } from "@features/subHeader";
+import { RoomToolbar } from "@features/roomToolbar";
 
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');

@@ -4,21 +4,27 @@ import RootStyled from "./overrides/waitingRoomBarStyled"
 import { Accordion } from '@features/accordion/components'
 import { SidebarCheckbox } from '@features/sidebarCheckbox/components'
 import { motifData, statutData, typeRdv } from './config'
+import { useTranslation } from "next-i18next"
 function WaitingRoom() {
     const [motifstate, setmotifstate] = useState({});
     const [statutstate, setstatutstate] = useState({});
     const [typeRdvstate, settypeRdvstate] = useState({});
+    const { t, ready } = useTranslation('waitingRoom');
+    if (!ready) return (<>loading translations...</>);
     return (
         <RootStyled>
-            <Typography px={1.1} pt={5} mb={8} variant="subtitle2">
-                Filter
+            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2">
+                {t("filter.title")}
             </Typography>
-            <Accordion badge={null}
+            <Accordion
+                translate="waitingRoom"
+                badge={null}
                 data={[
                     {
                         heading: {
+                            id: "reson",
                             icon: "ic-edit-file2",
-                            title: "Motif de consultation",
+                            title: "filter.collapse.reson",
                         },
                         children: motifData.map((item, index) => (
                             <React.Fragment key={index}>
@@ -28,8 +34,9 @@ function WaitingRoom() {
                     },
                     {
                         heading: {
+                            id: "status",
                             icon: "ic-edit-file2",
-                            title: "Statut",
+                            title: "filter.collapse.status",
                         },
                         children: statutData.map((item, index) => (
                             <React.Fragment key={index}>
@@ -39,8 +46,9 @@ function WaitingRoom() {
                     },
                     {
                         heading: {
+                            id: "meetingType",
                             icon: "ic-agenda-jour-color",
-                            title: "Type RDV",
+                            title: "filter.collapse.meetingType",
                         },
                         children: typeRdv.map((item, index) => (
                             <React.Fragment key={index}>
