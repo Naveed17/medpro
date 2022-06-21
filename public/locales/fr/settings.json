@@ -127,8 +127,16 @@
     "path": "Paramètres > Congé et Absences",
     "name": "Nom",
     "start": "Date debut",
-    "end": "date fin",
+    "end": "Date fin",
     "praticien": "praticien",
-    "action": "action"
+    "action": "action",
+    "dialog": {
+      "add": "Ajouter congé ou absence",
+      "selectOne": "Choisissez le praticien qui affecte cette consultation",
+      "title": "Titre",
+      "writeTitle": "Tapez le titre",
+      "at": "à",
+      "list": "Liste des congés et absences proches"
+    }
   }
 }

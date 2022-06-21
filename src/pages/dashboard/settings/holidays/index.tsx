@@ -4,12 +4,16 @@ import React, {ReactElement, useState} from "react";
 import { SubHeader } from "@features/subHeader";
 import {RootStyled} from "@features/calendarToolbar";
 import {useTranslation} from "next-i18next";
-import { Box } from "@mui/material";
-import {DashLayout} from "@features/base";
+import {Box, Button, Drawer} from "@mui/material";
+import {configSelector, DashLayout} from "@features/base";
 import {Otable} from "@features/table";
+import {useAppSelector} from "@app/redux/hooks";
+import {HolidayDetails} from "@features/holidayDetails";
 
 function Holidays() {
 
+    const {direction} = useAppSelector(configSelector);
+    const [open, setOpen] = useState(false);
     const [rows, setRows] = useState([
         {
             id: 1,
@@ -74,6 +78,15 @@ function Holidays() {
             <RootStyled>
                 <p style={{margin: 0}}>{t('holidays.path')}</p>
             </RootStyled>
+
+            <Button type='submit'
+                    variant="contained"
+                    onClick={() => {
+                        setOpen(true);
+                    }}
+                    color="success">
+                {t('lieux.add')}
+            </Button>
         </SubHeader>
 
         <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
@@ -85,6 +98,14 @@ function Holidays() {
                     edit={null}
                     handleConfig={null}
                     handleChange={null}/>
+
+            <Drawer
+                anchor={'right'}
+                open={open}
+                dir={direction}
+                onClose={()=>{setOpen(false)}}>
+                <HolidayDetails/>
+            </Drawer>
         </Box>
 
     </>)
