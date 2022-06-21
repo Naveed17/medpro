@@ -7,7 +7,7 @@ import IconUrl from "@themes/urlIcon";
 import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
 
 
-function MotifRow( props: { row: any, tableHeadData:any, active: any, handleChange: any,editMotif:any, ids:any}) {
+function MotifRow({...props}) {
 
     const { row, tableHeadData, active, handleChange,editMotif, ids } = props;
     return (

@@ -5,7 +5,7 @@ import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
 
 
 
-export default function PermissionRow(props: { row:any, handleChange:any,edit:any, t:any }) {
+export default function PermissionRow({...props}) {
 
     const  { row, handleChange,edit, t } = props
     return (

@@ -122,5 +122,13 @@
     "actif": "est actif",
     "public": "public",
     "action": "action"
+  },
+  "holidays": {
+    "path": "Paramètres > Congé et Absences",
+    "name": "Nom",
+    "start": "Date debut",
+    "end": "date fin",
+    "praticien": "praticien",
+    "action": "action"
   }
 }

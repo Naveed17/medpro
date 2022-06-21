@@ -8,7 +8,7 @@ import Switch from "@mui/material/Switch";
 import Button from "@mui/material/Button";
 import IconUrl from "@themes/urlIcon";
 
-function AgendaRow(props: { row:any, handleChange:any,edit: any, t:any }) {
+function AgendaRow({...props}) {
 
     const  { row, handleChange,edit, t } = props
     return (

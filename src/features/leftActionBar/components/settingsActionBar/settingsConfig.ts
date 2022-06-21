@@ -34,7 +34,7 @@ const settingsData = {
         {
             name: "conges",
             icon: "setting/ic-time",
-            href: "/dashboard/settings/conges",
+            href: "/dashboard/settings/holidays",
         },
         {
             name: "remplaçants",

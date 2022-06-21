@@ -8,7 +8,7 @@ import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
 import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
 
-function LieuxRow(props: { row: any, handleChange:any ,edit:any, t:any }) {
+function LieuxRow({...props}) {
 
     const { row, handleChange, edit, t } = props;
 
