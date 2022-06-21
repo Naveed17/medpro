@@ -19,8 +19,7 @@ const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url
 
 const API = "/api/private/user/fr";
 
-function Dashborad({...props}) {
-    const { cache } = useSWRConfig();
+function Dashborad() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
