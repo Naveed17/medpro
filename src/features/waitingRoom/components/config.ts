@@ -3,8 +3,8 @@ export const rows = [
     {
         id: "#1",
         reson: "1st consultation",
-        arrivaltime: "15:00",
-        appointmentTime: '15:30',
+        arrivaltime: '3:00',
+        appointmentTime: '3:30',
         duration: '30',
         type: 'cabinet',
         status: "completed",
@@ -15,8 +15,8 @@ export const rows = [
     {
         id: "#2",
         reson: "1st consultation",
-        arrivaltime: "15:00",
-        appointmentTime: '15:30',
+        arrivaltime: '3:00',
+        appointmentTime: '3:30',
         duration: '30',
         type: 'teleconsultation',
         status: "canceled",

@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import React, { ReactElement } from "react";
 //components
-import { WaitingRoomDataTable } from "@features/waitingRoomDataTable";
+import { WaitingRoomDataTable } from "@features/waitingRoom";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 // next-i18next
