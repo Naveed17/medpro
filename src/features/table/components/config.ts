@@ -16,6 +16,10 @@ const rowsActionsData = [
     {
         action: 'agenda',
         component: dynamic(():any => import("@features/table/components/rows/agendaRow").then((mod) => mod))
+    },
+    {
+        action: 'holidays',
+        component: dynamic(():any => import("@features/table/components/rows/HolidayRow").then((mod) => mod))
     }
 ];
 
