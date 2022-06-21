@@ -3,7 +3,7 @@ import Icon from "@themes/urlIcon";
 import { DatePicker } from "@features/datepicker";
 import { TimePicker } from "@features/timepicker";
 
-export default function AppointmentFilter({ ...props }) {
+function AppointmentFilter({ ...props }) {
   const { item, t } = props;
   return (
     <Box component="figure" sx={{ m: 0 }}>
@@ -66,3 +66,4 @@ export default function AppointmentFilter({ ...props }) {
     </Box>
   );
 }
+export default AppointmentFilter;

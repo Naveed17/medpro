@@ -38,7 +38,7 @@ const MainMenuStyled = styled(Box)(({ theme }) => ({
           "& .MuiListItemIcon-root": {
             backgroundColor: theme.palette.info.main,
             boxShadow: theme.shadows[4],
-            border: "1px solid #E3EAEF",
+            border: `1px solid ${theme.palette.grey["A100"]}`,
           },
         },
         "&.active": {

@@ -1,16 +1,15 @@
 import { Fragment } from "react";
 import { Typography } from "@mui/material";
 import { Accordion } from "@features/accordion/components";
-
 import { rightActionData } from "./data";
-import { FilterContainer } from "./overrides/patientListActionBarStyled";
 import { useTranslation } from "next-i18next";
 import {
   AppointmentFilter,
   PlaceFilter,
   PatientFilter,
-} from "@features/leftActionBar/components/patientListActionBar/overrides/components";
-export default function PatientListActionBar() {
+  FilterContainerStyles,
+} from "./overrides";
+function PatientListActionBar() {
   const { collapse } = rightActionData.filter;
 
   const { t, ready } = useTranslation("patient");
@@ -38,7 +37,7 @@ export default function PatientListActionBar() {
   });
   return (
     <div>
-      <FilterContainer>
+      <FilterContainerStyles>
         <Typography
           variant="h6"
           color="text.primary"
@@ -48,7 +47,8 @@ export default function PatientListActionBar() {
           {t(`filter.title`)}
         </Typography>
         <Accordion t={t} badge={null} data={data} />
-      </FilterContainer>
+      </FilterContainerStyles>
     </div>
   );
 }
+export default PatientListActionBar;

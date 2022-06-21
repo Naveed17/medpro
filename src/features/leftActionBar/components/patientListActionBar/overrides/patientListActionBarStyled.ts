@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // styled
-export const FilterContainer = styled(Box)(({ theme }) => ({
+const FilterContainerStyles = styled(Box)(({ theme }) => ({
   margin: "-10px 0px -10px -20px",
   "& .appo-type": {
     display: "flex",
@@ -30,3 +30,4 @@ export const FilterContainer = styled(Box)(({ theme }) => ({
     },
   },
 }));
+export default FilterContainerStyles;
