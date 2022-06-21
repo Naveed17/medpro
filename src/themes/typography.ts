@@ -99,7 +99,7 @@ const typography: any = {
     textTransform: "normal",
     borderRadius: 6,
     fontWeight: 500,
-    fontFamily: "Montserrat-Medium",
+    fontFamily: "Poppins-Medium",
   },
 };
 

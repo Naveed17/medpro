@@ -1,4 +1,4 @@
-import {GetServerSideProps, GetStaticProps} from "next";
+import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
@@ -8,12 +8,10 @@ import {CalendarToolbar} from "@features/calendarToolbar";
 import {DashLayout} from "@features/base";
 import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import {AxiosRequestHeaders} from "axios";
-import {getToken} from "next-auth/jwt";
-import useSWR, {useSWRConfig} from "swr";
 import useRequest from "@app/axios/axiosServiceApi";
+import {Session} from "next-auth";
 
 const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url, method: "GET", headers}).then(res => res.data);
 
@@ -28,20 +26,19 @@ function Dashborad() {
         'Content-Type': 'application/json',
     }
 
-    const { data, error, response, mutate, isValidating} = useRequest({
+    const { data, error } = useRequest({
         method: "GET",
         url: "/api/private/user/fr",
         headers
     });
-    // const { data, error } = useSWR(API);
 
     const loading = status === 'loading';
     if (loading) return (<LoadingScreen />);
 
-    const { data: user, accessToken } = session as Session;
-
     if (error) return <div>failed to load</div>
     if (!data) return <LoadingScreen />;
+
+    const { data: user } = session as Session;
 
     return (
         <>

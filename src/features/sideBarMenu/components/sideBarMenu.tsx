@@ -32,13 +32,8 @@ import React, { useEffect, useRef } from "react";
 import { ListItemTextStyled, MainMenuStyled, MobileDrawerStyled } from "@features/sideBarMenu";
 import { TopNavBar } from "@features/topNavBar";
 import { LeftActionBar } from "@features/leftActionBar";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 
 function SideBarMenu({ children }: LayoutProps) {
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
-    console.log("user",  user);
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { opened, mobileOpened } = useAppSelector(sideBarSelector);

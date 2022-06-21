@@ -1,0 +1,19 @@
+{
+  "steppers": {
+    "stepper-0": {
+      "title": "Configurer mon profil",
+      "type": "stepper"
+    },
+    "check-status": {
+      "title": "Bienvenue sur Med.tn",
+      "desc": "Nous vous souhaitons la bienvenue sur Med, la plateforme médicale N°1 en Afrique. Notre équipe prendra contact avec vous pour la validation de votre compte. Pour des raisons de sécurité et afin de nous assurer de la pertinence des données sur notre plateforme.",
+      "contact": "Pour plus de renseignements, veuillez nous contacter par :",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "edit-data": "to modify your data",
+      "accept": "Accédez au site"
+    },
+    "next": "Suivant",
+    "back": "Retour"
+  }
+}
