@@ -57,6 +57,10 @@ function Motif() {
     const [selected, setSelected] = useState();
     const {direction} = useAppSelector(configSelector);
 
+    const closeDraw = () =>{
+        setEdit(false);
+    }
+
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
 
@@ -192,8 +196,8 @@ function Motif() {
                     anchor={'right'}
                     open={edit}
                     dir={direction}
-                    onClose={()=>{setEdit(false)}}>
-                    <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/>
+                    onClose={closeDraw}>
+                    <EditMotifDialog data={selected} closeDraw={closeDraw}/>
                 </Drawer>
             </Box>
         </>

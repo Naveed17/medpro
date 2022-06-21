@@ -3,6 +3,7 @@ import {useTranslation} from "next-i18next";
 import React, {useState} from "react";
 import * as Yup from "yup";
 import {
+    Box,
     Button,
     CardContent,
     Grid, Stack,
@@ -11,12 +12,15 @@ import {
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import RadioTextImage from "@themes/overrides/RadioTextImage";
-import {TimePicker as MuiTimePicker} from "@mui/lab";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {Otable} from "@features/table";
+import {TimePicker, TimePicker as MuiTimePicker} from "@mui/lab";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import moment from "moment";
 
-
+const  ContentStyled = styled(Stack)(({ theme }) => ({
+    padding: theme.spacing(2)
+}));
 const  StackStyled = styled(Stack)(({ theme }) => ({
         background: theme.palette.background.paper,
         padding: theme.spacing(1),
@@ -25,7 +29,7 @@ const  StackStyled = styled(Stack)(({ theme }) => ({
         position: 'sticky',
         bottom: 0,
 }));
-const  BoxStyled = styled(Form)(({ theme }) => ({
+const  BoxStyled = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing(2),
 
@@ -33,7 +37,6 @@ const  BoxStyled = styled(Form)(({ theme }) => ({
 const  PaperStyled = styled(Form)(({ theme }) => ({
     borderRadius: 0,
     border: 'none',
-    padding: theme.spacing(2),
     paddingBottom: theme.spacing(0),
     '& .container': {
         maxHeight: 680,
@@ -47,7 +50,7 @@ const  PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function HolidayDetails() {
+function HolidayDetails({...props}) {
 
     let doctors = [
         {id: '1', name: 'Dr Anas LAOUINI', speciality: 'sexologist', img: '/static/img/men.png', selected: false},
@@ -68,20 +71,24 @@ function HolidayDetails() {
 
     const validationSchema = Yup.object().shape({
         title: Yup.string()
-            .min(3, "Nom est trop court")
-            .max(50, "Nom est trop long")
-            .required("Nom est requis")
+            .min(3, "Titre est trop court")
+            .max(50, "Titre est trop long")
+            .required("Titre est obligatoire"),
+        start: Yup.date().required("date est obligatoire"),
+        end: Yup.date().required("date est obligatoire")
     });
-
+    const [value, setValue] = React.useState<Date | null>(
+        new Date('2018-01-01T00:00:00.000Z'),
+    );
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             title: "",
-            start: '',
-            time_start: '',
-            end: '',
-            time_end: '',
+            start: "",
+            end: "",
+            time_start: new Date('2018-01-01T00:00:00.000Z'),
+            time_end: new Date('2018-01-01T00:00:00.000Z'),
             doctor: doctors
         },
         validationSchema,
@@ -101,158 +108,165 @@ function HolidayDetails() {
                          noValidate
                          className='root'
                          onSubmit={handleSubmit}>
-
-                <Typography variant="h6" gutterBottom>
-                    {t('holidays.dialog.add')}
-                </Typography>
-                <CardContent>
-                    <Typography variant="body1" textTransform={"uppercase"} fontWeight={600} margin={'16px 0'}
-                                gutterBottom>
-                        {t('holidays.praticien')}
+                <ContentStyled>
+                    <Typography variant="h6" gutterBottom>
+                        {t('holidays.dialog.add')}
                     </Typography>
+                    <CardContent>
+                        <Typography variant="body1" textTransform={"uppercase"} fontWeight={600} margin={'16px 0'}
+                                    gutterBottom>
+                            {t('holidays.praticien')}
+                        </Typography>
 
-                    <Typography gutterBottom margin={'16px 0'}>
-                        {t('holidays.dialog.selectOne')}
-                    </Typography>
-                    <Grid container spacing={2}>
-                        {values.doctor.map((doctor, index) => (
-                            <Grid key={index} item xs={12} lg={6}>
-                                <RadioTextImage
-                                    doctor={doctor}
-                                    onChange={(v: any) => {
-                                        const newArr = values.doctor.map(obj => {
-                                            if (obj.id === v.id) {
-                                                return {...obj, selected: !v.selected};
-                                            }
-                                            return obj;
-                                        });
-                                        setFieldValue('doctor', newArr)
+                        <Typography gutterBottom margin={'16px 0'}>
+                            {t('holidays.dialog.selectOne')}
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                            {values.doctor.map((doctor, index) => (
+                                <Grid key={index} item xs={12} lg={6}>
+                                    <RadioTextImage
+                                        doctor={doctor}
+                                        onChange={(v: any) => {
+                                            const newArr = values.doctor.map(obj => {
+                                                if (obj.id === v.id) {
+                                                    return {...obj, selected: !v.selected};
+                                                }
+                                                return obj;
+                                            });
+                                            setFieldValue('doctor', newArr)
+                                        }}
+                                        fullWidth
+                                    />
+                                </Grid>
+                            ))}
+                        </Grid>
+
+                        <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
+                            {t('holidays.dialog.title')}{" "}
+                            <Typography component="span" color="error">
+                                *
+                            </Typography>
+                        </Typography>
+                        <TextField
+                            variant="outlined"
+                            placeholder={t('holidays.dialog.writeTitle')}
+                            {...getFieldProps("title")}
+                            required
+                            fullWidth
+                            helperText={touched.title && errors.title}
+                            error={Boolean(touched.title && errors.title)}/>
+
+                        <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
+                            {t('holidays.start')}{" "}
+                        </Typography>
+
+                        <Grid container spacing={2}>
+                            <Grid key={'date'} item xs={12} lg={5}>
+                                <TextField
+                                    id="start"
+                                    type="date"
+                                    sx={{width: '100%'}}
+                                    {...getFieldProps("start")}
+                                    helperText={touched.start && errors.start}
+                                    error={Boolean(touched.start && errors.start)}
+                                    InputLabelProps={{
+                                        shrink: true,
                                     }}
-                                    fullWidth
                                 />
                             </Grid>
-                        ))}
-                    </Grid>
+                            <Grid key={'at'} item xs={12} lg={1}>
+                                <Typography gutterBottom textAlign={"center"} alignItems={"center"} margin={1}>
+                                    {t('holidays.dialog.at')}
+                                </Typography>
+                            </Grid>
+                            <Grid key={'time'} item xs={12} lg={5}>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <MuiTimePicker
+                                            ampm={false}
+                                            openTo="hours"
+                                            views={["hours", "minutes"]}
+                                            inputFormat="HH:mm"
+                                            mask="__:__"
+                                            onChange={(newValue) => {
+                                                setFieldValue('time_start', newValue);
+                                            }}
+                                            renderInput={(params) => <TextField {...params} />}
+                                            value={values.time_start}/>
+                                    </LocalizationProvider>
+                                </LocalizationProvider>
+                            </Grid>
+                        </Grid>
 
-                    <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
-                        {t('holidays.dialog.title')}{" "}
-                        <Typography component="span" color="error">
-                            *
+                        <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
+                            {t('holidays.end')}{" "}
                         </Typography>
-                    </Typography>
-                    <TextField
-                        variant="outlined"
-                        placeholder={t('holidays.dialog.writeTitle')}
-                        required
-                        fullWidth
-                        helperText={touched.title && errors.title}
-                        {...getFieldProps("name")}
-                        error={Boolean(touched.title && errors.title)}/>
 
-                    <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
-                        {t('holidays.start')}{" "}
-                    </Typography>
-
-                    <Grid container spacing={2}>
-                        <Grid key={'date'} item xs={12} lg={5}>
-                            <TextField
-                                id="date"
-                                type="date"
-                                sx={{width: '100%'}}
-                                defaultValue=""
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </Grid>
-                        <Grid key={'at'} item xs={12} lg={1}>
-                            <Typography gutterBottom textAlign={"center"} alignItems={"center"} margin={1}>
-                                {t('holidays.dialog.at')}
-                            </Typography>
-                        </Grid>
-                        <Grid key={'time'} item xs={12} lg={5}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-
-                                <MuiTimePicker
-                                    ampm={false}
-                                    openTo="hours"
-                                    views={["hours", "minutes"]}
-                                    inputFormat="HH:mm"
-                                    mask="__:__"
-                                    value={undefined}
-                                    onChange={(newValue) => {
-
+                        <Grid container spacing={2}>
+                            <Grid key={'date'} item xs={12} lg={5}>
+                                <TextField
+                                    id="date"
+                                    type="date"
+                                    sx={{width: '100%'}}
+                                    {...getFieldProps("end")}
+                                    InputLabelProps={{
+                                        shrink: true,
                                     }}
-                                    renderInput={(params) => <TextField {...params} />}
+                                    helperText={touched.end && errors.end}
+                                    error={Boolean(touched.end && errors.end)}
                                 />
-
-                            </LocalizationProvider>
+                            </Grid>
+                            <Grid key={'at'} item xs={12} lg={1}>
+                                <Typography gutterBottom textAlign={"center"} alignItems={"center"} margin={1}>
+                                    {t('holidays.dialog.at')}
+                                </Typography>
+                            </Grid>
+                            <Grid key={'time'} item xs={12} lg={5}>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <MuiTimePicker
+                                        ampm={false}
+                                        openTo="hours"
+                                        views={["hours", "minutes"]}
+                                        inputFormat="HH:mm"
+                                        mask="__:__"
+                                        onChange={(newValue) => {
+                                            setFieldValue('time_end', newValue);
+                                        }}
+                                        renderInput={(params) => <TextField {...params} />}
+                                        value={values.time_end}/>
+                                </LocalizationProvider>
+                            </Grid>
                         </Grid>
-                    </Grid>
 
-                    <Typography variant="body2" color="text.primary" marginTop={3} marginBottom={1} gutterBottom>
-                        {t('holidays.end')}{" "}
+                    </CardContent>
+
+                </ContentStyled>
+
+                <BoxStyled>
+                    <Typography variant="body1" fontWeight={600} margin={0} gutterBottom>
+                        {t('holidays.dialog.list')}
                     </Typography>
 
-                    <Grid container spacing={2}>
-                        <Grid key={'date'} item xs={12} lg={5}>
-                            <TextField
-                                id="date"
-                                type="date"
-                                sx={{width: '100%'}}
-                                defaultValue=""
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </Grid>
-                        <Grid key={'at'} item xs={12} lg={1}>
-                            <Typography gutterBottom textAlign={"center"} alignItems={"center"} margin={1}>
-                                {t('holidays.dialog.at')}
-                            </Typography>
-                        </Grid>
-                        <Grid key={'time'} item xs={12} lg={5}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <MuiTimePicker
-                                    ampm={false}
-                                    openTo="hours"
-                                    views={["hours", "minutes"]}
-                                    inputFormat="HH:mm"
-                                    mask="__:__"
-                                    value={undefined}
-                                    onChange={(newValue) => {
+                    <Otable headers={[]}
+                            rows={rows}
+                            state={null}
+                            from={'holidays'}
+                            t={t}
+                            edit={null}
+                            handleConfig={null}
+                            handleChange={null}/>
+                </BoxStyled>
 
-                                    }}
-                                    renderInput={(params) => <TextField {...params} />}
-                                />
-
-                            </LocalizationProvider>
-                        </Grid>
-                    </Grid>
-                </CardContent>
+                <StackStyled className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
+                    <Button onClick={()=>props.closeDraw()} color="secondary">
+                        {t('motif.dialog.cancel')}
+                    </Button>
+                    <Button type='submit' variant="contained" color="primary">
+                        {t('motif.dialog.save')}
+                    </Button>
+                </StackStyled>
             </PaperStyled>
-            <BoxStyled>
-                <Typography variant="body1" fontWeight={600} margin={0} gutterBottom>
-                    {t('holidays.dialog.list')}
-                </Typography>
-
-                <Otable headers={[]}
-                        rows={rows}
-                        state={null}
-                        from={'holidays'}
-                        t={t}
-                        edit={null}
-                        handleConfig={null}
-                        handleChange={null}/>
-            </BoxStyled>
-            <StackStyled className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
-                <Button onClick={() => close()}>
-                    {t('motif.dialog.cancel')}
-                </Button>
-                <Button type='submit' variant="contained" color="primary">
-                    {t('motif.dialog.save')}
-                </Button>
-            </StackStyled>
         </FormikProvider>
     )
 }

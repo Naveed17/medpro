@@ -38,7 +38,7 @@ const  PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function EditMotifDialog(motif: any, close: any) {
+function EditMotifDialog({...props}) {
 
     let doctors = [
         {id: '1', name: 'Dr Anas LAOUINI', speciality: 'sexologist', img: '/static/img/men.png', selected: false},
@@ -89,7 +89,7 @@ function EditMotifDialog(motif: any, close: any) {
                          onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
-                    { motif.data ? t('motif.dialog.update') : t('motif.dialog.add') }
+                    { props.data ? t('motif.dialog.update') : t('motif.dialog.add') }
                 </Typography>
                 <Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
                     {t('motif.dialog.info')}
@@ -261,7 +261,7 @@ function EditMotifDialog(motif: any, close: any) {
                 </Box>
 
                 <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
-                    <Button onClick={() => close()}>
+                    <Button onClick={props.closeDraw}>
                         {t('motif.dialog.cancel')}
                     </Button>
                     <Button type='submit' variant="contained" color="primary">

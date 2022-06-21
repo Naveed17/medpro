@@ -28,8 +28,6 @@ function Holidays() {
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
-
-
     const headCells = [
         {
             id: 'name',
@@ -73,6 +71,10 @@ function Holidays() {
         },
     ];
 
+    const closeDraw = () =>{
+        setOpen(false);
+    }
+
     return (<>
         <SubHeader>
             <RootStyled>
@@ -103,8 +105,8 @@ function Holidays() {
                 anchor={'right'}
                 open={open}
                 dir={direction}
-                onClose={()=>{setOpen(false)}}>
-                <HolidayDetails/>
+                onClose={closeDraw}>
+                <HolidayDetails closeDraw={closeDraw}/>
             </Drawer>
         </Box>
 
