@@ -5,10 +5,10 @@ import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
 import { useTheme } from "@mui/material/styles";
 export default function ConsultationProgressCard({ ...props }) {
-    const { key, index, data, open, onClickAction } = props
+    const { index, data, open, onClickAction } = props
     const { color, icon, id, } = data;
     const theme = useTheme<any>()
-    const [offsetTop, setOffsetTop] = React.useState(0);
+    const [offsetTop, setOffsetTop] = React.useState<number>(0);
     const ref = React.useRef(null);
     React.useEffect(() => {
         if (ref.current) {
@@ -27,6 +27,9 @@ export default function ConsultationProgressCard({ ...props }) {
         >
             <Box
                 className="collapse-header"
+                borderBottom={1}
+                borderColor="divider"
+
                 sx={
                     open.indexOf(id) > -1 ? {} : {
                         transform: "rotate(90deg)",
@@ -41,18 +44,11 @@ export default function ConsultationProgressCard({ ...props }) {
                         <Icon path="ic-flesh-droite" />
                     </IconButton>
                     <Label
+                        className="label"
                         variant="filled"
                         color={color}
                         sx={{
-                            color: theme => theme.palette.text.primary,
-                            svg: {
-                                mr: 1,
-                                width: 14,
-                                height: 14,
-                                path: {
-                                    fill: theme => theme.palette.text.primary,
-                                },
-                            },
+
 
                         }}
                     >

@@ -7,5 +7,16 @@ const CollapseCardStyled = styled(Paper)(({ theme }) => ({
     overflowY: "auto",
     overflowX: "hidden",
     boxShadow: "none",
+    '& .label': {
+        color: theme.palette.text.primary,
+        svg: {
+            marginRight: 1,
+            width: 14,
+            height: 14,
+            path: {
+                fill: theme.palette.text.primary,
+            },
+        },
+    }
 }));
 export default CollapseCardStyled;
