@@ -13,10 +13,10 @@ import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
-import requestAxios from "@app/axios/config";
+import axios from "axios";
 
 function ProfilMenu() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
     const { opened } = useAppSelector(profileMenuSelector);
     const dispatch = useAppDispatch();
@@ -35,7 +35,7 @@ function ProfilMenu() {
             case 'logout':
                 const {
                     data: {path}
-                } = await requestAxios({
+                } = await axios({
                     url: "/api/auth/logout",
                     method: "GET"
                 });

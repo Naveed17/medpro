@@ -1,13 +1,14 @@
 import React from 'react'
 import { Checkbox, ListItemIcon, ListItemText } from '@mui/material'
 import CircleIcon from '@mui/icons-material/Circle';
-import RootStyled from './overrides/sidebarCheckboxStyled';
-import Icon from '@themes/urlIcon'
+import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
+import Icon from '@themes/urlIcon';
+
 interface Props {
     data: any;
     onChange: (v: any) => void;
-
 }
+
 export default function SidebarCheckbox(props: Props) {
     const { data, onChange, ...rest } = props
     const [checked, setChecked] = React.useState(false);
@@ -16,7 +17,7 @@ export default function SidebarCheckbox(props: Props) {
         onChange(event.target.checked)
     };
     return (
-        <RootStyled styleprops={data?.color ? data.color : 'primary'}
+        <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
             component='label' htmlFor={data.name}>
             <Checkbox
                 size="small"
@@ -32,6 +33,6 @@ export default function SidebarCheckbox(props: Props) {
                 </ListItemIcon>
             }
             <ListItemText primary={data.text} />
-        </RootStyled>
+        </SidebarCheckboxStyled>
     )
 }

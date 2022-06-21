@@ -1,5 +1,6 @@
 import { styled } from "@mui/material/styles";
 import MuiAccordion from "@mui/material/Accordion";
+
 const RootStyled = styled(MuiAccordion)(({ theme }) => ({
   "& .MuiAccordionSummary-content": {
     p: {
