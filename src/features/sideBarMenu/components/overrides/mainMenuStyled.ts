@@ -3,6 +3,9 @@ import { Box } from "@mui/material";
 
 const MainMenuStyled = styled(Box)(({ theme }) => ({
     display: "flex",
+    [theme.breakpoints.down("sm")]: {
+        flexDirection: "column",
+    },
     "& .body-main": {
         flexGrow: 1,
         overflow: "hidden",

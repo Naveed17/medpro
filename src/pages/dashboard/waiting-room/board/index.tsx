@@ -5,7 +5,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { DashLayout } from "@features/base";
 import { Box, Stack, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 import { SubHeader } from "@features/subHeader";
 import { CollapseCard } from "@features/collapseCard";
 import { RoomToolbar } from "@features/roomToolbar";
@@ -13,9 +12,10 @@ import { data } from '@features/collapseCard/components/configs';
 import { DetailsCard } from '@features/waitingRoom';
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');
+    const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     if (!ready) return (<>loading translations...</>);
     const [open, setopen] = useState([]);
-
+    const [mobileCollapse, setmobileCollapse] = useState(0);
     useEffect(() => {
         setopen(data.map(item => item.id));
     }, [data]);
@@ -25,7 +25,7 @@ function Board() {
     return (
         <>
             <SubHeader>
-                <RoomToolbar />
+                <RoomToolbar board data={data} handleCollapse={(v: number) => setmobileCollapse(v)} />
             </SubHeader>
             <Box bgcolor="#F0FAFF"
                 sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
@@ -38,13 +38,20 @@ function Board() {
                         },
                     }}
                 >
-                    {data.map((item, index) => (
+                    {(isMobile ? data.filter(item => item.id === mobileCollapse) : data).map((item, index) => (
                         <CollapseCard
                             key={Math.random()}
+                            translate={
+                                {
+                                    t: t,
+                                    ready: ready,
+                                }
+                            }
                             index={index}
                             data={item}
                             open={open}
                             onClickAction={(id: number) => handleClick(id)}
+                            mobileCollapse={mobileCollapse}
                         >
 
                             {

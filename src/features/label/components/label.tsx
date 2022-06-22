@@ -1,14 +1,15 @@
 // material
 import RootStyled from "./overrides/labelStyled";
 import React from "react";
-import {SxProps} from "@mui/system";
-import {Theme} from "@mui/material/styles";
+import { SxProps } from "@mui/system";
+import { Theme } from "@mui/material/styles";
 
 type LabelProps = {
     children: React.ReactNode,
     color: string,
     variant: string,
     sx?: SxProps<Theme>,
+    className?: string,
 };
 
 function Label({
@@ -16,7 +17,7 @@ function Label({
     variant = "ghost",
     children,
     ...other
-} : LabelProps) {
+}: LabelProps) {
     return (
         <RootStyled color={color} variant={variant} {...other}>
             {children}

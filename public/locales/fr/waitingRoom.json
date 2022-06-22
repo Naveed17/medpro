@@ -1,6 +1,7 @@
 {
   "subheader": {
-    "title": "Salle d’attente"
+    "title": "Salle d’attente",
+    "room": "salle"
   },
   "filter": {
     "title": "filter",
@@ -37,5 +38,6 @@
     "completed": "Effectuée",
     "canceled": "Annulée",
     "1st consultation": "1ère consultation"
-  }
+  },
+  "room": "salle"
 }

@@ -1,6 +1,7 @@
 {
   "subheader": {
-    "title": "قاعة داتينتي"
+    "title": "قاعة داتينتي",
+    "room": "قاعة داتينتي"
   },
   "filter": {
     "title": "فلتر",
@@ -37,5 +38,6 @@
     "completed": "Effectuée",
     "canceled": "Annulée",
     "1st consultation": "1ère consultation"
-  }
+  },
+  "room": "قاعة داتينتي"
 }
