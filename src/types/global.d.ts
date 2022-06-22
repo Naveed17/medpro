@@ -16,3 +16,9 @@ declare module "@mui/material/Button" {
         "text-black": true;
     }
 }
+
+declare module "@mui/material/Chip" {
+    interface ChipPropsVariantOverrides {
+        "contained": true;
+    }
+}

@@ -4,18 +4,22 @@ import {
     FormControl,
     FormControlLabel,
     IconButton,
-    Input, InputLabel, List, ListItem, ListItemText, MenuItem,
+    List, ListItem, ListItemText, MenuItem,
     Radio,
     RadioGroup, Select,
     Stack, TextField,
     Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import MultiSelect from "@themes/overrides/MultiSelect";
+import {MultiSelect} from "@features/multiSelect";
 import React, {useState} from "react";
 import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
 import {InputStyled} from "@features/steppers";
+
+type selectMultiple = {
+    title: string
+}
 
 function StepperInfo() {
 
@@ -50,7 +54,7 @@ function StepperInfo() {
         };
         specialty: string,
         secondarySpecialties: string[],
-        languages: string[]
+        languages: selectMultiple[]
     }
 
     const formik = useFormik<MyFormProps>({
@@ -72,14 +76,14 @@ function StepperInfo() {
     });
     const { values, handleSubmit, getFieldProps, setFieldValue } = formik;
     const [open, setOpen] = useState(false);
-    const handleDrop = (acceptedFiles: any) => {
+    const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
         setFieldValue("file", URL.createObjectURL(file));
         setOpen(true);
     };
 
-    const handleChangeFiled = (event: React.MouseEvent<unknown>) => {
-        const { name, checked } : any = event.target;
+    const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = event.target;
         setFieldValue(
             "secondarySpecialties",
             checked
@@ -87,6 +91,8 @@ function StepperInfo() {
                 : values.secondarySpecialties.filter((el) => el !== name)
         );
     };
+
+    const [selectData, setSelectData] = React.useState([multipleLanguage[0]]);
 
     return (
       <>
@@ -116,7 +122,7 @@ function StepperInfo() {
                       <label htmlFor="contained-button-file">
                           <InputStyled
                               id="contained-button-file"
-                              onChange={(e: any) => handleDrop(e.target.files)}
+                              onChange={(e) => handleDrop(e.target.files as FileList)}
                               type="file"
                           />
                           <Avatar
@@ -277,7 +283,7 @@ function StepperInfo() {
                                   <label htmlFor={`secodary-specialties-${index}`}>
                                       <Checkbox
                                           checked={values.secondarySpecialties.includes(el)}
-                                          onChange={() => handleChangeFiled}
+                                          onChange={(e) => handleChangeFiled(e)}
                                           name={el}
                                           id={`secodary-specialties-${index}`}
                                       />
@@ -291,10 +297,14 @@ function StepperInfo() {
                       <Typography variant="subtitle1" sx={{ mb: 2 }} fontWeight={600}>
                           Spécialités secondaire
                       </Typography>
-                      {/*<MultiSelect*/}
-                      {/*    data={multipleLanguage}*/}
-                      {/*    placeholder="Commencez à taper pour rechercher les langues"*/}
-                      {/*    getData={(value: any) => setFieldValue("languages", value)} />*/}
+                      <MultiSelect
+                          data={multipleLanguage}
+                          initData={selectData}
+                          placeholder="Commencez à taper pour rechercher les langues"
+                          onChange={(event: React.ChangeEvent, value: selectMultiple[]) => {
+                              setFieldValue("languages", value)
+                              setSelectData(value);
+                          }} />
                   </Box>
                   <CropImage
                       open={open}
