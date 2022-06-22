@@ -8,20 +8,24 @@ import { Box, Stack, useMediaQuery } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { CollapseCard } from "@features/collapseCard";
 import { RoomToolbar } from "@features/roomToolbar";
-import { data } from '@features/collapseCard/components/configs';
+import { data } from '@features/collapseCard';
 import { DetailsCard } from '@features/waitingRoom';
+
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-    if (!ready) return (<>loading translations...</>);
-    const [open, setopen] = useState([]);
+    const [open, setopen] = useState<number[]>([]);
     const [mobileCollapse, setmobileCollapse] = useState(0);
+
     useEffect(() => {
         setopen(data.map(item => item.id));
     }, [data]);
-    const handleClick: (id: number) => number[] = (id: number) => {
-        setopen(open.includes(id) ? open.filter(item => item !== id) : [...open, id]);
+
+    const handleClick: (id: number) => void = (id) => {
+        setopen(open.includes(id) ? open.filter((item: number) => item !== id) : [...open, id]);
     }
+    if (!ready) return (<>loading translations...</>);
+
     return (
         <>
             <SubHeader>

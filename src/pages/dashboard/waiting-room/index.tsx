@@ -1,14 +1,14 @@
 import { GetStaticProps } from "next";
 import React, { ReactElement } from "react";
 //components
-import { WaitingRoomDataTable } from "@features/waitingRoom";
+import { WaitingRoomDataTable, DetailsCard } from "@features/waitingRoom";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 // next-i18next
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { DashLayout } from "@features/base";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { RoomToolbar } from "@features/roomToolbar";
 
@@ -38,6 +38,9 @@ function Room() {
           Salle 1
         </Label>
         <WaitingRoomDataTable />
+        <Stack spacing={1} mt={2} display={{ xs: 'flex', sm: 'none' }}>
+          <DetailsCard />
+        </Stack>
       </Box>
     </>
   );

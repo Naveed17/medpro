@@ -12,7 +12,6 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import { rows } from './config';
 import { useTranslation } from 'next-i18next';
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -61,9 +60,8 @@ export default function EnhancedTable() {
         setOrderBy(property);
     };
     if (!ready) return (<>loading translations...</>);
-    console.log(rows);
     return (
-        <Box>
+        <Box display={{ xs: 'none', sm: 'block' }}>
             <TableContainer>
                 <Table
                     sx={{ minWidth: 750 }}

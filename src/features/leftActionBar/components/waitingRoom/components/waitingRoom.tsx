@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Typography } from "@mui/material"
-import RootStyled from "./overrides/waitingRoomBarStyled"
+import WaitingRoomStyled from "./overrides/waitingRoomStyle"
 import { Accordion } from '@features/accordion/components'
 import { SidebarCheckbox } from '@features/sidebarCheckbox/components'
 import { motifData, statutData, typeRdv } from './config'
@@ -12,8 +12,8 @@ function WaitingRoom() {
     const { t, ready } = useTranslation('waitingRoom', { keyPrefix: 'filter' });
     if (!ready) return (<>loading translations...</>);
     return (
-        <RootStyled>
-            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2">
+        <WaitingRoomStyled>
+            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2" display={{ xs: 'none', sm: 'block' }}>
                 {t("title")}
             </Typography>
             <Accordion
@@ -77,7 +77,7 @@ function WaitingRoom() {
                 ]
                 }
             />
-        </RootStyled>
+        </WaitingRoomStyled>
     )
 }
 

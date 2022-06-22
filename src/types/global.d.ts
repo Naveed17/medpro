@@ -2,7 +2,7 @@ import React from "react";
 
 declare global {
 
-    type LayoutProps =  {
+    type LayoutProps = {
         children: React.ReactNode
         fallback?: any
         pageProps?: any
@@ -13,5 +13,13 @@ declare global {
 declare module "@mui/material/Button" {
     interface ButtonPropsVariantOverrides {
         google: true;
+        filter: true;
+    }
+}
+
+declare module "@mui/material" {
+    interface Color {
+        '500_32': string;
+        '500_16': string;
     }
 }

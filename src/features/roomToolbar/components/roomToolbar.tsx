@@ -1,15 +1,17 @@
 import { Box, Stack, Typography, IconButton, useMediaQuery, Button } from '@mui/material'
 import { useRouter } from 'next/router';
 import { useTranslation } from "next-i18next";
-
+import { Filter } from '@features/filter';
+import { WaitingRoom } from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
-import React from 'react';
+import React, { useState } from 'react';
 type Props = {
-    board: boolean;
-    data: number[];
-    handleCollapse: (v: number) => void
+    board?: boolean | undefined;
+    data?: number[] | any[] | undefined;
+    handleCollapse?: (v: number) => void
 }
 function RoomToolbar({ board, data, handleCollapse }: Props) {
+    const [open, setopen] = useState(false);
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const router = useRouter();
     const { t, ready } = useTranslation('waitingRoom', { keyPrefix: 'subheader' });
@@ -23,7 +25,7 @@ function RoomToolbar({ board, data, handleCollapse }: Props) {
                 {(isMobile && board) && (
                     <React.Fragment>
                         {
-                            data?.map((item, index) => (
+                            data?.map(item => (
                                 <Button
                                     onClick={() => handleCollapse(item.id)}
                                     sx={{ minWidth: 40, textTransform: 'capitalize', color: theme => theme.palette.text.primary, '& svg': { width: 14, height: 14, '& path': { fill: theme => theme.palette.text.primary } } }} variant='contained' color={item.color} key={Math.random()}>
@@ -51,6 +53,21 @@ function RoomToolbar({ board, data, handleCollapse }: Props) {
                 </IconButton>
 
             </Stack>
+            <Button
+                startIcon={<Icon path="ic-filter" />}
+                variant="filter"
+                onClick={() => setopen(!open)}
+                sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', sm: 'none' } }}
+            >
+                Filtrer (0)
+            </Button>
+            <Filter
+                handleClose={() => setopen(false)}
+                open={open}
+                title="Filter"
+            >
+                <WaitingRoom />
+            </Filter>
         </Stack>
     )
 }

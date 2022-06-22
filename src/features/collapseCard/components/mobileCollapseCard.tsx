@@ -1,16 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { IconButton, Box, Stack, } from "@mui/material";
+import { Box, Stack, Fade } from "@mui/material";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
-import CollapseCardStyled from "./overrides/collapseCardStyle";
-import MobileCollapseCard from "./mobileCollapseCard";
+import MobileCollapseCardStyled from "./overrides/mobileCollapseCardStyle";
 import { useTheme, Theme } from "@mui/material/styles";
 export default function ConsultationProgressCard({ ...props }) {
-    const { index, data, open, onClickAction, translate } = props
-    const { color, icon, id } = data;
+    const { index, data, open, translate, mobileCollapse } = props
+    const { color, icon, id }: { color: string, icon: string, id: number } = data;
     const { t, ready } = translate;
     const theme: Theme = useTheme();
-    const [offsetTop, setOffsetTop] = useState(0);
+    const [offsetTop, setOffsetTop] = useState<number>(0);
     const ref = useRef<HTMLHeadingElement>(null);
     useEffect(() => {
         if (ref.current) {
@@ -23,10 +22,9 @@ export default function ConsultationProgressCard({ ...props }) {
     if (!ready) return (<>loading translations...</>);
 
 
-
     return (
-        <>
-            <CollapseCardStyled
+        <Fade in={mobileCollapse === id}>
+            <MobileCollapseCardStyled
                 elevation={0}
                 ref={ref}
                 sx={{
@@ -50,9 +48,6 @@ export default function ConsultationProgressCard({ ...props }) {
                     }
                 >
                     <Box p={1} sx={{ display: "flex", alignItems: "center" }}>
-                        <IconButton onClick={() => onClickAction(id)} size="small">
-                            <Icon path="ic-flesh-droite" />
-                        </IconButton>
                         <Label
                             className="label"
                             variant="filled"
@@ -66,8 +61,7 @@ export default function ConsultationProgressCard({ ...props }) {
                 <Stack spacing={1} padding={2}>
                     {props.children}
                 </Stack>
-            </CollapseCardStyled>
-            <MobileCollapseCard {...props} />
-        </>
-    );
+            </MobileCollapseCardStyled>
+        </Fade>
+    )
 }
