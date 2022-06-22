@@ -140,7 +140,7 @@ function SideBarMenu({ children }: LayoutProps) {
     return (
         <MainMenuStyled className="header-main">
             {/*<CssBaseline />*/}
-            <TopNavBar />
+            <TopNavBar dashboard />
             <Box
                 component="nav"
                 aria-label="mailbox folders"

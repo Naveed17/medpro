@@ -19,7 +19,7 @@ import {InputStyled} from "@features/steppers";
 
 function StepperInfo() {
 
-    const secondarySpecialties = [
+    const secondarySpecialties: Array<string> = [
         "Spécialité  1",
         "Spécialité  2",
         "Spécialité  3",
@@ -40,9 +40,22 @@ function StepperInfo() {
         { title: "Chinois" },
     ];
 
-    const formik = useFormik({
+    interface MyFormProps {
+        file?: string;
+        person: {
+            gender: string,
+            profession: string,
+            firstName:string,
+            name: string,
+        };
+        specialty: string,
+        secondarySpecialties: string[],
+        languages: string[]
+    }
+
+    const formik = useFormik<MyFormProps>({
         initialValues: {
-            file: null,
+            file: "",
             person: {
                 gender: "",
                 profession: "",
@@ -109,8 +122,9 @@ function StepperInfo() {
                           <Avatar
                               src={values.file}
                               sx={{ width: 164, height: 164 }}
-                              children={<IconUrl path="ic-user-profile" />}
-                          />
+                          >
+                              <IconUrl path="ic-user-profile" />
+                          </Avatar>
                           <IconButton
                               color="primary"
                               type="button"
@@ -148,7 +162,6 @@ function StepperInfo() {
                               <RadioGroup
                                   row
                                   aria-label="gender"
-                                  name="row-radio-buttons-group"
                                   {...getFieldProps("person.gender")}
                                   sx={{
                                       "& .MuiFormControlLabel-label": {

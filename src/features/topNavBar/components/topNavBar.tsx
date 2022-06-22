@@ -27,27 +27,20 @@ import dynamic from "next/dynamic";
 import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {LoadingScreen} from "@features/loadingScreen";
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
-function TopNavBar(){
-    const { data: session, status } = useSession();
+function TopNavBar({...props}){
+    const { dashboard } = props;
     const { topBar } = siteHeader;
     const dispatch = useAppDispatch();
     const { opened, mobileOpened } = useAppSelector(sideBarSelector);
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
-    const loading = status === 'loading';
-    if (loading) return (<LoadingScreen />);
-
-    const { data: user }: any = session as Session;
 
     return (
         <>
-            {user.data?.medical_professional.registration_step >= 3 ?
+            { dashboard ?
                 <NavbarStyled
                     dir={dir}
                     position="fixed"

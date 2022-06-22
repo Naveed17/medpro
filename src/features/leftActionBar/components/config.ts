@@ -6,7 +6,7 @@ const LeftActionsData = [
         pathname: path(ROOTS.app, '/settings'),
         component: dynamic(
             (): any =>
-                import("@features/leftActionBar/components/settingsActionBar/settingsActionBar").then((mod) => mod)
+                import("@features/leftActionBar/components/settings/settings").then((mod) => mod)
         ),
     },
     {
