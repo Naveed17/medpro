@@ -47,10 +47,6 @@ export default function ConsultationProgressCard({ ...props }) {
                         className="label"
                         variant="filled"
                         color={color}
-                        sx={{
-
-
-                        }}
                     >
                         <Icon path={icon} />
                         Salle {index + 1}

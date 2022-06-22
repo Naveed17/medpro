@@ -1,7 +1,9 @@
 import { Box, Stack, Typography, IconButton } from '@mui/material'
+import { useRouter } from 'next/router';
 import { useTranslation } from "next-i18next";
 import Icon from '@themes/urlIcon'
 function RoomToolbar() {
+    const router = useRouter();
     const { t, ready } = useTranslation('waitingRoom');
     if (!ready) return (<>loading translations...</>);
     return (
@@ -10,6 +12,7 @@ function RoomToolbar() {
                 {t('subheader.title')}
             </Typography>
             <IconButton
+                onClick={() => router.push('/dashboard/waiting-room/board')}
                 sx={{
                     transform: "rotate(90deg)"
                     , svg: {
