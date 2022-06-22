@@ -1,14 +1,16 @@
 import { Fragment } from "react";
 import { Typography } from "@mui/material";
 import { Accordion } from "@features/accordion/components";
-import { rightActionData } from "./data";
+import rightActionData from "./data";
 import { useTranslation } from "next-i18next";
 import {
   AppointmentFilter,
   PlaceFilter,
   PatientFilter,
   FilterContainerStyles,
+  FilterRootStyled,
 } from "./overrides";
+
 function PatientListActionBar() {
   const { collapse } = rightActionData.filter;
 
@@ -23,7 +25,7 @@ function PatientListActionBar() {
         title: t(`filter.${item.heading.title}`),
       },
       children: (
-        <Fragment>
+        <FilterRootStyled>
           {item.heading.title === "patient" ? (
             <PatientFilter item={item} t={t} />
           ) : item.heading.title === "place" ? (
@@ -31,7 +33,7 @@ function PatientListActionBar() {
           ) : (
             <AppointmentFilter item={item} t={t} />
           )}
-        </Fragment>
+        </FilterRootStyled>
       ),
     };
   });
@@ -46,7 +48,7 @@ function PatientListActionBar() {
         >
           {t(`filter.title`)}
         </Typography>
-        <Accordion t={t} badge={null} data={data} />
+        <Accordion t={t} badge={null} data={data} defaultValue={"Patient"} />
       </FilterContainerStyles>
     </div>
   );

@@ -8,9 +8,9 @@ interface statetype {
   expanded: boolean | any;
 }
 function Accordion({ ...props }) {
-  const { data, badge, t } = props;
+  const { data, badge, t, defaultValue } = props;
   const [state, setstate] = useState<statetype>({
-    expanded: false,
+    expanded: defaultValue,
   });
 
   const handleChange = React.useCallback(

@@ -18,7 +18,6 @@ import Icon from "@themes/urlIcon";
 import { Pagination } from "@features/pagination";
 import EnhancedTableHead from "./tableHead";
 import { DataProp } from "@interfaces/PatientList";
-import { tableData } from "./data.js";
 import { useTranslation } from "next-i18next";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -64,7 +63,8 @@ function stableSort<DataProp>(
   return stabilizedThis.map((el) => el[0]);
 }
 
-function PatientTable() {
+function PatiendData({ ...props }) {
+  const { PatiendData } = props;
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof DataProp>("name");
   const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -83,7 +83,7 @@ function PatientTable() {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = tableData.map((n) => n.name);
+      const newSelecteds = PatiendData.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -128,12 +128,12 @@ function PatientTable() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={tableData.length}
+              rowCount={PatiendData.length}
             />
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
                  rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(tableData, getComparator(order as Order, orderBy))
+              {stableSort(PatiendData, getComparator(order as Order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, i) => {
                   const isItemSelected = isSelected(row.name as string);
@@ -352,8 +352,8 @@ function PatientTable() {
         <Box py={1} />
         <Pagination
           page={page}
-          total={tableData.length}
-          count={(tableData.length / rowsPerPage + 1).toFixed(0)}
+          total={PatiendData.length}
+          count={(PatiendData.length / rowsPerPage + 1).toFixed(0)}
           setPage={(v: number) => setPage(v)}
         />
       </Box>
@@ -361,4 +361,4 @@ function PatientTable() {
   );
 }
 
-export default PatientTable;
+export default PatiendData;

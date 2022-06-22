@@ -1,4 +1,4 @@
-export const rightActionData = {
+const rightActionData = {
   filter: {
     collapse: [
       {
@@ -109,3 +109,4 @@ export const Poupupdata = {
     { icon: "/setting/icdelete", text: "Supprimer le patient", color: "error" },
   ],
 };
+export default rightActionData;

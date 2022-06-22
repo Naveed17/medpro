@@ -16,6 +16,12 @@ class MyDocument extends Document {
                     />
                     {/* Inject MUI styles first to match with the prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
+                    <link
+                        rel="stylesheet"
+                        href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+                        integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+                        crossOrigin=""
+                    />
                 </Head>
                 <body>
                 <Main />

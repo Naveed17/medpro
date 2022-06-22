@@ -1,4 +1,4 @@
-export const tableData = [
+const PatiendData = [
   {
     id: 1,
     name: "John Doe",
@@ -12,6 +12,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: true,
+    status: "pending",
     action: "left",
   },
   {
@@ -27,6 +28,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -42,6 +44,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "pending",
     action: "left",
   },
   {
@@ -57,6 +60,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -72,6 +76,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -87,6 +92,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -102,6 +108,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -117,6 +124,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -132,6 +140,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -147,6 +156,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -162,6 +172,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -177,6 +188,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -192,6 +204,7 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
   {
@@ -207,6 +220,8 @@ export const tableData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    status: "success",
     action: "left",
   },
 ];
+export default PatiendData;

@@ -6,32 +6,34 @@ import {
   FormControlLabel,
   MenuItem,
   Select,
-  List,
-  ListItem,
   FormGroup,
   Checkbox,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import _ from "lodash";
 import { useIsMountedRef } from "@app/hooks";
+import { SelectChangeEvent } from "@mui/material";
 function PlaceFilter({ ...props }) {
   const { item, t } = props;
   const router = useRouter();
   const isMounted = useIsMountedRef();
   const { query } = router;
-  const { states, city } = query;
-  const [state, setstate] = useState({
+  const { states } = query as { states: string };
+  const [state, setstate] = useState<{
+    city: string;
+    states: string[];
+  }>({
     city: "",
     states: [],
   });
-  const handleChangeCity = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeCity = (event: SelectChangeEvent) => {
     setstate({ ...state, city: event.target.value });
     router.push({
       query: { ...router.query, city: event.target.value },
     });
   };
 
-  const handleChange = (props, e) => {
+  const handleChange = (props: string, e: ChangeEvent<HTMLInputElement>) => {
     var data = state.states;
     if (e.target.checked) {
       data = [...data, props.toLowerCase()];
@@ -47,7 +49,7 @@ function PlaceFilter({ ...props }) {
       data.splice(index, 1);
       if (data.length > 0) {
         const filtered = state.states.filter(
-          (gen) => gen !== props.toLowerCase()
+          (gen: string) => gen !== props.toLowerCase()
         );
         setstate({ ...state, states: filtered });
         router.push({
@@ -85,7 +87,7 @@ function PlaceFilter({ ...props }) {
           onChange={handleChangeCity}
           displayEmpty={true}
           sx={{ color: "text.secondary" }}
-          renderValue={(value: string[]) =>
+          renderValue={(value: string) =>
             value?.length
               ? Array.isArray(value)
                 ? value.join(", ")
@@ -105,6 +107,7 @@ function PlaceFilter({ ...props }) {
         <FormGroup>
           {item.city?.cities.map((c: string, i: number) => (
             <FormControlLabel
+              key={Math.random()}
               control={
                 <Checkbox
                   size="small"

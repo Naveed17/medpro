@@ -4,10 +4,12 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { DashLayout } from "@features/base";
-import { PatientTable } from "@features/patientTable";
+import { PatientTable, PatiendData } from "@features/patientTable";
+import { PatientMobileCard } from "@features/patientMobileCard";
 import SubHeader from "@features/subHeader/components/subHeader";
-
+import useMediaQuery from "@mui/material/useMediaQuery";
 function Patient() {
+  const isDesktop = useMediaQuery("(min-width:900px)");
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
 
@@ -25,7 +27,11 @@ function Patient() {
         bgcolor="#F0FAFF"
         sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
       >
-        <PatientTable />
+        {isDesktop ? (
+          <PatientTable PatiendData={PatiendData} />
+        ) : (
+          <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        )}
       </Box>
     </>
   );
