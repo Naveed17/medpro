@@ -138,5 +138,16 @@
       "at": "à",
       "list": "Liste des congés et absences proches"
     }
+  },
+  "substitute": {
+    "path": "Paramètres > Remplaçants",
+    "manageAccess": "Gestion des accès",
+    "name": "Nom",
+    "fonction": "Fonction",
+    "request": "Demande",
+    "access": "accès",
+    "action": "action",
+    "agenda": "Agenda",
+    "update": "Modifier"
   }
 }

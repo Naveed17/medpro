@@ -26,11 +26,11 @@ const settingsData = {
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",
         },
-        {
+       /* {
             name: "horaire",
             icon: "setting/ic-time",
             href: "/dashboard/settings/horaire",
-        },
+        },*/
         {
             name: "conges",
             icon: "setting/ic-time",
@@ -39,7 +39,7 @@ const settingsData = {
         {
             name: "remplaçants",
             icon: "setting/ic-refrech",
-            href: "/dashboard/settings/remplacants",
+            href: "/dashboard/settings/substitute",
         },
         {
             name: "utilisateurs",
