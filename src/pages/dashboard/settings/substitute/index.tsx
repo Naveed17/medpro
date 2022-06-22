@@ -4,12 +4,16 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/calendarToolbar";
-import {Box, Button} from "@mui/material";
+import {Box, Button, Drawer} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {Otable} from "@features/table";
+import {useAppSelector} from "@app/redux/hooks";
+import {configSelector} from "@features/base";
+import {SubstituteDetails} from "@features/substituteDetails";
 
 function Subtitule() {
 
+    const [edit, setEdit] = useState(false);
     const [rows, setRows] = useState([
         {
             id: 1,
@@ -45,9 +49,14 @@ function Subtitule() {
             access: '2',
         },
     ]);
+    const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
+
+    const closeDraw = () =>{
+        setEdit(false);
+    }
 
     const headCells = [
         {
@@ -102,7 +111,7 @@ function Subtitule() {
                 <Button type='submit'
                         variant="contained"
                         onClick={() => {
-                            //setOpen(true);
+                            setEdit(true);
                         }}
                         color="success">
                     {t('lieux.add')}
@@ -118,6 +127,15 @@ function Subtitule() {
                         edit={null}
                         handleConfig={null}
                         handleChange={null}/>
+
+                <Drawer
+                    anchor={'right'}
+                    open={edit}
+                    dir={direction}
+                    onClose={closeDraw}>
+                    <SubstituteDetails/>
+                </Drawer>
+
             </Box>
         </>
     )

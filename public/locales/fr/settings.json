@@ -148,6 +148,10 @@
     "access": "accès",
     "action": "action",
     "agenda": "Agenda",
-    "update": "Modifier"
+    "update": "Modifier",
+    "tname": "Tapez le nom remplaçant",
+    "mail": "E-mail",
+    "add": "Ajouter un remplaçant",
+    "info": "information sur le remplaçant"
   }
 }
