@@ -44,7 +44,7 @@ const settingsData = {
         {
             name: "utilisateurs",
             icon: "setting/ic-user",
-            href: "/dashboard/settings/utilisateurs",
+            href: "/dashboard/settings/users",
         },
         /*
          {

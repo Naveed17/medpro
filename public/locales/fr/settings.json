@@ -153,5 +153,10 @@
     "mail": "E-mail",
     "add": "Ajouter un remplaçant",
     "info": "information sur le remplaçant"
+  },
+  "users": {
+    "path": "Paramètres > Utilisateurs",
+    "manageAccess": "Gestion des accès",
+    "accessSetting": "Paramètre"
   }
 }
