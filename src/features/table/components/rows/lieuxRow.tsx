@@ -4,51 +4,16 @@ import TableRow from '@mui/material/TableRow';
 import Switch from '@mui/material/Switch';
 import TableCell from '@mui/material/TableCell';
 import { Typography, Box,} from '@mui/material';
-import { styled } from '@mui/material/styles';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
+import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
 
-const RootStyle = styled(TableRow)(({ theme, styleprops }) => ({
-    '& .MuiTableCell-root': {
-        div:{
-            color: 'black'
-        },
-        '& .MuiSelect-select':{
-            background:'white',
-        },
-        position: 'relative',
-        '& .name': {
-            marginLeft: '24px',
-            height: '100%',
-            '&::after': {
-                content: '" "',
-                position: 'absolute',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                left: 24,
-                width: '4px',
-                height: 'calc(100% - 16px)',
-                //background: theme.palette[styleprops].main,
-            },
-            '&::before': {
-                content: '" "',
-                position: 'absolute',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                left: 8,
-                width: '13px',
-                height: '13px',
-                borderRadius: '50%',
-                //background: theme.palette[styleprops].main,
-            }
-        }
-    }
-}));
+function LieuxRow(props: { row: any, handleChange:any ,edit:any, t:any }) {
 
-export default function LieuxRow({ row, handleChange,editMotif, t }) {
+    const { row, handleChange, edit, t } = props;
 
     return (
-        <RootStyle styleprops={row.color} key={row.name}>
+        <TableRowStyled key={row.name}>
             <TableCell>
                 <Typography className='name' variant="body1" color="text.primary">
                     {row.name}
@@ -69,7 +34,7 @@ export default function LieuxRow({ row, handleChange,editMotif, t }) {
                         variant="text"
                         size="small"
                         color="error"
-                        startIcon={<IconUrl path="setting/icdelete" />}
+                        startIcon={<IconUrl path="setting/icdelete"/>}
                         onClick={() => console.log("remove",row)}
                         sx={{ mr: 1 }}>
                         {t('lieux.remove')}
@@ -84,6 +49,7 @@ export default function LieuxRow({ row, handleChange,editMotif, t }) {
                     </Button>
                 </Box>
             </TableCell>
-        </RootStyle>
+        </TableRowStyled>
     )
 }
+export default LieuxRow
