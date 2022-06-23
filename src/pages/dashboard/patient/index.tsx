@@ -1,15 +1,19 @@
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ReactElement } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { ReactElement, useState } from "react";
+import { Box, Typography, Button, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { PatientTable, PatiendData } from "@features/patientTable";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import SubHeader from "@features/subHeader/components/subHeader";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { configSelector } from "@features/base";
+import { useAppSelector } from "@app/redux/hooks";
 function Patient() {
   const isDesktop = useMediaQuery("(min-width:900px)");
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const { direction } = useAppSelector(configSelector);
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
 
@@ -19,19 +23,34 @@ function Patient() {
         <Typography variant="subtitle2" color="text.primary">
           {t("sub-header.title")}
         </Typography>
-        <Button variant="contained" color="success" sx={{ ml: "auto" }}>
+        <Button
+          onClick={() => setOpenDrawer(true)}
+          variant="contained"
+          color="success"
+          sx={{ ml: "auto" }}
+        >
           {t("sub-header.add-patient")}
         </Button>
       </SubHeader>
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
+      <Box className="container">
         {isDesktop ? (
           <PatientTable PatiendData={PatiendData} />
         ) : (
           <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
         )}
+        <Drawer
+          anchor={"right"}
+          open={openDrawer}
+          dir={direction}
+          onClose={() => {
+            setOpenDrawer(false);
+          }}
+        >
+          <Typography variant="h1" color="primary.main">
+            Helo
+          </Typography>
+          {/* <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/> */}
+        </Drawer>
       </Box>
     </>
   );

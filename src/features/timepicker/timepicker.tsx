@@ -6,7 +6,7 @@ import TimePicker from "@mui/lab/TimePicker";
 import Stack from "@mui/material/Stack";
 
 export default function SecondsTimePicker() {
-  const [value, setValue] = React.useState(new Date());
+  const [value, setValue] = React.useState<Date | null>(new Date());
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

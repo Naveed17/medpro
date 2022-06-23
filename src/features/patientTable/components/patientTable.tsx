@@ -83,7 +83,7 @@ function PatiendData({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = PatiendData.map((n) => n.name);
+      const newSelecteds = PatiendData.map((n:{name:string}) => n.name);
       setSelected(newSelecteds);
       return;
     }
