@@ -10,13 +10,11 @@ import { CollapseCard } from "@features/collapseCard";
 import { RoomToolbar } from "@features/roomToolbar";
 import { data } from '@features/collapseCard';
 import { DetailsCard } from '@features/waitingRoom';
-
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const [open, setopen] = useState<number[]>([]);
     const [mobileCollapse, setmobileCollapse] = useState(0);
-
     useEffect(() => {
         setopen(data.map(item => item.id));
     }, []);

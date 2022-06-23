@@ -22,6 +22,7 @@ function WaitingRoom() {
                     ready: ready,
                 }}
                 badge={null}
+                defaultValue={"reson"}
                 data={[
                     {
                         heading: {

@@ -61,7 +61,7 @@ export default function EnhancedTable() {
     };
     if (!ready) return (<>loading translations...</>);
     return (
-        <Box display={{ xs: 'none', sm: 'block' }}>
+        <Box display={{ xs: 'none', sm: 'block' }} mt={1}>
             <TableContainer>
                 <Table
                     sx={{ minWidth: 750 }}
