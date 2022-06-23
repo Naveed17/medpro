@@ -9,6 +9,7 @@ export default function Table(theme) {
           borderCollapse: "separate",
           borderSpacing: "0px 8px",
           background: "transparent",
+          marginTop: "-8px",
           "& .MuiTableBody-root .MuiTableRow-root": {
             "& .MuiTableCell-root": {
               borderTop: "1px solid transparent",
@@ -34,6 +35,9 @@ export default function Table(theme) {
               },
             },
           },
+          "& .action span": {
+            float: "right",
+          },
         },
       },
     },
@@ -57,14 +61,15 @@ export default function Table(theme) {
         head: {
           color: theme.palette.text.secondary,
           //   backgroundColor: theme.palette.background.neutral,
-          backgroundColor: "rgba(6, 150, 214, 0.2)",
+          // backgroundColor: "rgba(6, 150, 214, 0.2)",
+          backgroundColor: "#C9E7F7",
           "&:first-of-type": {
             borderTopLeftRadius: theme.shape.borderRadius,
             borderBottomLeftRadius: theme.shape.borderRadius,
-            '& span': {
-              flexDirection: 'row !important',
-              justifyContent: 'flex-start !important',
-            }
+            "& span": {
+              flexDirection: "row !important",
+              justifyContent: "flex-start !important",
+            },
           },
           "&:last-of-type": {
             borderTopRightRadius: theme.shape.borderRadius,
@@ -90,10 +95,10 @@ export default function Table(theme) {
             },
           },
         },
-        stickyHeader: {
-          backgroundColor: theme.palette.background.paper,
-          backgroundImage: `linear-gradient(to bottom, ${theme.palette.background.neutral} 0%, ${theme.palette.background.neutral} 100%)`,
-        },
+        // stickyHeader: {
+        //   backgroundColor: theme.palette.background.paper,
+        //   backgroundImage: `linear-gradient(to bottom, ${theme.palette.background.neutral} 0%, ${theme.palette.background.neutral} 100%)`,
+        // },
         body: {
           backgroundColor: theme.palette.background.paper,
           "&.MuiTableCell-root": {
