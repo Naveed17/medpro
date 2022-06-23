@@ -6,7 +6,7 @@ import TableCell from '@mui/material/TableCell';
 import { Typography, Box,} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
-import TableRowStyled from "@features/table/components/overrides/tableRowStyled"
+import {TableRowStyled} from "@features/table"
 
 function LieuxRow({...props}) {
 

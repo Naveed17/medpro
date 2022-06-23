@@ -1,7 +1,7 @@
 import React from 'react'
 import TableCell from '@mui/material/TableCell';
 import {Typography, Box, MenuItem, Select,} from '@mui/material';
-import TableRowStyled from "@features/table/components/overrides/tableRowStyled"
+import {TableRowStyled} from "@features/table"
 
 
 

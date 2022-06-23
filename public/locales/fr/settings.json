@@ -172,7 +172,16 @@
       "send": "Message d'invitation à envoyer à l'utilisateur",
       "message": "Message",
       "tmessage": "Tapez le message",
-      "select": "Séléctionner ..."
+      "select": "Séléctionner ...",
+      "yes": "Oui",
+      "no": "Non",
+      "all": "Définir l'accès aux differents agendas",
+      "nameReq": "Nom est obligatoire",
+      "ntc": "Nom est trop court",
+      "ntl": "Nom est trop long",
+      "mailInvalid": "Adresse mail est invalide",
+      "mailReq": "Adresse mail est obligatoire"
+
     }
   }
 }

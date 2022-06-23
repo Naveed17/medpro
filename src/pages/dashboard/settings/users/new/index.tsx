@@ -88,12 +88,14 @@ function NewUser() {
         {name: 'Place 4'},
     ];
 
+    const {t, ready} = useTranslation("settings");
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, "Nom est trop court")
-            .max(50, "Nom est trop long")
-            .required("Nom est requis"),
-        email: Yup.string().email('mail invalid').required("mail obligatoire")
+            .min(3, t('users.new.ntc'))
+            .max(50, t('users.new.ntl'))
+            .required(t('users.new.nameReq')),
+        email: Yup.string().email(t('users.new.mailInvalid')).required(t('users.new.mailReq'))
     })
 
     const formik = useFormik({
@@ -111,7 +113,6 @@ function NewUser() {
         },
     });
     const router = useRouter();
-    const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
 
     const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
@@ -144,8 +145,8 @@ function NewUser() {
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <FormControlLabel control={<Checkbox checked={values.professionnel} onChange={()=>{setFieldValue('professionnel',true)}}/>} label="Oui"/>
-                                            <FormControlLabel control={<Checkbox checked={!values.professionnel} onChange={()=>{setFieldValue('professionnel',false)}}/>} label="Non"/>
+                                            <FormControlLabel control={<Checkbox checked={values.professionnel} onChange={()=>{setFieldValue('professionnel',true)}}/>} label={t('users.new.yes')}/>
+                                            <FormControlLabel control={<Checkbox checked={!values.professionnel} onChange={()=>{setFieldValue('professionnel',false)}}/>} label={t('users.new.no')}/>
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -221,7 +222,7 @@ function NewUser() {
                                       alignItems="center">
                                     <Grid item xs={12} lg={4}>
                                         <Typography variant='body2' fontWeight={400}>
-                                            Définier laccès aux differents agendas
+                                            {t('users.new.all')}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12} lg={7}>
