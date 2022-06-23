@@ -3,4 +3,4 @@ export { default as SettingBarStyled } from './overrides/settingBarStyled'
 export { default as LeftActionsData } from './config'
 export * from './agenda'
 export * from './settings'
-export * from "./patientListActionBar";
+export * from "./patient";
