@@ -1,61 +1,67 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {useRouter} from "next/router";
-import {Box} from "@mui/material";
-import {DashLayout} from "@features/base";
-import {useAppSelector} from "@app/redux/hooks";
-import {userSelector} from "@features/user";
-import requestAxios from "@app/axios/config";
-import useSWR from "swr";
-import {useSession} from "next-auth/react";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { ReactElement, useState } from "react";
+import { Box, Typography, Button, Drawer } from "@mui/material";
+import { DashLayout } from "@features/base";
+import { PatientTable, PatiendData } from "@features/patientTable";
+import { PatientMobileCard } from "@features/patientMobileCard";
+import SubHeader from "@features/subHeader/components/subHeader";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { configSelector } from "@features/base";
+import { useAppSelector } from "@app/redux/hooks";
+function Patient() {
+  const isDesktop = useMediaQuery("(min-width:900px)");
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const { direction } = useAppSelector(configSelector);
+  const { t, ready } = useTranslation("patient");
+  if (!ready) return <>loading translations...</>;
 
-const fetcher = (url: string) => requestAxios({url, method: "GET"}).then(res => res.data);
-
-const API = "/api/private/user/fr";
-
-function Patient(){
-    const { data: session, status } = useSession();
-    const router = useRouter();
-    // const {data, error} = useSWR([API, session?.accessToken], fetcher);
-    const [date, setDate] = useState(new Date());
-    const { t, ready } = useTranslation('common');
-    if (!ready) return (<>loading translations...</>);
-
-    // if (error) return <div>failed to load</div>
-    // if (!data) return <div>loading...</div>
-
-    return(
-        <>
-            <Box bgcolor="#F0FAFF"
-                 sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
-
-                <div>Hello from {router.pathname.slice(1)}</div>
-            </Box>
-        </>
-        )
+  return (
+    <>
+      <SubHeader>
+        <Typography variant="subtitle2" color="text.primary">
+          {t("sub-header.title")}
+        </Typography>
+        <Button
+          onClick={() => setOpenDrawer(true)}
+          variant="contained"
+          color="success"
+          sx={{ ml: "auto" }}
+        >
+          {t("sub-header.add-patient")}
+        </Button>
+      </SubHeader>
+      <Box className="container">
+        {/* {isDesktop ? ( */}
+        <PatientTable PatiendData={PatiendData} />
+        {/* // ) : (
+        //   <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        // )} */}
+        <Drawer
+          anchor={"right"}
+          open={openDrawer}
+          dir={direction}
+          onClose={() => {
+            setOpenDrawer(false);
+          }}
+        >
+          <Typography variant="h1" color="primary.main">
+            Helo
+          </Typography>
+          {/* <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/> */}
+        </Drawer>
+      </Box>
+    </>
+  );
 }
-
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
-    // const repoInfo = await fetcher(API);
-
-    return {
-        props: {
-            // fallback: {
-            //     [API]: repoInfo
-            // },
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
-        }
-    }
-}
-
-export default Patient
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale as string, ["patient", "menu"])),
+  },
+});
+export default Patient;
 
 Patient.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
-}
+  return <DashLayout>{page}</DashLayout>;
+};

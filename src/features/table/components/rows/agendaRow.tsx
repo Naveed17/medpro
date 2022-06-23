@@ -1,4 +1,4 @@
-import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
+import { TableRowStyled } from "@features/table"
 import React from 'react'
 
 import TableCell from '@mui/material/TableCell';

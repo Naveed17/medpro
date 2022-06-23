@@ -9,10 +9,6 @@ import { visuallyHidden } from '@mui/utils';
 import { styled } from '@mui/material/styles';
 import CodeIcon from '@mui/icons-material/Code';
 const RootStyle = styled(TableHead)(({ theme }) => ({
-    '& .MuiTableCell-head': {
-        paddingTop: '8px !important',
-        paddingBottom: '8px !important',
-    },
     '& .MuiTableSortLabel-root': {
         '& .MuiTableSortLabel-icon': {
             transform: 'rotate(90deg)',

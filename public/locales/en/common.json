@@ -9,6 +9,7 @@
   "search" : "Looking for ?",
   "stats": " Statistics",
   "settings": "Settings",
+  "loading": "Please wait a moment for the loading time",
   "logout": "Log out",
   "login": {
     "sign_in" : "Signed in as",

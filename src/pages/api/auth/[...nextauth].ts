@@ -73,27 +73,17 @@ export const authOptions: NextAuthOptions = {
   // when an action is performed.
   // https://next-auth.js.org/configuration/callbacks
   callbacks: {
-    // async signIn({ user, account, profile, email, credentials }) { return true },
-    // async redirect({ url, baseUrl }) { return baseUrl },
+    // async signIn({ user, account, profile, email, credentials }) {
+    //   return true
+    // },
+    // async redirect({ url, baseUrl }) {
+    //   return baseUrl
+    // },
     async session({ session, token, user }) {
       // Send properties to the client, like an access_token from a provider.
       setAxiosToken(<string>token.accessToken);
       session.accessToken = token.accessToken;
-      const res = await requestAxios({
-        url: "/api/private/user/fr",
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${token.accessToken}`
-        }
-      });
-
-      if(session.user?.image === undefined) {
-        Object.assign(session.user, {
-          image: null
-        });
-      }
-
-      session.data = await res?.data;
+      session.data = token?.data;
       return session;
     },
     async jwt({ token, user, account, profile, isNewUser }) {
@@ -102,6 +92,15 @@ export const authOptions: NextAuthOptions = {
         // Send properties to the client, like an access_token from a provider.
         token.accessToken = account.access_token;
       }
+
+      const res = await requestAxios({
+        url: "/api/private/user/fr",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token.accessToken}`
+        }
+      });
+      token.data = res?.data;
       return token
     }
   },

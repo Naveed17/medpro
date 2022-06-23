@@ -7,7 +7,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { Stack, Checkbox, TextField, Switch } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import CodeIcon from '@mui/icons-material/Code';
-import TableHeadStyled from "@features/table/components/overrides/TableHeadStyled";
+import TableHeadStyled from "@features/table/components/overrides/tableHeadStyled";
 
  function OHead({...props}) {
 
