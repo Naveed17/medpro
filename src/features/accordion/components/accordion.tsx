@@ -1,26 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import { Typography, Box, Paper } from "@mui/material";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import Icon from '@themes/urlIcon';
-import RootStyled from './overrides/accordionStyled';
+import Icon from "@themes/urlIcon";
+import RootStyled from "./overrides/accordionStyled";
+
 interface statetype {
-    expanded: boolean | any;
+  expanded: boolean | any;
 }
 type Translate = {
     t: Function;
     ready: boolean;
 }
+        
+type accordionProps = { data: any, badge: any, translate: Translate, defaultValue: string }
 
-function Accordion({ data, badge, translate }: { data: any, badge: any, translate: Translate }) {
+function Accordion({ data, badge, translate, defaultValue }: accordionProps) {
     const { t, ready } = translate;
     const [state, setstate] = useState<statetype>({
-        expanded: false,
+        expanded: defaultValue,
     });
 
     const handleChange = React.useCallback(
         (panel: Boolean) => (event: any, newExpanded: boolean) => {
-            setstate({ ...state, expanded: newExpanded ? panel : false });
+            setstate({ ...state, expanded: newExpanded ? panel : '' });
         },
         [state]
     );
@@ -72,9 +75,7 @@ function Accordion({ data, badge, translate }: { data: any, badge: any, translat
                     {item.children}
                 </MuiAccordionDetails>
             </RootStyled>
-        ))
-
-    );
+        ));
 }
 
-export default Accordion
+export default Accordion;
