@@ -5,6 +5,7 @@ import { ReactElement, useState } from "react";
 import { Box, Typography, Button, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { PatientTable, PatiendData } from "@features/patientTable";
+import { PatientAddForm } from "@features/patientAddForm";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import SubHeader from "@features/subHeader/components/subHeader";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -33,11 +34,8 @@ function Patient() {
         </Button>
       </SubHeader>
       <Box className="container">
-        {isDesktop ? (
-          <PatientTable PatiendData={PatiendData} />
-        ) : (
-          <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
-        )}
+        <PatientTable PatiendData={PatiendData} />
+        <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
         <Drawer
           anchor={"right"}
           open={openDrawer}
@@ -46,10 +44,8 @@ function Patient() {
             setOpenDrawer(false);
           }}
         >
-          <Typography variant="h1" color="primary.main">
-            Helo
-          </Typography>
           {/* <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/> */}
+          <PatientAddForm />
         </Drawer>
       </Box>
     </>

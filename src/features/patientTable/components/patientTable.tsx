@@ -19,7 +19,7 @@ import { Pagination } from "@features/pagination";
 import EnhancedTableHead from "./tableHead";
 import { DataProp } from "@interfaces/PatientList";
 import { useTranslation } from "next-i18next";
-
+import { RootStyled } from "@features/patientTable";
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -83,7 +83,7 @@ function PatiendData({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = PatiendData.map((n:{name:string}) => n.name);
+      const newSelecteds = PatiendData.map((n: { name: string }) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -113,7 +113,7 @@ function PatiendData({ ...props }) {
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <RootStyled>
       <Box>
         <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
           <Table
@@ -189,11 +189,7 @@ function PatiendData({ ...props }) {
                               variant="body2"
                               component="span"
                               color="text.secondary"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                svg: { mr: 0.5 },
-                              }}
+                              className="text-time"
                             >
                               <Icon path="ic-anniverssaire" />
                               {new Date(row.time).toLocaleDateString()} - 32 Ans
@@ -234,15 +230,7 @@ function PatiendData({ ...props }) {
                             <Box ml={1}>
                               <Typography
                                 component="span"
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  "& svg": {
-                                    width: 11,
-                                    mr: 0.6,
-                                    "& path": { fill: "#1b2746" },
-                                  },
-                                }}
+                                className="next-appointment"
                                 variant="body2"
                                 color="text.primary"
                               >
@@ -279,15 +267,7 @@ function PatiendData({ ...props }) {
                           <Box ml={1}>
                             <Typography
                               component="span"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                "& svg": {
-                                  width: 11,
-                                  mr: 0.6,
-                                  "& path": { fill: "#1b2746" },
-                                },
-                              }}
+                              className="next-appointment"
                               variant="body2"
                               color="text.primary"
                             >
@@ -357,7 +337,7 @@ function PatiendData({ ...props }) {
           setPage={(v: number) => setPage(v)}
         />
       </Box>
-    </Box>
+    </RootStyled>
   );
 }
 
