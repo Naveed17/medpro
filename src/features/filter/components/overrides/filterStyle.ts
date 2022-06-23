@@ -1,6 +1,6 @@
 import Dialog from "@mui/material/Dialog";
-import { styled, Theme } from "@mui/material/styles";
-const FilterStyled = styled(Dialog)(({ theme }: Theme) => ({
+import { styled } from "@mui/material/styles";
+const FilterStyled = styled(Dialog)(({ theme }) => ({
     top: 64,
     height: "calc(100% - 65px)",
     "& .MuiDialog-paper": {
@@ -12,7 +12,7 @@ const FilterStyled = styled(Dialog)(({ theme }: Theme) => ({
         },
         "& header": {
             position: "relative",
-            boxShadow: "none !important",
+            boxShadow: "none",
             backgroundColor: theme.palette.common.white,
             border: "none",
             borderBottom: `1px solid ${theme.palette.divider}`,

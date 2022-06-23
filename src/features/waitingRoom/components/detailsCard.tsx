@@ -1,5 +1,3 @@
-import { ReactElement } from "react";
-
 // material
 import {
     Grid,
@@ -7,24 +5,14 @@ import {
     IconButton,
     Button,
     Box,
-    Card,
+
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import DetailCardStyled from "./overrides/detailCardStyle";
 import { rows } from "./config";
-console.log(rows);
 export default function DetailsCard() {
     const theme = useTheme();
-    const handlePushRoute = (route) => (e) => {
-        if (e.target.tagName === "svg" || e.target.tagName === "path") {
-            return;
-        } else {
-            router.push({
-                pathname: `${router.asPath}/${route.name.split(" ").join("-")}`,
-            });
-        }
-    };
     return (
         <>
             {rows.map((item, i) => (

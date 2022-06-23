@@ -27,7 +27,7 @@ function RoomToolbar({ board, data, handleCollapse }: Props) {
                         {
                             data?.map(item => (
                                 <Button
-                                    onClick={() => handleCollapse(item.id)}
+                                    {...(handleCollapse && { onClick: () => handleCollapse(item.id) })}
                                     sx={{ minWidth: 40, textTransform: 'capitalize', color: theme => theme.palette.text.primary, '& svg': { width: 14, height: 14, '& path': { fill: theme => theme.palette.text.primary } } }} variant='contained' color={item.color} key={Math.random()}>
                                     <Icon path={item.icon} />
                                 </Button>
@@ -68,7 +68,7 @@ function RoomToolbar({ board, data, handleCollapse }: Props) {
             >
                 <WaitingRoom />
             </Filter>
-        </Stack>
+        </Stack >
     )
 }
 

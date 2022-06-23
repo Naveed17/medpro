@@ -3,7 +3,7 @@ import { Box, Stack, Fade } from "@mui/material";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import MobileCollapseCardStyled from "./overrides/mobileCollapseCardStyle";
-import { useTheme, Theme } from "@mui/material/styles";
+import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
 export default function ConsultationProgressCard({ ...props }) {
     const { index, data, open, translate, mobileCollapse } = props
     const { color, icon, id }: { color: string, icon: string, id: number } = data;
@@ -28,7 +28,7 @@ export default function ConsultationProgressCard({ ...props }) {
                 elevation={0}
                 ref={ref}
                 sx={{
-                    borderTop: `4px solid ${theme.palette[color].main}`,
+                    borderTop: `4px solid ${(theme?.palette[color as keyof typeof theme.palette] as PaletteColor).main}`,
                     height: `calc(100vh - ${offsetTop + 20}px)`,
                     width: open.indexOf(id) > -1 ? '100%' : 42
                 }}

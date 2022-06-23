@@ -4,7 +4,7 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
 import MobileCollapseCard from "./mobileCollapseCard";
-import { useTheme, Theme } from "@mui/material/styles";
+import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
 export default function ConsultationProgressCard({ ...props }) {
     const { index, data, open, onClickAction, translate } = props
     const { color, icon, id } = data;
@@ -30,7 +30,7 @@ export default function ConsultationProgressCard({ ...props }) {
                 elevation={0}
                 ref={ref}
                 sx={{
-                    borderTop: `4px solid ${theme.palette[color].main}`,
+                    borderTop: `4px solid ${(theme?.palette[color as keyof typeof theme.palette] as PaletteColor).main}`,
                     height: `calc(100vh - ${offsetTop + 20}px)`,
                     width: open.indexOf(id) > -1 ? '100%' : 42
                 }}

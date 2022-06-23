@@ -19,7 +19,7 @@ function Board() {
 
     useEffect(() => {
         setopen(data.map(item => item.id));
-    }, [data]);
+    }, []);
 
     const handleClick: (id: number) => void = (id) => {
         setopen(open.includes(id) ? open.filter((item: number) => item !== id) : [...open, id]);
