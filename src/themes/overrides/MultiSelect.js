@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Autocomplete, TextField } from "@mui/material";
 import {styled} from "@mui/material/styles";
-export default function MultiSelect({
+
+function MultiSelect({
   data,
   placeholder,
   helperText,
@@ -51,3 +52,5 @@ export default function MultiSelect({
         />
     );
 }
+
+export default MultiSelect;

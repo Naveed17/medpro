@@ -9,6 +9,7 @@
   "search" : "Vous cherchez ?",
   "stats": " Statistiques",
   "settings": "Paramètres",
+  "loading": "Veuillez patienter un instant le temps de chargement",
   "logout": "Se déconnecter",
   "login": {
     "sign_in" : "Connecté en tant que",

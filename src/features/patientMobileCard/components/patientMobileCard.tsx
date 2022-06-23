@@ -157,7 +157,7 @@ function PatientMobileCard({ ...props }) {
         data="Data"
         title={t("filter.title")}
       >
-        <Accordion t={t} badge={null} data={data} defaultValue={"Patient"} />
+        <Accordion translate={{t, ready}} badge={null} data={data} defaultValue={"Patient"} />
       </FilterDrawer>
     </RootStyled>
   );

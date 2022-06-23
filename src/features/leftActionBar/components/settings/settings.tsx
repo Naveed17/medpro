@@ -18,7 +18,7 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 
-function SettingActionBar() {
+function Settings() {
     const router = useRouter();
 
     const { t, ready } = useTranslation("settings");
@@ -55,4 +55,4 @@ function SettingActionBar() {
     );
 }
 
-export default SettingActionBar;
+export default Settings;

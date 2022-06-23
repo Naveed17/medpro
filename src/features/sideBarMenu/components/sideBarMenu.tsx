@@ -15,7 +15,6 @@ import { Theme } from '@mui/material/styles'
 // utils
 import Icon from "@themes/icon";
 
-
 // config
 import { siteHeader } from "./headerConfig";
 import { useTranslation } from "next-i18next";
@@ -144,7 +143,7 @@ function SideBarMenu({ children }: LayoutProps) {
     return (
         <MainMenuStyled>
             {/*<CssBaseline />*/}
-            < TopNavBar />
+            <TopNavBar dashboard />
             <Box
                 component="nav"
                 aria-label="mailbox folders"
@@ -180,7 +179,7 @@ function SideBarMenu({ children }: LayoutProps) {
                     {children}
                 </Box>
             </Box>
-        </ MainMenuStyled>
+        </MainMenuStyled>
     )
 }
 

@@ -11,10 +11,17 @@ declare global {
 }
 
 declare module "@mui/material/Button" {
-  interface ButtonPropsVariantOverrides {
-    google: true;
-    filter: true;
-  }
+    interface ButtonPropsVariantOverrides {
+        google: true;
+        "text-black": true;
+        filter: true;
+    }
+}
+
+declare module "@mui/material/Chip" {
+    interface ChipPropsVariantOverrides {
+        "contained": true;
+    }
 }
 
 declare module "@mui/material" {

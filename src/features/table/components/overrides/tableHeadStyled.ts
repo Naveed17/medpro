@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import TableHead from "@mui/material/TableHead";
 
- const TableHeadStyle = styled(TableHead)(({ theme }) => ({
+ const TableHeadStyled = styled(TableHead)(({ theme }) => ({
     '& .MuiTableCell-head': {
         paddingTop: '8px !important',
         paddingBottom: '8px !important',
@@ -13,4 +13,4 @@ import TableHead from "@mui/material/TableHead";
     }
 }));
 
- export default TableHeadStyle;
+ export default TableHeadStyled;

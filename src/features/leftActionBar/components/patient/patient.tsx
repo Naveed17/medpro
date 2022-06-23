@@ -11,7 +11,7 @@ import {
   FilterRootStyled,
 } from "./overrides";
 
-function PatientListActionBar() {
+function Patient() {
   const { collapse } = rightActionData.filter;
 
   const { t, ready } = useTranslation("patient");
@@ -37,6 +37,7 @@ function PatientListActionBar() {
       ),
     };
   });
+
   return (
     <div>
       <FilterContainerStyles>
@@ -53,4 +54,4 @@ function PatientListActionBar() {
     </div>
   );
 }
-export default PatientListActionBar;
+export default Patient;
