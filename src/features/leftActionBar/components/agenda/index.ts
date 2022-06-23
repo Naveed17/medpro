@@ -1,2 +1,2 @@
 export { default as BoxStyled } from './overrides/boxStyled';
-export { default as AgendaActionBar } from './agenda';
+export { default as Agenda } from './agenda';

@@ -7,9 +7,11 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Hidden, Toolbar,
+    Hidden,
+    Toolbar,
+    useMediaQuery
 } from "@mui/material";
-
+import { Theme } from '@mui/material/styles'
 // utils
 import Icon from "@themes/icon";
 
@@ -34,6 +36,7 @@ import { TopNavBar } from "@features/topNavBar";
 import { LeftActionBar } from "@features/leftActionBar";
 
 function SideBarMenu({ children }: LayoutProps) {
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
     const dispatch = useAppDispatch();
     const { opened, mobileOpened } = useAppSelector(sideBarSelector);
@@ -138,9 +141,9 @@ function SideBarMenu({ children }: LayoutProps) {
     );
 
     return (
-        <MainMenuStyled className="header-main">
+        <MainMenuStyled>
             {/*<CssBaseline />*/}
-            <TopNavBar />
+            <TopNavBar dashboard />
             <Box
                 component="nav"
                 aria-label="mailbox folders"
@@ -170,7 +173,7 @@ function SideBarMenu({ children }: LayoutProps) {
                 </div>
             </Box>
             <Box className="body-main">
-                <Toolbar />
+                <Toolbar sx={{ minHeight: isMobile ? 76 : 56 }} />
                 <Box
                     component="main">
                     {children}

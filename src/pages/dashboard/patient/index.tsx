@@ -8,16 +8,92 @@ import { PatientTable, PatiendData } from "@features/patientTable";
 import { PatientAddForm } from "@features/patientAddForm";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import SubHeader from "@features/subHeader/components/subHeader";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { configSelector } from "@features/base";
 import { useAppSelector } from "@app/redux/hooks";
+import { Otable } from "@features/table";
+
+interface HeadCell {
+  disablePadding: boolean;
+  id: string;
+  label: string;
+  numeric: boolean;
+  sortable: boolean;
+  align: "left" | "right" | "center";
+}
+
 function Patient() {
-  const isDesktop = useMediaQuery("(min-width:900px)");
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+
   const { direction } = useAppSelector(configSelector);
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
-
+  // head data
+  const headCells: readonly HeadCell[] = [
+    {
+      id: "select-all",
+      numeric: false,
+      disablePadding: true,
+      label: "checkbox",
+      sortable: false,
+      align: "left",
+    },
+    {
+      id: "name",
+      numeric: false,
+      disablePadding: true,
+      label: "Patient's name",
+      sortable: true,
+      align: "left",
+    },
+    {
+      id: "telephone",
+      numeric: true,
+      disablePadding: false,
+      label: "Telephone",
+      sortable: true,
+      align: "left",
+    },
+    {
+      id: "city",
+      numeric: false,
+      disablePadding: false,
+      label: "City",
+      sortable: true,
+      align: "left",
+    },
+    {
+      id: "id",
+      numeric: true,
+      disablePadding: false,
+      label: "ID",
+      sortable: true,
+      align: "left",
+    },
+    {
+      id: "nextAppointment",
+      numeric: false,
+      disablePadding: false,
+      label: "Next Appointment",
+      sortable: false,
+      align: "left",
+    },
+    {
+      id: "lastAppointment",
+      numeric: false,
+      disablePadding: false,
+      label: "Last appointment",
+      sortable: false,
+      align: "left",
+    },
+    {
+      id: "action",
+      numeric: false,
+      disablePadding: false,
+      label: "Action",
+      sortable: false,
+      align: "right",
+    },
+  ];
   return (
     <>
       <SubHeader>
@@ -34,7 +110,16 @@ function Patient() {
         </Button>
       </SubHeader>
       <Box className="container">
-        <PatientTable PatiendData={PatiendData} />
+        <Otable
+          headers={headCells}
+          rows={PatiendData}
+          state={null}
+          from={"patient"}
+          t={t}
+          edit={null}
+          handleConfig={null}
+          handleChange={null}
+        />
         <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
         <Drawer
           anchor={"right"}
@@ -44,7 +129,6 @@ function Patient() {
             setOpenDrawer(false);
           }}
         >
-          {/* <EditMotifDialog data={selected} close={ () => { setEdit(false) }}/> */}
           <PatientAddForm />
         </Drawer>
       </Box>

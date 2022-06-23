@@ -2,9 +2,14 @@ import {Box, Typography, useTheme} from "@mui/material";
 import {RootStyled} from "@features/loadingScreen";
 import { motion } from "framer-motion";
 import IconUrl from "@themes/urlIcon";
+import {useTranslation} from "next-i18next";
+import React from "react";
 
 function LoadingScreen({ ...props }){
     const theme = useTheme();
+    const { t, ready } = useTranslation('common');
+    if (!ready) return (<>loading translations...</>);
+
     const Icon = {
         hidden: {
             opacity: 0,
@@ -122,7 +127,7 @@ c14 -42 51 -50 99 -22 22 13 55 22 79 22 38 0 41 -2 34 -22 -12 -40 -42 -75
                     </motion.ul>
                 </Box>
                 <Typography variant="body1" mt={3} px={2} color="text.primary">
-                    Veuillez patienter un instant le temps de chargement
+                    {t('loading')}
                 </Typography>
             </Box>
         </RootStyled>

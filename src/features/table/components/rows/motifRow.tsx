@@ -4,7 +4,7 @@ import TableCell from '@mui/material/TableCell';
 import { IconButton, Typography, FormControl, Select, MenuItem, } from '@mui/material';
 import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
-import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
+import TableRowStyled from "@features/table/components/overrides/tableRowStyled"
 
 
 function MotifRow( props: { row: any, tableHeadData:any, active: any, handleChange: any,editMotif:any, ids:any}) {

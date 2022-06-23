@@ -1,5 +1,5 @@
 export const motifData = [
-    { name: 'all', text: 'All' },
+    { name: 'all', text: 'all' },
     { color: 'primary', text: '1st consultation', name: '1stconultation' },
     { color: 'success', text: 'control', name: 'control' },
     { color: 'warning', text: 'in expectation', name: 'expectation' },
@@ -8,16 +8,16 @@ export const motifData = [
 
 ];
 export const statutData = [
-    { text: 'All', name: 'all' },
-    { text: 'Consultation effectuee', name: 'consultationeffectuee' },
-    { text: 'Confirme', name: 'confirme' },
-    { text: 'Expire', name: 'expire' },
-    { text: 'Annuler', name: 'annuler' },
-    { text: "Le Patient ne s' est pas presente", name: 'patient' },
+    { text: 'all', name: 'all' },
+    { text: 'consultation performed', name: 'consultationperformed' },
+    { text: 'confirme', name: 'confirme' },
+    { text: 'expires', name: 'cxpires' },
+    { text: 'cancel', name: 'cancel' },
+    { text: "patient did not show up", name: 'patientnoshow' },
 ]
 export const typeRdv = [
-    { text: 'Cabinet', name: 'cabinet', icon: 'ic-cabinet' },
-    { text: 'A domicile', name: 'domicile', icon: 'ic-home' },
+    { text: 'cabinet', name: 'cabinet', icon: 'ic-cabinet' },
+    { text: 'at home', name: 'home', icon: 'ic-home' },
     { text: 'teleconsultation', name: 'teleconsultation', icon: 'ic-video' },
-    { text: 'Reunion', name: 'reunion', icon: 'ic-doctor' },
+    { text: 'meeting', name: 'meeting', icon: 'ic-doctor' },
 ]
