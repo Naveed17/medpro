@@ -1,31 +1,26 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
-import { styled } from '@mui/material/styles';
 import CodeIcon from '@mui/icons-material/Code';
-const RootStyle = styled(TableHead)(({ theme }) => ({
-    '& .MuiTableSortLabel-root': {
-        '& .MuiTableSortLabel-icon': {
-            transform: 'rotate(90deg)',
-        }
-    }
-}));
+import { TableHead } from '@mui/material';
+import { headCells } from './config';
 
-export default function TableHeadSimple(props) {
-    const { order, orderBy, onRequestSort, data } =
-        props;
-    const createSortHandler = (property) => (event) => {
+export default function TableHeadSimple({ ...props }) {
+    const { order, orderBy, onRequestSort, translate } = props;
+
+    const createSortHandler = (property: string) => (event: React.MouseEvent<unknown>) => {
         onRequestSort(event, property);
+
     };
+    const { t, ready } = translate;
+    if (!ready) return (<>loading translations...</>);
     return (
-        <RootStyle >
+        <TableHead>
             <TableRow>
-                {data.map((headCell) => (
+                {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
@@ -36,13 +31,12 @@ export default function TableHeadSimple(props) {
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
                             {...(headCell.sortable && { onClick: createSortHandler(headCell.id) })}
-
-                            IconComponent={headCell.sortable ? CodeIcon : null}
+                            IconComponent={headCell.sortable ? CodeIcon : undefined}
                             sx={{
                                 justifyContent: headCell.align === "center" ? 'center !important' : headCell.align === 'right' ? "flex-start !important" : 'flex-end !important',
                             }}
                         >
-                            {headCell.label}
+                            {t(headCell.label)}
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -55,12 +49,7 @@ export default function TableHeadSimple(props) {
                     </TableCell>
                 ))}
             </TableRow>
-        </RootStyle>
+        </TableHead>
     );
 }
 
-TableHeadSimple.propTypes = {
-    onRequestSort: PropTypes.func.isRequired,
-    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
-};

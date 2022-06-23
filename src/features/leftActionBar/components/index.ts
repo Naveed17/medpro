@@ -4,3 +4,4 @@ export { default as LeftActionsData } from './config'
 export * from './agenda'
 export * from './settings'
 export * from "./patient";
+export * from './waitingRoom'

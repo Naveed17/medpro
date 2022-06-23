@@ -1,6 +1,7 @@
 import React from "react";
 
 declare global {
+
   type LayoutProps = {
     children: React.ReactNode;
     fallback?: any;
@@ -20,5 +21,12 @@ declare module "@mui/material/Button" {
 declare module "@mui/material/Chip" {
     interface ChipPropsVariantOverrides {
         "contained": true;
+    }
+}
+
+declare module "@mui/material" {
+    interface Color {
+        '500_32': string;
+        '500_16': string;
     }
 }

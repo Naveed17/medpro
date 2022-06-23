@@ -36,9 +36,9 @@ function getComparator<Key extends keyof any>(
   order: Order,
   orderBy: Key
 ): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string }
-) => number {
+    a: { [key in Key]: number | string },
+    b: { [key in Key]: number | string }
+  ) => number {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
@@ -83,7 +83,7 @@ function PatiendData({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = PatiendData.map((n:{name:string}) => n.name);
+      const newSelecteds = PatiendData.map((n: { name: string }) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -196,7 +196,7 @@ function PatiendData({ ...props }) {
                               }}
                             >
                               <Icon path="ic-anniverssaire" />
-                              {new Date(row.time).toLocaleDateString()} - 32 Ans
+                              {/* {new Date(row.time).toLocaleDateString()} - 32 Ans */}
                             </Typography>
                           </Box>
                         </Box>
@@ -247,9 +247,9 @@ function PatiendData({ ...props }) {
                                 color="text.primary"
                               >
                                 <Icon path="ic-agenda" />
-                                {new Date(
+                                {/* {new Date(
                                   row.nextAppointment
-                                ).toLocaleDateString()}
+                                ).toLocaleDateString()} */}
                               </Typography>
                               <Typography
                                 sx={{
@@ -265,7 +265,7 @@ function PatiendData({ ...props }) {
                                 color="text.primary"
                               >
                                 <Icon path="ic-time" />
-                                {new Date(row.time).toLocaleDateString()}
+                                {/* {new Date(row.time).toLocaleDateString()} */}
                               </Typography>
                             </Box>
                           </Box>
@@ -292,9 +292,9 @@ function PatiendData({ ...props }) {
                               color="text.primary"
                             >
                               <Icon path="ic-agenda" />
-                              {new Date(
+                              {/* {new Date(
                                 row.nextAppointment
-                              ).toLocaleDateString()}
+                              ).toLocaleDateString()} */}
                             </Typography>
                             <Typography
                               sx={{

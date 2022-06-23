@@ -192,7 +192,7 @@ export default function Button(theme) {
           style: {
             backgroundColor: theme.palette.common.white,
             color: theme.palette.text.primary,
-            boxShadow: theme.palette.info[50],
+            boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.32)',
             "&:hover": {
               backgroundColor: theme.palette.info.main,
               color: theme.palette.text.primary,
