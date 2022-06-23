@@ -499,7 +499,7 @@ function NewPlace() {
                                                                 value.hours.splice(i,1);
                                                                 setHoraires([...horaires])
                                                                 }}>
-                                                            Supprimer
+                                                            {t('lieux.new.remove')}
                                                         </Button>
                                                     </Grid>
                                                 )}
@@ -517,7 +517,7 @@ function NewPlace() {
                                                     variant="contained"
                                                     color="success"
                                                     sx={{mt: 1}}>
-                                                    Ajouter
+                                                    {t('lieux.new.add')}
                                                 </Button>
                                             </Grid>
                                         </Grid>

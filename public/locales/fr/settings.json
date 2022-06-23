@@ -109,7 +109,9 @@
       "horaire": "Horaire d'ouverture",
       "permissions": "Droit d'accés",
       "user": "Utilisateur",
-      "userPermission": "permission accordée"
+      "userPermission": "permission accordée",
+      "add": "Ajouter",
+      "remove": "Supprimer"
     }
   },
   "agenda": {
@@ -157,6 +159,20 @@
   "users": {
     "path": "Paramètres > Utilisateurs",
     "manageAccess": "Gestion des accès",
-    "accessSetting": "Paramètre"
+    "accessSetting": "Paramètre",
+    "new": {
+      "path": "Paramètres > Utilisateurs > Ajouter",
+      "user": "Utilisateur",
+      "pro": "C'est un professionnel ?",
+      "mail": "Adresse mail",
+      "name": "Nom de l'utilisateur",
+      "tname": "tapez içi nom de l'utilisateur",
+      "admin": "Administrateur (accès aux paramètres)",
+      "roles": "Droits d'accès",
+      "send": "Message d'invitation à envoyer à l'utilisateur",
+      "message": "Message",
+      "tmessage": "Tapez le message",
+      "select": "Séléctionner ..."
+    }
   }
 }
