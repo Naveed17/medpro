@@ -1,8 +1,35 @@
 {
   "steppers": {
+    "tabs": {
+      "tab-1": "Personal information",
+      "tab-2": "Attach document",
+      "tab-3": "Acts",
+      "tab-4": "Cabinet"
+    },
     "stepper-0": {
       "title": "Set up my profile",
+      "sub-title": "Personal information",
+      "info": "Who are you?",
+      "genre": {
+        "man": "man",
+        "women": "woman"
+      },
+      "pseudo": "Pseudo",
+      "firstname": "First name",
+      "lastname": "Last name",
+      "specialty": "Your specialty",
+      "specialty-sec": "Secondary Specialties",
+      "languages": {
+        "title": "Spoken languages",
+        "placeholder": "Start typing to search for languages"
+      },
       "type": "stepper"
+    },
+    "stepper-1": {
+      "title": "Attach document",
+      "sub-title": "Diplomas and qualifications",
+      "desc": "For security reasons and to ensure the relevance of the data on our platform, we ask you to send us a photo of your stamped business card or your license to practice.",
+      "upload": "Attach document"
     },
     "check-status": {
       "title": "Welcome to Med.tn",

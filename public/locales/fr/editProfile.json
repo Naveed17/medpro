@@ -1,8 +1,35 @@
 {
   "steppers": {
+    "tabs": {
+      "tab-1": "Informations personnelles",
+      "tab-2": "Joindre document",
+      "tab-3": "Actes",
+      "tab-4": "Cabinet"
+    },
     "stepper-0": {
       "title": "Configurer mon profil",
+      "sub-title": "Information personnelle",
+      "info": "Vous êtes?",
+      "genre": {
+        "man": "Homme",
+        "women": "Femme"
+      },
+      "pseudo": "Titre",
+      "firstname": "Prénom",
+      "lastname": "Nom",
+      "specialty": "Votre spécialité",
+      "specialty-sec": "Spécialités secondaire",
+      "languages": {
+        "title": "Langues parlées",
+        "placeholder": "Commencez à taper pour rechercher les langues"
+      },
       "type": "stepper"
+    },
+    "stepper-1": {
+      "title": "Joindre document",
+      "sub-title": "Diplômes et qualifications",
+      "desc": "Pour des raisons de sécurité et pour assurer la pertinence des données sur notre plateforme, nous vous demandons de nous envoyer une photo de votre carte professionnelle tamponnée ou de votre autorisation d'exercer.",
+      "upload": "Joindre un document"
     },
     "check-status": {
       "title": "Bienvenue sur Med.tn",

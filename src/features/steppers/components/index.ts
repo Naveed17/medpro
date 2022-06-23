@@ -1,2 +1,3 @@
-export { default as Stepper } from './steppers';
-export * from './stepper-info';
+export { default as Steppers } from './steppers';
+export * from './stepperInfo';
+export * from './stepperDocument';

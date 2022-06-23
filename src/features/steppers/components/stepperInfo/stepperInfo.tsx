@@ -16,46 +16,49 @@ import React, {useState} from "react";
 import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
 import {InputStyled} from "@features/steppers";
+import {useTranslation} from "next-i18next";
 
 type selectMultiple = {
     title: string
 }
 
+interface MyFormProps {
+    file?: string;
+    person: {
+        gender: string,
+        profession: string,
+        firstName:string,
+        name: string,
+    };
+    specialty: string,
+    secondarySpecialties: string[],
+    languages: selectMultiple[]
+}
+
+const secondarySpecialties: Array<string> = [
+    "Spécialité  1",
+    "Spécialité  2",
+    "Spécialité  3",
+    "Spécialité  4",
+    "Spécialité  5",
+    "Spécialité  6",
+    "Spécialité  7",
+    "Spécialité  8",
+];
+
+const multipleLanguage = [
+    { title: "Français" },
+    { title: "Anglais" },
+    { title: "Espagnol" },
+    { title: "Allemand" },
+    { title: "Italien" },
+    { title: "Russe" },
+    { title: "Japonais" },
+    { title: "Chinois" },
+];
+
 function StepperInfo() {
-
-    const secondarySpecialties: Array<string> = [
-        "Spécialité  1",
-        "Spécialité  2",
-        "Spécialité  3",
-        "Spécialité  4",
-        "Spécialité  5",
-        "Spécialité  6",
-        "Spécialité  7",
-        "Spécialité  8",
-    ];
-    const multipleLanguage = [
-        { title: "Français" },
-        { title: "Anglais" },
-        { title: "Espagnol" },
-        { title: "Allemand" },
-        { title: "Italien" },
-        { title: "Russe" },
-        { title: "Japonais" },
-        { title: "Chinois" },
-    ];
-
-    interface MyFormProps {
-        file?: string;
-        person: {
-            gender: string,
-            profession: string,
-            firstName:string,
-            name: string,
-        };
-        specialty: string,
-        secondarySpecialties: string[],
-        languages: selectMultiple[]
-    }
+    const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
 
     const formik = useFormik<MyFormProps>({
         initialValues: {
@@ -76,6 +79,12 @@ function StepperInfo() {
     });
     const { values, handleSubmit, getFieldProps, setFieldValue } = formik;
     const [open, setOpen] = useState(false);
+
+    const [selectData, setSelectData] = useState([multipleLanguage[0]]);
+
+
+    if (!ready) return (<>loading translations...</>);
+
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
         setFieldValue("file", URL.createObjectURL(file));
@@ -92,7 +101,6 @@ function StepperInfo() {
         );
     };
 
-    const [selectData, setSelectData] = React.useState([multipleLanguage[0]]);
 
     return (
       <>
@@ -105,7 +113,7 @@ function StepperInfo() {
                   onSubmit={handleSubmit}
               >
                   <Typography variant="h6"  gutterBottom>
-                      Information personnelle
+                      {t('sub-title')}
                   </Typography>
                   <Stack
                       spacing={2}
@@ -162,7 +170,7 @@ function StepperInfo() {
                               color="text.primary"
                               fontWeight={600}
                           >
-                              Vous êtes?
+                              {t('info')}
                           </Typography>
                           <FormControl component="fieldset">
                               <RadioGroup
@@ -179,18 +187,18 @@ function StepperInfo() {
                                   <FormControlLabel
                                       value="Male"
                                       control={<Radio size="small" />}
-                                      label="Homme"
+                                      label={t('genre.man')}
                                   />
                                   <FormControlLabel
                                       value="Female"
                                       control={<Radio size="small" />}
-                                      label="Femme"
+                                      label={t('genre.women')}
                                   />
                               </RadioGroup>
                           </FormControl>
                           <Stack direction={{ xs: "column", lg: "row" }} spacing={2}>
                               <Box>
-                                  <LabelStyled>Titre</LabelStyled>
+                                  <LabelStyled>{t('pseudo')}</LabelStyled>
                                   <FormControl fullWidth>
                                       <Select
                                           labelId="demo-simple-select-label"
@@ -214,7 +222,7 @@ function StepperInfo() {
                                   </FormControl>
                               </Box>
                               <Box>
-                                  <LabelStyled>Prénom</LabelStyled>
+                                  <LabelStyled>{t('firstname')}</LabelStyled>
                                   <TextField
                                       variant="outlined"
                                       placeholder=" "
@@ -224,7 +232,7 @@ function StepperInfo() {
                                   />
                               </Box>
                               <Box>
-                                  <LabelStyled>Nom</LabelStyled>
+                                  <LabelStyled>{t('lastname')}</LabelStyled>
                                   <TextField
                                       variant="outlined"
                                       placeholder=" "
@@ -238,7 +246,7 @@ function StepperInfo() {
                   </Stack>
                   <Box sx={{ mt: "40px !important" }}>
                       <Typography variant="subtitle1" gutterBottom fontWeight={600}>
-                          Votre spécialité
+                          {t('specialty')}
                       </Typography>
                       <FormControl fullWidth>
                           <Select
@@ -264,7 +272,7 @@ function StepperInfo() {
                   </Box>
                   <Box sx={{ mt: "22px !important" }}>
                       <Typography variant="subtitle1" sx={{ mb: 2 }} fontWeight={600}>
-                          Spécialités secondaire
+                          {t('specialty-sec')}
                       </Typography>
                       <List dense={true} sx={{ display: "flex", flexWrap: "wrap" }}>
                           {secondarySpecialties.map((el, index) => (
@@ -295,12 +303,12 @@ function StepperInfo() {
                   </Box>
                   <Box sx={{ mt: "40px !important" }}>
                       <Typography variant="subtitle1" sx={{ mb: 2 }} fontWeight={600}>
-                          Spécialités secondaire
+                          {t('languages.title')}
                       </Typography>
                       <MultiSelect
                           data={multipleLanguage}
                           initData={selectData}
-                          placeholder="Commencez à taper pour rechercher les langues"
+                          placeholder={t('languages.placeholder')}
                           onChange={(event: React.ChangeEvent, value: selectMultiple[]) => {
                               setFieldValue("languages", value)
                               setSelectData(value);

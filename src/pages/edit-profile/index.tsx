@@ -2,15 +2,14 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import {useRouter} from "next/router";
 import {Box, Button, Container, Paper, Toolbar, Typography} from "@mui/material";
 import {useSession} from "next-auth/react";
 import {TopNavBar} from "@features/topNavBar";
 import {MainMenuStyled} from "@features/sideBarMenu";
-import StepperCheckStatus from "../../features/stepperCheckStatus/components/stepperCheckStatus";
+import {StepperCheckStatus} from "@features/stepperCheckStatus";
 import {LoadingScreen} from "@features/loadingScreen";
-import {Session} from "next-auth";
-import Steppers from "@features/steppers/components/steppers";
+import { Session } from "next-auth";
+import { Steppers } from "@features/steppers";
 
 function EditProfile(){
     const { data: session, status } = useSession();
@@ -47,7 +46,7 @@ function EditProfile(){
                                 {t(`stepper-${currentStepper}.title`)}
                             </Typography>
                             <Container maxWidth="md">
-                                <Steppers index={currentStepper} />
+                                <Steppers currentStepper={currentStepper} />
                             </Container>
                             <Box
                                 component="footer"

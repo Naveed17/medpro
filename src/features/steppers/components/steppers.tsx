@@ -1,23 +1,30 @@
 import {Box, Tabs, Tab, Fab} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TabPanel} from "@features/tabPanel";
-import {StepperInfo} from "@features/steppers";
-
+import {useTranslation} from "next-i18next";
+import React from "react";
+import {StepperDocument, StepperInfo} from "@features/steppers";
 
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     "aria-controls": `simple-tabpanel-${index}`,
-  };
+  }
 }
 
-function Steppers({index}: {index: number}) {
+type stepper = {
+    currentStepper: number
+}
 
-  return (
+function Steppers({currentStepper}: stepper) {
+    const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers" });
+    if (!ready) return (<>loading translations...</>);
+
+    return (
       <Box sx={{ width: "100%", py: 3 }}>
         <Box sx={{ maxWidth: { xs: 555, sm: "100%" } }}>
           <Tabs
-              value={index}
+              value={currentStepper}
               variant="scrollable"
               scrollButtons="auto"
               allowScrollButtonsMobile
@@ -49,46 +56,23 @@ function Steppers({index}: {index: number}) {
                 },
               }}
           >
-            <Tab
-                label={
-                  <>
-                    <b>1.</b> Informations personnelles
-                  </>
-                }
-                {...a11yProps(0)}
-            />
-            <Tab
-                disabled={index < 1}
-                label={
-                  <>
-                    <b>2.</b> Joindre document
-                  </>
-                }
-                {...a11yProps(1)}
-            />
-            <Tab
-                disabled={index < 2}
-                label={
-                  <>
-                    <b>3.</b> Actes
-                  </>
-                }
-                {...a11yProps(2)}
-            />
-            <Tab
-                disabled={index < 3}
-                label={
-                  <>
-                    <b>4.</b> Cabinet
-                  </>
-                }
-                {...a11yProps(3)}
-            />
+              {[1, 2, 3, 4].map((item, index) => (
+                  <Tab
+                      key={`simple-tab-${index}`}
+                      {...(index > currentStepper && { disabled: true })}
+                      label={
+                          <>
+                              <b>{++index}.</b> { t(`tabs.tab-${index}`)}
+                          </>
+                      }
+                      {...a11yProps(index)}
+                  />)
+              )}
           </Tabs>
         </Box>
         <Box sx={{ "& div[role] > div": { px: 0 } }}>
-          <TabPanel value={index} index={0}>
-             <StepperInfo />
+          <TabPanel value={currentStepper} index={0}>
+            <StepperInfo />
             <Fab
                 sx={{
                   bgcolor: "common.white",
@@ -101,10 +85,10 @@ function Steppers({index}: {index: number}) {
               <IconUrl path="question-mark" />
             </Fab>
           </TabPanel>
-          <TabPanel value={index} index={1}>
-            {/*<Step2 />*/}
+          <TabPanel value={currentStepper} index={1}>
+            <StepperDocument />
           </TabPanel>
-          <TabPanel value={index} index={2}>
+          <TabPanel value={currentStepper} index={2}>
             {/*<Step3 />*/}
             <Fab
                 sx={{
@@ -118,7 +102,7 @@ function Steppers({index}: {index: number}) {
               <IconUrl path="question-mark" />
             </Fab>
           </TabPanel>
-          <TabPanel value={index} index={3}>
+          <TabPanel value={currentStepper} index={3}>
             {/*<Step4 />*/}
             <Fab
                 sx={{
