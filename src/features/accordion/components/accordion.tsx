@@ -6,13 +6,13 @@ import Icon from "@themes/urlIcon";
 import RootStyled from "./overrides/accordionStyled";
 
 interface statetype {
-  expanded: boolean | any;
+    expanded: boolean | any;
 }
 type Translate = {
     t: Function;
     ready: boolean;
 }
-        
+
 type accordionProps = { data: any, badge: any, translate: Translate, defaultValue: string }
 
 function Accordion({ data, badge, translate, defaultValue }: accordionProps) {
@@ -75,7 +75,8 @@ function Accordion({ data, badge, translate, defaultValue }: accordionProps) {
                     {item.children}
                 </MuiAccordionDetails>
             </RootStyled>
-        ));
+        ))
+    );
 }
 
 export default Accordion;
