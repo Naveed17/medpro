@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-import Icon from "@themes/icon";
+import Icon from "@themes/urlIcon";
 
 export default function Radio(theme) {
   return {

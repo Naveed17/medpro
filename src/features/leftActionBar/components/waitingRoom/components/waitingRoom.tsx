@@ -81,4 +81,4 @@ function WaitingRoom() {
     )
 }
 
-export default WaitingRoom
+export default WaitingRoom;

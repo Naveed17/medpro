@@ -11,15 +11,15 @@ export default function Button(theme) {
           fontWeight: 400,
           fontFamily: "Poppins",
           padding: "0.5rem 1.125rem",
-          '&.Mui-disabled': {
+          "&.Mui-disabled": {
             backgroundColor: theme.palette.grey[300],
             color: theme.palette.common.white,
             boxShadow: "none",
           },
-          '&.MuiButton-sizeLarge': {
+          "&.MuiButton-sizeLarge": {
             padding: "0.876rem 1.25rem",
             fontSize: "1rem",
-          }
+          },
         },
       },
       // variants for buttons
@@ -83,7 +83,7 @@ export default function Button(theme) {
               boxShadow: theme.palette.primary[50],
             },
             "&:active,&:focus": {
-              backgroundColor: '#04618B',
+              backgroundColor: "#04618B",
             },
           },
         },
@@ -250,7 +250,6 @@ export default function Button(theme) {
                 },
               },
             },
-
           },
         },
         {
@@ -264,7 +263,7 @@ export default function Button(theme) {
               },
             },
             "&:hover": {
-              backgroundColor: '#4E6297',
+              backgroundColor: "#4E6297",
               color: theme.palette.common.white,
               "& svg": {
                 "& path": {
@@ -285,13 +284,12 @@ export default function Button(theme) {
               backgroundColor: theme.palette.grey[100],
             },
           },
-
         },
         {
           props: { variant: "modifire" },
           style: {
             color: theme.palette.primary.main,
-            backgroundColor: 'none',
+            backgroundColor: "none",
             "&:hover": {
               backgroundColor: theme.palette.common.white,
               boxShadow: theme.palette.primary[50],
@@ -311,7 +309,6 @@ export default function Button(theme) {
               },
             },
           },
-
         },
       ],
     },
