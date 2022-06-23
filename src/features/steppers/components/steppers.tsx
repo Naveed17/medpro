@@ -4,6 +4,7 @@ import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import React from "react";
 import {StepperDocument, StepperInfo} from "@features/steppers";
+import {StepperActes} from "@features/steppers";
 
 function a11yProps(index: number) {
   return {
@@ -89,7 +90,7 @@ function Steppers({currentStepper}: stepper) {
             <StepperDocument />
           </TabPanel>
           <TabPanel value={currentStepper} index={2}>
-            {/*<Step3 />*/}
+            <StepperActes />
             <Fab
                 sx={{
                   bgcolor: "common.white",

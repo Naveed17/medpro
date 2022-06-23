@@ -4,6 +4,7 @@ import { Autocomplete, TextField, Chip } from "@mui/material";
 
 function MultiSelect({...props}) {
     const {
+        id,
         data,
         initData,
         placeholder,
@@ -11,6 +12,8 @@ function MultiSelect({...props}) {
         helperText,
         limit,
         onChange,
+        onDrop,
+        onDragOver
     } = props;
 
     return (
@@ -22,6 +25,8 @@ function MultiSelect({...props}) {
             getOptionLabel={(option) => option.title}
             isOptionEqualToValue={(option, value) => option.title === value.title}
             onChange={(event, value) =>  onChange(event, value)}
+            onDrop={(e) => onDrop(id, e)}
+            onDragOver={onDragOver}
             renderInput={(params) => (
                 <TextField
                     {...params}

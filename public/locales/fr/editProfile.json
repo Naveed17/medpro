@@ -31,6 +31,12 @@
       "desc": "Pour des raisons de sécurité et pour assurer la pertinence des données sur notre plateforme, nous vous demandons de nous envoyer une photo de votre carte professionnelle tamponnée ou de votre autorisation d'exercer.",
       "upload": "Joindre un document"
     },
+    "stepper-2": {
+      "title": "Actes",
+      "sub-title": "Veuillez sélectionner vos actes principaux et vos actes secondaires par ordre de croissance",
+      "desc": "Pour des raisons de sécurité et pour assurer la pertinence des données sur notre plateforme, nous vous demandons de nous envoyer une photo de votre carte professionnelle tamponnée ou de votre autorisation d'exercer.",
+      "upload": "Joindre un document"
+    },
     "check-status": {
       "title": "Bienvenue sur Med.tn",
       "desc": "Nous vous souhaitons la bienvenue sur Med, la plateforme médicale N°1 en Afrique. Notre équipe prendra contact avec vous pour la validation de votre compte. Pour des raisons de sécurité et afin de nous assurer de la pertinence des données sur notre plateforme.",
