@@ -133,7 +133,7 @@ function Subtitule() {
                     open={edit}
                     dir={direction}
                     onClose={closeDraw}>
-                    <SubstituteDetails/>
+                    <SubstituteDetails closeDraw={closeDraw}/>
                 </Drawer>
 
             </Box>

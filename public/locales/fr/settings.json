@@ -111,7 +111,8 @@
       "user": "Utilisateur",
       "userPermission": "permission accordée",
       "add": "Ajouter",
-      "remove": "Supprimer"
+      "remove": "Supprimer",
+      "adreq": "Adresse est obligatoire"
     }
   },
   "agenda": {
@@ -138,7 +139,11 @@
       "title": "Titre",
       "writeTitle": "Tapez le titre",
       "at": "à",
-      "list": "Liste des congés et absences proches"
+      "list": "Liste des congés et absences proches",
+      "ttc": "Titre est trop court",
+      "ttl": "Titre est trop long",
+      "titlereq": "Titre est obligatoire",
+      "datereq": "date est obligatoire"
     }
   },
   "substitute": {

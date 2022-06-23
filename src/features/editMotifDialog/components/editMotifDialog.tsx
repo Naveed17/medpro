@@ -45,11 +45,13 @@ function EditMotifDialog({...props}) {
         {id: '2', name: 'Dr Omar LAOUINI', speciality: 'Gynecologist', img: '/static/img/men.png', selected: false},
         {id: '3', name: 'Dr Anouar ABDELKAFI', speciality: 'ORL', img: '/static/img/men.png', selected: false},
     ];
+    const {t, ready} = useTranslation('settings');
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, "Nom est trop court")
-            .max(50, "Nom est trop long")
-            .required("Nom est requis")
+            .min(3, t('users.new.ntc'))
+            .max(50, t('users.new.ntl'))
+            .required(t('users.new.nameReq'))
     });
 
 
@@ -69,7 +71,6 @@ function EditMotifDialog({...props}) {
             alert(JSON.stringify(values, null, 2));
         },
     });
-    const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
 
     const types = [

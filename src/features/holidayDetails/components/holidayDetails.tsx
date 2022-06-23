@@ -69,13 +69,15 @@ function HolidayDetails({...props}) {
         },
     ]);
 
+    const {t, ready} = useTranslation('settings');
+
     const validationSchema = Yup.object().shape({
         title: Yup.string()
-            .min(3, "Titre est trop court")
-            .max(50, "Titre est trop long")
-            .required("Titre est obligatoire"),
-        start: Yup.date().required("date est obligatoire"),
-        end: Yup.date().required("date est obligatoire")
+            .min(3, t('holidays.dialog.ttc'))
+            .max(50, t('holidays.dialog.ttl'))
+            .required(t('holidays.dialog.titlereq')),
+        start: Yup.date().required(t('holidays.dialog.datereq')),
+        end: Yup.date().required(t('holidays.dialog.datereq'))
     });
     const [value, setValue] = React.useState<Date | null>(
         new Date('2018-01-01T00:00:00.000Z'),
@@ -97,7 +99,6 @@ function HolidayDetails({...props}) {
         },
     });
 
-    const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
 
     const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;

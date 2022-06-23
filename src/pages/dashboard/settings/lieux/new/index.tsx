@@ -88,12 +88,14 @@ const FormStyled = styled(Form)(({ theme }) => ({
 
 function NewPlace() {
 
+    const {t, ready} = useTranslation("settings");
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, "Nom est trop court")
-            .max(50, "Nom est trop long")
-            .required("Nom est requis"),
-        address: Yup.string().required("adresse est obligatoire")
+            .min(3, t('users.new.ntc'))
+            .max(50, t('users.new.ntl'))
+            .required(t('users.new.nameReq')),
+        address: Yup.string().required(t('lieux.new.adreq'))
     });
 
     const formik = useFormik({
@@ -170,7 +172,6 @@ function NewPlace() {
         }
     ]);
 
-    const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
 
     const headCells = [

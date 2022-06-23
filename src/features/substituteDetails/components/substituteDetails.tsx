@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
-import { Typography, Stack, Box, TextField, Grid, Button } from '@mui/material'
+import { Typography, Stack, TextField, Grid, Button } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import React from "react";
 import {useTranslation} from "next-i18next";
@@ -41,11 +41,14 @@ const  PaperStyled = styled(Form)(({ theme }) => ({
 
 function SubstituteDetails({...props}) {
 
+    const {t, ready} = useTranslation('settings');
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, "Nom est trop court")
-            .max(50, "Nom est trop long")
-            .required("Nom est requis")
+            .min(3, t('users.new.ntc'))
+            .max(50, t('users.new.ntl'))
+            .required(t('users.new.nameReq')),
+        email: Yup.string().email(t('users.new.mailInvalid')).required(t('users.new.mailReq'))
     });
 
 
@@ -64,7 +67,6 @@ function SubstituteDetails({...props}) {
             alert(JSON.stringify(values, null, 2));
         },
     });
-    const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
 
     const types = [
@@ -101,9 +103,9 @@ function SubstituteDetails({...props}) {
                     placeholder={t('exemple@mail.com')}
                     required
                     fullWidth
-                    helperText={touched.name && errors.name}
-                    {...getFieldProps("name")}
-                    error={Boolean(touched.name && errors.name)}/>
+                    helperText={touched.email && errors.email}
+                    {...getFieldProps("email")}
+                    error={Boolean(touched.email && errors.email)}/>
 
                 <Typography variant="body2" sx={{margin: '20px 0 10px'}} gutterBottom>
                     {t('substitute.name')}{" "}
