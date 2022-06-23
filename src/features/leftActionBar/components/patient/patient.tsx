@@ -37,6 +37,7 @@ function Patient() {
       ),
     };
   });
+
   return (
     <div>
       <FilterContainerStyles>
