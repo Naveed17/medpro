@@ -33,11 +33,11 @@ function Patient() {
         </Button>
       </SubHeader>
       <Box className="container">
-        {isDesktop ? (
-          <PatientTable PatiendData={PatiendData} />
-        ) : (
-          <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
-        )}
+        {/* {isDesktop ? ( */}
+        <PatientTable PatiendData={PatiendData} />
+        {/* // ) : (
+        //   <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        // )} */}
         <Drawer
           anchor={"right"}
           open={openDrawer}
