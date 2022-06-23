@@ -61,7 +61,7 @@ function Actes() {
         setSuggestion(actes.filter((nb) => {
             return !selectedActes.some((item) => item.id === nb.id);
         }));
-    }, [mainActes, secondaryActes, actes]);
+    }, [mainActes, secondaryActes]);
 
     const onDrag = (prop: any) => (ev: any) => {
         ev.dataTransfer.setData("Text", ev.target.id);
