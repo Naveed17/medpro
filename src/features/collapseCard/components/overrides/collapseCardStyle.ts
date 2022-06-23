@@ -6,6 +6,7 @@ const CollapseCardStyled = styled(Paper)(({ theme }) => {
             duration: theme.transitions.duration.standard,
         }),
         minWidth: "42px",
+        width: '100%',
         marginLeft: 0,
         overflowY: "auto",
         overflowX: "hidden",
