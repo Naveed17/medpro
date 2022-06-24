@@ -1,6 +1,6 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
+import { useFormik, Form, FormikProvider, FormikProps } from "formik";
 import {
   Typography,
   Box,
@@ -18,11 +18,34 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { CountrySelect } from "@features/countrySelect";
+import { isNullOrUndefined } from "util";
 // settings
 // import useSettings from "@settings/useSettings";
 
-export default function AddPatientStep1({ onNext, stepData, data }) {
-  const [selected, setslected] = React.useState(null);
+interface MyValues {
+  group: string;
+  name: string;
+  firstName: string;
+  dob: any;
+  phone: number | string;
+  gender: string;
+}
+interface touchedProps {
+  dob: any;
+  name: string;
+  firstName: string;
+  phone: string | number;
+}
+export default function AddPatientStep1({
+  onNext,
+  stepData,
+  data,
+}: {
+  onNext: (data: any) => void;
+  stepData: any;
+  data: any;
+}) {
+  const [selected, setslected] = React.useState<any>(null);
   // const settings = useSettings();
   // const { popupDataSet } = settings;
   const phoneRegExp =
@@ -48,7 +71,7 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
       year: Yup.string().required("Year is required"),
     }),
   });
-  const formik = useFormik({
+  const formik: FormikProps<MyValues> = useFormik<MyValues>({
     initialValues: {
       group: data ? data.group : "",
       name: data ? data.name : "",
@@ -56,9 +79,9 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
       dob: data
         ? data.dob
         : {
-            day: "",
-            month: "",
-            year: "",
+            day: null,
+            month: null,
+            year: null,
           },
       phone: data ? data.phone : "",
       gender: data ? data.gender : "",
@@ -68,13 +91,16 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
       handleChange(null, values);
     },
   });
-  const handleChange = (event, values) => {
+  const handleChange = (event: ChangeEvent | null, values: object) => {
     // popupDataSet({ step1: values });
     onNext(1);
     stepData(values);
   };
-  const { values, errors, touched, handleSubmit, isSubmitting, getFieldProps } =
-    formik;
+  const { values, handleSubmit, isSubmitting, getFieldProps } = formik;
+
+  const touched = formik.values as touchedProps;
+  const errors = formik.errors as touchedProps;
+
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -118,12 +144,7 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
           </Box>
           <Box>
             <FormControl component="fieldset">
-              <RadioGroup
-                row
-                aria-label="gender"
-                name="row-radio-buttons-group"
-                {...getFieldProps("gender")}
-              >
+              <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
                 <FormControlLabel
                   value="Male"
                   control={<Radio size="small" />}
@@ -151,7 +172,11 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
               fullWidth
               {...getFieldProps("name")}
               error={Boolean(touched.name && errors.name)}
-              helperText={touched.name && errors.name}
+              helperText={
+                Boolean(touched.name && errors.name)
+                  ? String(errors.name)
+                  : undefined
+              }
             />
           </Box>
           <Box>
@@ -168,7 +193,11 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
               fullWidth
               {...getFieldProps("firstName")}
               error={Boolean(touched.firstName && errors.firstName)}
-              helperText={touched.firstName && errors.firstName}
+              helperText={
+                Boolean(touched.firstName && errors.firstName)
+                  ? String(errors.firstName)
+                  : undefined
+              }
             />
           </Box>
           <Box>
@@ -187,7 +216,7 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
                   value={values.dob.day}
                   displayEmpty={true}
                   sx={{ color: "text.secondary" }}
-                  renderValue={(value) =>
+                  renderValue={(value: string) =>
                     value?.length
                       ? Array.isArray(value)
                         ? value.join(", ")
@@ -202,7 +231,7 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
                 </Select>
                 {touched.dob && errors.dob && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.dob.day && errors.dob.day}
+                    {touched.dob?.day && errors.dob?.day}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -271,7 +300,7 @@ export default function AddPatientStep1({ onNext, stepData, data }) {
             </Typography>
             <Grid container spacing={2}>
               <Grid item md={6} lg={4} xs={12}>
-                <CountrySelect selected={(v) => setslected(v)} />
+                <CountrySelect selected={(v: any) => setslected(v)} />
               </Grid>
               <Grid item md={6} lg={8} xs={12}>
                 <TextField

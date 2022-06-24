@@ -4,13 +4,17 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement, useState } from "react";
 import { Box, Typography, Button, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
-import { PatientTable, PatiendData } from "@features/patientTable";
-import { PatientAddForm } from "@features/patientAddForm";
+import { CustomStepper } from "@features/customStepper";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import SubHeader from "@features/subHeader/components/subHeader";
 import { configSelector } from "@features/base";
 import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
+import {
+  AddPatientStep1,
+  AddPatientStep2,
+  AddPatientStep3,
+} from "@features/customStepper";
 
 interface HeadCell {
   disablePadding: boolean;
@@ -20,6 +24,72 @@ interface HeadCell {
   sortable: boolean;
   align: "left" | "right" | "center";
 }
+
+const PatiendData = [
+  {
+    id: 1,
+    name: "John Doe",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    lastAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    addAppointment: true,
+    status: "pending",
+    action: "left",
+  },
+  {
+    id: 2,
+    name: "Med",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    lastAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    addAppointment: false,
+    status: "success",
+    action: "left",
+  },
+  {
+    id: 3,
+    name: "Muhammad",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    lastAppointment:
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    addAppointment: false,
+    status: "pending",
+    action: "left",
+  },
+];
+
+const stepperData = [
+  {
+    title: "Info personnelle",
+    children: AddPatientStep1,
+  },
+  {
+    title: "Info supplémentaires",
+    children: AddPatientStep2,
+  },
+  {
+    title: "Fin",
+    children: AddPatientStep3,
+  },
+];
 
 function Patient() {
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
@@ -94,6 +164,7 @@ function Patient() {
       align: "right",
     },
   ];
+
   return (
     <>
       <SubHeader>
@@ -110,16 +181,18 @@ function Patient() {
         </Button>
       </SubHeader>
       <Box className="container">
-        <Otable
-          headers={headCells}
-          rows={PatiendData}
-          state={null}
-          from={"patient"}
-          t={t}
-          edit={null}
-          handleConfig={null}
-          handleChange={null}
-        />
+        <Box display={{ xs: "none", md: "block" }}>
+          <Otable
+            headers={headCells}
+            rows={PatiendData}
+            state={null}
+            from={"patient"}
+            t={t}
+            edit={null}
+            handleConfig={null}
+            handleChange={null}
+          />
+        </Box>
         <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
         <Drawer
           anchor={"right"}
@@ -129,7 +202,7 @@ function Patient() {
             setOpenDrawer(false);
           }}
         >
-          <PatientAddForm />
+          <CustomStepper stepperData={stepperData} />
         </Drawer>
       </Box>
     </>
