@@ -4,6 +4,7 @@ interface Props {
     color: string;
     variant: string;
     theme?: Theme;
+    sx?: object;
 }
 
 const RootStyled = styled("span")(({ theme, ...styleprops }: Props) => {

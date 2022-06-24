@@ -31,7 +31,7 @@ export default function ConsultationProgressCard({ ...props }) {
                 ref={ref}
                 sx={{
                     borderTop: `4px solid ${(theme?.palette[color as keyof typeof theme.palette] as PaletteColor).main}`,
-                    height: `calc(100vh - ${offsetTop + 20}px)`,
+                    height: `calc(100vh - ${offsetTop + 100}px)`,
                     width: open.indexOf(id) > -1 ? '100%' : 42
                 }}
             >
