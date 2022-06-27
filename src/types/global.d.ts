@@ -2,12 +2,12 @@ import React from "react";
 
 declare global {
 
-  type LayoutProps = {
-    children: React.ReactNode;
-    fallback?: any;
-    pageProps?: any;
-    session?: any;
-  };
+    type LayoutProps = {
+        children: React.ReactNode;
+        fallback?: any;
+        pageProps?: any;
+        session?: any;
+    };
 }
 
 declare module "@mui/material/Button" {
@@ -15,6 +15,7 @@ declare module "@mui/material/Button" {
         google: true;
         "text-black": true;
         filter: true;
+        consultationIP: true;
     }
 }
 

@@ -4,7 +4,7 @@ import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from "@themes/urlIcon";
 import RootStyled from "./overrides/accordionStyled";
-
+import { upperFirst } from "lodash";
 interface statetype {
     expanded: boolean | any;
 }
@@ -13,9 +13,9 @@ type Translate = {
     ready: boolean;
 }
 
-type accordionProps = { data: any, badge: any, translate: Translate, defaultValue: string }
+type accordionProps = { data: any, badge: any, translate: Translate, defaultValue: string, children?: React.ReactNode };
 
-function Accordion({ data, badge, translate, defaultValue }: accordionProps) {
+function Accordion({ children, data, badge, translate, defaultValue }: accordionProps) {
     const { t, ready } = translate;
     const [state, setstate] = useState<statetype>({
         expanded: defaultValue,
@@ -67,12 +67,12 @@ function Accordion({ data, badge, translate, defaultValue }: accordionProps) {
                             variant="body1"
                             sx={{ color: "text.secondary", ml: 1 }}
                         >
-                            {t(item.heading.title)}
+                            {upperFirst(t(item.heading.title))}
                         </Typography>
                     </Box>
                 </MuiAccordionSummary>
                 <MuiAccordionDetails>
-                    {item.children}
+                    {item.children || children}
                 </MuiAccordionDetails>
             </RootStyled>
         ))

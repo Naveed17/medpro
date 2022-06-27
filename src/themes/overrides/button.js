@@ -80,7 +80,7 @@ export default function Button(theme) {
           props: { variant: "text", color: "primary" },
           style: {
             "&:hover": {
-              boxShadow: theme.palette.primary[50],
+              boxShadow: theme.customShadows.textPrimaryButton,
             },
             "&:active,&:focus": {
               backgroundColor: "#04618B",
@@ -91,7 +91,7 @@ export default function Button(theme) {
           props: { variant: "contained", color: "error" },
           style: {
             "&:hover": {
-              boxShadow: theme.palette.error[50],
+              boxShadow: theme.customShadows.textErrorButton,
             },
             "&:active,&:focus": {
               backgroundColor: theme.palette.error.darker,
@@ -99,10 +99,30 @@ export default function Button(theme) {
           },
         },
         {
+          props: { variant: "contained-white", color: "error" },
+          style: {
+            background: theme.palette.common.white,
+            color: theme.palette.error.main,
+            "& svg path": {
+              fill: theme.palette.error.main,
+            },
+            "&:hover": {
+              boxShadow: theme.customShadows.textErrorButton,
+            },
+            "&:active,&:focus": {
+              backgroundColor: theme.palette.error.darker,
+              color: theme.palette.common.white,
+              "& svg path": {
+                fill: theme.palette.common.white,
+              },
+            },
+          },
+        },
+        {
           props: { variant: "text", color: "error" },
           style: {
             "&:hover": {
-              boxShadow: theme.palette.error[50],
+              boxShadow: theme.customShadows.textErrorButton,
             },
             "&:active,&:focus": {
               backgroundColor: theme.palette.error.darker,
@@ -126,6 +146,9 @@ export default function Button(theme) {
             "&:active,&:focus": {
               backgroundColor: theme.palette.primary.dark,
               color: theme.palette.common.white,
+              "& path": {
+                fill: theme.palette.common.white,
+              },
             },
           },
         },
@@ -139,7 +162,7 @@ export default function Button(theme) {
           props: { variant: "contained", color: "warning" },
           style: {
             "&:hover": {
-              boxShadow: theme.palette.warning[50],
+              boxShadow: theme.customShadows.warningButton,
               backgroundColor: theme.palette.warning.main,
             },
             "&:active,&:focus": {
@@ -155,7 +178,7 @@ export default function Button(theme) {
           props: { variant: "contained", color: "success" },
           style: {
             "&:hover": {
-              boxShadow: theme.palette.success[50],
+              boxShadow: theme.customShadows.successButton,
             },
             "&:active,&:focus": {
               backgroundColor: theme.palette.success.darker,
@@ -167,10 +190,13 @@ export default function Button(theme) {
           style: {
             "&:hover": {
               backgroundColor: theme.palette.primary.main,
-              boxShadow: theme.palette.primary[50],
+              boxShadow: theme.customShadows.primaryButton,
             },
             "&:active,&:focus": {
               backgroundColor: theme.palette.primary.dark,
+            },
+            "& svg path": {
+              fill: theme.palette.common.white,
             },
           },
         },
@@ -192,7 +218,7 @@ export default function Button(theme) {
           style: {
             backgroundColor: theme.palette.common.white,
             color: theme.palette.text.primary,
-            boxShadow: '0px 0px 7px rgba(0, 0, 0, 0.32)',
+            boxShadow: theme.customShadows.filterButton,
             "&:hover": {
               backgroundColor: theme.palette.info.main,
               color: theme.palette.text.primary,
@@ -292,7 +318,7 @@ export default function Button(theme) {
             backgroundColor: "none",
             "&:hover": {
               backgroundColor: theme.palette.common.white,
-              boxShadow: theme.palette.primary[50],
+              boxShadow: theme.customShadows.modifireButton,
               "& svg": {
                 "& path": {
                   fill: theme.palette.primary.main,
@@ -308,6 +334,44 @@ export default function Button(theme) {
                 },
               },
             },
+          },
+        },
+        {
+          props: { variant: "consultationIP" },
+          style: {
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.info.main,
+            width: "100%",
+            justifyContent: "flex-start",
+            fontSize: theme.typography.fontSize,
+            paddingTop: theme.spacing(1.455),
+            paddingBottom: theme.spacing(1.455),
+            "& svg": {
+              "& path": {
+                fill: theme.palette.primary.main,
+              },
+            },
+          },
+        },
+        {
+          props: { variant: "white" },
+          style: {
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.common.white,
+            "& svg": {
+              "& path": {
+                fill: theme.palette.text.primary,
+              },
+            },
+          },
+        },
+        {
+          props: { variant: "listing-dropdown" },
+          style: {
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.common.white,
+            border: `1px solid ${theme.palette.divider}`,
+
           },
         },
       ],

@@ -4,16 +4,16 @@ import React from "react";
 
 type LayoutProps = {
     children: React.ReactNode,
+    sx?: any,
 };
 
-function SubHeader({ children }: LayoutProps) {
-    ;
+function SubFooter({ children, ...rest }: LayoutProps) {
     return (
-        <SubHeaderStyled position="static" color="inherit" className="main-subheader">
+        <SubHeaderStyled {...rest} position="static" color="inherit">
             <Toolbar>
                 {children}
             </Toolbar>
         </SubHeaderStyled>
     );
 }
-export default SubHeader;
+export default SubFooter;

@@ -5,7 +5,7 @@ import Icon from '@themes/urlIcon';
 export default function DocumentButton({ ...props }) {
   const { lable, icon, notifications, handleOnClick } = props;
   return (
-    <DocumentButtonStyled variant="outlined" onClick={() => handleOnClick(lable)}>
+    <DocumentButtonStyled fullWidth variant="outlined" onClick={() => handleOnClick(lable)}>
       <Badge badgeContent={notifications} color="warning" />
       <Icon path={icon} />
       <Typography>{lable}</Typography>

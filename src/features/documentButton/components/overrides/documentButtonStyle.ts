@@ -7,6 +7,9 @@ const DocumentButtonStyled = styled(Button)(({ theme }) => ({
     maxWidth: "120px",
     width: "100%",
     minHeight: "77px",
+    [theme.breakpoints.down("md")]: {
+        maxWidth: "50%",
+    },
     "& .BaseBadge-root": {
         position: "static",
         "& .MuiBadge-badge": {
