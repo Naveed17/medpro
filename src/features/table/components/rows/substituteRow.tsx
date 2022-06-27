@@ -1,35 +1,53 @@
 import React from 'react'
 
-import TableRow from '@mui/material/TableRow';
-import Switch from '@mui/material/Switch';
+import Lable from "@themes/overrides/Lable";
 import TableCell from '@mui/material/TableCell';
 import { Typography, Box,} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table"
 
-function LieuxRow({...props}) {
+function SubstituleRow({...props}) {
 
     const { row, handleChange, edit, t } = props;
 
+    console.log(row);
     return (
         <TableRowStyled key={row.name}>
             <TableCell>
-                <Typography className='name' variant="body1" color="text.primary">
+                <Typography variant="body1" color="text.primary">
                     {row.name}
                 </Typography>
+                {row.email}
             </TableCell>
             <TableCell align="center">
-                {" "}
-                <Switch name='active' onChange={(e) => handleChange(row, 'active','')} checked={row.actif} />
+                <Typography textAlign={"center"}  variant="body1" color="text.primary">
+                    {row.fonction}
+                </Typography>
+                {row.speciality}
+            </TableCell>
+            <TableCell align="center">
+                <Lable
+                    variant="filled"
+                    sx={{ backgroundColor: row.bg,color: row.color, px: 1.5 }}>
+                    {row.status}
+                </Lable>
             </TableCell>
             <TableCell align="center">
                 <Typography className='name' variant="body1" color="text.primary">
-                    {row.agenda} {t('lieux.acces')}
+                    {row.access} {t('substitute.agenda')}
                 </Typography>
             </TableCell>
             <TableCell align="right">
                 <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                    <Button
+                        variant="text"
+                        size="small"
+                        color="primary"
+                        startIcon={<IconUrl path="setting/edit" />}
+                        onClick={() => console.log("edit",row)}>
+                        {t('substitute.update')}
+                    </Button>
                     <Button
                         variant="text"
                         size="small"
@@ -39,17 +57,9 @@ function LieuxRow({...props}) {
                         sx={{ mr: 1 }}>
                         {t('lieux.remove')}
                     </Button>
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="primary"
-                        startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("edit",row)}>
-                        {t('lieux.update')}
-                    </Button>
                 </Box>
             </TableCell>
         </TableRowStyled>
     )
 }
-export default LieuxRow
+export default SubstituleRow
