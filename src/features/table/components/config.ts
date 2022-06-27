@@ -28,6 +28,10 @@ const rowsActionsData = [
     {
         action: 'users',
         component: dynamic(():any => import("@features/table/components/rows/userRow").then((mod) => mod))
+    },
+    {
+        action: 'instructions',
+        component: dynamic(():any => import("@features/table/components/rows/instructionRow").then((mod) => mod))
     }
 ];
 

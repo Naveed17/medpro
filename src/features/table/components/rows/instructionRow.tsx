@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table"
 import Switch from "@mui/material/Switch";
 
-function UserRow({...props}) {
+function InstructionRow({...props}) {
 
     const { row, handleChange, edit, t } = props;
 
@@ -18,28 +18,9 @@ function UserRow({...props}) {
                 <Typography variant="body1" color="text.primary">
                     {row.name}
                 </Typography>
-                {row.email}
             </TableCell>
             <TableCell align="center">
-                <Typography textAlign={"center"}  variant="body1" color="text.primary">
-                    {row.fonction}
-                </Typography>
-                {row.speciality}
-            </TableCell>
-            <TableCell align="center">
-                <Lable
-                    variant="filled"
-                    sx={{ backgroundColor: row.bg,color: row.color, px: 1.5 }}>
-                    {row.status}
-                </Lable>
-            </TableCell>
-            <TableCell align="center">
-                <Switch name='active' onChange={(e) => handleChange(row)} checked={row.settings} />
-            </TableCell>
-            <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.access} {t('substitute.agenda')}
-                </Typography>
+                <Switch name='active' onChange={(e) => handleChange(row)} checked={row.actif} />
             </TableCell>
             <TableCell align="right">
                 <Box display="flex" sx={{ float: "right" }} alignItems="center">
@@ -65,4 +46,4 @@ function UserRow({...props}) {
         </TableRowStyled>
     )
 }
-export default UserRow
+export default InstructionRow

@@ -39,7 +39,7 @@
       "langues": "Modifier langues parlées"
     }
   },
-  "actes":{
+  "actes": {
     "selectActes": "Veuillez sélectionner vos actes principaux et vos actes secondaires par ordre de croissance",
     "main": "Vos actes principaux",
     "secondary": "Vos actes secondaires",
@@ -186,7 +186,16 @@
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
       "mailReq": "Adresse mail est obligatoire"
-
     }
+  },
+  "instructions": {
+    "path": "Paramètres > Instructions",
+    "actif": "active",
+    "name": "nom",
+    "action": "Action",
+    "add": "Ajouter instruction",
+    "update": "Modifier instruction",
+    "insctruction": "instruction",
+    "tinsctruction": "Tapez içi votre instruction"
   }
 }
