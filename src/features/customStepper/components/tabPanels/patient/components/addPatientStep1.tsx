@@ -18,10 +18,10 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { CountrySelect } from "@features/countrySelect";
-import { isNullOrUndefined } from "util";
-// settings
 // import useSettings from "@settings/useSettings";
-
+import { addPatientSelector, onAddPatient } from "@features/customStepper";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import _ from "lodash";
 interface MyValues {
   group: string;
   name: string;
@@ -45,6 +45,10 @@ export default function AddPatientStep1({
   stepData: any;
   data: any;
 }) {
+  const { stepsData } = useAppSelector(addPatientSelector);
+  const dispatch = useAppDispatch();
+  const isAlreadyExist = _.keys(stepsData.step1).length > 0;
+
   const [selected, setslected] = React.useState<any>(null);
   // const settings = useSettings();
   // const { popupDataSet } = settings;
@@ -71,20 +75,21 @@ export default function AddPatientStep1({
       year: Yup.string().required("Year is required"),
     }),
   });
+
   const formik: FormikProps<MyValues> = useFormik<MyValues>({
     initialValues: {
-      group: data ? data.group : "",
-      name: data ? data.name : "",
-      firstName: data ? data.firstName : "",
-      dob: data
-        ? data.dob
+      group: isAlreadyExist ? stepsData.step1.group : "",
+      name: isAlreadyExist ? stepsData.step1.name : "",
+      firstName: isAlreadyExist ? stepsData.step1.firstName : "",
+      dob: isAlreadyExist
+        ? stepsData.step1.dob
         : {
             day: null,
             month: null,
             year: null,
           },
-      phone: data ? data.phone : "",
-      gender: data ? data.gender : "",
+      phone: isAlreadyExist ? stepsData.step1.phone : "",
+      gender: isAlreadyExist ? stepsData.step1.gender : "",
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
@@ -94,7 +99,7 @@ export default function AddPatientStep1({
   const handleChange = (event: ChangeEvent | null, values: object) => {
     // popupDataSet({ step1: values });
     onNext(1);
-    stepData(values);
+    dispatch(onAddPatient({ ...stepsData, step1: values }));
   };
   const { values, handleSubmit, isSubmitting, getFieldProps } = formik;
 

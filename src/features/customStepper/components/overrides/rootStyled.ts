@@ -12,6 +12,7 @@ const RootStyled = styled("div")(({ theme }) => ({
     button: {
       borderBottom: "2px solid #7C878E",
       borderRadius: 0,
+      transition: "all 0.3s ease-in-out",
       [theme.breakpoints.down("sm")]: {
         padding: theme.spacing(0.5, 1),
         minWidth: "auto",

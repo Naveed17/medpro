@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import * as Yup from "yup";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
@@ -23,26 +23,36 @@ import {
   IconButton,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-import { CountrySelect } from "@features/countrySelect";
 //redux
 // import { useSelector } from "react-redux";
 // settings
 // import useSettings from "@settings/useSettings";
-
-export default function AddPatientStep2({ onNext, stepData, data }) {
-  // const settings = useSettings();
-  // const { popupDataSet } = settings;
-  // const { popupData } = useSelector((state) => state.actionState);
+import { DuplicateDetected } from "@features/duplicateDetected";
+import { addPatientSelector, onAddPatient } from "@features/customStepper";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import _ from "lodash";
+import { configSelector } from "@features/base";
+import { Dialog } from "@features/dialog";
+import { useTranslation } from "next-i18next";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
+export default function AddPatientStep2({ ...props }) {
+  const { onNext, stepData, data } = props;
+  const { direction } = useAppSelector(configSelector);
+  const { stepsData } = useAppSelector(addPatientSelector);
+  const [open, setOpen] = useState(true);
+  const dispatch = useAppDispatch();
+  const isAlreadyExist = _.keys(stepsData.step2).length > 0;
   const RegisterSchema = Yup.object().shape({});
   const formik = useFormik({
     initialValues: {
-      region: data ? data.region : "Ariana",
-      zipCode: data ? data.zipCode : "",
-      address: data ? data.address : "",
-      email: data ? data.email : "",
-      cin: data ? data.cin : "",
-      from: data ? data.from : "",
-      insurance: data ? data.insurance : [],
+      region: isAlreadyExist ? stepsData.step2.region : "Ariana",
+      zipCode: isAlreadyExist ? stepsData.step2.zipCode : "",
+      address: isAlreadyExist ? stepsData.step2.address : "",
+      email: isAlreadyExist ? stepsData.step2.email : "",
+      cin: isAlreadyExist ? stepsData.step2.cin : "",
+      from: isAlreadyExist ? stepsData.step2.from : "",
+      insurance: isAlreadyExist ? stepsData.step2.insurance : [],
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {
@@ -52,7 +62,7 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
   const handleChange = (event, values) => {
     // popupDataSet({ ...popupData, step2: values });
     onNext(2);
-    stepData(values);
+    dispatch(onAddPatient({ ...stepsData, step2: values }));
   };
   const { values, handleSubmit, getFieldProps } = formik;
   const handleAddInsurance = () => {
@@ -64,6 +74,8 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
     insurance.splice(index, 1);
     formik.setFieldValue("insurance", insurance);
   };
+  const { t, ready } = useTranslation("settings");
+  if (!ready) return <>loading translations...</>;
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -136,7 +148,7 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
           <Box>
             <Typography sx={{ mb: 1.5 }}>
               <IconButton
-                // onClick={handleAddInsurance}
+                onClick={handleAddInsurance}
                 variant="success-light"
                 sx={{
                   mr: 1.5,
@@ -154,7 +166,7 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
               Insurance
             </Typography>
             <Box>
-              {/* {values.insurance.map((_, index) => (
+              {values.insurance.map((_, index) => (
                 <Grid container spacing={2} sx={{ mt: index > 0 ? 1 : 0 }}>
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth>
@@ -207,7 +219,7 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
                     </Stack>
                   </Grid>
                 </Grid>
-              ))} */}
+              ))}
             </Box>
           </Box>
           <Box>
@@ -264,7 +276,31 @@ export default function AddPatientStep2({ onNext, stepData, data }) {
           </Button>
         </Stack>
       </Stack>
+
+      <Dialog
+        action={DuplicateDetected}
+        open={open}
+        data={{ ...stepsData.step1, ...stepsData.step2 }}
+        direction={direction}
+        title={t("dialogs.titles.")}
+        t={t}
+        dialogSave={() => alert("save")}
+        actionDialog={
+          <>
+            <Button onClick={() => setOpen(false)} startIcon={<CloseIcon />}>
+              {t("profil.cancel")}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => alert("save")}
+              startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}
+            >
+              {t("profil.save")}
+            </Button>
+          </>
+        }
+        // dialogClose={() => setOpen(false)}
+      />
     </FormikProvider>
   );
-  e;
 }
