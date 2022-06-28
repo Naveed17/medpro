@@ -47,7 +47,6 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
   const handleChange = (event: SyntheticEvent, val: number) => {
     setValue(val);
   };
-  console.log(last, "last");
 
   return (
     <>
@@ -68,7 +67,7 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
               i: number
             ) => (
               <Tab
-                disabled={i > value && i > last}
+                disabled={i > value && i >= last}
                 label={
                   <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
                     <b>{i + 1}.</b> {v.title}

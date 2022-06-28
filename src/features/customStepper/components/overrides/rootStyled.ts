@@ -20,6 +20,7 @@ const RootStyled = styled("div")(({ theme }) => ({
       },
       "&.Mui-disabled": {
         opacity: 0.3,
+        borderBottomWidth: 1,
       },
       "&.Mui-selected": {
         borderBottom: "2px solid transparent",

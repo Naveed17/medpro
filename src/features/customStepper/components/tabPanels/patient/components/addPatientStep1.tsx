@@ -79,16 +79,16 @@ export default function AddPatientStep1({
   const formik: FormikProps<MyValues> = useFormik<MyValues>({
     initialValues: {
       group: isAlreadyExist ? stepsData.step1.group : "",
-      name: isAlreadyExist ? stepsData.step1.name : "",
-      firstName: isAlreadyExist ? stepsData.step1.firstName : "",
+      name: isAlreadyExist ? stepsData.step1.name : "aasd",
+      firstName: isAlreadyExist ? stepsData.step1.firstName : "asdasd",
       dob: isAlreadyExist
         ? stepsData.step1.dob
         : {
-            day: null,
-            month: null,
-            year: null,
+            day: 1,
+            month: 1,
+            year: 1,
           },
-      phone: isAlreadyExist ? stepsData.step1.phone : "",
+      phone: isAlreadyExist ? stepsData.step1.phone : 123123123,
       gender: isAlreadyExist ? stepsData.step1.gender : "",
     },
     validationSchema: RegisterSchema,

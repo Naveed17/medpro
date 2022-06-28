@@ -19,6 +19,9 @@ import Icon from "@themes/urlIcon";
 // import { useSelector } from "react-redux";
 
 const Modal = styled(Box)(({ theme }) => ({
+  [theme.breakpoints.up("sm")]: {
+    width: 890,
+  },
   "& .modal-header": {
     backgroundColor: theme.palette.primary.main,
     padding: "1rem" + " " + "2rem",
@@ -29,26 +32,19 @@ const Modal = styled(Box)(({ theme }) => ({
   },
   "& .modal-body": {
     minHeight: "13.5rem",
-    maxWidth: "52.75rem",
-    padding: "1rem" + " " + "1.5rem",
-    maxHeight: "31.25rem",
+    // maxWidth: "52.75rem",
+    // padding: "1rem" + " " + "1.5rem",
+    // maxHeight: "31.25rem",
     overflow: "auto",
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-start",
-  },
-  "& .modal-actions": {
-    padding: "1rem" + " " + "2rem",
-    borderTop: `1px solid ${theme.palette.primary.main}`,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  "& .modal-actions": {
-    padding: "0.625rem" + " " + "2.063rem",
-    borderTop: `1px solid ${theme.palette.primary.main}`,
-    display: "flex",
-    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      maxHeight: "100%",
+      "& > .MuiList-root": {
+        borderLeft: "none",
+      },
+    },
   },
 }));
 export default function AlreadyExistingPatientModal({ data }) {
@@ -86,7 +82,17 @@ export default function AlreadyExistingPatientModal({ data }) {
             overflow: "hidden",
           }}
         >
-          <ListItem sx={{ width: 262, py: 0, px: 0 }}>
+          <ListItem
+            sx={{
+              width: 262,
+              py: 0,
+              px: 0,
+              display: {
+                md: "block",
+                xs: "none",
+              },
+            }}
+          >
             <List
               sx={{
                 py: 0,
@@ -603,30 +609,6 @@ export default function AlreadyExistingPatientModal({ data }) {
             </ListItem>
           ))}
         </List>
-      </Box>
-      <Box className="modal-actions">
-        <Button>Le faire plus tard</Button>
-        <Button
-          variant="text-black"
-          className="btn-cancel"
-          sx={{ ml: "auto" }}
-          startIcon={<Icon path="close" />}
-          // onClick={() => modalSet(false)}
-        >
-          {" "}
-          Ces patients ne sont pas doublons
-        </Button>
-        <Button
-          // onClick={() => {
-          //   // modalSet(true);
-          //   // ModalType("ALREADY_EXISTING_PATIENT_MODAL");
-          //   // modalDataSet(null);
-          // }}
-          sx={{ ml: 1, "& .react-svg svg": { width: "15px", height: "15px" } }}
-          startIcon={<Icon path="check" />}
-        >
-          Enregistrer
-        </Button>
       </Box>
     </Modal>
   );

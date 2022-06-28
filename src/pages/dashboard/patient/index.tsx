@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ReactElement, useState } from "react";
+import { ReactElement, useState, useEffect } from "react";
 import { Box, Typography, Button, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { CustomStepper } from "@features/customStepper";
@@ -15,7 +15,12 @@ import {
   AddPatientStep2,
   AddPatientStep3,
 } from "@features/customStepper";
-
+import { DuplicateDetected } from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
+import { Dialog } from "@features/dialog";
+import { addPatientSelector } from "@features/customStepper";
+import _ from "lodash";
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -90,80 +95,89 @@ const stepperData = [
     children: AddPatientStep3,
   },
 ];
+// head data
+
+const headCells: readonly HeadCell[] = [
+  {
+    id: "select-all",
+    numeric: false,
+    disablePadding: true,
+    label: "checkbox",
+    sortable: false,
+    align: "left",
+  },
+  {
+    id: "name",
+    numeric: false,
+    disablePadding: true,
+    label: "Patient's name",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "telephone",
+    numeric: true,
+    disablePadding: false,
+    label: "Telephone",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "city",
+    numeric: false,
+    disablePadding: false,
+    label: "City",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "ID",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "nextAppointment",
+    numeric: false,
+    disablePadding: false,
+    label: "Next Appointment",
+    sortable: false,
+    align: "left",
+  },
+  {
+    id: "lastAppointment",
+    numeric: false,
+    disablePadding: false,
+    label: "Last appointment",
+    sortable: false,
+    align: "left",
+  },
+  {
+    id: "action",
+    numeric: false,
+    disablePadding: false,
+    label: "Action",
+    sortable: false,
+    align: "right",
+  },
+];
 
 function Patient() {
+  const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const isAlreadyExist =
+    _.keys(stepsData.step1).length > 0 && _.keys(stepsData.step2).length > 0;
 
-  const { direction } = useAppSelector(configSelector);
+  const [open, setOpen] = useState(isAlreadyExist);
+  console.log(open, "isAlreadyExist");
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
-  // head data
-  const headCells: readonly HeadCell[] = [
-    {
-      id: "select-all",
-      numeric: false,
-      disablePadding: true,
-      label: "checkbox",
-      sortable: false,
-      align: "left",
-    },
-    {
-      id: "name",
-      numeric: false,
-      disablePadding: true,
-      label: "Patient's name",
-      sortable: true,
-      align: "left",
-    },
-    {
-      id: "telephone",
-      numeric: true,
-      disablePadding: false,
-      label: "Telephone",
-      sortable: true,
-      align: "left",
-    },
-    {
-      id: "city",
-      numeric: false,
-      disablePadding: false,
-      label: "City",
-      sortable: true,
-      align: "left",
-    },
-    {
-      id: "id",
-      numeric: true,
-      disablePadding: false,
-      label: "ID",
-      sortable: true,
-      align: "left",
-    },
-    {
-      id: "nextAppointment",
-      numeric: false,
-      disablePadding: false,
-      label: "Next Appointment",
-      sortable: false,
-      align: "left",
-    },
-    {
-      id: "lastAppointment",
-      numeric: false,
-      disablePadding: false,
-      label: "Last appointment",
-      sortable: false,
-      align: "left",
-    },
-    {
-      id: "action",
-      numeric: false,
-      disablePadding: false,
-      label: "Action",
-      sortable: false,
-      align: "right",
-    },
-  ];
+  const { direction } = useAppSelector(configSelector);
+  useEffect(() => {
+    setOpen(isAlreadyExist);
+  }, [isAlreadyExist]);
 
   return (
     <>
@@ -204,6 +218,54 @@ function Patient() {
         >
           <CustomStepper stepperData={stepperData} />
         </Drawer>
+        <Dialog
+          action={DuplicateDetected}
+          open={open}
+          data={{ ...stepsData.step1, ...stepsData.step2 }}
+          direction={direction}
+          title={t("dialogs.titles.")}
+          t={t}
+          dialogSave={() => alert("save")}
+          actionDialog={
+            <>
+              <Box
+                className="modal-actions"
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Button>Le faire plus tard</Button>
+                <Box className="btn-right">
+                  <Button
+                    variant="text-black"
+                    className="btn-cancel"
+                    sx={{ ml: "auto", "& .react-svg": { marginTop: "-3px" } }}
+                    startIcon={<IconUrl path="close" />}
+                  >
+                    {" "}
+                    <span className="sm-none">
+                      {" "}
+                      Ces patients ne sont pas doublons
+                    </span>
+                  </Button>
+                  <Button
+                    sx={{
+                      ml: 1,
+                      "& .react-svg svg": { width: "15px", height: "15px" },
+                    }}
+                    startIcon={<IconUrl path="check" />}
+                  >
+                    <span className="sm-none"> Enregistrer</span>
+                  </Button>
+                </Box>
+              </Box>
+            </>
+          }
+          dialogClose={() => setOpen(false)}
+        />
       </Box>
     </>
   );

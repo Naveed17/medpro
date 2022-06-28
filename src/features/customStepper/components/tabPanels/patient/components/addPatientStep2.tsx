@@ -27,20 +27,16 @@ import Icon from "@themes/urlIcon";
 // import { useSelector } from "react-redux";
 // settings
 // import useSettings from "@settings/useSettings";
-import { DuplicateDetected } from "@features/duplicateDetected";
+
 import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
-import { configSelector } from "@features/base";
-import { Dialog } from "@features/dialog";
+
 import { useTranslation } from "next-i18next";
-import CloseIcon from "@mui/icons-material/Close";
-import IconUrl from "@themes/urlIcon";
+
 export default function AddPatientStep2({ ...props }) {
   const { onNext, stepData, data } = props;
-  const { direction } = useAppSelector(configSelector);
   const { stepsData } = useAppSelector(addPatientSelector);
-  const [open, setOpen] = useState(true);
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step2).length > 0;
   const RegisterSchema = Yup.object().shape({});
@@ -276,31 +272,6 @@ export default function AddPatientStep2({ ...props }) {
           </Button>
         </Stack>
       </Stack>
-
-      <Dialog
-        action={DuplicateDetected}
-        open={open}
-        data={{ ...stepsData.step1, ...stepsData.step2 }}
-        direction={direction}
-        title={t("dialogs.titles.")}
-        t={t}
-        dialogSave={() => alert("save")}
-        actionDialog={
-          <>
-            <Button onClick={() => setOpen(false)} startIcon={<CloseIcon />}>
-              {t("profil.cancel")}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => alert("save")}
-              startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}
-            >
-              {t("profil.save")}
-            </Button>
-          </>
-        }
-        // dialogClose={() => setOpen(false)}
-      />
     </FormikProvider>
   );
 }
