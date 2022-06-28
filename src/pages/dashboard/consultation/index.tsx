@@ -3,7 +3,7 @@ import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
-import { Box, Typography, Stack, Paper, IconButton, useMediaQuery, Divider, TextField, Button } from "@mui/material";
+import { Box, Typography, Stack, Paper, IconButton, useMediaQuery, Divider, TextField, Button, Grid } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
@@ -136,15 +136,28 @@ const ConsultationCard = ({ item, index, t, isMobile }: { item: any; index: numb
         </Stack>
       )}
       {item.id === 2 && (
-        <Stack spacing={1} p={2} direction={{ xs: 'row', md: 'column' }} flexWrap="wrap">
-          <DocumentButton icon="ic-text" lable="Report" handleOnClick={(v) => console.log(v)} />
-          <DocumentButton icon="ic-soura" lable="Report" handleOnClick={(v) => console.log(v)} />
-          <DocumentButton icon="ic-ordonance" lable="Report" handleOnClick={(v) => console.log(v)} />
-          <DocumentButton icon="ic-traitement" lable="Report" handleOnClick={(v) => console.log(v)} />
-          <DocumentButton icon="ic-analyse" lable="Report" handleOnClick={(v) => console.log(v)} />
-          <DocumentButton icon="ic-lettre" lable="Report" handleOnClick={(v) => console.log(v)} />
-
-        </Stack>
+        <Box p={1.5}>
+          <Grid container spacing={2}>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-text" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-soura" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-ordonance" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-traitement" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-analyse" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+            <Grid item xs={6} md={12}>
+              <DocumentButton icon="ic-lettre" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+            </Grid>
+          </Grid>
+        </Box>
       )}
     </Paper>
   )
@@ -205,7 +218,7 @@ function Consultation() {
         startIcon={<Icon path="ic-filter" />}
         variant="filter"
         onClick={() => setDrawer(!drawer)}
-        sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', sm: 'none' } }}
+        sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
       >
         Filtrer (0)
       </Button>

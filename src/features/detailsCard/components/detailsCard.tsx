@@ -16,13 +16,13 @@ export default function DetailsCard({ ...props }) {
     const theme = useTheme();
     return (
         <>
-            {rows.map((item) => (
+            {rows.map((item: any) => (
                 <DetailCardStyled
                     key={Math.random()}
                     sx={{
                         borderLeft: `6px solid ${item.status === "completed"
                             ? theme.palette.success.main
-                            : item.status === "canceled"
+                            : item?.status === "canceled"
                                 ? theme.palette.error.main
                                 : item.status === "success"
                                     ? theme.palette.success.main

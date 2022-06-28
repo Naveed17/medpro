@@ -1,3 +1,4 @@
+import { CustomShadowType } from "@themes/shadows";
 import React from "react";
 
 declare global {
@@ -30,4 +31,16 @@ declare module "@mui/material" {
         '500_32': string;
         '500_16': string;
     }
+    interface PaletteColor {
+        lighter: string;
+    }
+    interface ThemeOptions {
+        customShadows?: CustomShadowType
+    }
 }
+
+declare module "@mui/material/styles" {
+    interface Theme {
+        customShadows: CustomShadowType
+    }
+};

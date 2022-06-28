@@ -1,5 +1,6 @@
 import { alpha } from "@mui/material/styles";
 import palette from "./palette";
+
 export const shadows: any = [
   "0px 1px 5px rgba(0, 85, 121, 0.44)",
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
@@ -28,9 +29,12 @@ export const shadows: any = [
   "0px 1px 5px rgba(0, 112, 50, 0.7)",
 ];
 
-const LIGHT_MODE = palette.grey[500];
 
-const createCustomShadow = () => {
+export interface CustomShadowType {
+  [key: string]: string;
+}
+
+const createCustomShadow = (): CustomShadowType => {
 
   return {
     primary: `0px 1px 5px #0096D6`,
@@ -59,5 +63,5 @@ const createCustomShadow = () => {
 };
 
 export const customShadows = {
-  ...createCustomShadow(LIGHT_MODE),
+  ...createCustomShadow(),
 };
