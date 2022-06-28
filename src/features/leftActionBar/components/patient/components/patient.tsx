@@ -1,6 +1,5 @@
-import { Fragment } from "react";
 import { Typography } from "@mui/material";
-import { Accordion } from "@features/accordion/components";
+import { Accordion } from "@features/accordion";
 import rightActionData from "./data";
 import { useTranslation } from "next-i18next";
 import {
@@ -15,7 +14,7 @@ function Patient() {
   const { collapse } = rightActionData.filter;
 
   const { t, ready } = useTranslation("patient");
-  if (!ready) return <>loading translations...</>;
+
 
   const data = collapse.map((item) => {
     return {
@@ -37,6 +36,8 @@ function Patient() {
       ),
     };
   });
+
+  if (!ready) return <>loading translations...</>;
 
   return (
     <div>

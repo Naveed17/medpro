@@ -2,8 +2,10 @@ import {useEffect, useState} from "react";
 import { Box, InputAdornment, TextField } from "@mui/material";
 import {countries} from "../countries";
 import AutoCompleteStyled from "./overrides/AutoCompleteStyled"
-// @ts-ignore
-function CountryCodeSelect({selected}) {
+import * as React from "react";
+
+function CountryCodeSelect({...props}) {
+    const { selected } = props;
     const [state, setstate] = useState(countries[221]);
     useEffect(() => {
         selected(state)

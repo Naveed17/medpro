@@ -5,6 +5,7 @@ import {useTranslation} from "next-i18next";
 import React from "react";
 import {StepperDocument, StepperInfo} from "@features/steppers";
 import {StepperActes} from "@features/steppers";
+import {StepperCabinet} from "@features/steppers/components/stepperCabinet";
 
 function a11yProps(index: number) {
   return {
@@ -104,7 +105,7 @@ function Steppers({currentStepper}: stepper) {
             </Fab>
           </TabPanel>
           <TabPanel value={currentStepper} index={3}>
-            {/*<Step4 />*/}
+            <StepperCabinet />
             <Fab
                 sx={{
                   bgcolor: "common.white",
@@ -114,7 +115,7 @@ function Steppers({currentStepper}: stepper) {
                   right: "1rem",
                 }}
             >
-              <IconUrl path="question-mark" />
+            <IconUrl path="question-mark" />
             </Fab>
           </TabPanel>
         </Box>

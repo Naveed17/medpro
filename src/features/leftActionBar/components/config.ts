@@ -20,7 +20,7 @@ const LeftActionsData = [
         pathname: path(ROOTS.app, "/patient"),
         component: dynamic((): any =>
             import(
-                "@features/leftActionBar/components/patient/patient"
+                "@features/leftActionBar/components/patient/components/patient"
                 ).then((mod) => mod)
         ),
     },

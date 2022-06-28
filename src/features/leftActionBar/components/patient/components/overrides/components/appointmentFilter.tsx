@@ -1,7 +1,7 @@
 import { Typography, Box, InputLabel, Checkbox, Grid } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import { DatePicker } from "@features/datepicker";
-import { TimePicker } from "@features/timepicker";
+import { CustomTimePicker } from "@features/customTimePicker";
 
 function AppointmentFilter({ ...props }) {
   const { item, t } = props;
@@ -46,7 +46,7 @@ function AppointmentFilter({ ...props }) {
             <DatePicker />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TimePicker />
+            <CustomTimePicker />
           </Grid>
         </Grid>
       </Box>
@@ -59,7 +59,7 @@ function AppointmentFilter({ ...props }) {
             <DatePicker />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TimePicker />
+            <CustomTimePicker />
           </Grid>
         </Grid>
       </Box>

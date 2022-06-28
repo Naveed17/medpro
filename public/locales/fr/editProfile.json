@@ -34,8 +34,11 @@
     "stepper-2": {
       "title": "Actes",
       "sub-title": "Veuillez sélectionner vos actes principaux et vos actes secondaires par ordre de croissance",
-      "desc": "Pour des raisons de sécurité et pour assurer la pertinence des données sur notre plateforme, nous vous demandons de nous envoyer une photo de votre carte professionnelle tamponnée ou de votre autorisation d'exercer.",
-      "upload": "Joindre un document"
+      "main": "Vos actes principaux",
+      "second": "Vos actes secondaires",
+      "length": "Max 10 Actes",
+      "typing": "Commencez à taper pour rechercher des actes",
+      "suggestion": "Suggested acts"
     },
     "check-status": {
       "title": "Bienvenue sur Med.tn",

@@ -85,8 +85,12 @@ function StepperActes(){
 
     return(
             <>
+                <Typography variant="h6"  gutterBottom>
+                    {t('title')}
+                </Typography>
+
                 <Typography variant="body1" color="text.primary" mb={5}>
-                    {t("selectActes")}
+                    {t("sub-title")}
                 </Typography>
 
                 <Typography
@@ -144,7 +148,7 @@ function StepperActes(){
                     }}
                     initData={mainActes}
                     limit={10}
-                    helperText={t("max")}
+                    helperText={t("length")}
                     placeholder={t("typing")}
                 />
 
@@ -165,7 +169,7 @@ function StepperActes(){
                         },
                     }}
                 >
-                    {t("secondary")}{" "}
+                    {t("second")}{" "}
                     {!secAlert && (
                         <IconUrl
                             onChange={() => {
