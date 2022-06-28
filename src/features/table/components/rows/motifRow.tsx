@@ -4,10 +4,10 @@ import TableCell from '@mui/material/TableCell';
 import { IconButton, Typography, FormControl, Select, MenuItem, } from '@mui/material';
 import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
-import TableRowStyled from "@features/table/components/overrides/tableRowStyled"
+import {TableRowStyled} from "@features/table"
 
 
-function MotifRow( props: { row: any, tableHeadData:any, active: any, handleChange: any,editMotif:any, ids:any}) {
+function MotifRow({...props}) {
 
     const { row, tableHeadData, active, handleChange,editMotif, ids } = props;
     return (

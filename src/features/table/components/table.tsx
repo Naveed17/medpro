@@ -4,7 +4,7 @@ import {Box, TableBody, TableContainer, Table} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 
-function descendingComparator(a: any, b: any, orderBy: any) {
+function descendingComparator(a: { [x: string]: number; }, b: { [x: string]: number; }, orderBy: string | number) {
 
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -15,13 +15,13 @@ function descendingComparator(a: any, b: any, orderBy: any) {
     return 0;
 }
 
-function getComparator(order: any, orderBy: any) {
+function getComparator(order: string, orderBy: string) {
     return order === 'desc'
-        ? (a: any, b: any) => descendingComparator(a, b, orderBy)
-        : (a: any, b: any) => -descendingComparator(a, b, orderBy);
+        ? (a: { [x: string]: number; }, b: { [x: string]: number; }) => descendingComparator(a, b, orderBy)
+        : (a: { [x: string]: number; }, b: { [x: string]: number; }) => -descendingComparator(a, b, orderBy);
 }
 
-function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
+function stableSort(array: any[], comparator: { (a: { [x: string]: number; }, b: { [x: string]: number; }): number; (arg0: any, arg1: any): any; }) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
         const order = comparator(a[0], b[0]);
@@ -33,7 +33,7 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-function Otable(props: any) {
+function Otable({...props}) {
     const {rows, headers, state, handleChange, t, from, edit, handleConfig} = props;
 
     const [order, setOrder] = useState('asc');
@@ -63,7 +63,6 @@ function Otable(props: any) {
                 setActive([]);
             }
         }
-
     }, [tableHeadData?.active])
     return (
         <Box>
@@ -84,19 +83,19 @@ function Otable(props: any) {
                     <TableBody>
                         {
                             stableSort(rows, getComparator(order, orderBy))
-                            .map((row, index) => {
-                                return (
-                                    <Component key={index}
-                                               row={row}
-                                               t={t}
-                                               tableHeadData={state}
-                                               handleChange={handleChange}
-                                               editMotif={edit}
-                                               active={active}
-                                               ids={ids}/>
-                                )
+                                .map((row, index) => {
+                                    return (
+                                        <Component key={index}
+                                                   row={row}
+                                                   t={t}
+                                                   tableHeadData={state}
+                                                   handleChange={handleChange}
+                                                   editMotif={edit}
+                                                   active={active}
+                                                   ids={ids}/>
+                                    )
 
-                            })
+                                })
                         }
                     </TableBody>
                 </Table>
