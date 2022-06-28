@@ -6,11 +6,11 @@ import { useTranslation } from "next-i18next";
 import { DashLayout } from "@features/base";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
-import { CollapseCard } from "@features/collapseCard";
+import { CollapseCard } from "@features/card";
 import { RoomToolbar } from "@features/toolbar";
-import { data } from '@features/collapseCard';
-import { DetailsCard } from '@features/detailsCard';
-import rows from "@features/detailsCard/components/config";
+import { data } from '@features/card/components/collapseCard';
+import { DetailsCard } from '@features/card';
+import rows from "@features/card/components/detailsCard/config";
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));

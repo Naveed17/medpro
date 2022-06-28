@@ -57,7 +57,7 @@ function RoomToolbar({ board, data, handleCollapse }: Props) {
                 startIcon={<Icon path="ic-filter" />}
                 variant="filter"
                 onClick={() => setopen(!open)}
-                sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', sm: 'none' } }}
+                sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
             >
                 Filtrer (0)
             </Button>

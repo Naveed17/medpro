@@ -27,9 +27,6 @@ const CollapseCardStyled = styled(Paper)(({ theme }) => {
             },
 
         },
-        [theme.breakpoints.down('sm')]: {
-            display: 'none',
-        }
     }
 });
 export default CollapseCardStyled;

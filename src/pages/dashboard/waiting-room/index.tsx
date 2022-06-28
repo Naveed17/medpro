@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import React, { ReactElement } from "react";
 //components
-import { DetailsCard } from "@features/detailsCard";
+import { DetailsCard } from "@features/card";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 // next-i18next
@@ -132,7 +132,7 @@ function Room() {
           <Icon path="ic-doc" />
           {t('room')}
         </Label>
-        <Box display={{ xs: 'none', sm: 'block' }} mt={1}>
+        <Box display={{ xs: 'none', md: 'block' }} mt={1}>
           <Otable headers={headCells}
             rows={rows}
             state={null}
@@ -140,8 +140,8 @@ function Room() {
             t={t}
           />
         </Box>
-        <Stack spacing={1} mt={2} display={{ xs: 'flex', sm: 'none' }}>
-          <DetailsCard rows={rows} />
+        <Stack spacing={1} mt={2} display={{ xs: 'flex', md: 'none' }}>
+          <DetailsCard waitingRoom rows={rows} />
         </Stack>
       </Box>
     </>

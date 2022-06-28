@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { IconButton, Box, Stack, } from "@mui/material";
+import { IconButton, Box, Stack, useMediaQuery } from "@mui/material";
 import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
-import MobileCollapseCard from "./mobileCollapseCard";
 import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
 export default function ConsultationProgressCard({ ...props }) {
     const { index, data, open, onClickAction, translate } = props
@@ -12,6 +11,7 @@ export default function ConsultationProgressCard({ ...props }) {
     const theme: Theme = useTheme();
     const [offsetTop, setOffsetTop] = useState(0);
     const ref = useRef<HTMLHeadingElement>(null);
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"))
     useEffect(() => {
         if (ref.current) {
             setOffsetTop(ref.current.offsetTop);
@@ -50,9 +50,11 @@ export default function ConsultationProgressCard({ ...props }) {
                     }
                 >
                     <Box p={1} sx={{ display: "flex", alignItems: "center" }}>
-                        <IconButton onClick={() => onClickAction(id)} size="small">
-                            <Icon path="ic-flesh-droite" />
-                        </IconButton>
+                        {!isMobile &&
+                            <IconButton onClick={() => onClickAction(id)} size="small">
+                                <Icon path="ic-flesh-droite" />
+                            </IconButton>
+                        }
                         <Label
                             className="label"
                             variant="filled"
@@ -67,7 +69,6 @@ export default function ConsultationProgressCard({ ...props }) {
                     {props.children}
                 </Stack>
             </CollapseCardStyled>
-            <MobileCollapseCard {...props} />
         </>
     );
 }
