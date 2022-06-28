@@ -1,11 +1,11 @@
 import React from 'react'
 import TableCell from '@mui/material/TableCell';
 import {Typography, Box, MenuItem, Select,} from '@mui/material';
-import TableRowStyled from "@features/table/components/overrides/tableRowStyled"
+import {TableRowStyled} from "@features/table"
 
 
 
-export default function PermissionRow(props: { row:any, handleChange:any,edit:any, t:any }) {
+export default function PermissionRow({...props}) {
 
     const  { row, handleChange,edit, t } = props
     return (

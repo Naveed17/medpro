@@ -31,6 +31,32 @@ const rowsActionsData = [
       import("@features/table/components/rows/patientRow").then((mod) => mod)
     ),
   },
+  {
+    action: "holidays",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/HolidayRow").then((mod) => mod)
+    ),
+  },
+  {
+    action: "substitute",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/substituteRow").then((mod) => mod)
+    ),
+  },
+  {
+    action: "users",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/userRow").then((mod) => mod)
+    ),
+  },
+  {
+    action: "instructions",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/instructionRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;
