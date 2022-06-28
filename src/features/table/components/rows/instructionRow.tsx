@@ -1,35 +1,37 @@
 import React from 'react'
 
-import TableRow from '@mui/material/TableRow';
-import Switch from '@mui/material/Switch';
+import Lable from "@themes/overrides/Lable";
 import TableCell from '@mui/material/TableCell';
 import { Typography, Box,} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table"
+import Switch from "@mui/material/Switch";
 
-function LieuxRow({...props}) {
+function InstructionRow({...props}) {
 
     const { row, handleChange, edit, t } = props;
 
     return (
         <TableRowStyled key={row.name}>
             <TableCell>
-                <Typography className='name' variant="body1" color="text.primary">
+                <Typography variant="body1" color="text.primary">
                     {row.name}
                 </Typography>
             </TableCell>
             <TableCell align="center">
-                {" "}
-                <Switch name='active' onChange={(e) => handleChange(row, 'active','')} checked={row.actif} />
-            </TableCell>
-            <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.agenda} {t('lieux.acces')}
-                </Typography>
+                <Switch name='active' onChange={(e) => handleChange(row)} checked={row.actif} />
             </TableCell>
             <TableCell align="right">
                 <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                    <Button
+                        variant="text"
+                        size="small"
+                        color="primary"
+                        startIcon={<IconUrl path="setting/edit" />}
+                        onClick={() => console.log("edit",row)}>
+                        {t('substitute.update')}
+                    </Button>
                     <Button
                         variant="text"
                         size="small"
@@ -39,17 +41,9 @@ function LieuxRow({...props}) {
                         sx={{ mr: 1 }}>
                         {t('lieux.remove')}
                     </Button>
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="primary"
-                        startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("edit",row)}>
-                        {t('lieux.update')}
-                    </Button>
                 </Box>
             </TableCell>
         </TableRowStyled>
     )
 }
-export default LieuxRow
+export default InstructionRow
