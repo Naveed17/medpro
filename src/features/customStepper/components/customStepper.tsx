@@ -23,27 +23,17 @@ function TabPanel(props: TabPanelProps) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <Typography component="div">{children}</Typography>
         </Box>
       )}
     </div>
   );
-}
-interface stateProps {
-  step1: object | null;
-  step2: object | null;
-  step3: object | null;
 }
 
 export default function ScrollableTabsButtonAuto({ ...props }) {
   const { stepperData } = props;
   const [value, setValue] = useState<number>(0);
   const [last, setLast] = useState<number>(1);
-  const [stepData, setStepData] = useState<stateProps>({
-    step1: null,
-    step2: null,
-    step3: null,
-  });
   const handleChange = (event: SyntheticEvent, val: number) => {
     setValue(val);
   };
@@ -67,6 +57,7 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
               i: number
             ) => (
               <Tab
+                key={Math.random()}
                 disabled={i > value && i >= last}
                 label={
                   <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
@@ -87,16 +78,12 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
           ) => {
             const Component: any = v.children;
             return (
-              <TabPanel value={value} index={i}>
+              <TabPanel key={Math.random()} value={value} index={i}>
                 <Component
                   onNext={(val: number) => {
                     setValue(val);
                     setLast(last < stepperData.length ? last + 1 : last);
                   }}
-                  stepData={(v: any) =>
-                    setStepData({ ...stepData, [`step${i + 1}`]: v })
-                  }
-                  data={stepData[`step${i + 1}`]}
                 />
               </TabPanel>
             );

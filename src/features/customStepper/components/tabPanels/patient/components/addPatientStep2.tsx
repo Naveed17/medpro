@@ -1,32 +1,19 @@
-import { useState } from "react";
+import { ChangeEvent } from "react";
 import * as Yup from "yup";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
   Typography,
-  Card,
   Box,
   FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  FormGroup,
-  Switch,
   TextField,
   Grid,
-  InputAdornment,
   Button,
   Select,
-  InputLabel,
   MenuItem,
   Stack,
-  FormHelperText,
   IconButton,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-//redux
-// import { useSelector } from "react-redux";
-// settings
-// import useSettings from "@settings/useSettings";
 
 import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
@@ -35,7 +22,7 @@ import _ from "lodash";
 import { useTranslation } from "next-i18next";
 
 export default function AddPatientStep2({ ...props }) {
-  const { onNext, stepData, data } = props;
+  const { onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step2).length > 0;
@@ -55,7 +42,7 @@ export default function AddPatientStep2({ ...props }) {
       handleChange(null, values);
     },
   });
-  const handleChange = (event, values) => {
+  const handleChange = (event: ChangeEvent | null, { ...values }) => {
     // popupDataSet({ ...popupData, step2: values });
     onNext(2);
     dispatch(onAddPatient({ ...stepsData, step2: values }));
@@ -65,7 +52,7 @@ export default function AddPatientStep2({ ...props }) {
     const insurance = [...values.insurance, { name: "", number: "" }];
     formik.setFieldValue("insurance", insurance);
   };
-  const handleRemoveInsurance = (index) => {
+  const handleRemoveInsurance = (index: number) => {
     const insurance = [...values.insurance];
     insurance.splice(index, 1);
     formik.setFieldValue("insurance", insurance);
@@ -145,7 +132,7 @@ export default function AddPatientStep2({ ...props }) {
             <Typography sx={{ mb: 1.5 }}>
               <IconButton
                 onClick={handleAddInsurance}
-                variant="success-light"
+                className="success-light"
                 sx={{
                   mr: 1.5,
                   "& svg": {
@@ -162,8 +149,13 @@ export default function AddPatientStep2({ ...props }) {
               Insurance
             </Typography>
             <Box>
-              {values.insurance.map((_, index) => (
-                <Grid container spacing={2} sx={{ mt: index > 0 ? 1 : 0 }}>
+              {values.insurance.map((val, index: number) => (
+                <Grid
+                  key={Math.random()}
+                  container
+                  spacing={2}
+                  sx={{ mt: index > 0 ? 1 : 0 }}
+                >
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth>
                       <Select
@@ -198,7 +190,7 @@ export default function AddPatientStep2({ ...props }) {
                       />
                       <IconButton
                         onClick={() => handleRemoveInsurance(index)}
-                        variant="error-light"
+                        className="error-light"
                         sx={{
                           mr: 1.5,
                           "& svg": {

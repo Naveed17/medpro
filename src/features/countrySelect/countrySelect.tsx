@@ -5,21 +5,24 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
 import { countries } from "./countries";
 
-export default function CountrySelect({ selected }) {
+export default function CountrySelect({ ...props }) {
   const [state, setstate] = React.useState({
     code: "TN",
     label: "Tunisia",
     phone: "216",
   });
   React.useEffect(() => {
-    selected(state);
+    props.selected(state);
   }, [state]);
   return (
     <Autocomplete
       id="country-select-demo"
       sx={{ width: "100%" }}
       size="small"
-      onChange={(e, v) => (setstate(v), selected(v))}
+      onChange={(e, v) => {
+        setstate(v);
+        props.selected(v);
+      }}
       value={state}
       options={countries}
       autoHighlight

@@ -8,8 +8,27 @@ export type MenuState = {
 
 const initialState: MenuState = {
   stepsData: {
-    step1: {},
-    step2: {},
+    step1: {
+      group: "",
+      name: "",
+      firstName: "",
+      dob: {
+        day: "",
+        month: "",
+        year: "",
+      },
+      phone: 0,
+      gender: "",
+    },
+    step2: {
+      region: "",
+      zipCode: 0,
+      address: "",
+      email: "",
+      cin: "",
+      from: "",
+      insurance: [],
+    },
     step3: {},
   },
 };

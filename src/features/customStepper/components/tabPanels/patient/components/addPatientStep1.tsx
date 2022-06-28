@@ -18,10 +18,10 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { CountrySelect } from "@features/countrySelect";
-// import useSettings from "@settings/useSettings";
 import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
+
 interface MyValues {
   group: string;
   name: string;
@@ -38,12 +38,8 @@ interface touchedProps {
 }
 export default function AddPatientStep1({
   onNext,
-  stepData,
-  data,
 }: {
   onNext: (data: any) => void;
-  stepData: any;
-  data: any;
 }) {
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
@@ -164,7 +160,12 @@ export default function AddPatientStep1({
             </FormControl>
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              component="span"
+            >
               Nom{" "}
               <Typography component="span" color="error">
                 *
@@ -185,7 +186,12 @@ export default function AddPatientStep1({
             />
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              component="span"
+            >
               First name
               <Typography component="span" color="error">
                 *
@@ -206,7 +212,12 @@ export default function AddPatientStep1({
             />
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              component="span"
+            >
               Date de naissance{" "}
               <Typography component="span" color="error">
                 *
@@ -297,7 +308,12 @@ export default function AddPatientStep1({
             </Stack>
           </Box>
           <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              gutterBottom
+              component="span"
+            >
               Numéro de téléphone{" "}
               <Typography component="span" color="error">
                 *

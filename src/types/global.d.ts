@@ -14,6 +14,7 @@ declare module "@mui/material/Button" {
     google: true;
     "text-black": true;
     filter: true;
+    "text-primary": true;
   }
 }
 

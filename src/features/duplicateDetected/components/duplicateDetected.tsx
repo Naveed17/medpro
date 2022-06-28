@@ -1,7 +1,6 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import {
   Box,
-  Button,
   Typography,
   Radio,
   Checkbox,
@@ -10,16 +9,12 @@ import {
   ListItem,
   Stack,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 //utils
 import Icon from "@themes/urlIcon";
-// settings
-// import useSettings from "@settings/useSettings";
-// redux
-// import { useSelector } from "react-redux";
 
 const Modal = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up("md")]: {
     width: 890,
   },
   "& .modal-header": {
@@ -32,9 +27,6 @@ const Modal = styled(Box)(({ theme }) => ({
   },
   "& .modal-body": {
     minHeight: "13.5rem",
-    // maxWidth: "52.75rem",
-    // padding: "1rem" + " " + "1.5rem",
-    // maxHeight: "31.25rem",
     overflow: "auto",
     display: "flex",
     justifyContent: "center",
@@ -47,29 +39,20 @@ const Modal = styled(Box)(({ theme }) => ({
     },
   },
 }));
-export default function AlreadyExistingPatientModal({ data }) {
-  const modalData = data;
-  // const { modalData } = useSelector((state) => state.actionState);
-  // console.log(modalData);
-  // const settings = useSettings();
-  const [selectedValue, setSelectedValue] = React.useState("1");
-  const [fields, setFields] = React.useState([]);
-  const handleChangeColumn = (event) => {
+export default function DuplicateDetected(props: any) {
+  const modalData = props.data;
+  const [selectedValue, setSelectedValue] = React.useState<string>("1");
+  const [fields, setFields] = React.useState<string[]>([]);
+  const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
     setSelectedValue(event.target.value);
   };
-  const handleChangeFiled = (event) => {
+  const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
     setFields(checked ? [...fields, name] : fields.filter((el) => el !== name));
   };
   const isMatch = true;
-  // const { modalSet, ModalType, modalDataSet } = settings;
   return (
     <Modal>
-      {/* <Box className="modal-header">
-        <Typography variant="subtitle1" component="h6">
-          Duplicates detected
-        </Typography>
-      </Box> */}
       <Box className="modal-body">
         <List
           sx={{
@@ -108,7 +91,6 @@ export default function AlreadyExistingPatientModal({ data }) {
                   display: "flex",
                   lineHeight: "80%",
                   alignItems: "center",
-                  color: "text.primary",
                   bgcolor: (theme) => theme.palette.primary.main,
                   px: "1rem",
                   py: "1rem",
@@ -280,12 +262,20 @@ export default function AlreadyExistingPatientModal({ data }) {
                   Assurance
                 </Typography>
                 {modalData.insurance?.length > 0 ? (
-                  modalData.insurance?.map((assurance, index) => (
-                    <Stack direction="row" spacing={1}>
-                      <Typography>{assurance.name}</Typography>:
-                      <Typography>{assurance.number}</Typography>
-                    </Stack>
-                  ))
+                  modalData.insurance?.map(
+                    (
+                      assurance: {
+                        name: string;
+                        number: number;
+                      },
+                      index: number
+                    ) => (
+                      <Stack direction="row" spacing={1} key={index + 10}>
+                        <Typography>{assurance.name}</Typography>:
+                        <Typography>{assurance.number}</Typography>
+                      </Stack>
+                    )
+                  )
                 ) : (
                   <Typography>--</Typography>
                 )}
@@ -354,7 +344,6 @@ export default function AlreadyExistingPatientModal({ data }) {
                     bgcolor: (theme) => theme.palette.background.default,
                     px: "1rem",
                     py: "3px",
-                    color: (theme) => theme.palette.text.primary,
                     fontWeight: (theme) => "normal",
                     fontFamily: "Roboto",
                     borderBottom: 1,
@@ -548,12 +537,20 @@ export default function AlreadyExistingPatientModal({ data }) {
                       Assurance
                     </Typography>
                     {modalData.insurance?.length > 0 ? (
-                      modalData.insurance?.map((assurance, index) => (
-                        <Stack direction="row" spacing={1}>
-                          <Typography>{assurance.name}</Typography>:
-                          <Typography>{assurance.number}</Typography>
-                        </Stack>
-                      ))
+                      modalData.insurance?.map(
+                        (
+                          assurance: {
+                            name: string;
+                            number: number;
+                          },
+                          index: number
+                        ) => (
+                          <Stack direction="row" spacing={1} key={index + 30}>
+                            <Typography>{assurance.name}</Typography>:
+                            <Typography>{assurance.number}</Typography>
+                          </Stack>
+                        )
+                      )
                     ) : (
                       <Typography>--</Typography>
                     )}
