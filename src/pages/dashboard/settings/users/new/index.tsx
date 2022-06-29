@@ -17,7 +17,7 @@ import {
     FormControlLabel, Checkbox, MenuItem, FormControl
 } from '@mui/material'
 import {styled} from "@mui/material/styles";
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
