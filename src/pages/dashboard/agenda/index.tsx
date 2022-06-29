@@ -6,7 +6,7 @@ import {useRouter} from "next/router";
 import {Box} from "@mui/material";
 import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/calendarToolbar";
+import {CalendarToolbar} from "@features/toolbar/components/calendarToolbar";
 
 
 function Agenda(){

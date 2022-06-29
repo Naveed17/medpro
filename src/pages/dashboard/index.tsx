@@ -4,7 +4,7 @@ import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box, Typography} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/calendarToolbar";
+import {CalendarToolbar} from "@features/toolbar";
 import {DashLayout} from "@features/base";
 import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";
@@ -40,6 +40,8 @@ function Dashborad() {
 
     const { data: user } = session as Session;
 
+    console.log(session);
+
     return (
         <>
             <SubHeader>
@@ -48,7 +50,7 @@ function Dashborad() {
             <Box bgcolor="#F0FAFF"
                  sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>
-                {session && <Typography>URL: {(user as any)?.data.general_information.first_name}</Typography>}
+                {session && <Typography>URL: {(user as any)?.data.general_information.firstName}</Typography>}
             </Box>
         </>
     )

@@ -23,5 +23,10 @@
     "sign_reset_pass": "Forgot your password?",
     "sign_forget_pass": "Rester connecté",
     "sign_connect_btn": "Login"
+  },
+  "schedule" : {
+    "add": "Add",
+    "delete": "Delete",
+    "seance": "séance"
   }
 }

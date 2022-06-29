@@ -1,13 +1,14 @@
+import { CustomShadowType } from "@themes/shadows";
 import React from "react";
 
 declare global {
 
-  type LayoutProps = {
-    children: React.ReactNode;
-    fallback?: any;
-    pageProps?: any;
-    session?: any;
-  };
+    type LayoutProps = {
+        children: React.ReactNode;
+        fallback?: any;
+        pageProps?: any;
+        session?: any;
+    };
 }
 
 declare module "@mui/material/Button" {
@@ -15,6 +16,7 @@ declare module "@mui/material/Button" {
         google: true;
         "text-black": true;
         filter: true;
+        consultationIP: true;
     }
 }
 
@@ -29,4 +31,16 @@ declare module "@mui/material" {
         '500_32': string;
         '500_16': string;
     }
+    interface PaletteColor {
+        lighter: string;
+    }
+    interface ThemeOptions {
+        customShadows?: CustomShadowType
+    }
 }
+
+declare module "@mui/material/styles" {
+    interface Theme {
+        customShadows: CustomShadowType
+    }
+};
