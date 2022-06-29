@@ -1,15 +1,15 @@
-import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
-import {Box, Button, Drawer} from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
-import {SubstituteDetails} from "@features/substituteDetails";
+import React, { ReactElement, useState } from "react";
+import { DashLayout } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
+import { Box, Button, Drawer } from "@mui/material";
+import { useTranslation } from "next-i18next";
+import { Otable } from "@features/table";
+import { useAppSelector } from "@app/redux/hooks";
+import { configSelector } from "@features/base";
+import { SubstituteDetails } from "@features/substituteDetails";
 
 function Subtitule() {
 
@@ -20,10 +20,10 @@ function Subtitule() {
             name: 'Rhouma BHA',
             email: 'rhoumabhat@mail.com',
             fonction: 'Practitioner',
-            speciality:'Dermatologist',
+            speciality: 'Dermatologist',
             status: 'En attente',
-            bg:'#FFD400',
-            color:'#000',
+            bg: '#FFD400',
+            color: '#000',
             access: '2',
         },
         {
@@ -31,10 +31,10 @@ function Subtitule() {
             name: 'Hassen Ounelli',
             email: 'houssemouelli@mail.com',
             fonction: 'Practitioner',
-            speciality:'Dermatologist',
+            speciality: 'Dermatologist',
             status: 'Accepté',
-            bg:'#1BC47D',
-            color:'#FFF',
+            bg: '#1BC47D',
+            color: '#FFF',
             access: '1',
         },
         {
@@ -42,19 +42,19 @@ function Subtitule() {
             name: 'Sarra Bent',
             email: 'sarrabent@mail.com',
             fonction: 'Secretary',
-            speciality:'',
+            speciality: '',
             status: 'Accepté',
-            bg:'#1BC47D',
-            color:'#FFF',
+            bg: '#1BC47D',
+            color: '#FFF',
             access: '2',
         },
     ]);
-    const {direction} = useAppSelector(configSelector);
+    const { direction } = useAppSelector(configSelector);
 
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "substitute" });
     if (!ready) return (<>loading translations...</>);
 
-    const closeDraw = () =>{
+    const closeDraw = () => {
         setEdit(false);
     }
 
@@ -63,7 +63,7 @@ function Subtitule() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('substitute.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -71,7 +71,7 @@ function Subtitule() {
             id: 'fonction',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.fonction'),
+            label: 'fonction',
             align: 'center',
             sortable: true
         },
@@ -79,7 +79,7 @@ function Subtitule() {
             id: 'resquest',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.request'),
+            label: 'request',
             align: 'center',
             sortable: true
         },
@@ -87,7 +87,7 @@ function Subtitule() {
             id: 'access',
             numeric: true,
             disablePadding: false,
-            label: t('substitute.access'),
+            label: 'access',
             align: 'center',
             sortable: true
         },
@@ -95,45 +95,45 @@ function Subtitule() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
     ];
 
-    return(
+    return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('substitute.path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                 </RootStyled>
 
                 <Button type='submit'
-                        variant="contained"
-                        onClick={() => {
-                            setEdit(true);
-                        }}
-                        color="success">
-                    {t('lieux.add')}
+                    variant="contained"
+                    onClick={() => {
+                        setEdit(true);
+                    }}
+                    color="success">
+                    {t('add')}
                 </Button>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <Otable headers={headCells}
-                        rows={rows}
-                        state={null}
-                        from={'substitute'}
-                        t={t}
-                        edit={null}
-                        handleConfig={null}
-                        handleChange={null}/>
+                    rows={rows}
+                    state={null}
+                    from={'substitute'}
+                    t={t}
+                    edit={null}
+                    handleConfig={null}
+                    handleChange={null} />
 
                 <Drawer
                     anchor={'right'}
                     open={edit}
                     dir={direction}
                     onClose={closeDraw}>
-                    <SubstituteDetails closeDraw={closeDraw}/>
+                    <SubstituteDetails closeDraw={closeDraw} />
                 </Drawer>
 
             </Box>
@@ -143,7 +143,7 @@ function Subtitule() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 

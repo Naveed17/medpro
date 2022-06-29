@@ -1,29 +1,29 @@
-import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
+import React, { ReactElement, useState } from "react";
+import { DashLayout } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
 import { Box, Button } from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {Otable} from "@features/table";
+import { useTranslation } from "next-i18next";
+import { Otable } from "@features/table";
 import IconUrl from "@themes/urlIcon";
-import {styled} from "@mui/material/styles";
-import {useRouter} from "next/router";
+import { styled } from "@mui/material/styles";
+import { useRouter } from "next/router";
 
-const  ButtonStyled = styled(Button)(({ theme }) => ({
+const ButtonStyled = styled(Button)(({ theme }) => ({
     margin: theme.spacing(1),
     minWidth: 210,
 
     [theme.breakpoints.down("sm")]: {
         minWidth: 32,
-        height:32,
+        height: 32,
         //paddingLeft: 8,
         //paddingRight: 8,
         "& .MuiButton-startIcon": {
             margin: 0
         },
-        "& .txt":{
+        "& .txt": {
             display: "none"
         },
     }
@@ -39,10 +39,10 @@ function Users() {
             name: 'Rhouma BHA',
             email: 'rhoumabhat@mail.com',
             fonction: 'Practitioner',
-            speciality:'Dermatologist',
+            speciality: 'Dermatologist',
             status: 'En attente',
-            bg:'#FFD400',
-            color:'#000',
+            bg: '#FFD400',
+            color: '#000',
             settings: false,
             access: '2',
         },
@@ -51,10 +51,10 @@ function Users() {
             name: 'Hassen Ounelli',
             email: 'houssemouelli@mail.com',
             fonction: 'Practitioner',
-            speciality:'Dermatologist',
+            speciality: 'Dermatologist',
             status: 'Accepté',
-            bg:'#1BC47D',
-            color:'#FFF',
+            bg: '#1BC47D',
+            color: '#FFF',
             settings: true,
             access: '1',
         },
@@ -63,18 +63,18 @@ function Users() {
             name: 'Sarra Bent',
             email: 'sarrabent@mail.com',
             fonction: 'Secretary',
-            speciality:'',
+            speciality: '',
             status: 'Accepté',
-            bg:'#1BC47D',
-            color:'#FFF',
+            bg: '#1BC47D',
+            color: '#FFF',
             settings: false,
             access: '2',
         },
     ]);
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "users" });
     if (!ready) return (<>loading translations...</>);
 
-    const closeDraw = () =>{
+    const closeDraw = () => {
         setEdit(false);
     }
 
@@ -83,7 +83,7 @@ function Users() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('substitute.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -91,7 +91,7 @@ function Users() {
             id: 'fonction',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.fonction'),
+            label: 'fonction',
             align: 'center',
             sortable: true
         },
@@ -99,7 +99,7 @@ function Users() {
             id: 'resquest',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.request'),
+            label: 'request',
             align: 'center',
             sortable: true
         },
@@ -107,7 +107,7 @@ function Users() {
             id: 'accessSettings',
             numeric: false,
             disablePadding: false,
-            label: t('users.accessSetting'),
+            label: 'accessSetting',
             align: 'center',
             sortable: true
         },
@@ -115,7 +115,7 @@ function Users() {
             id: 'access',
             numeric: true,
             disablePadding: false,
-            label: t('substitute.access'),
+            label: 'access',
             align: 'center',
             sortable: true
         },
@@ -123,7 +123,7 @@ function Users() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('substitute.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
@@ -136,41 +136,41 @@ function Users() {
         setRows([...rows])
     }
 
-    return(
+    return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('users.path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                 </RootStyled>
 
                 <ButtonStyled type='submit'
-                        variant="contained"
-                        startIcon={<IconUrl path='ic-setting'/> }
-                        onClick={() => {
-                            setEdit(true);
-                        }}
-                        color="primary">
-                    <span className="txt">{t('users.manageAccess')}</span>
+                    variant="contained"
+                    startIcon={<IconUrl path='ic-setting' />}
+                    onClick={() => {
+                        setEdit(true);
+                    }}
+                    color="primary">
+                    <span className="txt">{t('manageAccess')}</span>
                 </ButtonStyled>
                 <Button type='submit'
-                        variant="contained"
-                        onClick={() => {
-                            router.push(`/dashboard/settings/users/new`);
-                        }}
-                        color="success">
-                    {t('lieux.add')}
+                    variant="contained"
+                    onClick={() => {
+                        router.push(`/dashboard/settings/users/new`);
+                    }}
+                    color="success">
+                    {t('add')}
                 </Button>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <Otable headers={headCells}
-                        rows={rows}
-                        state={null}
-                        from={'users'}
-                        t={t}
-                        edit={null}
-                        handleConfig={null}
-                        handleChange={handleChange}/>
+                    rows={rows}
+                    state={null}
+                    from={'users'}
+                    t={t}
+                    edit={null}
+                    handleConfig={null}
+                    handleChange={handleChange} />
             </Box>
         </>
     )
@@ -178,7 +178,7 @@ function Users() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 
