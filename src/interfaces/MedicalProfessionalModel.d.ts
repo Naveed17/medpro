@@ -1,6 +1,6 @@
 interface MedicalProfessionalModel {
   uuid: string;
-  language: MedicalProfessionalLanguageModel[];
+  languages: MedicalProfessionalLanguageModel[];
   specialities: MedicalProfessionalSpecialityModel[];
   gender: string;
   isActive: boolean;

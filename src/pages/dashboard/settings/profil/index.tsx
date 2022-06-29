@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import {DashLayout} from "@features/base";
 import {
     CardContent,
     List,
@@ -19,7 +19,7 @@ import {
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
+import {RootStyled} from "@features/toolbar";
 import {configSelector} from "@features/base";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
@@ -62,11 +62,10 @@ function Profil() {
 
     useEffect(() => {
         if (data !== undefined){
-            // @ts-ignore
-            const medical_professional = data.data.medical_professional;
+            const medical_professional = (user as UserDataReply).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
-            setSpeciality(medical_professional.speciality.filter((spe:any) => spe.isMain)[0].speciality.name);
+            setSpeciality(medical_professional.specialities.filter((spe:any) => spe.isMain)[0].speciality.name);
             setLoading(false);
         }
     },[data])
