@@ -1,14 +1,14 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
 import { Box, Button } from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
-import {useRouter} from "next/router";
-import {Otable} from "@features/table";
+import { useRouter } from "next/router";
+import { Otable } from "@features/table";
 const Maps = dynamic(() => import("@features/maps/components/maps"), { ssr: false });
 
 function Lieux() {
@@ -27,19 +27,19 @@ function Lieux() {
             name: 'Hopital',
             actif: false,
             agenda: '1',
-            cords: [36.8364061,10.1611009]
+            cords: [36.8364061, 10.1611009]
         },
         {
             id: 3,
             name: 'Clinique',
             actif: true,
             agenda: '2',
-            cords: [36.8438734,10.2195565]
+            cords: [36.8438734, 10.2195565]
         }
     ]);
 
     const cords = rows.filter(row => row.actif).map((v) => v);
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "lieux" });
     if (!ready) return (<>loading translations...</>);
 
     const headCells = [
@@ -47,7 +47,7 @@ function Lieux() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('lieux.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -55,7 +55,7 @@ function Lieux() {
             id: 'actif',
             numeric: false,
             disablePadding: true,
-            label: t('lieux.actif'),
+            label: 'actif',
             align: 'center',
             sortable: true,
         },
@@ -63,7 +63,7 @@ function Lieux() {
             id: 'agenda',
             numeric: false,
             disablePadding: true,
-            label: t('lieux.sharedCalander'),
+            label: 'sharedCalander',
             align: 'center',
             sortable: true,
         },
@@ -71,7 +71,7 @@ function Lieux() {
             id: 'action',
             numeric: false,
             disablePadding: true,
-            label: t('lieux.action'),
+            label: 'action',
             align: 'center',
             sortable: true,
         },
@@ -93,33 +93,33 @@ function Lieux() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('lieux.path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                     <Button type='submit'
-                            variant="contained"
-                            onClick={() => {
-                                router.push(`/dashboard/settings/lieux/new`);
-                            }}
-                            color="success">
-                        {t('lieux.add')}
+                        variant="contained"
+                        onClick={() => {
+                            router.push(`/dashboard/settings/lieux/new`);
+                        }}
+                        color="success">
+                        {t('add')}
                     </Button>
                 </RootStyled>
             </SubHeader>
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                <Otable   headers={headCells}
-                          rows={rows}
-                          state={null}
-                          from={'lieux'}
-                          t={t}
-                          editMotif={editPlaces}
-                          handleConfig={handleConfig}
-                          handleChange={handleChange}/>
+            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                <Otable headers={headCells}
+                    rows={rows}
+                    state={null}
+                    from={'lieux'}
+                    t={t}
+                    editMotif={editPlaces}
+                    handleConfig={handleConfig}
+                    handleChange={handleChange} />
                 <Maps data={cords}></Maps>
             </Box>
         </>)
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 export default Lieux

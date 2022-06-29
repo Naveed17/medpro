@@ -1,14 +1,14 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
-import {Box, Button, Drawer} from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
-import {InsctructionDetails} from "@features/instructionDetails";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { configSelector, DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
+import { Box, Button, Drawer } from "@mui/material";
+import { useTranslation } from "next-i18next";
+import { Otable } from "@features/table";
+import { useAppSelector } from "@app/redux/hooks";
+import { InsctructionDetails } from "@features/instructionDetails";
 
 function Instructions() {
 
@@ -16,42 +16,42 @@ function Instructions() {
     const [rows, setRows] = useState([
         {
             id: 1,
-            name:'Instructions 1',
+            name: 'Instructions 1',
             actif: true
         },
         {
             id: 2,
-            name:'Instructions 2',
+            name: 'Instructions 2',
             actif: true
         },
         {
             id: 3,
-            name:'Instructions 3',
+            name: 'Instructions 3',
             actif: true
         },
         {
             id: 4,
-            name:'Instructions 4',
+            name: 'Instructions 4',
             actif: true
         },
         {
             id: 5,
-            name:'Instructions 5',
+            name: 'Instructions 5',
             actif: true
         },
         {
             id: 6,
-            name:'Instructions 6',
+            name: 'Instructions 6',
             actif: true
         },
     ]);
-    const {direction} = useAppSelector(configSelector);
+    const { direction } = useAppSelector(configSelector);
 
 
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "instructions" });
     if (!ready) return (<>loading translations...</>);
 
-    const closeDraw = () =>{
+    const closeDraw = () => {
         setEdit(false);
     }
 
@@ -60,7 +60,7 @@ function Instructions() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('instructions.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -68,7 +68,7 @@ function Instructions() {
             id: 'actif',
             numeric: true,
             disablePadding: false,
-            label: t('instructions.actif'),
+            label: 'actif',
             align: 'center',
             sortable: true
         },
@@ -76,7 +76,7 @@ function Instructions() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('instructions.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
@@ -91,28 +91,28 @@ function Instructions() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('instructions.path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                 </RootStyled>
 
                 <Button type='submit'
-                        variant="contained"
-                        onClick={() => {
-                            setEdit(true)
-                        }}
-                        color="success">
-                    {t('lieux.add')}
+                    variant="contained"
+                    onClick={() => {
+                        setEdit(true)
+                    }}
+                    color="success">
+                    {t('add')}
                 </Button>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <Otable headers={headCells}
-                        rows={rows}
-                        state={null}
-                        from={'instructions'}
-                        t={t}
-                        edit={null}
-                        handleConfig={null}
-                        handleChange={handleChange}/>
+                    rows={rows}
+                    state={null}
+                    from={'instructions'}
+                    t={t}
+                    edit={null}
+                    handleConfig={null}
+                    handleChange={handleChange} />
             </Box>
 
             <Drawer
@@ -120,14 +120,14 @@ function Instructions() {
                 open={edit}
                 dir={direction}
                 onClose={closeDraw}>
-                <InsctructionDetails closeDraw={closeDraw}/>
+                <InsctructionDetails closeDraw={closeDraw} />
             </Drawer>
-            </>
+        </>
     )
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 

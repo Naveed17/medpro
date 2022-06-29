@@ -16,7 +16,6 @@ import {
 import IconUrl from "@themes/urlIcon";
 import {CountryCodeSelect} from "@features/countryCodeSelect";
 import {Schedules} from "@features/schedules";
-import Schedule from "@interfaces/schedule";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
 

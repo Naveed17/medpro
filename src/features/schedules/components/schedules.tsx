@@ -2,7 +2,6 @@ import {Box, Button, Card, Collapse, Grid, Paper, Switch, Typography} from "@mui
 import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
 import React, {useState} from "react";
-import Schedule from "@interfaces/schedule";
 import {useTranslation} from "next-i18next";
 
 type SchedulesProps = {
