@@ -1,5 +1,4 @@
 import { SetStateAction, useEffect, useState } from "react";
-import * as React from "react";
 import { Box, TableBody, TableContainer, Table } from "@mui/material";
 import { OHead, rowsActionsData } from "@features/table";
 function descendingComparator(a: { [x: string]: number; }, b: { [x: string]: number; }, orderBy: string | number) {
@@ -50,7 +49,7 @@ function Otable({ ...props }) {
     );
 
     const Component: any = selectted?.component;
-
+    const loading = false;
     // Avoid a layout jump when reaching the last page with empty rows.
     const ids = rows.map((row: any) => row.id);
     useEffect(() => {
@@ -80,21 +79,21 @@ function Otable({ ...props }) {
                         getData={(data: any) => setTableHeadData(data)} />
 
                     <TableBody>
-                        {
-                            stableSort(rows, getComparator(order, orderBy))
-                                .map((row, index) => {
-                                    return (
-                                        <Component key={index}
-                                            row={row}
-                                            t={t}
-                                            tableHeadData={state}
-                                            handleChange={handleChange}
-                                            editMotif={edit}
-                                            active={active}
-                                            ids={ids} />
-                                    )
+                        {(loading ? Array.from(new Array(3)) : stableSort(rows, getComparator(order, orderBy)))
+                            .map((row, index) => {
+                                return (
+                                    <Component key={index}
+                                        row={row}
+                                        t={t}
+                                        tableHeadData={state}
+                                        handleChange={handleChange}
+                                        editMotif={edit}
+                                        active={active}
+                                        ids={ids} />
+                                )
 
-                                })
+                            })
+
                         }
                     </TableBody>
                 </Table>
