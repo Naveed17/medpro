@@ -12,7 +12,7 @@ function SettingsDialogs({ ...props }) {
   const data = props.data;
   const { action } = props;
   const Component: any = selectted ? selectted.component : action;
-  console.log(Component, "components");
+
   return (
     <>
       <Dialog

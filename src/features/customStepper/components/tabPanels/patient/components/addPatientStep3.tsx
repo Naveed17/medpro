@@ -7,7 +7,8 @@ const RootStyle = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   padding: theme.spacing(2),
 }));
-export default function AgendaStep() {
+export default function AgendaStep({ ...props }) {
+  const { t } = props;
   return (
     <RootStyle
       justifyContent="center"
@@ -27,18 +28,17 @@ export default function AgendaStep() {
         />
       </Player>
       <Typography variant="h6" gutterBottom sx={{ my: 3 }}>
-        Patient ajouté
+        {t("add-patient.added")}
       </Typography>
       <Typography
         variant="body1"
         textAlign={{ xs: "center", lg: "left" }}
         color="text.secondary"
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod
-        tempor
+        {t("add-patient.description")}
       </Typography>
       <Stack direction={{ lg: "row", xs: "column" }} spacing={2} mt={5}>
-        <Button variant="text-primary">Ajouter un autre patient</Button>
+        <Button variant="text-primary">{t("add-patient.add-new")}</Button>
         <Button
           variant="contained"
           color="warning"
@@ -49,7 +49,7 @@ export default function AgendaStep() {
           }}
           startIcon={<Icon path="ic-agenda-+" />}
         >
-          Ajouter RDV
+          {t("add-patient.add-appo")}
         </Button>
       </Stack>
     </RootStyle>

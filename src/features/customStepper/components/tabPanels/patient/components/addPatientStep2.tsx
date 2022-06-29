@@ -22,7 +22,7 @@ import _ from "lodash";
 import { useTranslation } from "next-i18next";
 
 export default function AddPatientStep2({ ...props }) {
-  const { onNext } = props;
+  const { onNext, t } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step2).length > 0;
@@ -57,8 +57,7 @@ export default function AddPatientStep2({ ...props }) {
     insurance.splice(index, 1);
     formik.setFieldValue("insurance", insurance);
   };
-  const { t, ready } = useTranslation("settings");
-  if (!ready) return <>loading translations...</>;
+
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -69,14 +68,14 @@ export default function AddPatientStep2({ ...props }) {
         onSubmit={handleSubmit}
       >
         <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 4 }}>
-          Information supplémentaires
+          {t("add-patient.additional-information")}
         </Typography>
 
         <Stack spacing={2} sx={{ mb: 3 }}>
           <Grid container spacing={2}>
             <Grid item md={6}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Region
+                {t("add-patient.region")}
               </Typography>
               <FormControl fullWidth>
                 <Select
@@ -92,7 +91,7 @@ export default function AddPatientStep2({ ...props }) {
                       ? Array.isArray(value)
                         ? value.join(", ")
                         : value
-                      : "Region"
+                      : t("add-patient.region-placeholder")
                   }
                 >
                   <MenuItem value="1">1</MenuItem>
@@ -103,7 +102,7 @@ export default function AddPatientStep2({ ...props }) {
             </Grid>
             <Grid item md={6}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Zip Code
+                {t("add-patient.zip")}
               </Typography>
               <TextField
                 variant="outlined"
@@ -116,13 +115,13 @@ export default function AddPatientStep2({ ...props }) {
           </Grid>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Address
+              {t("add-patient.address")}
             </Typography>
             <TextField
               variant="outlined"
               multiline
               rows={3}
-              placeholder="Enter the patient's address"
+              placeholder={t("add-patient.address-placeholder")}
               size="small"
               fullWidth
               {...getFieldProps("address")}
@@ -146,7 +145,7 @@ export default function AddPatientStep2({ ...props }) {
               >
                 <Icon path="ic-plus" />
               </IconButton>
-              Insurance
+              {t("add-patient.assurance")}
             </Typography>
             <Box>
               {values.insurance.map((val, index: number) => (
@@ -170,7 +169,7 @@ export default function AddPatientStep2({ ...props }) {
                             ? Array.isArray(value)
                               ? value.join(", ")
                               : value
-                            : "Assurance"
+                            : t("add-patient.assurance")
                         }
                       >
                         <MenuItem value="1">1</MenuItem>
@@ -183,7 +182,7 @@ export default function AddPatientStep2({ ...props }) {
                     <Stack direction="row" spacing={2}>
                       <TextField
                         variant="outlined"
-                        placeholder="Enter the insurance number"
+                        placeholder={t("add-patient.assurance-phone-error")}
                         size="small"
                         fullWidth
                         {...getFieldProps(`insurance[${index}].number`)}
@@ -212,10 +211,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              E-mail
+              {t("add-patient.email")}
             </Typography>
             <TextField
-              placeholder="Enter the patient's email address"
+              placeholder={t("add-patient.email-placeholder")}
               type="email"
               variant="outlined"
               size="small"
@@ -225,10 +224,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              CIN
+              {t("add-patient.cin")}
             </Typography>
             <TextField
-              placeholder="Enter the patient's CIN"
+              placeholder={t("add-patient.cin-placeholder")}
               type="number"
               variant="outlined"
               size="small"
@@ -238,10 +237,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              From
+              {t("add-patient.from")}
             </Typography>
             <TextField
-              placeholder="Who?"
+              placeholder={t("add-patient.from-placeholder")}
               type="text"
               variant="outlined"
               size="small"
@@ -257,10 +256,10 @@ export default function AddPatientStep2({ ...props }) {
           mt={"auto"}
         >
           <Button variant="text-black" color="primary">
-            Annuler
+            {t("add-patient.return")}
           </Button>
           <Button variant="contained" type="submit" color="primary">
-            Suivant
+            {t("add-patient.register")}
           </Button>
         </Stack>
       </Stack>

@@ -3,12 +3,7 @@ import TableCell from "@mui/material/TableCell";
 import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
 import TableRowStyled from "@features/table/components/overrides/tableRowStyled";
 import Icon from "@themes/urlIcon";
-export default function PermissionRow(props: {
-  row: any;
-  handleChange: any;
-  edit: any;
-  t: any;
-}) {
+export default function PermissionRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
   return (
     <TableRowStyled

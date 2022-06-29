@@ -5,6 +5,9 @@ export default function Dialog(theme) {
     MuiDialog: {
       styleOverrides: {
         root: {
+          "& .MuiBackdrop-root": {
+            backgroundColor: "rgba(6, 150, 214, 0.2);",
+          },
           "& .MuiDialogTitle-root": {
             background: theme.palette.primary.main,
             color: "white",

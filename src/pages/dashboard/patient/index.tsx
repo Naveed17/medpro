@@ -16,11 +16,9 @@ import {
   AddPatientStep3,
 } from "@features/customStepper";
 import { DuplicateDetected } from "@features/duplicateDetected";
-import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import { Dialog } from "@features/dialog";
 import { addPatientSelector } from "@features/customStepper";
-import _ from "lodash";
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -83,15 +81,15 @@ const PatiendData = [
 
 const stepperData = [
   {
-    title: "Info personnelle",
+    title: "personal-info",
     children: AddPatientStep1,
   },
   {
-    title: "Info supplémentaires",
+    title: "additional-information",
     children: AddPatientStep2,
   },
   {
-    title: "Fin",
+    title: "fin",
     children: AddPatientStep3,
   },
 ];
@@ -168,17 +166,15 @@ function Patient() {
   const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const isAlreadyExist =
-    _.keys(stepsData.step1).length > 0 && _.keys(stepsData.step2).length > 0;
-
-  const [open, setOpen] = useState(isAlreadyExist);
-  console.log(open, "isAlreadyExist");
-  const { t, ready } = useTranslation("patient");
-  if (!ready) return <>loading translations...</>;
+    stepsData.step1.name !== "" && stepsData.step2.email !== "";
   const { direction } = useAppSelector(configSelector);
+  const [open, setOpen] = useState(isAlreadyExist);
+
   useEffect(() => {
     setOpen(isAlreadyExist);
   }, [isAlreadyExist]);
-
+  const { t, ready } = useTranslation("patient");
+  if (!ready) return <>loading translations...</>;
   return (
     <>
       <SubHeader>
@@ -216,14 +212,14 @@ function Patient() {
             setOpenDrawer(false);
           }}
         >
-          <CustomStepper stepperData={stepperData} />
+          <CustomStepper t={t} stepperData={stepperData} />
         </Drawer>
         <Dialog
           action={DuplicateDetected}
           open={open}
           data={{ ...stepsData.step1, ...stepsData.step2 }}
           direction={direction}
-          title={t("dialogs.titles.")}
+          title={t("add-patient.dialog.title")}
           t={t}
           dialogSave={() => alert("save")}
           actionDialog={
@@ -237,7 +233,7 @@ function Patient() {
                   justifyContent: "space-between",
                 }}
               >
-                <Button>Le faire plus tard</Button>
+                <Button>{t("add-patient.dialog.later")}</Button>
                 <Box className="btn-right">
                   <Button
                     variant="text-black"
@@ -248,7 +244,7 @@ function Patient() {
                     {" "}
                     <span className="sm-none">
                       {" "}
-                      Ces patients ne sont pas doublons
+                      {t("add-patient.dialog.no-duplicates")}
                     </span>
                   </Button>
                   <Button
@@ -258,7 +254,10 @@ function Patient() {
                     }}
                     startIcon={<IconUrl path="check" />}
                   >
-                    <span className="sm-none"> Enregistrer</span>
+                    <span className="sm-none">
+                      {" "}
+                      {t("add-patient.register")}
+                    </span>
                   </Button>
                 </Box>
               </Box>

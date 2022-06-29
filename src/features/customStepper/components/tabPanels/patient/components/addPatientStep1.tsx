@@ -36,11 +36,8 @@ interface touchedProps {
   firstName: string;
   phone: string | number;
 }
-export default function AddPatientStep1({
-  onNext,
-}: {
-  onNext: (data: any) => void;
-}) {
+export default function AddPatientStep1({ ...props }) {
+  const { t, onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step1).length > 0;
@@ -52,23 +49,21 @@ export default function AddPatientStep1({
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
     name: Yup.string()
-      .min(3, "Too Short!")
-      .max(50, "Too Long!")
-      .required("Name required"),
+      .min(3, t("add-patient.name-error"))
+      .max(50, t("add-patient.name-error"))
+      .required(t("add-patient.name-error")),
     firstName: Yup.string()
-      .min(3, "Too Short!")
-      .max(50, "Too Long!")
-      .required(
-        "The first name must contain at least 3 characters, without special characters"
-      ),
+      .min(3, t("add-patient.first-name-error"))
+      .max(50, t("add-patient.first-name-error"))
+      .required(t("add-patient.first-name-error")),
     phone: Yup.string()
-      .min(9, "Not a valid number")
-      .matches(phoneRegExp, "Phone number is not valid")
-      .required("Phone number required"),
+      .min(9, t("add-patient.telephone-error"))
+      .matches(phoneRegExp, t("add-patient.telephone-error"))
+      .required(t("add-patient.telephone-error")),
     dob: Yup.object().shape({
-      day: Yup.string().required("Day is required"),
-      month: Yup.string().required("Month is required"),
-      year: Yup.string().required("Year is required"),
+      day: Yup.string().required(t("add-patient.date-error")),
+      month: Yup.string().required(t("add-patient.date-error")),
+      year: Yup.string().required(t("add-patient.date-error")),
     }),
   });
 
@@ -112,13 +107,13 @@ export default function AddPatientStep1({
         onSubmit={handleSubmit}
       >
         <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 4 }}>
-          Information personnelle
+          {t("add-patient.personal-info")}
         </Typography>
 
         <Stack spacing={2} sx={{ mb: 3 }}>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              Group
+              {t("add-patient.group")}
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -134,7 +129,7 @@ export default function AddPatientStep1({
                     ? Array.isArray(value)
                       ? value.join(", ")
                       : value
-                    : "Group"
+                    : t("add-patient.group-placeholder")
                 }
               >
                 <MenuItem value="1">1</MenuItem>
@@ -149,12 +144,12 @@ export default function AddPatientStep1({
                 <FormControlLabel
                   value="Male"
                   control={<Radio size="small" />}
-                  label="Mr"
+                  label={t("add-patient.mr")}
                 />
                 <FormControlLabel
                   value="Female"
                   control={<Radio size="small" />}
-                  label="Mrs"
+                  label={t("add-patient.mrs")}
                 />
               </RadioGroup>
             </FormControl>
@@ -166,14 +161,14 @@ export default function AddPatientStep1({
               gutterBottom
               component="span"
             >
-              Nom{" "}
+              {t("add-patient.name")}{" "}
               <Typography component="span" color="error">
                 *
               </Typography>
             </Typography>
             <TextField
               variant="outlined"
-              placeholder="Type the patient's name"
+              placeholder={t("add-patient.name-placeholder")}
               size="small"
               fullWidth
               {...getFieldProps("name")}
@@ -192,13 +187,13 @@ export default function AddPatientStep1({
               gutterBottom
               component="span"
             >
-              First name
+              {t("add-patient.first-name")}
               <Typography component="span" color="error">
                 *
               </Typography>
             </Typography>
             <TextField
-              placeholder="Enter the patient's first name"
+              placeholder={t("add-patient.first-name-placeholder")}
               variant="outlined"
               size="small"
               fullWidth
@@ -218,7 +213,7 @@ export default function AddPatientStep1({
               gutterBottom
               component="span"
             >
-              Date de naissance{" "}
+              {t("add-patient.date-of-birth")}
               <Typography component="span" color="error">
                 *
               </Typography>
@@ -237,7 +232,7 @@ export default function AddPatientStep1({
                       ? Array.isArray(value)
                         ? value.join(", ")
                         : value
-                      : "Day"
+                      : t("add-patient.day")
                   }
                   error={Boolean(touched.dob && errors.dob)}
                 >
@@ -264,7 +259,7 @@ export default function AddPatientStep1({
                       ? Array.isArray(value)
                         ? value.join(", ")
                         : value
-                      : "Month"
+                      : t("add-patient.month")
                   }
                   error={Boolean(touched.dob && errors.dob)}
                 >
@@ -291,7 +286,7 @@ export default function AddPatientStep1({
                       ? Array.isArray(value)
                         ? value.join(", ")
                         : value
-                      : "Year"
+                      : t("add-patient.year")
                   }
                   error={Boolean(touched.dob && errors.dob)}
                 >
@@ -314,7 +309,7 @@ export default function AddPatientStep1({
               gutterBottom
               component="span"
             >
-              Numéro de téléphone{" "}
+              {t("add-patient.telephone")}{" "}
               <Typography component="span" color="error">
                 *
               </Typography>
@@ -355,10 +350,10 @@ export default function AddPatientStep1({
           mt={"auto"}
         >
           <Button variant="text-black" color="primary">
-            Annuler
+            {t("add-patient.cancel")}
           </Button>
           <Button variant="contained" type="submit" color="primary">
-            Suivant
+            {t("add-patient.next")}
           </Button>
         </Stack>
       </Stack>

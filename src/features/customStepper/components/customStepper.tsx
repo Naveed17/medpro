@@ -31,7 +31,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function ScrollableTabsButtonAuto({ ...props }) {
-  const { stepperData } = props;
+  const { stepperData, t } = props;
   const [value, setValue] = useState<number>(0);
   const [last, setLast] = useState<number>(1);
   const handleChange = (event: SyntheticEvent, val: number) => {
@@ -61,7 +61,7 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
                 disabled={i > value && i >= last}
                 label={
                   <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
-                    <b>{i + 1}.</b> {v.title}
+                    <b>{i + 1}.</b> {t(`add-patient.${v.title}`)}
                   </Box>
                 }
               />
@@ -80,6 +80,7 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
             return (
               <TabPanel key={Math.random()} value={value} index={i}>
                 <Component
+                  t={t}
                   onNext={(val: number) => {
                     setValue(val);
                     setLast(last < stepperData.length ? last + 1 : last);

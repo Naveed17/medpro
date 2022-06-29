@@ -17,7 +17,7 @@ const initialState: MenuState = {
         month: "",
         year: "",
       },
-      phone: 0,
+      phone: 123123123,
       gender: "",
     },
     step2: {

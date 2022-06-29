@@ -3,7 +3,7 @@ export default function Backdrop(theme) {
     MuiBackdrop: {
       styleOverrides: {
         root: {
-          // backgroundColor: 'rgba(255, 255, 255, 0.77)',
+          // backgroundColor: "rgba(6, 150, 214, 0.2);",
         },
       },
     },
