@@ -10,7 +10,7 @@ import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import React from "react";
 
-function StepperCheckStatus({ doctor }: any) {
+function CheckProfilStatus({ doctor }: any) {
 
     const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers.check-status' });
     if (!ready) return (<>loading translations...</>);
@@ -71,4 +71,4 @@ function StepperCheckStatus({ doctor }: any) {
   );
 }
 
-export default StepperCheckStatus;
+export default CheckProfilStatus;
