@@ -32,6 +32,14 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "waitingRoom",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/waitingRoomRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
     action: "holidays",
     component: dynamic((): any =>
       import("@features/table/components/rows/HolidayRow").then((mod) => mod)
