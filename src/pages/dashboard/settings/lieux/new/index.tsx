@@ -21,7 +21,7 @@ import {
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import {styled} from "@mui/material/styles";
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {CountryCodeSelect} from "@features/countryCodeSelect";
 import {useRouter} from "next/router";
 import * as Yup from "yup";

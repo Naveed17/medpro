@@ -4,7 +4,7 @@ import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box, Typography} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/calendarToolbar";
+import {CalendarToolbar} from "@features/toolbar";
 import {DashLayout} from "@features/base";
 import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";

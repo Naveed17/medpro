@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import { SubHeader } from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {useTranslation} from "next-i18next";
 import { Box } from "@mui/material";
 import {DashLayout} from "@features/base";

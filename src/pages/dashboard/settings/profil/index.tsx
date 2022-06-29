@@ -7,7 +7,7 @@ import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box,
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {configSelector} from "@features/base";
 import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";

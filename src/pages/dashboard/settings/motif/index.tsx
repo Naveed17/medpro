@@ -6,7 +6,7 @@ import { Box, Button, Drawer } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import { EditMotifDialog } from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {configSelector} from "@features/base";
 import {useAppSelector} from "@app/redux/hooks";
 import {Otable} from "@features/table";

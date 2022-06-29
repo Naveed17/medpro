@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import {ButtonBadgeStyled, RootStyled} from "@features/calendarToolbar";
+import {ButtonBadgeStyled, RootStyled} from "@features/toolbar/components/calendarToolbar";
 import {
     Badge,
     Box,

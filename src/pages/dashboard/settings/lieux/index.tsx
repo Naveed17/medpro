@@ -3,7 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import DashLayout from "@features/base/components/dashLayout/dashLayout";
 import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
 import { Box, Button } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
