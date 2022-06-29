@@ -1,14 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
+import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { Stack, Checkbox, TextField, Switch } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import CodeIcon from '@mui/icons-material/Code';
-import TableHeadStyled from "@features/table/components/overrides/tableHeadStyled";
-
 function OHead({ ...props }) {
 
     const { order, orderBy, onRequestSort, data, state, handleConfig, t } = props;
@@ -21,7 +20,7 @@ function OHead({ ...props }) {
     }
 
     return (
-        <TableHeadStyled>
+        <TableHead>
             <TableRow>
                 {data.map((headCell: any) => (
                     <TableCell
@@ -91,7 +90,7 @@ function OHead({ ...props }) {
                     </TableCell>
                 ))}
             </TableRow>
-        </TableHeadStyled>
+        </TableHead>
     );
 }
 
