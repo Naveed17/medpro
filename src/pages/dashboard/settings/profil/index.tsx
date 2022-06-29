@@ -53,7 +53,7 @@ function Profil() {
     }
 
     const { data: user } = session as Session;
-    const medical_entity = (user as any).data.medical_entities.filter((m:any) => m.is_default)[0].medical_entity;
+    const medical_entity = (user as UserDataReply).medical_entity as MedicalEntityModel;
     const { data, error } = useRequest({
         method: "GET",
         url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
