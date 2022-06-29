@@ -1,15 +1,15 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { DashLayout } from "@features/base";
 import { Box, Button, Drawer } from "@mui/material";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import { EditMotifDialog } from "@features/editMotifDialog";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
-import {configSelector} from "@features/base";
-import {useAppSelector} from "@app/redux/hooks";
-import {Otable} from "@features/table";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
+import { configSelector } from "@features/base";
+import { useAppSelector } from "@app/redux/hooks";
+import { Otable } from "@features/table";
 
 function Motif() {
     const [rows, setRows] = useState([
@@ -55,13 +55,13 @@ function Motif() {
         active: false
     });
     const [selected, setSelected] = useState();
-    const {direction} = useAppSelector(configSelector);
+    const { direction } = useAppSelector(configSelector);
 
-    const closeDraw = () =>{
+    const closeDraw = () => {
         setEdit(false);
     }
 
-    const {t, ready} = useTranslation('settings');
+    const { t, ready } = useTranslation('settings', { keyPrefix: "motif" });
     if (!ready) return (<>loading translations...</>);
 
     const headCells = [
@@ -69,7 +69,7 @@ function Motif() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('motif.name'),
+            label: "name",
             align: 'left',
             sortable: true,
         },
@@ -77,7 +77,7 @@ function Motif() {
             id: 'duration',
             numeric: false,
             disablePadding: false,
-            label: t('motif.duration'),
+            label: 'duration',
             align: 'left',
             sortable: false
         },
@@ -85,7 +85,7 @@ function Motif() {
             id: 'delay_min',
             numeric: false,
             disablePadding: false,
-            label: t('motif.delay_min'),
+            label: 'delay_min',
             align: 'left',
             sortable: false
         },
@@ -93,7 +93,7 @@ function Motif() {
             id: 'delay_max',
             numeric: true,
             disablePadding: false,
-            label: t('motif.delay_max'),
+            label: 'delay_max',
             align: 'left',
             sortable: false
         },
@@ -101,7 +101,7 @@ function Motif() {
             id: 'agenda',
             numeric: true,
             disablePadding: false,
-            label: t('motif.agenda'),
+            label: 'agenda',
             align: 'center',
             sortable: false
         },
@@ -109,7 +109,7 @@ function Motif() {
             id: 'type',
             numeric: false,
             disablePadding: false,
-            label: t('motif.type'),
+            label: 'type',
             align: 'center',
             sortable: true
         },
@@ -117,7 +117,7 @@ function Motif() {
             id: 'active',
             numeric: false,
             disablePadding: false,
-            label: t('motif.active'),
+            label: 'active',
             align: 'center',
             sortable: false
         },
@@ -125,7 +125,7 @@ function Motif() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('motif.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
@@ -137,7 +137,7 @@ function Motif() {
                 props.active = !props.active;
                 if (!props.active) {
                     state.active = false;
-                    setState({...state});
+                    setState({ ...state });
                 }
                 break;
             case "duration":
@@ -162,10 +162,10 @@ function Motif() {
             rows.map(row => row.active = state.active);
             setRows([...rows]);
         }
-        setState({...state});
+        setState({ ...state });
     }
 
-    const editMotif = (props: any) =>{
+    const editMotif = (props: any) => {
         setEdit(true)
         setSelected(props);
     }
@@ -174,30 +174,30 @@ function Motif() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('motif.path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                     <Button type='submit'
-                            variant="contained"
-                            onClick={()=>{editMotif(null)}}
-                            color="success">
-                        {t('motif.add')}
+                        variant="contained"
+                        onClick={() => { editMotif(null) }}
+                        color="success">
+                        {t('add')}
                     </Button>
                 </RootStyled>
             </SubHeader>
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                 <Otable headers={headCells}
-                        rows={rows}
-                        state={state}
-                        from={'motif'}
-                        t={t}
-                        edit={editMotif}
-                        handleConfig={handleConfig}
-                        handleChange={handleChange}/>
+                    rows={rows}
+                    state={state}
+                    from={'motif'}
+                    t={t}
+                    edit={editMotif}
+                    handleConfig={handleConfig}
+                    handleChange={handleChange} />
                 <Drawer
                     anchor={'right'}
                     open={edit}
                     dir={direction}
                     onClose={closeDraw}>
-                    <EditMotifDialog data={selected} closeDraw={closeDraw}/>
+                    <EditMotifDialog data={selected} closeDraw={closeDraw} />
                 </Drawer>
             </Box>
         </>
@@ -206,7 +206,7 @@ function Motif() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 export default Motif

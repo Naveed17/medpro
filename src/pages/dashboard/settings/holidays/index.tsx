@@ -1,39 +1,39 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
 import { SubHeader } from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
-import {useTranslation} from "next-i18next";
-import {Box, Button, Drawer} from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
-import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
-import {HolidayDetails} from "@features/holidayDetails";
+import { RootStyled } from "@features/toolbar";
+import { useTranslation } from "next-i18next";
+import { Box, Button, Drawer } from "@mui/material";
+import { configSelector, DashLayout } from "@features/base";
+import { Otable } from "@features/table";
+import { useAppSelector } from "@app/redux/hooks";
+import { HolidayDetails } from "@features/holidayDetails";
 
 function Holidays() {
 
-    const {direction} = useAppSelector(configSelector);
+    const { direction } = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
     const [rows, setRows] = useState([
         {
             id: 1,
             name: 'Congés',
             start: 'Fri April 10',
-            time_start:'14:30',
+            time_start: '14:30',
             end: 'Fri April 10',
             time_end: '14:30',
             praticien: "Dr Omar OUNELLI"
         },
     ]);
 
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays" });
     if (!ready) return (<>loading translations...</>);
     const headCells = [
         {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('holidays.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -41,7 +41,7 @@ function Holidays() {
             id: 'type',
             numeric: false,
             disablePadding: false,
-            label: t('holidays.start'),
+            label: 'start',
             align: 'center',
             sortable: true
         },
@@ -49,7 +49,7 @@ function Holidays() {
             id: 'speciality',
             numeric: false,
             disablePadding: false,
-            label: t('holidays.end'),
+            label: 'end',
             align: 'center',
             sortable: true
         },
@@ -57,7 +57,7 @@ function Holidays() {
             id: 'place',
             numeric: true,
             disablePadding: false,
-            label: t('holidays.praticien'),
+            label: 'praticien',
             align: 'center',
             sortable: true
         },
@@ -65,48 +65,48 @@ function Holidays() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('holidays.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
     ];
 
-    const closeDraw = () =>{
+    const closeDraw = () => {
         setOpen(false);
     }
 
     return (<>
         <SubHeader>
             <RootStyled>
-                <p style={{margin: 0}}>{t('holidays.path')}</p>
+                <p style={{ margin: 0 }}>{t('path')}</p>
             </RootStyled>
 
             <Button type='submit'
-                    variant="contained"
-                    onClick={() => {
-                        setOpen(true);
-                    }}
-                    color="success">
-                {t('lieux.add')}
+                variant="contained"
+                onClick={() => {
+                    setOpen(true);
+                }}
+                color="success">
+                {t('add')}
             </Button>
         </SubHeader>
 
-        <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+        <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
             <Otable headers={headCells}
-                    rows={rows}
-                    state={null}
-                    from={'holidays'}
-                    t={t}
-                    edit={null}
-                    handleConfig={null}
-                    handleChange={null}/>
+                rows={rows}
+                state={null}
+                from={'holidays'}
+                t={t}
+                edit={null}
+                handleConfig={null}
+                handleChange={null} />
 
             <Drawer
                 anchor={'right'}
                 open={open}
                 dir={direction}
                 onClose={closeDraw}>
-                <HolidayDetails closeDraw={closeDraw}/>
+                <HolidayDetails closeDraw={closeDraw} />
             </Drawer>
         </Box>
 
@@ -115,7 +115,7 @@ function Holidays() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 

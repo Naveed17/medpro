@@ -1,11 +1,11 @@
 import { SetStateAction, useEffect, useState } from "react";
-import * as React from "react";
 import { Box, TableBody, TableContainer, Table } from "@mui/material";
-import OHead from "@features/table/components/header";
-import rowsActionsData from "@features/table/components/config";
-import { Pagination } from "@features/pagination";
-
-function descendingComparator(a: any, b: any, orderBy: any) {
+import { OHead, rowsActionsData } from "@features/table";
+function descendingComparator(
+  a: { [x: string]: number },
+  b: { [x: string]: number },
+  orderBy: string | number
+) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -14,14 +14,20 @@ function descendingComparator(a: any, b: any, orderBy: any) {
   }
   return 0;
 }
-type Order = "asc" | "desc";
-function getComparator(order: any, orderBy: any) {
+function getComparator(order: string, orderBy: string) {
   return order === "desc"
-    ? (a: any, b: any) => descendingComparator(a, b, orderBy)
-    : (a: any, b: any) => -descendingComparator(a, b, orderBy);
+    ? (a: { [x: string]: number }, b: { [x: string]: number }) =>
+        descendingComparator(a, b, orderBy)
+    : (a: { [x: string]: number }, b: { [x: string]: number }) =>
+        -descendingComparator(a, b, orderBy);
 }
-
-function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
+function stableSort(
+  array: any[],
+  comparator: {
+    (a: { [x: string]: number }, b: { [x: string]: number }): number;
+    (arg0: any, arg1: any): any;
+  }
+) {
   const stabilizedThis = array.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
@@ -32,55 +38,22 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-
-const rowsPerPage = 10;
-function Otable(props: any) {
+function Otable({ ...props }) {
   const { rows, headers, state, handleChange, t, from, edit, handleConfig } =
     props;
-  const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
   const [tableHeadData, setTableHeadData] = useState<any>(null);
   const [active, setActive] = useState([]);
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
   const handleRequestSort = (event: any, property: SetStateAction<string>) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
-
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelecteds = rows.map((n: { name: string }) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-  const handleClick = (name: string) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected: readonly string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelected(newSelected);
-  };
-
   const selectted = rowsActionsData.find((item) => from === item.action);
-
   const Component: any = selectted?.component;
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  console.log(Component, "Component", selectted);
+  const loading = false;
   // Avoid a layout jump when reaching the last page with empty rows.
   const ids = rows.map((row: any) => row.id);
   useEffect(() => {
@@ -94,9 +67,8 @@ function Otable(props: any) {
   }, [tableHeadData?.active]);
   return (
     <Box>
-      <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
+      <TableContainer>
         <Table
-          stickyHeader
           sx={{ minWidth: 750 }}
           aria-labelledby="tableTitle"
           size={"medium"}
@@ -107,45 +79,31 @@ function Otable(props: any) {
             state={state}
             handleConfig={handleConfig}
             onRequestSort={handleRequestSort}
+            t={t}
             data={headers}
             getData={(data: any) => setTableHeadData(data)}
-            onSelectAllClick={handleSelectAllClick}
-            rowCount={rows.length}
-            numSelected={selected.length}
           />
-
           <TableBody>
-            {stableSort(rows, getComparator(order as Order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const isItemSelected = isSelected(row.name as string);
-                const labelId = `enhanced-table-checkbox-${index}`;
-                return (
-                  <Component
-                    key={index}
-                    row={row}
-                    t={t}
-                    tableHeadData={state}
-                    handleChange={handleChange}
-                    editMotif={edit}
-                    active={active}
-                    ids={ids}
-                    labelId={labelId}
-                    isItemSelected={isItemSelected}
-                    handleClick={handleClick}
-                  />
-                );
-              })}
+            {(loading
+              ? Array.from(new Array(3))
+              : stableSort(rows, getComparator(order, orderBy))
+            ).map((row, index) => {
+              return (
+                <Component
+                  key={index}
+                  row={row}
+                  t={t}
+                  tableHeadData={state}
+                  handleChange={handleChange}
+                  editMotif={edit}
+                  active={active}
+                  ids={ids}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
-      <Box py={1} />
-      <Pagination
-        page={page}
-        total={rows.length}
-        count={(rows.length / rowsPerPage + 1).toFixed(0)}
-        setPage={(v: number) => setPage(v)}
-      />
     </Box>
   );
 }

@@ -124,7 +124,9 @@
     "nbAccess": "NBR accés",
     "actif": "est actif",
     "public": "public",
-    "action": "action"
+    "action": "action",
+    "remove": "Supprimer",
+    "update": "Editer"
   },
   "holidays": {
     "path": "Paramètres > Congé et Absences",
@@ -133,6 +135,7 @@
     "end": "Date fin",
     "praticien": "praticien",
     "action": "action",
+    "add": "Ajouter",
     "dialog": {
       "add": "Ajouter congé ou absence",
       "selectOne": "Choisissez le praticien qui affecte cette consultation",
@@ -159,12 +162,22 @@
     "tname": "Tapez le nom remplaçant",
     "mail": "E-mail",
     "add": "Ajouter un remplaçant",
-    "info": "information sur le remplaçant"
+    "info": "information sur le remplaçant",
+    "remove": "Supprimer"
   },
   "users": {
     "path": "Paramètres > Utilisateurs",
     "manageAccess": "Gestion des accès",
     "accessSetting": "Paramètre",
+    "add": "Ajouter",
+    "name": "Nom",
+    "fonction": "Fonction",
+    "request": "Demande",
+    "access": "accès",
+    "action": "Action",
+    "remove": "Supprimer",
+    "update": "Editer",
+    "agenda": "Agenda",
     "new": {
       "path": "Paramètres > Utilisateurs > Ajouter",
       "user": "Utilisateur",
@@ -196,6 +209,7 @@
     "add": "Ajouter instruction",
     "update": "Modifier instruction",
     "insctruction": "instruction",
-    "tinsctruction": "Tapez içi votre instruction"
+    "tinsctruction": "Tapez içi votre instruction",
+    "remove": "Supprimer"
   }
 }

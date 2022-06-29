@@ -1,20 +1,22 @@
-import React, { useState } from "react"
-import { Typography } from "@mui/material"
+import React, {useState} from "react"
+import {Typography} from "@mui/material"
 import WaitingRoomStyled from "./overrides/waitingRoomStyle"
-import { Accordion } from '@features/accordion/components'
-import { SidebarCheckbox } from '@features/sidebarCheckbox/components'
-import { motifData, statutData, typeRdv } from './config'
-import { useTranslation } from "next-i18next"
+import {Accordion} from '@features/accordion'
+import {SidebarCheckbox} from '@features/sidebarCheckbox'
+import {motifData, statutData, typeRdv} from './config'
+import {useTranslation} from "next-i18next"
+
 function WaitingRoom() {
     const [motifstate, setmotifstate] = useState({});
     const [statutstate, setstatutstate] = useState({});
     const [typeRdvstate, settypeRdvstate] = useState({});
-    const { t, ready } = useTranslation('waitingRoom', { keyPrefix: 'filter' });
+    const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
     if (!ready) return (<>loading translations...</>);
 
     return (
         <WaitingRoomStyled>
-            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2" display={{ xs: 'none', sm: 'block' }}>
+            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2"
+                        display={{xs: 'none', sm: 'block'}}>
                 {t("title")}
             </Typography>
             <Accordion
@@ -38,7 +40,7 @@ function WaitingRoom() {
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => setmotifstate({ ...motifstate, [item.name]: v })} />
+                                    data={item} onChange={(v) => setmotifstate({...motifstate, [item.name]: v})}/>
                             </React.Fragment>
                         ))
                     },
@@ -55,7 +57,7 @@ function WaitingRoom() {
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => setstatutstate({ ...statutstate, [item.name]: v })} />
+                                    data={item} onChange={(v) => setstatutstate({...statutstate, [item.name]: v})}/>
                             </React.Fragment>
                         ))
                     },
@@ -72,7 +74,7 @@ function WaitingRoom() {
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => settypeRdvstate({ ...typeRdvstate, [item.name]: v })} />
+                                    data={item} onChange={(v) => settypeRdvstate({...typeRdvstate, [item.name]: v})}/>
                             </React.Fragment>
                         ))
                     },

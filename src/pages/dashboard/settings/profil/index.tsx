@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import BasicAlert from "@themes/overrides/Alert";
-import { RootStyled } from "@features/calendarToolbar";
+import { RootStyled } from "@features/toolbar";
 import { configSelector } from "@features/base";
 import { Dialog } from "@features/dialog";
 import { SubHeader } from "@features/subHeader";

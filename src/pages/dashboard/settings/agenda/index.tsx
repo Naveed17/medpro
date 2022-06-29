@@ -1,12 +1,12 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
 import { SubHeader } from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
-import {useTranslation} from "next-i18next";
+import { RootStyled } from "@features/toolbar";
+import { useTranslation } from "next-i18next";
 import { Box } from "@mui/material";
-import {DashLayout} from "@features/base";
-import {Otable} from "@features/table";
+import { DashLayout } from "@features/base";
+import { Otable } from "@features/table";
 
 function Agenda() {
 
@@ -43,7 +43,7 @@ function Agenda() {
         }
     ])
 
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings", { keyPrefix: "agenda" });
     if (!ready) return (<>loading translations...</>);
 
     const headCells = [
@@ -51,7 +51,7 @@ function Agenda() {
             id: 'name',
             numeric: false,
             disablePadding: true,
-            label: t('agenda.name'),
+            label: 'name',
             align: 'left',
             sortable: true,
         },
@@ -59,7 +59,7 @@ function Agenda() {
             id: 'type',
             numeric: false,
             disablePadding: false,
-            label: t('agenda.type'),
+            label: 'type',
             align: 'center',
             sortable: true
         },
@@ -67,7 +67,7 @@ function Agenda() {
             id: 'speciality',
             numeric: false,
             disablePadding: false,
-            label: t('agenda.speciality'),
+            label: 'speciality',
             align: 'center',
             sortable: true
         },
@@ -75,7 +75,7 @@ function Agenda() {
             id: 'place',
             numeric: true,
             disablePadding: false,
-            label: t('agenda.place'),
+            label: 'place',
             align: 'center',
             sortable: true
         },
@@ -83,7 +83,7 @@ function Agenda() {
             id: 'nbAccess',
             numeric: true,
             disablePadding: false,
-            label: t('agenda.nbAccess'),
+            label: 'nbAccess',
             align: 'center',
             sortable: false
         },
@@ -91,7 +91,7 @@ function Agenda() {
             id: 'actif',
             numeric: false,
             disablePadding: false,
-            label: t('agenda.actif'),
+            label: 'actif',
             align: 'center',
             sortable: false
         },
@@ -99,7 +99,7 @@ function Agenda() {
             id: 'public',
             numeric: false,
             disablePadding: false,
-            label: t('agenda.public'),
+            label: 'public',
             align: 'center',
             sortable: false
         },
@@ -107,7 +107,7 @@ function Agenda() {
             id: 'action',
             numeric: false,
             disablePadding: false,
-            label: t('motif.action'),
+            label: 'action',
             align: 'center',
             sortable: false
         },
@@ -116,19 +116,19 @@ function Agenda() {
     return (<>
         <SubHeader>
             <RootStyled>
-                <p style={{margin: 0}}>{t('agenda.path')}</p>
+                <p style={{ margin: 0 }}>{t('path')}</p>
             </RootStyled>
         </SubHeader>
 
-        <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+        <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
             <Otable headers={headCells}
-                    rows={rows}
-                    state={null}
-                    from={'agenda'}
-                    t={t}
-                    edit={null}
-                    handleConfig={null}
-                    handleChange={null}/>
+                rows={rows}
+                state={null}
+                from={'agenda'}
+                t={t}
+                edit={null}
+                handleConfig={null}
+                handleChange={null} />
         </Box>
 
     </>)
@@ -136,7 +136,7 @@ function Agenda() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 
@@ -144,9 +144,9 @@ export default Agenda
 Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-     return (
-         <DashLayout>
-             {page}
-         </DashLayout>
-     )
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
 }

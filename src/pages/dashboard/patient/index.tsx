@@ -269,11 +269,13 @@ function Patient() {
     </>
   );
 }
+
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(locale as string, ["patient", "menu"])),
   },
 });
+
 export default Patient;
 
 Patient.getLayout = function getLayout(page: ReactElement) {

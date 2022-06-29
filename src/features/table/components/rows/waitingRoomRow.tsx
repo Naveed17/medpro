@@ -1,23 +1,21 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import { Button, TableCell } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { Label } from "@features/label";
+import {Button, TableCell} from '@mui/material';
+import {useTheme} from '@mui/material/styles';
+import {Label} from "@features/label";
 import Icon from "@themes/urlIcon";
-function WaitingRoomRow({ ...props }) {
 
-    const { row, t } = props;
+function WaitingRoomRow({...props}) {
+
+    const {row, t} = props;
     const theme = useTheme();
     return (
         <TableRow key={Math.random()}>
             <TableCell>
                 <Box display="flex" alignItems="center">
-                    <Typography color="text.primary" sx={{ ml: 0.6 }}>
+                    <Typography color="text.primary" sx={{ml: 0.6}}>
                         {row.id}
                     </Typography>
                 </Box>
@@ -34,11 +32,11 @@ function WaitingRoomRow({ ...props }) {
                             svg: {
                                 width: 11,
                                 mx: 0.5,
-                                path: { fill: theme.palette.success.main },
+                                path: {fill: theme.palette.success.main},
                             },
                         }}
                     >
-                        <Icon path="ic-time" />
+                        <Icon path="ic-time"/>
                         {row.arrivaltime}
                     </Typography>
                 </Box>
@@ -49,12 +47,12 @@ function WaitingRoomRow({ ...props }) {
                     alignItems="center"
                     sx={{
                         svg: {
-                            path: { fill: theme.palette.text.secondary },
+                            path: {fill: theme.palette.text.secondary},
                         },
                     }}
                 >
-                    <Icon path="ic-time" />
-                    <Typography color="success" sx={{ ml: 0.6 }}>
+                    <Icon path="ic-time"/>
+                    <Typography color="success" sx={{ml: 0.6}}>
                         {row.appointmentTime}
                     </Typography>
                 </Box>
@@ -69,7 +67,7 @@ function WaitingRoomRow({ ...props }) {
                             : row.status === "success"
                                 ? theme.palette.success.main
                                 : theme.palette.primary.main
-                        }`,
+                    }`,
                 }}
             >
                 <Box
@@ -88,8 +86,8 @@ function WaitingRoomRow({ ...props }) {
                             }
                         }}
                         startIcon={
-                            row.type === "cabinet" ? <Icon path="ic-cabinet" /> :
-                                row.type === "teleconsultation" ? <Icon path="ic-video-red" />
+                            row.type === "cabinet" ? <Icon path="ic-cabinet"/> :
+                                row.type === "teleconsultation" ? <Icon path="ic-video-red"/>
                                     :
                                     null
 
@@ -102,12 +100,12 @@ function WaitingRoomRow({ ...props }) {
                         alignItems="center"
                         sx={{
                             svg: {
-                                path: { fill: theme.palette.text.secondary },
+                                path: {fill: theme.palette.text.secondary},
                             },
                         }}
                     >
-                        <Icon path="ic-time" />
-                        <Typography color="success" sx={{ ml: 0.6 }}>
+                        <Icon path="ic-time"/>
+                        <Typography color="success" sx={{ml: 0.6}}>
                             {row.duration} {t("min")}
                         </Typography>
                     </Box>
@@ -117,14 +115,14 @@ function WaitingRoomRow({ ...props }) {
                 <Label
                     variant="filled"
                     color={row.status === "completed" ? "success" : row.status === "canceled" ? "error" : "primary"}
-                    sx={{ color: theme.palette.text.primary, width: "100%" }}
+                    sx={{color: theme.palette.text.primary, width: "100%"}}
                 >
                     {t(row.status)}
                 </Label>
             </TableCell>
             <TableCell>
                 <Box display="flex" alignItems="center">
-                    <Typography color="text.primary" sx={{ ml: 0.6 }}>
+                    <Typography color="text.primary" sx={{ml: 0.6}}>
                         {row.patient}
                     </Typography>
                 </Box>
@@ -135,18 +133,18 @@ function WaitingRoomRow({ ...props }) {
                     alignItems="center"
                     sx={{
                         svg: {
-                            path: { fill: theme.palette.text.secondary },
+                            path: {fill: theme.palette.text.secondary},
                         },
                     }}
                 >
-                    <Icon path="ic-agenda-dark" />
-                    <Typography color="text.secondary" sx={{ ml: 0.6 }}>
+                    <Icon path="ic-agenda-dark"/>
+                    <Typography color="text.secondary" sx={{ml: 0.6}}>
                         {row.agenda}
                     </Typography>
                 </Box>
             </TableCell>
             <TableCell align="right">
-                <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                <Box display="flex" sx={{float: "right"}} alignItems="center">
                     <Button variant="text" size="small" color="primary">
                         {t("See details")}
                     </Button>

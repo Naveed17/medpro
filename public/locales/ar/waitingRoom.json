@@ -26,7 +26,7 @@
   },
   "table": {
     "Id": "Id",
-    "arrival time": "heure d'arrivée",
+    "arrival time": "وقت الوصول",
     "Appointment time": "Heure du RDV",
     "Reason": "Motif",
     "Status": "Statut",
