@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
-import { FilterDrawer } from "@features/filterDrawer";
+import { DrawerBottom } from "@features/drawerBottom";
 import { Accordion } from "@features/accordion/components";
 
 // components
@@ -88,11 +88,10 @@ function PatientMobileCard({ ...props }) {
                 <Box
                   className="border-left-sec"
                   sx={{
-                    borderLeft: `5px solid ${
-                      v.status === "success"
+                    borderLeft: `5px solid ${v.status === "success"
                         ? theme.palette.success.main
                         : theme.palette.warning.main
-                    }`,
+                      }`,
                   }}
                 >
                   <Button
@@ -151,14 +150,14 @@ function PatientMobileCard({ ...props }) {
       >
         Filtrer (0)
       </Button>
-      <FilterDrawer
+      <DrawerBottom
         handleClose={() => setopen(false)}
         open={open}
         data="Data"
         title={t("filter.title")}
       >
-        <Accordion translate={{t, ready}} badge={null} data={data} defaultValue={"Patient"} />
-      </FilterDrawer>
+        <Accordion translate={{ t, ready }} badge={null} data={data} defaultValue={"Patient"} />
+      </DrawerBottom>
     </RootStyled>
   );
 }
