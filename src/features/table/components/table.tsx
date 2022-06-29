@@ -1,9 +1,7 @@
 import { SetStateAction, useEffect, useState } from "react";
 import * as React from "react";
 import { Box, TableBody, TableContainer, Table } from "@mui/material";
-import OHead from "@features/table/components/header";
-import rowsActionsData from "@features/table/components/config";
-
+import { OHead, rowsActionsData } from "@features/table";
 function descendingComparator(a: { [x: string]: number; }, b: { [x: string]: number; }, orderBy: string | number) {
 
     if (b[orderBy] < a[orderBy]) {
