@@ -1,0 +1,31 @@
+{
+  "subheader": {
+    "title": "Consultation en cours"
+  },
+  "filter": {
+    "year": "ans",
+    "contact details": "contact details",
+    "duplicate detection": "détection des doublon",
+    "consultation in progress": "consultation en cours",
+    "background": "antecedents",
+    "way of life": "mode de vie",
+    "alcohol": "booze",
+    "tobacco": "yabac",
+    "add a way of life": "ajouter un mode de vie",
+    "ongoing treatment": "traitement en cours",
+    "diabetes": "diabète",
+    "hypertension": "hypertension",
+    "add history": "ajouter un antécédent",
+    "allergies": "allergies",
+    "add allergies": "ajouter allergies",
+    "patient record": "dossier patient"
+  },
+  "end of consultation": "fin de la consultation",
+  "cancel": "annuler",
+  "notes": "Notes",
+  "hint text": "Texte d'indice",
+  "honclusion": "Conclusion",
+  "patients file": "Dossier patient",
+  "medical observation": "Observation médicale",
+  "documents": "Documents"
+}
