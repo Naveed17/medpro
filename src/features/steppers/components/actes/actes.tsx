@@ -23,7 +23,7 @@ const actes: Acte[] = [
     { id: 16, title: "Luminothérapie" },
 ];
 
-function StepperActes(){
+function Actes(){
     const [mainActes, setMainActes] = useState<Acte[]>([]);
     const [secondaryActes, setSecondaryActes] = useState<Acte[]>([]);
     const [selected, setSelected] = useState<Acte>({ id: 0, title: "" });
@@ -263,4 +263,4 @@ function StepperActes(){
     )
 }
 
-export default StepperActes;
+export default Actes;

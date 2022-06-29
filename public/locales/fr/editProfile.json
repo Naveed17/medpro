@@ -40,6 +40,29 @@
       "typing": "Commencez à taper pour rechercher des actes",
       "suggestion": "Suggested acts"
     },
+    "stepper-3": {
+      "title": "Cabinet",
+      "lieu":{
+        "title": "Lieu",
+        "establishment": "Nom de l’etablissement",
+        "address": "Adresse",
+        "zip_code": "Code postal",
+        "city": "Ville",
+        "typing": "Commencez à taper"
+      },
+      "info":{
+        "title": "Information pratique",
+        "establishment": "Numéro de cabinet",
+        "hide": "Masqué",
+        "add": "Ajouter un numéro",
+        "typing": ""
+      },
+      "info-sup":{
+        "title": "Informations pratiques",
+        "establishment": "Informations d’accés",
+        "typing": "Tapez ici les informations"
+      }
+    },
     "check-status": {
       "title": "Bienvenue sur Med.tn",
       "desc": "Nous vous souhaitons la bienvenue sur Med, la plateforme médicale N°1 en Afrique. Notre équipe prendra contact avec vous pour la validation de votre compte. Pour des raisons de sécurité et afin de nous assurer de la pertinence des données sur notre plateforme.",

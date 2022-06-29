@@ -57,7 +57,7 @@ const multipleLanguage = [
     { title: "Chinois" },
 ];
 
-function StepperInfo() {
+function Info() {
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
 
     const formik = useFormik<MyFormProps>({
@@ -325,4 +325,4 @@ function StepperInfo() {
       </>
   );
 }
-export default StepperInfo;
+export default Info;

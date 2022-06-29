@@ -3,9 +3,9 @@ import IconUrl from "@themes/urlIcon";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import React from "react";
-import {StepperDocument, StepperInfo} from "@features/steppers";
-import {StepperActes} from "@features/steppers";
-import {StepperCabinet} from "@features/steppers/components/stepperCabinet";
+import {Document, Info} from "@features/steppers";
+import {Actes} from "@features/steppers";
+import {Cabinet} from "@features/steppers/components/cabinet";
 
 function a11yProps(index: number) {
   return {
@@ -74,7 +74,7 @@ function Steppers({currentStepper}: stepper) {
         </Box>
         <Box sx={{ "& div[role] > div": { px: 0 } }}>
           <TabPanel value={currentStepper} index={0}>
-            <StepperInfo />
+            <Info />
             <Fab
                 sx={{
                   bgcolor: "common.white",
@@ -88,10 +88,10 @@ function Steppers({currentStepper}: stepper) {
             </Fab>
           </TabPanel>
           <TabPanel value={currentStepper} index={1}>
-            <StepperDocument />
+            <Document />
           </TabPanel>
           <TabPanel value={currentStepper} index={2}>
-            <StepperActes />
+            <Actes />
             <Fab
                 sx={{
                   bgcolor: "common.white",
@@ -105,7 +105,7 @@ function Steppers({currentStepper}: stepper) {
             </Fab>
           </TabPanel>
           <TabPanel value={currentStepper} index={3}>
-            <StepperCabinet />
+            <Cabinet />
             <Fab
                 sx={{
                   bgcolor: "common.white",

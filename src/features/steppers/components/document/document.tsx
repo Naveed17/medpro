@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import {Box, Typography, Button, Fab, LinearProgress, Input} from "@mui/material";
+import {Box, Typography, Button, Fab, LinearProgress} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {InputStyled} from "@features/steppers";
 import {useTranslation} from "next-i18next";
 
-function StepperDocument(){
+function Document(){
     const [file, setfile] = useState<File>();
     const [progress, setprogress] = useState(0);
 
@@ -109,4 +109,4 @@ function StepperDocument(){
     )
 }
 
-export default StepperDocument;
+export default Document;

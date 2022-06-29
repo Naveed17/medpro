@@ -11,81 +11,69 @@ import {
     FormGroup,
     FormControlLabel,
     Switch,
-    Collapse,
-    Button,
-    Paper,
+    Button
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {CountryCodeSelect} from "@features/countryCodeSelect";
 import {Schedules} from "@features/schedules";
 import Schedule from "@interfaces/schedule";
+import {useTranslation} from "next-i18next";
+import moment from "moment-timezone";
 
-interface horairesTimePiker {
-    start: string
-    end: string
-}
-
-interface horaires {
-    [key: string]: {
-        expand: boolean
-        hours: horairesTimePiker[]
-    }
-}
-
-
-function StepperCabinet() {
+function Cabinet() {
 
     const [horaires, setHoraires] = useState<Schedule[]>([
         {
-            day: 'lundi',
+            day: moment().isoWeekday(1).format("dddd"),
             hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
-            opened: true
+            opened: false
         },
         {
-            day: 'mardi',
+            day: moment().isoWeekday(2).format("dddd"),
             hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
-            opened: true
+            opened: false
         },
         {
-            day: 'mercredi',
+            day: moment().isoWeekday(3).format("dddd"),
             hours: null,
             opened: false
         },
         {
-            day: 'jeudi',
+            day: moment().isoWeekday(4).format("dddd"),
             hours: [{start: '08:00', end: '14:00'}, null],
-            opened: true
+            opened: false
         },
         {
-            day: 'vendredi',
+            day: moment().isoWeekday(5).format("dddd"),
             hours: [null,{start: '08:00', end: '14:00'}],
-            opened: true
+            opened: false
         },
         {
-            day: 'samedi',
+            day: moment().isoWeekday(6).format("dddd"),
             hours: null,
             opened: false
         },
         {
-            day: 'dimanche',
+            day: moment().isoWeekday(0).format("dddd"),
             hours: [{start: '08:00', end: '14:00'}],
-            opened: true
+            opened: false
         }
     ])
 
-    console.log(horaires);
+    const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-3" });
+    if (!ready) return (<>loading translations...</>);
 
     return (
         <Box>
             <Typography variant="h6" color="text.primary">
-                Cabinet
+                {t('title')}
             </Typography>
             <Typography
                 variant="body1"
                 color="text.primary"
                 sx={{textTransform: "uppercase", mt: 2, mb: 1}}
             >
-                Lieu
+                {t("lieu.title")}
             </Typography>
 
             <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
@@ -99,7 +87,7 @@ function StepperCabinet() {
                                 textAlign: {md: "right", sm: "left"},
                             }}
                         >
-                            Nom de l’etablissement{" "}
+                            {t("lieu.establishment")}
                         </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -119,7 +107,7 @@ function StepperCabinet() {
                                 textAlign: {md: "right", sm: "left"},
                             }}
                         >
-                            Adresse
+                            {t("lieu.address")}
                         </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -138,7 +126,7 @@ function StepperCabinet() {
                                 textAlign: {md: "right", sm: "left"},
                             }}
                         >
-                            Code postal{" "}
+                            {t("lieu.zip_code")}
                         </Typography>
                     </Grid>
                     <Grid item lg={3} md={3} sm={12} xs={12}>
@@ -157,7 +145,7 @@ function StepperCabinet() {
                                 textAlign: {md: "right", sm: "left"},
                             }}
                         >
-                            Ville{" "}
+                            {t("lieu.city")}
                         </Typography>
                     </Grid>
                     <Grid item lg={3} md={3} sm={12} xs={12}>
@@ -194,7 +182,7 @@ function StepperCabinet() {
                 color="text.primary"
                 sx={{textTransform: "uppercase", mt: 2, mb: 1}}
             >
-                Information pratique
+                {t("info.title")}
             </Typography>
             <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
                 <Grid container alignItems="center" spacing={2}>
@@ -207,7 +195,7 @@ function StepperCabinet() {
                                 textAlign: {md: "right", sm: "left"},
                             }}
                         >
-                            Nom de l’etablissement{" "}
+                            {t("info.establishment")}
                         </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
@@ -229,7 +217,7 @@ function StepperCabinet() {
                                         <FormControlLabel
                                             sx={{ml: 0}}
                                             control={<Switch/>}
-                                            label="Masqué"
+                                            label={t("info.hide")}
                                             labelPlacement="start"
                                         />
                                     </FormGroup>
@@ -249,7 +237,7 @@ function StepperCabinet() {
                         svg: {width: 13, path: {fill: "#0696D6"}},
                     }}
                 >
-                    Ajouter un numéro
+                    {t("info.add")}
                 </Button>
             </Card>
             <Typography
@@ -257,7 +245,7 @@ function StepperCabinet() {
                 color="text.primary"
                 sx={{textTransform: "uppercase", mt: 2, mb: 1}}
             >
-                Information pratique
+                {t("info-sup.title")}
             </Typography>
             <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
                 <Grid container spacing={2}>
@@ -271,12 +259,12 @@ function StepperCabinet() {
                                 mt: {md: 1, sm: 0},
                             }}
                         >
-                            Nom de l’etablissement{" "}
+                            {t("info-sup.establishment")}
                         </Typography>
                     </Grid>
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                         <TextField
-                            placeholder="Tapez ici les informations"
+                            placeholder={t("info-sup.typing")}
                             id="name"
                             multiline
                             rows={4}
@@ -291,4 +279,4 @@ function StepperCabinet() {
     )
 }
 
-export default StepperCabinet;
+export default Cabinet;

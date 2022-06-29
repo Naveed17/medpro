@@ -50,7 +50,7 @@ function Dashborad() {
             <Box bgcolor="#F0FAFF"
                  sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>
-                {session && <Typography>URL: {(user as any)?.data.general_information.first_name}</Typography>}
+                {session && <Typography>URL: {(user as any)?.data.general_information.firstName}</Typography>}
             </Box>
         </>
     )

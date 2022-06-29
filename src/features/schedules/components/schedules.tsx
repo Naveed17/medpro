@@ -3,6 +3,7 @@ import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
 import React, {useState} from "react";
 import Schedule from "@interfaces/schedule";
+import {useTranslation} from "next-i18next";
 
 type SchedulesProps = {
     initData: Schedule[]
@@ -10,7 +11,10 @@ type SchedulesProps = {
 
 function Schedules({initData}: SchedulesProps) {
     const [schedule, setSchedule] = useState(initData);
-    console.log(schedule);
+
+    const { t, ready } = useTranslation('common', { keyPrefix: "schedule" });
+    if (!ready) return (<>loading translations...</>);
+
     return (
         <>
             {schedule.map((value: any, ind) => (
@@ -64,7 +68,7 @@ function Schedules({initData}: SchedulesProps) {
                                             }}>
                                             <IconUrl path="ic-time"/>
                                             <Typography variant="body2" color="text.primary">
-                                                {i + 1 > 1 ? i + 1 + 'em seance' : '1er seance'}
+                                                {i + 1 > 1 ? i + 1 + `em ${t("seance")}` : `1er ${t("seance")}`}
                                             </Typography>
                                         </Box>
                                     </Grid>}
@@ -89,7 +93,7 @@ function Schedules({initData}: SchedulesProps) {
                                                     value.hours.splice(i, 1);
                                                     setSchedule([...schedule])
                                                 }}>
-                                                Supprimer
+                                                {t("delete")}
                                             </Button>
                                         </Grid>
                                     )}
@@ -107,7 +111,7 @@ function Schedules({initData}: SchedulesProps) {
                                         variant="contained"
                                         color="success"
                                         sx={{mt: 1}}>
-                                        Ajouter
+                                        {t("add")}
                                     </Button>
                                 </Grid>
                             </Grid>
