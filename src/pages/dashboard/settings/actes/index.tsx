@@ -1,16 +1,17 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ReactElement, useState, useEffect } from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import React, { ReactElement, useState, useEffect } from "react";
+import {DashLayout} from "@features/base";
 import { Box, Typography, Paper, Chip, Stack } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import AddIcon from "@mui/icons-material/Add";
-import MultiSelect from "@themes/overrides/MultiSelect";
 import Acte from "@interfaces/Acte";
 import BasicAlert from "@themes/overrides/Alert";
+import {MultiSelect} from "@features/multiSelect";
 
 function Actes() {
+
   const actes: Acte[] = [
     { id: 1, title: "Electrothérapie" },
     { id: 2, title: "Physiothérapie" },
@@ -148,14 +149,13 @@ function Actes() {
           onDrop={onDrop}
           all={[...mainActes, ...secondaryActes]}
           onDragOver={allowDrop}
-          onChange={(val: any[]) => {
-            onChangeState(val, mainActes, setMainActes);
+          onChange={(event: React.ChangeEvent, value: any[]) => {
+            onChangeState(value, mainActes, setMainActes);
           }}
-          value={mainActes}
+          initData={mainActes}
           limit={10}
           helperText={t("actes.max")}
           placeholder={t("actes.typing")}
-          onDelete={undefined}
         />
 
         <Typography
@@ -209,14 +209,12 @@ function Actes() {
           all={[...mainActes, ...secondaryActes]}
           onDrop={onDrop}
           onDragOver={allowDrop}
-          onChange={(val: any[]) => {
-            onChangeState(val, secondaryActes, setSecondaryActes);
+          onChange={(event: React.ChangeEvent, value: any[]) => {
+            onChangeState(value, secondaryActes, setSecondaryActes);
           }}
-          value={secondaryActes}
+          initData={secondaryActes}
           helperText={t("")}
           placeholder={t("actes.typing")}
-          onDelete={undefined}
-          limit={undefined}
         />
 
         <Typography

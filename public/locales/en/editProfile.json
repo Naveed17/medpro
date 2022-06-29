@@ -31,6 +31,38 @@
       "desc": "For security reasons and to ensure the relevance of the data on our platform, we ask you to send us a photo of your stamped business card or your license to practice.",
       "upload": "Attach document"
     },
+    "stepper-2": {
+      "title": "Acts",
+      "sub-title": "Please select your primary and secondary procedures in order of growth",
+      "main": "Your main actions",
+      "second": "Vos actes secondaires",
+      "length": "Max 10 Actes",
+      "typing": "Commencez à taper pour rechercher des actes",
+      "suggestion": "Suggested acts"
+    },
+    "stepper-3": {
+      "title": "Cabinet",
+      "lieu":{
+        "title": "Location",
+        "establishment": "Name of the establishment",
+        "address": "Address",
+        "zip_code": "Postal code",
+        "city": "City",
+        "typing": "Start typing"
+      },
+      "info":{
+        "title": "Practical information",
+        "establishment": "Office number",
+        "hide": "Hide",
+        "add": "Add a number",
+        "typing": ""
+      },
+      "info-sup":{
+        "title": "Practical information",
+        "establishment": "Access information",
+        "typing": "Type the information here"
+      }
+    },
     "check-status": {
       "title": "Welcome to Med.tn",
       "desc": "We welcome you on Med, the N°1 medical platform in Africa. Our team will contact you to validate your account. For security reasons and to ensure the relevance of the data on our platform.",

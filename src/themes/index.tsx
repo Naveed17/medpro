@@ -18,6 +18,7 @@ import { configSelector, setDirection, setLocalization } from "@features/base";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { Localization } from "@app/localization/localization";
 import * as locales from "@mui/material/locale";
+import moment from "moment-timezone";
 type SupportedLocales = keyof typeof locales;
 
 
@@ -30,6 +31,7 @@ function ThemeConfig({ children }: LayoutProps) {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
+        moment.locale(locale.substring(0,2));
         dispatch(setDirection(dir));
         dispatch(setLocalization(locale));
     }, [locale, dir, dispatch]);

@@ -2,8 +2,13 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { SubHeader } from "@features/subHeader";
+<<<<<<< HEAD
 import { RootStyled } from "@features/calendarToolbar";
 import { useTranslation } from "next-i18next";
+=======
+import {RootStyled} from "@features/toolbar/components/calendarToolbar";
+import {useTranslation} from "next-i18next";
+>>>>>>> d38464324e8f74d44f176ca19ca3699614c92a3a
 import { Box } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { Otable } from "@features/table";
@@ -144,9 +149,18 @@ export default Agenda
 Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
+<<<<<<< HEAD
     return (
         <DashLayout>
             {page}
         </DashLayout>
     )
 }
+=======
+     return (
+         <DashLayout>
+             {page}
+         </DashLayout>
+     )
+}
+>>>>>>> d38464324e8f74d44f176ca19ca3699614c92a3a

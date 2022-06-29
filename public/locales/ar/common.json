@@ -23,5 +23,10 @@
     "sign_reset_pass": "نسيت رقمك السري؟",
     "sign_forget_pass": "ابق متصلا",
     "sign_connect_btn": "تسجيل الدخول"
+  },
+  "schedule" : {
+    "add": "إضافة",
+    "delete": "يحذف",
+    "seance": "Séance"
   }
 }

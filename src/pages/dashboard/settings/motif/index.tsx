@@ -1,12 +1,12 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import { DashLayout } from "@features/base";
 import { Box, Button, Drawer } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { EditMotifDialog } from "@features/editMotifDialog";
 import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/calendarToolbar";
+import { RootStyled } from "@features/toolbar";
 import { configSelector } from "@features/base";
 import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";

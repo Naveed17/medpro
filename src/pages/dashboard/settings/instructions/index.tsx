@@ -3,7 +3,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { configSelector, DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/calendarToolbar";
+import { RootStyled } from "@features/toolbar";
 import { Box, Button, Drawer } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { Otable } from "@features/table";
