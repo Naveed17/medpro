@@ -3,7 +3,19 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
 import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import {CardContent, List, ListItem, Stack, Typography, Button, IconButton, Box, Grid, Avatar} from "@mui/material";
+import {
+    CardContent,
+    List,
+    ListItem,
+    Stack,
+    Typography,
+    Button,
+    IconButton,
+    Box,
+    Grid,
+    Avatar,
+    Skeleton
+} from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
@@ -18,20 +30,52 @@ import ModeReg from "@interfaces/ModeReg";
 import Langues from "@interfaces/Langues";
 import Qualifications from "@interfaces/Qualifications";
 import { useRouter } from 'next/router'
+import useRequest from "@app/axios/axiosServiceApi";
+import {useSession} from "next-auth/react";
+import {width} from "@mui/system";
 
 function Profil() {
 
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
-
+    const { data: session, status } = useSession();
+    const [languages, setLanguages] = useState<Langues[]>([]);
     const [open, setOpen] = useState(false);
     const [assurances, setAssurances] = useState<Assurance[]>([]);
     const [modes, setModes] = useState<ModeReg[]>([]);
-    const [langues, setLangues] = useState<Langues[]>([]);
     const [qualifications, setQualifications] = useState<Qualifications[]>([]);
-    const [data, setData] = useState<any[]>([]);
+    const [info, setInfo] = useState<any[]>([]);
+    const [name, setName] = useState<string>("");
+    const [speciality, setSpeciality] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(true);
 
-    const router = useRouter()
+    const headers = {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+    }
+
+    // @ts-ignore
+    const medical_entity = session?.data.data.medical_entities.filter((m:any) => m.is_default)[0].medical_entity;
+    const { data, error } = useRequest({
+        method: "GET",
+        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/fr",
+        headers
+    });
+
     useEffect(() => {
+        if (data !== undefined){
+            // @ts-ignore
+            const medical_professional = data.data.medical_professional;
+            setName(medical_professional.publicName);
+            setLanguages(medical_professional.languages);
+            setSpeciality(medical_professional.speciality.filter((spe:any) => spe.isMain)[0].speciality.name);
+            setLoading(false);
+        }
+    },[data])
+
+        const router = useRouter()
+    useEffect(() => {
+
+
         setAssurances([
             {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
             {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
@@ -42,13 +86,8 @@ function Profil() {
             {id: 2, name: 'Chèque', name_ar: ''},
         ]);
 
-        setLangues([
-            {id: 1, name: 'Français', name_ar: ''},
-            {id: 4, name: 'Arabe', name_ar: ''}
-        ]);
-
         setQualifications([
-            {id: 1, name:'Thèse de Doctorat en Médecine'},
+            {id: 1, name: 'Thèse de Doctorat en Médecine'},
             {id: 2, name: 'Diplôme de Spécialiste en Dermatologie Vénéréologie'},
             {id: 3, name: 'Diplôme Inter Universitaire Cosmetologie'},
             {id: 4, name: 'Diplôme Inter Universitaire de Laser en Dermatologie'}
@@ -79,7 +118,7 @@ function Profil() {
                 setModes(newMode);
                 break;
             case "langues":
-                setLangues(newLangues);
+                setLanguages(newLangues);
                 break;
             default:
                 break;
@@ -91,16 +130,16 @@ function Profil() {
         setDialogContent(action);
         switch (action) {
             case "qualification":
-                setData(qualifications)
+                setInfo(qualifications)
                 break;
             case "assurance":
-                setData(assurances)
+                setInfo(assurances)
                 break;
             case "mode":
-                setData(modes)
+                setInfo(modes)
                 break;
             case "langues":
-                setData(langues)
+                setInfo(languages)
                 break;
             default:
                 break;
@@ -118,10 +157,17 @@ function Profil() {
                         direction="row"
                         alignItems="center">
                         <Grid item>
-                            <Avatar src="/static/img/avatar.svg"/>
+                            {
+                                loading ?
+                                    <Skeleton variant="circular">
+                                        <Avatar src='/static/img/avatar.svg'/>
+                                    </Skeleton> :
+                                <Avatar
+                                src={medical_entity.profilePhoto ? medical_entity.profilePhoto : '/static/img/avatar.svg'}/>
+                            }
                         </Grid>
                         <Grid item>
-                            <Typography variant="h6">Dr. Ahmed Yassine EHA</Typography>
+                            <Typography variant="h6">{loading ? <Skeleton width={150} variant="text"/> : name}</Typography>
                         </Grid>
                     </Grid>
                 </RootStyled>
@@ -137,7 +183,7 @@ function Profil() {
                                         <Typography variant="subtitle2"
                                                     fontWeight={600}>{t('profil.specialities')}</Typography>
                                         <Button variant="outlined" color="info">
-                                            Dermatologue
+                                            {loading ? <Skeleton width={50} variant="text"/> :speciality}
                                         </Button>
                                         <BasicAlert icon="danger"
                                                     data={t('profil.contact')}
@@ -176,7 +222,8 @@ function Profil() {
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 assurances.map((item: any) => (
-                                                    <Box key={item.id} component="img" width={35} height={35} src={item.img}/>
+                                                    <Box key={item.id} component="img" width={35} height={35}
+                                                         src={item.img}/>
                                                 ))
                                             }
                                         </Stack>
@@ -217,10 +264,10 @@ function Profil() {
                                                     fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
-                                                langues.map((langue: any) => (
-                                                    <Button key={langue.id} variant="outlined" color="info"
+                                                languages.map((language: any) => (
+                                                    <Button key={language.language.code} variant="outlined" color="info"
                                                             onClick={() => dialogOpen('langues')}>
-                                                        {langue.name}
+                                                        {language.language.name}
                                                     </Button>
                                                 ))
                                             }
@@ -254,7 +301,8 @@ function Profil() {
 
                                         </Stack>
                                     </Stack>
-                                    <IconButton size="small" color="primary" onClick={() => router.push('/dashboard/settings/actes')}>
+                                    <IconButton size="small" color="primary"
+                                                onClick={() => router.push('/dashboard/settings/actes')}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
@@ -288,21 +336,22 @@ function Profil() {
                 </CardStyled>
 
                 <SettingsDialogs action={dialogContent}
-                                open={open}
-                                data={data}
-                                direction={direction}
-                                title={t('dialogs.titles.' + dialogContent)}
-                                t={t}
-                                dialogSave={dialogSave}
-                                dialogClose={dialogClose}/>
+                                 open={open}
+                                 data={info}
+                                 direction={direction}
+                                 title={t('dialogs.titles.' + dialogContent)}
+                                 t={t}
+                                 dialogSave={dialogSave}
+                                 dialogClose={dialogClose}/>
 
             </Box>
         </>
     )
 }
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        fallback: false,
+        ...(await serverSideTranslations(context.locale  as string, ['common', 'menu','settings']))
     }
 })
 export default Profil
