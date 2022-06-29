@@ -1,6 +1,6 @@
-import {SetStateAction, useEffect, useState} from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import * as React from "react";
-import {Box, TableBody, TableContainer, Table} from "@mui/material";
+import { Box, TableBody, TableContainer, Table } from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 
@@ -33,8 +33,8 @@ function stableSort(array: any[], comparator: { (a: { [x: string]: number; }, b:
     return stabilizedThis.map((el) => el[0]);
 }
 
-function Otable({...props}) {
-    const {rows, headers, state, handleChange, t, from, edit, handleConfig} = props;
+function Otable({ ...props }) {
+    const { rows, headers, state, handleChange, t, from, edit, handleConfig } = props;
 
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
@@ -68,7 +68,7 @@ function Otable({...props}) {
         <Box>
             <TableContainer>
                 <Table
-                    sx={{minWidth: 750}}
+                    sx={{ minWidth: 750 }}
                     aria-labelledby="tableTitle"
                     size={'medium'}>
                     <OHead
@@ -77,8 +77,9 @@ function Otable({...props}) {
                         state={state}
                         handleConfig={handleConfig}
                         onRequestSort={handleRequestSort}
+                        t={t}
                         data={headers}
-                        getData={(data: any) => setTableHeadData(data)}/>
+                        getData={(data: any) => setTableHeadData(data)} />
 
                     <TableBody>
                         {
@@ -86,13 +87,13 @@ function Otable({...props}) {
                                 .map((row, index) => {
                                     return (
                                         <Component key={index}
-                                                   row={row}
-                                                   t={t}
-                                                   tableHeadData={state}
-                                                   handleChange={handleChange}
-                                                   editMotif={edit}
-                                                   active={active}
-                                                   ids={ids}/>
+                                            row={row}
+                                            t={t}
+                                            tableHeadData={state}
+                                            handleChange={handleChange}
+                                            editMotif={edit}
+                                            active={active}
+                                            ids={ids} />
                                     )
 
                                 })

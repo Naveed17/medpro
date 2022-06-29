@@ -1,14 +1,12 @@
 import React from 'react'
-
-import TableRow from '@mui/material/TableRow';
 import Switch from '@mui/material/Switch';
 import TableCell from '@mui/material/TableCell';
-import { Typography, Box,} from '@mui/material';
+import { Typography, Box, } from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
-import {TableRowStyled} from "@features/table"
+import { TableRowStyled } from "@features/table"
 
-function LieuxRow({...props}) {
+function LieuxRow({ ...props }) {
 
     const { row, handleChange, edit, t } = props;
 
@@ -21,11 +19,11 @@ function LieuxRow({...props}) {
             </TableCell>
             <TableCell align="center">
                 {" "}
-                <Switch name='active' onChange={(e) => handleChange(row, 'active','')} checked={row.actif} />
+                <Switch name='active' onChange={(e) => handleChange(row, 'active', '')} checked={row.actif} />
             </TableCell>
             <TableCell align="center">
                 <Typography className='name' variant="body1" color="text.primary">
-                    {row.agenda} {t('lieux.acces')}
+                    {row.agenda} {t('acces')}
                 </Typography>
             </TableCell>
             <TableCell align="right">
@@ -34,18 +32,18 @@ function LieuxRow({...props}) {
                         variant="text"
                         size="small"
                         color="error"
-                        startIcon={<IconUrl path="setting/icdelete"/>}
-                        onClick={() => console.log("remove",row)}
+                        startIcon={<IconUrl path="setting/icdelete" />}
+                        onClick={() => console.log("remove", row)}
                         sx={{ mr: 1 }}>
-                        {t('lieux.remove')}
+                        {t('remove')}
                     </Button>
                     <Button
                         variant="text"
                         size="small"
                         color="primary"
                         startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("edit",row)}>
-                        {t('lieux.update')}
+                        onClick={() => console.log("edit", row)}>
+                        {t('update')}
                     </Button>
                 </Box>
             </TableCell>
