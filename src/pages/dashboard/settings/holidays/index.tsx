@@ -2,23 +2,13 @@ import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { SubHeader } from "@features/subHeader";
-<<<<<<< HEAD
-import { RootStyled } from "@features/calendarToolbar";
+import { RootStyled } from "@features/toolbar";
 import { useTranslation } from "next-i18next";
 import { Box, Button, Drawer } from "@mui/material";
 import { configSelector, DashLayout } from "@features/base";
 import { Otable } from "@features/table";
 import { useAppSelector } from "@app/redux/hooks";
 import { HolidayDetails } from "@features/holidayDetails";
-=======
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
-import {useTranslation} from "next-i18next";
-import {Box, Button, Drawer} from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
-import {Otable} from "@features/table";
-import {useAppSelector} from "@app/redux/hooks";
-import {HolidayDetails} from "@features/holidayDetails";
->>>>>>> d38464324e8f74d44f176ca19ca3699614c92a3a
 
 function Holidays() {
 
