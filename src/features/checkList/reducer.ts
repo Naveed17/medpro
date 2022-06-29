@@ -4,16 +4,13 @@ import {
     SetMode,
     SetLangues, SetQualifications
 } from './actions';
-import Assurance from "@interfaces/Assurance";
-import ModeReg from "@interfaces/ModeReg";
-import Langues from "@interfaces/Langues";
 import Qualifications from "@interfaces/Qualifications";
 
 export type MenuState = {
     newQualification: Array<Qualifications>
-    newAssurances: Array<Assurance>,
-    newMode: Array<ModeReg>,
-    newLangues: Array<Langues>
+    newAssurances: Array<InsuranceModel>,
+    newMode: Array<PaymentMeansModel>,
+    newLangues: Array<LanguageModel>
 };
 
 const initialState: MenuState = {

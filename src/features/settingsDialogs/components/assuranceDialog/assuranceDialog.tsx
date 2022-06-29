@@ -1,29 +1,39 @@
 import {useTranslation} from "next-i18next";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {CheckList} from "@features/checkList";
+import useRequest from "@app/axios/axiosServiceApi";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
+function AssuranceDialog(info: any) {
 
-const items = [
-    {id: 1,name: 'CNAM', img: '/static/assurances/cnam.svg'},
-    {id: 2,name: 'AMI ASSURANCE', img: '/static/assurances/ami.svg'},
-    {id: 3,name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
-    {id: 4,name: 'ASTREE', img: '/static/assurances/astree.svg'},
-    {id: 5,name: 'AT-TAKAFULIA', img: '/static/assurances/takafulia.svg'},
-    {id: 6,name: 'ATTIJARI ASSURENCE', img: '/static/assurances/attijari.svg'},
-    {id: 7,name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'},
-    {id: 8,name: 'CARTE VIE', img: '/static/assurances/cartevie.svg'},
-    {id: 9,name: 'COMAR', img: '/static/assurances/comar.svg'},
-    {id: 10,name: 'COTUNACE', img: '/static/assurances/cotunace.svg'},
-]
+    const { data: session, status } = useSession();
+    const [items, setItems] = useState<InsuranceModel[]>([]);
 
-function AssuranceDialog(data: any) {
+    const headers = {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+    }
+    const router = useRouter();
+
+    const { data, error } = useRequest({
+        method: "GET",
+        url: "/api/public/insurances/"+router.locale,
+        headers
+    });
+
+    useEffect(() => {
+        if (data !== undefined){
+            setItems((data as any).data)
+        }
+    },[data])
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
 
     return (<>
         <CheckList items={items}
-                   data={data}
+                   data={info}
                    action={'assurance'}
                    search={t('dialogs.search_assurance')}></CheckList>
     </>)

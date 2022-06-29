@@ -25,39 +25,38 @@ import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
-import Assurance from "@interfaces/Assurance";
-import ModeReg from "@interfaces/ModeReg";
-import Langues from "@interfaces/Langues";
 import Qualifications from "@interfaces/Qualifications";
 import { useRouter } from 'next/router'
 import useRequest from "@app/axios/axiosServiceApi";
 import {useSession} from "next-auth/react";
-import {width} from "@mui/system";
+import {Session} from "next-auth";
 
 function Profil() {
 
+    const router = useRouter();
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
     const { data: session, status } = useSession();
-    const [languages, setLanguages] = useState<Langues[]>([]);
+    const [languages, setLanguages] = useState<LanguageModel[]>([]);
     const [open, setOpen] = useState(false);
-    const [assurances, setAssurances] = useState<Assurance[]>([]);
-    const [modes, setModes] = useState<ModeReg[]>([]);
+    const [assurances, setAssurances] = useState<InsuranceModel[]>([]);
+    const [modes, setModes] = useState<PaymentMeansModel[]>([]);
     const [qualifications, setQualifications] = useState<Qualifications[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
     const [speciality, setSpeciality] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
+    const initalData = Array.from(new Array(3));
 
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
     }
 
-    // @ts-ignore
-    const medical_entity = session?.data.data.medical_entities.filter((m:any) => m.is_default)[0].medical_entity;
+    const { data: user } = session as Session;
+    const medical_entity = (user as any).data.medical_entities.filter((m:any) => m.is_default)[0].medical_entity;
     const { data, error } = useRequest({
         method: "GET",
-        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/fr",
+        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
         headers
     });
 
@@ -72,19 +71,15 @@ function Profil() {
         }
     },[data])
 
-        const router = useRouter()
     useEffect(() => {
-
-
         setAssurances([
+/*
             {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
             {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
+*/
         ]);
 
-        setModes([
-            {id: 1, name: 'Espèces', name_ar: ''},
-            {id: 2, name: 'Chèque', name_ar: ''},
-        ]);
+        setModes([]);
 
         setQualifications([
             {id: 1, name: 'Thèse de Doctorat en Médecine'},
@@ -159,7 +154,7 @@ function Profil() {
                         <Grid item>
                             {
                                 loading ?
-                                    <Skeleton variant="circular">
+                                    <Skeleton sx={{borderRadius:1}} variant="rectangular">
                                         <Avatar src='/static/img/avatar.svg'/>
                                     </Skeleton> :
                                 <Avatar
@@ -199,11 +194,17 @@ function Profil() {
                                                     fontWeight={600}>{t('profil.qualification')}</Typography>
 
                                         {
+                                            loading ?
                                             qualifications.map((item: any) => (
                                                 <Typography key={item.id} fontWeight={400}>
-                                                    {item.name}
+                                                    <Skeleton width={250}/>
                                                 </Typography>
-                                            ))
+                                            )) :
+                                                qualifications.map((item: any) => (
+                                                    <Typography key={item.id} fontWeight={400}>
+                                                        {item.name}
+                                                    </Typography>
+                                                ))
                                         }
 
                                     </Stack>
@@ -221,10 +222,14 @@ function Profil() {
                                                     fontWeight={600}>{t('profil.assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
-                                                assurances.map((item: any) => (
-                                                    <Box key={item.id} component="img" width={35} height={35}
-                                                         src={item.img}/>
-                                                ))
+                                                loading ?
+                                                    initalData.map((item,index) => (
+                                                        <Skeleton sx={{borderRadius:1}} variant="rectangular" key={index} width={35} height={35} />
+                                                    )) :
+                                                    assurances.map((item: any) => (
+                                                        <Box key={item.id} component="img" width={35} height={35}
+                                                             src={item.img}/>
+                                                    ))
                                             }
                                         </Stack>
                                     </Stack>
@@ -241,12 +246,19 @@ function Profil() {
                                                     fontWeight={600}>{t('profil.regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
-                                                modes.map((mode: any) => (
-                                                    <Button key={mode.id} variant="outlined" color="info"
+                                                loading ?
+                                                    initalData.map((mode: any,index) => (
+                                                    <Button key={index} variant="outlined" color="info"
                                                             onClick={() => dialogOpen('mode')}>
-                                                        {mode.name}
+                                                        {<Skeleton width={50} variant="text"/>}
                                                     </Button>
-                                                ))
+                                                )):
+                                                    modes.map((mode: any) => (
+                                                        <Button key={mode.id} variant="outlined" color="info"
+                                                                onClick={() => dialogOpen('mode')}>
+                                                            {mode.name}
+                                                        </Button>
+                                                    ))
 
                                             }
                                         </Stack>
@@ -264,12 +276,19 @@ function Profil() {
                                                     fontWeight={600}>{t('profil.langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
-                                                languages.map((language: any) => (
-                                                    <Button key={language.language.code} variant="outlined" color="info"
+                                                loading ?
+                                                    initalData.map((language: any,index) => (
+                                                    <Button key={index} variant="outlined" color="info"
                                                             onClick={() => dialogOpen('langues')}>
-                                                        {language.language.name}
+                                                        {<Skeleton width={50} variant="text"/>}
                                                     </Button>
-                                                ))
+                                                )):
+                                                    languages.map((language: any) => (
+                                                        <Button key={language.language.code} variant="outlined" color="info"
+                                                                onClick={() => dialogOpen('langues')}>
+                                                            {language.language.name}
+                                                        </Button>
+                                                    ))
                                             }
                                         </Stack>
                                     </Stack>
@@ -284,21 +303,31 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.actes')}</Typography>
-                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
-                                               width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Relissage fractionnel
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Prise en charge de lacné
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Traitement Médical et Chirurgical des Cheveux
-                                            </Button>
+                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start" width={1}>
+                                            {
+                                                loading ?
+                                                    initalData.map((language: any,index) => (
+                                                        <Button key={index} variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            {<Skeleton width={50} variant="text"/>}
+                                                        </Button>
+                                                    )) :
+                                                    <>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Relissage fractionnel
+                                                        </Button>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Prise en charge de lacné
+                                                        </Button>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Traitement Médical et Chirurgical des Cheveux
+                                                        </Button>
 
+                                                    </>
+                                            }
                                         </Stack>
                                     </Stack>
                                     <IconButton size="small" color="primary"
@@ -309,24 +338,34 @@ function Profil() {
                             </ListItem>
                             <ListItem>
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
-                                    {/*<Icon className='left-icon' path={null} />*/}
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.actesSec')}</Typography>
                                         <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
                                                width={1}>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Relissage fractionnel
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Prise en charge de lacné
-                                            </Button>
-                                            <Button variant="outlined" color="info"
-                                                    onClick={(e) => console.log(e)}>
-                                                Traitement Médical et Chirurgical des Cheveux
-                                            </Button>
+                                            {
+                                                loading ?
+                                                    initalData.map((language: any, index) => (
+                                                        <Button key={index} variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            {<Skeleton width={50} variant="text"/>}
+                                                        </Button>
+                                                    )) :
+                                                    <>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Relissage fractionnel
+                                                        </Button>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Prise en charge de lacné
+                                                        </Button>
+                                                        <Button variant="outlined" color="info"
+                                                                onClick={(e) => console.log(e)}>
+                                                            Traitement Médical et Chirurgical des Cheveux
+                                                        </Button>
+                                                    </>
+                                            }
                                         </Stack>
                                     </Stack>
                                 </Stack>
