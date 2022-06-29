@@ -1,3 +1,4 @@
+import { CustomShadowType } from "@themes/shadows";
 import React from "react";
 
 declare global {
@@ -15,6 +16,7 @@ declare module "@mui/material/Button" {
     "text-black": true;
     filter: true;
     "text-primary": true;
+    consultationIP: true;
   }
 }
 
@@ -28,5 +30,17 @@ declare module "@mui/material" {
   interface Color {
     "500_32": string;
     "500_16": string;
+  }
+  interface PaletteColor {
+    lighter: string;
+  }
+  interface ThemeOptions {
+    customShadows?: CustomShadowType;
+  }
+}
+
+declare module "@mui/material/styles" {
+  interface Theme {
+    customShadows: CustomShadowType;
   }
 }

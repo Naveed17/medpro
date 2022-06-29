@@ -7,6 +7,7 @@ import waitingRoom from '../../public/locales/fr/waitingRoom.json'
 import editProfile from '../../public/locales/fr/editProfile.json'
 import settings from '../../public/locales/fr/settings.json'
 import patient from "../../public/locales/fr/patient.json";
+import consultation from "../../public/locales/fr/consultation.json";
 
 export interface Resources {
     common: typeof common
@@ -16,5 +17,6 @@ export interface Resources {
     editProfile: typeof editProfile
     settings: typeof settings
     patient: typeof patient;
+    consultation: typeof consultation;
     // as many as files you have
 }
