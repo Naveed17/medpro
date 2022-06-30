@@ -3,4 +3,5 @@ interface AddressModel {
   street: string;
   postalCode: string;
   location: LocationModel;
+  address: Address;
 }

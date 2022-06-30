@@ -53,7 +53,7 @@ function Profil() {
     }
 
     const { data: user } = session as Session;
-    const medical_entity = (user as UserDataReply).medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const { data, error } = useRequest({
         method: "GET",
         url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
@@ -63,7 +63,7 @@ function Profil() {
     useEffect(() => {
         if (data !== undefined){
             console.log(data);
-            const medical_professional = (user as UserDataReply).medical_professional as MedicalProfessionalModel;
+            const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
             setSpeciality(medical_professional.specialities.filter((spe:any) => spe.isMain)[0].speciality.name);
