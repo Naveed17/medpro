@@ -34,6 +34,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: true,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -50,6 +51,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "success",
     action: "left",
   },
@@ -66,6 +68,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -82,6 +85,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -98,6 +102,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -114,6 +119,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -130,6 +136,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -146,6 +153,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -162,6 +170,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -178,6 +187,7 @@ const PatiendData = [
     lastAppointment:
       "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
     status: "pending",
     action: "left",
   },
@@ -246,7 +256,7 @@ const headCells: readonly HeadCell[] = [
     id: "action",
     numeric: false,
     disablePadding: false,
-    label: "Action",
+    label: "action",
     sortable: false,
     align: "right",
   },

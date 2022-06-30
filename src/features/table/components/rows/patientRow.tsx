@@ -3,6 +3,8 @@ import TableCell from "@mui/material/TableCell";
 import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
 import TableRowStyled from "@features/table/components/overrides/tableRowStyled";
 import Icon from "@themes/urlIcon";
+import moment from "moment-timezone";
+
 export default function PermissionRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
   return (
@@ -58,7 +60,8 @@ export default function PermissionRow({ ...props }) {
               className="text-time"
             >
               <Icon path="ic-anniverssaire" />
-              {new Date(row.time).toLocaleDateString()} - 32 Ans
+              {moment(row.dateOfBirth).format("DD/MM/YYYY")} -{" "}
+              {moment().diff(row.dateOfBirth, "years", true).toFixed()}
             </Typography>
           </Box>
         </Box>
@@ -95,7 +98,8 @@ export default function PermissionRow({ ...props }) {
                 color="text.primary"
               >
                 <Icon path="ic-agenda" />
-                {new Date(row.nextAppointment).toLocaleDateString()}
+
+                {moment(row.nextAppointment).format("DD//YYYY")}
               </Typography>
               <Typography
                 sx={{
@@ -111,7 +115,7 @@ export default function PermissionRow({ ...props }) {
                 color="text.primary"
               >
                 <Icon path="ic-time" />
-                {new Date(row.time).toLocaleDateString()}
+                {moment(row.time).format("HH:mm")}
               </Typography>
             </Box>
           </Box>
@@ -130,7 +134,8 @@ export default function PermissionRow({ ...props }) {
               color="text.primary"
             >
               <Icon path="ic-agenda" />
-              {new Date(row.nextAppointment).toLocaleDateString()}
+
+              {moment(row.nextAppointment).format("DD//YYYY")}
             </Typography>
             <Typography
               sx={{
@@ -146,7 +151,7 @@ export default function PermissionRow({ ...props }) {
               color="text.primary"
             >
               <Icon path="ic-time" />
-              {new Date(row.time).toLocaleDateString()}
+              {moment(row.time).format("HH:mm")}
             </Typography>
           </Box>
         </Box>
