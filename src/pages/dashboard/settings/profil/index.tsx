@@ -21,7 +21,7 @@ import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert"
 import {RootStyled} from "@features/toolbar";
 import {configSelector} from "@features/base";
-import { SettingsDialogs } from "@features/settingsDialogs";
+import {Dialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
@@ -52,22 +52,22 @@ function Profil() {
         'Content-Type': 'application/json',
     }
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const { data, error } = useRequest({
+    const {data, error} = useRequest({
         method: "GET",
-        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
+        url: "/api/medical/entity/profile/" + medical_entity.uuid + "/" + router.locale,
         headers
     });
 
     useEffect(() => {
-        if (data !== undefined){
+        if (data !== undefined) {
             console.log(data);
             const infoData = (data as any).data;
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
-            setSpeciality(medical_professional.specialities.filter((spe:any) => spe.isMain)[0].speciality.name);
+            setSpeciality(medical_professional.specialities.filter((spe: any) => spe.isMain)[0].speciality.name);
             setLoading(false);
             setInsurances([]);
             setPaymentMeans([]);
@@ -75,10 +75,10 @@ function Profil() {
             console.log(infoData.acts);
             setActs(infoData.acts)
         }
-        if (error !== undefined){
+        if (error !== undefined) {
             console.log(error)
         }
-    },[data, error, user])
+    }, [data, error, user])
 
     const [dialogContent, setDialogContent] = useState('');
     const {direction} = useAppSelector(configSelector);
@@ -144,15 +144,16 @@ function Profil() {
                         <Grid item>
                             {
                                 loading ?
-                                    <Skeleton sx={{borderRadius:1}} variant="rectangular">
+                                    <Skeleton sx={{borderRadius: 1}} variant="rectangular">
                                         <Avatar src='/static/img/avatar.svg'/>
                                     </Skeleton> :
-                                <Avatar
-                                src={medical_entity.profilePhoto ? medical_entity.profilePhoto : '/static/img/avatar.svg'}/>
+                                    <Avatar
+                                        src={medical_entity.profilePhoto ? medical_entity.profilePhoto : '/static/img/avatar.svg'}/>
                             }
                         </Grid>
                         <Grid item>
-                            <Typography variant="h6">{loading ? <Skeleton width={150} variant="text"/> : name}</Typography>
+                            <Typography variant="h6">{loading ?
+                                <Skeleton width={150} variant="text"/> : name}</Typography>
                         </Grid>
                     </Grid>
                 </RootStyled>
@@ -168,7 +169,7 @@ function Profil() {
                                         <Typography variant="subtitle2"
                                                     fontWeight={600}>{t('profil.specialities')}</Typography>
                                         <Button variant="outlined" color="info">
-                                            {loading ? <Skeleton width={50} variant="text"/> :speciality}
+                                            {loading ? <Skeleton width={50} variant="text"/> : speciality}
                                         </Button>
                                         <BasicAlert icon="danger"
                                                     data={t('profil.contact')}
@@ -185,17 +186,17 @@ function Profil() {
 
                                         {
                                             loading ?
-                                            initalData.map((item,index) => (
-                                                <Typography key={index} fontWeight={400}>
-                                                    <Skeleton width={250}/>
-                                                </Typography>
-                                            )) :
-                                                qualifications.length > 0 ?
-                                                qualifications.map((item,index) => (
+                                                initalData.map((item, index) => (
                                                     <Typography key={index} fontWeight={400}>
-                                                        {item.title}
+                                                        <Skeleton width={250}/>
                                                     </Typography>
-                                                )) : <Typography color={"gray"} fontWeight={400}>
+                                                )) :
+                                                qualifications.length > 0 ?
+                                                    qualifications.map((item, index) => (
+                                                        <Typography key={index} fontWeight={400}>
+                                                            {item.title}
+                                                        </Typography>
+                                                    )) : <Typography color={"gray"} fontWeight={400}>
                                                         {t('profil.noQualification')}
                                                     </Typography>
                                         }
@@ -216,14 +217,15 @@ function Profil() {
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
-                                                    initalData.map((item,index) => (
-                                                        <Skeleton sx={{borderRadius:1}} variant="rectangular" key={index} width={35} height={35} />
+                                                    initalData.map((item, index) => (
+                                                        <Skeleton sx={{borderRadius: 1}} variant="rectangular"
+                                                                  key={index} width={35} height={35}/>
                                                     )) :
                                                     insurances.length > 0 ?
-                                                    insurances.map((item: any) => (
-                                                        <Box key={item.id} component="img" width={35} height={35}
-                                                             src={item.img}/>
-                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                        insurances.map((item: any) => (
+                                                            <Box key={item.id} component="img" width={35} height={35}
+                                                                 src={item.img}/>
+                                                        )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noInsurance')}
                                                         </Typography>
                                             }
@@ -243,19 +245,19 @@ function Profil() {
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
-                                                    initalData.map((mode: any,index) => (
-                                                    <Button key={index} variant="outlined" color="info"
-                                                            onClick={() => dialogOpen('mode')}>
-                                                        {<Skeleton width={50} variant="text"/>}
-                                                    </Button>
-                                                )):
-                                                    paymentMeans.length > 0 ?
-                                                    paymentMeans.map((mode: any) => (
-                                                        <Button key={mode.id} variant="outlined" color="info"
+                                                    initalData.map((mode: any, index) => (
+                                                        <Button key={index} variant="outlined" color="info"
                                                                 onClick={() => dialogOpen('mode')}>
-                                                            {mode.name}
+                                                            {<Skeleton width={50} variant="text"/>}
                                                         </Button>
-                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                    )) :
+                                                    paymentMeans.length > 0 ?
+                                                        paymentMeans.map((mode: any) => (
+                                                            <Button key={mode.id} variant="outlined" color="info"
+                                                                    onClick={() => dialogOpen('mode')}>
+                                                                {mode.name}
+                                                            </Button>
+                                                        )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noPaymentMean')}
                                                         </Typography>
                                             }
@@ -275,19 +277,20 @@ function Profil() {
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
-                                                    initalData.map((language: any,index) => (
-                                                    <Button key={index} variant="outlined" color="info"
-                                                            onClick={() => dialogOpen('langues')}>
-                                                        {<Skeleton width={50} variant="text"/>}
-                                                    </Button>
-                                                )):
-                                                    languages.length > 0 ?
-                                                    languages.map((language: any) => (
-                                                        <Button key={language.language.code} variant="outlined" color="info"
+                                                    initalData.map((language: any, index) => (
+                                                        <Button key={index} variant="outlined" color="info"
                                                                 onClick={() => dialogOpen('langues')}>
-                                                            {language.language.name}
+                                                            {<Skeleton width={50} variant="text"/>}
                                                         </Button>
-                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                    )) :
+                                                    languages.length > 0 ?
+                                                        languages.map((language: any) => (
+                                                            <Button key={language.language.code} variant="outlined"
+                                                                    color="info"
+                                                                    onClick={() => dialogOpen('langues')}>
+                                                                {language.language.name}
+                                                            </Button>
+                                                        )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noLanguage')}
                                                         </Typography>
                                             }
@@ -304,16 +307,17 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                                     fontWeight={600}>{t('profil.actes')}</Typography>
-                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
+                                               width={1}>
                                             {
                                                 loading ?
-                                                    initalData.map((language: any,index) => (
+                                                    initalData.map((language: any, index) => (
                                                         <Button key={index} variant="outlined" color="info"
                                                                 onClick={(e) => console.log(e)}>
                                                             {<Skeleton width={50} variant="text"/>}
                                                         </Button>
                                                     )) :
-                                                    acts.filter((act: MedicalProfessionalActModel) =>act.isTopAct).length > 0 ?
+                                                    acts.filter((act: MedicalProfessionalActModel) => act.isTopAct).length > 0 ?
                                                         acts.filter((act: MedicalProfessionalActModel) => act.isTopAct).map((item: MedicalProfessionalActModel) => (
                                                             <Button key={item.uuid} variant="outlined" color="info"
                                                                     onClick={(e) => console.log(e)}>
@@ -331,7 +335,7 @@ function Profil() {
                                     </IconButton>
                                 </Stack>
                             </ListItem>
-                            { acts.filter(a=>!a.isTopAct).length > 0 && <ListItem>
+                            {acts.filter(a => !a.isTopAct).length > 0 && <ListItem>
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
@@ -346,7 +350,7 @@ function Profil() {
                                                             {<Skeleton width={50} variant="text"/>}
                                                         </Button>
                                                     )) :
-                                                    acts.filter(a=>!a.isTopAct).map((item: MedicalProfessionalActModel) => (
+                                                    acts.filter(a => !a.isTopAct).map((item: MedicalProfessionalActModel) => (
                                                         <Button key={item.uuid} variant="outlined" color="info"
                                                                 onClick={(e) => console.log(e)}>
                                                             {item.act.name}
@@ -361,14 +365,14 @@ function Profil() {
                     </CardContent>
                 </CardStyled>
 
-                <SettingsDialogs action={dialogContent}
-                                 open={open}
-                                 data={info}
-                                 direction={direction}
-                                 title={t('dialogs.titles.' + dialogContent)}
-                                 t={t}
-                                 dialogSave={dialogSave}
-                                 dialogClose={dialogClose}/>
+                <Dialog action={dialogContent}
+                        open={open}
+                        data={info}
+                        direction={direction}
+                        title={t('dialogs.titles.' + dialogContent)}
+                        t={t}
+                        dialogSave={dialogSave}
+                        dialogClose={dialogClose}/>
 
             </Box>
         </>
