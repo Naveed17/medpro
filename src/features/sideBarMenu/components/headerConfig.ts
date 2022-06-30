@@ -54,3 +54,5 @@ export const siteHeader = {
         }
     ],
 };
+
+export default siteHeader;

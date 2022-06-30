@@ -72,6 +72,7 @@ function PatientToolbar() {
         }}
       >
         <CustomStepper
+          currentIndex={0}
           translationKey="patient"
           prefixKey="add-patient"
           stepperData={stepperData}

@@ -4,7 +4,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Dialog from "@mui/material/Dialog";
-import Typography from "@mui/material/Typography";
 
 function SettingsDialogs({ ...props }) {
   const selectted = DialogData.find((item) => item.action === props.action);

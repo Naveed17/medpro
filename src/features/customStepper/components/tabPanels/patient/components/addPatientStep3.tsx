@@ -19,7 +19,7 @@ function AddPatientStep3({ ...props }) {
       <Player
         autoplay
         loop
-        src="/static/lotties/check-mark-success.json"
+        src="/static/lotties/applock.json"
         style={{ height: "133px", width: "133px" }}
       >
         <Controls

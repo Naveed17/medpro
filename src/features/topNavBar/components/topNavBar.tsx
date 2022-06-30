@@ -16,31 +16,32 @@ import {
 } from "@mui/material";
 
 // config
-import { siteHeader } from "@features/sideBarMenu/components/headerConfig";
+import {siteHeader} from "@features/sideBarMenu";
 
 // components
-import { TextFieldSearch } from "@features/textFieldSearch";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { sideBarSelector } from "@features/sideBarMenu/selectors";
-import { toggleMobileBar, toggleSideBar } from "@features/sideBarMenu/actions";
+import {TextFieldSearch} from "@features/textFieldSearch";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {sideBarSelector} from "@features/sideBarMenu/selectors";
+import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
+
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
-function TopNavBar({...props}){
-    const { dashboard } = props;
-    const { topBar } = siteHeader;
+function TopNavBar({...props}) {
+    const {dashboard} = props;
+    const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
-    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const router = useRouter();
-    const dir = router.locale === 'ar' ? 'rtl': 'ltr';
+    const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
     return (
         <>
-            { dashboard ?
+            {dashboard ?
                 <NavbarStyled
                     dir={dir}
                     position="fixed"
@@ -116,7 +117,7 @@ function TopNavBar({...props}){
                         </MenuList>
                     </Toolbar>
                 </NavbarStyled>
-            :
+                :
                 <NavbarStepperStyled
                     dir={dir}
                     position="fixed"

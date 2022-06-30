@@ -20,7 +20,6 @@ import {
 import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import _ from "lodash";
 
 interface MyValues {
   group: string;

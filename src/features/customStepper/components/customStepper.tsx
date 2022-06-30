@@ -1,4 +1,4 @@
-import { useState, ReactNode, SyntheticEvent } from "react";
+import {useState, ReactNode, SyntheticEvent, useEffect} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -7,12 +7,18 @@ import { useTranslation } from "next-i18next";
 import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
-  const { stepperData, translationKey, prefixKey } = props;
-  const [value, setValue] = useState<number>(0);
+  const { stepperData, translationKey, prefixKey, currentIndex } = props;
+  const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
+
   const handleChange = (event: SyntheticEvent, val: number) => {
     setValue(val);
   };
+
+  useEffect(()=>{
+    setValue(currentIndex);
+  },[currentIndex]);
+
   const { t, ready } = useTranslation(translationKey, { keyPrefix: prefixKey });
   if (!ready) return <>loading translations...</>;
 

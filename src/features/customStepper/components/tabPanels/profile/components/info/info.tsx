@@ -15,7 +15,7 @@ import {MultiSelect} from "@features/multiSelect";
 import React, {useState} from "react";
 import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
-import {InputStyled} from "@features/steppers";
+import {InputStyled} from "@features/customStepper";
 import {useTranslation} from "next-i18next";
 
 type selectMultiple = {
@@ -57,9 +57,9 @@ const multipleLanguage = [
     { title: "Chinois" },
 ];
 
-function Info() {
+function Info({ ...props }) {
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
-
+    const { onNext } = props;
     const formik = useFormik<MyFormProps>({
         initialValues: {
             file: "",

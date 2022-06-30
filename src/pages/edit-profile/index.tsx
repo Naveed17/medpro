@@ -9,37 +9,43 @@ import {MainMenuStyled} from "@features/sideBarMenu";
 import {CheckProfileStatus} from "@features/checkProfileStatus";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Session} from "next-auth";
-import {Steppers} from "@features/steppers";
 import {useRouter} from "next/router";
 import useRequest from "@app/axios/axiosServiceApi";
-import {Info, Document, AddPatientStep3} from "@features/customStepper";
+import {Info, Document, Actes, Cabinet, CustomStepper, stepperProfileSelector} from "@features/customStepper";
+import {useAppSelector} from "@app/redux/hooks";
 
 const stepperData = [
     {
-        title: "personal-info",
-        children: Info,
+        title: "tabs.tab-1",
+        children: Info
     },
     {
-        title: "additional-information",
-        children: Document,
+        title: "tabs.tab-2",
+        children: Document
     },
     {
-        title: "fin",
-        children: AddPatientStep3,
+        title: "tabs.tab-3",
+        children: Actes
+    },
+    {
+        title: "tabs.tab-4",
+        children: Cabinet
     },
 ];
 
 function EditProfile() {
     const {data: session, status} = useSession();
+    const {currentStepper: stepperIndex} = useAppSelector(stepperProfileSelector);
     const router = useRouter();
     const loading = status === 'loading';
     const {step} = router.query;
-    const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string,0) - 1) : 0);
+    const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string, 0) - 1) : stepperIndex);
     const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
     // get user session data
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const { data: httpResponse, error } = useRequest({
+
+    const {data: httpResponse, error} = useRequest({
         method: "GET",
         url: `/api/medical/entity/profile/${medical_entity.uuid}/${router.locale}`,
         headers: {
@@ -74,8 +80,15 @@ function EditProfile() {
                                 {t(`stepper-${currentStepper}.title`)}
                             </Typography>
                             <Container maxWidth="md">
-                                {/*<Steppers currentStepper={currentStepper}/>*/}
-
+                                <Box sx={{width: "100%", py: 3}}>
+                                    <Box sx={{maxWidth: {xs: 555, sm: "100%"}}}>
+                                        <CustomStepper
+                                            currentIndex={currentStepper}
+                                            translationKey="editProfile"
+                                            prefixKey="steppers"
+                                            stepperData={stepperData}/>
+                                    </Box>
+                                </Box>
                             </Container>
                             <Box
                                 component="footer"
