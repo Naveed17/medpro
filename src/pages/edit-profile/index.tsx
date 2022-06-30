@@ -21,19 +21,19 @@ function EditProfile() {
     const [currentStepper, setCurrentStepper] = useState(parseInt(step as string,0) - 1);
     const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const { data: httpResponse, error } = useRequest({
         method: "GET",
-        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
-        headers
+        url: `/api/medical/entity/profile/${medical_entity.uuid}/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
     });
 
     if (!ready || loading || !httpResponse) return (<LoadingScreen/>);
+
+    console.log('httpResponse', httpResponse);
 
     return (
         <Box bgcolor="#F0FAFF"
