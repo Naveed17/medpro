@@ -40,11 +40,8 @@ function AddPatientStep1({ ...props }) {
   const { t, onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
-  const isAlreadyExist = _.keys(stepsData.step1).length > 0;
 
   const [selected, setslected] = React.useState<any>(null);
-  // const settings = useSettings();
-  // const { popupDataSet } = settings;
   const phoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
@@ -69,18 +66,12 @@ function AddPatientStep1({ ...props }) {
 
   const formik: FormikProps<MyValues> = useFormik<MyValues>({
     initialValues: {
-      group: isAlreadyExist ? stepsData.step1.group : "",
-      name: isAlreadyExist ? stepsData.step1.name : "aasd",
-      firstName: isAlreadyExist ? stepsData.step1.firstName : "asdasd",
-      dob: isAlreadyExist
-        ? stepsData.step1.dob
-        : {
-            day: 1,
-            month: 1,
-            year: 1,
-          },
-      phone: isAlreadyExist ? stepsData.step1.phone : 123123123,
-      gender: isAlreadyExist ? stepsData.step1.gender : "",
+      group: stepsData.step1.group,
+      name: stepsData.step1.name,
+      firstName: stepsData.step1.firstName,
+      dob: stepsData.step1.dob,
+      phone: stepsData.step1.phone,
+      gender: stepsData.step1.gender,
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
@@ -88,7 +79,6 @@ function AddPatientStep1({ ...props }) {
     },
   });
   const handleChange = (event: ChangeEvent | null, values: object) => {
-    // popupDataSet({ step1: values });
     onNext(1);
     dispatch(onAddPatient({ ...stepsData, step1: values }));
   };
