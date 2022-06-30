@@ -1,4 +1,4 @@
-interface UserDataReply {
+interface UserDataResponse {
     general_information: UserModel;
     medical_entities?: MedicalEntityDefault[];
     medical_entity?: MedicalEntityModel;
