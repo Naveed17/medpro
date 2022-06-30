@@ -92,7 +92,6 @@ function Otable({ ...props }) {
       }
     }
   }, [tableHeadData?.active]);
-  console.log(rows.length);
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
@@ -141,7 +140,7 @@ function Otable({ ...props }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box py={1} sx={{ display: rows.length > 10 ? 'block' : 'none' }} />
+      <Box py={1} />
       <Pagination
         page={page}
         total={rows.length}
