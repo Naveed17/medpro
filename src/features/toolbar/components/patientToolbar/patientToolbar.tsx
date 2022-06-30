@@ -13,6 +13,7 @@ import {
   AddPatientStep2,
   AddPatientStep3,
 } from "@features/customStepper";
+
 const stepperData = [
   {
     title: "personal-info",
@@ -27,6 +28,7 @@ const stepperData = [
     children: AddPatientStep3,
   },
 ];
+
 function PatientToolbar() {
   const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);

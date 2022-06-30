@@ -12,15 +12,31 @@ import {Session} from "next-auth";
 import {Steppers} from "@features/steppers";
 import {useRouter} from "next/router";
 import useRequest from "@app/axios/axiosServiceApi";
+import {Info, Document, AddPatientStep3} from "@features/customStepper";
+
+const stepperData = [
+    {
+        title: "personal-info",
+        children: Info,
+    },
+    {
+        title: "additional-information",
+        children: Document,
+    },
+    {
+        title: "fin",
+        children: AddPatientStep3,
+    },
+];
 
 function EditProfile() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const loading = status === 'loading';
     const {step} = router.query;
-    const [currentStepper, setCurrentStepper] = useState(parseInt(step as string,0) - 1);
+    const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string,0) - 1) : 0);
     const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
-
+    // get user session data
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const { data: httpResponse, error } = useRequest({
@@ -31,6 +47,7 @@ function EditProfile() {
         }
     });
 
+    if (error) return <div>failed to load</div>
     if (!ready || loading || !httpResponse) return (<LoadingScreen/>);
 
     console.log('httpResponse', httpResponse);
@@ -57,7 +74,8 @@ function EditProfile() {
                                 {t(`stepper-${currentStepper}.title`)}
                             </Typography>
                             <Container maxWidth="md">
-                                <Steppers currentStepper={currentStepper}/>
+                                {/*<Steppers currentStepper={currentStepper}/>*/}
+
                             </Container>
                             <Box
                                 component="footer"
@@ -96,6 +114,7 @@ function EditProfile() {
 export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
+            fallback: false,
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'editProfile']))
         }
     }
