@@ -76,7 +76,7 @@ function Otable({ ...props }) {
 
     setSelected(newSelected);
   };
-
+  const loading = false;
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
@@ -116,10 +116,10 @@ function Otable({ ...props }) {
           />
 
           <TableBody>
-            {stableSort(rows, getComparator(order as Order, orderBy))
+            {(loading ? Array.from(new Array(3)) : stableSort(rows, getComparator(order, orderBy)))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                const isItemSelected = isSelected(row.name as string);
+                const isItemSelected = isSelected(row?.name as string);
                 const labelId = `enhanced-table-checkbox-${index}`;
                 return (
                   <Component

@@ -8,7 +8,7 @@ import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
 import { DetailsCard } from '@features/card';
-import { DocumentButton } from '@features/documentButton';
+import { DocumentButton } from '@features/buttons';
 import { DrawerBottom } from '@features/drawerBottom';
 import { ConsultationFilter } from '@features/leftActionBar';
 import { ConsultationCard } from '@features/card';
