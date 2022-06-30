@@ -80,7 +80,7 @@ export default function PermissionRow({ ...props }) {
             startIcon={<Icon path="ic-agenda-+" />}
             sx={{ position: "relative", zIndex: 1000 }}
           >
-            {t("table.body.add-appointment")}
+            {t("add-appointment")}
           </Button>
         ) : (
           <Box display="flex" alignItems="center">
@@ -171,10 +171,10 @@ export default function PermissionRow({ ...props }) {
             path: { fill: "#000" },
           }}
         >
-          {t("table.body.edit")}
+          {t("edit")}
         </Button>
 
-        <Button size="small">{t("table.body.see-card")}</Button>
+        <Button size="small">{t("see-card")}</Button>
       </TableCell>
     </TableRowStyled>
   );

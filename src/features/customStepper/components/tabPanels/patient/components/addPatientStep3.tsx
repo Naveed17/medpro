@@ -28,17 +28,17 @@ export default function AgendaStep({ ...props }) {
         />
       </Player>
       <Typography variant="h6" gutterBottom sx={{ my: 3 }}>
-        {t("add-patient.added")}
+        {t("added")}
       </Typography>
       <Typography
         variant="body1"
         textAlign={{ xs: "center", lg: "left" }}
         color="text.secondary"
       >
-        {t("add-patient.description")}
+        {t("description")}
       </Typography>
       <Stack direction={{ lg: "row", xs: "column" }} spacing={2} mt={5}>
-        <Button variant="text-primary">{t("add-patient.add-new")}</Button>
+        <Button variant="text-primary">{t("add-new")}</Button>
         <Button
           variant="contained"
           color="warning"
@@ -49,7 +49,7 @@ export default function AgendaStep({ ...props }) {
           }}
           startIcon={<Icon path="ic-agenda-+" />}
         >
-          {t("add-patient.add-appo")}
+          {t("add-appo")}
         </Button>
       </Stack>
     </RootStyle>

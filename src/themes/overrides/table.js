@@ -86,8 +86,6 @@ export default function Table(theme) {
             cursor: "pointer",
             span: {
               display: "flex",
-              justifyContent: "flex-end",
-              flexDirection: "row-reverse",
               alignItems: "center",
             },
             div: {

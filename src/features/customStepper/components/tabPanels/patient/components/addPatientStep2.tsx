@@ -68,14 +68,14 @@ export default function AddPatientStep2({ ...props }) {
         onSubmit={handleSubmit}
       >
         <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 4 }}>
-          {t("add-patient.additional-information")}
+          {t("additional-information")}
         </Typography>
 
         <Stack spacing={2} sx={{ mb: 3 }}>
           <Grid container spacing={2}>
             <Grid item md={6}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t("add-patient.region")}
+                {t("region")}
               </Typography>
               <FormControl fullWidth>
                 <Select
@@ -91,7 +91,7 @@ export default function AddPatientStep2({ ...props }) {
                       ? Array.isArray(value)
                         ? value.join(", ")
                         : value
-                      : t("add-patient.region-placeholder")
+                      : t("region-placeholder")
                   }
                 >
                   <MenuItem value="1">1</MenuItem>
@@ -102,7 +102,7 @@ export default function AddPatientStep2({ ...props }) {
             </Grid>
             <Grid item md={6}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t("add-patient.zip")}
+                {t("zip")}
               </Typography>
               <TextField
                 variant="outlined"
@@ -115,13 +115,13 @@ export default function AddPatientStep2({ ...props }) {
           </Grid>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("add-patient.address")}
+              {t("address")}
             </Typography>
             <TextField
               variant="outlined"
               multiline
               rows={3}
-              placeholder={t("add-patient.address-placeholder")}
+              placeholder={t("address-placeholder")}
               size="small"
               fullWidth
               {...getFieldProps("address")}
@@ -145,7 +145,7 @@ export default function AddPatientStep2({ ...props }) {
               >
                 <Icon path="ic-plus" />
               </IconButton>
-              {t("add-patient.assurance")}
+              {t("assurance")}
             </Typography>
             <Box>
               {values.insurance.map((val, index: number) => (
@@ -169,7 +169,7 @@ export default function AddPatientStep2({ ...props }) {
                             ? Array.isArray(value)
                               ? value.join(", ")
                               : value
-                            : t("add-patient.assurance")
+                            : t("assurance")
                         }
                       >
                         <MenuItem value="1">1</MenuItem>
@@ -182,7 +182,7 @@ export default function AddPatientStep2({ ...props }) {
                     <Stack direction="row" spacing={2}>
                       <TextField
                         variant="outlined"
-                        placeholder={t("add-patient.assurance-phone-error")}
+                        placeholder={t("assurance-phone-error")}
                         size="small"
                         fullWidth
                         {...getFieldProps(`insurance[${index}].number`)}
@@ -211,10 +211,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("add-patient.email")}
+              {t("email")}
             </Typography>
             <TextField
-              placeholder={t("add-patient.email-placeholder")}
+              placeholder={t("email-placeholder")}
               type="email"
               variant="outlined"
               size="small"
@@ -224,10 +224,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("add-patient.cin")}
+              {t("cin")}
             </Typography>
             <TextField
-              placeholder={t("add-patient.cin-placeholder")}
+              placeholder={t("cin-placeholder")}
               type="number"
               variant="outlined"
               size="small"
@@ -237,10 +237,10 @@ export default function AddPatientStep2({ ...props }) {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("add-patient.from")}
+              {t("from")}
             </Typography>
             <TextField
-              placeholder={t("add-patient.from-placeholder")}
+              placeholder={t("from-placeholder")}
               type="text"
               variant="outlined"
               size="small"
@@ -256,10 +256,10 @@ export default function AddPatientStep2({ ...props }) {
           mt={"auto"}
         >
           <Button variant="text-black" color="primary">
-            {t("add-patient.return")}
+            {t("return")}
           </Button>
           <Button variant="contained" type="submit" color="primary">
-            {t("add-patient.register")}
+            {t("register")}
           </Button>
         </Stack>
       </Stack>

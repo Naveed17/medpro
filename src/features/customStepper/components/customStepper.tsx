@@ -4,6 +4,8 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { RootStyled } from "@features/customStepper";
+import { useTranslation } from "next-i18next";
+
 interface TabPanelProps {
   children?: ReactNode;
   index: number;
@@ -31,12 +33,14 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function ScrollableTabsButtonAuto({ ...props }) {
-  const { stepperData, t } = props;
+  const { stepperData, translationKey, prefixKey } = props;
   const [value, setValue] = useState<number>(0);
   const [last, setLast] = useState<number>(1);
   const handleChange = (event: SyntheticEvent, val: number) => {
     setValue(val);
   };
+  const { t, ready } = useTranslation(translationKey, { keyPrefix: prefixKey });
+  if (!ready) return <>loading translations...</>;
 
   return (
     <>
@@ -61,7 +65,7 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
                 disabled={i > value && i >= last}
                 label={
                   <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
-                    <b>{i + 1}.</b> {t(`add-patient.${v.title}`)}
+                    <b>{i + 1}.</b> {t(`${v.title}`)}
                   </Box>
                 }
               />

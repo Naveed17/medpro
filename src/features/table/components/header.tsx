@@ -9,7 +9,18 @@ import { Stack, Checkbox, TextField, Switch } from "@mui/material";
 import { visuallyHidden } from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
 function OHead({ ...props }) {
-  const { order, orderBy, onRequestSort, data, state, handleConfig, t } = props;
+  const {
+    order,
+    orderBy,
+    onRequestSort,
+    data,
+    state,
+    handleConfig,
+    t,
+    numSelected,
+    rowCount,
+    onSelectAllClick,
+  } = props;
   const createSortHandler = (property: any) => (event: any) => {
     onRequestSort(event, property);
   };
@@ -22,76 +33,95 @@ function OHead({ ...props }) {
     <TableHead>
       <TableRow>
         {data.map((headCell: any) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.align}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              {...(headCell.sortable && {
-                onClick: createSortHandler(headCell.id),
-              })}
-              IconComponent={headCell.sortable ? CodeIcon : null}
-              sx={{
-                justifyContent:
-                  headCell.align === "center"
-                    ? "center !important"
-                    : "flex-start",
-              }}
-            >
-              {t(headCell.label)}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-            {headCell.id === "duration" && (
-              <Stack direction="row" width={1} ml={2}>
+          <React.Fragment key={headCell.id}>
+            {headCell.id === "select-all" ? (
+              <TableCell padding="checkbox">
                 <Checkbox
-                  checked={state.duration}
-                  onChange={(e) => {
-                    handleChange(e.target.checked, headCell.id);
+                  size="small"
+                  color="primary"
+                  indeterminate={numSelected > 0 && numSelected < rowCount}
+                  checked={rowCount > 0 && numSelected === rowCount}
+                  onChange={onSelectAllClick}
+                  inputProps={{
+                    "aria-label": "select all desserts",
                   }}
-                  inputProps={{ "aria-label": "controlled" }}
-                  size="small"
-                  name="durationEnable"
                 />
-                <TextField
-                  id="outlined-select-currency-native"
-                  select
-                  size="small"
-                  fullWidth
-                  value={state[headCell.id]}
-                  name={headCell.id}
-                  //onChange={handleChange}
-                  SelectProps={{
-                    native: true,
+              </TableCell>
+            ) : (
+              <TableCell
+                key={headCell.id}
+                align={headCell.align}
+                padding={headCell.disablePadding ? "none" : "normal"}
+                sortDirection={orderBy === headCell.id ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === headCell.id}
+                  direction={orderBy === headCell.id ? order : "asc"}
+                  {...(headCell.sortable && {
+                    onClick: createSortHandler(headCell.id),
+                  })}
+                  IconComponent={headCell.sortable ? CodeIcon : null}
+                  sx={{
+                    justifyContent:
+                      headCell.align === "center"
+                        ? "center !important"
+                        : "flex-start",
                   }}
                 >
-                  <option value={10}>10 min</option>
-                  <option value={20}>20 min</option>
-                  <option value={30}>30 min</option>
-                </TextField>
-              </Stack>
+                  {t(headCell.label)}
+                  {orderBy === headCell.id ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === "desc"
+                        ? "sorted descending"
+                        : "sorted ascending"}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+                {headCell.id === "duration" && (
+                  <Stack direction="row" width={1} ml={2}>
+                    <Checkbox
+                      checked={state.duration}
+                      onChange={(e) => {
+                        handleChange(e.target.checked, headCell.id);
+                      }}
+                      inputProps={{ "aria-label": "controlled" }}
+                      size="small"
+                      name="durationEnable"
+                    />
+                    <TextField
+                      id="outlined-select-currency-native"
+                      select
+                      size="small"
+                      fullWidth
+                      value={state[headCell.id]}
+                      name={headCell.id}
+                      //onChange={handleChange}
+                      SelectProps={{
+                        native: true,
+                      }}
+                    >
+                      <option value={10}>10 min</option>
+                      <option value={20}>20 min</option>
+                      <option value={30}>30 min</option>
+                    </TextField>
+                  </Stack>
+                )}
+                {(headCell.id === "delay_min" ||
+                  headCell.id === "delay_max" ||
+                  headCell.id === "active") && (
+                  <Switch
+                    checked={Boolean(state[headCell.id])}
+                    name={headCell.id}
+                    onChange={(e) => {
+                      handleChange(e.target.value, headCell.id);
+                    }}
+                    inputProps={{ "aria-label": "controlled" }}
+                    sx={{ m: headCell.id === "active" ? "auto" : 0 }}
+                  />
+                )}
+              </TableCell>
             )}
-            {(headCell.id === "delay_min" ||
-              headCell.id === "delay_max" ||
-              headCell.id === "active") && (
-              <Switch
-                checked={Boolean(state[headCell.id])}
-                name={headCell.id}
-                onChange={(e) => {
-                  handleChange(e.target.value, headCell.id);
-                }}
-                inputProps={{ "aria-label": "controlled" }}
-                sx={{ m: headCell.id === "active" ? "auto" : 0 }}
-              />
-            )}
-          </TableCell>
+          </React.Fragment>
         ))}
       </TableRow>
     </TableHead>
