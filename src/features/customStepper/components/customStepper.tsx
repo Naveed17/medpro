@@ -32,7 +32,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-export default function ScrollableTabsButtonAuto({ ...props }) {
+function CustomStepper({ ...props }) {
   const { stepperData, translationKey, prefixKey } = props;
   const [value, setValue] = useState<number>(0);
   const [last, setLast] = useState<number>(1);
@@ -98,3 +98,4 @@ export default function ScrollableTabsButtonAuto({ ...props }) {
     </>
   );
 }
+export default CustomStepper;

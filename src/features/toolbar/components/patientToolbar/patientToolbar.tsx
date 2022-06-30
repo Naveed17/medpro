@@ -27,7 +27,7 @@ const stepperData = [
     children: AddPatientStep3,
   },
 ];
-export default function PatientToolbar() {
+function PatientToolbar() {
   const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { direction } = useAppSelector(configSelector);
@@ -126,3 +126,4 @@ export default function PatientToolbar() {
     </>
   );
 }
+export default PatientToolbar;

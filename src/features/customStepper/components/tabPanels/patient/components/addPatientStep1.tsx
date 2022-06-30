@@ -36,7 +36,7 @@ interface touchedProps {
   firstName: string;
   phone: string | number;
 }
-export default function AddPatientStep1({ ...props }) {
+function AddPatientStep1({ ...props }) {
   const { t, onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
@@ -360,3 +360,4 @@ export default function AddPatientStep1({ ...props }) {
     </FormikProvider>
   );
 }
+export default AddPatientStep1;
