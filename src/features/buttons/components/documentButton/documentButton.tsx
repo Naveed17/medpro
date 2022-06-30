@@ -1,5 +1,4 @@
-import React from "react";
-import { Button, Typography, Badge } from "@mui/material";
+import { Typography, Badge } from "@mui/material";
 import DocumentButtonStyled from "./overrides/documentButtonStyle";
 import Icon from '@themes/urlIcon';
 export default function DocumentButton({ ...props }) {
