@@ -6,7 +6,7 @@ import {Box, Button, Container, Paper, Toolbar, Typography} from "@mui/material"
 import {useSession} from "next-auth/react";
 import {TopNavBar} from "@features/topNavBar";
 import {MainMenuStyled} from "@features/sideBarMenu";
-import {StepperCheckStatus} from "@features/stepperCheckStatus";
+import {CheckProfileStatus} from "@features/checkProfileStatus";
 import {LoadingScreen} from "@features/loadingScreen";
 import { Session } from "next-auth";
 import { Steppers } from "@features/steppers";
@@ -31,7 +31,7 @@ function EditProfile(){
             <Container fixed>
                 <Paper sx={{ mt: 4, borderRadius: "10px", mb: 4 }}>
                     {currentStepper > 3 ? (
-                        <StepperCheckStatus doctor={user} />
+                        <CheckProfileStatus doctor={user} />
                     ) : (
                         <>
                             <Typography
