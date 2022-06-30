@@ -10,12 +10,11 @@ import { DashLayout } from "@features/base";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
-import { PatientToolbar } from "@features/toolbar";
+import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 // redux
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
-
 // interface
 interface HeadCell {
   disablePadding: boolean;
@@ -293,9 +292,7 @@ function Patient() {
             setopen(false);
           }}
         >
-          <Typography variant="h1" color="primary.main">
-            Patient ID: {patientId}
-          </Typography>
+          <PatientDetailsToolbar />
         </Drawer>
       </Box>
     </>
