@@ -25,7 +25,6 @@ import { SettingsDialogs } from "@features/settingsDialogs";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
-import Qualifications from "@interfaces/Qualifications";
 import { useRouter } from 'next/router'
 import useRequest from "@app/axios/axiosServiceApi";
 import {useSession} from "next-auth/react";
@@ -43,6 +42,7 @@ function Profil() {
     const [qualifications, setQualifications] = useState<QualificationModel[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
+    const [acts,setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
@@ -63,6 +63,7 @@ function Profil() {
     useEffect(() => {
         if (data !== undefined){
             console.log(data);
+            const infoData = (data as any).data;
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
@@ -70,8 +71,9 @@ function Profil() {
             setLoading(false);
             setInsurances([]);
             setPaymentMeans([]);
-            setQualifications(((data as any).data.qualification) as QualificationModel[])
-            console.log(qualifications);
+            setQualifications((infoData.qualification) as QualificationModel[])
+            console.log(infoData.acts);
+            setActs(infoData.acts)
         }
         if (error !== undefined){
             console.log(error)
@@ -311,21 +313,15 @@ function Profil() {
                                                             {<Skeleton width={50} variant="text"/>}
                                                         </Button>
                                                     )) :
-                                                    <>
-                                                        <Button variant="outlined" color="info"
-                                                                onClick={(e) => console.log(e)}>
-                                                            Relissage fractionnel
-                                                        </Button>
-                                                        <Button variant="outlined" color="info"
-                                                                onClick={(e) => console.log(e)}>
-                                                            Prise en charge de lacné
-                                                        </Button>
-                                                        <Button variant="outlined" color="info"
-                                                                onClick={(e) => console.log(e)}>
-                                                            Traitement Médical et Chirurgical des Cheveux
-                                                        </Button>
-
-                                                    </>
+                                                    acts.filter((act: MedicalProfessionalActModel) =>act.isTopAct).length > 0 ?
+                                                        acts.filter((act: MedicalProfessionalActModel) => act.isTopAct).map((item: MedicalProfessionalActModel) => (
+                                                            <Button key={item.uuid} variant="outlined" color="info"
+                                                                    onClick={(e) => console.log(e)}>
+                                                                {item.act.name}
+                                                            </Button>
+                                                        )) : <Typography color={"gray"} fontWeight={400}>
+                                                            {t('profil.noActes')}
+                                                        </Typography>
                                             }
                                         </Stack>
                                     </Stack>
@@ -335,7 +331,7 @@ function Profil() {
                                     </IconButton>
                                 </Stack>
                             </ListItem>
-                            <ListItem>
+                            { acts.filter(a=>!a.isTopAct).length > 0 && <ListItem>
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
@@ -350,25 +346,17 @@ function Profil() {
                                                             {<Skeleton width={50} variant="text"/>}
                                                         </Button>
                                                     )) :
-                                                    <>
-                                                        <Button variant="outlined" color="info"
+                                                    acts.filter(a=>!a.isTopAct).map((item: MedicalProfessionalActModel) => (
+                                                        <Button key={item.uuid} variant="outlined" color="info"
                                                                 onClick={(e) => console.log(e)}>
-                                                            Relissage fractionnel
+                                                            {item.act.name}
                                                         </Button>
-                                                        <Button variant="outlined" color="info"
-                                                                onClick={(e) => console.log(e)}>
-                                                            Prise en charge de lacné
-                                                        </Button>
-                                                        <Button variant="outlined" color="info"
-                                                                onClick={(e) => console.log(e)}>
-                                                            Traitement Médical et Chirurgical des Cheveux
-                                                        </Button>
-                                                    </>
+                                                    ))
                                             }
                                         </Stack>
                                     </Stack>
                                 </Stack>
-                            </ListItem>
+                            </ListItem>}
                         </List>
                     </CardContent>
                 </CardStyled>
