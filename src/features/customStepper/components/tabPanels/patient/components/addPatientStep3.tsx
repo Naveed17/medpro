@@ -7,7 +7,7 @@ const RootStyle = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
   padding: theme.spacing(2),
 }));
-export default function AgendaStep({ ...props }) {
+function AddPatientStep3({ ...props }) {
   const { t } = props;
   return (
     <RootStyle
@@ -55,3 +55,4 @@ export default function AgendaStep({ ...props }) {
     </RootStyle>
   );
 }
+export default AddPatientStep3;

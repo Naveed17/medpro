@@ -21,7 +21,7 @@ import _ from "lodash";
 
 import { useTranslation } from "next-i18next";
 
-export default function AddPatientStep2({ ...props }) {
+function AddPatientStep2({ ...props }) {
   const { onNext, t } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
@@ -266,3 +266,4 @@ export default function AddPatientStep2({ ...props }) {
     </FormikProvider>
   );
 }
+export default AddPatientStep2;
