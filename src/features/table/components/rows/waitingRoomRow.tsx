@@ -8,7 +8,6 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 
 function WaitingRoomRow({ ...props }) {
-
     const { row, t } = props;
     const theme = useTheme();
     return (
@@ -131,7 +130,7 @@ function WaitingRoomRow({ ...props }) {
                     <Label
                         variant="filled"
                         color={row?.status === "completed" ? "success" : row?.status === "canceled" ? "error" : "primary"}
-                        sx={{ color: theme.palette.text.primary, width: "100%" }}
+                        sx={{ color: theme.palette.text.primary }}
                     >
                         {t(row.status)}
                     </Label>
