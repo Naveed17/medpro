@@ -248,7 +248,7 @@ const headCells: readonly HeadCell[] = [
     id: "lastAppointment",
     numeric: false,
     disablePadding: false,
-    label: "Last appointment",
+    label: "lastAppointment",
     sortable: false,
     align: "left",
   },

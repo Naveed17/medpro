@@ -99,7 +99,7 @@ export default function PermissionRow({ ...props }) {
               >
                 <Icon path="ic-agenda" />
 
-                {moment(row.nextAppointment).format("DD//YYYY")}
+                {moment(row.nextAppointment).format("DD/MM/YYYY")}
               </Typography>
               <Typography
                 sx={{
@@ -135,7 +135,7 @@ export default function PermissionRow({ ...props }) {
             >
               <Icon path="ic-agenda" />
 
-              {moment(row.nextAppointment).format("DD//YYYY")}
+              {moment(row.nextAppointment).format("DD/MM/YYYY")}
             </Typography>
             <Typography
               sx={{
