@@ -114,8 +114,7 @@ function Room() {
         <RoomToolbar />
       </SubHeader>
       <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
+        className="container"
       >
         <Label
           variant="filled"

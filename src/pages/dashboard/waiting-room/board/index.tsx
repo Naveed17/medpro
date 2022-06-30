@@ -31,8 +31,7 @@ function Board() {
             <SubHeader>
                 <RoomToolbar board data={data} handleCollapse={(v: number) => setmobileCollapse(v)} />
             </SubHeader>
-            <Box bgcolor="#F0FAFF"
-                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box className="container">
                 <Stack
                     direction="row"
                     spacing={2}

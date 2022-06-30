@@ -1,11 +1,9 @@
-import {styled} from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
-export const GlobleStyles = styled("div")(({theme}) => ({
-    "& .MuiSvgIcon-root": {
-        "& > [class^=muirtl-]": {
-            transform: "scaleX(-1)",
-            color: "white"
-        }
+export const GlobleStyles = styled("div")(({ theme }) => ({
+    "& svg[class*='muirtl-']": {
+        transform: "scaleX(-1)",
+
     },
     ".sidenav-main": {
         "& .MuiListItem-root": {

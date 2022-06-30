@@ -16,7 +16,7 @@ function responsiveFontSizes({ sm, md, lg }: any) {
   };
 }
 
-const FONT_PRIMARY = ["Poppins"];
+const FONT_PRIMARY = ["Poppins"].join(", ");
 // const FONT_SECONDARY = ["Montserrat"];
 
 const typography: any = {
