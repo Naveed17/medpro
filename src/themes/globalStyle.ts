@@ -3,8 +3,7 @@ import {styled} from "@mui/material/styles";
 export const GlobleStyles = styled("div")(({theme}) => ({
     "& .MuiSvgIcon-root": {
         "& > [class^=muirtl-]": {
-            transform: "scaleX(-1)",
-            color: "white"
+            transform: "scaleX(-1)"
         }
     },
     ".sidenav-main": {

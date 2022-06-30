@@ -39,6 +39,23 @@ const PatiendData = [
     action: "left",
   },
   {
+    id: 1,
+    name: "John Doe",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment:
+        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    lastAppointment:
+        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    addAppointment: true,
+    dateOfBirth: new Date("07-02-1998"),
+    status: "pending",
+    action: "left",
+  },
+  {
     id: 2,
     name: "Med",
     avatar: "/static/icons/Med-logo_.svg",

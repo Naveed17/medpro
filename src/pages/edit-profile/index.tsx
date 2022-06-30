@@ -11,6 +11,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Session} from "next-auth";
 import {Steppers} from "@features/steppers";
 import {useRouter} from "next/router";
+import useRequest from "@app/axios/axiosServiceApi";
 
 function EditProfile() {
     const {data: session, status} = useSession();
@@ -18,13 +19,21 @@ function EditProfile() {
     const loading = status === 'loading';
     const {step} = router.query;
     const [currentStepper, setCurrentStepper] = useState(parseInt(step as string,0) - 1);
-
     const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
-    if (!ready) return (<>loading translations...</>);
 
-    if (loading) return (<LoadingScreen/>);
+    const headers = {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+    }
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const { data: httpResponse, error } = useRequest({
+        method: "GET",
+        url: "/api/medical/entity/profile/"+medical_entity.uuid+"/"+router.locale,
+        headers
+    });
 
-    const {data, user}: any = session as Session;
+    if (!ready || loading || !httpResponse) return (<LoadingScreen/>);
 
     return (
         <Box bgcolor="#F0FAFF"
