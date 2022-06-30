@@ -8,5 +8,3 @@ interface Schedule {
     opened: boolean
     hours: (scheduleTimePiker| null)[] | null
 }
-
-export default Schedule;
