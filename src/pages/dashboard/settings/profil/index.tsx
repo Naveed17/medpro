@@ -35,11 +35,11 @@ function Profil() {
 
     const router = useRouter();
     const {newAssurances, newMode, newLangues, newQualification} = useAppSelector(checkListSelector);
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [languages, setLanguages] = useState<LanguageModel[]>([]);
     const [open, setOpen] = useState(false);
-    const [assurances, setAssurances] = useState<InsuranceModel[]>([]);
-    const [modes, setModes] = useState<PaymentMeansModel[]>([]);
+    const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
+    const [paymentMeans, setPaymentMeans] = useState<PaymentMeansModel[]>([]);
     const [qualifications, setQualifications] = useState<Qualifications[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
@@ -62,32 +62,19 @@ function Profil() {
 
     useEffect(() => {
         if (data !== undefined){
+            console.log(data);
             const medical_professional = (user as UserDataReply).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
             setSpeciality(medical_professional.specialities.filter((spe:any) => spe.isMain)[0].speciality.name);
             setLoading(false);
+            setInsurances([]);
+            setPaymentMeans([]);
         }
-    },[data])
-
-    useEffect(() => {
-        setAssurances([
-/*
-            {id: 3, name: 'ASSURANCES BIAT', img: '/static/assurances/biat.svg'},
-            {id: 7, name: 'CARTE ASSURANCES', img: '/static/assurances/carte.svg'}
-*/
-        ]);
-
-        setModes([]);
-
-        setQualifications([
-            {id: 1, name: 'Thèse de Doctorat en Médecine'},
-            {id: 2, name: 'Diplôme de Spécialiste en Dermatologie Vénéréologie'},
-            {id: 3, name: 'Diplôme Inter Universitaire Cosmetologie'},
-            {id: 4, name: 'Diplôme Inter Universitaire de Laser en Dermatologie'}
-        ]);
-
-    }, []);
+        if (error !== undefined){
+            console.log(error)
+        }
+    },[data, error, user])
 
     const [dialogContent, setDialogContent] = useState('');
     const {direction} = useAppSelector(configSelector);
@@ -106,10 +93,10 @@ function Profil() {
                 setQualifications(newQualification);
                 break;
             case "assurance":
-                setAssurances(newAssurances);
+                setInsurances(newAssurances);
                 break;
             case "mode":
-                setModes(newMode);
+                setPaymentMeans(newMode);
                 break;
             case "langues":
                 setLanguages(newLangues);
@@ -127,10 +114,10 @@ function Profil() {
                 setInfo(qualifications)
                 break;
             case "assurance":
-                setInfo(assurances)
+                setInfo(insurances)
                 break;
             case "mode":
-                setInfo(modes)
+                setInfo(paymentMeans)
                 break;
             case "langues":
                 setInfo(languages)
@@ -194,16 +181,19 @@ function Profil() {
 
                                         {
                                             loading ?
-                                            qualifications.map((item: any) => (
-                                                <Typography key={item.id} fontWeight={400}>
+                                            initalData.map((item,index) => (
+                                                <Typography key={index} fontWeight={400}>
                                                     <Skeleton width={250}/>
                                                 </Typography>
                                             )) :
+                                                qualifications.length > 0 ?
                                                 qualifications.map((item: any) => (
                                                     <Typography key={item.id} fontWeight={400}>
                                                         {item.name}
                                                     </Typography>
-                                                ))
+                                                )) : <Typography color={"gray"} fontWeight={400}>
+                                                        {t('profil.noQualification')}
+                                                    </Typography>
                                         }
 
                                     </Stack>
@@ -225,10 +215,13 @@ function Profil() {
                                                     initalData.map((item,index) => (
                                                         <Skeleton sx={{borderRadius:1}} variant="rectangular" key={index} width={35} height={35} />
                                                     )) :
-                                                    assurances.map((item: any) => (
+                                                    insurances.length > 0 ?
+                                                    insurances.map((item: any) => (
                                                         <Box key={item.id} component="img" width={35} height={35}
                                                              src={item.img}/>
-                                                    ))
+                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                            {t('profil.noInsurance')}
+                                                        </Typography>
                                             }
                                         </Stack>
                                     </Stack>
@@ -252,13 +245,15 @@ function Profil() {
                                                         {<Skeleton width={50} variant="text"/>}
                                                     </Button>
                                                 )):
-                                                    modes.map((mode: any) => (
+                                                    paymentMeans.length > 0 ?
+                                                    paymentMeans.map((mode: any) => (
                                                         <Button key={mode.id} variant="outlined" color="info"
                                                                 onClick={() => dialogOpen('mode')}>
                                                             {mode.name}
                                                         </Button>
-                                                    ))
-
+                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                            {t('profil.noPaymentMean')}
+                                                        </Typography>
                                             }
                                         </Stack>
                                     </Stack>
@@ -282,12 +277,15 @@ function Profil() {
                                                         {<Skeleton width={50} variant="text"/>}
                                                     </Button>
                                                 )):
+                                                    languages.length > 0 ?
                                                     languages.map((language: any) => (
                                                         <Button key={language.language.code} variant="outlined" color="info"
                                                                 onClick={() => dialogOpen('langues')}>
                                                             {language.language.name}
                                                         </Button>
-                                                    ))
+                                                    )) : <Typography color={"gray"} fontWeight={400}>
+                                                            {t('profil.noLanguage')}
+                                                        </Typography>
                                             }
                                         </Stack>
                                     </Stack>
