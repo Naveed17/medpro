@@ -40,7 +40,7 @@ function Profil() {
     const [open, setOpen] = useState(false);
     const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
     const [paymentMeans, setPaymentMeans] = useState<PaymentMeansModel[]>([]);
-    const [qualifications, setQualifications] = useState<Qualifications[]>([]);
+    const [qualifications, setQualifications] = useState<QualificationModel[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
     const [speciality, setSpeciality] = useState<string>("");
@@ -70,6 +70,8 @@ function Profil() {
             setLoading(false);
             setInsurances([]);
             setPaymentMeans([]);
+            setQualifications(((data as any).data.qualification) as QualificationModel[])
+            console.log(qualifications);
         }
         if (error !== undefined){
             console.log(error)
@@ -90,7 +92,7 @@ function Profil() {
         setOpen(false);
         switch (dialogContent) {
             case "qualification":
-                setQualifications(newQualification);
+                //setQualifications(newQualification);
                 break;
             case "assurance":
                 setInsurances(newAssurances);
@@ -187,9 +189,9 @@ function Profil() {
                                                 </Typography>
                                             )) :
                                                 qualifications.length > 0 ?
-                                                qualifications.map((item: any) => (
-                                                    <Typography key={item.id} fontWeight={400}>
-                                                        {item.name}
+                                                qualifications.map((item,index) => (
+                                                    <Typography key={index} fontWeight={400}>
+                                                        {item.title}
                                                     </Typography>
                                                 )) : <Typography color={"gray"} fontWeight={400}>
                                                         {t('profil.noQualification')}
