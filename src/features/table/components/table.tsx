@@ -1,104 +1,154 @@
 import { SetStateAction, useEffect, useState } from "react";
+import * as React from "react";
 import { Box, TableBody, TableContainer, Table } from "@mui/material";
-import { OHead, rowsActionsData } from "@features/table";
-function descendingComparator(a: { [x: string]: number; }, b: { [x: string]: number; }, orderBy: string | number) {
+import OHead from "@features/table/components/header";
+import rowsActionsData from "@features/table/components/config";
+import { Pagination } from "@features/pagination";
 
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
+function descendingComparator(a: any, b: any, orderBy: any) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+type Order = "asc" | "desc";
+function getComparator(order: any, orderBy: any) {
+  return order === "desc"
+    ? (a: any, b: any) => descendingComparator(a, b, orderBy)
+    : (a: any, b: any) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
     }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
 }
 
-function getComparator(order: string, orderBy: string) {
-    return order === 'desc'
-        ? (a: { [x: string]: number; }, b: { [x: string]: number; }) => descendingComparator(a, b, orderBy)
-        : (a: { [x: string]: number; }, b: { [x: string]: number; }) => -descendingComparator(a, b, orderBy);
-}
-
-function stableSort(array: any[], comparator: { (a: { [x: string]: number; }, b: { [x: string]: number; }): number; (arg0: any, arg1: any): any; }) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-        const order = comparator(a[0], b[0]);
-        if (order !== 0) {
-            return order;
-        }
-        return a[1] - b[1];
-    });
-    return stabilizedThis.map((el) => el[0]);
-}
-
+const rowsPerPage = 10;
 function Otable({ ...props }) {
-    const { rows, headers, state, handleChange, t, from, edit, handleConfig } = props;
+  const { rows, headers, state, handleChange, t, from, edit, handleConfig } =
+    props;
+  const [page, setPage] = useState(0);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("calories");
+  const [tableHeadData, setTableHeadData] = useState<any>(null);
+  const [active, setActive] = useState([]);
+  const [selected, setSelected] = React.useState<readonly string[]>([]);
+  const handleRequestSort = (event: any, property: SetStateAction<string>) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('calories');
-    const [tableHeadData, setTableHeadData] = useState<any>(null);
-    const [active, setActive] = useState([]);
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = rows.map((n: { name: string }) => n.name);
+      setSelected(newSelecteds);
+      return;
+    }
+    setSelected([]);
+  };
+  const handleClick = (name: string) => {
+    const selectedIndex = selected.indexOf(name);
+    let newSelected: readonly string[] = [];
 
-    const handleRequestSort = (event: any, property: SetStateAction<string>) => {
-        const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
-    };
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, name);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
 
-    const selectted = rowsActionsData.find((item) =>
-        from === item.action
-    );
+    setSelected(newSelected);
+  };
+  const loading = false;
+  const selectted = rowsActionsData.find((item) => from === item.action);
 
-    const Component: any = selectted?.component;
-    const loading = false;
-    // Avoid a layout jump when reaching the last page with empty rows.
-    const ids = rows.map((row: any) => row.id);
-    useEffect(() => {
-        if (tableHeadData !== null) {
-            if (tableHeadData.active) {
-                setActive(ids);
-            } else {
-                setActive([]);
-            }
-        }
-    }, [tableHeadData?.active])
-    return (
-        <Box>
-            <TableContainer>
-                <Table
-                    sx={{ minWidth: 750 }}
-                    aria-labelledby="tableTitle"
-                    size={'medium'}>
-                    <OHead
-                        order={order}
-                        orderBy={orderBy}
-                        state={state}
-                        handleConfig={handleConfig}
-                        onRequestSort={handleRequestSort}
-                        t={t}
-                        data={headers}
-                        getData={(data: any) => setTableHeadData(data)} />
+  const Component: any = selectted?.component;
+  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const ids = rows.map((row: any) => row.id);
+  useEffect(() => {
+    if (tableHeadData !== null) {
+      if (tableHeadData.active) {
+        setActive(ids);
+      } else {
+        setActive([]);
+      }
+    }
+  }, [tableHeadData?.active]);
+  console.log(rows.length);
+  return (
+    <Box>
+      <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
+        <Table
+          stickyHeader
+          sx={{ minWidth: 1300 }}
+          aria-labelledby="tableTitle"
+          size={"medium"}
+        >
+          <OHead
+            order={order}
+            orderBy={orderBy}
+            state={state}
+            t={t}
+            handleConfig={handleConfig}
+            onRequestSort={handleRequestSort}
+            data={headers}
+            getData={(data: any) => setTableHeadData(data)}
+            onSelectAllClick={handleSelectAllClick}
+            rowCount={rows.length}
+            numSelected={selected.length}
+          />
 
-                    <TableBody>
-                        {(loading ? Array.from(new Array(3)) : stableSort(rows, getComparator(order, orderBy)))
-                            .map((row, index) => {
-                                return (
-                                    <Component key={index}
-                                        row={row}
-                                        t={t}
-                                        tableHeadData={state}
-                                        handleChange={handleChange}
-                                        editMotif={edit}
-                                        active={active}
-                                        ids={ids} />
-                                )
-
-                            })
-
-                        }
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
-    )
+          <TableBody>
+            {(loading ? Array.from(new Array(3)) : stableSort(rows, getComparator(order, orderBy)))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
+                const isItemSelected = isSelected(row?.name as string);
+                const labelId = `enhanced-table-checkbox-${index}`;
+                return (
+                  <Component
+                    key={index}
+                    row={row}
+                    t={t}
+                    tableHeadData={state}
+                    handleChange={handleChange}
+                    editMotif={edit}
+                    active={active}
+                    ids={ids}
+                    labelId={labelId}
+                    isItemSelected={isItemSelected}
+                    handleClick={handleClick}
+                  />
+                );
+              })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box py={1} sx={{ display: rows.length > 10 ? 'block' : 'none' }} />
+      <Pagination
+        page={page}
+        total={rows.length}
+        count={(rows.length / rowsPerPage + 1).toFixed(0)}
+        setPage={(v: number) => setPage(v)}
+      />
+    </Box>
+  );
 }
-export default Otable
+export default Otable;
