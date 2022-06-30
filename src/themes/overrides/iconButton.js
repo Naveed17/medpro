@@ -8,7 +8,7 @@ export default function IconButton(theme) {
             background: "transparent",
             boxSizing: "border-box",
             borderRadius: "10px",
-            '&.MuiIconButton-sizeLarge': {
+            "&.MuiIconButton-sizeLarge": {
               minHeight: "48px",
               minWidth: "48px",
             },
@@ -36,6 +36,32 @@ export default function IconButton(theme) {
               },
             },
           },
+          "&.success-light": {
+            border: `1px solid rgba(40, 199, 111, 0.12)`,
+            backgroundColor: "rgba(40, 199, 111, 0.12)",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "rgba(40, 199, 111, 0.12)",
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.success.main,
+              },
+            },
+          },
+          "&.error-light": {
+            border: `1px solid rgba(228, 51, 50, 0.1)`,
+            backgroundColor: "rgba(228, 51, 50, 0.1)",
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: "rgba(228, 51, 50, 0.1)",
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.error.main,
+              },
+            },
+          },
         },
       },
       variants: [
@@ -46,14 +72,13 @@ export default function IconButton(theme) {
             borderRadius: "10px",
             "& svg": {
               "& path": {
-                fill: '#647F94'
+                fill: "#647F94",
               },
             },
-            '&:hover': {
-              backgroundColor: 'transparent'
-            }
+            "&:hover": {
+              backgroundColor: "transparent",
+            },
           },
-
         },
         {
           props: { variant: "custom", color: "success" },
@@ -65,41 +90,8 @@ export default function IconButton(theme) {
                 fill: theme.palette.common.white,
               },
             },
-            '&:hover': {
-              backgroundColor: theme.palette.success.main
-            }
-          },
-
-        },
-        {
-          props: { variant: "success-light" },
-          style: {
-            border: `1px solid rgba(40, 199, 111, 0.12)`,
-            backgroundColor: "rgba(40, 199, 111, 0.12)",
-            borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(40, 199, 111, 0.12)"
-            },
-            "& svg": {
-              "& path": {
-                fill: theme.palette.success.main,
-              },
-            },
-          },
-        },
-        {
-          props: { variant: "error-light" },
-          style: {
-            border: `1px solid rgba(228, 51, 50, 0.1)`,
-            backgroundColor: "rgba(228, 51, 50, 0.1)",
-            borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(228, 51, 50, 0.1)"
-            },
-            "& svg": {
-              "& path": {
-                fill: theme.palette.error.main,
-              },
+            "&:hover": {
+              backgroundColor: theme.palette.success.main,
             },
           },
         },
@@ -109,8 +101,8 @@ export default function IconButton(theme) {
             border: `1px solid rgba(244, 150, 0, 0.1)`,
             backgroundColor: "rgba(244, 150, 0, 0.1)",
             borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(244, 150, 0, 0.1)"
+            "&:hover": {
+              backgroundColor: "rgba(244, 150, 0, 0.1)",
             },
             "& svg": {
               "& path": {
@@ -125,8 +117,8 @@ export default function IconButton(theme) {
             border: `1px solid rgba(0, 149, 183, 0.1)`,
             backgroundColor: "rgba(0, 149, 183, 0.1)",
             borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(0, 149, 183, 0.1)"
+            "&:hover": {
+              backgroundColor: "rgba(0, 149, 183, 0.1)",
             },
             "& svg": {
               "& path": {
@@ -135,8 +127,7 @@ export default function IconButton(theme) {
             },
           },
         },
-
-      ]
+      ],
     },
   };
 }

@@ -60,7 +60,7 @@ export default function Table(theme) {
         },
         head: {
           color: theme.palette.text.secondary,
-          backgroundColor: "rgba(6, 150, 214, 0.2)",
+          // backgroundColor: "rgba(6, 150, 214, 0.2)",
           paddingTop: theme.spacing(1),
           paddingBottom: theme.spacing(1),
           "&:first-of-type": {
@@ -86,24 +86,21 @@ export default function Table(theme) {
             cursor: "pointer",
             span: {
               display: "flex",
-              justifyContent: "flex-end",
-              flexDirection: "row-reverse",
               alignItems: "center",
             },
             div: {
               float: "right",
             },
-            '& .MuiTableSortLabel-root': {
-              '& .MuiTableSortLabel-icon': {
-                transform: 'rotate(90deg)',
-              }
-            }
+            "& .MuiTableSortLabel-root": {
+              "& .MuiTableSortLabel-icon": {
+                transform: "rotate(90deg)",
+              },
+            },
           },
         },
-        // stickyHeader: {
-        //   backgroundColor: theme.palette.background.paper,
-        //   backgroundImage: `linear-gradient(to bottom, ${theme.palette.background.neutral} 0%, ${theme.palette.background.neutral} 100%)`,
-        // },
+        stickyHeader: {
+          backgroundColor: "#C1E6F7",
+        },
         body: {
           backgroundColor: theme.palette.background.paper,
           "&.MuiTableCell-root": {
