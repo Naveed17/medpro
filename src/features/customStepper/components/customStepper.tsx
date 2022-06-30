@@ -2,35 +2,9 @@ import { useState, ReactNode, SyntheticEvent } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import { RootStyled } from "@features/customStepper";
 import { useTranslation } from "next-i18next";
-
-interface TabPanelProps {
-  children?: ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography component="div">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
+import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
   const { stepperData, translationKey, prefixKey } = props;
@@ -64,7 +38,13 @@ function CustomStepper({ ...props }) {
                 key={Math.random()}
                 disabled={i > value && i >= last}
                 label={
-                  <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
+                  <Box
+                    sx={{
+                      textTransform: "initial",
+                      fontWeight: 400,
+                      fontSize: { md: 14, xs: 10 },
+                    }}
+                  >
                     <b>{i + 1}.</b> {t(`${v.title}`)}
                   </Box>
                 }
