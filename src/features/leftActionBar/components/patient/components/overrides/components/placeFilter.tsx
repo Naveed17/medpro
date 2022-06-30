@@ -73,7 +73,6 @@ function PlaceFilter({ ...props }) {
       }
     }
   }, [query, isMounted]);
-  console.log(state.states, "states");
   return (
     <Box component="figure" sx={{ m: 0 }}>
       <Typography variant="body2" color="text.secondary" gutterBottom>

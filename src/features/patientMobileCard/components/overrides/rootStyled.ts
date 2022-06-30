@@ -2,6 +2,8 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const RootStyled = styled(Box)(({ theme }) => ({
+  display: "none",
+  width: "100%",
   "& .card-main": { padding: "10px", marginBottom: "0.5rem" },
   "& .heading": {
     display: "flex",
@@ -15,6 +17,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
     marginTop: theme.spacing(1),
     display: "flex",
   },
+
   "& .button": {
     marginLeft: theme.spacing(0.3),
     "& .MuiButton-startIcon": { marginRight: theme.spacing(0.5) },
@@ -39,6 +42,9 @@ const RootStyled = styled(Box)(({ theme }) => ({
     left: "50%",
     transform: "translateX(-50%)",
     zIndex: 1,
+  },
+  [theme.breakpoints.down("md")]: {
+    display: "block",
   },
 }));
 
