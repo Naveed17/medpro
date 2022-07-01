@@ -15,6 +15,7 @@ import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
+import { PatientdetailsCard } from "@features/card";
 // interface
 interface HeadCell {
   disablePadding: boolean;
@@ -293,6 +294,7 @@ function Patient() {
           }}
         >
           <PatientDetailsToolbar />
+          <PatientdetailsCard />
         </Drawer>
       </Box>
     </>

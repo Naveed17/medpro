@@ -1,1 +1,1 @@
-export { default as PatientDetailsToolbar } from "./patientDetailsToolbar";
+export * from "./components";
