@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider, FormikProps } from "formik";
+import { useFormik, Form, FormikProvider } from "formik";
 import {
   Typography,
   Box,
@@ -21,20 +21,6 @@ import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 
-interface MyValues {
-  group: string;
-  name: string;
-  firstName: string;
-  dob: any;
-  phone: number | string;
-  gender: string;
-}
-interface touchedProps {
-  dob: any;
-  name: string;
-  firstName: string;
-  phone: string | number;
-}
 function AddPatientStep1({ ...props }) {
   const { t, onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
@@ -63,7 +49,7 @@ function AddPatientStep1({ ...props }) {
     }),
   });
 
-  const formik: FormikProps<MyValues> = useFormik<MyValues>({
+  const formik = useFormik({
     initialValues: {
       group: stepsData.step1.group,
       name: stepsData.step1.name,
@@ -73,7 +59,7 @@ function AddPatientStep1({ ...props }) {
       gender: stepsData.step1.gender,
     },
     validationSchema: RegisterSchema,
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
+    onSubmit: async (values) => {
       handleChange(null, values);
     },
   });
@@ -81,10 +67,8 @@ function AddPatientStep1({ ...props }) {
     onNext(1);
     dispatch(onAddPatient({ ...stepsData, step1: values }));
   };
-  const { values, handleSubmit, isSubmitting, getFieldProps } = formik;
-
-  const touched = formik.values as touchedProps;
-  const errors = formik.errors as touchedProps;
+  const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } =
+    formik;
 
   return (
     <FormikProvider value={formik}>
@@ -190,7 +174,7 @@ function AddPatientStep1({ ...props }) {
               error={Boolean(touched.firstName && errors.firstName)}
               helperText={
                 Boolean(touched.firstName && errors.firstName)
-                  ? String(errors.firstName)
+                  ? errors.firstName
                   : undefined
               }
             />

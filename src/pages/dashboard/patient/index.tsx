@@ -1,16 +1,22 @@
+// hooks
+import { useEffect, useState } from "react";
+
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { PatientMobileCard } from "@features/patientMobileCard";
-import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
-import { PatientToolbar } from "@features/toolbar";
-import { addPatientSelector } from "@features/customStepper";
-
+import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+// redux
+import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
+import { configSelector } from "@features/base";
+import { PatientdetailsCard } from "@features/card";
+// interface
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -19,6 +25,8 @@ interface HeadCell {
   sortable: boolean;
   align: "left" | "right" | "center";
 }
+
+// Patient data for table body
 
 const PatiendData = [
   {
@@ -190,8 +198,7 @@ const PatiendData = [
   },
 ];
 
-// head data
-
+// table head data
 const headCells: readonly HeadCell[] = [
   {
     id: "select-all",
@@ -260,7 +267,19 @@ const headCells: readonly HeadCell[] = [
 ];
 
 function Patient() {
-  const { stepsData } = useAppSelector(addPatientSelector);
+  // selectors
+  const { patientId } = useAppSelector(tableActionSelector);
+  const { direction } = useAppSelector(configSelector);
+
+  // state hook for details drawer
+  const [open, setopen] = useState(false);
+
+  // useEffect hook for handling the table action drawer
+  useEffect(() => {
+    if (Boolean(patientId)) {
+      setopen(true);
+    }
+  }, [patientId]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "table" });
   if (!ready) return <>loading translations...</>;
@@ -283,6 +302,17 @@ function Patient() {
           />
         </Box>
         <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        <Drawer
+          anchor={"right"}
+          open={open}
+          dir={direction}
+          onClose={() => {
+            setopen(false);
+          }}
+        >
+          <PatientDetailsToolbar />
+          <PatientdetailsCard />
+        </Drawer>
       </Box>
     </>
   );

@@ -3,9 +3,13 @@ import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
 import { TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
+
+// redux
+import { useAppDispatch } from "@app/redux/hooks";
+import { onOpenDetails } from "@features/table";
 export default function PermissionRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
-
+  const dispatch = useAppDispatch();
   return (
     <TableRowStyled
       hover
@@ -178,7 +182,15 @@ export default function PermissionRow({ ...props }) {
           {t("edit")}
         </Button>
 
-        <Button size="small">{t("see-card")}</Button>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch(onOpenDetails({ patientId: row.id }));
+          }}
+          size="small"
+        >
+          {t("see-card")}
+        </Button>
       </TableCell>
     </TableRowStyled>
   );

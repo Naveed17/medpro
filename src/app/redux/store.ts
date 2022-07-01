@@ -5,6 +5,7 @@ import { ProfileMenuReducer } from "@features/profilMenu";
 import { CheckListReducer } from "@features/checkList";
 import { userReducer } from "@features/user";
 import { addPatientReducer } from "@features/customStepper";
+import { tableReducer } from "@features/table";
 import {stepperProfileReducer} from "@features/customStepper/components/tabPanels/profile/reducer";
 
 export const store = configureStore({
@@ -15,7 +16,8 @@ export const store = configureStore({
     checkList: CheckListReducer,
     user: userReducer,
     addPatientSteps: addPatientReducer,
-    stepperProfile: stepperProfileReducer
+    stepperProfile: stepperProfileReducer,
+    tableState: tableReducer
   },
 });
 
