@@ -28,7 +28,7 @@ const RootStyled = styled("div")(({ theme }) => ({
     },
   },
   '& div[role="tabpanel"]': {
-    height: `calc(100vh - 55px)`,
+    // height: `calc(100vh - 55px)`,
     overflow: "auto",
   },
 }));
