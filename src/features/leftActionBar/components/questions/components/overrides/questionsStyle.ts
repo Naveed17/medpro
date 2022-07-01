@@ -2,6 +2,10 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 const QuestionStyled = styled(Box)(({ theme }) => ({
     marginLeft: '-20px',
+    [theme.breakpoints.down("md")]: {
+        marginRight: '-16px',
+        marginLeft: '-16px',
+    },
     "& .tab-container": {
         borderBottom: `1px solid ${theme.palette.grey[300]}`,
         paddingTop: theme.spacing(1),
@@ -24,6 +28,7 @@ const QuestionStyled = styled(Box)(({ theme }) => ({
                 alignItems: 'flex-start',
                 borderBottom: `1px solid ${theme.palette.grey[300]}`,
                 paddingBottom: theme.spacing(2),
+                cursor: 'pointer',
                 '& .MuiBox-root': {
                     display: 'flex',
                     alignItems: 'center',

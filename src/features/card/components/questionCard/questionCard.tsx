@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import QuestionCardStyled from './overrides/questionStyle';
-function QuestionCard({ patientData }: any) {
+function QuestionCard({ patientData, t }: any) {
     const theme = useTheme();
     return (
         <QuestionCardStyled>
@@ -45,8 +45,9 @@ function QuestionCard({ patientData }: any) {
                                 color={theme.palette.secondary.main}
                                 fontFamily="Poppins-Bold"
                                 sx={{ mr: { lg: 8, xs: 5 } }}
+                                textTransform="capitalize"
                             >
-                                Cut
+                                {t("height")}
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
                                 {patientData.height}
@@ -57,8 +58,9 @@ function QuestionCard({ patientData }: any) {
                                 color={theme.palette.secondary.main}
                                 fontFamily="Poppins-Bold"
                                 sx={{ mr: { lg: 8, xs: 5 } }}
+                                textTransform="capitalize"
                             >
-                                Poinds
+                                {t("weight")}
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
                                 {patientData.weight}
