@@ -76,7 +76,7 @@ function PlaceFilter({ ...props }) {
   return (
     <Box component="figure" sx={{ m: 0 }}>
       <Typography variant="body2" color="text.secondary" gutterBottom>
-        {t(`filter.${item.city?.heading}`)}
+        {t(`${item.city?.heading}`)}
       </Typography>
       <FormControl size="small" fullWidth>
         <Select

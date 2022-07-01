@@ -1,21 +1,27 @@
-// hooks
-import { useEffect, useState } from "react";
+// react
+import { useEffect, useState, ReactElement, SyntheticEvent } from "react";
 
+// next
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ReactElement } from "react";
-import { Box, Typography, Drawer } from "@mui/material";
-import { DashLayout } from "@features/base";
-import { PatientMobileCard } from "@features/patientMobileCard";
-import { Otable } from "@features/table";
-import { SubHeader } from "@features/subHeader";
-import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+
+// material components
+import { Box, Tabs, Tab, Drawer } from "@mui/material";
+
 // redux
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
+
+// ________________________________
 import { PatientdetailsCard } from "@features/card";
+import { PatientMobileCard } from "@features/patientMobileCard";
+import { Otable } from "@features/table";
+import { SubHeader } from "@features/subHeader";
+import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+import { DashLayout } from "@features/base";
+
 // interface
 interface HeadCell {
   disablePadding: boolean;
@@ -27,7 +33,6 @@ interface HeadCell {
 }
 
 // Patient data for table body
-
 const PatiendData = [
   {
     id: 1,
@@ -248,15 +253,27 @@ const headCells: readonly HeadCell[] = [
     align: "right",
   },
 ];
-
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 function Patient() {
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
 
   // state hook for details drawer
-  const [open, setopen] = useState(false);
+  const [open, setopen] = useState<boolean>(false);
 
+  // state hook for tabs
+  const [value, setValue] = useState<number>(0);
+
+  // handle tab change
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
   // useEffect hook for handling the table action drawer
   useEffect(() => {
     if (Boolean(patientId)) {
@@ -264,8 +281,10 @@ function Patient() {
     }
   }, [patientId]);
 
-  const { t, ready } = useTranslation("patient", { keyPrefix: "table" });
+  const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
+
   if (!ready) return <>loading translations...</>;
+
   return (
     <>
       <SubHeader>
@@ -284,7 +303,7 @@ function Patient() {
             handleChange={null}
           />
         </Box>
-        <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        <PatientMobileCard ready={ready} PatiendData={PatiendData} />
         <Drawer
           anchor={"right"}
           open={open}
@@ -295,6 +314,29 @@ function Patient() {
         >
           <PatientDetailsToolbar />
           <PatientdetailsCard />
+          <Box
+            sx={{
+              bgcolor: "background.paper",
+              borderBottom: "1px solid #EFF2F5",
+              px: 2,
+              button: {
+                "&.Mui-selected": {
+                  color: (theme) => theme.palette.primary.main,
+                },
+              },
+            }}
+          >
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="scrollable"
+              aria-label="basic tabs example"
+            >
+              <Tab label="Informations personnelle " {...a11yProps(0)} />
+              <Tab label="RDV" {...a11yProps(1)} />
+              <Tab label="Documents" {...a11yProps(2)} />
+            </Tabs>
+          </Box>
         </Drawer>
       </Box>
     </>

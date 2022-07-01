@@ -179,7 +179,7 @@ export default function PermissionRow({ ...props }) {
             path: { fill: "#000" },
           }}
         >
-          {t("edit")}
+          {t("table.edit")}
         </Button>
 
         <Button
@@ -189,7 +189,7 @@ export default function PermissionRow({ ...props }) {
           }}
           size="small"
         >
-          {t("see-card")}
+          {t("table.see-card")}
         </Button>
       </TableCell>
     </TableRowStyled>

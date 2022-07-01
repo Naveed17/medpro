@@ -116,26 +116,25 @@
     }
   },
   "agenda": {
-    "path": "Paramètres > Agenda",
-    "name": "Nom",
-    "type": "Type",
-    "speciality": "Spécialité",
-    "place": "Lieu de consultation",
-    "nbAccess": "NBR accés",
-    "actif": "est actif",
-    "public": "public",
-    "action": "action",
-    "remove": "Supprimer",
-    "update": "Editer"
+    "config": {
+      "path": "Paramètres > Agenda",
+      "table": {
+        "name": "Nom",
+        "type": "Type",
+        "speciality": "Spécialité",
+        "place": "Lieu de consultation",
+        "nbAccess": "NBR accés",
+        "actif": "est actif",
+        "public": "public",
+        "action": "action",
+        "remove": "Supprimer",
+        "update": "Editer"
+      }
+    }
   },
   "holidays": {
-    "path": "Paramètres > Congé et Absences",
-    "name": "Nom",
     "start": "Date debut",
     "end": "Date fin",
-    "praticien": "praticien",
-    "action": "action",
-    "add": "Ajouter",
     "dialog": {
       "add": "Ajouter congé ou absence",
       "selectOne": "Choisissez le praticien qui affecte cette consultation",
@@ -147,23 +146,38 @@
       "ttl": "Titre est trop long",
       "titlereq": "Titre est obligatoire",
       "datereq": "date est obligatoire"
+    },
+    "config": {
+      "path": "Paramètres > Congé et Absences",
+      "table": {
+        "name": "Nom",
+        "praticien": "praticien",
+        "action": "action",
+        "add": "Ajouter"
+      }
     }
   },
   "substitute": {
-    "path": "Paramètres > Remplaçants",
-    "manageAccess": "Gestion des accès",
-    "name": "Nom",
-    "fonction": "Fonction",
-    "request": "Demande",
-    "access": "accès",
-    "action": "action",
-    "agenda": "Agenda",
-    "update": "Modifier",
     "tname": "Tapez le nom remplaçant",
     "mail": "E-mail",
     "add": "Ajouter un remplaçant",
     "info": "information sur le remplaçant",
-    "remove": "Supprimer"
+    "name": "Nom",
+    "remove": "Supprimer",
+    "config": {
+      "path": "Paramètres > Remplaçants",
+      "add": "Ajouter",
+      "table": {
+        "manageAccess": "Gestion des accès",
+        "fonction": "Fonction",
+        "request": "Demande",
+        "access": "accès",
+        "action": "action",
+        "agenda": "Agenda",
+        "update": "Modifier",
+        "remove": "Supprimer"
+      }
+    }
   },
   "users": {
     "path": "Paramètres > Utilisateurs",
