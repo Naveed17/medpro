@@ -1,4 +1,4 @@
-import {styled} from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 const SettingBarStyled = styled("div")(({ theme }) => ({
     "& .heading": {
@@ -29,7 +29,7 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
             "& .MuiListItemIcon-root": {
                 minWidth: "30px",
             },
-            "& .MuiListItemIcon-root svg":{
+            "& .MuiListItemIcon-root svg": {
                 height: "36px",
                 width: "23px",
             },
