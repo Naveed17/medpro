@@ -184,6 +184,21 @@ const PatiendData = [
     status: "pending",
     action: "left",
   },
+  {
+    id: 3,
+    name: "Muhammad",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: new Date(),
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
+    addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
+    status: "pending",
+    action: "left",
+  },
 ];
 
 // table head data

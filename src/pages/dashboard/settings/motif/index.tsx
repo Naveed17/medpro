@@ -202,6 +202,7 @@ function Motif() {
           edit={editMotif}
           handleConfig={handleConfig}
           handleChange={handleChange}
+          minWidth={1080}
         />
         <Drawer
           anchor={"right"}

@@ -154,7 +154,7 @@ function Otable({ ...props }) {
         </Table>
       </TableContainer>
       <Box py={1} />
-      {pagination && (
+      {pagination && rows.length > 10 && (
         <Pagination
           page={page}
           total={rows.length}

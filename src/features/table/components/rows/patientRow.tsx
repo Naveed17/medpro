@@ -86,7 +86,7 @@ export default function PermissionRow({ ...props }) {
             startIcon={<Icon path="ic-agenda-+" />}
             sx={{ position: "relative" }}
           >
-            {t("add-appointment")}
+            {t("table.add-appointment")}
           </Button>
         ) : (
           <Box display="flex" alignItems="center">

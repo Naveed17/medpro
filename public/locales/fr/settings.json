@@ -163,7 +163,7 @@
         "start": "Date debut",
         "end": "Date fin",
         "name": "Nom",
-
+        "praticien": "praticien",
         "action": "action",
         "add": "Ajouter"
       }

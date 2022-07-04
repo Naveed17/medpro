@@ -123,6 +123,7 @@ function Lieux() {
           editMotif={editPlaces}
           handleConfig={handleConfig}
           handleChange={handleChange}
+          minWidth={1100}
         />
         <Maps data={cords}></Maps>
       </Box>

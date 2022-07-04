@@ -73,6 +73,8 @@ function PatientToolbar() {
           translationKey="patient"
           prefixKey="add-patient"
           stepperData={stepperData}
+          scroll
+          minWidth={648}
         />
       </Drawer>
       <Dialog
