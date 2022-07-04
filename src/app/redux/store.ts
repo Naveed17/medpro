@@ -4,7 +4,7 @@ import { SideBarReducer } from "@features/sideBarMenu/reducer";
 import { ProfileMenuReducer } from "@features/profilMenu";
 import { CheckListReducer } from "@features/checkList";
 import { userReducer } from "@features/user";
-import { addPatientReducer } from "@features/customStepper";
+import { addPatientReducer } from "@features/tabPanel";
 import { tableReducer } from "@features/table";
 
 export const store = configureStore({

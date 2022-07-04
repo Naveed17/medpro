@@ -41,7 +41,7 @@ function PatientFilter({ ...props }) {
   return (
     <Box component="figure" sx={{ m: 0 }}>
       <Typography variant="body2" color="text.secondary">
-        {t(`filter.${item.gender?.heading}`)}
+        {t(`${item.gender?.heading}`)}
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup
@@ -62,7 +62,7 @@ function PatientFilter({ ...props }) {
               key={`gender-${i}`}
               value={g}
               control={<Radio />}
-              label={t(`filter.${g}`)}
+              label={t(`${g}`)}
             />
           ))}
         </RadioGroup>
@@ -79,7 +79,7 @@ function PatientFilter({ ...props }) {
             {lab.label === "name" || lab.label === "telephone" ? (
               <>
                 <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                  {t(`filter.${lab.label}`)}
+                  {t(`${lab.label}`)}
                 </InputLabel>
                 <TextField
                   onChange={(e) =>
@@ -105,13 +105,13 @@ function PatientFilter({ ...props }) {
                   }}
                   type={lab.label === "name" ? "text" : "number"}
                   fullWidth
-                  placeholder={t(`filter.${lab.placeholder}`)}
+                  placeholder={t(`${lab.placeholder}`)}
                 />
               </>
             ) : (
               <>
                 <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                  {t(`filter.${lab.label}`)}
+                  {t(`${lab.label}`)}
                 </InputLabel>
                 <DatePicker
                   value={state.dob}

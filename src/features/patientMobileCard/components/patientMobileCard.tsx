@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { RootStyled } from "@features/patientMobileCard";
 
+// next-i18next
+import { useTranslation } from "next-i18next";
+
 // material
 import {
   Grid,
@@ -25,7 +28,7 @@ import {
 } from "@features/leftActionBar";
 
 function PatientMobileCard({ ...props }) {
-  const { PatiendData, t, ready } = props;
+  const { PatiendData } = props;
   const theme = useTheme();
   const [open, setopen] = useState(false);
 
@@ -33,6 +36,7 @@ function PatientMobileCard({ ...props }) {
     setopen(true);
   };
   const { collapse } = RightActionData.filter;
+  const { t, ready } = useTranslation("patient", { keyPrefix: "filter" });
 
   if (!ready) return <>loading translations...</>;
 
@@ -41,7 +45,7 @@ function PatientMobileCard({ ...props }) {
       heading: {
         id: item.heading.title,
         icon: item.heading.icon,
-        title: t(`filter.${item.heading.title}`),
+        title: item.heading.title,
       },
       children: (
         <FilterRootStyled>
@@ -88,10 +92,11 @@ function PatientMobileCard({ ...props }) {
                 <Box
                   className="border-left-sec"
                   sx={{
-                    borderLeft: `5px solid ${v.status === "success"
+                    borderLeft: `5px solid ${
+                      v.status === "success"
                         ? theme.palette.success.main
                         : theme.palette.warning.main
-                      }`,
+                    }`,
                   }}
                 >
                   <Button
@@ -154,9 +159,14 @@ function PatientMobileCard({ ...props }) {
         handleClose={() => setopen(false)}
         open={open}
         data="Data"
-        title={t("filter.title")}
+        title={t("title")}
       >
-        <Accordion translate={{ t, ready }} badge={null} data={data} defaultValue={"Patient"} />
+        <Accordion
+          translate={{ t, ready }}
+          badge={null}
+          data={data}
+          defaultValue={"patient"}
+        />
       </DrawerBottom>
     </RootStyled>
   );
