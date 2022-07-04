@@ -6,13 +6,15 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
 import {Box} from "@mui/system";
-import {Chip, Paper, Stack, Typography} from "@mui/material";
+import {Button, Chip, Paper, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
 import useRequest from "@app/axios/axiosServiceApi";
 import {useRouter} from "next/router";
+import {RootStyled} from "@features/toolbar";
+import {SubHeader} from "@features/subHeader";
 
 function Actes() {
 
@@ -28,19 +30,30 @@ function Actes() {
     const [acts, setActs] = useState<ActModel[]>([]);
     const router = useRouter();
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
-
     const {data: user} = session as Session;
 
     const {data, error} = useRequest({
         method: "GET",
         url: "/api/public/acts/" + router.locale,
         params: {"specialities[]": "a84a60e8-9e9b-3234-aa35-e4458fd6fdde"},
-        headers,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {data: profil, error: errorProfil} = useRequest({
+        method: "GET",
+        url: "/api/medical/entity/profile/" + medical_entity.uuid + "/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    useEffect(() => {
+        if (profil !== undefined) {
+            const infoData = (profil as any).data;
+            infoData.acts.map((act: MedicalProfessionalActModel) => {
+                act.isTopAct ? setMainActes([...mainActes,act.act]) : setSecondaryActes([...secondaryActes,act.act]);
+            })
+        }
+    }, [profil]);
 
     useEffect(() => {
         if (data !== undefined) {
@@ -97,188 +110,194 @@ function Actes() {
         setItems(val.slice(0, 10));
     };
 
-    const {t, ready} = useTranslation("settings");
+    const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
     if (!ready) return <>loading translations...</>;
 
     return (
-        <Box
-            bgcolor="#F0FAFF"
-            sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}
-        >
-            <Paper sx={{p: 2}}>
-                <Typography variant="body1" color="text.primary" mb={5}>
-                    {t("actes.selectActes")}
-                </Typography>
+        <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t('path')}</p>
+                </RootStyled>
+            </SubHeader>
+            <Box bgcolor="#F0FAFF"
+                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <Paper sx={{p: 2}}>
+                    <Typography variant="body1" color="text.primary" mb={5}>
+                        {t("selectActes")}
+                    </Typography>
 
-                <Typography
-                    variant="subtitle1"
-                    color="text.primary"
-                    fontWeight={600}
-                    mb={2}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        svg: {
-                            ml: 1,
-                            path: {
-                                fill: "#FFD400",
-                            },
-                        },
-                    }}
-                >
-                    {t("actes.main")}{" "}
-                    {!alert && (
-                        <IconUrl
-                            onChange={() => {
-                                setAlert(true);
-                            }}
-                            path="danger"
-                        />
-                    )}
-                    {alert && (
-                        <BasicAlert
-                            icon="danger"
-                            sx={{
-                                width: "fit-content",
-                                padding: "0  15px 0 0",
-                                margin: "0 10px",
-                            }}
-                            data={"Actes alert message"}
-                            onChange={() => {
-                                setAlert(false);
-                            }}
-                            color="warning"
-                        >
-                            info
-                        </BasicAlert>
-                    )}
-                </Typography>
-
-                <MultiSelect
-                    id="main"
-                    data={acts.filter((a) => !secondaryActes.some((m) => a.uuid === m.uuid))}
-                    onDrop={onDrop}
-                    all={[...mainActes, ...secondaryActes]}
-                    onDragOver={allowDrop}
-                    onChange={(event: React.ChangeEvent, value: any[]) => {
-                        onChangeState(value, mainActes, setMainActes);
-                    }}
-                    initData={mainActes}
-                    limit={10}
-                    helperText={t("actes.max")}
-                    placeholder={t("actes.typing")}
-                />
-
-                <Typography
-                    variant="subtitle1"
-                    color="text.primary"
-                    fontWeight={600}
-                    mb={2}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        mt: 6,
-                        svg: {
-                            ml: 1,
-                            path: {
-                                fill: "#FFD400",
-                            },
-                        },
-                    }}
-                >
-                    {t("actes.secondary")}{" "}
-                    {!secAlert && (
-                        <IconUrl
-                            onChange={() => {
-                                setSecAlert(true);
-                            }}
-                            path="danger"
-                        />
-                    )}{" "}
-                    {secAlert && (
-                        <BasicAlert
-                            icon="danger"
-                            sx={{
-                                width: "fit-content",
-                                padding: "0  15px 0 0",
-                                margin: "0 10px",
-                            }}
-                            data={"Actes alert message"}
-                            onChange={() => {
-                                setSecAlert(false);
-                            }}
-                            color="warning"
-                        >
-                            info
-                        </BasicAlert>
-                    )}
-                </Typography>
-
-                <MultiSelect
-                    id="second"
-                    data={acts.filter((a) => !mainActes.some((m) => a.uuid === m.uuid))}
-                    all={[...mainActes, ...secondaryActes]}
-                    onDrop={onDrop}
-                    onDragOver={allowDrop}
-                    onChange={(event: React.ChangeEvent, value: any[]) => {
-                        onChangeState(value, secondaryActes, setSecondaryActes);
-                    }}
-                    initData={secondaryActes}
-                    helperText={t("")}
-                    placeholder={t("actes.typing")}
-                />
-
-                <Typography
-                    variant="subtitle1"
-                    color="text.primary"
-                    fontWeight={600}
-                    mb={2}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        mt: 6,
-                        svg: {
-                            ml: 1,
-                            path: {
-                                fill: "#FFD400",
-                            },
-                        },
-                    }}
-                >
-                    {t("actes.suggestion")}
-                </Typography>
-                <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
-                    {(suggestion as ActModel[]).map((v: ActModel) => (
-                        <Chip
-                            key={v.uuid}
-                            id={v.uuid}
-                            label={v.name}
-                            color="default"
-                            clickable
-                            draggable="true"
-                            onDragStart={onDrag(v)}
-                            onClick={onClickChip(v)}
-                            onDelete={onClickChip(v)}
-                            deleteIcon={<AddIcon/>}
-                            sx={{
-                                bgcolor: "#E4E4E4",
-                                filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                mb: 1,
-                                mr: 1,
-                                cursor: "move",
-                                "&:active": {
-                                    boxShadow: "none",
-                                    outline: "none",
+                    <Typography
+                        variant="subtitle1"
+                        color="text.primary"
+                        fontWeight={600}
+                        mb={2}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            svg: {
+                                ml: 1,
+                                path: {
+                                    fill: "#FFD400",
                                 },
-                                "& .MuiChip-deleteIcon": {
-                                    color: (theme) => theme.palette.text.primary,
+                            },
+                        }}
+                    >
+                        {t("main")}{" "}
+                        {!alert && (
+                            <IconUrl
+                                onChange={() => {
+                                    setAlert(true);
+                                }}
+                                path="danger"
+                            />
+                        )}
+                        {alert && (
+                            <BasicAlert
+                                icon="danger"
+                                sx={{
+                                    width: "fit-content",
+                                    padding: "0  15px 0 0",
+                                    margin: "0 10px",
+                                }}
+                                data={"Actes alert message"}
+                                onChange={() => {
+                                    setAlert(false);
+                                }}
+                                color="warning"
+                            >
+                                info
+                            </BasicAlert>
+                        )}
+                    </Typography>
+
+                    <MultiSelect
+                        id="main"
+                        data={acts.filter((a) => !secondaryActes.some((m) => a.uuid === m.uuid))}
+                        onDrop={onDrop}
+                        all={[...mainActes, ...secondaryActes]}
+                        onDragOver={allowDrop}
+                        onChange={(event: React.ChangeEvent, value: any[]) => {
+                            onChangeState(value, mainActes, setMainActes);
+                        }}
+                        initData={mainActes}
+                        limit={10}
+                        helperText={t("max")}
+                        placeholder={t("typing")}
+                    />
+
+                    <Typography
+                        variant="subtitle1"
+                        color="text.primary"
+                        fontWeight={600}
+                        mb={2}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            mt: 6,
+                            svg: {
+                                ml: 1,
+                                path: {
+                                    fill: "#FFD400",
                                 },
-                            }}
-                        />
-                    ))}
-                </Stack>
-            </Paper>
-        </Box>
+                            },
+                        }}
+                    >
+                        {t("secondary")}{" "}
+                        {!secAlert && (
+                            <IconUrl
+                                onChange={() => {
+                                    setSecAlert(true);
+                                }}
+                                path="danger"
+                            />
+                        )}{" "}
+                        {secAlert && (
+                            <BasicAlert
+                                icon="danger"
+                                sx={{
+                                    width: "fit-content",
+                                    padding: "0  15px 0 0",
+                                    margin: "0 10px",
+                                }}
+                                data={"Actes alert message"}
+                                onChange={() => {
+                                    setSecAlert(false);
+                                }}
+                                color="warning"
+                            >
+                                info
+                            </BasicAlert>
+                        )}
+                    </Typography>
+
+                    <MultiSelect
+                        id="second"
+                        data={acts.filter((a) => !mainActes.some((m) => a.uuid === m.uuid))}
+                        all={[...mainActes, ...secondaryActes]}
+                        onDrop={onDrop}
+                        onDragOver={allowDrop}
+                        onChange={(event: React.ChangeEvent, value: any[]) => {
+                            onChangeState(value, secondaryActes, setSecondaryActes);
+                        }}
+                        initData={secondaryActes}
+                        helperText={t("")}
+                        placeholder={t("typing")}
+                    />
+
+                    <Typography
+                        variant="subtitle1"
+                        color="text.primary"
+                        fontWeight={600}
+                        mb={2}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            mt: 6,
+                            svg: {
+                                ml: 1,
+                                path: {
+                                    fill: "#FFD400",
+                                },
+                            },
+                        }}
+                    >
+                        {t("suggestion")}
+                    </Typography>
+                    <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
+                        {(suggestion as ActModel[]).map((v: ActModel) => (
+                            <Chip
+                                key={v.uuid}
+                                id={v.uuid}
+                                label={v.name}
+                                color="default"
+                                clickable
+                                draggable="true"
+                                onDragStart={onDrag(v)}
+                                onClick={onClickChip(v)}
+                                onDelete={onClickChip(v)}
+                                deleteIcon={<AddIcon/>}
+                                sx={{
+                                    bgcolor: "#E4E4E4",
+                                    filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                    mb: 1,
+                                    mr: 1,
+                                    cursor: "move",
+                                    "&:active": {
+                                        boxShadow: "none",
+                                        outline: "none",
+                                    },
+                                    "& .MuiChip-deleteIcon": {
+                                        color: (theme) => theme.palette.text.primary,
+                                    },
+                                }}
+                            />
+                        ))}
+                    </Stack>
+                </Paper>
+            </Box>
+        </>
+
     );
 }
 

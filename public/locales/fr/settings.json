@@ -51,7 +51,8 @@
     "secondary": "Vos actes secondaires",
     "suggestion": "Actes suggérés",
     "typing": "Commencer à taper pour rechercher des actes",
-    "max": "Max 10 Actes"
+    "max": "Max 10 Actes",
+    "path": "Paramètres > Actes"
   },
   "motif": {
     "name": "Nom",
@@ -212,7 +213,7 @@
     "actif": "active",
     "name": "nom",
     "action": "Action",
-    "add": "Ajouter instruction",
+    "add": "Ajouter",
     "update": "Modifier instruction",
     "insctruction": "instruction",
     "tinsctruction": "Tapez içi votre instruction",

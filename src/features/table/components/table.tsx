@@ -97,7 +97,7 @@ function Otable({ ...props }) {
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
         <Table
           stickyHeader
-          sx={{ minWidth: 1300 }}
+          //sx={{ minWidth: 1300 }}
           aria-labelledby="tableTitle"
           size={"medium"}
         >

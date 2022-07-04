@@ -48,18 +48,13 @@ function Profil() {
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
-
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data, error} = useRequest({
         method: "GET",
         url: "/api/medical/entity/profile/" + medical_entity.uuid + "/" + router.locale,
-        headers
+        headers:  { Authorization: `Bearer ${session?.accessToken}`}
     });
 
     useEffect(() => {
@@ -110,7 +105,6 @@ function Profil() {
             default:
                 break;
         }
-
     };
 
     const dialogOpen = (action: string) => {
