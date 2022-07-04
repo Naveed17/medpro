@@ -35,8 +35,18 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
 
 const rowsPerPage = 10;
 function Otable({ ...props }) {
-  const { rows, headers, state, handleChange, t, from, edit, handleConfig } =
-    props;
+  const {
+    rows,
+    headers,
+    state,
+    handleChange,
+    t,
+    from,
+    edit,
+    handleConfig,
+    minWidth,
+    pagination,
+  } = props;
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
@@ -97,7 +107,7 @@ function Otable({ ...props }) {
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
         <Table
           stickyHeader
-          sx={{ minWidth: 1300 }}
+          sx={{ minWidth: minWidth }}
           aria-labelledby="tableTitle"
           size={"medium"}
         >
@@ -116,7 +126,10 @@ function Otable({ ...props }) {
           />
 
           <TableBody>
-            {(loading ? Array.from(new Array(3)) : stableSort(rows, getComparator(order, orderBy)))
+            {(loading
+              ? Array.from(new Array(3))
+              : stableSort(rows, getComparator(order, orderBy))
+            )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
                 const isItemSelected = isSelected(row?.name as string);
@@ -141,12 +154,14 @@ function Otable({ ...props }) {
         </Table>
       </TableContainer>
       <Box py={1} />
-      <Pagination
-        page={page}
-        total={rows.length}
-        count={(rows.length / rowsPerPage + 1).toFixed(0)}
-        setPage={(v: number) => setPage(v)}
-      />
+      {pagination && (
+        <Pagination
+          page={page}
+          total={rows.length}
+          count={(rows.length / rowsPerPage + 1).toFixed(0)}
+          setPage={(v: number) => setPage(v)}
+        />
+      )}
     </Box>
   );
 }

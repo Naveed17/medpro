@@ -50,7 +50,9 @@ function Subtitule() {
   ]);
   const { direction } = useAppSelector(configSelector);
 
-  const { t, ready } = useTranslation("settings", { keyPrefix: "substitute" });
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "substitute.config",
+  });
   if (!ready) return <>loading translations...</>;
 
   const closeDraw = () => {

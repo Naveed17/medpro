@@ -301,6 +301,8 @@ function Patient() {
             edit={null}
             handleConfig={null}
             handleChange={null}
+            minWidth={1300}
+            pagination
           />
         </Box>
         <PatientMobileCard ready={ready} PatiendData={PatiendData} />

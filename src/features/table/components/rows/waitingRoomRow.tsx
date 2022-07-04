@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
@@ -105,7 +104,7 @@ function WaitingRoomRow({ ...props }) {
                 ) : null
               }
             >
-              {t(row.reson)}
+              {t(`table.${row.reson}`)}
             </Button>
             <Box
               display="flex"
@@ -118,7 +117,7 @@ function WaitingRoomRow({ ...props }) {
             >
               <Icon path="ic-time" />
               <Typography color="success" sx={{ ml: 0.6 }}>
-                {row.duration} {t("min")}
+                {row.duration} {t("table.min")}
               </Typography>
             </Box>
           </Box>
@@ -141,7 +140,7 @@ function WaitingRoomRow({ ...props }) {
                 : "primary"
             }
           >
-            {t(row.status)}
+            {t(`table.${row.status}`)}
           </Label>
         ) : (
           <Skeleton variant="text" width={100} />
@@ -182,7 +181,7 @@ function WaitingRoomRow({ ...props }) {
         {row ? (
           <Box display="flex" sx={{ float: "right" }} alignItems="center">
             <Button variant="text" size="small" color="primary">
-              {t("See details")}
+              {t("table.See details")}
             </Button>
           </Box>
         ) : (
