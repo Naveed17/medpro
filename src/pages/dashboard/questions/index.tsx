@@ -23,21 +23,6 @@ import { Questions as QuestionFilter } from '@features/leftActionBar'
 import { useAppSelector } from "@app/redux/hooks";
 import { qsSidebarSelector } from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
-export const questions = {
-    title: 'White spots on the teeth',
-    date: 'December 12, 2020',
-    category: 'category',
-    patientData: {
-        illness: "The pain itself is the love That's why'",
-        countary: 'tn',
-        city: 'The Bardo Tunis',
-        height: "174 cm",
-        weight: "60 kg",
-        medicalBackground: 'The pain itself is the love',
-        medicalTreatments: 'The pain itself is the love'
-    }
-}
-
 function Questions() {
     const { qs } = useAppSelector(qsSidebarSelector);
     const { t, ready } = useTranslation('questions');
@@ -61,7 +46,7 @@ function Questions() {
             <Box className="container">
                 <Typography color="textPrimary">{qs?.question}</Typography>
                 <Typography variant="body2" color="textSecondary">
-                    {qs?.id}
+                    {qs?.date}
                 </Typography>
                 <Label
                     sx={{
@@ -78,7 +63,7 @@ function Questions() {
                     height: { xl: `calc(100vh - ${offsetTop + 180}px)`, xs: '100%' },
 
                 }}>
-                    {/* <QuestionCard patientData={patientData} t={t} /> */}
+                    <QuestionCard patientData={qs?.patient} t={t} />
                     <Box mt='auto'>
                         <Typography
                             variant="subtitle2"
@@ -92,6 +77,7 @@ function Questions() {
                             <TextField
                                 id="outlined-multiline-static"
                                 placeholder={t("write_answer")}
+                                value={qs?.reply ? qs?.reply.reply : ''}
                                 multiline
                                 rows={6}
                                 fullWidth

@@ -35,11 +35,11 @@ function Questions() {
                 </Box>
                 <TabPanel value="1">
                     <List>
-                        {data.map((item, idx) => (
+                        {data.filter(item => !item.reply).map((item, idx) => (
                             <ListItem key={idx} onClick={() => dispatch(setQs(item))}>
                                 <Box>
                                     <Typography variant="body2" color='text.primary'>
-                                        {item.patient.illness}
+                                        {item.patient.name}
                                     </Typography>
                                     <Typography className='date-container' component="div" variant="body2">
                                         <Icon path="ic-agenda" />
@@ -55,9 +55,22 @@ function Questions() {
                 </TabPanel>
                 <TabPanel value="2">
                     <List>
-                        <ListItem>
-                            Closed data
-                        </ListItem>
+                        {data.filter(item => item.reply).map((item, idx) => (
+                            <ListItem key={idx} onClick={() => dispatch(setQs(item))}>
+                                <Box>
+                                    <Typography variant="body2" color='text.primary'>
+                                        {item.patient.name}
+                                    </Typography>
+                                    <Typography className='date-container' component="div" variant="body2">
+                                        <Icon path="ic-agenda" />
+                                        {item.date}
+                                    </Typography>
+                                </Box>
+                                <Link className="link">
+                                    {item.question}
+                                </Link>
+                            </ListItem>
+                        ))}
                     </List>
                 </TabPanel>
             </TabContext>

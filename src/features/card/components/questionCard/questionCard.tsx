@@ -16,14 +16,14 @@ function QuestionCard({ patientData, t }: any) {
     return (
         <QuestionCardStyled>
             <CardHeader
-                subheader={patientData.illness}
+                subheader={patientData?.illness}
             />
             <CardContent>
                 <Box display="flex" alignItems="center">
                     <Box
                         component="img"
                         alt="Questions"
-                        src={`https://flagcdn.com/w20/${patientData.countary}.png`}
+                        src={`https://flagcdn.com/w20/${patientData?.countary}.png`}
                         width={23}
                         height={16}
 
@@ -35,7 +35,7 @@ function QuestionCard({ patientData, t }: any) {
                         color="textSecondary"
                         sx={{ ml: 1 }}
                     >
-                        {patientData.city}
+                        {patientData?.city}
                     </Typography>
                 </Box>
                 <Box pl={4}>
@@ -50,7 +50,7 @@ function QuestionCard({ patientData, t }: any) {
                                 {t("height")}
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
-                                {patientData.height}
+                                {patientData?.height}
                             </Typography>
                         </ListItem>
                         <ListItem>
@@ -63,7 +63,7 @@ function QuestionCard({ patientData, t }: any) {
                                 {t("weight")}
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
-                                {patientData.weight}
+                                {patientData?.weight}
                             </Typography>
                         </ListItem>
                     </List>
@@ -76,7 +76,7 @@ function QuestionCard({ patientData, t }: any) {
                                 Medical background
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
-                                {patientData.medicalBackground}
+                                {patientData?.medicalBackground}
                             </Typography>
                         </ListItem>
                         <ListItem>
@@ -87,7 +87,7 @@ function QuestionCard({ patientData, t }: any) {
                                 Medical treatments
                             </Typography>
                             <Typography color={theme.palette.secondary.main}>
-                                {patientData.medicalTreatments}
+                                {patientData?.medicalTreatments}
                             </Typography>
                         </ListItem>
                     </List>

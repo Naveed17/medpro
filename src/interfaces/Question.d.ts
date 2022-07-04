@@ -7,6 +7,11 @@ interface Patient {
     medicalBackground: string;
     medicalTreatments: string;
 }
+interface Replay {
+    id: number;
+    date: string;
+    replay: string;
+}
 
 interface Question {
     id: number | null;
@@ -14,4 +19,5 @@ interface Question {
     question: string;
     patient: Patient | null;
     category: string;
+    reply?: Reply | null;
 };
