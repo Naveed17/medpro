@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider, FormikProps } from "formik";
+import { useFormik, Form, FormikProvider } from "formik";
 import {
   Typography,
   Box,
@@ -22,29 +22,12 @@ import { addPatientSelector, onAddPatient } from "@features/customStepper";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
 
-interface MyValues {
-  group: string;
-  name: string;
-  firstName: string;
-  dob: any;
-  phone: number | string;
-  gender: string;
-}
-interface touchedProps {
-  dob: any;
-  name: string;
-  firstName: string;
-  phone: string | number;
-}
 function AddPatientStep1({ ...props }) {
   const { t, onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
-  const isAlreadyExist = _.keys(stepsData.step1).length > 0;
 
   const [selected, setslected] = React.useState<any>(null);
-  // const settings = useSettings();
-  // const { popupDataSet } = settings;
   const phoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
@@ -67,35 +50,26 @@ function AddPatientStep1({ ...props }) {
     }),
   });
 
-  const formik: FormikProps<MyValues> = useFormik<MyValues>({
+  const formik = useFormik({
     initialValues: {
-      group: isAlreadyExist ? stepsData.step1.group : "",
-      name: isAlreadyExist ? stepsData.step1.name : "aasd",
-      firstName: isAlreadyExist ? stepsData.step1.firstName : "asdasd",
-      dob: isAlreadyExist
-        ? stepsData.step1.dob
-        : {
-            day: 1,
-            month: 1,
-            year: 1,
-          },
-      phone: isAlreadyExist ? stepsData.step1.phone : 123123123,
-      gender: isAlreadyExist ? stepsData.step1.gender : "",
+      group: stepsData.step1.group,
+      name: stepsData.step1.name,
+      firstName: stepsData.step1.firstName,
+      dob: stepsData.step1.dob,
+      phone: stepsData.step1.phone,
+      gender: stepsData.step1.gender,
     },
     validationSchema: RegisterSchema,
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
+    onSubmit: async (values) => {
       handleChange(null, values);
     },
   });
   const handleChange = (event: ChangeEvent | null, values: object) => {
-    // popupDataSet({ step1: values });
     onNext(1);
     dispatch(onAddPatient({ ...stepsData, step1: values }));
   };
-  const { values, handleSubmit, isSubmitting, getFieldProps } = formik;
-
-  const touched = formik.values as touchedProps;
-  const errors = formik.errors as touchedProps;
+  const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } =
+    formik;
 
   return (
     <FormikProvider value={formik}>
@@ -201,7 +175,7 @@ function AddPatientStep1({ ...props }) {
               error={Boolean(touched.firstName && errors.firstName)}
               helperText={
                 Boolean(touched.firstName && errors.firstName)
-                  ? String(errors.firstName)
+                  ? errors.firstName
                   : undefined
               }
             />

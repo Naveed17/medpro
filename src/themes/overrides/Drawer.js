@@ -11,10 +11,10 @@ export default function Checkbox(theme) {
           },
           "& .MuiDrawer-paperAnchorRight": {
             boxShadow: "-5px 14px 26px rgba(0, 150, 214, 0.37)",
-          },
-          "& > .MuiPaper-root > div": {
-            [theme.breakpoints.down("sm")]: {
-              minWidth: "100vw",
+            "& > div": {
+              [theme.breakpoints.down("sm")]: {
+                minWidth: "100vw",
+              },
             },
           },
         },

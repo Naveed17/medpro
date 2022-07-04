@@ -1,16 +1,22 @@
+// hooks
+import { useEffect, useState } from "react";
+
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography, Drawer } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { PatientMobileCard } from "@features/patientMobileCard";
-import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
-import { PatientToolbar } from "@features/toolbar";
-import { addPatientSelector } from "@features/customStepper";
-
+import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+// redux
+import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
+import { configSelector } from "@features/base";
+import { PatientdetailsCard } from "@features/card";
+// interface
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -20,19 +26,19 @@ interface HeadCell {
   align: "left" | "right" | "center";
 }
 
+// Patient data for table body
+
 const PatiendData = [
   {
     id: 1,
     name: "John Doe",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: true,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -42,14 +48,12 @@ const PatiendData = [
     id: 2,
     name: "Med",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "success",
@@ -59,14 +63,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -76,14 +78,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -93,14 +93,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -110,14 +108,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -127,14 +123,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -144,14 +138,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -161,14 +153,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -178,14 +168,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: new Date(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: new Date(),
+    lastAppointment: new Date(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -193,8 +181,7 @@ const PatiendData = [
   },
 ];
 
-// head data
-
+// table head data
 const headCells: readonly HeadCell[] = [
   {
     id: "select-all",
@@ -263,7 +250,19 @@ const headCells: readonly HeadCell[] = [
 ];
 
 function Patient() {
-  const { stepsData } = useAppSelector(addPatientSelector);
+  // selectors
+  const { patientId } = useAppSelector(tableActionSelector);
+  const { direction } = useAppSelector(configSelector);
+
+  // state hook for details drawer
+  const [open, setopen] = useState(false);
+
+  // useEffect hook for handling the table action drawer
+  useEffect(() => {
+    if (Boolean(patientId)) {
+      setopen(true);
+    }
+  }, [patientId]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "table" });
   if (!ready) return <>loading translations...</>;
@@ -286,6 +285,17 @@ function Patient() {
           />
         </Box>
         <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        <Drawer
+          anchor={"right"}
+          open={open}
+          dir={direction}
+          onClose={() => {
+            setopen(false);
+          }}
+        >
+          <PatientDetailsToolbar />
+          <PatientdetailsCard />
+        </Drawer>
       </Box>
     </>
   );

@@ -1,12 +1,15 @@
-import React from "react";
 import TableCell from "@mui/material/TableCell";
 import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
-import TableRowStyled from "@features/table/components/overrides/tableRowStyled";
+import { TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 
+// redux
+import { useAppDispatch } from "@app/redux/hooks";
+import { onOpenDetails } from "@features/table";
 export default function PermissionRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
+  const dispatch = useAppDispatch();
   return (
     <TableRowStyled
       hover
@@ -60,7 +63,7 @@ export default function PermissionRow({ ...props }) {
               className="text-time"
             >
               <Icon path="ic-anniverssaire" />
-              {moment(row.dateOfBirth).format("DD/MM/YYYY")} -{" "}
+              {moment(row.dateOfBirth).format("DD-MM-YYYY")} -{" "}
               {moment().diff(row.dateOfBirth, "years", true).toFixed()}
             </Typography>
           </Box>
@@ -81,7 +84,7 @@ export default function PermissionRow({ ...props }) {
             size="small"
             color="primary"
             startIcon={<Icon path="ic-agenda-+" />}
-            sx={{ position: "relative", zIndex: 1000 }}
+            sx={{ position: "relative" }}
           >
             {t("add-appointment")}
           </Button>
@@ -99,7 +102,7 @@ export default function PermissionRow({ ...props }) {
               >
                 <Icon path="ic-agenda" />
 
-                {moment(row.nextAppointment).format("DD/MM/YYYY")}
+                {moment(row.nextAppointment).format("DD-MM-YYYY")}
               </Typography>
               <Typography
                 sx={{
@@ -135,7 +138,7 @@ export default function PermissionRow({ ...props }) {
             >
               <Icon path="ic-agenda" />
 
-              {moment(row.nextAppointment).format("DD/MM/YYYY")}
+              {moment(row.nextAppointment).format("DD-MM-YYYY")}
             </Typography>
             <Typography
               sx={{
@@ -179,7 +182,15 @@ export default function PermissionRow({ ...props }) {
           {t("edit")}
         </Button>
 
-        <Button size="small">{t("see-card")}</Button>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch(onOpenDetails({ patientId: row.id }));
+          }}
+          size="small"
+        >
+          {t("see-card")}
+        </Button>
       </TableCell>
     </TableRowStyled>
   );

@@ -6,6 +6,7 @@ import { CheckListReducer } from "@features/checkList";
 import { userReducer } from "@features/user";
 import { addPatientReducer } from "@features/customStepper";
 import { QsSidebarReducer } from "@features/leftActionBar";
+import { tableReducer } from "@features/table";
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     checkList: CheckListReducer,
     user: userReducer,
     addPatientSteps: addPatientReducer,
-    qsSidebar: QsSidebarReducer
+    qsSidebar: QsSidebarReducer,
+    tableState: tableReducer,
   },
 });
 
