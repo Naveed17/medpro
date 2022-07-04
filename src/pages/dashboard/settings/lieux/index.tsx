@@ -9,9 +9,16 @@ import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Otable } from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 const Maps = dynamic(() => import("@features/maps/components/maps"), { ssr: false });
 
 function Lieux() {
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
+
     const router = useRouter();
 
     const [rows, setRows] = useState([

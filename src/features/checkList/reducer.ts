@@ -4,10 +4,9 @@ import {
     SetMode,
     SetLangues, SetQualifications
 } from './actions';
-import Qualifications from "@interfaces/Qualifications";
 
 export type MenuState = {
-    newQualification: Array<Qualifications>
+    newQualification: Array<QualificationModel>
     newAssurances: Array<InsuranceModel>,
     newMode: Array<PaymentMeansModel>,
     newLangues: Array<LanguageModel>

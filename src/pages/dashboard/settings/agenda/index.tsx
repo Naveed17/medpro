@@ -7,8 +7,14 @@ import { useTranslation } from "next-i18next";
 import { Box } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { Otable } from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Agenda() {
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
 
     const [rows, setRows] = useState([
         {

@@ -9,8 +9,14 @@ import { useTranslation } from "next-i18next";
 import { Otable } from "@features/table";
 import { useAppSelector } from "@app/redux/hooks";
 import { InsctructionDetails } from "@features/instructionDetails";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Instructions() {
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
 
     const [edit, setEdit] = useState(false);
     const [rows, setRows] = useState([

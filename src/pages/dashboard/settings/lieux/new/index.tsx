@@ -18,7 +18,7 @@ import {
     Grid,
     Button,
     FormControlLabel, Switch, Collapse, Paper
-} from '@mui/material'
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import {styled} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar/components/calendarToolbar";
@@ -138,7 +138,7 @@ function NewPlace() {
         },
         {
             day: 'jeudi',
-            hours: [{start: '08:00', end: '14:00'}, null],
+            hours: [{start: '08:00', end: '14:00'}],
             opened: true
         },
         {
@@ -485,7 +485,7 @@ function NewPlace() {
                                                         onChange={(s: any, e: any) => console.log(s, e)}
                                                     />
                                                 </Grid>}
-                                                {i > 0 && (
+                                                {i > 0 && hour && (
                                                     <Grid item lg={3} md={3} sm={12} xs={12}>
                                                         <Button
                                                             variant="text"

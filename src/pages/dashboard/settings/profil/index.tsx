@@ -14,7 +14,7 @@ import {
     Box,
     Grid,
     Avatar,
-    Skeleton
+    Skeleton, DialogActions
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -29,6 +29,7 @@ import { useRouter } from 'next/router'
 import useRequest from "@app/axios/axiosServiceApi";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import CloseIcon from "@mui/icons-material/Close";
 
 function Profil() {
 
@@ -42,7 +43,7 @@ function Profil() {
     const [qualifications, setQualifications] = useState<QualificationModel[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
-    const [acts,setActs] = useState<MedicalProfessionalActModel[]>([]);
+    const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
@@ -53,6 +54,7 @@ function Profil() {
     }
 
     const {data: user} = session as Session;
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data, error} = useRequest({
         method: "GET",
@@ -72,7 +74,7 @@ function Profil() {
             setInsurances([]);
             setPaymentMeans([]);
             setQualifications((infoData.qualification) as QualificationModel[])
-            console.log(infoData.acts);
+            console.log(infoData.qualification);
             setActs(infoData.acts)
         }
         if (error !== undefined) {
@@ -94,7 +96,7 @@ function Profil() {
         setOpen(false);
         switch (dialogContent) {
             case "qualification":
-                //setQualifications(newQualification);
+                setQualifications(newQualification);
                 break;
             case "assurance":
                 setInsurances(newAssurances);
@@ -372,7 +374,16 @@ function Profil() {
                         title={t('dialogs.titles.' + dialogContent)}
                         t={t}
                         dialogSave={dialogSave}
-                        dialogClose={dialogClose}/>
+                        dialogClose={dialogClose}
+                        actionDialog={
+                            <DialogActions>
+                                <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
+                                <Button variant="contained"
+                                        onClick={dialogSave}
+                                        startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
+                            </DialogActions>
+                        }
+                />
 
             </Box>
         </>

@@ -10,8 +10,15 @@ import { RootStyled } from "@features/toolbar";
 import { configSelector } from "@features/base";
 import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Motif() {
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
+
     const [rows, setRows] = useState([
         {
             id: 1,

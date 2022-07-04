@@ -22,8 +22,8 @@ function MultiSelect({...props}) {
             id="tags-standard"
             options={data}
             value={initData}
-            getOptionLabel={(option) => option.title}
-            isOptionEqualToValue={(option, value) => option.title === value.title}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
             onChange={(event, value) =>  onChange(event, value)}
             onDrop={(e) => onDrop(id, e)}
             onDragOver={onDragOver}
@@ -41,7 +41,7 @@ function MultiSelect({...props}) {
                     <Chip
                         variant="contained"
                         color="primary"
-                        label={option.title}
+                        label={option.name}
                         {...getTagProps({ index })}
                     />
                 ))
