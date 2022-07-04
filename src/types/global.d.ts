@@ -30,6 +30,7 @@ declare module "@mui/material" {
   interface Color {
     "500_32": string;
     "500_16": string;
+    "A200": string;
   }
   interface PaletteColor {
     lighter: string;

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-export default function FormControl() {
+export default function FormControl(theme) {
   return {
     MuiFormControl: {
       styleOverrides: {
@@ -14,14 +14,14 @@ export default function FormControl() {
             },
             "&:hover": {
               fieldset: {
-                border: "1px solid #0696D6",
-                boxShadow: "0px 0px 4px rgba(0, 150, 214, 0.25)",
+                border: `1px solid ${theme.palette.primary.main}`,
+                boxShadow: theme.customShadows.textField,
               },
             },
             "&.Mui-focused": {
               background: "transparent",
               fieldset: {
-                border: "1px solid #0696D6",
+                border: `1px solid ${theme.palette.primary.main}`,
                 boxShadow: "none",
                 outline: "none",
               },

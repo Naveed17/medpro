@@ -32,7 +32,7 @@ const SUCCESS = {
   lighter: "#E9FCD4",
   light: "#AAF27F",
   main: "#1BC47D",
-  dark: "#1BC47D",
+  dark: "#28C76F",
   darker: "#138958",
 };
 const WARNING = {
@@ -78,6 +78,7 @@ export const GREY = {
   800: "#212B36",
   900: "#161C24",
   A100: "#E3EAEF",
+  A200: "#6E6B7B",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),

@@ -3,13 +3,6 @@
 export default function Fab(theme) {
   return {
     MuiFab: {
-      styleOverrides: {
-        // root: {
-        //   boxShadow: "none",
-        //   borderRadius: "0.375rem",
-        //   padding: "0.5rem 1.125rem",
-        // },
-      },
       // variants for buttons
       variants: [
         {
@@ -24,7 +17,7 @@ export default function Fab(theme) {
             "&:focus": {
               backgroundColor: theme.palette.warning.dark,
               "& path": {
-                stroke: "#fff",
+                stroke: theme.palette.common.white,
               },
             },
             // svg: {

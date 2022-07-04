@@ -37,11 +37,11 @@ export default function IconButton(theme) {
             },
           },
           "&.success-light": {
-            border: `1px solid rgba(40, 199, 111, 0.12)`,
-            backgroundColor: "rgba(40, 199, 111, 0.12)",
+            border: `1px solid ${theme.palette.success.dark}`,
+            backgroundColor: theme.palette.success.dark,
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: "rgba(40, 199, 111, 0.12)",
+              backgroundColor: theme.palette.success.dark,
             },
             "& svg": {
               "& path": {

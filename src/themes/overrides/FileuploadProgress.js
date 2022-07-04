@@ -7,7 +7,7 @@ const RootStyle = styled(Box)(({ theme }) => ({
     '& .btn-close': {
         alignSelf: 'flex-end',
         marginLeft: theme.spacing(1),
-        backgroundColor: '#7E7E7E',
+        backgroundColor: theme.palette.grey[300],
         opacity: 0.25,
         color: theme.palette.common.white,
         width: 20,
@@ -17,13 +17,13 @@ const RootStyle = styled(Box)(({ theme }) => ({
             fontSize: theme.typography.pxToRem(14),
         },
         '&:hover': {
-            backgroundColor: '#7E7E7E',
+            backgroundColor: theme.palette.grey[300],
         }
     }
 
 }))
 function FileuploadProgress({ ...props }) {
-    const {file, progress, handleRemove, ...rest} = props
+    const { file, progress, handleRemove, ...rest } = props
     return (
         <RootStyle
             {...rest}
@@ -34,8 +34,8 @@ function FileuploadProgress({ ...props }) {
                 mt: 2,
             }}
         >
-            <IconUrl path="pdf-preview"/>
-            <Box sx={{width: "100%", ml: 1}}>
+            <IconUrl path="pdf-preview" />
+            <Box sx={{ width: "100%", ml: 1 }}>
                 <Box sx={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -56,13 +56,13 @@ function FileuploadProgress({ ...props }) {
                     value={progress}
                     variant="determinate"
                     color="success"
-                    sx={{bgcolor: "#DDDDDD", borderRadius: "4px"}}
+                    sx={{ bgcolor: theme => theme.palette.divider, borderRadius: "4px" }}
                 />
             </Box>
             <IconButton className='btn-close' size="small"
-                        onClick={() => handleRemove(file)}
+                onClick={() => handleRemove(file)}
             >
-                <CloseIcon/>
+                <CloseIcon />
             </IconButton>
         </RootStyle>
 
