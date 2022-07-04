@@ -21,15 +21,21 @@
     "last-appointment": "Dernier rendez-vous"
   },
   "patient-details": {
-    "duplicate": "Duplicate detection",
-    "add-email": "Ajouter adresse mail"
+    "duplicate": "Détection doublons",
+    "add-email": "Ajouter adresse mail",
+    "start-consultation": "Commencer la consultation",
+    "edit": "Modifier"
   },
+
   "config": {
     "tabs": {
       "personal-info": "Informations personnelle",
       "appointment": "RDV",
-      "documents": "Documents"
+      "documents": "Documents",
+      "add-appo": "Ajouter RDV",
+      "import": "Importer un document"
     },
+
     "table": {
       "name": "Nom du patient",
       "telephone": "Téléphone",
@@ -51,6 +57,7 @@
     "fin": "Fin",
     "group": "Groupe",
     "group-placeholder": "Sélectionner un groupe",
+    "civility": "Civilité",
     "mr": "M.",
     "mrs": "Mme",
     "name": "Nom",
@@ -93,5 +100,10 @@
       "no-duplicates": "Ces patients ne sont pas doublons ",
       "selected": "Patient sélectionné"
     }
+  },
+  "background": {
+    "title": "Antécédents",
+    "family-history": "Antécédents familiaux",
+    "add-background": "Ajouter Antécédents"
   }
 }

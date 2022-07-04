@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 // material components
-import { Box, Tabs, Tab, Drawer } from "@mui/material";
+import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
 
 // redux
 import { useAppSelector } from "@app/redux/hooks";
@@ -16,12 +16,14 @@ import { configSelector } from "@features/base";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
+import { PersonalInfoPanel, TabPanel } from "@features/tabPanel";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
 import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
 import moment from "moment-timezone";
+import Icon from "@themes/urlIcon";
 
 // interface
 interface HeadCell {
@@ -334,26 +336,67 @@ function Patient() {
           <PatientdetailsCard />
           <Box
             sx={{
-              bgcolor: "background.paper",
-              borderBottom: "1px solid #EFF2F5",
-              px: 2,
-              button: {
-                "&.Mui-selected": {
-                  color: (theme) => theme.palette.primary.main,
-                },
+              width: "726px",
+              bgcolor: "background.default",
+              "& div[role='tabpanel']": {
+                height: "calc(100vh - 312px)",
+                overflowY: "auto",
               },
             }}
           >
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              variant="scrollable"
-              aria-label="basic tabs example"
+            <Box
+              sx={{
+                px: 2,
+                bgcolor: "background.paper",
+                button: {
+                  "&.Mui-selected": {
+                    color: (theme) => theme.palette.primary.main,
+                  },
+                },
+              }}
             >
-              <Tab label="Informations personnelle " {...a11yProps(0)} />
-              <Tab label="RDV" {...a11yProps(1)} />
-              <Tab label="Documents" {...a11yProps(2)} />
-            </Tabs>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                variant="scrollable"
+                aria-label="basic tabs example"
+              >
+                <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+                <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+                <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+              </Tabs>
+            </Box>
+            <Divider />
+            <TabPanel padding={1} key={Math.random()} value={value} index={0}>
+              <PersonalInfoPanel />
+            </TabPanel>
+            <Paper
+              sx={{
+                borderRadius: 0,
+                borderWidth: "0px",
+                p: 2,
+                textAlign: "right",
+              }}
+            >
+              <Button
+                size="medium"
+                variant="text-primary"
+                color="primary"
+                startIcon={<Icon path="agenda/ic-dowlaodfile" />}
+                sx={{ mr: 1, width: { md: "auto", sm: "100%", xs: "100%" } }}
+              >
+                {t("tabs.import")}
+              </Button>
+              <Button
+                size="medium"
+                variant="contained"
+                color="primary"
+                startIcon={<Icon path="ic-agenda-+" />}
+                sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+              >
+                {t("tabs.add-appo")}
+              </Button>
+            </Paper>
           </Box>
         </Drawer>
       </Box>
