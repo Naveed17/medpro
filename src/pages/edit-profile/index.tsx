@@ -1,17 +1,17 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {Box, Button, Container, Paper, Toolbar, Typography} from "@mui/material";
-import {useSession} from "next-auth/react";
-import {TopNavBar} from "@features/topNavBar";
-import {MainMenuStyled} from "@features/sideBarMenu";
-import {CheckProfileStatus} from "@features/checkProfileStatus";
-import {LoadingScreen} from "@features/loadingScreen";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { Box, Button, Container, Paper, Toolbar, Typography } from "@mui/material";
+import { useSession } from "next-auth/react";
+import { TopNavBar } from "@features/topNavBar";
+import { MainMenuStyled } from "@features/sideBarMenu";
+import { CheckProfileStatus } from "@features/checkProfileStatus";
+import { LoadingScreen } from "@features/loadingScreen";
 import { Session } from "next-auth";
 import { Steppers } from "@features/steppers";
 
-function EditProfile(){
+function EditProfile() {
     const { data: session, status } = useSession();
     const loading = status === 'loading';
 
@@ -24,9 +24,8 @@ function EditProfile(){
 
     const { data, user }: any = session as Session;
 
-    return(
-        <Box bgcolor="#F0FAFF"
-             sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+    return (
+        <Box className="container">
 
             <Container fixed>
                 <Paper sx={{ mt: 4, borderRadius: "10px", mb: 4 }}>
@@ -52,7 +51,7 @@ function EditProfile(){
                                 component="footer"
                                 sx={{
                                     textAlign: "right",
-                                    boxShadow: " 0px -1px 1px rgba(0, 150, 214, 0.45)",
+                                    boxShadow: theme => theme.customShadows.customShadow1,
                                     p: 1.5,
                                 }}
                             >
@@ -60,7 +59,7 @@ function EditProfile(){
                                     <Button
                                         onClick={() => setCurrentStepper(currentStepper - 1)}
                                         variant="text"
-                                        sx={{ color: "#1B2746", mr: 2 }}
+                                        sx={{ color: "text.secondary", mr: 2 }}
                                     >
                                         {t(`back`)}
                                     </Button>

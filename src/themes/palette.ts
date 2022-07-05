@@ -8,8 +8,8 @@ function createGradient(color1: string, color2: string) {
 
 // SETUP COLORS
 const PRIMARY = {
-  lighter: "#C8FACD",
-  light: "#5BE584",
+  lighter: alpha("#0696D6", 0.1),
+  light: alpha("#0696D6", 0.12),
   main: "#0696D6",
   dark: "#04618B",
   darker: "#005249",
@@ -74,11 +74,20 @@ export const GREY = {
   400: "#7C878E",
   500: "#3C3C3B",
   600: "#1B2746",
-  700: "#00234B",
+  700: "#B8BCCA",
   800: "#212B36",
   900: "#161C24",
+  A0: "#959CBD",
+  A50: "#647F94",
   A100: "#E3EAEF",
   A200: "#6E6B7B",
+  A300: "#E0E0E0",
+  A400: "#F1FAFF",
+  A500: "#F9F9FB",
+  A600: "#BDBDBD",
+  A700: "#E7F5FB",
+  A800: "#FCFCFC",
+  A900: "#EEEEEE",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),
@@ -87,6 +96,7 @@ export const GREY = {
   500_48: alpha("#919EAB", 0.48),
   500_56: alpha("#919EAB", 0.56),
   500_80: alpha("#919EAB", 0.8),
+
 };
 
 const GRADIENTS = {

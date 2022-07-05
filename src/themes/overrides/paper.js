@@ -6,7 +6,7 @@ export default function Paper(theme) {
       styleOverrides: {
         root: {
           boxShadow: "none",
-          border: "1px solid #e0e0e0",
+          border: `1px solid ${theme.palette.grey["A300"]}`,
         },
       },
     },

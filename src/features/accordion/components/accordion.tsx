@@ -44,7 +44,7 @@ function Accordion({ children, data, badge, translate, defaultValue }: accordion
                         <>
                             {badge && (
                                 <Box
-                                    bgcolor="#FFD400"
+                                    bgcolor={theme => theme.palette.warning.main}
                                     sx={{
                                         height: 15,
                                         width: 14,

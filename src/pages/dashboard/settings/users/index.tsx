@@ -41,8 +41,7 @@ function Users() {
             fonction: 'Practitioner',
             speciality: 'Dermatologist',
             status: 'En attente',
-            bg: '#FFD400',
-            color: '#000',
+            bg: 'warning',
             settings: false,
             access: '2',
         },
@@ -53,8 +52,7 @@ function Users() {
             fonction: 'Practitioner',
             speciality: 'Dermatologist',
             status: 'Accepté',
-            bg: '#1BC47D',
-            color: '#FFF',
+            bg: 'success',
             settings: true,
             access: '1',
         },
@@ -65,8 +63,7 @@ function Users() {
             fonction: 'Secretary',
             speciality: '',
             status: 'Accepté',
-            bg: '#1BC47D',
-            color: '#FFF',
+            bg: 'success',
             settings: false,
             access: '2',
         },
@@ -162,7 +159,7 @@ function Users() {
                 </Button>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box className="container">
                 <Otable headers={headCells}
                     rows={rows}
                     state={null}

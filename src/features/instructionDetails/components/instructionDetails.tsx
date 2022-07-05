@@ -1,12 +1,12 @@
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import { useFormik, Form, FormikProvider } from "formik";
 import { Typography, Stack, TextField, Grid, Button } from '@mui/material'
 import { styled } from '@mui/material/styles';
 import React from "react";
-import {useTranslation} from "next-i18next";
-import {width} from "@mui/system";
+import { useTranslation } from "next-i18next";
+import { width } from "@mui/system";
 
-const  PaperStyled = styled(Form)(({ theme }) => ({
+const PaperStyled = styled(Form)(({ theme }) => ({
 
     borderRadius: 0,
     height: '100%',
@@ -32,13 +32,13 @@ const  PaperStyled = styled(Form)(({ theme }) => ({
         position: 'absolute',
         width: '100%',
         bottom: 0,
-        borderTop:'3px solid #f0fafe'
+        borderTop: `3px solid ${theme.palette.grey['A700']}`,
     }
 }));
 
-function InstructionDetails({...props}) {
+function InstructionDetails({ ...props }) {
 
-    const {t, ready} = useTranslation('settings');
+    const { t, ready } = useTranslation('settings');
 
     const validationSchema = Yup.object().shape({
         instruction: Yup.string()
@@ -60,35 +60,35 @@ function InstructionDetails({...props}) {
     });
     if (!ready) return (<>loading translations...</>);
 
-    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
+    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
 
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                         noValidate
-                         className='root'
-                         onSubmit={handleSubmit}>
+                noValidate
+                className='root'
+                onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
-                    { props.data ? t('instructions.update') : t('instructions.add') }
+                    {props.data ? t('instructions.update') : t('instructions.add')}
                 </Typography>
 
-                <Typography variant="body2" sx={{margin: '20px 0 10px'}} gutterBottom>
+                <Typography variant="body2" sx={{ margin: '20px 0 10px' }} gutterBottom>
                     {t('instructions.insctruction')}{" "}
                     <Typography component="span" color="error">
                         *
                     </Typography>
                 </Typography>
                 <TextField variant="outlined"
-                           placeholder={t('instructions.tinsctruction')}
-                           multiline
-                           sx={{width:{lg:568}}}
-                           rows={4}
-                           fullWidth
-                           required
-                           {...getFieldProps("instruction")}/>
+                    placeholder={t('instructions.tinsctruction')}
+                    multiline
+                    sx={{ width: { lg: 568 } }}
+                    rows={4}
+                    fullWidth
+                    required
+                    {...getFieldProps("instruction")} />
 
-                    <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
+                <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
                     <Button onClick={props.closeDraw}>
                         {t('motif.dialog.cancel')}
                     </Button>

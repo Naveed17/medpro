@@ -48,7 +48,8 @@ function UserRow({ ...props }) {
                 {row ?
                     <Lable
                         variant="filled"
-                        sx={{ backgroundColor: row.bg, color: row.color, px: 1.5 }}>
+                        color={row.bg}
+                        sx={{ px: 1.5 }}>
                         {row.status}
                     </Lable>
                     : <Skeleton variant="text" width={100} height={40} sx={{ mx: 'auto' }} />}

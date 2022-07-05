@@ -22,8 +22,8 @@ function Subtitule() {
             fonction: 'Practitioner',
             speciality: 'Dermatologist',
             status: 'En attente',
-            bg: '#FFD400',
-            color: '#000',
+            bg: 'warning',
+            color: 'white',
             access: '2',
         },
         {
@@ -33,8 +33,8 @@ function Subtitule() {
             fonction: 'Practitioner',
             speciality: 'Dermatologist',
             status: 'Accepté',
-            bg: '#1BC47D',
-            color: '#FFF',
+            bg: 'success',
+            color: 'white',
             access: '1',
         },
         {
@@ -44,8 +44,8 @@ function Subtitule() {
             fonction: 'Secretary',
             speciality: '',
             status: 'Accepté',
-            bg: '#1BC47D',
-            color: '#FFF',
+            bg: 'success',
+            color: 'white',
             access: '2',
         },
     ]);
@@ -118,7 +118,7 @@ function Subtitule() {
                 </Button>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box className="container">
                 <Otable headers={headCells}
                     rows={rows}
                     state={null}

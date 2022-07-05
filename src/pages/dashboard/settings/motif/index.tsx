@@ -183,7 +183,7 @@ function Motif() {
                     </Button>
                 </RootStyled>
             </SubHeader>
-            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box className="container">
                 <Otable headers={headCells}
                     rows={rows}
                     state={state}

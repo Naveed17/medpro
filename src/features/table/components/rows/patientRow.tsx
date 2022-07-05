@@ -167,7 +167,7 @@ export default function PermissionRow({ ...props }) {
           minHeight: "58.85px",
         }}
       >
-        <IconButton size="small" sx={{ ml: 0.6, path: { fill: "#000" } }}>
+        <IconButton size="small" sx={{ ml: 0.6, path: { fill: theme => theme.palette.common.black } }}>
           <Icon path="ic-autre2" />
         </IconButton>
 
@@ -175,8 +175,8 @@ export default function PermissionRow({ ...props }) {
           size="small"
           sx={{
             ml: 0.6,
-            color: "#000",
-            path: { fill: "#000" },
+            color: theme => theme.palette.common.black,
+            path: { fill: theme => theme.palette.common.black },
           }}
         >
           {t("edit")}

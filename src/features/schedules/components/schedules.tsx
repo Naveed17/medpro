@@ -1,14 +1,15 @@
-import {Box, Button, Card, Collapse, Grid, Paper, Switch, Typography} from "@mui/material";
+import { Box, Button, Card, Collapse, Grid, Paper, Switch, Typography } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
-import React, {useState} from "react";
-import {useTranslation} from "next-i18next";
+import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
+import { Theme } from '@mui/material/styles';
 
 type SchedulesProps = {
     initData: Schedule[]
 }
 
-function Schedules({initData}: SchedulesProps) {
+function Schedules({ initData }: SchedulesProps) {
     const [schedule, setSchedule] = useState(initData);
 
     const { t, ready } = useTranslation('common', { keyPrefix: "schedule" });
@@ -18,12 +19,12 @@ function Schedules({initData}: SchedulesProps) {
         <>
             {schedule.map((value: any, ind) => (
                 <Card key={ind}
-                      sx={{
-                          border: "1px solid #E4E4E4",
-                          boxShadow: "none",
-                          bgcolor: "#FCFCFC",
-                          mt: 2,
-                      }}>
+                    sx={{
+                        border: `1px solid ${(theme: Theme) => theme.palette.grey["A300"]}`,
+                        boxShadow: "none",
+                        bgcolor: (theme: Theme) => theme.palette.grey["A800"],
+                        mt: 2,
+                    }}>
                     <Box
                         sx={{
                             display: "flex",
@@ -35,7 +36,7 @@ function Schedules({initData}: SchedulesProps) {
                             variant="body1"
                             color="text.primary"
                             fontWeight={600}
-                            sx={{textTransform: "uppercase", margin: '13px 15px'}}>
+                            sx={{ textTransform: "uppercase", margin: '13px 15px' }}>
                             {value.day}
                         </Typography>
 
@@ -44,7 +45,7 @@ function Schedules({initData}: SchedulesProps) {
                                 const day = schedule.findIndex(d => d.day === value.day)
                                 schedule[day].opened = e.target.checked
                                 if (schedule[day].hours === null)
-                                    schedule[day].hours = [{start: '', end: ''}]
+                                    schedule[day].hours = [{ start: '', end: '' }]
                                 setSchedule([...schedule])
                             }
                             }
@@ -53,19 +54,19 @@ function Schedules({initData}: SchedulesProps) {
                     </Box>
 
                     <Collapse
-                        in={value.opened} sx={{bgcolor: "common.white", borderTop: "1px solid #C9C8C8"}}>
-                        <Paper sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
+                        in={value.opened} sx={{ bgcolor: "common.white", borderTop: `1px solid ${(theme: Theme) => theme.palette.grey["A800"]}` }}>
+                        <Paper sx={{ borderRadius: 0, border: "none", px: 1, my: 2 }}>
                             {value.hours?.map((hour: any, i: number) => (
-                                <Grid container spacing={1} alignItems="center" sx={{mt: 1}} key={i}>
+                                <Grid container spacing={1} alignItems="center" sx={{ mt: 1 }} key={i}>
                                     {hour && <Grid item lg={3} md={3} sm={12} xs={4}>
                                         <Box
                                             sx={{
                                                 display: "flex",
                                                 alignItems: "center",
-                                                svg: {mr: 1},
+                                                svg: { mr: 1 },
                                                 justifyContent: "end",
                                             }}>
-                                            <IconUrl path="ic-time"/>
+                                            <IconUrl path="ic-time" />
                                             <Typography variant="body2" color="text.primary">
                                                 {i + 1 > 1 ? i + 1 + `em ${t("seance")}` : `1er ${t("seance")}`}
                                             </Typography>
@@ -84,10 +85,10 @@ function Schedules({initData}: SchedulesProps) {
                                                 color="error"
                                                 size="small"
                                                 sx={{
-                                                    svg: {width: 15},
-                                                    path: {fill: (theme) => theme.palette.error.main},
+                                                    svg: { width: 15 },
+                                                    path: { fill: (theme) => theme.palette.error.main },
                                                 }}
-                                                startIcon={<IconUrl path="icdelete"/>}
+                                                startIcon={<IconUrl path="icdelete" />}
                                                 onClick={() => {
                                                     value.hours.splice(i, 1);
                                                     setSchedule([...schedule])
@@ -104,12 +105,12 @@ function Schedules({initData}: SchedulesProps) {
                                     <Button
                                         onClick={() => {
                                             const day = schedule.findIndex(d => d.day === value.day)
-                                            schedule[day].hours?.push({start: '', end: ''});
+                                            schedule[day].hours?.push({ start: '', end: '' });
                                             setSchedule([...schedule])
                                         }}
                                         variant="contained"
                                         color="success"
-                                        sx={{mt: 1}}>
+                                        sx={{ mt: 1 }}>
                                         {t("add")}
                                     </Button>
                                 </Grid>

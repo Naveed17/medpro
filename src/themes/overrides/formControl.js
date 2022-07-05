@@ -5,7 +5,7 @@ export default function FormControl(theme) {
       styleOverrides: {
         root: {
           "& .MuiInputBase-root": {
-            background: "#F9F9FB",
+            background: theme.palette.grey["A500"],
             "& .MuiInputBase-inputSizeSmall.MuiSelect-root": {
               minHeight: "1.5rem",
             },

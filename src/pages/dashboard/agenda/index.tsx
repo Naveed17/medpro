@@ -1,27 +1,27 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {useRouter} from "next/router";
-import {Box} from "@mui/material";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { useRouter } from "next/router";
+import { Box } from "@mui/material";
 import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/toolbar/components/calendarToolbar";
+import { SubHeader } from "@features/subHeader";
+import { CalendarToolbar } from "@features/toolbar/components/calendarToolbar";
 
 
-function Agenda(){
+function Agenda() {
     const router = useRouter();
     const [date, setDate] = useState(new Date());
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
-    return(
+    return (
         <>
             <SubHeader>
-                <CalendarToolbar date={date}/>
+                <CalendarToolbar date={date} />
             </SubHeader>
-            <Box bgcolor="#F0FAFF"
-                 sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box bgcolor={theme => theme.palette.grey['A700']}
+                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
 
                 <div>Hello from {router.pathname.slice(1)}</div>
             </Box>

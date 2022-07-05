@@ -1,6 +1,6 @@
 //components styles
 import { styled } from "@mui/material/styles";
-import {pxToRem} from "@themes/formatFontSize";
+import { pxToRem } from "@themes/formatFontSize";
 
 const ProfileSectionStyled = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -47,13 +47,13 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                     pointerEvents: "none",
                 },
                 "&::after": {
-                    borderColor: "rgba(255, 255, 255, 0)",
-                    borderBottomColor: "#fff",
+                    borderColor: theme.palette.background.paper,
+                    borderBottomColor: theme.palette.background.paper,
                     borderWidth: 6,
                     marginLeft: -6,
                 },
                 "&::before": {
-                    borderColor: "rgba(0, 0, 0, 0)",
+                    borderColor: theme.palette.common.black,
                     borderBottomColor: theme.palette.divider,
                     borderWidth: 7,
                     marginLeft: -7,
@@ -157,4 +157,4 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
     }
 }));
 
-export default  ProfileSectionStyled;
+export default ProfileSectionStyled;

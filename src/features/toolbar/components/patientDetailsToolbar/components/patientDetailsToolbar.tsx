@@ -17,7 +17,7 @@ export default function PatientDetailsToolbar() {
                 variant="contained"
                 color="primary"
                 sx={{
-                  "&.Mui-disabled": { bgcolor: "#F3F6F9", color: "#959CBD" },
+                  "&.Mui-disabled": { bgcolor: theme => theme.palette.grey['A500'], color: theme => theme.palette.grey['A0'] },
                 }}
                 disabled
                 startIcon={<Icon path="Duotone" />}
@@ -29,7 +29,7 @@ export default function PatientDetailsToolbar() {
               <IconButton
                 color="primary"
                 edge="start"
-                sx={{ path: { fill: "#000000" } }}
+                sx={{ path: { fill: theme => theme.palette.common.black } }}
               >
                 <Icon path={"ic-refrech"} />
               </IconButton>
