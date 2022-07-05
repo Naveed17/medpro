@@ -34,12 +34,10 @@ interface MyFormProps {
         firstName:string,
         name: string,
     };
-    specialty: SpecialtyModel | undefined,
-    secondarySpecialties: any[],
+    specialty: SpecialtyModel | string,
+    secondarySpecialties: SpecialtyModel[],
     languages: selectMultiple[]
 }
-
-const secondarySpecialties = ["test"];
 
 const multipleLanguage = [
     { title: "Français" },
@@ -52,7 +50,7 @@ const multipleLanguage = [
     { title: "Chinois" },
 ];
 
-function Info({ ...props }) {
+function Info() {
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     const router = useRouter();
@@ -62,11 +60,11 @@ function Info({ ...props }) {
             file: "",
             person: {
                 gender: "",
-                profession: "",
+                profession: "doc",
                 firstName: "",
                 name: "",
             },
-            specialty: undefined,
+            specialty: '',
             secondarySpecialties: [],
             languages: [],
         },
@@ -91,6 +89,7 @@ function Info({ ...props }) {
     if (!ready || !httpResponse || loading) return (<LoadingScreen/>);
 
     const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
+    const secondarySpecialties = specialties.slice(10);
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -100,14 +99,14 @@ function Info({ ...props }) {
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name: specialty, checked } = event.target;
+        console.log(specialty, checked);
         setFieldValue(
             "secondarySpecialties",
             checked
-                ? [...values.secondarySpecialties, specialty]
-                : values.secondarySpecialties.filter((el) => el !== specialty)
+                ? [...values.secondarySpecialties, secondarySpecialties.find(item => item.uuid === specialty)]
+                : values.secondarySpecialties.filter((el) => el.uuid !== specialty)
         );
     };
-
 
     return (
       <>
@@ -211,9 +210,10 @@ function Info({ ...props }) {
                                           labelId="demo-simple-select-label"
                                           id={"profession"}
                                           size="small"
+                                          defaultValue={'doc'}
                                           {...getFieldProps("person.profession")}
                                           value={values.person.profession}
-                                          placeholder={'choissisez votre spécialité'}
+                                          placeholder={'choisissez votre titre'}
                                           displayEmpty
                                       >
                                           <MenuItem value="doc">Docteur</MenuItem>
@@ -253,12 +253,21 @@ function Info({ ...props }) {
                           <Select
                               labelId="demo-simple-select-label"
                               id={"specialty"}
+                              defaultValue=""
                               size="small"
                               {...getFieldProps("specialty")}
-                              value={values.specialty?.uuid}
+                              value={values.specialty}
                               displayEmpty
+                              renderValue={(selected) => {
+                                  if (selected === '') {
+                                      return <em>Choisissez votre spécialité</em>;
+                                  }
+
+                                  return specialties.find(specialty => specialty.uuid === selected)?.name;
+                              }}
+                              className="select-specialty"
                           >
-                              {specialties.map( specialty => <MenuItem key={specialty.uuid} value={specialty.uuid}>{specialty.name}</MenuItem>)}
+                              {specialties.map( specialty => <MenuItem  key={specialty.uuid} value={specialty.uuid}>{specialty.name}</MenuItem>)}
                           </Select>
                       </FormControl>
                   </Box>
@@ -284,10 +293,10 @@ function Info({ ...props }) {
                                       <Checkbox
                                           checked={values.secondarySpecialties.includes(el)}
                                           onChange={(e) => handleChangeFiled(e)}
-                                          name={el}
+                                          name={el.uuid}
                                           id={`secodary-specialties-${index}`}
                                       />
-                                      <ListItemText primary={el} />
+                                      <ListItemText primary={el.name} />
                                   </label>
                               </ListItem>
                           ))}
