@@ -10,7 +10,6 @@ import {CheckProfileStatus} from "@features/checkProfileStatus";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import useRequest from "@app/axios/axiosServiceApi";
 import {Info, Document, Actes, Cabinet, CustomStepper, stepperProfileSelector} from "@features/customStepper";
 import {useAppSelector} from "@app/redux/hooks";
 
@@ -43,20 +42,8 @@ function EditProfile() {
     const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
     // get user session data
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpResponse, error} = useRequest({
-        method: "GET",
-        url: `/api/medical/entity/profile/${medical_entity.uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
-
-    if (error) return <div>failed to load</div>
-    if (!ready || loading || !httpResponse) return (<LoadingScreen/>);
-
-    console.log('httpResponse', httpResponse);
+    if (!ready || loading) return (<LoadingScreen/>);
 
     return (
         <Box bgcolor="#F0FAFF"

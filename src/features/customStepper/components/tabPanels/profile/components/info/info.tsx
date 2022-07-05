@@ -17,6 +17,10 @@ import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
 import {InputStyled} from "@features/customStepper";
 import {useTranslation} from "next-i18next";
+import useRequest from "@app/axios/axiosServiceApi";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 type selectMultiple = {
     title: string
@@ -31,20 +35,11 @@ interface MyFormProps {
         name: string,
     };
     specialty: string,
-    secondarySpecialties: string[],
+    secondarySpecialties: [],
     languages: selectMultiple[]
 }
 
-const secondarySpecialties: Array<string> = [
-    "Spécialité  1",
-    "Spécialité  2",
-    "Spécialité  3",
-    "Spécialité  4",
-    "Spécialité  5",
-    "Spécialité  6",
-    "Spécialité  7",
-    "Spécialité  8",
-];
+const secondarySpecialties = ["test"];
 
 const multipleLanguage = [
     { title: "Français" },
@@ -58,8 +53,10 @@ const multipleLanguage = [
 ];
 
 function Info({ ...props }) {
+    const {data: session, status} = useSession();
+    const loading = status === 'loading';
+    const router = useRouter();
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
-    const { onNext } = props;
     const formik = useFormik<MyFormProps>({
         initialValues: {
             file: "",
@@ -69,7 +66,7 @@ function Info({ ...props }) {
                 firstName: "",
                 name: "",
             },
-            specialty: "",
+            specialty: '',
             secondarySpecialties: [],
             languages: [],
         },
@@ -82,8 +79,20 @@ function Info({ ...props }) {
 
     const [selectData, setSelectData] = useState([multipleLanguage[0]]);
 
+    const {data: httpResponse, error} = useRequest({
+        method: "GET",
+        url: `/api/public/specialty/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
 
-    if (!ready) return (<>loading translations...</>);
+    if (error) return <div>failed to load</div>
+    if (!ready || !httpResponse || loading) return (<LoadingScreen/>);
+
+    const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
+
+    console.log('httpResponse', specialties);
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -92,12 +101,12 @@ function Info({ ...props }) {
     };
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
+        const { name: specialty, checked } = event.target;
         setFieldValue(
             "secondarySpecialties",
             checked
-                ? [...values.secondarySpecialties, name]
-                : values.secondarySpecialties.filter((el) => el !== name)
+                ? [...values.secondarySpecialties, specialty]
+                : values.secondarySpecialties.filter((el) => el !== specialty)
         );
     };
 
