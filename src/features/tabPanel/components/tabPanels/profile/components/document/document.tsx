@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {Box, Typography, Button, Fab, LinearProgress} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {InputStyled} from "@features/steppers";
+import {InputStyled} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 
 function Document(){

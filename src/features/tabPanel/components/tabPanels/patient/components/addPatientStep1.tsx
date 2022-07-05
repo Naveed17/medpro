@@ -20,7 +20,6 @@ import {
 import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import _ from "lodash";
 
 function AddPatientStep1({ ...props }) {
   const { t, onNext } = props;
