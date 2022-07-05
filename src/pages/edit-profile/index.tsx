@@ -10,8 +10,9 @@ import {CheckProfileStatus} from "@features/checkProfileStatus";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {Info, Document, Actes, Cabinet, CustomStepper, stepperProfileSelector} from "@features/customStepper";
+import {Info, Document, Actes, Cabinet, stepperProfileSelector} from "@features/tabPanel";
 import {useAppSelector} from "@app/redux/hooks";
+import {CustomStepper} from "@features/customStepper";
 
 const stepperData = [
     {

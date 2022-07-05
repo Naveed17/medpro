@@ -15,7 +15,7 @@ import {MultiSelect} from "@features/multiSelect";
 import React, {useState} from "react";
 import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
-import {InputStyled} from "@features/customStepper";
+import {InputStyled} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import useRequest from "@app/axios/axiosServiceApi";
 import {useSession} from "next-auth/react";
@@ -34,7 +34,7 @@ interface MyFormProps {
         firstName:string,
         name: string,
     };
-    specialty: string,
+    specialty: SpecialtyModel | undefined,
     secondarySpecialties: any[],
     languages: selectMultiple[]
 }
@@ -66,7 +66,7 @@ function Info({ ...props }) {
                 firstName: "",
                 name: "",
             },
-            specialty: '',
+            specialty: undefined,
             secondarySpecialties: [],
             languages: [],
         },
@@ -91,8 +91,6 @@ function Info({ ...props }) {
     if (!ready || !httpResponse || loading) return (<LoadingScreen/>);
 
     const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
-
-    console.log('httpResponse', specialties);
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -215,18 +213,12 @@ function Info({ ...props }) {
                                           size="small"
                                           {...getFieldProps("person.profession")}
                                           value={values.person.profession}
-                                          displayEmpty={true}
-                                          renderValue={(value) =>
-                                              value?.length
-                                                  ? Array.isArray(value)
-                                                      ? value.join(", ")
-                                                      : value
-                                                  : "Profession"
-                                          }
+                                          placeholder={'choissisez votre spécialité'}
+                                          displayEmpty
                                       >
-                                          <MenuItem value="Professor">Professor</MenuItem>
-                                          <MenuItem value="2">2</MenuItem>
-                                          <MenuItem value="3">3</MenuItem>
+                                          <MenuItem value="doc">Docteur</MenuItem>
+                                          <MenuItem value="prof">Professeur</MenuItem>
+                                          <MenuItem value="aucun">Aucun Titre</MenuItem>
                                       </Select>
                                   </FormControl>
                               </Box>
@@ -263,19 +255,10 @@ function Info({ ...props }) {
                               id={"specialty"}
                               size="small"
                               {...getFieldProps("specialty")}
-                              value={values.specialty}
-                              displayEmpty={true}
-                              renderValue={(value) =>
-                                  value?.length
-                                      ? Array.isArray(value)
-                                          ? value.join(", ")
-                                          : value
-                                      : "Specialty"
-                              }
+                              value={values.specialty?.uuid}
+                              displayEmpty
                           >
-                              <MenuItem value="Généraliste">Généraliste</MenuItem>
-                              <MenuItem value="2">2</MenuItem>
-                              <MenuItem value="3">3</MenuItem>
+                              {specialties.map( specialty => <MenuItem key={specialty.uuid} value={specialty.uuid}>{specialty.name}</MenuItem>)}
                           </Select>
                       </FormControl>
                   </Box>

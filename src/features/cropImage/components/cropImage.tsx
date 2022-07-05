@@ -5,7 +5,7 @@ import {pxToRem} from "@themes/formatFontSize";
 import IconUrl from "@themes/urlIcon";
 import getCroppedImg from '@themes/overrides/getCroppedImg'
 import ModalStyled from "@features/cropImage/components/overrides/modalStyled";
-import {InputStyled} from "@features/customStepper";
+import {InputStyled} from "@features/tabPanel";
 
 function CropImage({ img, setFieldValue, setOpen, open } : any) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })

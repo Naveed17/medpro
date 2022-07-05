@@ -7,7 +7,7 @@ import { userReducer } from "@features/user";
 import { addPatientReducer } from "@features/tabPanel";
 import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
-import {stepperProfileReducer} from "@features/customStepper/components/tabPanels/profile/reducer";
+import {stepperProfileReducer} from "@features/tabPanel/components/tabPanels/profile/reducer";
 
 export const store = configureStore({
   reducer: {
