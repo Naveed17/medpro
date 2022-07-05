@@ -35,7 +35,7 @@ interface MyFormProps {
         name: string,
     };
     specialty: string,
-    secondarySpecialties: [],
+    secondarySpecialties: any[],
     languages: selectMultiple[]
 }
 
