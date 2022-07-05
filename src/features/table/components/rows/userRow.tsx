@@ -10,9 +10,6 @@ import Switch from "@mui/material/Switch";
 import { uniqueId } from "lodash";
 function UserRow({ ...props }) {
   const { row, handleChange, t } = props;
-
-  const { row, handleChange, t } = props;
-
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell>

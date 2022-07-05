@@ -9,9 +9,6 @@ import { TableRowStyled } from "@features/table";
 import { uniqueId } from "lodash";
 function SubstituleRow({ ...props }) {
   const { row, t } = props;
-
-  const { row, t } = props;
-
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell>

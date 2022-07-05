@@ -67,8 +67,7 @@ function Users() {
       access: '2',
     },
   ]);
-  const { t, ready } = useTranslation("settings", { keyPrefix: "users" });
-  if (!ready) return (<>loading translations...</>);
+
 
   const closeDraw = () => {
     setEdit(false);
@@ -131,6 +130,8 @@ function Users() {
     console.log(props);
     setRows([...rows]);
   };
+  const { t, ready } = useTranslation("settings", { keyPrefix: "users" });
+  if (!ready) return (<>loading translations...</>);
 
   return (
     <>
