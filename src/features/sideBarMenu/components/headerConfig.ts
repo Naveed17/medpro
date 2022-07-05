@@ -40,7 +40,7 @@ export const siteHeader = {
         {
             icon: "ic-questions-lite",
             name: "questions",
-            href: '#',
+            href: '/dashboard/questions',
         },
         {
             icon: "shopping-bag",
