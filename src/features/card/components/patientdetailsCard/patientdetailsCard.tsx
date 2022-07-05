@@ -8,8 +8,13 @@ import { RootStyled } from "./overrides";
 // utils
 import Icon from "@themes/urlIcon";
 import { pxToRem } from "@themes/formatFontSize";
+import { useTranslation } from "next-i18next";
 
 function PatientdetailsCard() {
+  const { t, ready } = useTranslation("patient", {
+    keyPrefix: "patient-details",
+  });
+  if (!ready) return <>loading translations...</>;
   return (
     <RootStyled>
       <Badge
@@ -53,7 +58,7 @@ function PatientdetailsCard() {
       <div>
         <Typography variant="body2" component="span" className="alert">
           <Icon path="danger" />
-          Détection doublons
+          {t("duplicate")}
         </Typography>
         <Typography
           variant="body2"
@@ -62,7 +67,7 @@ function PatientdetailsCard() {
           className="email-link"
         >
           <Icon path="ic-message-contour" />
-          Ajouter adresse mail
+          {t("add-email")}
         </Typography>
       </div>
       <Box
@@ -83,7 +88,7 @@ function PatientdetailsCard() {
           my: 2,
         }}
       >
-        Commencer la consultation
+        {t("start-consultation")}
       </Button>
     </RootStyled>
   );

@@ -50,6 +50,7 @@ function SideBarMenu({ children }: LayoutProps) {
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
         router.push(path);
+        dispatch(toggleMobileBar(true));
     }
 
 
@@ -58,12 +59,9 @@ function SideBarMenu({ children }: LayoutProps) {
 
 
 
-    const handleClick = (path: string) => {
-        if (path === "/settings") {
-            setTimeout(() => {
-                dispatch(toggleSideBar(false))
-            }, 800);
-        }
+    const handleSettingRoute = () => {
+        isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+        dispatch(toggleMobileBar(true));
     };
 
     const drawer = (
@@ -111,20 +109,20 @@ function SideBarMenu({ children }: LayoutProps) {
                     </ListItem>
                 </Link>
 
-                <Link href="/dashboard/settings/profil">
-                    <ListItem
-                        disableRipple
-                        onClick={() => handleClick('/settings')}
-                        button
-                        className={router.pathname.startsWith('/dashboard/settings') ? "active mt-2" : "mt-2"}>
-                        <ListItemIcon>
-                            <SettingsIcon />
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")} />
-                        </Hidden>
-                    </ListItem>
-                </Link>
+
+                <ListItem
+                    onClick={handleSettingRoute}
+                    disableRipple
+                    button
+                    className={router.pathname.startsWith('/dashboard/settings') ? "active mt-2" : "mt-2"}>
+                    <ListItemIcon>
+                        <SettingsIcon />
+                    </ListItemIcon>
+                    <Hidden smUp>
+                        <ListItemText primary={t("main-menu." + "settings")} />
+                    </Hidden>
+                </ListItem>
+
 
                 <Hidden smUp>
                     <ListItem
@@ -165,6 +163,7 @@ function SideBarMenu({ children }: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
+                display={{ xs: "none", sm: "block" }}
                 component="nav"
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">

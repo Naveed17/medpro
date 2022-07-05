@@ -68,7 +68,7 @@ function OHead({ ...props }) {
                         : "flex-start",
                   }}
                 >
-                  {t(headCell.label)}
+                  {t(`table.${headCell.label}`)}
                   {orderBy === headCell.id ? (
                     <Box component="span" sx={visuallyHidden}>
                       {order === "desc"

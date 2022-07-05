@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 
-import { addPatientSelector, onAddPatient } from "@features/customStepper";
+import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
 

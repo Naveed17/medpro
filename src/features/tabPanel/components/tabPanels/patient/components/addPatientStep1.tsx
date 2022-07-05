@@ -18,7 +18,7 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { CountrySelect } from "@features/countrySelect";
-import { addPatientSelector, onAddPatient } from "@features/customStepper";
+import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 
 function AddPatientStep1({ ...props }) {

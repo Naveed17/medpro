@@ -6,14 +6,13 @@ import IconUrl from "@themes/urlIcon";
 import { Dialog } from "@features/dialog";
 import { Box, Typography, Button, Drawer, Stack } from "@mui/material";
 import { useAppSelector } from "@app/redux/hooks";
-import { addPatientSelector } from "@features/customStepper";
 import { configSelector } from "@features/base";
 import {
   AddPatientStep1,
   AddPatientStep2,
   AddPatientStep3,
-} from "@features/customStepper";
-
+  addPatientSelector,
+} from "@features/tabPanel";
 const stepperData = [
   {
     title: "personal-info",
@@ -76,6 +75,8 @@ function PatientToolbar() {
           translationKey="patient"
           prefixKey="add-patient"
           stepperData={stepperData}
+          scroll
+          minWidth={648}
         />
       </Drawer>
       <Dialog

@@ -105,7 +105,7 @@ export const headCells = [
 ];
 
 function Room() {
-  const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "table" });
+  const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "config" });
   if (!ready) return <>loading translations...</>;
 
   return (
@@ -114,8 +114,7 @@ function Room() {
         <RoomToolbar />
       </SubHeader>
       <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
+        className="container"
       >
         <Label
           variant="filled"
@@ -139,6 +138,8 @@ function Room() {
             state={null}
             from={"waitingRoom"}
             t={t}
+            pagination
+            minWidth={1080}
           />
         </Box>
         <Stack spacing={1} mt={2} display={{ xs: "flex", md: "none" }}>

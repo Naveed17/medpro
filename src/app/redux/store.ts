@@ -4,7 +4,8 @@ import { SideBarReducer } from "@features/sideBarMenu/reducer";
 import { ProfileMenuReducer } from "@features/profilMenu";
 import { CheckListReducer } from "@features/checkList";
 import { userReducer } from "@features/user";
-import { addPatientReducer } from "@features/customStepper";
+import { addPatientReducer } from "@features/tabPanel";
+import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
 import {stepperProfileReducer} from "@features/customStepper/components/tabPanels/profile/reducer";
 
@@ -17,7 +18,8 @@ export const store = configureStore({
     user: userReducer,
     addPatientSteps: addPatientReducer,
     stepperProfile: stepperProfileReducer,
-    tableState: tableReducer
+    tableState: tableReducer,
+    qsSidebar: QsSidebarReducer
   },
 });
 

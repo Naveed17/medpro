@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
-  const { stepperData, translationKey, prefixKey, currentIndex } = props;
+  const { stepperData, translationKey, prefixKey, currentIndex, minWidth, scroll } = props;
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
@@ -24,7 +24,10 @@ function CustomStepper({ ...props }) {
 
   return (
     <>
-      <RootStyled>
+      <RootStyled
+        className={scroll ? "scroll" : ""}
+        sx={{ minWidth: minWidth ? minWidth : "100%" }}
+      >
         <Tabs
           value={value}
           onChange={handleChange}

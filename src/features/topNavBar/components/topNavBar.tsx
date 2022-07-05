@@ -28,6 +28,7 @@ import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
@@ -39,6 +40,7 @@ function TopNavBar({...props}) {
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
+    const settingHas = router.pathname.includes('settings/');
     return (
         <>
             {dashboard ?
@@ -49,13 +51,24 @@ function TopNavBar({...props}) {
                     color="inherit">
                     <Toolbar>
                         <Hidden smUp>
-                            <IconButton
-                                color="primary"
-                                edge="start"
-                                className="btn"
-                                onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
-                                <Icon path="ic-toggle"/>
-                            </IconButton>
+                            {
+                                settingHas ?
+                                    <IconButton
+                                        color={'inherit'}
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => router.push('/dashboard/settings')}>
+                                        <ArrowBackIcon />
+                                    </IconButton>
+                                    :
+                                    <IconButton
+                                        color="primary"
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
+                                        <Icon path="ic-toggle" />
+                                    </IconButton>
+                            }
                         </Hidden>
                         <Hidden smDown>
                             <IconButton
@@ -74,6 +87,7 @@ function TopNavBar({...props}) {
                                     width={38}
                                     alt="company logo"
                                     src="/static/icons/Med-logo_.svg"
+                                    mr={1}
                                 />
                             </Link>
                         </Hidden>
@@ -117,7 +131,7 @@ function TopNavBar({...props}) {
                         </MenuList>
                     </Toolbar>
                 </NavbarStyled>
-                :
+            :
                 <NavbarStepperStyled
                     dir={dir}
                     position="fixed"
