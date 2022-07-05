@@ -9,144 +9,147 @@ import { DashLayout } from "@features/base";
 import { Otable } from "@features/table";
 
 function Agenda() {
+  const [rows, setRows] = useState([
+    {
+      id: 1,
+      name: "Praticien agenda",
+      type: "Praticien",
+      speciality: "ORL",
+      place: "Cabinet",
+      nbAcces: 3,
+      actif: true,
+      public: true,
+    },
+    {
+      id: 2,
+      name: "Salle radiologue",
+      type: "Salle",
+      speciality: "ORL",
+      place: "Radiologist",
+      nbAcces: 3,
+      actif: true,
+      public: false,
+    },
+    {
+      id: 3,
+      name: "Calendar assistant",
+      type: "Assistant",
+      speciality: "Cardiologue",
+      place: "Cabinet",
+      nbAcces: 2,
+      actif: false,
+      public: true,
+    },
+  ]);
 
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Praticien agenda',
-            type: 'Praticien',
-            speciality: "ORL",
-            place: "Cabinet",
-            nbAcces: 3,
-            actif: true,
-            public: true,
-        },
-        {
-            id: 2,
-            name: 'Salle radiologue',
-            type: 'Salle',
-            speciality: "ORL",
-            place: "Radiologist",
-            nbAcces: 3,
-            actif: true,
-            public: false,
-        },
-        {
-            id: 3,
-            name: 'Calendar assistant',
-            type: 'Assistant',
-            speciality: "Cardiologue",
-            place: "Cabinet",
-            nbAcces: 2,
-            actif: false,
-            public: true,
-        }
-    ])
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "agenda.config",
+  });
+  if (!ready) return <>loading translations...</>;
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "agenda" });
-    if (!ready) return (<>loading translations...</>);
+  const headCells = [
+    {
+      id: "name",
+      numeric: false,
+      disablePadding: true,
+      label: "name",
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "type",
+      numeric: false,
+      disablePadding: false,
+      label: "type",
+      align: "center",
+      sortable: true,
+    },
+    {
+      id: "speciality",
+      numeric: false,
+      disablePadding: false,
+      label: "speciality",
+      align: "center",
+      sortable: true,
+    },
+    {
+      id: "place",
+      numeric: true,
+      disablePadding: false,
+      label: "place",
+      align: "center",
+      sortable: true,
+    },
+    {
+      id: "nbAccess",
+      numeric: true,
+      disablePadding: false,
+      label: "nbAccess",
+      align: "center",
+      sortable: false,
+    },
+    {
+      id: "actif",
+      numeric: false,
+      disablePadding: false,
+      label: "actif",
+      align: "center",
+      sortable: false,
+    },
+    {
+      id: "public",
+      numeric: false,
+      disablePadding: false,
+      label: "public",
+      align: "center",
+      sortable: false,
+    },
+    {
+      id: "action",
+      numeric: false,
+      disablePadding: false,
+      label: "action",
+      align: "center",
+      sortable: false,
+    },
+  ];
 
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            disablePadding: true,
-            label: 'name',
-            align: 'left',
-            sortable: true,
-        },
-        {
-            id: 'type',
-            numeric: false,
-            disablePadding: false,
-            label: 'type',
-            align: 'center',
-            sortable: true
-        },
-        {
-            id: 'speciality',
-            numeric: false,
-            disablePadding: false,
-            label: 'speciality',
-            align: 'center',
-            sortable: true
-        },
-        {
-            id: 'place',
-            numeric: true,
-            disablePadding: false,
-            label: 'place',
-            align: 'center',
-            sortable: true
-        },
-        {
-            id: 'nbAccess',
-            numeric: true,
-            disablePadding: false,
-            label: 'nbAccess',
-            align: 'center',
-            sortable: false
-        },
-        {
-            id: 'actif',
-            numeric: false,
-            disablePadding: false,
-            label: 'actif',
-            align: 'center',
-            sortable: false
-        },
-        {
-            id: 'public',
-            numeric: false,
-            disablePadding: false,
-            label: 'public',
-            align: 'center',
-            sortable: false
-        },
-        {
-            id: 'action',
-            numeric: false,
-            disablePadding: false,
-            label: 'action',
-            align: 'center',
-            sortable: false
-        },
-    ];
 
-    return (<>
-        <SubHeader>
-            <RootStyled>
-                <p style={{ margin: 0 }}>{t('path')}</p>
-            </RootStyled>
-        </SubHeader>
 
-        <Box className="container">
-            <Otable headers={headCells}
-                rows={rows}
-                state={null}
-                from={'agenda'}
-                t={t}
-                edit={null}
-                handleConfig={null}
-                handleChange={null} />
-        </Box>
+  return (<>
+    <SubHeader>
+      <RootStyled>
+        <p style={{ margin: 0 }}>{t('path')}</p>
+      </RootStyled>
+    </SubHeader>
 
-    </>)
+    <Box className="container">
+      <Otable headers={headCells}
+        rows={rows}
+        state={null}
+        from={'agenda'}
+        t={t}
+        edit={null}
+        handleConfig={null}
+        handleChange={null} />
+    </Box>
+
+  </>)
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
-    }
-})
+  props: {
+    ...(await serverSideTranslations(locale as string, [
+      "common",
+      "menu",
+      "settings",
+    ])),
+  },
+});
 
-export default Agenda
+export default Agenda;
 Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
-}
+  return <DashLayout>{page}</DashLayout>;
+};

@@ -11,133 +11,135 @@ import { useAppSelector } from "@app/redux/hooks";
 import { InsctructionDetails } from "@features/instructionDetails";
 
 function Instructions() {
+  const [edit, setEdit] = useState(false);
+  const [rows, setRows] = useState([
+    {
+      id: 1,
+      name: "Instructions 1",
+      actif: true,
+    },
+    {
+      id: 2,
+      name: "Instructions 2",
+      actif: true,
+    },
+    {
+      id: 3,
+      name: "Instructions 3",
+      actif: true,
+    },
+    {
+      id: 4,
+      name: "Instructions 4",
+      actif: true,
+    },
+    {
+      id: 5,
+      name: "Instructions 5",
+      actif: true,
+    },
+    {
+      id: 6,
+      name: "Instructions 6",
+      actif: true,
+    },
+  ]);
+  const { direction } = useAppSelector(configSelector);
 
-    const [edit, setEdit] = useState(false);
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Instructions 1',
-            actif: true
-        },
-        {
-            id: 2,
-            name: 'Instructions 2',
-            actif: true
-        },
-        {
-            id: 3,
-            name: 'Instructions 3',
-            actif: true
-        },
-        {
-            id: 4,
-            name: 'Instructions 4',
-            actif: true
-        },
-        {
-            id: 5,
-            name: 'Instructions 5',
-            actif: true
-        },
-        {
-            id: 6,
-            name: 'Instructions 6',
-            actif: true
-        },
-    ]);
-    const { direction } = useAppSelector(configSelector);
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "instructions.config",
+  });
+  if (!ready) return <>loading translations...</>;
 
+  const closeDraw = () => {
+    setEdit(false);
+  };
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "instructions" });
-    if (!ready) return (<>loading translations...</>);
+  const headCells = [
+    {
+      id: "name",
+      numeric: false,
+      disablePadding: true,
+      label: "name",
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "actif",
+      numeric: true,
+      disablePadding: false,
+      label: "actif",
+      align: "center",
+      sortable: true,
+    },
+    {
+      id: "action",
+      numeric: false,
+      disablePadding: false,
+      label: "action",
+      align: "right",
+      sortable: false,
+    },
+  ];
 
-    const closeDraw = () => {
-        setEdit(false);
-    }
+  const handleChange = (props: any, event: string, value: string) => {
+    props.actif = !props.actif;
+    setRows([...rows]);
+  };
 
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            disablePadding: true,
-            label: 'name',
-            align: 'left',
-            sortable: true,
-        },
-        {
-            id: 'actif',
-            numeric: true,
-            disablePadding: false,
-            label: 'actif',
-            align: 'center',
-            sortable: true
-        },
-        {
-            id: 'action',
-            numeric: false,
-            disablePadding: false,
-            label: 'action',
-            align: 'center',
-            sortable: false
-        },
-    ];
+  return (
+    <>
+      <SubHeader>
+        <RootStyled>
+          <p style={{ margin: 0 }}>{t("path")}</p>
+        </RootStyled>
 
-    const handleChange = (props: any, event: string, value: string) => {
-        props.actif = !props.actif;
-        setRows([...rows]);
-    }
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={() => {
+            setEdit(true);
+          }}
+          color="success"
+        >
+          {t("add")}
+        </Button>
+      </SubHeader>
 
-    return (
-        <>
-            <SubHeader>
-                <RootStyled>
-                    <p style={{ margin: 0 }}>{t('path')}</p>
-                </RootStyled>
+      <Box className="container">
+        <Otable headers={headCells}
+          rows={rows}
+          state={null}
+          from={'instructions'}
+          t={t}
+          edit={null}
+          handleConfig={null}
+          handleChange={handleChange} />
+      </Box>
 
-                <Button type='submit'
-                    variant="contained"
-                    onClick={() => {
-                        setEdit(true)
-                    }}
-                    color="success">
-                    {t('add')}
-                </Button>
-            </SubHeader>
-
-            <Box className="container">
-                <Otable headers={headCells}
-                    rows={rows}
-                    state={null}
-                    from={'instructions'}
-                    t={t}
-                    edit={null}
-                    handleConfig={null}
-                    handleChange={handleChange} />
-            </Box>
-
-            <Drawer
-                anchor={'right'}
-                open={edit}
-                dir={direction}
-                onClose={closeDraw}>
-                <InsctructionDetails closeDraw={closeDraw} />
-            </Drawer>
-        </>
-    )
+      <Drawer
+        anchor={'right'}
+        open={edit}
+        dir={direction}
+        onClose={closeDraw}>
+        <InsctructionDetails closeDraw={closeDraw} />
+      </Drawer>
+    </>
+  )
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
-    }
-})
+  props: {
+    ...(await serverSideTranslations(locale as string, [
+      "common",
+      "menu",
+      "settings",
+    ])),
+  },
+});
 
-export default Instructions
+export default Instructions;
 Instructions.auth = true;
 
 Instructions.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
-}
+  return <DashLayout>{page}</DashLayout>;
+};

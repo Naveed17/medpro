@@ -3,7 +3,12 @@ import { Box, List, ListItem, IconButton, Button } from "@mui/material";
 // utils
 import Icon from "@themes/urlIcon";
 import { RootStyled } from "./overrides";
+import { useTranslation } from "next-i18next";
 export default function PatientDetailsToolbar() {
+  const { t, ready } = useTranslation("patient", {
+    keyPrefix: "patient-details",
+  });
+  if (!ready) return <>loading translations...</>;
   return (
     <RootStyled sx={{ minWidth: { md: 726, xs: "100%" } }}>
       <Box className="header">
@@ -20,9 +25,9 @@ export default function PatientDetailsToolbar() {
                   "&.Mui-disabled": { bgcolor: theme => theme.palette.grey['A500'], color: theme => theme.palette.grey['A0'] },
                 }}
                 disabled
-                startIcon={<Icon path="Duotone" />}
+                startIcon={<Icon path="ic-edit" />}
               >
-                Modifier
+                {t("edit")}
               </Button>
             </ListItem>
             <ListItem disablePadding sx={{ marginRight: "20px" }}>
