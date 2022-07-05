@@ -9,20 +9,42 @@ import { MainMenuStyled } from "@features/sideBarMenu";
 import { CheckProfileStatus } from "@features/checkProfileStatus";
 import { LoadingScreen } from "@features/loadingScreen";
 import { Session } from "next-auth";
-import { Steppers } from "@features/steppers";
+import { useRouter } from "next/router";
+import { Info, Document, Actes, Cabinet, stepperProfileSelector } from "@features/tabPanel";
+import { useAppSelector } from "@app/redux/hooks";
+import { CustomStepper } from "@features/customStepper";
+
+const stepperData = [
+    {
+        title: "tabs.tab-1",
+        children: Info
+    },
+    {
+        title: "tabs.tab-2",
+        children: Document
+    },
+    {
+        title: "tabs.tab-3",
+        children: Actes
+    },
+    {
+        title: "tabs.tab-4",
+        children: Cabinet
+    },
+];
 
 function EditProfile() {
     const { data: session, status } = useSession();
+    const { currentStepper: stepperIndex } = useAppSelector(stepperProfileSelector);
+    const router = useRouter();
     const loading = status === 'loading';
-
-    const [currentStepper, setCurrentStepper] = useState(0);
-
+    const { step } = router.query;
+    const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string, 0) - 1) : stepperIndex);
     const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers' });
-    if (!ready) return (<>loading translations...</>);
+    // get user session data
+    const { data: user } = session as Session;
 
-    if (loading) return (<LoadingScreen />);
-
-    const { data, user }: any = session as Session;
+    if (!ready || loading) return (<LoadingScreen />);
 
     return (
         <Box className="container">
@@ -45,7 +67,15 @@ function EditProfile() {
                                 {t(`stepper-${currentStepper}.title`)}
                             </Typography>
                             <Container maxWidth="md">
-                                <Steppers currentStepper={currentStepper} />
+                                <Box sx={{ width: "100%", py: 3 }}>
+                                    <Box sx={{ maxWidth: { xs: 555, sm: "100%" } }}>
+                                        <CustomStepper
+                                            currentIndex={currentStepper}
+                                            translationKey="editProfile"
+                                            prefixKey="steppers"
+                                            stepperData={stepperData} />
+                                    </Box>
+                                </Box>
                             </Container>
                             <Box
                                 component="footer"
@@ -84,6 +114,7 @@ function EditProfile() {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {
+            fallback: false,
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'editProfile']))
         }
     }

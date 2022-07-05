@@ -15,9 +15,12 @@ import { MultiSelect } from "@features/multiSelect";
 import React, { useState } from "react";
 import LabelStyled from "./overrides/labelStyled";
 import { CropImage } from "@features/cropImage";
-import { InputStyled } from "@features/steppers";
+import { InputStyled } from "@features/tabPanel";
 import { useTranslation } from "next-i18next";
-import { Theme } from "@mui/material/styles";
+import useRequest from "@app/axios/axiosServiceApi";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { LoadingScreen } from "@features/loadingScreen";
 
 type selectMultiple = {
     title: string
@@ -31,21 +34,10 @@ interface MyFormProps {
         firstName: string,
         name: string,
     };
-    specialty: string,
-    secondarySpecialties: string[],
+    specialty: SpecialtyModel | string,
+    secondarySpecialties: SpecialtyModel[],
     languages: selectMultiple[]
 }
-
-const secondarySpecialties: Array<string> = [
-    "Spécialité  1",
-    "Spécialité  2",
-    "Spécialité  3",
-    "Spécialité  4",
-    "Spécialité  5",
-    "Spécialité  6",
-    "Spécialité  7",
-    "Spécialité  8",
-];
 
 const multipleLanguage = [
     { title: "Français" },
@@ -59,18 +51,20 @@ const multipleLanguage = [
 ];
 
 function Info() {
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
+    const router = useRouter();
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
-
     const formik = useFormik<MyFormProps>({
         initialValues: {
             file: "",
             person: {
                 gender: "",
-                profession: "",
+                profession: "doc",
                 firstName: "",
                 name: "",
             },
-            specialty: "",
+            specialty: '',
             secondarySpecialties: [],
             languages: [],
         },
@@ -83,8 +77,19 @@ function Info() {
 
     const [selectData, setSelectData] = useState([multipleLanguage[0]]);
 
+    const { data: httpResponse, error } = useRequest({
+        method: "GET",
+        url: `/api/public/specialty/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
 
-    if (!ready) return (<>loading translations...</>);
+    if (error) return <div>failed to load</div>
+    if (!ready || !httpResponse || loading) return (<LoadingScreen />);
+
+    const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
+    const secondarySpecialties = specialties.slice(10);
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -93,15 +98,15 @@ function Info() {
     };
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
+        const { name: specialty, checked } = event.target;
+        console.log(specialty, checked);
         setFieldValue(
             "secondarySpecialties",
             checked
-                ? [...values.secondarySpecialties, name]
-                : values.secondarySpecialties.filter((el) => el !== name)
+                ? [...values.secondarySpecialties, secondarySpecialties.find(item => item.uuid === specialty)]
+                : values.secondarySpecialties.filter((el) => el.uuid !== specialty)
         );
     };
-
 
     return (
         <>
@@ -149,7 +154,7 @@ function Info() {
                                     right: 10,
                                     zIndex: 1,
                                     pointerEvents: "none",
-                                    bgcolor: `${(theme: Theme) => theme.palette.background.paper} !important`,
+                                    bgcolor: `${theme => theme.palette.background.paper}!important`,
                                 }}
                             >
                                 <IconUrl path="ic-return-photo" />
@@ -205,20 +210,15 @@ function Info() {
                                             labelId="demo-simple-select-label"
                                             id={"profession"}
                                             size="small"
+                                            defaultValue={'doc'}
                                             {...getFieldProps("person.profession")}
                                             value={values.person.profession}
-                                            displayEmpty={true}
-                                            renderValue={(value) =>
-                                                value?.length
-                                                    ? Array.isArray(value)
-                                                        ? value.join(", ")
-                                                        : value
-                                                    : "Profession"
-                                            }
+                                            placeholder={'choisissez votre titre'}
+                                            displayEmpty
                                         >
-                                            <MenuItem value="Professor">Professor</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
+                                            <MenuItem value="doc">Docteur</MenuItem>
+                                            <MenuItem value="prof">Professeur</MenuItem>
+                                            <MenuItem value="aucun">Aucun Titre</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </Box>
@@ -253,21 +253,21 @@ function Info() {
                             <Select
                                 labelId="demo-simple-select-label"
                                 id={"specialty"}
+                                defaultValue=""
                                 size="small"
                                 {...getFieldProps("specialty")}
                                 value={values.specialty}
-                                displayEmpty={true}
-                                renderValue={(value) =>
-                                    value?.length
-                                        ? Array.isArray(value)
-                                            ? value.join(", ")
-                                            : value
-                                        : "Specialty"
-                                }
+                                displayEmpty
+                                renderValue={(selected) => {
+                                    if (selected === '') {
+                                        return <em>Choisissez votre spécialité</em>;
+                                    }
+
+                                    return specialties.find(specialty => specialty.uuid === selected)?.name;
+                                }}
+                                className="select-specialty"
                             >
-                                <MenuItem value="Généraliste">Généraliste</MenuItem>
-                                <MenuItem value="2">2</MenuItem>
-                                <MenuItem value="3">3</MenuItem>
+                                {specialties.map(specialty => <MenuItem key={specialty.uuid} value={specialty.uuid}>{specialty.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Box>
@@ -293,10 +293,10 @@ function Info() {
                                         <Checkbox
                                             checked={values.secondarySpecialties.includes(el)}
                                             onChange={(e) => handleChangeFiled(e)}
-                                            name={el}
+                                            name={el.uuid}
                                             id={`secodary-specialties-${index}`}
                                         />
-                                        <ListItemText primary={el} />
+                                        <ListItemText primary={el.name} />
                                     </label>
                                 </ListItem>
                             ))}

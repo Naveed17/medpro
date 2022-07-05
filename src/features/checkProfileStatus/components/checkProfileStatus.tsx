@@ -4,26 +4,34 @@ import {
     Container,
     Button,
     IconButton,
-    Fab,
+    Fab, useTheme,
+    Theme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import React from "react";
+import { Player } from "@lottiefiles/react-lottie-player";
 
 function CheckProfileStatus({ ...props }) {
+    const theme = useTheme();
     const { doctor } = props;
     const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers.check-status' });
     if (!ready) return (<>loading translations...</>);
 
     return (
-        <Box p={2} sx={{ textAlign: "center", pt: 1 }}>
-            <IconUrl path="loading" />
+        <Box p={2} sx={{ textAlign: "center", pt: 4 }}>
+            <Player
+                autoplay
+                loop
+                src="/static/lotties/waiting.json"
+                style={{ width: "200px" }}
+            />
             <Typography variant="h5" my={2} color="text.primary">
                 {t('title')}
             </Typography>
             <Typography variant="h6" color="text.primary" fontFamily="Poppins-Bold">
                 {doctor.name} !{" "}
-                <IconButton sx={{ path: { fill: theme => theme.palette.text.primary } }} size="small">
+                <IconButton sx={{ path: { fill: theme.palette.text.primary } }} size="small">
                     <IconUrl path="ic-edit" />
                 </IconButton>
             </Typography>
@@ -59,7 +67,7 @@ function CheckProfileStatus({ ...props }) {
             <Fab
                 color="primary"
                 sx={{
-                    boxShadow: theme => theme.customShadows.fab1,
+                    boxShadow: (theme: Theme) => theme.customShadows.fab1,
                     position: "fixed",
                     bottom: "1rem",
                     right: "1rem",

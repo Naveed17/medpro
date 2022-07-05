@@ -16,28 +16,30 @@ import {
 } from "@mui/material";
 
 // config
-import { siteHeader } from "@features/sideBarMenu/components/headerConfig";
+import {siteHeader} from "@features/sideBarMenu";
 
 // components
-import { TextFieldSearch } from "@features/textFieldSearch";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { sideBarSelector } from "@features/sideBarMenu/selectors";
-import { toggleMobileBar, toggleSideBar } from "@features/sideBarMenu/actions";
+import {TextFieldSearch} from "@features/textFieldSearch";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {sideBarSelector} from "@features/sideBarMenu/selectors";
+import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
-import { NavbarStepperStyled, NavbarStyled } from "@features/topNavBar";
-import { useRouter } from "next/router";
+import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
+import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
+
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
-function TopNavBar({ ...props }) {
-    const { dashboard } = props;
-    const { topBar } = siteHeader;
+function TopNavBar({...props}) {
+    const {dashboard} = props;
+    const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
-    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
+
     const settingHas = router.pathname.includes('settings/');
     return (
         <>
@@ -69,13 +71,12 @@ function TopNavBar({ ...props }) {
                             }
                         </Hidden>
                         <Hidden smDown>
-
                             <IconButton
                                 color="primary"
                                 edge="start"
                                 className="btn"
                                 onClick={() => dispatch(toggleSideBar(opened))}>
-                                <Icon path="ic-toggle" />
+                                <Icon path="ic-toggle"/>
                             </IconButton>
                         </Hidden>
                         <Hidden smUp>
@@ -92,9 +93,9 @@ function TopNavBar({ ...props }) {
                         </Hidden>
                         <Hidden mdDown>
                             <IconButton color="primary" edge="start" className="btn">
-                                <Icon path="ic-scan" />
+                                <Icon path="ic-scan"/>
                             </IconButton>
-                            <TextFieldSearch color="primary" className="topbar-search" />
+                            <TextFieldSearch color="primary" className="topbar-search"/>
                         </Hidden>
                         <MenuList className="topbar-nav">
                             {topBar.map((item, index) => (
@@ -106,31 +107,31 @@ function TopNavBar({ ...props }) {
                                 >
                                     <MenuItem disableRipple>
                                         <IconButton color="primary" edge="start">
-                                            <Icon path={item.icon} />
+                                            <Icon path={item.icon}/>
                                         </IconButton>
                                     </MenuItem>
                                 </Badge>
                             ))}
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-plusinfo-quetsion"} />
+                                    <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
                             </Badge>
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-cloc"} />
+                                    <Icon path={"ic-cloc"}/>
                                 </IconButton>
                             </Badge>
                         </MenuList>
-                        <LangButton />
+                        <LangButton/>
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0 }} disableRipple>
-                                <ProfilMenuIcon />
+                            <MenuItem sx={{pr: 0}} disableRipple>
+                                <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>
                 </NavbarStyled>
-                :
+            :
                 <NavbarStepperStyled
                     dir={dir}
                     position="fixed"
@@ -149,12 +150,12 @@ function TopNavBar({ ...props }) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            <LangButton />
+                            <LangButton/>
                         </MenuList>
 
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0 }} disableRipple>
-                                <ProfilMenuIcon />
+                            <MenuItem sx={{pr: 0}} disableRipple>
+                                <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>
