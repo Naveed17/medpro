@@ -104,6 +104,8 @@
   "background": {
     "title": "Antécédents",
     "family-history": "Antécédents familiaux",
-    "add-background": "Ajouter Antécédents"
+    "add-background": "Ajouter Antécédents",
+    "register": "Enregistrer",
+    "cancel": "Annuler"
   }
 }

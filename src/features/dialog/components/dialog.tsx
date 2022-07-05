@@ -8,8 +8,6 @@ import Typography from "@mui/material/Typography";
 
 function SettingsDialogs({ ...props }) {
   const selectted = DialogData.find((item) => item.action === props.action);
-
-  const data = props.data;
   const { action } = props;
   const Component: any = selectted ? selectted.component : action;
 
@@ -29,7 +27,7 @@ function SettingsDialogs({ ...props }) {
             id="scroll-dialog-description"
             tabIndex={-1}
           ></DialogContentText>
-          <Component data={data} />
+          <Component {...props} />
         </DialogContent>
         <DialogActions>{props.actionDialog}</DialogActions>
       </Dialog>

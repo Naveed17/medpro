@@ -10,9 +10,10 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
 
 // redux
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
+import { onOpenDetails } from "@features/table";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
@@ -278,6 +279,7 @@ function a11yProps(index: number) {
   };
 }
 function Patient() {
+  const dispatch = useAppDispatch();
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
@@ -294,7 +296,7 @@ function Patient() {
   };
   // useEffect hook for handling the table action drawer
   useEffect(() => {
-    if (Boolean(patientId)) {
+    if (Boolean(patientId !== "")) {
       setopen(true);
     }
   }, [patientId]);
@@ -329,17 +331,23 @@ function Patient() {
           open={open}
           dir={direction}
           onClose={() => {
+            dispatch(onOpenDetails({ patientId: "" }));
             setopen(false);
           }}
         >
-          <PatientDetailsToolbar />
+          <PatientDetailsToolbar
+            onClose={() => {
+              dispatch(onOpenDetails({ patientId: "" }));
+              setopen(false);
+            }}
+          />
           <PatientdetailsCard />
           <Box
             sx={{
-              width: "726px",
+              width: { md: 726, xs: "100%" },
               bgcolor: "background.default",
               "& div[role='tabpanel']": {
-                height: "calc(100vh - 312px)",
+                height: { md: "calc(100vh - 312px)", xs: "auto" },
                 overflowY: "auto",
               },
             }}
@@ -347,6 +355,10 @@ function Patient() {
             <Box
               sx={{
                 px: 2,
+                position: "sticky",
+                top: 54,
+                borderTop: { md: "none", xs: "1px solid #e0e0e0" },
+                zIndex: 112,
                 bgcolor: "background.paper",
                 button: {
                   "&.Mui-selected": {
