@@ -8,7 +8,8 @@ import {
     Radio,
     RadioGroup, Select,
     Stack, TextField,
-    Typography
+    Typography,
+    Theme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { MultiSelect } from "@features/multiSelect";
@@ -154,7 +155,7 @@ function Info() {
                                     right: 10,
                                     zIndex: 1,
                                     pointerEvents: "none",
-                                    bgcolor: `${theme => theme.palette.background.paper}!important`,
+                                    bgcolor: `${(theme: Theme) => theme.palette.background.paper}!important`,
                                 }}
                             >
                                 <IconUrl path="ic-return-photo" />
