@@ -21,6 +21,10 @@ export default function Table(theme) {
                 borderRight: "1px solid transparent",
               },
             },
+            "& .text-row": {
+              backgroundColor: "transparent",
+              padding: 0,
+            },
             "&:hover": {
               "& .MuiTableCell-root": {
                 backgroundColor: theme.palette.primary.lighter,
@@ -31,6 +35,17 @@ export default function Table(theme) {
                 },
                 "&:last-of-type": {
                   borderRight: `1px solid ${theme.palette.divider}`,
+                },
+                "&.text-row": {
+                  backgroundColor: "transparent",
+                  borderColor: "transparent",
+                  borderColor: "transparent",
+                  "&:first-of-type": {
+                    borderColor: "transparent",
+                  },
+                  "&:last-of-type": {
+                    borderColor: "transparent",
+                  },
                 },
               },
             },

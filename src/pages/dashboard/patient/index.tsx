@@ -25,7 +25,8 @@ import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
-
+import { GroupedTable } from "@features/groupTable";
+import { add } from "date-fns";
 // interface
 interface HeadCell {
   disablePadding: boolean;
@@ -35,6 +36,113 @@ interface HeadCell {
   sortable: boolean;
   align: "left" | "right" | "center";
 }
+
+const data = [
+  {
+    title: "Pending appointments",
+    pending: true,
+    data: [
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "Video consultation",
+
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "Video consultation",
+
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "Video consultation",
+
+        meeting: true,
+      },
+    ],
+  },
+  {
+    title: "Old appointments",
+    pending: false,
+    data: [
+      {
+        title: "2021",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: add(new Date(), { day: 1 }),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "Video consultation",
+
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: add(new Date(), { day: 1 }),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "Video consultation",
+
+            meeting: true,
+          },
+        ],
+      },
+      {
+        title: "2020",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: add(new Date(), { day: 1 }),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "Video consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: add(new Date(), { day: 1 }),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "Video consultation",
+            meeting: true,
+          },
+        ],
+      },
+    ],
+  },
+];
 
 // Patient data for table body
 const PatiendData = [
@@ -398,6 +506,9 @@ function Patient() {
             <Divider />
             <TabPanel padding={1} key={Math.random()} value={value} index={0}>
               <PersonalInfoPanel />
+            </TabPanel>
+            <TabPanel padding={1} key={Math.random()} value={value} index={1}>
+              <GroupedTable data={data} />
             </TabPanel>
             <Paper
               sx={{
