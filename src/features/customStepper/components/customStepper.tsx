@@ -1,50 +1,33 @@
-import { useState, ReactNode, SyntheticEvent } from "react";
+import {useState, ReactNode, SyntheticEvent, useEffect} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import { RootStyled } from "@features/customStepper";
 import { useTranslation } from "next-i18next";
-
-interface TabPanelProps {
-  children?: ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography component="div">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
+import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
-  const { stepperData, translationKey, prefixKey } = props;
-  const [value, setValue] = useState<number>(0);
+  const { stepperData, translationKey, prefixKey, currentIndex, minWidth, scroll } = props;
+  const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
+
   const handleChange = (event: SyntheticEvent, val: number) => {
     setValue(val);
   };
+
+  useEffect(()=>{
+    setValue(currentIndex);
+  },[currentIndex]);
+
   const { t, ready } = useTranslation(translationKey, { keyPrefix: prefixKey });
   if (!ready) return <>loading translations...</>;
 
   return (
     <>
-      <RootStyled>
+      <RootStyled
+        className={scroll ? "scroll" : ""}
+        sx={{ minWidth: minWidth ? minWidth : "100%" }}
+      >
         <Tabs
           value={value}
           onChange={handleChange}
@@ -64,7 +47,13 @@ function CustomStepper({ ...props }) {
                 key={Math.random()}
                 disabled={i > value && i >= last}
                 label={
-                  <Box sx={{ textTransform: "initial", fontWeight: 400 }}>
+                  <Box
+                    sx={{
+                      textTransform: "initial",
+                      fontWeight: 400,
+                      fontSize: { md: 14, xs: 10 },
+                    }}
+                  >
                     <b>{i + 1}.</b> {t(`${v.title}`)}
                   </Box>
                 }

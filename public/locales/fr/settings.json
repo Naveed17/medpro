@@ -55,16 +55,20 @@
     "path": "Paramètres > Actes"
   },
   "motif": {
-    "name": "Nom",
-    "duration": "Durée",
-    "delay_min": "Délai min",
-    "delay_max": "Délai max",
-    "agenda": "Agenda",
-    "type": "Type",
-    "active": "Active",
-    "action": "Action",
-    "add": "Ajouter motif",
-    "path": "Paramètres > Motifs de consultation",
+    "config": {
+      "add": "Ajouter motif",
+      "path": "Paramètres > Motifs de consultation",
+      "table": {
+        "name": "Nom",
+        "duration": "Durée",
+        "delay_min": "Délai min",
+        "delay_max": "Délai max",
+        "agenda": "Agenda",
+        "type": "Type",
+        "active": "Active",
+        "action": "Action"
+      }
+    },
     "dialog": {
       "add": "Ajouter motif de consultation",
       "update": "Modifier motif de consultation",
@@ -87,15 +91,19 @@
     }
   },
   "lieux": {
-    "name": "Nom du lieu de consultation",
-    "actif": "est actif",
-    "sharedCalander": "agenda partagé",
-    "action": "action",
-    "add": "Ajouter",
-    "path": "Paramètres > Lieux de consultation",
-    "acces": "accès",
-    "remove": "Supprimer",
-    "update": "Editer",
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Lieux de consultation",
+      "table": {
+        "acces": "accès",
+        "remove": "Supprimer",
+        "update": "Editer",
+        "name": "Nom du lieu de consultation",
+        "actif": "est actif",
+        "sharedCalander": "agenda partagé",
+        "action": "action"
+      }
+    },
     "new": {
       "path": "Paramètres > Lieux de consultation > Ajouter",
       "name": "Nom du lieu",
@@ -123,26 +131,26 @@
     }
   },
   "agenda": {
-    "path": "Paramètres > Agenda",
-    "name": "Nom",
-    "type": "Type",
-    "speciality": "Spécialité",
-    "place": "Lieu de consultation",
-    "nbAccess": "NBR accés",
-    "actif": "est actif",
-    "public": "public",
-    "action": "action",
-    "remove": "Supprimer",
-    "update": "Editer"
+    "config": {
+      "path": "Paramètres > Agenda",
+      "table": {
+        "name": "Nom",
+        "type": "Type",
+        "speciality": "Spécialité",
+        "place": "Lieu de consultation",
+        "nbAccess": "NBR accés",
+        "actif": "est actif",
+        "public": "public",
+        "action": "action",
+        "remove": "Supprimer",
+        "update": "Editer"
+      }
+    }
   },
   "holidays": {
-    "path": "Paramètres > Congé et Absences",
-    "name": "Nom",
     "start": "Date debut",
     "end": "Date fin",
     "praticien": "praticien",
-    "action": "action",
-    "add": "Ajouter",
     "dialog": {
       "add": "Ajouter congé ou absence",
       "selectOne": "Choisissez le praticien qui affecte cette consultation",
@@ -154,37 +162,44 @@
       "ttl": "Titre est trop long",
       "titlereq": "Titre est obligatoire",
       "datereq": "date est obligatoire"
+    },
+    "config": {
+      "path": "Paramètres > Congé et Absences",
+      "add": "Ajouter",
+      "table": {
+        "start": "Date debut",
+        "end": "Date fin",
+        "name": "Nom",
+        "praticien": "praticien",
+        "action": "action",
+        "add": "Ajouter"
+      }
     }
   },
   "substitute": {
-    "path": "Paramètres > Remplaçants",
-    "manageAccess": "Gestion des accès",
-    "name": "Nom",
-    "fonction": "Fonction",
-    "request": "Demande",
-    "access": "accès",
-    "action": "action",
-    "agenda": "Agenda",
-    "update": "Modifier",
     "tname": "Tapez le nom remplaçant",
     "mail": "E-mail",
     "add": "Ajouter",
     "info": "information sur le remplaçant",
-    "remove": "Supprimer"
+    "name": "Nom",
+    "remove": "Supprimer",
+    "config": {
+      "path": "Paramètres > Remplaçants",
+      "add": "Ajouter",
+      "table": {
+        "name": "Nom",
+        "manageAccess": "Gestion des accès",
+        "fonction": "Fonction",
+        "request": "Demande",
+        "access": "accès",
+        "action": "action",
+        "agenda": "Agenda",
+        "update": "Modifier",
+        "remove": "Supprimer"
+      }
+    }
   },
   "users": {
-    "path": "Paramètres > Utilisateurs",
-    "manageAccess": "Gestion des accès",
-    "accessSetting": "Paramètre",
-    "add": "Ajouter",
-    "name": "Nom",
-    "fonction": "Fonction",
-    "request": "Demande",
-    "access": "accès",
-    "action": "Action",
-    "remove": "Supprimer",
-    "update": "Editer",
-    "agenda": "Agenda",
     "new": {
       "path": "Paramètres > Utilisateurs > Ajouter",
       "user": "Utilisateur",
@@ -206,17 +221,40 @@
       "ntl": "Nom est trop long",
       "mailInvalid": "Adresse mail est invalide",
       "mailReq": "Adresse mail est obligatoire"
+    },
+    "config": {
+      "add": "Ajouter",
+      "manageAccess": "Gestion des accès",
+      "path": "Paramètres > Utilisateurs",
+      "table": {
+        "accessSetting": "Paramètre",
+        "name": "Nom",
+        "agenda": "Agenda",
+        "fonction": "Fonction",
+        "request": "Demande",
+        "access": "accès",
+        "action": "Action",
+        "remove": "Supprimer",
+        "update": "Editer"
+      }
     }
   },
   "instructions": {
-    "path": "Paramètres > Instructions",
-    "actif": "active",
-    "name": "nom",
-    "action": "Action",
-    "add": "Ajouter",
-    "update": "Modifier instruction",
-    "insctruction": "instruction",
     "tinsctruction": "Tapez içi votre instruction",
-    "remove": "Supprimer"
+    "insctruction": "instruction",
+    "add": "Ajouter instruction",
+
+    "config": {
+      "path": "Paramètres > Instructions",
+      "add": "Ajouter instruction",
+      "table": {
+        "name": "nom",
+        "action": "Action",
+        "update": "Modifier instruction",
+        "insctruction": "instruction",
+        "actif": "active",
+        "remove": "Supprimer"
+      }
+    }
   }
 }

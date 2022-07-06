@@ -2,7 +2,6 @@ import { styled } from "@mui/material/styles";
 
 const RootStyled = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  minWidth: 648,
   "& .MuiTabs-root": {
     borderBottom: `1px solid ${theme.palette.divider}`,
     padding: theme.spacing(0, 0.5),
@@ -28,7 +27,7 @@ const RootStyled = styled("div")(({ theme }) => ({
     },
   },
   '& div[role="tabpanel"]': {
-    height: `calc(100vh - 55px)`,
+    // height: `calc(100vh - 55px)`,
     overflow: "auto",
   },
 }));

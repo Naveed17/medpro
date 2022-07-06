@@ -6,3 +6,4 @@ export * from './settings'
 export * from "./patient";
 export * from './waitingRoom'
 export * from './consultation'
+export * from './questions'

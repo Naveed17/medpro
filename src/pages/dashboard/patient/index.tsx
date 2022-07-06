@@ -1,16 +1,31 @@
+// react
+import { useEffect, useState, ReactElement, SyntheticEvent } from "react";
+
+// next
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ReactElement } from "react";
-import { Box } from "@mui/material";
-import { DashLayout } from "@features/base";
-import { PatientMobileCard } from "@features/patientMobileCard";
+
+// material components
+import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
+
+// redux
 import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
+import { configSelector } from "@features/base";
+
+// ________________________________
+import { PatientdetailsCard } from "@features/card";
+import { PersonalInfoPanel, TabPanel } from "@features/tabPanel";
+import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
-import { PatientToolbar } from "@features/toolbar";
-import { addPatientSelector } from "@features/customStepper";
+import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+import { DashLayout } from "@features/base";
+import moment from "moment-timezone";
+import Icon from "@themes/urlIcon";
 
+// interface
 interface HeadCell {
   disablePadding: boolean;
   id: string;
@@ -20,7 +35,23 @@ interface HeadCell {
   align: "left" | "right" | "center";
 }
 
+// Patient data for table body
 const PatiendData = [
+  {
+    id: 1,
+    name: "John Doe",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: moment(),
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
+    addAppointment: true,
+    dateOfBirth: new Date("07-02-1998"),
+    status: "pending",
+    action: "left",
+  },
   {
     id: 1,
     name: "John Doe",
@@ -30,9 +61,9 @@ const PatiendData = [
     idCode: "123456789",
     city: "New York",
     nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: true,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -42,14 +73,12 @@ const PatiendData = [
     id: 2,
     name: "Med",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "success",
@@ -59,14 +88,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -76,14 +103,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -93,14 +118,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -110,14 +133,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -127,14 +148,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -144,14 +163,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -161,14 +178,12 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -178,14 +193,27 @@ const PatiendData = [
     id: 3,
     name: "Muhammad",
     avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    time: moment(),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
-    nextAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
+    addAppointment: false,
+    dateOfBirth: new Date("07-02-1998"),
+    status: "pending",
+    action: "left",
+  },
+  {
+    id: 3,
+    name: "Muhammad",
+    avatar: "/static/icons/Med-logo_.svg",
+    time: moment(),
+    telephone: "+1-555-555-5555",
+    idCode: "123456789",
+    city: "New York",
+    nextAppointment: moment(),
+    lastAppointment: moment(),
     addAppointment: false,
     dateOfBirth: new Date("07-02-1998"),
     status: "pending",
@@ -193,8 +221,7 @@ const PatiendData = [
   },
 ];
 
-// head data
-
+// table head data
 const headCells: readonly HeadCell[] = [
   {
     id: "select-all",
@@ -261,12 +288,38 @@ const headCells: readonly HeadCell[] = [
     align: "right",
   },
 ];
-
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
 function Patient() {
-  const { stepsData } = useAppSelector(addPatientSelector);
+  // selectors
+  const { patientId } = useAppSelector(tableActionSelector);
+  const { direction } = useAppSelector(configSelector);
 
-  const { t, ready } = useTranslation("patient", { keyPrefix: "table" });
+  // state hook for details drawer
+  const [open, setopen] = useState<boolean>(false);
+
+  // state hook for tabs
+  const [value, setValue] = useState<number>(0);
+
+  // handle tab change
+  const handleChange = (event: SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+  // useEffect hook for handling the table action drawer
+  useEffect(() => {
+    if (Boolean(patientId)) {
+      setopen(true);
+    }
+  }, [patientId]);
+
+  const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
+
   if (!ready) return <>loading translations...</>;
+
   return (
     <>
       <SubHeader>
@@ -283,9 +336,86 @@ function Patient() {
             edit={null}
             handleConfig={null}
             handleChange={null}
+            minWidth={1300}
+            pagination
           />
         </Box>
-        <PatientMobileCard t={t} ready={ready} PatiendData={PatiendData} />
+        <PatientMobileCard ready={ready} PatiendData={PatiendData} />
+        <Drawer
+          anchor={"right"}
+          open={open}
+          dir={direction}
+          onClose={() => {
+            setopen(false);
+          }}
+        >
+          <PatientDetailsToolbar />
+          <PatientdetailsCard />
+          <Box
+            sx={{
+              width: "726px",
+              bgcolor: "background.default",
+              "& div[role='tabpanel']": {
+                height: "calc(100vh - 312px)",
+                overflowY: "auto",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                px: 2,
+                bgcolor: "background.paper",
+                button: {
+                  "&.Mui-selected": {
+                    color: (theme) => theme.palette.primary.main,
+                  },
+                },
+              }}
+            >
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                variant="scrollable"
+                aria-label="basic tabs example"
+              >
+                <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+                <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+                <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+              </Tabs>
+            </Box>
+            <Divider />
+            <TabPanel padding={1} key={Math.random()} value={value} index={0}>
+              <PersonalInfoPanel />
+            </TabPanel>
+            <Paper
+              sx={{
+                borderRadius: 0,
+                borderWidth: "0px",
+                p: 2,
+                textAlign: "right",
+              }}
+            >
+              <Button
+                size="medium"
+                variant="text-primary"
+                color="primary"
+                startIcon={<Icon path="agenda/ic-dowlaodfile" />}
+                sx={{ mr: 1, width: { md: "auto", sm: "100%", xs: "100%" } }}
+              >
+                {t("tabs.import")}
+              </Button>
+              <Button
+                size="medium"
+                variant="contained"
+                color="primary"
+                startIcon={<Icon path="ic-agenda-+" />}
+                sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+              >
+                {t("tabs.add-appo")}
+              </Button>
+            </Paper>
+          </Box>
+        </Drawer>
       </Box>
     </>
   );

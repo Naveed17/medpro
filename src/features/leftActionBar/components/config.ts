@@ -35,6 +35,14 @@ const LeftActionsData = [
     ),
   },
   {
+    pathname: path(ROOTS.app, "/questions"),
+    component: dynamic((): any =>
+      import(
+        "@features/leftActionBar/components/questions/components/questions"
+      ).then((mod) => mod)
+    ),
+  },
+  {
     pathname: path(ROOTS.app, ""),
     component: dynamic((): any =>
       import("@features/leftActionBar/components/agenda/agenda").then(

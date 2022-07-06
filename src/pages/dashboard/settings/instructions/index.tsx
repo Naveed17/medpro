@@ -53,97 +53,101 @@ function Instructions() {
     ]);
     const { direction } = useAppSelector(configSelector);
 
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "instructions.config",
+  });
+  if (!ready) return <>loading translations...</>;
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "instructions" });
-    if (!ready) return (<>loading translations...</>);
+  const closeDraw = () => {
+    setEdit(false);
+  };
 
-    const closeDraw = () => {
-        setEdit(false);
-    }
+  const headCells = [
+    {
+      id: "name",
+      numeric: false,
+      disablePadding: true,
+      label: "name",
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "actif",
+      numeric: true,
+      disablePadding: false,
+      label: "actif",
+      align: "center",
+      sortable: true,
+    },
+    {
+      id: "action",
+      numeric: false,
+      disablePadding: false,
+      label: "action",
+      align: "right",
+      sortable: false,
+    },
+  ];
 
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            disablePadding: true,
-            label: 'name',
-            align: 'left',
-            sortable: true,
-        },
-        {
-            id: 'actif',
-            numeric: true,
-            disablePadding: false,
-            label: 'actif',
-            align: 'center',
-            sortable: true
-        },
-        {
-            id: 'action',
-            numeric: false,
-            disablePadding: false,
-            label: 'action',
-            align: 'center',
-            sortable: false
-        },
-    ];
+  const handleChange = (props: any, event: string, value: string) => {
+    props.actif = !props.actif;
+    setRows([...rows]);
+  };
 
-    const handleChange = (props: any, event: string, value: string) => {
-        props.actif = !props.actif;
-        setRows([...rows]);
-    }
+  return (
+    <>
+      <SubHeader>
+        <RootStyled>
+          <p style={{ margin: 0 }}>{t("path")}</p>
+        </RootStyled>
 
-    return (
-        <>
-            <SubHeader>
-                <RootStyled>
-                    <p style={{ margin: 0 }}>{t('path')}</p>
-                </RootStyled>
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={() => {
+            setEdit(true);
+          }}
+          color="success"
+        >
+          {t("add")}
+        </Button>
+      </SubHeader>
 
-                <Button type='submit'
-                    variant="contained"
-                    onClick={() => {
-                        setEdit(true)
-                    }}
-                    color="success">
-                    {t('add')}
-                </Button>
-            </SubHeader>
+      <Box
+        bgcolor="#F0FAFF"
+        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
+      >
+        <Otable
+          headers={headCells}
+          rows={rows}
+          state={null}
+          from={"instructions"}
+          t={t}
+          edit={null}
+          handleConfig={null}
+          handleChange={handleChange}
+        />
+      </Box>
 
-            <Box bgcolor="#F0FAFF" sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
-                <Otable headers={headCells}
-                    rows={rows}
-                    state={null}
-                    from={'instructions'}
-                    t={t}
-                    edit={null}
-                    handleConfig={null}
-                    handleChange={handleChange} />
-            </Box>
-
-            <Drawer
-                anchor={'right'}
-                open={edit}
-                dir={direction}
-                onClose={closeDraw}>
-                <InsctructionDetails closeDraw={closeDraw} />
-            </Drawer>
-        </>
-    )
+      <Drawer anchor={"right"} open={edit} dir={direction} onClose={closeDraw}>
+        <InsctructionDetails closeDraw={closeDraw} />
+      </Drawer>
+    </>
+  );
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-    props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
-    }
-})
+  props: {
+    ...(await serverSideTranslations(locale as string, [
+      "common",
+      "menu",
+      "settings",
+    ])),
+  },
+});
 
-export default Instructions
+export default Instructions;
 Instructions.auth = true;
 
 Instructions.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
-}
+  return <DashLayout>{page}</DashLayout>;
+};
