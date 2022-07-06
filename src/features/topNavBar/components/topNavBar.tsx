@@ -16,31 +16,34 @@ import {
 } from "@mui/material";
 
 // config
-import { siteHeader } from "@features/sideBarMenu/components/headerConfig";
+import {siteHeader} from "@features/sideBarMenu";
 
 // components
-import { TextFieldSearch } from "@features/textFieldSearch";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { sideBarSelector } from "@features/sideBarMenu/selectors";
-import { toggleMobileBar, toggleSideBar } from "@features/sideBarMenu/actions";
+import {TextFieldSearch} from "@features/textFieldSearch";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {sideBarSelector} from "@features/sideBarMenu/selectors";
+import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
 import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
 
-function TopNavBar({...props}){
-    const { dashboard } = props;
-    const { topBar } = siteHeader;
+function TopNavBar({...props}) {
+    const {dashboard} = props;
+    const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
-    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const router = useRouter();
-    const dir = router.locale === 'ar' ? 'rtl': 'ltr';
+    const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
+    const settingHas = router.pathname.includes('settings/');
     return (
         <>
-            { dashboard ?
+            {dashboard ?
                 <NavbarStyled
                     dir={dir}
                     position="fixed"
@@ -48,13 +51,24 @@ function TopNavBar({...props}){
                     color="inherit">
                     <Toolbar>
                         <Hidden smUp>
-                            <IconButton
-                                color="primary"
-                                edge="start"
-                                className="btn"
-                                onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
-                                <Icon path="ic-toggle"/>
-                            </IconButton>
+                            {
+                                settingHas ?
+                                    <IconButton
+                                        color={'inherit'}
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => router.push('/dashboard/settings')}>
+                                        <ArrowBackIcon />
+                                    </IconButton>
+                                    :
+                                    <IconButton
+                                        color="primary"
+                                        edge="start"
+                                        className="btn"
+                                        onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
+                                        <Icon path="ic-toggle" />
+                                    </IconButton>
+                            }
                         </Hidden>
                         <Hidden smDown>
                             <IconButton
@@ -73,6 +87,7 @@ function TopNavBar({...props}){
                                     width={38}
                                     alt="company logo"
                                     src="/static/icons/Med-logo_.svg"
+                                    mr={1}
                                 />
                             </Link>
                         </Hidden>

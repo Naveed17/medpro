@@ -1,14 +1,14 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState, useEffect } from "react";
-import {DashLayout} from "@features/base";
+import { DashLayout } from "@features/base";
 import { Box, Typography, Paper, Chip, Stack } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import AddIcon from "@mui/icons-material/Add";
 import Acte from "@interfaces/Acte";
 import BasicAlert from "@themes/overrides/Alert";
-import {MultiSelect} from "@features/multiSelect";
+import { MultiSelect } from "@features/multiSelect";
 
 function Actes() {
 
@@ -50,13 +50,13 @@ function Actes() {
     }
   };
 
-    useEffect(() => {
-        const selectedActes = [...mainActes, ...secondaryActes];
+  useEffect(() => {
+    const selectedActes = [...mainActes, ...secondaryActes];
 
-        setSuggestion(actes.filter((nb) => {
-            return !selectedActes.some((item) => item.id === nb.id);
-        }));
-    }, [mainActes, secondaryActes]);
+    setSuggestion(actes.filter((nb) => {
+      return !selectedActes.some((item) => item.id === nb.id);
+    }));
+  }, [mainActes, secondaryActes]);
 
   const onDrag = (prop: any) => (ev: any) => {
     ev.dataTransfer.setData("Text", ev.target.id);
@@ -91,8 +91,7 @@ function Actes() {
 
   return (
     <Box
-      bgcolor="#F0FAFF"
-      sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
+      className="container"
     >
       <Paper sx={{ p: 2 }}>
         <Typography variant="body1" color="text.primary" mb={5}>
@@ -110,7 +109,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
@@ -170,7 +169,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
@@ -229,7 +228,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
@@ -250,7 +249,7 @@ function Actes() {
               onDelete={onClickChip(v)}
               deleteIcon={<AddIcon />}
               sx={{
-                bgcolor: "#E4E4E4",
+                bgcolor: theme => theme.palette.grey["A300"],
                 filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
                 mb: 1,
                 mr: 1,

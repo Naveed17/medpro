@@ -4,8 +4,7 @@ import { AppBar } from "@mui/material";
 
 const SubHeaderStyled = styled(AppBar)(({ theme }) => ({
   border: "none",
-  borderTop: "1px solid #e0e0e0",
-
+  borderTop: `1px solid ${theme.palette.grey["A300"]}`,
   "& .breadcrumbs": {
     textTransform: "capitalize",
     "& p": {

@@ -13,7 +13,6 @@ import FormControl from "./formControl";
 import Autocomplete from "./autocomplete";
 import Pickers from "./pickers";
 import Accordion from "./accordion";
-import Backdrop from "./backDrop";
 import Dialog from "./dialog";
 import Pagination from "./pagination";
 import Avatar from "./avatar";
@@ -40,7 +39,6 @@ export default function ComponentsOverrides(theme) {
     Autocomplete(theme),
     Pickers(theme),
     Accordion(theme),
-    Backdrop(theme),
     Dialog(theme),
     Pagination(theme),
     Avatar(theme),

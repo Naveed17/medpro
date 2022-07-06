@@ -6,6 +6,7 @@ const DrawerBottomStyled = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
         borderTopRightRadius: 20,
         borderTopLeftRadius: 20,
+        margin: 0,
         "& .MuiPaper-root": {
             boxShadow: "none",
             borderRadius: 0,
@@ -16,6 +17,7 @@ const DrawerBottomStyled = styled(Dialog)(({ theme }) => ({
             backgroundColor: theme.palette.common.white,
             border: "none",
             borderBottom: `1px solid ${theme.palette.divider}`,
+            width: 'auto',
             "& .MuiButtonBase-root": {
                 position: "absolute",
                 right: 0,

@@ -133,7 +133,7 @@ function Profil() {
         </RootStyled>
       </SubHeader>
       <Box
-        bgcolor="#F0FAFF"
+        bgcolor={theme => theme.palette.background.default}
         sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
       >
         <CardStyled>

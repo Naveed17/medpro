@@ -11,131 +11,121 @@ import { useAppSelector } from "@app/redux/hooks";
 import { HolidayDetails } from "@features/holidayDetails";
 
 function Holidays() {
-  const { direction } = useAppSelector(configSelector);
-  const [open, setOpen] = useState(false);
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      name: "Congés",
-      start: "Fri April 10",
-      time_start: "14:30",
-      end: "Fri April 10",
-      time_end: "14:30",
-      praticien: "Dr Omar OUNELLI",
-    },
-  ]);
 
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "holidays.config",
-  });
-  if (!ready) return <>loading translations...</>;
-  const headCells = [
-    {
-      id: "name",
-      numeric: false,
-      disablePadding: true,
-      label: "name",
-      align: "left",
-      sortable: true,
-    },
-    {
-      id: "type",
-      numeric: false,
-      disablePadding: false,
-      label: "start",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "speciality",
-      numeric: false,
-      disablePadding: false,
-      label: "end",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "place",
-      numeric: true,
-      disablePadding: false,
-      label: "praticien",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "action",
-      numeric: false,
-      disablePadding: false,
-      label: "action",
-      align: "center",
-      sortable: false,
-    },
-  ];
+    const { direction } = useAppSelector(configSelector);
+    const [open, setOpen] = useState(false);
+    const [rows, setRows] = useState([
+        {
+            id: 1,
+            name: 'Congés',
+            start: 'Fri April 10',
+            time_start: '14:30',
+            end: 'Fri April 10',
+            time_end: '14:30',
+            praticien: "Dr Omar OUNELLI"
+        },
+    ]);
 
-  const closeDraw = () => {
-    setOpen(false);
-  };
+    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays" });
+    if (!ready) return (<>loading translations...</>);
+    const headCells = [
+        {
+            id: 'name',
+            numeric: false,
+            disablePadding: true,
+            label: 'name',
+            align: 'left',
+            sortable: true,
+        },
+        {
+            id: 'type',
+            numeric: false,
+            disablePadding: false,
+            label: 'start',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'speciality',
+            numeric: false,
+            disablePadding: false,
+            label: 'end',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'place',
+            numeric: true,
+            disablePadding: false,
+            label: 'praticien',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'action',
+            numeric: false,
+            disablePadding: false,
+            label: 'action',
+            align: 'center',
+            sortable: false
+        },
+    ];
 
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-        </RootStyled>
+    const closeDraw = () => {
+        setOpen(false);
+    }
 
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={() => {
-            setOpen(true);
-          }}
-          color="success"
-        >
-          {t("add")}
-        </Button>
-      </SubHeader>
+    return (<>
+        <SubHeader>
+            <RootStyled>
+                <p style={{ margin: 0 }}>{t('path')}</p>
+            </RootStyled>
 
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"holidays"}
-          t={t}
-          edit={null}
-          handleConfig={null}
-          handleChange={null}
-        />
+            <Button type='submit'
+                variant="contained"
+                onClick={() => {
+                    setOpen(true);
+                }}
+                color="success">
+                {t('add')}
+            </Button>
+        </SubHeader>
 
-        <Drawer
-          anchor={"right"}
-          open={open}
-          dir={direction}
-          onClose={closeDraw}
-        >
-          <HolidayDetails closeDraw={closeDraw} />
-        </Drawer>
-      </Box>
-    </>
-  );
+        <Box className="container">
+            <Otable headers={headCells}
+                rows={rows}
+                state={null}
+                from={'holidays'}
+                t={t}
+                edit={null}
+                handleConfig={null}
+                handleChange={null} />
+
+            <Drawer
+                anchor={'right'}
+                open={open}
+                dir={direction}
+                onClose={closeDraw}>
+                <HolidayDetails closeDraw={closeDraw} />
+            </Drawer>
+        </Box>
+
+    </>)
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "settings",
-    ])),
-  },
-});
+    props: {
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
+    }
+})
 
-export default Holidays;
+export default Holidays
 Holidays.auth = true;
 
 Holidays.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
-};
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
+}

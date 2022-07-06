@@ -1,3 +1,4 @@
+import { alpha } from "@mui/material/styles";
 export default function Accordion(theme) {
     return {
         MuiAccordion: {
@@ -16,7 +17,7 @@ export default function Accordion(theme) {
                         paddingLeft: 0,
                         backgroundColor:
                             theme.palette.mode === 'dark'
-                                ? 'rgba(255, 255, 255, .05)'
+                                ? alpha(theme.palette.background.paper, 0.5)
                                 : 'transparent',
                         '&:hover': {
                             backgroundColor: theme.palette.info.main,
