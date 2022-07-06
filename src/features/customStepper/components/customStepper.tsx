@@ -1,4 +1,4 @@
-import {useState, ReactNode, SyntheticEvent, useEffect} from "react";
+import { useState, ReactNode, SyntheticEvent, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -7,7 +7,14 @@ import { useTranslation } from "next-i18next";
 import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
-  const { stepperData, translationKey, prefixKey, currentIndex, minWidth, scroll } = props;
+  const {
+    stepperData,
+    translationKey,
+    prefixKey,
+    currentIndex,
+    minWidth,
+    scroll,
+  } = props;
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
@@ -15,9 +22,9 @@ function CustomStepper({ ...props }) {
     setValue(val);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     setValue(currentIndex);
-  },[currentIndex]);
+  }, [currentIndex]);
 
   const { t, ready } = useTranslation(translationKey, { keyPrefix: prefixKey });
   if (!ready) return <>loading translations...</>;
@@ -26,7 +33,7 @@ function CustomStepper({ ...props }) {
     <>
       <RootStyled
         className={scroll ? "scroll" : ""}
-        sx={{ minWidth: minWidth ? minWidth : "100%" }}
+        sx={{ minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" } }}
       >
         <Tabs
           value={value}

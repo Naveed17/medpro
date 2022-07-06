@@ -18,9 +18,15 @@ function PatientDetailsToolbar({ ...props }) {
               <Button
                 variant="contained"
                 color="primary"
-                sx={{
-                  "&.Mui-disabled": { bgcolor: theme => theme.palette.grey['A500'], color: theme => theme.palette.grey['A0'] },
-                }}
+                // sx={{
+                //   "&.Mui-disabled": {
+                //     bgcolor: (theme) => theme.palette.grey["A500"],
+                //     color: (theme) => theme.palette.grey["A0"],
+                //   },
+                //   "svg path": {
+                //     fill: (theme) => theme.palette.grey["A0"],
+                //   },
+                // }}
                 disabled
                 startIcon={<Icon path="ic-edit" />}
               >
@@ -31,7 +37,7 @@ function PatientDetailsToolbar({ ...props }) {
               <IconButton
                 color="primary"
                 edge="start"
-                sx={{ path: { fill: theme => theme.palette.common.black } }}
+                sx={{ path: { fill: (theme) => theme.palette.common.black } }}
               >
                 <Icon path={"ic-refrech"} />
               </IconButton>

@@ -49,6 +49,7 @@ function patientDetailsDialog({ ...props }) {
       <FormGroup>
         {checkList.map((item) => (
           <FormControlLabel
+            key={Math.random()}
             control={
               <Checkbox
                 key={item.id}

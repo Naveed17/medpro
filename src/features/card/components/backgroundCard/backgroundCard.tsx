@@ -6,6 +6,7 @@ import { Typography, Paper, Grid, Button, Stack } from "@mui/material";
 // ____________________________________
 import { Dialog, PatientDetailsDialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
+import RootStyled from "./overrides/rootStyled";
 // utils
 import Icon from "@themes/urlIcon";
 
@@ -39,7 +40,7 @@ function BackgroundCard() {
   const { t, ready } = useTranslation("patient", { keyPrefix: "background" });
   if (!ready) return <div>Loading...</div>;
   return (
-    <div>
+    <RootStyled>
       <Typography
         variant="body1"
         color="text.primary"
@@ -55,12 +56,7 @@ function BackgroundCard() {
               <Typography
                 variant="body1"
                 color="text.primary"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: 1,
-                  svg: { mr: 1 },
-                }}
+                className="item"
                 component="span"
               >
                 <Icon path={item.icon} /> {t("family-history")}
@@ -122,7 +118,7 @@ function BackgroundCard() {
           </>
         }
       ></Dialog>
-    </div>
+    </RootStyled>
   );
 }
 export default BackgroundCard;

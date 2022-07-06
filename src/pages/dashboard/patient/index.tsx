@@ -49,7 +49,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -62,11 +62,11 @@ const PatiendData = [
     idCode: "123456789",
     city: "New York",
     nextAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     lastAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -81,7 +81,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "success",
     action: "left",
   },
@@ -96,7 +96,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -111,7 +111,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -126,7 +126,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -141,7 +141,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -156,7 +156,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -171,7 +171,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -186,7 +186,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -201,7 +201,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -216,7 +216,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -369,12 +369,19 @@ function Patient() {
               },
             }}
           >
-            <Box
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="scrollable"
+              aria-label="basic tabs example"
               sx={{
                 px: 2,
                 position: "sticky",
                 top: 54,
-                borderTop: { md: "none", xs: "1px solid #e0e0e0" },
+                borderTop: (theme) => ({
+                  md: "none",
+                  xs: `1px solid ${theme.palette.divider}`,
+                }),
                 zIndex: 112,
                 bgcolor: "background.paper",
                 button: {
@@ -384,17 +391,10 @@ function Patient() {
                 },
               }}
             >
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                variant="scrollable"
-                aria-label="basic tabs example"
-              >
-                <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-                <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-                <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-              </Tabs>
-            </Box>
+              <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+              <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+              <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+            </Tabs>
             <Divider />
             <TabPanel padding={1} key={Math.random()} value={value} index={0}>
               <PersonalInfoPanel />

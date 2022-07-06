@@ -1,37 +1,19 @@
-import * as React from "react";
+// Material
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-
 import Tooltip from "@mui/material/Tooltip";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
+
+// ________________________
 import { uniqueId } from "lodash";
-export default function BasicPopover({ ...props }) {
+import { RootStyled } from "@features/popover";
+function BasicPopover({ ...props }) {
   const { button, handleClose, open, menuList, onClickItem } = props;
 
   return (
-    <div>
+    <RootStyled>
       <ClickAwayListener onClickAway={handleClose}>
-        <Box
-          sx={{
-            "& .MuiTooltip-popper": {
-              overflow: "initial",
-              minWidth: 208,
-              "& .MuiTooltip-tooltip": {
-                bgcolor: "#1B2746",
-
-                "&.MuiTooltip-tooltipPlacementLeft": {
-                  ml: 1,
-                },
-                "&.MuiTooltip-tooltipPlacementRight": {
-                  mr: 1,
-                },
-                "& .MuiTooltip-arrow": {
-                  color: "#1B2746",
-                },
-              },
-            },
-          }}
-        >
+        <Box className="popover-container">
           <Tooltip
             PopperProps={{
               disablePortal: true,
@@ -43,44 +25,33 @@ export default function BasicPopover({ ...props }) {
             disableTouchListener
             title={
               <div>
-                {menuList.map((v) => (
-                  <Box
-                    key={uniqueId()}
-                    onClick={() => {
-                      onClickItem(v);
-                      handleClose();
-                    }}
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      svg: { color: "#fff", mr: 1, fontSize: 20 },
-                      cursor: "pointer",
-                    }}
-                  >
-                    {v.icon}
-                    <Typography fontSize={15} sx={{ color: "#fff" }}>
-                      {v.title}
-                    </Typography>
-                  </Box>
-                ))}
+                {menuList.map(
+                  (v: { title: string; icon: string; action: string }) => (
+                    <Box
+                      key={uniqueId()}
+                      onClick={() => {
+                        onClickItem(v);
+                        handleClose();
+                      }}
+                      className="popover-item"
+                    >
+                      {v.icon}
+                      <Typography fontSize={15} sx={{ color: "#fff" }}>
+                        {v.title}
+                      </Typography>
+                    </Box>
+                  )
+                )}
               </div>
             }
             placement="right-start"
             arrow
           >
             {button}
-            {/* <IconButton
-              onClick={handleTooltipOpen}
-              size="small"
-              className="more-icon-btn"
-              sx={{ width: 22, height: 22 }}
-            >
-              <MoreVertRoundedIcon fontSize="small" />
-            </IconButton> */}
           </Tooltip>
         </Box>
       </ClickAwayListener>
-    </div>
+    </RootStyled>
   );
 }
+export default BasicPopover;

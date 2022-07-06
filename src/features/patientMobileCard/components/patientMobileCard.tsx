@@ -28,6 +28,7 @@ import {
 import { Popover } from "@features/popover";
 import { DrawerBottom } from "@features/drawerBottom";
 import { Accordion } from "@features/accordion/components";
+import moment from "moment-timezone";
 
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
@@ -84,7 +85,8 @@ const CardSection = ({ ...props }) => {
             lineHeight="18px"
           >
             <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
-            {new Date().toLocaleDateString()} - 32Asn
+            {moment(v.nextAppointment).format("DD-MM-YYYY")} -{" "}
+            {moment().diff(v.dateOfBirth, "years", true).toFixed()}years
           </Typography>
           <Box
             className="border-left-sec"
@@ -121,9 +123,9 @@ const CardSection = ({ ...props }) => {
                 component="div"
               >
                 <Icon path="ic-agenda" />
-                {new Date(v.nextAppointment).toLocaleDateString()}
+                {moment(v.nextAppointment).format("DD-MM-YYYY")}
                 <Icon path="ic-time" />
-                {new Date(v.nextAppointment).toLocaleTimeString().slice(0, 5)}
+                {moment(v.nextAppointment).format("HH:mm")}
               </Typography>
             )}
           </Box>
