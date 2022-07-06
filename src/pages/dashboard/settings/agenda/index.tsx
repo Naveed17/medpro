@@ -114,31 +114,27 @@ function Agenda() {
     },
   ];
 
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-        </RootStyled>
-      </SubHeader>
 
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"agenda"}
-          t={t}
-          edit={null}
-          handleConfig={null}
-          handleChange={null}
-        />
-      </Box>
-    </>
-  );
+
+  return (<>
+    <SubHeader>
+      <RootStyled>
+        <p style={{ margin: 0 }}>{t('path')}</p>
+      </RootStyled>
+    </SubHeader>
+
+    <Box className="container">
+      <Otable headers={headCells}
+        rows={rows}
+        state={null}
+        from={'agenda'}
+        t={t}
+        edit={null}
+        handleConfig={null}
+        handleChange={null} />
+    </Box>
+
+  </>)
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

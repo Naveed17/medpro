@@ -1,18 +1,18 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {Box, Button, Container, Paper, Toolbar, Typography} from "@mui/material";
-import {useSession} from "next-auth/react";
-import {TopNavBar} from "@features/topNavBar";
-import {MainMenuStyled} from "@features/sideBarMenu";
-import {CheckProfileStatus} from "@features/checkProfileStatus";
-import {LoadingScreen} from "@features/loadingScreen";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {Info, Document, Actes, Cabinet, stepperProfileSelector} from "@features/tabPanel";
-import {useAppSelector} from "@app/redux/hooks";
-import {CustomStepper} from "@features/customStepper";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { Box, Button, Container, Paper, Toolbar, Typography } from "@mui/material";
+import { useSession } from "next-auth/react";
+import { TopNavBar } from "@features/topNavBar";
+import { MainMenuStyled } from "@features/sideBarMenu";
+import { CheckProfileStatus } from "@features/checkProfileStatus";
+import { LoadingScreen } from "@features/loadingScreen";
+import { Session } from "next-auth";
+import { useRouter } from "next/router";
+import { Info, Document, Actes, Cabinet, stepperProfileSelector } from "@features/tabPanel";
+import { useAppSelector } from "@app/redux/hooks";
+import { CustomStepper } from "@features/customStepper";
 
 const stepperData = [
     {
@@ -34,26 +34,25 @@ const stepperData = [
 ];
 
 function EditProfile() {
-    const {data: session, status} = useSession();
-    const {currentStepper: stepperIndex} = useAppSelector(stepperProfileSelector);
+    const { data: session, status } = useSession();
+    const { currentStepper: stepperIndex } = useAppSelector(stepperProfileSelector);
     const router = useRouter();
     const loading = status === 'loading';
-    const {step} = router.query;
+    const { step } = router.query;
     const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string, 0) - 1) : stepperIndex);
-    const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
+    const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers' });
     // get user session data
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
 
-    if (!ready || loading) return (<LoadingScreen/>);
+    if (!ready || loading) return (<LoadingScreen />);
 
     return (
-        <Box bgcolor="#F0FAFF"
-             sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+        <Box className="container">
 
             <Container fixed>
-                <Paper sx={{mt: 4, borderRadius: "10px", mb: 4}}>
+                <Paper sx={{ mt: 4, borderRadius: "10px", mb: 4 }}>
                     {currentStepper > 3 ? (
-                        <CheckProfileStatus doctor={user}/>
+                        <CheckProfileStatus doctor={user} />
                     ) : (
                         <>
                             <Typography
@@ -68,13 +67,13 @@ function EditProfile() {
                                 {t(`stepper-${currentStepper}.title`)}
                             </Typography>
                             <Container maxWidth="md">
-                                <Box sx={{width: "100%", py: 3}}>
-                                    <Box sx={{maxWidth: {xs: 555, sm: "100%"}}}>
+                                <Box sx={{ width: "100%", py: 3 }}>
+                                    <Box sx={{ maxWidth: { xs: 555, sm: "100%" } }}>
                                         <CustomStepper
                                             currentIndex={currentStepper}
                                             translationKey="editProfile"
                                             prefixKey="steppers"
-                                            stepperData={stepperData}/>
+                                            stepperData={stepperData} />
                                     </Box>
                                 </Box>
                             </Container>
@@ -82,7 +81,7 @@ function EditProfile() {
                                 component="footer"
                                 sx={{
                                     textAlign: "right",
-                                    boxShadow: " 0px -1px 1px rgba(0, 150, 214, 0.45)",
+                                    boxShadow: theme => theme.customShadows.customShadow1,
                                     p: 1.5,
                                 }}
                             >
@@ -90,7 +89,7 @@ function EditProfile() {
                                     <Button
                                         onClick={() => setCurrentStepper(currentStepper - 1)}
                                         variant="text"
-                                        sx={{color: "#1B2746", mr: 2}}
+                                        sx={{ color: "text.secondary", mr: 2 }}
                                     >
                                         {t(`back`)}
                                     </Button>
@@ -112,7 +111,7 @@ function EditProfile() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
     return {
         props: {
             fallback: false,
@@ -128,9 +127,9 @@ EditProfile.auth = true;
 EditProfile.getLayout = function getLayout(page: ReactElement) {
     return (
         <MainMenuStyled className="header-main">
-            <TopNavBar/>
+            <TopNavBar />
             <Box className="body-main">
-                <Toolbar/>
+                <Toolbar />
                 <Box component="main">
                     {page}
                 </Box>

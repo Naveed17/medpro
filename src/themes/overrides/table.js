@@ -23,7 +23,7 @@ export default function Table(theme) {
             },
             "&:hover": {
               "& .MuiTableCell-root": {
-                backgroundColor: "#0696D61A",
+                backgroundColor: theme.palette.primary.lighter,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 borderBottom: `1px solid ${theme.palette.divider}`,
                 "&:first-of-type": {
@@ -99,14 +99,14 @@ export default function Table(theme) {
           },
         },
         stickyHeader: {
-          backgroundColor: "#C1E6F7",
+          backgroundColor: theme.palette.info.lighter,
         },
         body: {
           backgroundColor: theme.palette.background.paper,
           "&.MuiTableCell-root": {
             padding: "8px 12px",
           },
-          borderColor: "#f1faff",
+          borderColor: theme.palette.grey["A400"],
           fontFamily: "Poppins",
           color: theme.palette.text.secondary,
           fontSize: "12px",

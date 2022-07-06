@@ -58,7 +58,14 @@ const createCustomShadow = (): CustomShadowType => {
     documentButton: `0px 0px 6px rgba(6, 150, 214, 0.2)`,
     callanderButton: `0px 1px 5px rgba(0, 150, 214, 0.25)`,
     filterButton: `0px 0px 7px rgba(0, 0, 0, 0.32)`,
-    ListingPageFilter: '0px 2px 4px rgba(0, 0, 0, 0.06)'
+    ListingPageFilter: '0px 2px 4px rgba(0, 0, 0, 0.06)',
+    drawer: "-5px 14px 26px rgba(0, 150, 214, 0.37)",
+    textField: "0px 0px 4px rgba(0, 150, 214, 0.25)",
+    calendarPicker: "0px 0.5px 0px rgba(0, 0, 0, 0.12)",
+    fab1: "0px 2px 20px rgba(156, 155, 155, 0.46)",
+    motifDialog: '5px 14px 26px rgba(0, 150, 214, 0.37)',
+    customShadow1: "0px -1px 1px rgba(0, 150, 214, 0.45)"
+
   };
 };
 

@@ -176,45 +176,34 @@ function Motif() {
     <>
       <SubHeader>
         <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-          <Button
-            type="submit"
+          <p style={{ margin: 0 }}>{t('path')}</p>
+          <Button type='submit'
             variant="contained"
-            onClick={() => {
-              editMotif(null);
-            }}
-            color="success"
-          >
-            {t("add")}
+            onClick={() => { editMotif(null) }}
+            color="success">
+            {t('add')}
           </Button>
         </RootStyled>
       </SubHeader>
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
+      <Box className="container">
+        <Otable headers={headCells}
           rows={rows}
           state={state}
-          from={"motif"}
+          from={'motif'}
           t={t}
           edit={editMotif}
           handleConfig={handleConfig}
-          handleChange={handleChange}
-          minWidth={1080}
-        />
+          handleChange={handleChange} />
         <Drawer
-          anchor={"right"}
+          anchor={'right'}
           open={edit}
           dir={direction}
-          onClose={closeDraw}
-        >
+          onClose={closeDraw}>
           <EditMotifDialog data={selected} closeDraw={closeDraw} />
         </Drawer>
       </Box>
     </>
-  );
+  )
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

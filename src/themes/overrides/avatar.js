@@ -3,7 +3,7 @@ export default function Avatar(theme) {
         MuiAvatar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#F1F1F1',
+                    backgroundColor: theme.palette.grey[100],
                     width: 40,
                     height: 40,
                     borderRadius: 6,

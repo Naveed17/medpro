@@ -9,8 +9,8 @@ export default function Switch(theme) {
         },
         track: {
           opacity: 1,
-          backgroundColor: "white",
-          borderColor: "#ddd",
+          backgroundColor: theme.palette.common.white,
+          borderColor: theme.palette.divider,
           borderWidth: "1px",
           borderStyle: "solid",
           borderRadius: 20 / 2,
@@ -19,10 +19,10 @@ export default function Switch(theme) {
           left: 0,
           right: "auto",
           "&.Mui-checked+.MuiSwitch-track": {
-            backgroundColor: "white",
+            backgroundColor: theme.palette.common.white,
           },
           "&:not(.Mui-checked)": {
-            color: "#7C878E",
+            color: theme.palette.grey[400],
           },
         },
       },

@@ -16,44 +16,39 @@ function Subtitule() {
   const [rows, setRows] = useState([
     {
       id: 1,
-      name: "Rhouma BHA",
-      email: "rhoumabhat@mail.com",
-      fonction: "Practitioner",
-      speciality: "Dermatologist",
-      status: "En attente",
-      bg: "#FFD400",
-      color: "#000",
-      access: "2",
+      name: 'Rhouma BHA',
+      email: 'rhoumabhat@mail.com',
+      fonction: 'Practitioner',
+      speciality: 'Dermatologist',
+      status: 'En attente',
+      bg: 'warning',
+      color: 'white',
+      access: '2',
     },
     {
       id: 2,
-      name: "Hassen Ounelli",
-      email: "houssemouelli@mail.com",
-      fonction: "Practitioner",
-      speciality: "Dermatologist",
-      status: "Accepté",
-      bg: "#1BC47D",
-      color: "#FFF",
-      access: "1",
+      name: 'Hassen Ounelli',
+      email: 'houssemouelli@mail.com',
+      fonction: 'Practitioner',
+      speciality: 'Dermatologist',
+      status: 'Accepté',
+      bg: 'success',
+      color: 'white',
+      access: '1',
     },
     {
       id: 3,
-      name: "Sarra Bent",
-      email: "sarrabent@mail.com",
-      fonction: "Secretary",
-      speciality: "",
-      status: "Accepté",
-      bg: "#1BC47D",
-      color: "#FFF",
-      access: "2",
+      name: 'Sarra Bent',
+      email: 'sarrabent@mail.com',
+      fonction: 'Secretary',
+      speciality: '',
+      status: 'Accepté',
+      bg: 'success',
+      color: 'white',
+      access: '2',
     },
   ]);
   const { direction } = useAppSelector(configSelector);
-
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "substitute.config",
-  });
-  if (!ready) return <>loading translations...</>;
 
   const closeDraw = () => {
     setEdit(false);
@@ -101,7 +96,10 @@ function Subtitule() {
       sortable: false,
     },
   ];
-
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "substitute.config",
+  });
+  if (!ready) return <>loading translations...</>;
   return (
     <>
       <SubHeader>
@@ -121,32 +119,27 @@ function Subtitule() {
         </Button>
       </SubHeader>
 
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
+      <Box className="container">
+        <Otable headers={headCells}
           rows={rows}
           state={null}
-          from={"substitute"}
+          from={'substitute'}
           t={t}
           edit={null}
           handleConfig={null}
-          handleChange={null}
-        />
+          handleChange={null} />
 
         <Drawer
-          anchor={"right"}
+          anchor={'right'}
           open={edit}
           dir={direction}
-          onClose={closeDraw}
-        >
+          onClose={closeDraw}>
           <SubstituteDetails closeDraw={closeDraw} />
         </Drawer>
+
       </Box>
     </>
-  );
+  )
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-import IconUrl from "../urlIcon";
+import { alpha } from "@mui/material/styles";
 
 export default function Checkbox(theme) {
   return {
@@ -7,10 +7,10 @@ export default function Checkbox(theme) {
       styleOverrides: {
         root: {
           "& .MuiBackdrop-root": {
-            backgroundColor: "rgba(6, 150, 214, 0.2);",
+            backgroundColor: alpha(theme.palette.primary.main, 0.2),
           },
           "& .MuiDrawer-paperAnchorRight": {
-            boxShadow: "-5px 14px 26px rgba(0, 150, 214, 0.37)",
+            boxShadow: theme.customShadows.drawer,
             "& > div": {
               [theme.breakpoints.down("sm")]: {
                 minWidth: "100vw",

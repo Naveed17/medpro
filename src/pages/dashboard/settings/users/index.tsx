@@ -35,45 +35,39 @@ function Users() {
   const [rows, setRows] = useState([
     {
       id: 1,
-      name: "Rhouma BHA",
-      email: "rhoumabhat@mail.com",
-      fonction: "Practitioner",
-      speciality: "Dermatologist",
-      status: "En attente",
-      bg: "#FFD400",
-      color: "#000",
+      name: 'Rhouma BHA',
+      email: 'rhoumabhat@mail.com',
+      fonction: 'Practitioner',
+      speciality: 'Dermatologist',
+      status: 'En attente',
+      bg: 'warning',
       settings: false,
-      access: "2",
+      access: '2',
     },
     {
       id: 2,
-      name: "Hassen Ounelli",
-      email: "houssemouelli@mail.com",
-      fonction: "Practitioner",
-      speciality: "Dermatologist",
-      status: "Accepté",
-      bg: "#1BC47D",
-      color: "#FFF",
+      name: 'Hassen Ounelli',
+      email: 'houssemouelli@mail.com',
+      fonction: 'Practitioner',
+      speciality: 'Dermatologist',
+      status: 'Accepté',
+      bg: 'success',
       settings: true,
-      access: "1",
+      access: '1',
     },
     {
       id: 3,
-      name: "Sarra Bent",
-      email: "sarrabent@mail.com",
-      fonction: "Secretary",
-      speciality: "",
-      status: "Accepté",
-      bg: "#1BC47D",
-      color: "#FFF",
+      name: 'Sarra Bent',
+      email: 'sarrabent@mail.com',
+      fonction: 'Secretary',
+      speciality: '',
+      status: 'Accepté',
+      bg: 'success',
       settings: false,
-      access: "2",
+      access: '2',
     },
   ]);
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "users.config",
-  });
-  if (!ready) return <>loading translations...</>;
+
 
   const closeDraw = () => {
     setEdit(false);
@@ -136,6 +130,8 @@ function Users() {
     console.log(props);
     setRows([...rows]);
   };
+  const { t, ready } = useTranslation("settings", { keyPrefix: "users" });
+  if (!ready) return (<>loading translations...</>);
 
   return (
     <>
@@ -166,24 +162,18 @@ function Users() {
           {t("add")}
         </Button>
       </SubHeader>
-
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
+      <Box className="container">
+        <Otable headers={headCells}
           rows={rows}
           state={null}
-          from={"users"}
+          from={'users'}
           t={t}
           edit={null}
           handleConfig={null}
-          handleChange={handleChange}
-        />
+          handleChange={handleChange} />
       </Box>
     </>
-  );
+  )
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({

@@ -1,8 +1,8 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement} from "react";
-import {SubHeader} from "@features/subHeader";
-import {useTranslation} from "next-i18next";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement } from "react";
+import { SubHeader } from "@features/subHeader";
+import { useTranslation } from "next-i18next";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
     Typography,
@@ -16,11 +16,11 @@ import {
     Button,
     FormControlLabel, Checkbox, MenuItem, FormControl
 } from '@mui/material'
-import {styled} from "@mui/material/styles";
-import {RootStyled} from "@features/toolbar/components/calendarToolbar";
-import {useRouter} from "next/router";
+import { styled, Theme } from "@mui/material/styles";
+import { RootStyled } from "@features/toolbar/components/calendarToolbar";
+import { useRouter } from "next/router";
 import * as Yup from "yup";
-import {DashLayout} from "@features/base";
+import { DashLayout } from "@features/base";
 
 const FormStyled = styled(Form)(({ theme }) => ({
     '& .MuiCard-root': {
@@ -71,10 +71,10 @@ const FormStyled = styled(Form)(({ theme }) => ({
         marginRight: theme.spacing(-2),
         position: 'fixed',
         bottom: 0,
-        left:0,
+        left: 0,
         zIndex: 1,
-        width:'100%',
-        borderTop:'3px solid #f0fafe'
+        width: '100%',
+        borderTop: `3px solid ${theme.palette.background.default}`,
     }
 }));
 
@@ -82,13 +82,13 @@ function NewUser() {
 
     // from backend
     const agendas = [
-        {name: 'Clinical'},
-        {name: 'Hospital'},
-        {name: 'Place 3'},
-        {name: 'Place 4'},
+        { name: 'Clinical' },
+        { name: 'Hospital' },
+        { name: 'Place 3' },
+        { name: 'Place 4' },
     ];
 
-    const {t, ready} = useTranslation("settings");
+    const { t, ready } = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -108,24 +108,24 @@ function NewUser() {
             admin: false
         },
         validationSchema,
-        onSubmit: async (values, {setErrors, setSubmitting}) => {
+        onSubmit: async (values, { setErrors, setSubmitting }) => {
             alert(JSON.stringify(values, null, 2));
         },
     });
     const router = useRouter();
     if (!ready) return (<>loading translations...</>);
 
-    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
+    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
 
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('users.new.path')}</p>
+                    <p style={{ margin: 0 }}>{t('users.new.path')}</p>
                 </RootStyled>
             </SubHeader>
 
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box className="container">
                 <FormikProvider value={formik}>
                     <FormStyled
                         autoComplete="off"
@@ -137,24 +137,24 @@ function NewUser() {
                         <Card className='venue-card'>
                             <CardContent>
                                 <Box mb={2}>
-                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
+                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
-                                                        variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary"
+                                                variant='body2' fontWeight={400}>
                                                 {t('users.new.pro')}
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <FormControlLabel control={<Checkbox checked={values.professionnel} onChange={()=>{setFieldValue('professionnel',true)}}/>} label={t('users.new.yes')}/>
-                                            <FormControlLabel control={<Checkbox checked={!values.professionnel} onChange={()=>{setFieldValue('professionnel',false)}}/>} label={t('users.new.no')}/>
+                                            <FormControlLabel control={<Checkbox checked={values.professionnel} onChange={() => { setFieldValue('professionnel', true) }} />} label={t('users.new.yes')} />
+                                            <FormControlLabel control={<Checkbox checked={!values.professionnel} onChange={() => { setFieldValue('professionnel', false) }} />} label={t('users.new.no')} />
                                         </Grid>
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
-                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
+                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
-                                                        variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary"
+                                                variant='body2' fontWeight={400}>
                                                 {t('users.new.mail')}{" "}
                                                 <Typography component="span" color="error">
                                                     *
@@ -169,15 +169,15 @@ function NewUser() {
                                                 helperText={touched.email && errors.email}
                                                 error={Boolean(touched.email && errors.email)}
                                                 required
-                                                {...getFieldProps("email")}/>
+                                                {...getFieldProps("email")} />
                                         </Grid>
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
-                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
+                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
-                                                        variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary"
+                                                variant='body2' fontWeight={400}>
                                                 {t('users.new.name')}{" "}
                                                 <Typography component="span" color="error">
                                                     *
@@ -192,19 +192,19 @@ function NewUser() {
                                                 required
                                                 helperText={touched.name && errors.name}
                                                 error={Boolean(touched.name && errors.name)}
-                                                {...getFieldProps("name")}/>
+                                                {...getFieldProps("name")} />
                                         </Grid>
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
-                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="center">
+                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="center">
                                         <Grid item xs={12} lg={2}>
 
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <FormControlLabel control={<Checkbox checked={values.admin}
-                                                                                 onClick={()=>{setFieldValue('admin',!values.admin)}}/>}
-                                                              label={t('users.new.admin')}/>
+                                                onClick={() => { setFieldValue('admin', !values.admin) }} />}
+                                                label={t('users.new.admin')} />
                                         </Grid>
                                     </Grid>
                                 </Box>
@@ -215,11 +215,11 @@ function NewUser() {
                         </Typography>
                         <Card >
                             <Box mb={2}>
-                                <Grid container spacing={{lg: 2, xs: 1}}
-                                      justifyContent="center"
-                                      sx={{background: 'rgba(6, 150, 214, 0.12)', borderBottom: '1px solid #DDDDDD'}}
-                                      padding={'16px'}
-                                      alignItems="center">
+                                <Grid container spacing={{ lg: 2, xs: 1 }}
+                                    justifyContent="center"
+                                    sx={{ background: (theme: Theme) => theme.palette.primary.light, borderBottom: `1px solid ${(theme: Theme) => theme.palette.divider}` }}
+                                    padding={'16px'}
+                                    alignItems="center">
                                     <Grid item xs={12} lg={4}>
                                         <Typography variant='body2' fontWeight={400}>
                                             {t('users.new.all')}
@@ -233,7 +233,7 @@ function NewUser() {
                                                 {...getFieldProps("duration")}
                                                 value={1}
                                                 displayEmpty={true}
-                                                sx={{color: "text.secondary"}}
+                                                sx={{ color: "text.secondary" }}
                                                 renderValue={(value) =>
                                                     t('motif.dialog.selectGroupe')
                                                 }
@@ -247,15 +247,15 @@ function NewUser() {
                                 </Grid>
                             </Box>
                             {agendas.map((item, index) => (
-                                <Box mb={2} key= {index}>
-                                    <Grid container spacing={{lg: 2, xs: 1}}
-                                          justifyContent="center"
-                                          padding={'0 20px 16px'}
-                                          margin={0}
-                                          sx= {{borderBottom: index !== agendas.length-1 ?'1px solid #DDDDDD':'0'}}
-                                          alignItems="center">
+                                <Box mb={2} key={index}>
+                                    <Grid container spacing={{ lg: 2, xs: 1 }}
+                                        justifyContent="center"
+                                        padding={'0 20px 16px'}
+                                        margin={0}
+                                        sx={{ borderBottom: index !== agendas.length - 1 ? `1px solid ${(theme: Theme) => theme.palette.divider}` : '0' }}
+                                        alignItems="center">
                                         <Grid item xs={12} lg={4}>
-                                            <FormControlLabel control={<Checkbox/>} label={item.name}/>
+                                            <FormControlLabel control={<Checkbox />} label={item.name} />
                                         </Grid>
                                         <Grid item xs={12} lg={7}>
                                             <FormControl size="small" fullWidth>
@@ -264,7 +264,7 @@ function NewUser() {
                                                     id={"duration"}
                                                     value={1}
                                                     displayEmpty={true}
-                                                    sx={{color: "text.secondary", padding: 0}}
+                                                    sx={{ color: "text.secondary", padding: 0 }}
                                                     renderValue={(value) =>
                                                         t('motif.dialog.selectGroupe')
                                                     }>
@@ -283,10 +283,10 @@ function NewUser() {
                         <Card>
                             <CardContent>
                                 <Box mb={2}>
-                                    <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
+                                    <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="flex-start">
                                         <Grid item xs={12} lg={2}>
-                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
-                                                        variant='body2' fontWeight={400}>
+                                            <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary"
+                                                variant='body2' fontWeight={400}>
                                                 {t('users.new.message')}
                                             </Typography>
                                         </Grid>
@@ -298,14 +298,14 @@ function NewUser() {
                                                 rows={4}
                                                 fullWidth
                                                 required
-                                                {...getFieldProps("message")}/>
+                                                {...getFieldProps("message")} />
                                         </Grid>
                                     </Grid>
                                 </Box>
                             </CardContent>
                         </Card>
 
-                        <div style={{paddingBottom: '50px'}}></div>
+                        <div style={{ paddingBottom: '50px' }}></div>
 
                         <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
                             <Button onClick={() => router.back()}>
@@ -323,7 +323,7 @@ function NewUser() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
     }
 })
 export default NewUser

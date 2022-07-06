@@ -5,9 +5,9 @@ const RootStyled = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   paddingBottom: 5,
   "& .header": {
-    backgroundColor: "#fff",
+    backgroundColor: theme.palette.background.paper,
     paddingRight: "24px",
-    borderBottom: "1px solid #E0E0E0",
+    borderBottom: `1px solid ${theme.palette.grey["A300"]}`,
     display: "flex",
     justifyContent: "flex-end",
     "& .MuiIconButton-root": {

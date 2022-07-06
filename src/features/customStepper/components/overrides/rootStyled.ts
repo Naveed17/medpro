@@ -9,7 +9,7 @@ const RootStyled = styled("div")(({ theme }) => ({
       justifyContent: "space-around",
     },
     button: {
-      borderBottom: "2px solid #7C878E",
+      borderBottom: `2px solid ${theme.palette.grey[400]}`,
       borderRadius: 0,
       transition: "all 0.3s ease-in-out",
       [theme.breakpoints.down("sm")]: {

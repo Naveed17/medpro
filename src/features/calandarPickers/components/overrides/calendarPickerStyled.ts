@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import {Box} from "@mui/material";
+import { Box } from "@mui/material";
 
 const CalendarPickerStyled = styled(Box)(({ theme }) => ({
     "& .MuiTypography-caption": {
@@ -8,7 +8,7 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
     "& .MuiPickerStaticWrapper-root": {
         backgroundColor: "transparent",
         "& > div > div": {
-            backgroundColor: "#fff",
+            backgroundColor: theme.palette.background.paper,
         },
     },
     "& .MuiPickersDay-root": {
@@ -17,27 +17,27 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
             border: "1px solid transparent",
         },
         "&.Mui-selected": {
-            backgroundColor: "#FFD400",
+            backgroundColor: theme.palette.warning.main,
             color: theme.palette.text.primary,
             // border: "1px solid #FFD400",
             borderRadius: "8px",
             "&:hover, &:focus": {
                 color: theme.palette.text.primary,
-                backgroundColor: "#FFD400",
+                backgroundColor: theme.palette.warning.main,
                 // border: "1px solid #FFD400"
             },
         },
         "&:hover, &:focus": {
-            backgroundColor: "#E7F5FB",
+            backgroundColor: theme.palette.grey["A700"],
         },
         "&.Mui-disabled": {
-            color: "#DDDDDD",
+            color: theme.palette.divider,
         },
     },
     "& .MuiCalendarPicker-root > div:first-of-type": {
         position: "relative",
-        boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.12)",
-        backgroundColor: "#FCFCFC",
+        boxShadow: theme.customShadows.calendarPicker,
+        backgroundColor: theme.palette.grey["A800"],
         minHeight: 46,
         marginBottom: 0,
         marginTop: 0,
@@ -45,13 +45,13 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
             position: "absolute",
             left: 10,
             top: 6,
-            color: "#C9C8C8",
+            color: theme.palette.grey[300],
         },
         "& .MuiIconButton-edgeStart": {
             position: "absolute",
             right: 10,
             top: 6,
-            color: "#C9C8C8",
+            color: theme.palette.grey[300],
         },
         "& > div:first-of-type": {
             fontSize: "1.25rem",
