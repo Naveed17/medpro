@@ -69,7 +69,6 @@ function Profil() {
             setInsurances([]);
             setPaymentMeans([]);
             setQualifications((infoData.qualification) as QualificationModel[])
-            console.log(infoData.qualification);
             setActs(infoData.acts)
         }
         if (error !== undefined) {

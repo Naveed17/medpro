@@ -2,24 +2,24 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import { Button, TableCell, Skeleton, Stack } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { Label } from "@features/label";
+import {Button, TableCell, Skeleton, Stack} from '@mui/material';
+import {useTheme} from '@mui/material/styles';
+import {Label} from "@features/label";
 import Icon from "@themes/urlIcon";
 
-function WaitingRoomRow({ ...props }) {
-    const { row, t } = props;
+function WaitingRoomRow({...props}) {
+    const {row, t} = props;
     const theme = useTheme();
     return (
         <TableRow key={Math.random()}>
             <TableCell>
                 {row ?
                     <Box display="flex" alignItems="center">
-                        <Typography color="text.primary" sx={{ ml: 0.6 }}>
+                        <Typography color="text.primary" sx={{ml: 0.6}}>
                             {row.id}
                         </Typography>
                     </Box>
-                    : <Skeleton variant="text" width={50} />}
+                    : <Skeleton variant="text" width={50}/>}
             </TableCell>
             <TableCell>
                 {row ?
@@ -34,15 +34,15 @@ function WaitingRoomRow({ ...props }) {
                                 svg: {
                                     width: 11,
                                     mx: 0.5,
-                                    path: { fill: theme.palette.success.main },
+                                    path: {fill: theme.palette.success.main},
                                 },
                             }}
                         >
-                            <Icon path="ic-time" />
+                            <Icon path="ic-time"/>
                             {row.arrivaltime}
                         </Typography>
                     </Box>
-                    : <Skeleton variant="text" width={80} />}
+                    : <Skeleton variant="text" width={80}/>}
             </TableCell>
             <TableCell>
                 {row ?
@@ -51,16 +51,16 @@ function WaitingRoomRow({ ...props }) {
                         alignItems="center"
                         sx={{
                             svg: {
-                                path: { fill: theme.palette.text.secondary },
+                                path: {fill: theme.palette.text.secondary},
                             },
                         }}
                     >
-                        <Icon path="ic-time" />
-                        <Typography color="success" sx={{ ml: 0.6 }}>
+                        <Icon path="ic-time"/>
+                        <Typography color="success" sx={{ml: 0.6}}>
                             {row.appointmentTime}
                         </Typography>
                     </Box>
-                    : <Skeleton variant="text" width={80} />}
+                    : <Skeleton variant="text" width={80}/>}
             </TableCell>
             <TableCell
                 sx={{
@@ -72,7 +72,7 @@ function WaitingRoomRow({ ...props }) {
                             : row?.status === "success"
                                 ? theme.palette.success.main
                                 : theme.palette.primary.main
-                        }`,
+                    }`,
                 }}
             >
                 {row ?
@@ -92,8 +92,8 @@ function WaitingRoomRow({ ...props }) {
                                 }
                             }}
                             startIcon={
-                                row?.type === "cabinet" ? <Icon path="ic-cabinet" /> :
-                                    row.type === "teleconsultation" ? <Icon path="ic-video-red" />
+                                row?.type === "cabinet" ? <Icon path="ic-cabinet"/> :
+                                    row.type === "teleconsultation" ? <Icon path="ic-video-red"/>
                                         :
                                         null
 
@@ -106,20 +106,20 @@ function WaitingRoomRow({ ...props }) {
                             alignItems="center"
                             sx={{
                                 svg: {
-                                    path: { fill: theme.palette.text.secondary },
+                                    path: {fill: theme.palette.text.secondary},
                                 },
                             }}
                         >
-                            <Icon path="ic-time" />
-                            <Typography color="success" sx={{ ml: 0.6 }}>
+                            <Icon path="ic-time"/>
+                            <Typography color="success" sx={{ml: 0.6}}>
                                 {row.duration} {t("min")}
                             </Typography>
                         </Box>
                     </Box>
                     :
                     <Stack direction="row" justifyContent="space-between">
-                        <Skeleton variant="text" width={150} />
-                        <Skeleton variant="text" width={80} />
+                        <Skeleton variant="text" width={150}/>
+                        <Skeleton variant="text" width={80}/>
                     </Stack>
 
 
@@ -130,21 +130,21 @@ function WaitingRoomRow({ ...props }) {
                     <Label
                         variant="filled"
                         color={row?.status === "completed" ? "success" : row?.status === "canceled" ? "error" : "primary"}
-                        sx={{ color: theme.palette.text.primary }}
+                        sx={{color: theme.palette.text.primary}}
                     >
                         {t(row.status)}
                     </Label>
-                    : <Skeleton variant="text" width={100} />
+                    : <Skeleton variant="text" width={100}/>
                 }
             </TableCell>
             <TableCell>
                 {row ?
                     <Box display="flex" alignItems="center">
-                        <Typography color="text.primary" sx={{ ml: 0.6 }}>
+                        <Typography color="text.primary" sx={{ml: 0.6}}>
                             {row.patient}
                         </Typography>
                     </Box>
-                    : <Skeleton variant="text" width={100} />}
+                    : <Skeleton variant="text" width={100}/>}
             </TableCell>
             <TableCell>
                 {row ?
@@ -153,26 +153,26 @@ function WaitingRoomRow({ ...props }) {
                         alignItems="center"
                         sx={{
                             svg: {
-                                path: { fill: theme.palette.text.secondary },
+                                path: {fill: theme.palette.text.secondary},
                             },
                         }}
                     >
-                        <Icon path="ic-agenda-dark" />
-                        <Typography color="text.secondary" sx={{ ml: 0.6 }}>
+                        <Icon path="ic-agenda-dark"/>
+                        <Typography color="text.secondary" sx={{ml: 0.6}}>
                             {row.agenda}
                         </Typography>
                     </Box>
-                    : <Skeleton variant="text" width={100} />}
+                    : <Skeleton variant="text" width={100}/>}
             </TableCell>
             <TableCell align="right">
                 {row ?
-                    <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                    <Box display="flex" sx={{float: "right"}} alignItems="center">
                         <Button variant="text" size="small" color="primary">
                             {t("See details")}
                         </Button>
 
                     </Box>
-                    : <Skeleton variant="text" width={100} />}
+                    : <Skeleton variant="text" width={100}/>}
             </TableCell>
         </TableRow>
     )

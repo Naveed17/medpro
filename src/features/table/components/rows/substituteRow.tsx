@@ -2,16 +2,16 @@ import React from 'react'
 
 import Lable from "@themes/overrides/Lable";
 import TableCell from '@mui/material/TableCell';
-import { Typography, Box, Skeleton, Stack, } from '@mui/material';
+import {Typography, Box, Skeleton, Stack,} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
-import { TableRowStyled } from "@features/table"
-import { uniqueId } from 'lodash'
-function SubstituleRow({ ...props }) {
+import {TableRowStyled} from "@features/table"
+import {uniqueId} from 'lodash'
 
-    const { row, t } = props;
+function SubstituleRow({...props}) {
 
-    console.log(row);
+    const {row, t} = props;
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -24,8 +24,8 @@ function SubstituleRow({ ...props }) {
                     </>
                     :
                     <Stack>
-                        <Skeleton variant="text" width={100} />
-                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100}/>
                     </Stack>
                 }
             </TableCell>
@@ -38,8 +38,8 @@ function SubstituleRow({ ...props }) {
                         {row.speciality}
                     </> :
                     <Stack alignItems="center">
-                        <Skeleton variant="text" width={100} />
-                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100}/>
                     </Stack>
                 }
             </TableCell>
@@ -47,27 +47,27 @@ function SubstituleRow({ ...props }) {
                 {row ?
                     <Lable
                         variant="filled"
-                        sx={{ backgroundColor: row.bg, color: row.color, px: 1.5 }}>
+                        sx={{backgroundColor: row.bg, color: row.color, px: 1.5}}>
                         {row.status}
                     </Lable>
-                    : <Skeleton variant="text" width={100} height={40} sx={{ mx: 'auto' }} />}
+                    : <Skeleton variant="text" width={100} height={40} sx={{mx: 'auto'}}/>}
             </TableCell>
             <TableCell align="center">
                 {row ?
                     <Typography className='name' variant="body1" color="text.primary">
                         {row.access} {t('agenda')}
                     </Typography>
-                    : <Skeleton variant="text" width={100} sx={{ m: 'auto' }} />
+                    : <Skeleton variant="text" width={100} sx={{m: 'auto'}}/>
                 }
             </TableCell>
             <TableCell align="right">
                 {row ?
-                    <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                    <Box display="flex" sx={{float: "right"}} alignItems="center">
                         <Button
                             variant="text"
                             size="small"
                             color="primary"
-                            startIcon={<IconUrl path="setting/edit" />}
+                            startIcon={<IconUrl path="setting/edit"/>}
                             onClick={() => console.log("edit", row)}>
                             {t('update')}
                         </Button>
@@ -75,19 +75,20 @@ function SubstituleRow({ ...props }) {
                             variant="text"
                             size="small"
                             color="error"
-                            startIcon={<IconUrl path="setting/icdelete" />}
+                            startIcon={<IconUrl path="setting/icdelete"/>}
                             onClick={() => console.log("remove", row)}
-                            sx={{ mr: 1 }}>
+                            sx={{mr: 1}}>
                             {t('remove')}
                         </Button>
                     </Box>
                     : <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
-                        <Skeleton variant="text" width={50} />
-                        <Skeleton variant="text" width={50} />
+                        <Skeleton variant="text" width={50}/>
+                        <Skeleton variant="text" width={50}/>
                     </Stack>
                 }
             </TableCell>
         </TableRowStyled>
     )
 }
+
 export default SubstituleRow

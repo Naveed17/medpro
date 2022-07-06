@@ -47,19 +47,17 @@ function Actes() {
     });
 
     useEffect(() => {
+        if (data !== undefined) {
+            setActs(((data as any).data) as ActModel[])
+            setSuggestion(((data as any).data) as ActModel[]);
+        }
         if (profil !== undefined) {
             const infoData = (profil as any).data;
             infoData.acts.map((act: MedicalProfessionalActModel) => {
                 act.isTopAct ? setMainActes([...mainActes,act.act]) : setSecondaryActes([...secondaryActes,act.act]);
             })
         }
-    }, [profil]);
-
-    useEffect(() => {
-        if (data !== undefined) {
-            setActs(((data as any).data) as ActModel[])
-            setSuggestion(((data as any).data) as ActModel[]);
-        }
+        console.log(profil);
     }, [data]);
 
     const onDrop = (id: string, ev: any) => {
