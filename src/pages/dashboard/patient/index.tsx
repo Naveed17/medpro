@@ -35,8 +35,23 @@ interface HeadCell {
   align: "left" | "right" | "center";
 }
 
+interface PatientProps {
+  id: number;
+  name: string;
+  avatar: string;
+  time: moment.Moment;
+  telephone: string;
+  idCode: string;
+  city: string;
+  nextAppointment: moment.Moment;
+  lastAppointment: moment.Moment;
+  addAppointment: boolean;
+  dateOfBirth: moment.Moment;
+  status: string;
+  action: string;
+}
 // Patient data for table body
-const PatiendData = [
+const PatientData: PatientProps[] = [
   {
     id: 1,
     name: "John Doe",
@@ -48,24 +63,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 1,
-    name: "John Doe",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    lastAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
-    addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -80,7 +78,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "success",
     action: "left",
   },
@@ -95,7 +93,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -110,7 +108,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -125,7 +123,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -140,7 +138,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -155,7 +153,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -170,7 +168,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -185,7 +183,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -200,7 +198,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -215,7 +213,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment("07-02-1998", "DD-MM-YYYY"),
     status: "pending",
     action: "left",
   },
@@ -329,7 +327,7 @@ function Patient() {
         <Box display={{ xs: "none", md: "block" }}>
           <Otable
             headers={headCells}
-            rows={PatiendData}
+            rows={PatientData}
             state={null}
             from={"patient"}
             t={t}
@@ -340,7 +338,7 @@ function Patient() {
             pagination
           />
         </Box>
-        <PatientMobileCard ready={ready} PatiendData={PatiendData} />
+        <PatientMobileCard ready={ready} PatiendData={PatientData} />
         <Drawer
           anchor={"right"}
           open={open}
@@ -423,7 +421,7 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, ["patient", "menu"])),
+    ...(await serverSideTranslations(locale as string, ['common', 'menu',"patient"])),
   },
 });
 

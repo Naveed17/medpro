@@ -40,8 +40,6 @@ function Dashborad() {
 
     const { data: user } = session as Session;
 
-    console.log(session);
-
     return (
         <>
             <SubHeader>
