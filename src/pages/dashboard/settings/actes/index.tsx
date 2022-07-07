@@ -109,7 +109,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
@@ -169,7 +169,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
@@ -228,7 +228,7 @@ function Actes() {
             svg: {
               ml: 1,
               path: {
-                fill: "#FFD400",
+                fill: theme => theme.palette.warning.main,
               },
             },
           }}
