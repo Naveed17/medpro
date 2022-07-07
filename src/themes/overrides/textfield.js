@@ -21,17 +21,17 @@ export default function TextField(theme) {
                 color: theme.palette.text.secondary,
               },
             },
-            background: "#F9F9FB",
+            background: theme.palette.grey["A500"],
             "&:hover": {
               fieldset: {
-                border: "1px solid #0696D6",
-                boxShadow: "0px 0px 4px rgba(0, 150, 214, 0.25)",
+                border: `1px solid ${theme.palette.primary.main}`,
+                boxShadow: theme.customShadows.textField,
               },
             },
             "&.Mui-focused": {
               background: "transparent",
               fieldset: {
-                border: "1px solid #0696D6",
+                border: `1px solid ${theme.palette.primary.main}`,
                 boxShadow: "none",
                 outline: "none",
               },
@@ -44,7 +44,7 @@ export default function TextField(theme) {
         {
           props: { variant: "standard" },
           style: {
-            backgroundColor: "red",
+            backgroundColor: theme.palette.error.main,
           },
         },
       ],

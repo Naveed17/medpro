@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Typography,
     Box,
@@ -14,22 +14,22 @@ import {
     Button
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {CountryCodeSelect} from "@features/countryCodeSelect";
-import {Schedules} from "@features/schedules";
-import {useTranslation} from "next-i18next";
+import { CountryCodeSelect } from "@features/countryCodeSelect";
+import { Schedules } from "@features/schedules";
+import { useTranslation } from "next-i18next";
 import moment from "moment-timezone";
-
+import { Theme } from "@mui/material/styles";
 function Cabinet() {
 
     const [horaires, setHoraires] = useState<Schedule[]>([
         {
             day: moment().isoWeekday(1).format("dddd"),
-            hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
+            hours: [{ start: '08:00', end: '14:00' }, { start: '16:00', end: '18:00' }],
             opened: false
         },
         {
             day: moment().isoWeekday(2).format("dddd"),
-            hours: [{start: '08:00', end: '14:00'}, {start: '16:00', end: '18:00'}],
+            hours: [{ start: '08:00', end: '14:00' }, { start: '16:00', end: '18:00' }],
             opened: false
         },
         {
@@ -39,12 +39,12 @@ function Cabinet() {
         },
         {
             day: moment().isoWeekday(4).format("dddd"),
-            hours: [{start: '08:00', end: '14:00'}, null],
+            hours: [{ start: '08:00', end: '14:00' }, null],
             opened: false
         },
         {
             day: moment().isoWeekday(5).format("dddd"),
-            hours: [null,{start: '08:00', end: '14:00'}],
+            hours: [null, { start: '08:00', end: '14:00' }],
             opened: false
         },
         {
@@ -54,7 +54,7 @@ function Cabinet() {
         },
         {
             day: moment().isoWeekday(0).format("dddd"),
-            hours: [{start: '08:00', end: '14:00'}],
+            hours: [{ start: '08:00', end: '14:00' }],
             opened: false
         }
     ])
@@ -70,12 +70,12 @@ function Cabinet() {
             <Typography
                 variant="body1"
                 color="text.primary"
-                sx={{textTransform: "uppercase", mt: 2, mb: 1}}
+                sx={{ textTransform: "uppercase", mt: 2, mb: 1 }}
             >
                 {t("lieu.title")}
             </Typography>
 
-            <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
+            <Card sx={{ p: 2, border: `1px solid ${(theme: Theme) => theme.palette.grey["A300"]}`, boxShadow: "none" }}>
                 <Grid container alignItems="center" spacing={2}>
                     <Grid item lg={3} md={3} sm={12} xs={12}>
                         {" "}
@@ -83,7 +83,7 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
+                                textAlign: { md: "right", sm: "left" },
                             }}
                         >
                             {t("lieu.establishment")}
@@ -103,7 +103,7 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
+                                textAlign: { md: "right", sm: "left" },
                             }}
                         >
                             {t("lieu.address")}
@@ -122,7 +122,7 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
+                                textAlign: { md: "right", sm: "left" },
                             }}
                         >
                             {t("lieu.zip_code")}
@@ -141,7 +141,7 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
+                                textAlign: { md: "right", sm: "left" },
                             }}
                         >
                             {t("lieu.city")}
@@ -164,7 +164,7 @@ function Cabinet() {
                                             value
                                         )
                                     ) : (
-                                        <Box sx={{color: "text.secondary"}}>{value}</Box>
+                                        <Box sx={{ color: "text.secondary" }}>{value}</Box>
                                     )
                                 }
                             >
@@ -179,11 +179,11 @@ function Cabinet() {
             <Typography
                 variant="body1"
                 color="text.primary"
-                sx={{textTransform: "uppercase", mt: 2, mb: 1}}
+                sx={{ textTransform: "uppercase", mt: 2, mb: 1 }}
             >
                 {t("info.title")}
             </Typography>
-            <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
+            <Card sx={{ p: 2, border: `1px solid ${(theme: Theme) => theme.palette.grey["A300"]}`, boxShadow: "none" }}>
                 <Grid container alignItems="center" spacing={2}>
                     <Grid item lg={3} md={3} sm={12} xs={12}>
                         {" "}
@@ -191,7 +191,7 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
+                                textAlign: { md: "right", sm: "left" },
                             }}
                         >
                             {t("info.establishment")}
@@ -200,7 +200,7 @@ function Cabinet() {
                     <Grid item lg={9} md={9} sm={12} xs={12}>
                         <Grid container spacing={2}>
                             <Grid item lg={3} md={3} sm={6} xs={12}>
-                                <CountryCodeSelect selected={(v: string) => console.log(v)}/>
+                                <CountryCodeSelect selected={(v: string) => console.log(v)} />
                             </Grid>
                             <Grid item lg={6} md={6} sm={8} xs={12}>
                                 <TextField
@@ -214,8 +214,8 @@ function Cabinet() {
                                 <FormControl component="fieldset">
                                     <FormGroup aria-label="position" row>
                                         <FormControlLabel
-                                            sx={{ml: 0}}
-                                            control={<Switch/>}
+                                            sx={{ ml: 0 }}
+                                            control={<Switch />}
                                             label={t("info.hide")}
                                             labelPlacement="start"
                                         />
@@ -229,11 +229,11 @@ function Cabinet() {
                     variant="text"
                     color="primary"
                     size="small"
-                    startIcon={<IconUrl path="ic-plus"/>}
+                    startIcon={<IconUrl path="ic-plus" />}
                     sx={{
                         ml: "21%",
                         mt: 2,
-                        svg: {width: 13, path: {fill: "#0696D6"}},
+                        svg: { width: 13, path: { fill: (theme: Theme) => theme.palette.primary.main } },
                     }}
                 >
                     {t("info.add")}
@@ -242,11 +242,11 @@ function Cabinet() {
             <Typography
                 variant="body1"
                 color="text.primary"
-                sx={{textTransform: "uppercase", mt: 2, mb: 1}}
+                sx={{ textTransform: "uppercase", mt: 2, mb: 1 }}
             >
                 {t("info-sup.title")}
             </Typography>
-            <Card sx={{p: 2, border: "1px solid #E4E4E4", boxShadow: "none"}}>
+            <Card sx={{ p: 2, border: `1px solid ${(theme: Theme) => theme.palette.grey["A300"]}`, boxShadow: "none" }}>
                 <Grid container spacing={2}>
                     <Grid item lg={3} md={3} sm={12} xs={12}>
                         {" "}
@@ -254,8 +254,8 @@ function Cabinet() {
                             variant="body2"
                             color="text.secondary"
                             sx={{
-                                textAlign: {md: "right", sm: "left"},
-                                mt: {md: 1, sm: 0},
+                                textAlign: { md: "right", sm: "left" },
+                                mt: { md: 1, sm: 0 },
                             }}
                         >
                             {t("info-sup.establishment")}

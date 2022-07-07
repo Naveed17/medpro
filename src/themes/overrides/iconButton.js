@@ -37,11 +37,11 @@ export default function IconButton(theme) {
             },
           },
           "&.success-light": {
-            border: `1px solid rgba(40, 199, 111, 0.12)`,
-            backgroundColor: "rgba(40, 199, 111, 0.12)",
+            border: `1px solid ${theme.palette.success.dark}`,
+            backgroundColor: theme.palette.success.dark,
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: "rgba(40, 199, 111, 0.12)",
+              backgroundColor: theme.palette.success.dark,
             },
             "& svg": {
               "& path": {
@@ -50,11 +50,11 @@ export default function IconButton(theme) {
             },
           },
           "&.error-light": {
-            border: `1px solid rgba(228, 51, 50, 0.1)`,
-            backgroundColor: "rgba(228, 51, 50, 0.1)",
+            border: `1px solid ${theme.palette.error.lighter}`,
+            backgroundColor: theme.palette.error.lighter,
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: "rgba(228, 51, 50, 0.1)",
+              backgroundColor: theme.palette.error.lighter,
             },
             "& svg": {
               "& path": {
@@ -72,7 +72,7 @@ export default function IconButton(theme) {
             borderRadius: "10px",
             "& svg": {
               "& path": {
-                fill: "#647F94",
+                fill: theme.palette.grey["A50"],
               },
             },
             "&:hover": {
@@ -98,11 +98,11 @@ export default function IconButton(theme) {
         {
           props: { variant: "warning-light" },
           style: {
-            border: `1px solid rgba(244, 150, 0, 0.1)`,
-            backgroundColor: "rgba(244, 150, 0, 0.1)",
+            border: `1px solid ${theme.palette.warning.lighter}`,
+            backgroundColor: theme.palette.warning.lighter,
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: "rgba(244, 150, 0, 0.1)",
+              backgroundColor: theme.palette.warning.lighter,
             },
             "& svg": {
               "& path": {
@@ -114,11 +114,11 @@ export default function IconButton(theme) {
         {
           props: { variant: "primary-light" },
           style: {
-            border: `1px solid rgba(0, 149, 183, 0.1)`,
-            backgroundColor: "rgba(0, 149, 183, 0.1)",
+            border: `1px solid ${theme.palette.primary.lighter}`,
+            backgroundColor: theme.palette.primary.lighter,
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: "rgba(0, 149, 183, 0.1)",
+              backgroundColor: theme.palette.primary.lighter,
             },
             "& svg": {
               "& path": {

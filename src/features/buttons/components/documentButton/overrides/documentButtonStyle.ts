@@ -1,4 +1,4 @@
-import { styled, Theme, PaletteColor } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { Button } from "@mui/material";
 const DocumentButtonStyled = styled(Button)(({ theme }) => ({
     color: "unset",
@@ -18,7 +18,7 @@ const DocumentButtonStyled = styled(Button)(({ theme }) => ({
     },
     "&:hover": {
         backgroundColor: theme.palette.info.lighter,
-        border: `1px solid #E3EAEF`,
+        border: `1px solid ${theme.palette.grey['A100']}`,
         boxShadow: theme.customShadows.documentButton,
     },
     "&:active, &:focus": {

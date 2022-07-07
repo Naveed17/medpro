@@ -65,7 +65,7 @@ export default function Button(theme) {
               background: theme.palette.common.white,
             },
             "&:active, &:focus": {
-              background: "#04618B",
+              background: theme.palette.primary.dark,
               color: theme.palette.common.white,
               boxShadow: "none",
               "& svg": {
@@ -83,7 +83,7 @@ export default function Button(theme) {
               boxShadow: theme.customShadows.textPrimaryButton,
             },
             "&:active,&:focus": {
-              backgroundColor: "#04618B",
+              backgroundColor: theme.palette.primary.dark,
             },
           },
         },
@@ -155,7 +155,7 @@ export default function Button(theme) {
         {
           props: { variant: "text-secondary" },
           style: {
-            color: "#6E6B7B",
+            color: theme.palette.grey["A200"],
           },
         },
         {

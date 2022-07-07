@@ -97,38 +97,29 @@ function Lieux() {
     <>
       <SubHeader>
         <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-          <Button
-            type="submit"
+          <p style={{ margin: 0 }}>{t('path')}</p>
+          <Button type='submit'
             variant="contained"
             onClick={() => {
               router.push(`/dashboard/settings/lieux/new`);
             }}
-            color="success"
-          >
-            {t("add")}
+            color="success">
+            {t('add')}
           </Button>
         </RootStyled>
       </SubHeader>
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
+      <Box className="container">
+        <Otable headers={headCells}
           rows={rows}
           state={null}
-          from={"lieux"}
+          from={'lieux'}
           t={t}
           editMotif={editPlaces}
           handleConfig={handleConfig}
-          handleChange={handleChange}
-          minWidth={1100}
-        />
+          handleChange={handleChange} />
         <Maps data={cords}></Maps>
       </Box>
-    </>
-  );
+    </>)
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {

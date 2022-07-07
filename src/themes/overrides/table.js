@@ -21,9 +21,13 @@ export default function Table(theme) {
                 borderRight: "1px solid transparent",
               },
             },
+            "& .text-row": {
+              backgroundColor: "transparent",
+              padding: 0,
+            },
             "&:hover": {
               "& .MuiTableCell-root": {
-                backgroundColor: "#0696D61A",
+                backgroundColor: theme.palette.primary.lighter,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 borderBottom: `1px solid ${theme.palette.divider}`,
                 "&:first-of-type": {
@@ -31,6 +35,17 @@ export default function Table(theme) {
                 },
                 "&:last-of-type": {
                   borderRight: `1px solid ${theme.palette.divider}`,
+                },
+                "&.text-row": {
+                  backgroundColor: "transparent",
+                  borderColor: "transparent",
+                  borderColor: "transparent",
+                  "&:first-of-type": {
+                    borderColor: "transparent",
+                  },
+                  "&:last-of-type": {
+                    borderColor: "transparent",
+                  },
                 },
               },
             },
@@ -99,14 +114,14 @@ export default function Table(theme) {
           },
         },
         stickyHeader: {
-          backgroundColor: "#C1E6F7",
+          backgroundColor: theme.palette.info.lighter,
         },
         body: {
           backgroundColor: theme.palette.background.paper,
           "&.MuiTableCell-root": {
             padding: "8px 12px",
           },
-          borderColor: "#f1faff",
+          borderColor: theme.palette.grey["A400"],
           fontFamily: "Poppins",
           color: theme.palette.text.secondary,
           fontSize: "12px",

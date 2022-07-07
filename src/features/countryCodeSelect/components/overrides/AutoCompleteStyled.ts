@@ -1,9 +1,9 @@
-import {styled} from "@mui/material/styles";
-import {Autocomplete} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Autocomplete } from "@mui/material";
 
 const AutoCompleteStyled = styled(Autocomplete)(({ theme }) => ({
     "& .MuiOutlinedInput-root": {
-        color:'#B8BCCA',
+        color: theme.palette.grey[700],
         border: 'none',
         fieldset: {
             border: "1px solid transparent",

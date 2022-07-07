@@ -10,91 +10,70 @@ import Switch from "@mui/material/Switch";
 import { uniqueId } from "lodash";
 function UserRow({ ...props }) {
   const { row, handleChange, t } = props;
-
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell>
-        {row ? (
+        {row ?
           <>
             <Typography variant="body1" color="text.primary">
               {row.name}
             </Typography>
             {row.email}
           </>
-        ) : (
+          :
           <Stack>
             <Skeleton variant="text" width={100} />
             <Skeleton variant="text" width={100} />
           </Stack>
-        )}
+        }
       </TableCell>
       <TableCell align="center">
-        {row ? (
+        {row ?
           <>
-            <Typography
-              textAlign={"center"}
-              variant="body1"
-              color="text.primary"
-            >
+            <Typography textAlign={"center"} variant="body1" color="text.primary">
               {row.fonction}
             </Typography>
             {row.speciality}
           </>
-        ) : (
+          :
           <Stack alignItems="center">
             <Skeleton variant="text" width={100} />
             <Skeleton variant="text" width={100} />
           </Stack>
-        )}
+        }
       </TableCell>
       <TableCell align="center">
-        {row ? (
+        {row ?
           <Lable
             variant="filled"
-            sx={{ backgroundColor: row.bg, color: row.color, px: 1.5 }}
-          >
+            color={row.bg}
+            sx={{ px: 1.5 }}>
             {row.status}
           </Lable>
-        ) : (
-          <Skeleton
-            variant="text"
-            width={100}
-            height={40}
-            sx={{ mx: "auto" }}
-          />
-        )}
+          : <Skeleton variant="text" width={100} height={40} sx={{ mx: 'auto' }} />}
       </TableCell>
       <TableCell align="center">
-        {row ? (
-          <Switch
-            name="active"
-            onChange={(e) => handleChange(row)}
-            checked={row.settings}
-          />
-        ) : (
-          <Skeleton width={50} height={40} sx={{ m: "auto" }} />
-        )}
+        {row ?
+          <Switch name='active' onChange={(e) => handleChange(row)} checked={row.settings} />
+          : <Skeleton width={50} height={40} sx={{ m: 'auto' }} />}
       </TableCell>
       <TableCell align="center">
-        {row ? (
-          <Typography className="name" variant="body1" color="text.primary">
-            {row.access} {t("table.agenda")}
+        {row ?
+          <Typography className='name' variant="body1" color="text.primary">
+            {row.access} {t('agenda')}
           </Typography>
-        ) : (
-          <Skeleton variant="text" width={100} sx={{ m: "auto" }} />
-        )}
+          : <Skeleton variant="text" width={100} sx={{ m: 'auto' }} />}
       </TableCell>
       <TableCell align="right">
-        {row ? (
+        {row ?
           <Box display="flex" sx={{ float: "right" }} alignItems="center">
             <Button
               variant="text"
               size="small"
               color="primary"
               startIcon={<IconUrl path="setting/edit" />}
-              onClick={() => console.log("edit", row)}
-            >
-              {t("table.update")}
+              onClick={() => console.log("edit", row)}>
+              {t('update')}
             </Button>
             <Button
               variant="text"
@@ -102,24 +81,16 @@ function UserRow({ ...props }) {
               color="error"
               startIcon={<IconUrl path="setting/icdelete" />}
               onClick={() => console.log("remove", row)}
-              sx={{ mr: 1 }}
-            >
-              {t("table.remove")}
+              sx={{ mr: 1 }}>
+              {t('remove')}
             </Button>
           </Box>
-        ) : (
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            justifyContent="flex-end"
-          >
+          : <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">
             <Skeleton variant="text" width={50} />
             <Skeleton variant="text" width={50} />
-          </Stack>
-        )}
+          </Stack>}
       </TableCell>
     </TableRowStyled>
-  );
+  )
 }
 export default UserRow;
