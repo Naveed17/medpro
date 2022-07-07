@@ -26,6 +26,11 @@ import { DashLayout } from "@features/base";
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
+import { SpeedDial } from "@features/speedDial";
+
+// icons
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 // interface
 interface HeadCell {
@@ -51,7 +56,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "video-consultation",
+        motif: "Video consultation",
         meeting: true,
       },
       {
@@ -62,7 +67,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "video-consultation",
+        motif: "Video consultation",
 
         meeting: true,
       },
@@ -74,14 +79,14 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "video-consultation",
+        motif: "Video consultation",
 
         meeting: true,
       },
     ],
   },
   {
-    title: "old-appo",
+    title: "old-",
     pending: false,
     data: [
       {
@@ -95,7 +100,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "video-consultation",
+            motif: "Video consultation",
 
             meeting: true,
           },
@@ -107,7 +112,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "video-consultation",
+            motif: "Video consultation",
 
             meeting: true,
           },
@@ -124,7 +129,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "video-consultation",
+            motif: "Video consultation",
             meeting: true,
           },
           {
@@ -135,7 +140,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "video-consultation",
+            motif: "Video consultation",
             meeting: true,
           },
         ],
@@ -430,6 +435,14 @@ function Patient() {
 
   if (!ready) return <>loading translations...</>;
 
+  const actions: {
+    icon: ReactElement;
+    name: string;
+  }[] = [
+    { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
+    { icon: <CloudUploadIcon />, name: t("tabs.import") },
+  ];
+
   return (
     <>
       <SubHeader>
@@ -516,6 +529,7 @@ function Patient() {
                 borderWidth: "0px",
                 p: 2,
                 textAlign: "right",
+                display: { md: "block", xs: "none" },
               }}
             >
               <Button
@@ -537,6 +551,10 @@ function Patient() {
                 {t("tabs.add-appo")}
               </Button>
             </Paper>
+            <SpeedDial
+              sx={{ display: { md: "none", xs: "fixed" } }}
+              actions={actions}
+            />
           </Box>
         </Drawer>
       </Box>
