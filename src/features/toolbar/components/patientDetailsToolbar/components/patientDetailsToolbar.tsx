@@ -4,7 +4,7 @@ import { Box, List, ListItem, IconButton, Button } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import { RootStyled } from "./overrides";
 import { useTranslation } from "next-i18next";
-export default function PatientDetailsToolbar() {
+function PatientDetailsToolbar({ ...props }) {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "patient-details",
   });
@@ -15,15 +15,18 @@ export default function PatientDetailsToolbar() {
         <nav>
           <List sx={{ display: "flex" }}>
             <ListItem disablePadding sx={{ marginRight: "20px" }}>
-              {/* <IconButton color="primary" edge="start">
-                <Icon path={"ic-refrech"} className="refresh" />
-              </IconButton> */}
               <Button
                 variant="contained"
                 color="primary"
-                sx={{
-                  "&.Mui-disabled": { bgcolor: theme => theme.palette.grey['A500'], color: theme => theme.palette.grey['A0'] },
-                }}
+                // sx={{
+                //   "&.Mui-disabled": {
+                //     bgcolor: (theme) => theme.palette.grey["A500"],
+                //     color: (theme) => theme.palette.grey["A0"],
+                //   },
+                //   "svg path": {
+                //     fill: (theme) => theme.palette.grey["A0"],
+                //   },
+                // }}
                 disabled
                 startIcon={<Icon path="ic-edit" />}
               >
@@ -34,7 +37,7 @@ export default function PatientDetailsToolbar() {
               <IconButton
                 color="primary"
                 edge="start"
-                sx={{ path: { fill: theme => theme.palette.common.black } }}
+                sx={{ path: { fill: (theme) => theme.palette.common.black } }}
               >
                 <Icon path={"ic-refrech"} />
               </IconButton>
@@ -45,7 +48,11 @@ export default function PatientDetailsToolbar() {
               </IconButton>
             </ListItem>
             <ListItem disablePadding>
-              <IconButton color="primary" edge="start">
+              <IconButton
+                onClick={() => props.onClose()}
+                color="primary"
+                edge="start"
+              >
                 <Icon path="ic-x" />
               </IconButton>
             </ListItem>
@@ -55,3 +62,4 @@ export default function PatientDetailsToolbar() {
     </RootStyled>
   );
 }
+export default PatientDetailsToolbar;

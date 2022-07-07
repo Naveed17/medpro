@@ -10,9 +10,10 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
 
 // redux
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
+import { onOpenDetails } from "@features/table";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
@@ -24,6 +25,7 @@ import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
+import { GroupTable } from "@features/groupTable";
 
 // interface
 interface HeadCell {
@@ -34,6 +36,113 @@ interface HeadCell {
   sortable: boolean;
   align: "left" | "right" | "center";
 }
+
+// data for patient details RDV
+const data: PatientDetailsRDV[] = [
+  {
+    title: "pending-appo",
+    pending: true,
+    data: [
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+
+        meeting: true,
+      },
+    ],
+  },
+  {
+    title: "old-appo",
+    pending: false,
+    data: [
+      {
+        title: "2021",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+
+            meeting: true,
+          },
+        ],
+      },
+      {
+        title: "2020",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+        ],
+      },
+    ],
+  },
+];
 
 // Patient data for table body
 const PatiendData = [
@@ -48,7 +157,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -61,11 +170,11 @@ const PatiendData = [
     idCode: "123456789",
     city: "New York",
     nextAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     lastAppointment:
-        "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
+      "Wed Jun 15 2022 16:57:18 GMT+0100 (Central European Standard Time)",
     addAppointment: true,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -80,7 +189,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "success",
     action: "left",
   },
@@ -95,7 +204,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -110,7 +219,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -125,7 +234,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -140,7 +249,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -155,7 +264,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -170,7 +279,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -185,7 +294,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -200,7 +309,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -215,7 +324,7 @@ const PatiendData = [
     nextAppointment: moment(),
     lastAppointment: moment(),
     addAppointment: false,
-    dateOfBirth: new Date("07-02-1998"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -295,6 +404,7 @@ function a11yProps(index: number) {
   };
 }
 function Patient() {
+  const dispatch = useAppDispatch();
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
@@ -311,7 +421,7 @@ function Patient() {
   };
   // useEffect hook for handling the table action drawer
   useEffect(() => {
-    if (Boolean(patientId)) {
+    if (Boolean(patientId !== "")) {
       setopen(true);
     }
   }, [patientId]);
@@ -346,24 +456,41 @@ function Patient() {
           open={open}
           dir={direction}
           onClose={() => {
+            dispatch(onOpenDetails({ patientId: "" }));
             setopen(false);
           }}
         >
-          <PatientDetailsToolbar />
+          <PatientDetailsToolbar
+            onClose={() => {
+              dispatch(onOpenDetails({ patientId: "" }));
+              setopen(false);
+            }}
+          />
           <PatientdetailsCard />
           <Box
             sx={{
-              width: "726px",
+              width: { md: 726, xs: "100%" },
               bgcolor: "background.default",
               "& div[role='tabpanel']": {
-                height: "calc(100vh - 312px)",
+                height: { md: "calc(100vh - 312px)", xs: "auto" },
                 overflowY: "auto",
               },
             }}
           >
-            <Box
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="scrollable"
+              aria-label="basic tabs example"
               sx={{
                 px: 2,
+                position: "sticky",
+                top: 54,
+                borderTop: (theme) => ({
+                  md: "none",
+                  xs: `1px solid ${theme.palette.divider}`,
+                }),
+                zIndex: 112,
                 bgcolor: "background.paper",
                 button: {
                   "&.Mui-selected": {
@@ -372,20 +499,16 @@ function Patient() {
                 },
               }}
             >
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                variant="scrollable"
-                aria-label="basic tabs example"
-              >
-                <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-                <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-                <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-              </Tabs>
-            </Box>
+              <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+              <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+              <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+            </Tabs>
             <Divider />
             <TabPanel padding={1} key={Math.random()} value={value} index={0}>
               <PersonalInfoPanel />
+            </TabPanel>
+            <TabPanel padding={1} key={Math.random()} value={value} index={1}>
+              <GroupTable from="patient" data={data} />
             </TabPanel>
             <Paper
               sx={{

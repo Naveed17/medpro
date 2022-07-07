@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 import { alpha } from "@mui/material/styles";
 
-export default function Checkbox(theme) {
+export default function Drawer(theme) {
   return {
     MuiDrawer: {
       styleOverrides: {
@@ -11,11 +11,6 @@ export default function Checkbox(theme) {
           },
           "& .MuiDrawer-paperAnchorRight": {
             boxShadow: theme.customShadows.drawer,
-            "& > div": {
-              [theme.breakpoints.down("sm")]: {
-                minWidth: "100vw",
-              },
-            },
           },
         },
       },
