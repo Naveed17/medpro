@@ -2,9 +2,9 @@ import { useState, ReactNode, SyntheticEvent, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { RootStyled } from "@features/customStepper";
-import { useTranslation } from "next-i18next";
-import { TabPanel } from "@features/tabPanel";
+import {RootStyled} from "@features/customStepper";
+import {useTranslation} from "next-i18next";
+import {TabPanel} from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
   const {
@@ -18,16 +18,16 @@ function CustomStepper({ ...props }) {
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
-  const handleChange = (event: SyntheticEvent, val: number) => {
-    setValue(val);
-  };
+    const handleChange = (event: SyntheticEvent, val: number) => {
+        setValue(val);
+    };
 
-  useEffect(() => {
-    setValue(currentIndex);
-  }, [currentIndex]);
+    useEffect(() => {
+        setValue(currentIndex);
+    }, [currentIndex]);
 
-  const { t, ready } = useTranslation(translationKey, { keyPrefix: prefixKey });
-  if (!ready) return <>loading translations...</>;
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: prefixKey});
+    if (!ready) return <>loading translations...</>;
 
   return (
     <>
@@ -94,4 +94,5 @@ function CustomStepper({ ...props }) {
     </>
   );
 }
+
 export default CustomStepper;

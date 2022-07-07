@@ -1,6 +1,7 @@
-import { FormikProvider, Form, useFormik } from "formik";
+import {FormikProvider, Form, useFormik} from "formik";
 import {
-    Avatar, Box, Checkbox,
+    Autocomplete,
+    Avatar, Box, Button, Checkbox,
     FormControl,
     FormControlLabel,
     IconButton,
@@ -8,24 +9,19 @@ import {
     Radio,
     RadioGroup, Select,
     Stack, TextField,
-    Typography,
-    Theme
+    Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { MultiSelect } from "@features/multiSelect";
-import React, { useState } from "react";
+import {MultiSelect} from "@features/multiSelect";
+import React, {useEffect, useState} from "react";
 import LabelStyled from "./overrides/labelStyled";
-import { CropImage } from "@features/cropImage";
-import { InputStyled } from "@features/tabPanel";
-import { useTranslation } from "next-i18next";
+import {CropImage} from "@features/cropImage";
+import {InputStyled} from "@features/tabPanel";
+import {useTranslation} from "next-i18next";
 import useRequest from "@app/axios/axiosServiceApi";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { LoadingScreen } from "@features/loadingScreen";
-
-type selectMultiple = {
-    title: string
-}
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface MyFormProps {
     file?: string;
@@ -35,27 +31,19 @@ interface MyFormProps {
         firstName: string,
         name: string,
     };
-    specialty: SpecialtyModel | string,
+    specialty: SpecialtyModel | undefined,
     secondarySpecialties: SpecialtyModel[],
-    languages: selectMultiple[]
+    languages: LanguageModel[]
 }
 
-const multipleLanguage = [
-    { title: "Français" },
-    { title: "Anglais" },
-    { title: "Espagnol" },
-    { title: "Allemand" },
-    { title: "Italien" },
-    { title: "Russe" },
-    { title: "Japonais" },
-    { title: "Chinois" },
-];
+function Info({...props}) {
+    const {onSubmit} = props;
+    console.log('Info', onSubmit);
 
-function Info() {
-    const { data: session, status } = useSession();
+    const {data: session, status} = useSession();
     const loading = status === 'loading';
     const router = useRouter();
-    const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-0" });
+    const {t, ready} = useTranslation('editProfile', {keyPrefix: "steppers.stepper-0"});
     const formik = useFormik<MyFormProps>({
         initialValues: {
             file: "",
@@ -65,7 +53,7 @@ function Info() {
                 firstName: "",
                 name: "",
             },
-            specialty: '',
+            specialty: undefined,
             secondarySpecialties: [],
             languages: [],
         },
@@ -73,12 +61,16 @@ function Info() {
             console.log(values);
         },
     });
-    const { values, handleSubmit, getFieldProps, setFieldValue } = formik;
+    const {values, handleSubmit, getFieldProps, setFieldValue} = formik;
     const [open, setOpen] = useState(false);
+    const [selectData, setSelectData] = useState<LanguageModel[]>([]);
 
-    const [selectData, setSelectData] = useState([multipleLanguage[0]]);
+    useEffect(() => {
+        console.log('something prop has changed.', onSubmit);
+        // handleSubmit();
+    }, [onSubmit]);
 
-    const { data: httpResponse, error } = useRequest({
+    const {data: httpResponse, error} = useRequest({
         method: "GET",
         url: `/api/public/specialty/${router.locale}`,
         headers: {
@@ -86,10 +78,20 @@ function Info() {
         }
     });
 
-    if (error) return <div>failed to load</div>
-    if (!ready || !httpResponse || loading) return (<LoadingScreen />);
+    const {data: httpResponseLang, error: errorLang} = useRequest({
+        method: "GET",
+        url: `/api/public/language/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
+
+    if (error || errorLang) return <div>failed to load</div>
+    if (!ready || !httpResponse || !httpResponseLang || loading) return (<LoadingScreen/>);
 
     const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
+    const languages = (httpResponseLang as HttpResponse).data as LanguageModel[];
     const secondarySpecialties = specialties.slice(10);
 
     const handleDrop = (acceptedFiles: FileList) => {
@@ -99,7 +101,7 @@ function Info() {
     };
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name: specialty, checked } = event.target;
+        const {name: specialty, checked} = event.target;
         console.log(specialty, checked);
         setFieldValue(
             "secondarySpecialties",
@@ -114,6 +116,7 @@ function Info() {
             <FormikProvider value={formik}>
                 <Stack
                     spacing={2}
+                    sx={{mb: 3}}
                     component={Form}
                     autoComplete="off"
                     noValidate
@@ -124,8 +127,8 @@ function Info() {
                     </Typography>
                     <Stack
                         spacing={2}
-                        direction={{ xs: "column", lg: "row" }}
-                        alignItems={{ xs: "center", lg: "stretch" }}
+                        direction={{xs: "column", lg: "row"}}
+                        alignItems={{xs: "center", lg: "stretch"}}
                         sx={{
                             "& > label": {
                                 position: "relative",
@@ -142,9 +145,9 @@ function Info() {
                             />
                             <Avatar
                                 src={values.file}
-                                sx={{ width: 164, height: 164 }}
+                                sx={{width: 164, height: 164}}
                             >
-                                <IconUrl path="ic-user-profile" />
+                                <IconUrl path="ic-user-profile"/>
                             </Avatar>
                             <IconButton
                                 color="primary"
@@ -155,10 +158,10 @@ function Info() {
                                     right: 10,
                                     zIndex: 1,
                                     pointerEvents: "none",
-                                    bgcolor: `${(theme: Theme) => theme.palette.background.paper}!important`,
+                                    bgcolor: "#fff !important",
                                 }}
                             >
-                                <IconUrl path="ic-return-photo" />
+                                <IconUrl path="ic-return-photo"/>
                             </IconButton>
                         </label>
                         <Stack
@@ -173,7 +176,7 @@ function Info() {
                         >
                             <Typography
                                 variant="subtitle1"
-                                sx={{ textAlign: { xs: "center", lg: "left" } }}
+                                sx={{textAlign: {xs: "center", lg: "left"}}}
                                 color="text.primary"
                                 fontWeight={600}
                             >
@@ -193,17 +196,17 @@ function Info() {
                                 >
                                     <FormControlLabel
                                         value="Male"
-                                        control={<Radio size="small" />}
+                                        control={<Radio size="small"/>}
                                         label={t('genre.man')}
                                     />
                                     <FormControlLabel
                                         value="Female"
-                                        control={<Radio size="small" />}
+                                        control={<Radio size="small"/>}
                                         label={t('genre.women')}
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <Stack direction={{ xs: "column", lg: "row" }} spacing={2}>
+                            <Stack direction={{xs: "column", lg: "row"}} spacing={2}>
                                 <Box>
                                     <LabelStyled>{t('pseudo')}</LabelStyled>
                                     <FormControl fullWidth>
@@ -246,43 +249,43 @@ function Info() {
                             </Stack>
                         </Stack>
                     </Stack>
-                    <Box sx={{ mt: "40px !important" }}>
+                    <Box sx={{mt: "40px !important"}}>
                         <Typography variant="subtitle1" gutterBottom fontWeight={600}>
                             {t('specialty')}
                         </Typography>
-                        <FormControl fullWidth>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id={"specialty"}
-                                defaultValue=""
-                                size="small"
-                                {...getFieldProps("specialty")}
-                                value={values.specialty}
-                                displayEmpty
-                                renderValue={(selected) => {
-                                    if (selected === '') {
-                                        return <em>Choisissez votre spécialité</em>;
-                                    }
 
-                                    return specialties.find(specialty => specialty.uuid === selected)?.name;
+                        <FormControl fullWidth>
+                            <Autocomplete
+                                disablePortal
+                                id="specialty"
+                                size="small"
+                                options={specialties}
+                                {...getFieldProps("specialty")}
+                                isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
+                                getOptionLabel={(option) => option.uuid}
+                                renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                renderInput={(params) => {
+                                    return <TextField
+                                        {...params}
+                                        variant="outlined"
+                                        placeholder={'Choisissez votre spécialité'}
+                                    />
                                 }}
                                 className="select-specialty"
-                            >
-                                {specialties.map(specialty => <MenuItem key={specialty.uuid} value={specialty.uuid}>{specialty.name}</MenuItem>)}
-                            </Select>
+                            />
                         </FormControl>
                     </Box>
-                    <Box sx={{ mt: "22px !important" }}>
-                        <Typography variant="subtitle1" sx={{ mb: 2 }} fontWeight={600}>
+                    <Box sx={{mt: "22px !important"}}>
+                        <Typography variant="subtitle1" sx={{mb: 2}} fontWeight={600}>
                             {t('specialty-sec')}
                         </Typography>
-                        <List dense={true} sx={{ display: "flex", flexWrap: "wrap" }}>
+                        <List dense={true} sx={{display: "flex", flexWrap: "wrap"}}>
                             {secondarySpecialties.map((el, index) => (
                                 <ListItem
                                     key={`secondarySpecialties-${index}`}
                                     sx={{
                                         width: secondarySpecialties.length > 3 ? "50%" : "100%",
-                                        px: { xs: "0", lg: "1rem" },
+                                        px: {xs: "0", lg: "1rem"},
                                         "& label": {
                                             cursor: "pointer",
                                             display: "flex",
@@ -297,24 +300,25 @@ function Info() {
                                             name={el.uuid}
                                             id={`secodary-specialties-${index}`}
                                         />
-                                        <ListItemText primary={el.name} />
+                                        <ListItemText primary={el.name}/>
                                     </label>
                                 </ListItem>
                             ))}
                         </List>
                     </Box>
-                    <Box sx={{ mt: "40px !important" }}>
-                        <Typography variant="subtitle1" sx={{ mb: 2 }} fontWeight={600}>
+                    <Box sx={{mt: "40px !important"}}>
+                        <Typography variant="subtitle1" sx={{mb: 2}} fontWeight={600}>
                             {t('languages.title')}
                         </Typography>
                         <MultiSelect
-                            data={multipleLanguage}
+                            label={'name'}
+                            data={languages}
                             initData={selectData}
                             placeholder={t('languages.placeholder')}
-                            onChange={(event: React.ChangeEvent, value: selectMultiple[]) => {
+                            onChange={(event: React.ChangeEvent, value: LanguageModel[]) => {
                                 setFieldValue("languages", value)
                                 setSelectData(value);
-                            }} />
+                            }}/>
                     </Box>
                     <CropImage
                         open={open}
@@ -322,9 +326,24 @@ function Info() {
                         setOpen={setOpen}
                         setFieldValue={setFieldValue}
                     />
+                    <Stack
+                        spacing={3}
+                        direction="row"
+                        justifyContent="flex-end"
+                        mt={"auto"}
+                    >
+                        <Button variant="text-black" color="primary">
+                            {t("cancel")}
+                        </Button>
+                        <Button variant="contained" type="submit" color="primary">
+                            next
+                        </Button>
+                    </Stack>
                 </Stack>
+
             </FormikProvider>
         </>
     );
 }
+
 export default Info;
