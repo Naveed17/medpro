@@ -25,8 +25,8 @@ import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
-import { GroupedTable } from "@features/groupTable";
-import { add } from "date-fns";
+import { GroupTable } from "@features/groupTable";
+
 // interface
 interface HeadCell {
   disablePadding: boolean;
@@ -37,9 +37,10 @@ interface HeadCell {
   align: "left" | "right" | "center";
 }
 
-const data = [
+// data for patient details RDV
+const data: PatientDetailsRDV[] = [
   {
-    title: "Pending appointments",
+    title: "pending-appo",
     pending: true,
     data: [
       {
@@ -50,7 +51,18 @@ const data = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
 
         meeting: true,
       },
@@ -62,26 +74,14 @@ const data = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
-
-        meeting: true,
-      },
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
 
         meeting: true,
       },
     ],
   },
   {
-    title: "Old appointments",
+    title: "old-appo",
     pending: false,
     data: [
       {
@@ -92,10 +92,10 @@ const data = [
             start: new Date(2020, 4, 1, 10, 30),
             end: new Date(2020, 4, 1, 11, 30),
             allDay: false,
-            time: add(new Date(), { day: 1 }),
+            time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -104,10 +104,10 @@ const data = [
             start: new Date(2020, 4, 1, 10, 30),
             end: new Date(2020, 4, 1, 11, 30),
             allDay: false,
-            time: add(new Date(), { day: 1 }),
+            time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -121,10 +121,10 @@ const data = [
             start: new Date(2020, 4, 1, 10, 30),
             end: new Date(2020, 4, 1, 11, 30),
             allDay: false,
-            time: add(new Date(), { day: 1 }),
+            time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
           {
@@ -132,10 +132,10 @@ const data = [
             start: new Date(2020, 4, 1, 10, 30),
             end: new Date(2020, 4, 1, 11, 30),
             allDay: false,
-            time: add(new Date(), { day: 1 }),
+            time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
         ],
@@ -508,7 +508,7 @@ function Patient() {
               <PersonalInfoPanel />
             </TabPanel>
             <TabPanel padding={1} key={Math.random()} value={value} index={1}>
-              <GroupedTable data={data} />
+              <GroupTable from="patient" data={data} />
             </TabPanel>
             <Paper
               sx={{
