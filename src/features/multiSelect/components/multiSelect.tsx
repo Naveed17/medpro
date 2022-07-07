@@ -4,6 +4,8 @@ import { Autocomplete, TextField, Chip } from "@mui/material";
 
 function MultiSelect({...props}) {
     const {
+        label = 'title',
+        multiple = true,
         id,
         data,
         initData,
@@ -18,12 +20,12 @@ function MultiSelect({...props}) {
 
     return (
         <Autocomplete
-            multiple
+            multiple={multiple}
             id="tags-standard"
             options={data}
             value={initData}
-            getOptionLabel={(option) => option.title}
-            isOptionEqualToValue={(option, value) => option.title === value.title}
+            getOptionLabel={(option) => option[label]}
+            isOptionEqualToValue={(option, value) => option[label] === value[label]}
             onChange={(event, value) =>  onChange(event, value)}
             onDrop={(e) => onDrop(id, e)}
             onDragOver={onDragOver}
@@ -41,7 +43,7 @@ function MultiSelect({...props}) {
                     <Chip
                         variant="contained"
                         color="primary"
-                        label={option.title}
+                        label={option[label]}
                         {...getTagProps({ index })}
                     />
                 ))
