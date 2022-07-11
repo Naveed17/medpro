@@ -34,19 +34,17 @@ function Motif() {
     });
     const [selected, setSelected] = useState();
     const {direction} = useAppSelector(configSelector);
+    const durations = useDateConverture(15, 240)
 
     const {data, error} = useRequest({
         method: "GET",
-        url: "/api/medical/entity/consultation/reason/" + medical_entity.uuid + "/" + router.locale,
+        url: "/api/medical-entity/consultation/reason/" + medical_entity.uuid + "/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const convDate = useDateConverture(932878);
-
-
     useEffect(() => {
         if (data !== undefined) {
-            //setRows((data as any).data)
+            setRows((data as any).data);
         }
     }, [data])
 
@@ -54,7 +52,10 @@ function Motif() {
         setEdit(false);
     }
 
-    const {t, ready} = useTranslation('settings', {keyPrefix: "motif"});
+    const { t, ready } = useTranslation(['settings', 'common'],{
+        keyPrefix: "motif.config",
+    });
+
     if (!ready) return (<>loading translations...</>);
 
     const headCells = [
@@ -153,7 +154,6 @@ function Motif() {
         // @ts-ignore
         state[event] = !state[event];
         if (event === 'isEnabled') {
-            console.log(state);
             rows.map(row => row.isEnabled = state.isEnabled);
             setRows([...rows]);
         }
@@ -187,6 +187,7 @@ function Motif() {
                         from={'motif'}
                         t={t}
                         edit={editMotif}
+                        durations={durations}
                         handleConfig={handleConfig}
                         handleChange={handleChange}/>
                 <Drawer

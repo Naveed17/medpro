@@ -46,6 +46,7 @@ function Otable({ ...props }) {
     handleConfig,
     minWidth,
     pagination,
+      ...rest
   } = props;
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -83,7 +84,6 @@ function Otable({ ...props }) {
         selected.slice(selectedIndex + 1)
       );
     }
-
     setSelected(newSelected);
   };
   const loading = false;
@@ -145,6 +145,7 @@ function Otable({ ...props }) {
                     active={active}
                     ids={ids}
                     labelId={labelId}
+                    data={rest}
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
                   />

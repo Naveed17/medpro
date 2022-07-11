@@ -6,11 +6,14 @@ import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table"
 import {uniqueId} from 'lodash'
-
+import {useTranslation} from "next-i18next";
 
 function MotifRow({...props}) {
 
-    const {row, tableHeadData, active, handleChange, editMotif, ids} = props;
+    const {row, tableHeadData, active, handleChange, editMotif, ids,data} = props;
+    const durations:DurationModel[] = data.durations
+
+    const { t, ready } = useTranslation('common');
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -29,26 +32,29 @@ function MotifRow({...props}) {
                             fullWidth>
                             <Select
                                 id="demo-select-small"
-                                value={row.duree}
+                                value={row.duration}
                                 onChange={(ev) => {
                                     handleChange(row, 'duration', ev.target.value)
                                 }}
                                 name="duration"
                                 sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData.duration ? 1 : 0})}}>
-                                <MenuItem value={10}>10 min</MenuItem>
-                                <MenuItem value={20}>20 min</MenuItem>
-                                <MenuItem value={30}>30 min</MenuItem>
+                                {
+                                    durations.map((duration) =>
+                                        (<MenuItem key={duration.value} value={duration.value}>
+                                            {duration.date +' ' + t('times.' + duration.unity)}
+                                        </MenuItem>))
+                                }
                             </Select>
                         </FormControl>
                         : <Skeleton variant="rectangular" width={150} height={30}/>}
             </TableCell>
             <TableCell>
-                {row ?
+                {/*{row ?
                     <FormControl size="small" fullWidth
                                  disabled={tableHeadData === null ? true : !tableHeadData['delay_min']}>
                         <Select
                             id="demo-select-small"
-                            value={row.min}
+                            value={row.minimumDelay}
                             onChange={(e) => {
                                 handleChange(row, 'min', e.target.value)
                             }}
@@ -59,27 +65,26 @@ function MotifRow({...props}) {
                             <MenuItem value={3}>3 Jour</MenuItem>
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30}/>}
+                    : <Skeleton variant="rectangular" width={150} height={30}/>}*/}
             </TableCell>
             <TableCell>
-                {row ?
+                {/*{row ?
                     <FormControl size="small" fullWidth
                                  disabled={tableHeadData === null ? true : !tableHeadData['delay_max']}>
                         <Select
                             id="demo-select-small"
-                            value={row.max}
+                            value={row.maximumDelay}
                             onChange={(e) => {
                                 handleChange(row, 'max', e.target.value)
                             }}
                             name="maximumDelay"
-                            sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_max'] ? 1 : 0})}}
-                        >
+                            sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_max'] ? 1 : 0})}}>
                             <MenuItem value={1}>1 Jour</MenuItem>
                             <MenuItem value={2}>2 Jour</MenuItem>
                             <MenuItem value={3}>3 Jour</MenuItem>
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}
+                    : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}*/}
             </TableCell>
             <TableCell align="center">
                 {row ?

@@ -56,7 +56,7 @@
   },
   "motif": {
     "config": {
-      "add": "Ajouter motif",
+      "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
       "table": {
         "name": "Nom",

@@ -28,5 +28,21 @@
     "add": "إضافة",
     "delete": "يحذف",
     "seance": "Séance"
+  },
+  "times": {
+    "year": "عام",
+    "years": "سنوات",
+    "month": "شهر",
+    "months": "اشهر",
+    "day": "يوم",
+    "days": "أيام",
+    "hour": "ساعة",
+    "hours": "ساعات",
+    "minute": "دقيقة",
+    "minutes": "دقائق",
+    "seconde": "ثانية",
+    "secondes": "ثواني",
+    "millisecond": "ميلي ثانية",
+    "milliseconds": "مللي ثانية"
   }
 }
