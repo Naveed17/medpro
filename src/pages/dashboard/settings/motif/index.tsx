@@ -35,6 +35,7 @@ function Motif() {
     const [selected, setSelected] = useState();
     const {direction} = useAppSelector(configSelector);
     const durations = useDateConverture(15, 240)
+    const delay = useDateConverture(1440, 21600)
 
     const {data, error} = useRequest({
         method: "GET",
@@ -126,9 +127,8 @@ function Motif() {
     ];
 
     const handleChange = (props: any, event: string, value: string) => {
-
         switch (event) {
-            case "isEnabled":
+            case "active":
                 props.isEnabled = !props.isEnabled;
                 if (!props.isEnabled) {
                     state.isEnabled = false;
@@ -136,13 +136,13 @@ function Motif() {
                 }
                 break;
             case "duration":
-                props.duree = value;
+                props.duration = value;
                 break;
             case "min":
-                props.min = value;
+                props.minimumDelay = value;
                 break;
             case "max":
-                props.max = value;
+                props.maximumDelay = value;
                 break;
             default:
                 break
@@ -188,6 +188,7 @@ function Motif() {
                         t={t}
                         edit={editMotif}
                         durations={durations}
+                        delay={delay}
                         handleConfig={handleConfig}
                         handleChange={handleChange}/>
                 <Drawer
@@ -195,7 +196,10 @@ function Motif() {
                     open={edit}
                     dir={direction}
                     onClose={closeDraw}>
-                    <EditMotifDialog data={selected} closeDraw={closeDraw}/>
+                    <EditMotifDialog data={selected}
+                                     durations={durations}
+                                     delay={delay}
+                                     closeDraw={closeDraw}/>
                 </Drawer>
             </Box>
         </>

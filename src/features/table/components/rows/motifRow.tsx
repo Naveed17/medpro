@@ -10,10 +10,11 @@ import {useTranslation} from "next-i18next";
 
 function MotifRow({...props}) {
 
-    const {row, tableHeadData, active, handleChange, editMotif, ids,data} = props;
-    const durations:DurationModel[] = data.durations
+    const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
+    const durations: DurationModel[] = data.durations;
+    const delay: DurationModel[] = data.delay;
 
-    const { t, ready } = useTranslation('common');
+    const {t, ready} = useTranslation('common');
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -41,7 +42,7 @@ function MotifRow({...props}) {
                                 {
                                     durations.map((duration) =>
                                         (<MenuItem key={duration.value} value={duration.value}>
-                                            {duration.date +' ' + t('times.' + duration.unity)}
+                                            {duration.date + ' ' + t('times.' + duration.unity)}
                                         </MenuItem>))
                                 }
                             </Select>
@@ -49,7 +50,7 @@ function MotifRow({...props}) {
                         : <Skeleton variant="rectangular" width={150} height={30}/>}
             </TableCell>
             <TableCell>
-                {/*{row ?
+                {row ?
                     <FormControl size="small" fullWidth
                                  disabled={tableHeadData === null ? true : !tableHeadData['delay_min']}>
                         <Select
@@ -60,15 +61,18 @@ function MotifRow({...props}) {
                             }}
                             name="minimumDelay"
                             sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_min'] ? 1 : 0})}}>
-                            <MenuItem value={1}>1 Jour</MenuItem>
-                            <MenuItem value={2}>2 Jour</MenuItem>
-                            <MenuItem value={3}>3 Jour</MenuItem>
+                            {
+                                delay.map((duration) =>
+                                    (<MenuItem key={duration.value} value={duration.value}>
+                                        {duration.date + ' ' + t('times.' + duration.unity)}
+                                    </MenuItem>))
+                            }
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30}/>}*/}
+                    : <Skeleton variant="rectangular" width={150} height={30}/>}
             </TableCell>
             <TableCell>
-                {/*{row ?
+                {row ?
                     <FormControl size="small" fullWidth
                                  disabled={tableHeadData === null ? true : !tableHeadData['delay_max']}>
                         <Select
@@ -79,12 +83,15 @@ function MotifRow({...props}) {
                             }}
                             name="maximumDelay"
                             sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_max'] ? 1 : 0})}}>
-                            <MenuItem value={1}>1 Jour</MenuItem>
-                            <MenuItem value={2}>2 Jour</MenuItem>
-                            <MenuItem value={3}>3 Jour</MenuItem>
+                            {
+                                delay.map((duration) =>
+                                    (<MenuItem key={duration.value} value={duration.value}>
+                                        {duration.date + ' ' + t('times.' + duration.unity)}
+                                    </MenuItem>))
+                            }
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}*/}
+                    : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}
             </TableCell>
             <TableCell align="center">
                 {row ?
