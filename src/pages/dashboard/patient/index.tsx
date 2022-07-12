@@ -547,7 +547,7 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ["patient", "menu"])),
+        ...(await serverSideTranslations(locale as string, ["common", "menu", "patient"])),
     },
 });
 
