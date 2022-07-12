@@ -7,7 +7,7 @@ import moment from "moment-timezone";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
 import { onOpenDetails } from "@features/table";
-export default function PermissionRow({ ...props }) {
+function PatientRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
   const dispatch = useAppDispatch();
   return (
@@ -63,7 +63,7 @@ export default function PermissionRow({ ...props }) {
               className="text-time"
             >
               <Icon path="ic-anniverssaire" />
-              {row.dateOfBirth.format("DD-MM-YYYY")} -{" "}
+              {row.dateOfBirth} -{" "}
               {moment().diff(row.dateOfBirth, "years", true).toFixed()}
             </Typography>
           </Box>
@@ -102,7 +102,7 @@ export default function PermissionRow({ ...props }) {
               >
                 <Icon path="ic-agenda" />
 
-                {row.nextAppointment.format("DD-MM-YYYY")}
+                {row.nextAppointment}
               </Typography>
               <Typography
                 sx={{
@@ -138,7 +138,7 @@ export default function PermissionRow({ ...props }) {
             >
               <Icon path="ic-agenda" />
 
-              {row.nextAppointment.format("DD-MM-YYYY")}
+              {row.nextAppointment}
             </Typography>
             <Typography
               sx={{
@@ -167,7 +167,13 @@ export default function PermissionRow({ ...props }) {
           minHeight: "58.85px",
         }}
       >
-        <IconButton size="small" sx={{ ml: 0.6, path: { fill: theme => theme.palette.common.black } }}>
+        <IconButton
+          size="small"
+          sx={{
+            ml: 0.6,
+            path: { fill: (theme) => theme.palette.common.black },
+          }}
+        >
           <Icon path="ic-autre2" />
         </IconButton>
 
@@ -175,8 +181,8 @@ export default function PermissionRow({ ...props }) {
           size="small"
           sx={{
             ml: 0.6,
-            color: theme => theme.palette.common.black,
-            path: { fill: theme => theme.palette.common.black },
+            color: (theme) => theme.palette.common.black,
+            path: { fill: (theme) => theme.palette.common.black },
           }}
         >
           {t("table.edit")}
@@ -195,3 +201,4 @@ export default function PermissionRow({ ...props }) {
     </TableRowStyled>
   );
 }
+export default PatientRow;
