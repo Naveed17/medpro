@@ -3,7 +3,7 @@ interface innerPatientDetailsRDV {
   start: Date;
   end: Date;
   allDay: boolean;
-  time: Moment;
+  time: any;
   status: string;
   borderColor: string;
   motif: string;
