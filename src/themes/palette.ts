@@ -95,8 +95,7 @@ export const GREY = {
   500_32: alpha("#919EAB", 0.32),
   500_48: alpha("#919EAB", 0.48),
   500_56: alpha("#919EAB", 0.56),
-  500_80: alpha("#919EAB", 0.8),
-
+  500_80: alpha("#919EAB", 0.8)
 };
 
 const GRADIENTS = {

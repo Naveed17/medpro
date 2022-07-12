@@ -385,6 +385,7 @@ const headCells: readonly HeadCell[] = [
     align: "right",
   },
 ];
+
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,

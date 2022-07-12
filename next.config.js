@@ -1,7 +1,8 @@
 const { i18n } = require("./next-i18next.config");
+const {withTM} = require("./next-fullcalendar.config");
 
-/** @type {{reactStrictMode: boolean, i18n: {defaultLocale: string, locales: string[], localeDetection: boolean}}} */
-const nextConfig = {
+/** @type {{}} */
+const nextConfig = withTM({
   i18n,
   webpack: (config, options) => {
     config.module.rules.push({
@@ -10,6 +11,6 @@ const nextConfig = {
     })
     return config
   }
-}
+})
 
 module.exports = nextConfig
