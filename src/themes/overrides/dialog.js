@@ -9,7 +9,6 @@ export default function Dialog(theme) {
             backgroundColor: "rgba(6, 150, 214, 0.2);",
           },
           "& .MuiDialogTitle-root": {
-            background: theme.palette.primary.main,
             color: "white",
           },
           "& .MuiPaper-root": {

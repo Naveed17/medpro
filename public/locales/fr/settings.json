@@ -93,6 +93,7 @@
   "lieux": {
     "config": {
       "add": "Ajouter",
+      "cancel": "Annuler",
       "path": "Paramètres > Lieux de consultation",
       "table": {
         "acces": "accès",
