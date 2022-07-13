@@ -16,23 +16,29 @@ import RootStyled from './overrides/rootStyled';
 import CalendarStyled from './overrides/calendarStyled';
 
 import {useEffect, useRef, useState} from "react";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import IconUrl from "@themes/urlIcon";
 import moment from "moment";
 import {FormatterInput} from "@fullcalendar/common";
-import dynamic from "next/dynamic";
 import Event from "./event/components/event";
-
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function Calendar() {
     const theme = useTheme();
+    const {view} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
-    const [view, setView] = useState("timeGridWeek");
     const [events, setEvents] = useState([]);
     const [date, setDate] = useState(moment().toDate());
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.changeView(view as string);
+        }
+    }, [view]);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
@@ -100,7 +106,7 @@ function Calendar() {
                                     }
                                 ]}
                                 eventContent={(event) => {
-                                    return  <Event event={event} />
+                                    return <Event event={event}/>
                                 }}
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}

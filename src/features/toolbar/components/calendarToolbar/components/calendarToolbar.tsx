@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { ButtonBadgeStyled, RootStyled } from "@features/toolbar";
+import {ButtonBadgeStyled, RootStyled} from "@features/toolbar";
 import {
     Badge,
     Box,
@@ -12,11 +12,10 @@ import {
     Tooltip,
     useTheme
 } from "@mui/material";
-import TodayRoundedIcon from '@mui/icons-material/TodayRounded';
 import HourglassBottomRoundedIcon from '@mui/icons-material/HourglassBottomRounded';
 
 import React from "react";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import BadgeStyled from "./overrides/badgeStyled";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import AddEventIcon from "@themes/overrides/icons/addEventIcon";
@@ -24,8 +23,10 @@ import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
-import { Theme } from '@mui/material/styles'
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
+import {useAppDispatch} from "@app/redux/hooks";
+import {setView} from "@features/calendar";
+
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
     onToday: PropTypes.func,
@@ -45,17 +46,22 @@ type CalendarToolbarProps = {
 };
 
 
-
-function CalendarToolbar({ date, ...props }: CalendarToolbarProps) {
+function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
     const theme = useTheme();
+    const dispatch = useAppDispatch();
     const VIEW_OPTIONS = [
-        { value: "dayGridMonth", label: "Month", icon: GridIcon, color: theme.palette.primary.main },
-        { value: "timeGridWeek", label: "Week", icon: WeekIcon },
-        { value: "timeGridDay", label: "Day", icon: DayIcon },
-        { value: "listWeek", label: "Agenda", icon: TodayIcon },
+        {value: "dayGridMonth", label: "Month", icon: GridIcon, color: theme.palette.primary.main},
+        {value: "timeGridWeek", label: "Week", icon: WeekIcon},
+        {value: "timeGridDay", label: "Day", icon: DayIcon},
+        {value: "listWeek", label: "Agenda", icon: TodayIcon},
     ];
 
-    const { t, ready } = useTranslation('agenda');
+    const handleViewChagne = (view: string) => {
+        console.log(view);
+        dispatch(setView(view))
+    }
+
+    const {t, ready} = useTranslation('agenda');
     if (!ready) return (<>loading translations...</>);
 
     return (
@@ -64,14 +70,14 @@ function CalendarToolbar({ date, ...props }: CalendarToolbarProps) {
                 <Hidden smDown>
                     <IconButton
                         aria-label="Calendar"
-                        sx={{ border: "1px solid", mr: 1, color: "primary.main" }}>
-                        <CalendarIcon />
+                        sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
+                        <CalendarIcon/>
                     </IconButton>
                     <Button
-                        startIcon={<HourglassBottomRoundedIcon />}
+                        startIcon={<HourglassBottomRoundedIcon/>}
                         variant="contained"
                         color="primary"
-                        sx={{ textTransform: "capitalize", paddingRight: 2.4 }}>
+                        sx={{textTransform: "capitalize", paddingRight: 2.4}}>
                         <BadgeStyled badgeContent={2}>
                             {t("pending")}
                         </BadgeStyled>
@@ -83,7 +89,7 @@ function CalendarToolbar({ date, ...props }: CalendarToolbarProps) {
                         variant="contained"
                         color="primary">
                         <Badge badgeContent={2} color="secondary">
-                            <HourglassBottomRoundedIcon />
+                            <HourglassBottomRoundedIcon/>
                         </Badge>
                     </ButtonBadgeStyled>
                 </Hidden>
@@ -93,19 +99,20 @@ function CalendarToolbar({ date, ...props }: CalendarToolbarProps) {
                 <Stack direction="row" spacing={1.5}>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
-                            title={viewOption.label}>
+                                 onClick={() => handleViewChagne(viewOption.value)}
+                                 title={viewOption.label}>
                             <ToggleButtonStyled
                                 value="dayGridMonth"
                                 sx={{
                                     width: 37, height: 37, padding: 0, marginTop: '2px!important',
-                                    ...(viewOption.color !== undefined && { background: viewOption.color })
-                                }} >
-                                <SvgIcon component={viewOption.icon} width={20} height={20} />
+                                    ...(viewOption.color !== undefined && {background: viewOption.color})
+                                }}>
+                                <SvgIcon component={viewOption.icon} width={20} height={20}/>
                             </ToggleButtonStyled>
                         </Tooltip>
                     ))}
                     <Button
-                        startIcon={<AddEventIcon />}
+                        startIcon={<AddEventIcon/>}
                         variant="contained"
                         color="warning">
                         {t("add")}
