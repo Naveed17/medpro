@@ -113,27 +113,26 @@ function Instructions() {
         </Button>
       </SubHeader>
 
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
+      <Box className="container">
+        <Otable headers={headCells}
           rows={rows}
           state={null}
-          from={"instructions"}
+          from={'instructions'}
           t={t}
           edit={null}
           handleConfig={null}
-          handleChange={handleChange}
-        />
+          handleChange={handleChange} />
       </Box>
 
-      <Drawer anchor={"right"} open={edit} dir={direction} onClose={closeDraw}>
+      <Drawer
+        anchor={'right'}
+        open={edit}
+        dir={direction}
+        onClose={closeDraw}>
         <InsctructionDetails closeDraw={closeDraw} />
       </Drawer>
     </>
-  );
+  )
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {

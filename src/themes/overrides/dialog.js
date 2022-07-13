@@ -1,12 +1,14 @@
 // ----------------------------------------------------------------------
 
+import { alpha } from "@mui/material/styles";
+
 export default function Dialog(theme) {
   return {
     MuiDialog: {
       styleOverrides: {
         root: {
           "& .MuiBackdrop-root": {
-            backgroundColor: "rgba(6, 150, 214, 0.2);",
+            backgroundColor: alpha(theme.palette.primary.main, 0.2),
           },
           "& .MuiDialogTitle-root": {
             color: "white",

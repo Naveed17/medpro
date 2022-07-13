@@ -3,6 +3,7 @@ import TableCell from '@mui/material/TableCell';
 import {Typography, Skeleton} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
+import {Theme} from "@mui/material/styles";
 
 function HolidayRow({...props}) {
 
@@ -28,7 +29,7 @@ function HolidayRow({...props}) {
                                     fontSize: '11px',
                                     svg: {mr: 0.5, ml: 0.5},
                                     mb: {md: 0, sm: 1, xs: 1},
-                                    borderLeft: '5px solid #E83B68'
+                                    borderLeft: `5px solid ${(theme: Theme) => theme.palette.error.main}`,
                                 }}
                                 component="span">
                         <IconUrl path="agenda/ic-agenda2"/>
@@ -50,7 +51,7 @@ function HolidayRow({...props}) {
                                     fontSize: '11px',
                                     svg: {mr: 0.5, ml: 0.5},
                                     mb: {md: 0, sm: 1, xs: 1},
-                                    borderLeft: '5px solid #1BC47D'
+                                    borderLeft: `5px solid ${(theme: Theme) => theme.palette.success.main}`,
                                 }}
                                 component="span">
                         <IconUrl path="agenda/ic-agenda2"/>
@@ -74,6 +75,4 @@ function HolidayRow({...props}) {
             </TableCell>
         </TableRowStyled>
     )
-}
-
-export default HolidayRow
+    export default HolidayRow

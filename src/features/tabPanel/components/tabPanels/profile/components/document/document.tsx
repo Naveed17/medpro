@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import {Box, Typography, Button, Fab, LinearProgress} from "@mui/material";
+import { Box, Typography, Button, Fab, LinearProgress } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {InputStyled} from "@features/tabPanel";
-import {useTranslation} from "next-i18next";
+import { InputStyled } from "@features/tabPanel";
+import { useTranslation } from "next-i18next";
 
-function Document(){
+function Document() {
     const [file, setfile] = useState<File>();
     const [progress, setprogress] = useState(0);
 
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-1" });
     if (!ready) return (<>loading translations...</>);
 
-    return(
+    return (
         <Box>
             <Typography variant="h6" color="text.primary" mb={10}>
                 {t('title')}
@@ -22,8 +22,8 @@ function Document(){
                     "& .file": {
                         width: 84,
                         height: 84,
-                        path: { fill: "#C9C8C8" },
-                        "& .last": { stroke: "#C9C8C8" },
+                        path: { fill: theme => theme.palette.grey["A300"] },
+                        "& .last": { stroke: theme => theme.palette.grey["A300"] },
                     },
                 }}
             >
@@ -66,7 +66,7 @@ function Document(){
                                 value={progress}
                                 variant="determinate"
                                 color="success"
-                                sx={{ bgcolor: "#DDDDDD", borderRadius: "4px" }}
+                                sx={{ bgcolor: theme => theme.palette.divider, borderRadius: "4px" }}
                             />
                         </Box>
                     </Box>
@@ -97,7 +97,7 @@ function Document(){
             <Fab
                 color="primary"
                 sx={{
-                    boxShadow: "0px 2px 20px rgba(156, 155, 155, 0.46);",
+                    boxShadow: theme => theme.customShadows.fab1,
                     position: "fixed",
                     bottom: "1rem",
                     right: "1rem",

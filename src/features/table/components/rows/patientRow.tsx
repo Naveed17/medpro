@@ -7,7 +7,7 @@ import moment from "moment-timezone";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
 import { onOpenDetails } from "@features/table";
-export default function PermissionRow({ ...props }) {
+function PatientRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId } = props;
   const dispatch = useAppDispatch();
   return (
@@ -63,7 +63,7 @@ export default function PermissionRow({ ...props }) {
               className="text-time"
             >
               <Icon path="ic-anniverssaire" />
-              {moment(row.dateOfBirth).format("DD-MM-YYYY")} -{" "}
+              {row.dateOfBirth} -{" "}
               {moment().diff(row.dateOfBirth, "years", true).toFixed()}
             </Typography>
           </Box>
@@ -102,7 +102,7 @@ export default function PermissionRow({ ...props }) {
               >
                 <Icon path="ic-agenda" />
 
-                {moment(row.nextAppointment).format("DD-MM-YYYY")}
+                {row.nextAppointment}
               </Typography>
               <Typography
                 sx={{
@@ -118,7 +118,7 @@ export default function PermissionRow({ ...props }) {
                 color="text.primary"
               >
                 <Icon path="ic-time" />
-                {moment(row.time).format("HH:mm")}
+                {row.time.format("HH:mm")}
               </Typography>
             </Box>
           </Box>
@@ -138,7 +138,7 @@ export default function PermissionRow({ ...props }) {
             >
               <Icon path="ic-agenda" />
 
-              {moment(row.nextAppointment).format("DD-MM-YYYY")}
+              {row.nextAppointment}
             </Typography>
             <Typography
               sx={{
@@ -154,7 +154,7 @@ export default function PermissionRow({ ...props }) {
               color="text.primary"
             >
               <Icon path="ic-time" />
-              {moment(row.time).format("HH:mm")}
+              {row.time.format("HH:mm")}
             </Typography>
           </Box>
         </Box>
@@ -167,7 +167,13 @@ export default function PermissionRow({ ...props }) {
           minHeight: "58.85px",
         }}
       >
-        <IconButton size="small" sx={{ ml: 0.6, path: { fill: "#000" } }}>
+        <IconButton
+          size="small"
+          sx={{
+            ml: 0.6,
+            path: { fill: (theme) => theme.palette.common.black },
+          }}
+        >
           <Icon path="ic-autre2" />
         </IconButton>
 
@@ -175,8 +181,8 @@ export default function PermissionRow({ ...props }) {
           size="small"
           sx={{
             ml: 0.6,
-            color: "#000",
-            path: { fill: "#000" },
+            color: (theme) => theme.palette.common.black,
+            path: { fill: (theme) => theme.palette.common.black },
           }}
         >
           {t("table.edit")}
@@ -195,3 +201,4 @@ export default function PermissionRow({ ...props }) {
     </TableRowStyled>
   );
 }
+export default PatientRow;

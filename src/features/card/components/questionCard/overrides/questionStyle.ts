@@ -12,7 +12,7 @@ const QuestionCardStyled = styled(Card)(({ theme }) => ({
         "& span": { color: theme.palette.secondary.main },
     },
     "& .MuiCardContent-root": {
-        background: "#FCFCFC",
+        background: theme.palette.grey["A800"],
         border: `${0.25}px solid ${theme.palette.divider}`,
         borderTop: 0,
         borderRadius: " 0px 0px 10px 10px",

@@ -143,10 +143,7 @@ function Agenda() {
                 </RootStyled>
             </SubHeader>
 
-            <Box
-                bgcolor="#F0FAFF"
-                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}
-            >
+            <Box className="container">
                 <Otable
                     headers={headCells}
                     rows={rows}
@@ -190,7 +187,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
 });
 
 export default Agenda;
-//Agenda.auth = true;
+Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;

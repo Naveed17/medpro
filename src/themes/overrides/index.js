@@ -13,7 +13,6 @@ import FormControl from "./formControl";
 import Autocomplete from "./autocomplete";
 import Pickers from "./pickers";
 import Accordion from "./accordion";
-import Backdrop from "./backDrop";
 import Dialog from "./dialog";
 import Pagination from "./pagination";
 import Avatar from "./avatar";
@@ -22,6 +21,7 @@ import Fab from "./calendarpicker";
 import CalendarPicker from "./fab";
 import Tabs from "./tabs";
 import Drawer from "./Drawer";
+import SpeedDial from "./speedDial";
 // ----------------------------------------------------------------------
 
 export default function ComponentsOverrides(theme) {
@@ -40,7 +40,6 @@ export default function ComponentsOverrides(theme) {
     Autocomplete(theme),
     Pickers(theme),
     Accordion(theme),
-    Backdrop(theme),
     Dialog(theme),
     Pagination(theme),
     Avatar(theme),
@@ -48,6 +47,7 @@ export default function ComponentsOverrides(theme) {
     CalendarPicker(theme),
     Fab(theme),
     Tabs(theme),
-    Drawer(theme)
+    Drawer(theme),
+    SpeedDial(theme)
   );
 }

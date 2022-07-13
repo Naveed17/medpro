@@ -34,117 +34,106 @@ function Holidays() {
         },
     ]);
 
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "holidays.config",
-  });
-  if (!ready) return <>loading translations...</>;
-  const headCells = [
-    {
-      id: "name",
-      numeric: false,
-      disablePadding: true,
-      label: "name",
-      align: "left",
-      sortable: true,
-    },
-    {
-      id: "type",
-      numeric: false,
-      disablePadding: false,
-      label: "start",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "speciality",
-      numeric: false,
-      disablePadding: false,
-      label: "end",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "place",
-      numeric: true,
-      disablePadding: false,
-      label: "praticien",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "action",
-      numeric: false,
-      disablePadding: false,
-      label: "action",
-      align: "center",
-      sortable: false,
-    },
-  ];
+    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays" });
+    if (!ready) return (<>loading translations...</>);
+    const headCells = [
+        {
+            id: 'name',
+            numeric: false,
+            disablePadding: true,
+            label: 'name',
+            align: 'left',
+            sortable: true,
+        },
+        {
+            id: 'type',
+            numeric: false,
+            disablePadding: false,
+            label: 'start',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'speciality',
+            numeric: false,
+            disablePadding: false,
+            label: 'end',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'place',
+            numeric: true,
+            disablePadding: false,
+            label: 'praticien',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'action',
+            numeric: false,
+            disablePadding: false,
+            label: 'action',
+            align: 'center',
+            sortable: false
+        },
+    ];
 
-  const closeDraw = () => {
-    setOpen(false);
-  };
+    const closeDraw = () => {
+        setOpen(false);
+    }
 
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
-        </RootStyled>
+    return (<>
+        <SubHeader>
+            <RootStyled>
+                <p style={{ margin: 0 }}>{t('path')}</p>
+            </RootStyled>
 
-        <Button
-          type="submit"
-          variant="contained"
-          onClick={() => {
-            setOpen(true);
-          }}
-          color="success"
-        >
-          {t("add")}
-        </Button>
-      </SubHeader>
+            <Button type='submit'
+                variant="contained"
+                onClick={() => {
+                    setOpen(true);
+                }}
+                color="success">
+                {t('add')}
+            </Button>
+        </SubHeader>
 
-      <Box
-        bgcolor="#F0FAFF"
-        sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}
-      >
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"holidays"}
-          t={t}
-          edit={null}
-          handleConfig={null}
-          handleChange={null}
-        />
+        <Box className="container">
+            <Otable headers={headCells}
+                rows={rows}
+                state={null}
+                from={'holidays'}
+                t={t}
+                edit={null}
+                handleConfig={null}
+                handleChange={null} />
 
-        <Drawer
-          anchor={"right"}
-          open={open}
-          dir={direction}
-          onClose={closeDraw}
-        >
-          <HolidayDetails closeDraw={closeDraw} />
-        </Drawer>
-      </Box>
-    </>
-  );
+            <Drawer
+                anchor={'right'}
+                open={open}
+                dir={direction}
+                onClose={closeDraw}>
+                <HolidayDetails closeDraw={closeDraw} />
+            </Drawer>
+        </Box>
+
+    </>)
 }
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "settings",
-    ])),
-  },
-});
+    props: {
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
+    }
+})
 
-export default Holidays;
+export default Holidays
 Holidays.auth = true;
 
 Holidays.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
-};
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
+}

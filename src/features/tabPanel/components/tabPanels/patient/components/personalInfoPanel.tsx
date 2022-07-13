@@ -1,7 +1,7 @@
-import React from "react";
+// ______________________________
 import { PersonalInfoCard, BackgroundCard } from "@features/card";
 
-export default function PersonInfoPanel() {
+function PersonInfoPanel() {
   return (
     <div>
       <PersonalInfoCard />
@@ -9,3 +9,4 @@ export default function PersonInfoPanel() {
     </div>
   );
 }
+export default PersonInfoPanel;

@@ -42,7 +42,7 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
             },
         },
         "&.active": {
-            backgroundColor: "#e7f5fb",
+            backgroundColor: theme.palette.grey['A700'],
             "& .MuiListItemButton-root": {
                 borderRadius: "6px 0px 0px 6px",
                 "&:hover": {
@@ -69,7 +69,7 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
         position: "fixed",
         top: "60px",
         height: "100%",
-        background: "#fff",
+        background: theme.palette.background.paper,
         width: "100%",
         left: 0,
         padding: "0px 20px",

@@ -10,7 +10,7 @@ import { StaticDatePicker } from "@mui/x-date-pickers";
 
 type CalendarPickerView = "day" | "month" | "year";
 
-function CalandarPickers({ props }: any) {
+function CalendarPickers({ props }: any) {
   const [currentDay, setCurrentDay] = useState(new Date());
   const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
   const { locale } = useAppSelector(configSelector);
@@ -41,4 +41,4 @@ function CalandarPickers({ props }: any) {
   );
 }
 
-export default CalandarPickers;
+export default CalendarPickers;

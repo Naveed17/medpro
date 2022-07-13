@@ -15,18 +15,21 @@ import {
     Button
 } from '@mui/material'
 import {styled} from '@mui/material/styles';
+import { useFormik, Form, FormikProvider } from "formik";
+import { Typography, Card, CardContent, FormHelperText, Stack, Box, TextField, FormControl, Select, MenuItem, Grid, Button } from '@mui/material'
+import { styled, Theme } from '@mui/material/styles';
 import ListCheckbox from '@themes/overrides/ListCheckbox'
 import ThemeColorPicker from "@themes/overrides/ThemeColorPicker"
 import React from "react";
 import RadioTextImage from "@themes/overrides/RadioTextImage";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 
-const PaperStyled = styled(Form)(({theme}) => ({
+const  PaperStyled = styled(Form)(({ theme }) => ({
 
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     border: 'none',
-    boxShadow: '5px 14px 26px rgba(0, 150, 214, 0.37)',
+    boxShadow: theme.customShadows.motifDialog,
     padding: theme.spacing(2),
     paddingBottom: theme.spacing(0),
     '& .container': {
@@ -47,19 +50,18 @@ const PaperStyled = styled(Form)(({theme}) => ({
         marginRight: theme.spacing(-2),
         position: 'sticky',
         bottom: 0,
-        borderTop: '3px solid #f0fafe'
+        borderTop: `3px solid ${theme.palette.grey['A700']}`,
     }
 }));
 
-function EditMotifDialog({...props}) {
+function EditMotifDialog({ ...props }) {
 
-    // console.log(props.data);
     let doctors = [
-        {id: '1', name: 'Dr Anas LAOUINI', speciality: 'sexologist', img: '/static/img/men.png', selected: false},
-        {id: '2', name: 'Dr Omar LAOUINI', speciality: 'Gynecologist', img: '/static/img/men.png', selected: false},
-        {id: '3', name: 'Dr Anouar ABDELKAFI', speciality: 'ORL', img: '/static/img/men.png', selected: false},
+        { id: '1', name: 'Dr Anas LAOUINI', speciality: 'sexologist', img: '/static/img/men.png', selected: false },
+        { id: '2', name: 'Dr Omar LAOUINI', speciality: 'Gynecologist', img: '/static/img/men.png', selected: false },
+        { id: '3', name: 'Dr Anouar ABDELKAFI', speciality: 'ORL', img: '/static/img/men.png', selected: false },
     ];
-    const {t, ready} = useTranslation(['settings', 'common']);
+    const { t, ready } = useTranslation('settings');
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -72,8 +74,9 @@ function EditMotifDialog({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
+
             name: props.data ? props.data.name as string : "",
-            color: '#0696D6',
+            color: (theme: Theme) => theme.palette.primary.main,
             duration: props.data ? props.data.duration : "",
             minimumDelay: props.data ? props.data.minimumDelay : "",
             maximumDelay: props.data ? props.data.maximumDelay : "",
@@ -88,20 +91,20 @@ function EditMotifDialog({...props}) {
     if (!ready) return (<>loading translations...</>);
 
     const types = [
-        {id: 1, text: t('motif.dialog.enligne'), name: 'teleconsult'},
-        {id: 2, text: t('motif.dialog.cabinet'), name: 'cabinet'},
-        {id: 3, text: t('motif.dialog.domicile'), name: 'domicile'},
-        {id: 4, text: t('motif.dialog.pro'), name: 'professionnels'},
+        { id: 1, text: t('motif.dialog.enligne'), name: 'teleconsult' },
+        { id: 2, text: t('motif.dialog.cabinet'), name: 'cabinet' },
+        { id: 3, text: t('motif.dialog.domicile'), name: 'domicile' },
+        { id: 4, text: t('motif.dialog.pro'), name: 'professionnels' },
     ]
 
-    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
+    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
 
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                         noValidate
-                         className='root'
-                         onSubmit={handleSubmit}>
+                noValidate
+                className='root'
+                onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
                     {props.data ? t('motif.dialog.update') : t('motif.dialog.add')}
@@ -120,11 +123,11 @@ function EditMotifDialog({...props}) {
                                             *
                                         </Typography>
                                     </Typography>
-                                    <ThemeColorPicker onSellectColor={(v: string) => setFieldValue('color', v)}/>
+                                    <ThemeColorPicker onSellectColor={(v: string) => setFieldValue('color', v)} />
 
                                     {touched.color && errors.color && (
-                                        <FormHelperText error sx={{mx: 0}}>
-                                            {touched.color && errors.color}
+                                        <FormHelperText error sx={{ mx: 0 }}>
+                                            {Boolean(touched.color && errors.color)}
                                         </FormHelperText>
                                     )}
                                 </Box>
@@ -176,7 +179,7 @@ function EditMotifDialog({...props}) {
                                     }
                                 </Select>
                             </FormControl>
-                            <Stack spacing={2} direction={{xs: 'column', lg: 'row'}}>
+                            <Stack spacing={2} direction={{ xs: 'column', lg: 'row' }}>
                                 <Box width={1}>
                                     <FormControl size="small" fullWidth>
                                         <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -249,9 +252,8 @@ function EditMotifDialog({...props}) {
                         <CardContent>
                             {types.map((item, index) => (
                                 <ListCheckbox key={index} data={item} onChange={(v: any) => {
-                                    console.log({...values.typeOfMotif, [item.name]: v})
-                                    setFieldValue('typeOfMotif', {...values.typeOfMotif, [item.name]: v})
-                                }}/>
+                                    setFieldValue('typeOfMotif', { ...values.typeOfMotif, [item.name]: v })
+                                }} />
                             ))}
                         </CardContent>
                     </Card>
@@ -271,7 +273,7 @@ function EditMotifDialog({...props}) {
                                             onChange={(v: any) => {
                                                 const newArr = values.doctor.map(obj => {
                                                     if (obj.id === v.id) {
-                                                        return {...obj, selected: !v.selected};
+                                                        return { ...obj, selected: !v.selected };
                                                     }
                                                     return obj;
                                                 });

@@ -16,9 +16,9 @@ export const GlobleStyles = styled("div")(({ theme }) => ({
   },
   ".patient-config-list": {
     "& .MuiListItem-root": {
-      border: "1px solid #dddddd",
+      border: `1px solid ${theme.palette.divider}`,
       borderRadius: "0px 10px 10px 0px",
-      borderLeft: "4px solid #FFD400",
+      borderLeft: `4px solid ${theme.palette.warning.main}`,
       padding: "8px",
       paddingLeft: "16px",
       display: "flex",

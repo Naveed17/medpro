@@ -32,8 +32,8 @@ const DropZoneStyle = styled('div')(({ theme, styleprops }) => {
     padding: theme.spacing(2, 1),
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.common.white,
-    border: `2px solid #BDBDBD`,
-    '& svg path': { fill: '#BDBDBD' },
+    border: `2px solid ${theme.palette.grey["A600"]}`,
+    '& svg path': { fill: theme.palette.grey["A600"] },
     '&:hover': { opacity: 0.72, cursor: 'pointer' },
   }
   return Boolean(styleprops) ? single : multi;
@@ -49,7 +49,7 @@ UploadMultiFile.propTypes = {
   singleFile: PropTypes.bool,
 };
 
-function UploadMultiFile({ error, files, sx, singleFile,title, ...other }) {
+function UploadMultiFile({ error, files, sx, singleFile, title, ...other }) {
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     ...other
   });

@@ -6,7 +6,7 @@ export default function ControlLabel(theme) {
       styleOverrides: {
         label: {
           ...theme.typography.caption,
-          color: "#1B2746",
+          color: theme.palette.text.primary,
         },
       },
     },

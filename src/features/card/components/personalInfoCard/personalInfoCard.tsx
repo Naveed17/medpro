@@ -1,6 +1,11 @@
 import React from "react";
-import { Box, Typography, Paper, Grid, Button } from "@mui/material";
+// hook
 import { useTranslation } from "next-i18next";
+
+// material
+import { Box, Typography, Paper, Grid } from "@mui/material";
+
+// dumy data
 const data = {
   personal: [
     {
@@ -53,16 +58,11 @@ const data = {
     },
   ],
 };
-export default function PersonalInfo() {
+function PersonalInfo() {
   const { t, ready } = useTranslation("patient", { keyPrefix: "add-patient" });
   if (!ready) return <div>Loading...</div>;
   return (
-    <Box
-      component="nav"
-      sx={{
-        p: 1,
-      }}
-    >
+    <Box>
       <Typography
         variant="body1"
         color="text.primary"
@@ -71,7 +71,7 @@ export default function PersonalInfo() {
       >
         {t("personal-info")}
       </Typography>
-      <Paper sx={{ p: 1.5 }}>
+      <Paper sx={{ p: 1.5, borderWidth: 0 }}>
         <Grid container spacing={1.2}>
           {data.personal.map((v) => (
             <React.Fragment key={Math.random()}>
@@ -92,3 +92,4 @@ export default function PersonalInfo() {
     </Box>
   );
 }
+export default PersonalInfo;

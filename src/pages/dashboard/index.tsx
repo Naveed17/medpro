@@ -1,19 +1,19 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import {useRouter} from "next/router";
-import {Box, Typography} from "@mui/material";
-import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/toolbar";
-import {DashLayout} from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useState } from "react";
+import { useRouter } from "next/router";
+import { Box, Typography } from "@mui/material";
+import { SubHeader } from "@features/subHeader";
+import { CalendarToolbar } from "@features/toolbar";
+import { DashLayout } from "@features/base";
 import requestAxios from "@app/axios/config";
-import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
-import {AxiosRequestHeaders} from "axios";
+import { useSession } from "next-auth/react";
+import { LoadingScreen } from "@features/loadingScreen";
+import { AxiosRequestHeaders } from "axios";
 import useRequest from "@app/axios/axiosServiceApi";
-import {Session} from "next-auth";
+import { Session } from "next-auth";
 
-const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url, method: "GET", headers}).then(res => res.data);
+const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({ url, method: "GET", headers }).then(res => res.data);
 
 const API = "/api/private/user/fr";
 
@@ -28,7 +28,7 @@ function Dashborad() {
 
     const { data, error } = useRequest({
         method: "GET",
-        url: "/api/private/user/fr",
+        url: "/api/private/users/fr",
         headers
     });
 
@@ -40,15 +40,12 @@ function Dashborad() {
 
     const { data: user } = session as Session;
 
-    console.log(session);
-
     return (
         <>
             <SubHeader>
-                <CalendarToolbar date={date}/>
+                <CalendarToolbar date={date} />
             </SubHeader>
-            <Box bgcolor="#F0FAFF"
-                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box className="container">
                 <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>
                 {session && <Typography>URL: {(user as UserDataResponse)?.general_information.firstName}</Typography>}
             </Box>
