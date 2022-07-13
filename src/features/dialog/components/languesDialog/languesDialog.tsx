@@ -16,7 +16,7 @@ function LanguesDialog(info:any) {
     }
     const { data, error } = useRequest({
         method: "GET",
-        url: "/api/public/language/"+router.locale,
+        url: "/api/public/languages/"+router.locale,
         headers
     });
 

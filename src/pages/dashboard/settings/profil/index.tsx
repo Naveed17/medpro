@@ -53,7 +53,7 @@ function Profil() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data, error} = useRequest({
         method: "GET",
-        url: "/api/medical/entity/profile/" + medical_entity.uuid + "/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity.uuid + "/prfessionals/" + router.locale,
         headers:  { Authorization: `Bearer ${session?.accessToken}`}
     });
 

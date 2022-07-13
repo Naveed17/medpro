@@ -2,7 +2,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
-import {Box, Button, Drawer} from "@mui/material";
+import {Box, Button, Drawer, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
@@ -39,7 +39,7 @@ function Motif() {
 
     const {data, error} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/consultation/reason/" + medical_entity.uuid + "/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -168,17 +168,25 @@ function Motif() {
     return (
         <>
             <SubHeader>
-                <RootStyled>
-                    <p style={{margin: 0}}>{t('path')}</p>
-                    <Button type='submit'
-                            variant="contained"
-                            onClick={() => {
-                                editMotif(null)
-                            }}
-                            color="success">
-                        {t('add')}
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    width={1}
+                    alignItems="center">
+                    <Typography  color="text.primary">
+                        {t("path")}
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                            editMotif(null)
+                        }}
+                        sx={{ml: "auto"}}
+                    >
+                        {t("add")}
                     </Button>
-                </RootStyled>
+                </Stack>
             </SubHeader>
             <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <Otable headers={headCells}
