@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       const res = await requestAxios({
-        url: "/api/private/user/fr",
+        url: "/api/private/users/fr",
         method: "GET",
         headers: {
           Authorization: `Bearer ${token.accessToken}`

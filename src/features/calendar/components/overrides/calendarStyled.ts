@@ -27,13 +27,13 @@ const CalendarStyled = styled('div')(({ theme }) => ({
             padding: '13px 0'
         }
     },
-    // Event
+    // Header
     '& .fc .fc-event': {
         borderColor: 'transparent',
         backgroundColor: 'transparent'
     },
     '& .fc .fc-event .fc-event-main': {
-        padding: '2px 4px',
+        padding: 0,
         borderRadius: 4,
         backgroundColor: theme.palette.common.white,
         transition: theme.transitions.create('filter'),
