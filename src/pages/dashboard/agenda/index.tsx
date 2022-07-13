@@ -9,7 +9,11 @@ import { SubHeader } from "@features/subHeader";
 import { CalendarToolbar } from "@features/toolbar";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {Calendar} from "@features/calendar";
+
+import dynamic from "next/dynamic";
+const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
+    ssr: false
+});
 
 function Agenda() {
     const router = useRouter();

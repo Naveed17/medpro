@@ -15,7 +15,7 @@ export const siteHeader = {
         {
             icon: "ic-agenda",
             name: "agenda",
-            href: '/dashboard',
+            href: '/dashboard/agenda',
         },
         {
             icon: "ic-salle-sidenav",

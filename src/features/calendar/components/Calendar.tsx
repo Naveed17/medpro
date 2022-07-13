@@ -23,6 +23,7 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment";
 import {FormatterInput} from "@fullcalendar/common";
 import dynamic from "next/dynamic";
+import Event from "./event/components/event";
 
 
 function Calendar() {
@@ -80,8 +81,27 @@ function Calendar() {
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 initialEvents={[
-                                    {title: 'nice event', start: new Date(), resourceId: 'a'}
+                                    {
+                                        addRoom: false,
+                                        agenda: false,
+                                        allDay: false,
+                                        borderColor: "#E83B68",
+                                        customRender: true,
+                                        description: "Unde a inventore et. Sed esse ut. Atque ducimus quibusdam fuga quas id qui fuga.",
+                                        end: "2022-07-11T09:40:30.075Z",
+                                        id: "299263f6-2964-4f30-8ee1-e71e9c50d9ec",
+                                        inProgress: false,
+                                        meeting: false,
+                                        motif: "Brady",
+                                        start: "2022-07-11T09:10:30.075Z",
+                                        status: false,
+                                        time: "2022-08-11T09:10:30.075Z",
+                                        title: "Melanie Noble"
+                                    }
                                 ]}
+                                eventContent={(event) => {
+                                    return  <Event event={event} />
+                                }}
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}
                                 initialDate={date}
