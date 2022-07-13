@@ -95,6 +95,9 @@
       "add": "Ajouter",
       "cancel": "Annuler",
       "path": "Paramètres > Lieux de consultation",
+      "remove": "Supprimer un lieu",
+      "askRemove": "Voulez vous vraiment supprimer ce lieu ?",
+      "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de ce lieu",
       "table": {
         "acces": "accès",
         "remove": "Supprimer",
@@ -129,7 +132,7 @@
       "add": "Ajouter",
       "remove": "Supprimer",
       "adreq": "Adresse est obligatoire"
-    }
+    },
   },
   "agenda": {
     "config": {

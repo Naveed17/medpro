@@ -46,10 +46,12 @@ function LieuxRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <IconButton size="small" sx={{mr: {md: 1}}}>
+                        <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                            handleChange(row, 'edit')
+                        }}>
                             <IconUrl path="setting/edit"/>
                         </IconButton>
-                        <IconButton onClick={()=>{
+                        <IconButton onClick={() => {
                             handleChange(row, 'remove')
                         }} size="small" sx={{mr: {md: 1}}}>
                             <IconUrl path="setting/icdelete"/>

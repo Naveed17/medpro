@@ -27,6 +27,7 @@ function Lieux() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [rows, setRows] = useState<MedicalEntityLocationModel[]>([])
     const [selected, setSelected] = useState<any>();
+    const [cords, setCords] = useState([]);
     const [open, setOpen] = useState(false);
 
     const {data} = useRequest({
@@ -51,7 +52,9 @@ function Lieux() {
         }
     }, [data])
 
-    const cords = rows.filter((row) => row.isActive).map((v) => v);
+    rows.filter((row) => row.isActive).map(cord =>{
+        console.log(cord)
+    });
 
     const {t, ready} = useTranslation("settings", {
         keyPrefix: "lieux.config",
@@ -106,14 +109,20 @@ function Lieux() {
             setRows([...rows]);
         } else if (event === 'remove') {
             setSelected({
-                title: "Voulez vous vraiment supprimer ce lieu ?",
-                subtitle: "vous perdez jamais lhitorique des patients et des rendez-vous de ce lieu",
+                title: t('askRemove'),
+                subtitle: t('subtitleRemove'),
                 icon: "/static/icons/ic-pin.svg",
                 name1: props.address.location.name,
                 name2: props.address.street,
                 data: props
             })
             setOpen(true);
+        } else if (event ==='edit'){
+            console.log(props)
+            router.push({
+                pathname: `/dashboard/settings/places/${props.uuid}`,
+               // query: props
+            });
         }
     };
 
@@ -133,7 +142,7 @@ function Lieux() {
                         variant="contained"
                         color="success"
                         onClick={() => {
-                            router.push(`/dashboard/settings/lieux/new`);
+                            router.push(`/dashboard/settings/places/new`);
                         }}
                         sx={{ml: "auto"}}
                     >
@@ -161,7 +170,7 @@ function Lieux() {
                         data={selected}
                         direction={direction}
                         color={'#E83B68'}
-                        title={"Supprimer un lieu"}
+                        title={t('remove')}
                         t={t}
                         actionDialog={
                             <DialogActions>
@@ -175,7 +184,7 @@ function Lieux() {
                 />
 
 
-                {rows.length > 0 && <Maps data={cords}></Maps>}
+                {rows.length > 0 && <Maps data={cords} zoom={12}></Maps>}
 
             </Box>
         </>
