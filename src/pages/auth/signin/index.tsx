@@ -29,7 +29,7 @@ function SignIn() {
     const redirectSignIn = !router.pathname.startsWith('/auth/signin');
 
     const handleSignIn = () => {
-        signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard') });
+        signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda') });
     };
 
     const handleSignOut = async () => {
@@ -95,7 +95,7 @@ function SignIn() {
                         <strong>{session.user.email || session.user.name}</strong>
                     </span>
 
-                    <a onClick={() => router.push('/dashboard')} className={styles.card}>
+                    <a onClick={() => router.push('/dashboard/agenda')} className={styles.card}>
                         <Box component="img" width={60} height={60} src="/static/icons/Med-logo_.svg" />
                         <p>{t('dashboard')}</p>
                     </a>

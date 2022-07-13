@@ -82,8 +82,7 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .header-day-main-box": {
         alignItems: "center",
         position: "relative",
-
-        minHeight: 41,
+        minHeight: 46,
         "& .day": {
             fontSize: 22,
             fontWeight: 400,
@@ -92,8 +91,11 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .action-header-main": {
         display: "inlineBlock",
         position: "absolute",
-        top: 4,
+        top: 14,
         zIndex: 1000,
+        "& .MuiButtonBase-root": {
+            padding: 2
+        }
     },
     "& .fc .fc-timegrid-slot-minor": {
         borderTopStyle: "none",

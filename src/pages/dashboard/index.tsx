@@ -28,7 +28,7 @@ function Dashborad() {
 
     const { data, error } = useRequest({
         method: "GET",
-        url: "/api/private/user/fr",
+        url: "/api/private/users/fr",
         headers
     });
 

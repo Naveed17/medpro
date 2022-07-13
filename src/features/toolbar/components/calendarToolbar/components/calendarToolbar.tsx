@@ -50,14 +50,13 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const VIEW_OPTIONS = [
-        {value: "dayGridMonth", label: "Month", icon: GridIcon, color: theme.palette.primary.main},
-        {value: "timeGridWeek", label: "Week", icon: WeekIcon},
-        {value: "timeGridDay", label: "Day", icon: DayIcon},
-        {value: "listWeek", label: "Agenda", icon: TodayIcon},
+        {value: "timeGridDay", label: "Day", icon: TodayIcon},
+        {value: "timeGridWeek", label: "Week", icon: DayIcon},
+        {value: "dayGridMonth", label: "Month", icon: WeekIcon},
+        {value: "listWeek", label: "Agenda", icon: GridIcon , color: theme.palette.primary.main},
     ];
 
     const handleViewChagne = (view: string) => {
-        console.log(view);
         dispatch(setView(view))
     }
 
