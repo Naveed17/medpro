@@ -4,10 +4,16 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { useRouter } from "next/router";
 import { Box } from "@mui/material";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import {DashLayout} from "@features/base";
 import { SubHeader } from "@features/subHeader";
-import { CalendarToolbar } from "@features/toolbar/components/calendarToolbar";
+import { CalendarToolbar } from "@features/toolbar";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
 
+import dynamic from "next/dynamic";
+const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
+    ssr: false
+});
 
 function Agenda() {
     const router = useRouter();
@@ -20,10 +26,13 @@ function Agenda() {
             <SubHeader>
                 <CalendarToolbar date={date} />
             </SubHeader>
-            <Box bgcolor={theme => theme.palette.grey['A700']}
-                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
-
-                <div>Hello from {router.pathname.slice(1)}</div>
+            <Box>
+                <DesktopContainer>
+                    <Calendar />
+                </DesktopContainer>
+                <MobileContainer>
+                    <div>mobile</div>
+                </MobileContainer>
             </Box>
         </>
     )

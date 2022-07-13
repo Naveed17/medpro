@@ -1,12 +1,12 @@
 // components
-import { CalandarPickers } from "@features/calandarPickers";
+import { CalendarPickers } from "@features/calendar";
 import { BoxStyled } from "@features/leftActionBar";
 
 function Agenda() {
 
     return (
         <BoxStyled>
-            <CalandarPickers />
+            <CalendarPickers />
         </BoxStyled>
     )
 }

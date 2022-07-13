@@ -25,6 +25,7 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import { Theme } from '@mui/material/styles'
+import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
     onToday: PropTypes.func,
@@ -63,8 +64,8 @@ function CalendarToolbar({ date, ...props }: CalendarToolbarProps) {
                 <Hidden smDown>
                     <IconButton
                         aria-label="Calendar"
-                        sx={{ border: `1px solid ${(theme: Theme) => theme.palette.primary.main}`, mr: 1, color: "primary.main" }}>
-                        <TodayRoundedIcon />
+                        sx={{ border: "1px solid", mr: 1, color: "primary.main" }}>
+                        <CalendarIcon />
                     </IconButton>
                     <Button
                         startIcon={<HourglassBottomRoundedIcon />}
