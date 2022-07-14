@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {
@@ -59,7 +59,6 @@ function Profil() {
 
     useEffect(() => {
         if (data !== undefined) {
-            console.log(data);
             const infoData = (data as any).data;
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
@@ -79,7 +78,7 @@ function Profil() {
     const [dialogContent, setDialogContent] = useState('');
     const {direction} = useAppSelector(configSelector);
 
-    const {t, ready} = useTranslation('settings');
+    const {t, ready} = useTranslation('settings',{ keyPrefix: "profil" });
     if (!ready) return (<>loading translations...</>);
 
     const dialogClose = () => {
@@ -162,12 +161,12 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-doctor-h"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2"
-                                                    fontWeight={600}>{t('profil.specialities')}</Typography>
+                                                    fontWeight={600}>{t('specialities')}</Typography>
                                         <Button variant="outlined" color="info">
                                             {loading ? <Skeleton width={50} variant="text"/> : speciality}
                                         </Button>
                                         <BasicAlert icon="danger"
-                                                    data={t('profil.contact')}
+                                                    data={t('contact')}
                                                     color="warning">info</BasicAlert>
                                     </Stack>
                                 </Stack>
@@ -177,7 +176,7 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-education"/>
                                     <Stack spacing={0.5} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.qualification')}</Typography>
+                                                    fontWeight={600}>{t('qualification')}</Typography>
 
                                         {
                                             loading ?
@@ -192,7 +191,7 @@ function Profil() {
                                                             {item.title}
                                                         </Typography>
                                                     )) : <Typography color={"gray"} fontWeight={400}>
-                                                        {t('profil.noQualification')}
+                                                        {t('noQualification')}
                                                     </Typography>
                                         }
 
@@ -208,7 +207,7 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-assurance"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.assurence')}</Typography>
+                                                    fontWeight={600}>{t('assurence')}</Typography>
                                         <Stack spacing={2.5} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
@@ -221,7 +220,7 @@ function Profil() {
                                                             <Box key={item.id} component="img" width={35} height={35}
                                                                  src={item.img}/>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
-                                                            {t('profil.noInsurance')}
+                                                            {t('noInsurance')}
                                                         </Typography>
                                             }
                                         </Stack>
@@ -236,7 +235,7 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-argent"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.regMode')}</Typography>
+                                                    fontWeight={600}>{t('regMode')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
@@ -253,7 +252,7 @@ function Profil() {
                                                                 {mode.name}
                                                             </Button>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
-                                                            {t('profil.noPaymentMean')}
+                                                            {t('noPaymentMean')}
                                                         </Typography>
                                             }
                                         </Stack>
@@ -268,7 +267,7 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-langue2"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.langues')}</Typography>
+                                                    fontWeight={600}>{t('langues')}</Typography>
                                         <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
                                             {
                                                 loading ?
@@ -286,7 +285,7 @@ function Profil() {
                                                                 {language.language.name}
                                                             </Button>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
-                                                            {t('profil.noLanguage')}
+                                                            {t('noLanguage')}
                                                         </Typography>
                                             }
                                         </Stack>
@@ -301,7 +300,7 @@ function Profil() {
                                     <IconUrl className='left-icon' path="ic-generaliste"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.actes')}</Typography>
+                                                    fontWeight={600}>{t('actes')}</Typography>
                                         <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
                                                width={1}>
                                             {
@@ -319,7 +318,7 @@ function Profil() {
                                                                 {item.act.name}
                                                             </Button>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
-                                                            {t('profil.noActes')}
+                                                            {t('noActes')}
                                                         </Typography>
                                             }
                                         </Stack>
@@ -334,7 +333,7 @@ function Profil() {
                                 <Stack spacing={4} direction="row" alignItems="flex-start" width={1}>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
-                                                    fontWeight={600}>{t('profil.actesSec')}</Typography>
+                                                    fontWeight={600}>{t('actesSec')}</Typography>
                                         <Stack spacing={1} direction={{xs: 'column', md: 'row'}} alignItems="flex-start"
                                                width={1}>
                                             {
@@ -370,10 +369,10 @@ function Profil() {
                         dialogClose={dialogClose}
                         actionDialog={
                             <DialogActions>
-                                <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
+                                <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                                 <Button variant="contained"
                                         onClick={dialogSave}
-                                        startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
+                                        startIcon={<IconUrl path='ic-dowlaodfile'></IconUrl>}>{t('save')}</Button>
                             </DialogActions>
                         }
                 />

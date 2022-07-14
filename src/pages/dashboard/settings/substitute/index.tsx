@@ -104,7 +104,7 @@ function Subtitule() {
     <>
       <SubHeader>
         <RootStyled>
-          <p style={{ margin: 0 }}>{t("path")}</p>
+          <p style={{ margin: 0 }}>{t('path')}</p>
         </RootStyled>
 
         <Button
@@ -144,14 +144,9 @@ function Subtitule() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "settings",
-    ])),
-  },
-});
-
+    ...(await serverSideTranslations(locale as string, ['settings', 'common', 'menu']))
+  }
+})
 export default Subtitule;
 
 Subtitule.auth = true;

@@ -75,4 +75,6 @@ function HolidayRow({...props}) {
             </TableCell>
         </TableRowStyled>
     )
-    export default HolidayRow
+}
+
+export default HolidayRow
