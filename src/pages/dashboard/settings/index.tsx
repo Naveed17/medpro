@@ -27,7 +27,7 @@ function Settings() {
             <SettingsFilter />
         </Box>
     )
-};
+}
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
