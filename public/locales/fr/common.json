@@ -2,17 +2,17 @@
   "welcome": "Bienvenue au projet Med",
   "start": "Commencez par modifier",
   "powered_by": "Tous droits réservés",
-  "lang" : "lang",
-  "light" : "Mode lumière",
-  "dark" : "Mode sombre",
-  "dashboard" : "Page d'accueil",
-  "search" : "Vous cherchez ?",
+  "lang": "lang",
+  "light": "Mode lumière",
+  "dark": "Mode sombre",
+  "dashboard": "Page d'accueil",
+  "search": "Vous cherchez ?",
   "stats": " Statistiques",
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "logout": "Se déconnecter",
   "login": {
-    "sign_in" : "Connecté en tant que",
+    "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",
     "sign_sub_title_1": "Connectez-vous en un seul clic",
     "sign_sub_title_2": "avec votre réseau social préféré",
@@ -24,9 +24,25 @@
     "sign_forget_pass": "Rester connecté",
     "sign_connect_btn": "Connexion"
   },
-  "schedule" : {
+  "schedule": {
     "add": "Ajouter",
     "delete": "Supprimer",
     "seance": "Séance"
+  },
+  "times": {
+    "year": "an",
+    "years": "ans",
+    "month": "moi",
+    "months": "mois",
+    "day": "jour",
+    "days": "jours",
+    "hour": "heure",
+    "hours": "heures",
+    "minute": "minute",
+    "minutes": "minutes",
+    "seconde": "seconde",
+    "secondes": "secondes",
+    "millisecond": "milliseconde",
+    "milliseconds": "millisecondes"
   }
 }

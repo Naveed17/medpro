@@ -8,7 +8,8 @@ import React from "react";
 import RadioTextImage from "@themes/overrides/RadioTextImage";
 import { useTranslation } from "next-i18next";
 
-const PaperStyled = styled(Form)(({ theme }) => ({
+const  PaperStyled = styled(Form)(({ theme }) => ({
+
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     border: 'none',
@@ -57,16 +58,17 @@ function EditMotifDialog({ ...props }) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: "",
+
+            name: props.data ? props.data.name as string : "",
             color: (theme: Theme) => theme.palette.primary.main,
-            duration: '',
-            minDelay: '',
-            maxDelay: '',
+            duration: props.data ? props.data.duration : "",
+            minimumDelay: props.data ? props.data.minimumDelay : "",
+            maximumDelay: props.data ? props.data.maximumDelay : "",
             typeOfMotif: {},
             doctor: doctors
         },
         validationSchema,
-        onSubmit: async (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             alert(JSON.stringify(values, null, 2));
         },
     });
@@ -142,18 +144,23 @@ function EditMotifDialog({ ...props }) {
                                     {...getFieldProps("duration")}
                                     value={values.duration}
                                     displayEmpty={true}
-                                    sx={{ color: "text.secondary" }}
-                                    renderValue={(value) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t('motif.dialog.selectGroupe')
-                                    }
+                                    sx={{color: "text.secondary"}}
+                                    /*
+                                     renderValue={(value) =>
+                                                              value?.length
+                                                                                ? Array.isArray(value)
+                                                                                    ? value.join(", ")
+                                                                                    : value
+                                                                                : t('motif.dialog.selectGroupe')
+                                                                        }
+                                                                        */
                                 >
-                                    <MenuItem value="1">1</MenuItem>
-                                    <MenuItem value="2">2</MenuItem>
-                                    <MenuItem value="3">3</MenuItem>
+                                    {
+                                        props.durations.map((duration: DurationModel) =>
+                                            (<MenuItem key={duration.value} value={duration.value}>
+                                                {duration.date + ' ' + t('common:times.' + duration.unity)}
+                                            </MenuItem>))
+                                    }
                                 </Select>
                             </FormControl>
                             <Stack spacing={2} direction={{ xs: 'column', lg: 'row' }}>
@@ -164,22 +171,25 @@ function EditMotifDialog({ ...props }) {
                                         </Typography>
                                         <Select
                                             labelId="demo-simple-select-label"
-                                            id={"minDelay"}
-                                            {...getFieldProps("minDelay")}
-                                            value={values.minDelay}
+                                            id={"minimumDelay"}
+                                            {...getFieldProps("minimumDelay")}
+                                            value={values.minimumDelay}
                                             displayEmpty={true}
-                                            sx={{ color: "text.secondary" }}
-                                            renderValue={(value) =>
+                                            sx={{color: "text.secondary"}}
+                                           /* renderValue={(value) =>
                                                 value?.length
                                                     ? Array.isArray(value)
                                                         ? value.join(", ")
                                                         : value
                                                     : t('motif.dialog.selectGroupe')
-                                            }
+                                            }*/
                                         >
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
+                                            {
+                                                props.delay.map((duration: DurationModel) =>
+                                                    (<MenuItem key={duration.value} value={duration.value}>
+                                                        {duration.date + ' ' + t('common:times.' + duration.unity)}
+                                                    </MenuItem>))
+                                            }
                                         </Select>
                                     </FormControl>
 
@@ -191,22 +201,25 @@ function EditMotifDialog({ ...props }) {
                                         </Typography>
                                         <Select
                                             labelId="demo-simple-select-label"
-                                            id={"maxDelay"}
-                                            {...getFieldProps("maxDelay")}
-                                            value={values.maxDelay}
+                                            id={"maximumDelay"}
+                                            {...getFieldProps("maximumDelay")}
+                                            value={values.maximumDelay}
                                             displayEmpty={true}
-                                            sx={{ color: "text.secondary" }}
-                                            renderValue={(value) =>
-                                                value?.length
-                                                    ? Array.isArray(value)
-                                                        ? value.join(", ")
-                                                        : value
-                                                    : t('motif.dialog.selectGroupe')
-                                            }
+                                            sx={{color: "text.secondary"}}
+                                            /*                                            renderValue={(value) =>
+                                                                                            value?.length
+                                                                                                ? Array.isArray(value)
+                                                                                                    ? value.join(", ")
+                                                                                                    : value
+                                                                                                : t('motif.dialog.selectGroupe')
+                                                                                        }*/
                                         >
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
+                                            {
+                                                props.delay.map((duration: DurationModel) =>
+                                                    (<MenuItem key={duration.value} value={duration.value}>
+                                                        {duration.date + ' ' + t('common:times.' + duration.unity)}
+                                                    </MenuItem>))
+                                            }
                                         </Select>
                                     </FormControl>
 

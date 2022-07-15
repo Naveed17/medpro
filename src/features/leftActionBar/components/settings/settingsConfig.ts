@@ -19,7 +19,7 @@ const settingsData = {
         {
             name: "lieu",
             icon: "setting/ic-pin",
-            href: "/dashboard/settings/lieux",
+            href: "/dashboard/settings/places",
         },
         {
             name: "agenda",

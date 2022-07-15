@@ -13,7 +13,7 @@ import {SetQualifications} from "@features/checkList";
 import {useAppDispatch} from "@app/redux/hooks";
 
 
-function QualificationDialog(info:any) {
+function QualificationDialog(info: any) {
     const [files, setFile] = useState([]);
     const [items, setItems] = useState(info.data);
 
@@ -26,9 +26,9 @@ function QualificationDialog(info:any) {
         [setFile]
     );
 
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(SetQualifications(items))
-    },[items])
+    }, [items])
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);
@@ -62,7 +62,7 @@ function QualificationDialog(info:any) {
                     {({items}) => (
                         <List>
                             {items.map((item) => (
-                                <SortableItem key={item.id} id={item.id}>
+                                <SortableItem key={item.uuid} id={item.uuid}>
                                     <QualifactionsProfessional item={item}>.</QualifactionsProfessional>
                                 </SortableItem>
                             ))}
