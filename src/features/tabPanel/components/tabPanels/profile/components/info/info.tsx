@@ -72,7 +72,7 @@ function Info({...props}) {
 
     const {data: httpResponse, error} = useRequest({
         method: "GET",
-        url: `/api/public/specialty/${router.locale}`,
+        url: `/api/public/specialties/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -80,7 +80,7 @@ function Info({...props}) {
 
     const {data: httpResponseLang, error: errorLang} = useRequest({
         method: "GET",
-        url: `/api/public/language/${router.locale}`,
+        url: `/api/public/languages/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }

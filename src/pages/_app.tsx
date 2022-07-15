@@ -41,7 +41,6 @@ function MyApp({ Component, pageProps: { ...pageProps } }: MyAppProps) {
               >
                 {Component.auth ? (
                   <AuthGuard>
-                    {" "}
                     {getLayout(<Component {...pageProps} />)}
                   </AuthGuard>
                 ) : (
