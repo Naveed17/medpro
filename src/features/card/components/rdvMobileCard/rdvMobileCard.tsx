@@ -1,6 +1,13 @@
 import React from "react";
 // material
-import { Typography, IconButton, Stack, Box } from "@mui/material";
+import {
+  Typography,
+  TableRow,
+  IconButton,
+  TableCell,
+  Stack,
+  Box,
+} from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 // icon
 import Icon from "@themes/urlIcon";
@@ -13,13 +20,14 @@ function RDVMobileCard({ ...props }) {
   const { inner } = props;
   return (
     <RootStyled
+      component={TableRow}
       sx={{
         "&:before": {
           bgcolor: inner.borderColor,
         },
       }}
     >
-      <Stack direction="row" spacing={2}>
+      <Stack component={TableCell} direction="row" spacing={2}>
         <Box className="card-main">
           <Typography
             component="span"

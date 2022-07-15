@@ -7,7 +7,16 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 // material components
-import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
+import {
+  Box,
+  Tabs,
+  Tab,
+  Drawer,
+  Divider,
+  Button,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
@@ -17,7 +26,11 @@ import { onOpenDetails } from "@features/table";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
-import { PersonalInfoPanel, TabPanel } from "@features/tabPanel";
+import {
+  PersonalInfoPanel,
+  TabPanel,
+  DocumentsPanel,
+} from "@features/tabPanel";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
@@ -56,7 +69,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
         meeting: true,
       },
       {
@@ -67,7 +80,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
 
         meeting: true,
       },
@@ -79,14 +92,14 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
 
         meeting: true,
       },
     ],
   },
   {
-    title: "old-",
+    title: "old-appo",
     pending: false,
     data: [
       {
@@ -100,7 +113,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -112,7 +125,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -129,7 +142,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
           {
@@ -140,7 +153,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
         ],
@@ -501,11 +514,14 @@ function Patient() {
               <Tab label={t("tabs.documents")} {...a11yProps(2)} />
             </Tabs>
             <Divider />
-            <TabPanel padding={1} key={Math.random()} value={value} index={0}>
+            <TabPanel padding={1} value={value} index={0}>
               <PersonalInfoPanel />
             </TabPanel>
-            <TabPanel padding={1} key={Math.random()} value={value} index={1}>
+            <TabPanel padding={1} value={value} index={1}>
               <GroupTable from="patient" data={data} />
+            </TabPanel>
+            <TabPanel padding={2} value={value} index={2}>
+              <DocumentsPanel />
             </TabPanel>
             <Paper
               sx={{
@@ -536,7 +552,12 @@ function Patient() {
               </Button>
             </Paper>
             <SpeedDial
-              sx={{ display: { md: "none", xs: "fixed" } }}
+              sx={{
+                position: "fixed",
+                bottom: 16,
+                right: 16,
+                display: { md: "none", xs: "block" },
+              }}
               actions={actions}
             />
           </Box>
@@ -548,7 +569,11 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, ["patient", "menu", "common"])),
+    ...(await serverSideTranslations(locale as string, [
+      "patient",
+      "menu",
+      "common",
+    ])),
   },
 });
 

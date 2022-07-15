@@ -12,7 +12,7 @@ function GroupTable({ ...props }) {
         <Table size="small" aria-label="a dense table">
           <TableBody>
             {data.map((row: PatientDetailsRDV) => (
-              <Component row={row} />
+              <Component row={row} key={Math.random()} />
             ))}
           </TableBody>
         </Table>

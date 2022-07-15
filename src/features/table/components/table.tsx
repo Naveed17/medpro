@@ -46,6 +46,8 @@ function Otable({ ...props }) {
     handleConfig,
     minWidth,
     pagination,
+    DefaultRow,
+    checkedType,
   } = props;
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -134,7 +136,22 @@ function Otable({ ...props }) {
               .map((row, index) => {
                 const isItemSelected = isSelected(row?.name as string);
                 const labelId = `enhanced-table-checkbox-${index}`;
-                return (
+                return DefaultRow ? (
+                  <DefaultRow
+                    key={index}
+                    row={row}
+                    t={t}
+                    checkedType={checkedType}
+                    tableHeadData={state}
+                    handleChange={handleChange}
+                    editMotif={edit}
+                    active={active}
+                    ids={ids}
+                    labelId={labelId}
+                    isItemSelected={isItemSelected}
+                    handleClick={handleClick}
+                  />
+                ) : (
                   <Component
                     key={index}
                     row={row}
