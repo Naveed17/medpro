@@ -9,42 +9,49 @@ import { useTranslation } from "next-i18next";
 import { Otable } from "@features/table";
 import { useAppSelector } from "@app/redux/hooks";
 import { InsctructionDetails } from "@features/instructionDetails";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Instructions() {
-  const [edit, setEdit] = useState(false);
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      name: "Instructions 1",
-      actif: true,
-    },
-    {
-      id: 2,
-      name: "Instructions 2",
-      actif: true,
-    },
-    {
-      id: 3,
-      name: "Instructions 3",
-      actif: true,
-    },
-    {
-      id: 4,
-      name: "Instructions 4",
-      actif: true,
-    },
-    {
-      id: 5,
-      name: "Instructions 5",
-      actif: true,
-    },
-    {
-      id: 6,
-      name: "Instructions 6",
-      actif: true,
-    },
-  ]);
-  const { direction } = useAppSelector(configSelector);
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
+
+    const [edit, setEdit] = useState(false);
+    const [rows, setRows] = useState([
+        {
+            id: 1,
+            name: 'Instructions 1',
+            actif: true
+        },
+        {
+            id: 2,
+            name: 'Instructions 2',
+            actif: true
+        },
+        {
+            id: 3,
+            name: 'Instructions 3',
+            actif: true
+        },
+        {
+            id: 4,
+            name: 'Instructions 4',
+            actif: true
+        },
+        {
+            id: 5,
+            name: 'Instructions 5',
+            actif: true
+        },
+        {
+            id: 6,
+            name: 'Instructions 6',
+            actif: true
+        },
+    ]);
+    const { direction } = useAppSelector(configSelector);
 
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "instructions.config",

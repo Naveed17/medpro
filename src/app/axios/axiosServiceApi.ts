@@ -1,5 +1,6 @@
-import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
+import useSWR, {SWRConfiguration, SWRResponse} from 'swr'
 import axios, {AxiosRequestConfig, AxiosResponse, AxiosError, Axios} from 'axios'
+
 const baseURL: string = process.env.NEXT_PUBLIC_BACK_END_POINT || 'https://coreapi.med.ovh/';
 
 export type GetRequest = AxiosRequestConfig | null
@@ -16,25 +17,21 @@ export const instanceAxios = (() => {
 })();
 
 interface Return<Data, Error>
-    extends Pick<
-        SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
-        'isValidating' | 'error' | 'mutate'
-        > {
+    extends Pick<SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
+        'isValidating' | 'error' | 'mutate'> {
     data: Data | undefined
     response: AxiosResponse<Data> | undefined
 }
 
 export interface Config<Data = unknown, Error = unknown>
-    extends Omit<
-        SWRConfiguration<AxiosResponse<Data>, AxiosError<Error>>,
-        'fallbackData'
-        > {
+    extends Omit<SWRConfiguration<AxiosResponse<Data>, AxiosError<Error>>,
+        'fallbackData'> {
     fallbackData?: Data
 }
 
 function useRequest<Data = unknown, Error = unknown>(
     request: GetRequest,
-    { fallbackData, ...config }: Config<Data, Error> = {}
+    {fallbackData, ...config}: Config<Data, Error> = {}
 ): Return<Data, Error> {
     const {
         data: response,

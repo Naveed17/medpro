@@ -11,7 +11,6 @@ export default function Dialog(theme) {
             backgroundColor: alpha(theme.palette.primary.main, 0.2),
           },
           "& .MuiDialogTitle-root": {
-            background: theme.palette.primary.main,
             color: "white",
           },
           "& .MuiPaper-root": {
