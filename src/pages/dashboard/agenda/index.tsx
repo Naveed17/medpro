@@ -15,12 +15,13 @@ import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import useRequest from "@app/axios/axiosServiceApi";
 import {getToken} from "next-auth/jwt";
+import {Session} from "next-auth";
 
 const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
     ssr: false
 });
 
-function Agenda({...props}) {
+function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const {t, ready} = useTranslation('common');
@@ -28,18 +29,19 @@ function Agenda({...props}) {
     const loading = status === 'loading';
     const [date, setDate] = useState(new Date());
 
-    const medical_entity = (props?.data as UserDataResponse)?.medical_entity;
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpResponse, error} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
     });
 
     if (error) return <div>failed to load</div>
-    if (!ready || !httpResponse || loading) return (<LoadingScreen/>);
+    if (!ready || !httpResponse) return (<LoadingScreen/>);
 
     console.log(httpResponse);
 
@@ -60,21 +62,13 @@ function Agenda({...props}) {
     )
 }
 
-// Export the `session` prop to use sessions with Server Side Rendering
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const request = context.req;
-    const jwt = await getToken({
-        req: request
-    });
-
-    return {
-        props: {
-            fallback: false,
-            data: jwt?.data,
-            ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
-        }
+export const getStaticProps: GetStaticProps = async (context) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
     }
-}
+})
+
 export default Agenda
 
 Agenda.auth = true
