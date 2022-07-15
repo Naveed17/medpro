@@ -16,6 +16,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import useRequest from "@app/axios/axiosServiceApi";
 import {getToken} from "next-auth/jwt";
 import {Session} from "next-auth";
+import {Suspense} from 'react';
 
 const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
     ssr: false
@@ -32,18 +33,30 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpResponse, error} = useRequest({
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
+    }, {suspense: true});
+
+    const agenda = (httpAgendasResponse as HttpResponse).data.find((item: AgendaConfigurationModel) => item.isDefault);
+
+    console.log('agenda', agenda);
+
+    const {data: httpAppointmentResponse, error: errorHttpAppointment} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=2022-01-03&end_date=2022-01-09&format=week&consultationReason=consultationReasonId&type=0..3&status=0..7`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
     });
 
-    if (error) return <div>failed to load</div>
-    if (!ready || !httpResponse) return (<LoadingScreen/>);
+    if (errorHttpAgendas || errorHttpAppointment) return <div>failed to load</div>
+    if (!ready || !httpAgendasResponse || !httpAppointmentResponse) return (<LoadingScreen/>);
 
-    console.log(httpResponse);
+    console.log(httpAgendasResponse, httpAppointmentResponse);
 
     return (
         <>
@@ -75,8 +88,10 @@ Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
     return (
-        <DashLayout>
-            {page}
-        </DashLayout>
+        <Suspense fallback={<LoadingScreen/>}>
+            <DashLayout>
+                {page}
+            </DashLayout>
+        </Suspense>
     )
 }
