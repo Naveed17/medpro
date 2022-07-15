@@ -38,8 +38,6 @@ interface MyFormProps {
 
 function Info({...props}) {
     const {onSubmit} = props;
-    console.log('Info', onSubmit);
-
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     const router = useRouter();

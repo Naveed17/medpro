@@ -1,6 +1,9 @@
 import {styled} from "@mui/material/styles";
 
 const RootStyled = styled("div")(({theme}) => ({
+    "& .fc-theme-standard .fc-scrollgrid": {
+        border: "none",
+    },
     "& .fc-event-main": {
         padding: "0",
     },

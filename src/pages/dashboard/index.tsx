@@ -21,6 +21,7 @@ function Dashborad() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
+    console.log(session);
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
