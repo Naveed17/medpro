@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {FormikProvider, useFormik} from "formik";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -27,13 +27,18 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import FormStyled from "./overrides/formStyled";
 import dynamic from "next/dynamic";
+import {LatLngBoundsExpression} from "leaflet";
+import useRequest from "@app/axios/axiosServiceApi";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
 });
+
 function PlacesDetail() {
     const router = useRouter();
-
+    const uuind = router.query.uuid;
     const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
@@ -43,6 +48,28 @@ function PlacesDetail() {
             .required(t('users.new.nameReq')),
         address: Yup.string().required(t('lieux.new.adreq'))
     });
+
+    const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data} = useRequest(uuind !== 'new' ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + uuind + '/' + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : {});
+
+
+    useEffect(() => {
+        if (data !== undefined) {
+            console.log(data);
+        }
+        navigator.geolocation.getCurrentPosition(function (position) {
+            setOuterBounds([[position.coords.latitude, position.coords.longitude]])
+        });
+    }, [data])
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -161,33 +188,11 @@ function PlacesDetail() {
     }
     const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
 
-    const cords = [{
-        isActive: true,
-        isPublic: false,
-        uuid: "5b588e19-36b1-34e8-9a46-5df44dba11ce",
-        address:{
-            postalCode: "8085",
-            street: "37393 Kris Square Suite 164",
-            uuid: "8b66d1ea-651b-3f1d-91c0-70f26f77b718",
-            location:{
-                name: "Cat, 'a dog's not mad. You.",
-                point: [-63.255238, -152.830729],
-                polygon: [],
-                radius: null,
-                uuid: "5f19efcb-563d-3d8c-b870-e85880466c23",
-                country:{
-                    code: "ID",
-                    name: "Turkey",
-                    uuid: "34b8039a-ed01-3a6d-9981-05cca637f81e",
-                }
-            }
-        }
-    }];
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('lieux.config.path') + ' > name'}</p>
+                    <p style={{margin: 0}}>{uuind === 'new' ? t('lieux.new.path') : t('lieux.config.path') + ' > name'}</p>
                 </RootStyled>
             </SubHeader>
 
@@ -310,8 +315,10 @@ function PlacesDetail() {
                             </CardContent>
                         </Card>
 
-                       <Maps data={null} zoom={2}></Maps>
-                        <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} marginTop={2} gutterBottom>
+                        <Maps data={null} outerBounds={outerBounds} zoom={2}></Maps>
+
+                        <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} marginTop={2}
+                                    gutterBottom>
                             {t('lieux.new.info')}
                         </Typography>
                         <Card>
@@ -451,7 +458,8 @@ function PlacesDetail() {
                                                 {hour && <Grid item lg={4} md={6} sm={12} xs={12}>
                                                     <TimePicker
                                                         defaultValue={[hour.start ? new Date("2013/1/16 " + hour.start) : '', hour.end ? new Date("2013/1/16 " + hour.end) : '']}
-                                                        onChange={(s: any, e: any) => {}}
+                                                        onChange={(s: any, e: any) => {
+                                                        }}
                                                     />
                                                 </Grid>}
                                                 {i > 0 && hour && (
@@ -527,9 +535,10 @@ function PlacesDetail() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'settings']))
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
     }
 })
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {

@@ -57,7 +57,6 @@ function Actes() {
                 act.isTopAct ? setMainActes([...mainActes,act.act]) : setSecondaryActes([...secondaryActes,act.act]);
             })
         }
-        console.log(profil);
     }, [data]);
 
     const onDrop = (id: string, ev: any) => {

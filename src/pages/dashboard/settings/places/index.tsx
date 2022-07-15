@@ -14,6 +14,7 @@ import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@app/redux/hooks";
+import {LatLngBoundsExpression} from "leaflet";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -27,8 +28,9 @@ function Lieux() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [rows, setRows] = useState<MedicalEntityLocationModel[]>([])
     const [selected, setSelected] = useState<any>();
-    const [cords, setCords] = useState([]);
+    const [cords, setCords] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
+    const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
 
     const {data} = useRequest({
         method: "GET",
@@ -48,13 +50,21 @@ function Lieux() {
 
     useEffect(() => {
         if (data !== undefined) {
-            setRows((data as any).data)
+            setRows((data as any).data);
         }
     }, [data])
 
-    rows.filter((row) => row.isActive).map(cord =>{
-        console.log(cord)
-    });
+    useEffect(() => {
+        const actives: any[] = [];
+        const bounds:any[] = []
+        rows.filter((row: MedicalEntityLocationModel) => row.isActive).map((cord) => {
+            actives.push({name: (cord.address as any).location.name, points: (cord.address as any).location.point});
+            bounds.push((cord.address as any).location.point);
+        });
+        setOuterBounds(bounds);
+
+        setCords([...actives]);
+    }, [rows])
 
     const {t, ready} = useTranslation("settings", {
         keyPrefix: "lieux.config",
@@ -117,15 +127,14 @@ function Lieux() {
                 data: props
             })
             setOpen(true);
-        } else if (event ==='edit'){
+        } else if (event === 'edit') {
             console.log(props)
             router.push({
                 pathname: `/dashboard/settings/places/${props.uuid}`,
-               // query: props
+                // query: props
             });
         }
     };
-
 
     return (
         <>
@@ -152,8 +161,8 @@ function Lieux() {
             </SubHeader>
             <Box
                 bgcolor="#F0FAFF"
-                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}
-            >
+                sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+
                 <Otable
                     headers={headCells}
                     rows={rows}
@@ -184,7 +193,13 @@ function Lieux() {
                 />
 
 
-                {rows.length > 0 && <Maps data={cords} zoom={12}></Maps>}
+                {
+                    rows.length > 0 &&
+                    <Maps data={cords}
+                          outerBounds={outerBounds}
+                          zoom={12}/>
+                }
+
 
             </Box>
         </>

@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { LeftActionsData } from "@features/leftActionBar";
-import { Box } from "@mui/material";
 
 function LeftActionBar() {
     const router = useRouter();

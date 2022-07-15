@@ -22,7 +22,6 @@ function Settings() {
     const router = useRouter();
 
     const { t, ready } = useTranslation("settings");
-    console.log(t('menu.profil'));
     if (!ready) return (<>loading translations...</>);
 
     return (
