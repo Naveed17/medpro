@@ -34,7 +34,6 @@ function Agenda() {
     if (!ready) return (<>loading translations...</>);
 
     const reasons = (httpReasonsResponse as HttpResponse)?.data as ConsultationReasonTypeModel[];
-    console.log(reasons);
 
     return (
         <BoxStyled>
@@ -44,8 +43,6 @@ function Agenda() {
                     t: t,
                     ready: ready,
                 }}
-                badge={null}
-                defaultValue={"reasons"}
                 data={[
                     {
                         heading: {

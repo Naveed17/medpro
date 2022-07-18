@@ -47,12 +47,10 @@ function Agenda() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }: null);
+    } : null);
 
     if (errorHttpAgendas || errorHttpAppointment) return <div>failed to load</div>
     if (!ready || !httpAgendasResponse || !httpAppointmentResponse) return (<LoadingScreen/>);
-
-    console.log(httpAgendasResponse, httpAppointmentResponse);
 
     return (
         <>
@@ -84,8 +82,8 @@ Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
     return (
-            <DashLayout>
-                {page}
-            </DashLayout>
+        <DashLayout>
+            {page}
+        </DashLayout>
     )
 }
