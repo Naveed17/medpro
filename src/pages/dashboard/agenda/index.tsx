@@ -1,4 +1,4 @@
-import {GetServerSideProps, GetStaticProps} from "next";
+import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
@@ -9,12 +9,10 @@ import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import useRequest from "@app/axios/axiosServiceApi";
-import {getToken} from "next-auth/jwt";
 import {Session} from "next-auth";
 import {Suspense} from 'react';
 
@@ -39,19 +37,17 @@ function Agenda() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    }, {suspense: true});
+    });
 
-    const agenda = (httpAgendasResponse as HttpResponse).data.find((item: AgendaConfigurationModel) => item.isDefault);
+    const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data.find((item: AgendaConfigurationModel) => item.isDefault) : undefined;
 
-    console.log('agenda', agenda);
-
-    const {data: httpAppointmentResponse, error: errorHttpAppointment} = useRequest({
+    const {data: httpAppointmentResponse, error: errorHttpAppointment} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=2022-01-03&end_date=2022-01-09&format=week&consultationReason=consultationReasonId&type=0..3&status=0..7`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    });
+    }: null);
 
     if (errorHttpAgendas || errorHttpAppointment) return <div>failed to load</div>
     if (!ready || !httpAgendasResponse || !httpAppointmentResponse) return (<LoadingScreen/>);
@@ -88,10 +84,8 @@ Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
     return (
-        <Suspense fallback={<LoadingScreen/>}>
             <DashLayout>
                 {page}
             </DashLayout>
-        </Suspense>
     )
 }

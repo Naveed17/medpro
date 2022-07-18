@@ -1,6 +1,6 @@
-import {SWRConfig, useSWRConfig} from 'swr';
+import {SWRConfig} from 'swr';
 
-function SwrProvider({children, fallback, ...pageProps}: LayoutProps) {
+function SwrProvider({children, fallback}: LayoutProps) {
     return (
         <SWRConfig value={{
             provider: () => new Map(),

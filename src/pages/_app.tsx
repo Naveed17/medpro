@@ -57,13 +57,4 @@ function MyApp({ Component, pageProps: { ...pageProps } }: MyAppProps) {
 
 MyApp.displayName = "Med Pro";
 
-// MyApp.getInitialProps = async (appContext: AppContext) => {
-//     const request = appContext.ctx.req as any;
-//     const jwt = await getToken({
-//         req: request
-//     });
-//     const appProps = await App.getInitialProps(appContext);
-//     return { ...appProps, ...((jwt !== undefined) ? { jwt } : {}) }
-// };
-
 export default appWithTranslation(MyApp);

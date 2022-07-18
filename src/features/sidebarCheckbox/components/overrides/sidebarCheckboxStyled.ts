@@ -34,7 +34,7 @@ const SidebarCheckboxStyled = styled(ListItem)(({ theme, styleprops }: Props) =>
         '& .MuiSvgIcon-root': {
             width: '10px',
             height: '10px',
-            color: theme.palette[styleprops].main,
+            color: theme.palette["primary"].main,
         }
     },
     '& .MuiListItemText-root': {
