@@ -260,5 +260,14 @@
         "remove": "Supprimer"
       }
     }
+  },
+  "days": {
+    "MON": "Lundi",
+    "THU": "Mardi",
+    "WED": "Mercredi",
+    "TUE": "Jeudi",
+    "FRI": "Vendredi",
+    "SUN": "Samedi",
+    "SAT": "Dimanche"
   }
 }

@@ -197,10 +197,8 @@ function Lieux() {
                     rows.length > 0 &&
                     <Maps data={cords}
                           outerBounds={outerBounds}
-                          zoom={12}/>
+                          draggable={false}/>
                 }
-
-
             </Box>
         </>
     );
