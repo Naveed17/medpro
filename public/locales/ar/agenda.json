@@ -6,5 +6,24 @@
     "motif" : "سبب الاستشارة",
     "status" : "الوضع",
     "type" : "نوع الموعد"
+  },
+  "filter": {
+    "reasons": "سبب الاستشارة",
+    "status" : "الوضع",
+    "meetingType": "نوع الاجتماع",
+    "meeting":{
+      "cabinet": "في العيادة",
+      "home": "في المنزل",
+      "teleconsultation": "الاستشارة عن بعد"
+    },
+    "all": "الكل",
+    "done": "موعد محقق",
+    "confirm": "مؤكد",
+    "pending": "في الانتظار",
+    "cancel": "ملغي",
+    "expired": "إنقضى",
+    "no_show": "المريض لم ياتي",
+    "cancel_patient": "ألغى من المريض",
+    "note": "ملحوظات"
   }
 }
