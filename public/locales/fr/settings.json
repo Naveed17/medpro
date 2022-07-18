@@ -27,7 +27,13 @@
     "listQ": "liste des qualifications professionnelles",
     "title": "Titre",
     "alertQ": "Parce que la confidentialité de vos informations est importante, nous n'afficherons pas vos documents dans votre profil public.Les données qu'ils contiennent seront extraites et converties en texte.",
-    "drop": "Cliquez ou déposez les fichiers"
+    "drop": "Cliquez ou déposez les fichiers",
+    "noInsurance": "Aucune assurance sélectionnée",
+    "noPaymentMean": "Aucun moyen de paiement sélectionné",
+    "noQualification": "Aucune qualification sélectionnée",
+    "noLanguage": "Aucune langue sélectionnée",
+    "noActes": "Aucun acte sélectionné"
+
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
@@ -45,11 +51,12 @@
     "secondary": "Vos actes secondaires",
     "suggestion": "Actes suggérés",
     "typing": "Commencer à taper pour rechercher des actes",
-    "max": "Max 10 Actes"
+    "max": "Max 10 Actes",
+    "path": "Paramètres > Actes"
   },
   "motif": {
     "config": {
-      "add": "Ajouter motif",
+      "add": "Ajouter",
       "path": "Paramètres > Motifs de consultation",
       "table": {
         "name": "Nom",
@@ -86,7 +93,11 @@
   "lieux": {
     "config": {
       "add": "Ajouter",
+      "cancel": "Annuler",
       "path": "Paramètres > Lieux de consultation",
+      "remove": "Supprimer un lieu",
+      "askRemove": "Voulez vous vraiment supprimer ce lieu ?",
+      "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de ce lieu",
       "table": {
         "acces": "accès",
         "remove": "Supprimer",
@@ -172,7 +183,7 @@
   "substitute": {
     "tname": "Tapez le nom remplaçant",
     "mail": "E-mail",
-    "add": "Ajouter un remplaçant",
+    "add": "Ajouter",
     "info": "information sur le remplaçant",
     "name": "Nom",
     "remove": "Supprimer",

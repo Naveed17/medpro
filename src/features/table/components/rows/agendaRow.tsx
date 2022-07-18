@@ -9,7 +9,7 @@ import Button from "@mui/material/Button";
 import IconUrl from "@themes/urlIcon";
 import { uniqueId } from "lodash";
 function AgendaRow({ ...props }) {
-  const { row, handleChange, edit, t } = props;
+  const { row, handleChange,handleConfig, edit, t } = props;
   return (
     <TableRowStyled key={uniqueId}>
       <TableCell>
@@ -101,7 +101,7 @@ function AgendaRow({ ...props }) {
               size="small"
               color="error"
               startIcon={<IconUrl path="setting/icdelete" />}
-              onClick={() => console.log("remove", row)}
+              onClick={() => handleChange(row,'remove')}
               sx={{ mr: 1 }}
             >
               {t("table.remove")}

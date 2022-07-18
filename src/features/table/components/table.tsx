@@ -85,7 +85,6 @@ function Otable({ ...props }) {
         selected.slice(selectedIndex + 1)
       );
     }
-
     setSelected(newSelected);
   };
   const loading = false;
@@ -162,6 +161,7 @@ function Otable({ ...props }) {
                     active={active}
                     ids={ids}
                     labelId={labelId}
+                    data={rest}
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
                   />

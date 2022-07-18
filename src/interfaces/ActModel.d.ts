@@ -1,6 +1,6 @@
 interface ActModel {
-    uuid: string;
-    name: string;
-    description: string;
-    weight: number;
+  uuid: string;
+  name: string;
+  description: string;
+  weight: number;
 }

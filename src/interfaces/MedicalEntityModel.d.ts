@@ -7,4 +7,5 @@ interface MedicalEntityModel {
   hasHandicapAccess: boolean;
   country: CountryModel;
   subscription: ProductSubscriptionsModel;
+  paymentMeans: PaymentMeansModel[];
 }

@@ -13,9 +13,11 @@ import {SetAssurance, SetLangues, SetMode, SetQualifications} from "@features/ch
      const [value, setValue] = useState('');
 
      const [state, setstate] = useState(props.data.data);
+
      const handleChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
          setValue(e.target.value);
      }
+
      const handleChangeCheck = (v: any, item: any) => {
          const index = state.findIndex((v: any) => v.id === item.id)
          v ? setstate([...state, item]) : setstate([...state.slice(0, index), ...state.slice(index + 1, state.length)]);
