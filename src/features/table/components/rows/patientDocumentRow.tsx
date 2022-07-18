@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import {
   TableRow,
   TableCell,
@@ -12,8 +12,9 @@ import {
   Link,
 } from "@mui/material";
 // import TableHead from "src/components/Table/TableHeadSimple";
-// import { Popover } from "src/components";
+import { Popover } from "@features/popover";
 import Icon from "@themes/urlIcon";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { styled } from "@mui/material/styles";
 import { useMediaQuery } from "@mui/material";
 const RowStyled = styled(TableRow)(({ theme }) => ({
@@ -75,79 +76,27 @@ const RowStyled = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-// This method is created for cross-browser compatibility, if you don't
-// need to support IE11, you can use Array.prototype.sort() directly
-function stableSort(array, comparator) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) {
-      return order;
-    }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
-}
-const headCells = [
+const menuList = [
   {
-    id: "documents",
-    numeric: false,
-    disablePadding: true,
-    label: "Documents",
-    align: "left",
-    sortable: true,
+    title: "Patient Details",
+    icon: <CheckRoundedIcon />,
+    action: "onOpenDetails",
   },
   {
-    id: "createdAt",
-    numeric: false,
-    disablePadding: true,
-    label: "crée le",
-    align: "left",
-    sortable: true,
+    title: "Edit Patient",
+    icon: <CheckRoundedIcon />,
+    action: "onOpenEditPatient",
   },
   {
-    id: "createdBy",
-    numeric: false,
-    disablePadding: true,
-    label: "crée par",
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "action",
-    numeric: false,
-    disablePadding: true,
-    label: "Action",
-    align: "right",
-    sortable: false,
+    title: "Cancel",
+    icon: <CheckRoundedIcon />,
+    action: "onCancel",
   },
 ];
-export default function EnhancedTable(props) {
-  const { checkedType, rows } = props;
-  const [order, setOrder] = React.useState("asc");
-  const [orderBy, setOrderBy] = React.useState("calories");
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
+export default function EnhancedTable({ ...props }) {
+  const { checkedType, t, row } = props;
+  const [openTooltip, setOpenTooltip] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -159,7 +108,9 @@ export default function EnhancedTable(props) {
             <TableCell>
               <Stack spacing={1} direction="row" alignItems="center">
                 <Checkbox
-                  checked={checkedType.some((item) => item.type === row.type)}
+                  checked={checkedType.some(
+                    (item: PatientDocuments) => item.type === row.type
+                  )}
                   inputProps={{ "aria-label": "controlled" }}
                 />
                 <Icon
@@ -236,15 +187,33 @@ export default function EnhancedTable(props) {
                 justifyContent="flex-end"
                 alignItems="center"
               >
-                <Button startIcon={<Icon path={"ic-voir"} />}>Voir</Button>
-                {/* <Popover /> */}
+                <Button startIcon={<Icon path={"ic-voir"} />}>
+                  {t("table.see")}
+                </Button>
+                <Popover
+                  open={openTooltip}
+                  handleClose={() => setOpenTooltip(false)}
+                  menuList={menuList}
+                  onClickItem={(v: string) => console.log(v, "popover event")}
+                  button={
+                    <IconButton
+                      onClick={() => {
+                        setOpenTooltip(true);
+                      }}
+                      sx={{ display: "block", ml: "auto" }}
+                      size="small"
+                    >
+                      <Icon path="more-vert" />
+                    </IconButton>
+                  }
+                />
               </Stack>
             </TableCell>
           </>
         ) : (
           <>
             <TableCell>
-              <Stack spacing={1} direction="row" alignItems="center">
+              <Stack direction="row" alignItems="center">
                 <Icon
                   path={
                     (row.type === "Ordonnances" && "ic-traitement") ||
@@ -338,7 +307,23 @@ export default function EnhancedTable(props) {
                   <Icon path={"ic-voir"} />
                 </IconButton>
 
-                {/* <Popover /> */}
+                <Popover
+                  open={openTooltip}
+                  handleClose={() => setOpenTooltip(false)}
+                  menuList={menuList}
+                  onClickItem={(v: string) => console.log(v, "popover event")}
+                  button={
+                    <IconButton
+                      onClick={() => {
+                        setOpenTooltip(true);
+                      }}
+                      sx={{ display: "block", ml: "auto" }}
+                      size="small"
+                    >
+                      <Icon path="more-vert" />
+                    </IconButton>
+                  }
+                />
               </Stack>
             </TableCell>
           </>

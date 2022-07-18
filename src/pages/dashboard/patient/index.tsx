@@ -412,7 +412,7 @@ function Patient() {
   const { direction } = useAppSelector(configSelector);
 
   // state hook for details drawer
-  const [open, setopen] = useState<boolean>(false);
+  const [open, setopen] = useState<boolean>(true);
 
   // state hook for tabs
   const [value, setValue] = useState<number>(0);
@@ -556,7 +556,7 @@ function Patient() {
                 position: "fixed",
                 bottom: 16,
                 right: 16,
-                display: { md: "none", xs: "block" },
+                display: { md: "none", xs: "flex" },
               }}
               actions={actions}
             />

@@ -7,8 +7,14 @@ import ListItemText from "@mui/material/ListItemText";
 import Fade from "@mui/material/Fade";
 import { styled } from "@mui/material/styles";
 import CodeIcon from "@mui/icons-material/Code";
-
+interface Props {
+  lable: string;
+  icon: React.ReactElement | null;
+}
 const RootStyle = styled("div")(({ theme }) => ({
+  "& .menu-btn": {
+    marginBottom: theme.spacing(1.5),
+  },
   "& .MuiButton-root": {
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
@@ -17,6 +23,7 @@ const RootStyle = styled("div")(({ theme }) => ({
     color: theme.palette.text.primary,
     minWidth: 100,
     fontSize: 12,
+
     width: "100%",
     ".MuiButton-startIcon>*:nth-of-type(1)": {
       fontSize: 13,
@@ -33,26 +40,26 @@ const RootStyle = styled("div")(({ theme }) => ({
   },
 }));
 
-function CallanderButton({ children, ...props }) {
+function CallanderButton({ ...props }) {
   const { data, onSellected, ...rest } = props;
   const [width, setWidth] = React.useState(0);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selected, setselected] = React.useState(data[0]);
-  const ref = React.useRef(null);
-  function handleClick(event) {
+  const ref = React.useRef<HTMLButtonElement>(null);
+  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (anchorEl !== event.currentTarget) {
       setAnchorEl(event.currentTarget);
     }
   }
 
-  function handleClose(props) {
+  function handleClose(prop: Props) {
     setAnchorEl(null);
-    setselected(props);
-    onSellected(props?.lable);
+    setselected(prop);
+    onSellected(prop?.lable);
   }
   React.useEffect(() => {
     if (ref.current) {
-      const element = ref.current.getBoundingClientRect();
+      const element = ref.current?.getBoundingClientRect();
       setWidth(element.width);
     }
     onSellected(selected?.lable);
@@ -74,6 +81,7 @@ function CallanderButton({ children, ...props }) {
         aria-haspopup="true"
         onClick={handleClick}
         onMouseOver={handleClick}
+        className="menu-btn"
       >
         {selected.lable}
       </Button>
@@ -109,7 +117,7 @@ function CallanderButton({ children, ...props }) {
           },
         }}
       >
-        {data.map((item) => (
+        {data.map((item: Props) => (
           <MenuItem onClick={() => handleClose(item)} key={item.lable}>
             {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
             <ListItemText sx={{ fontSize: 12 }}>{item.lable}</ListItemText>

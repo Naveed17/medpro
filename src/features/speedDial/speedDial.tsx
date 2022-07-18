@@ -26,7 +26,7 @@ export default function SpeedDialTooltipOpen({ ...props }) {
           tooltipTitle={action.name}
           tooltipOpen
           onClick={handleClose}
-          {...props}
+          // {...props}
         />
       ))}
     </SpeedDial>

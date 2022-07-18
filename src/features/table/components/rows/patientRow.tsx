@@ -64,7 +64,7 @@ function PatientRow({ ...props }) {
             >
               <Icon path="ic-anniverssaire" />
               {row.dateOfBirth} -{" "}
-              {moment().diff(new Date(), "years", true).toFixed()}
+              {/* {moment().diff(new Date(), "years", true).toFixed()} */}
             </Typography>
           </Box>
         </Box>

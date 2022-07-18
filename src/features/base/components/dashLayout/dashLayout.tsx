@@ -1,8 +1,7 @@
 import dynamic from "next/dynamic";
-import React from "react";
 import { useRouter } from "next/router";
-
 import { motion } from "framer-motion";
+
 const SideBarMenu = dynamic(
   () => import("@features/sideBarMenu/components/sideBarMenu")
 );

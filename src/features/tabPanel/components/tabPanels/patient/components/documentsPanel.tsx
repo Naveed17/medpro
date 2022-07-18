@@ -8,94 +8,72 @@ import { useMediaQuery } from "@mui/material";
 // import DocumentTable from "./DocumentTable";
 // import { CallanderButtonMobile } from "src/components";
 import { PatientDetailsDocumentCard } from "@features/card";
-import { Otable, PatientDocumentRow } from "@features/table";
+import { Otable } from "@features/table";
 import { useTranslation } from "next-i18next";
-const RootStyled = styled(Card)(({ theme }) => ({}));
-const typeofDocs = [
-  "Rapport",
-  "Ordonnances",
-  "Analyses",
-  "Ordonnance de médicaments",
-];
+const RootStyled = styled(Card)(({ theme }) => ({
+  tbody: {
+    marginTop: theme.spacing(1),
+  },
+}));
 
+const typeofDocs = ["report", "orders", "analysis", "prescription"];
+
+// interface
+interface HeadCell {
+  disablePadding: boolean;
+  id: string;
+  label: string;
+  numeric: boolean;
+  sortable: boolean;
+  align: "left" | "right" | "center";
+}
 // table head data
 const headCells: readonly HeadCell[] = [
   {
-    id: "select-all",
+    id: "documents",
     numeric: false,
     disablePadding: true,
-    label: "checkbox",
-    sortable: false,
+    label: "documents",
     align: "left",
+    sortable: true,
   },
   {
-    id: "name",
+    id: "createdAt",
     numeric: false,
     disablePadding: true,
-    label: "name",
-    sortable: true,
+    label: "created-at",
     align: "left",
+    sortable: true,
   },
   {
-    id: "telephone",
-    numeric: true,
-    disablePadding: false,
-    label: "telephone",
-    sortable: true,
-    align: "left",
-  },
-  {
-    id: "city",
+    id: "createdBy",
     numeric: false,
-    disablePadding: false,
-    label: "city",
+    disablePadding: true,
+    label: "created-by",
+    align: "left",
     sortable: true,
-    align: "left",
-  },
-  {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "id",
-    sortable: true,
-    align: "left",
-  },
-  {
-    id: "nextAppointment",
-    numeric: false,
-    disablePadding: false,
-    label: "nextAppointment",
-    sortable: false,
-    align: "left",
-  },
-  {
-    id: "lastAppointment",
-    numeric: false,
-    disablePadding: false,
-    label: "lastAppointment",
-    sortable: false,
-    align: "left",
   },
   {
     id: "action",
     numeric: false,
-    disablePadding: false,
+    disablePadding: true,
     label: "action",
-    sortable: false,
     align: "right",
+    sortable: false,
   },
 ];
 
-const rows = [
+const rows: PatientDocuments[] = [
   {
     id: 1,
     name: "Nom du document",
     firstName: "Hassen",
     lastName: "Marzouki",
     img: null,
-    type: "Ordonnances",
+    type: "ordonnances",
     createdAt: "19 Mars 2021",
     createdBy: "Interne",
+    specialist: null,
   },
   {
     id: 2,
@@ -103,9 +81,10 @@ const rows = [
     firstName: "Nadine",
     lastName: "Marzouki",
     img: null,
-    type: "Analyses",
+    type: "analysis",
     createdAt: "19 Mars 2021",
     createdBy: "Interne",
+    specialist: null,
   },
   {
     id: 3,
@@ -113,15 +92,18 @@ const rows = [
     firstName: "Hassen",
     lastName: "Marzouki",
     img: null,
-    type: "Ordonnances",
+    type: "orders",
     createdAt: "19 Mars 2021",
     createdBy: "Mohamed ALi",
+    specialist: null,
   },
   {
     id: 4,
     name: "Nom du document",
+    firstName: null,
+    lastName: null,
     img: null,
-    type: "Rapport",
+    type: "report",
     createdAt: "19 Mars 2021",
     createdBy: "Dr Salma BEN SALAH",
     specialist: "Dermatologue",
@@ -132,49 +114,55 @@ const rows = [
     firstName: "Hasssen",
     lastName: "Marzouki",
     img: null,
-    type: "Ordonnance de médicaments",
+    type: "prescription",
     createdAt: "19 Mars 2021",
     createdBy: "Interne",
+    specialist: null,
   },
 ];
 function DocumentsPanel() {
-  const [checked, setChecked] = React.useState([]);
-  const handleToggle = (value) => (e) => {
-    if (e.target.checked) {
-      const filtered = rows.filter((item) => item.type === value);
-      if (rows.length === checked.length) {
-        setChecked([...filtered]);
+  const [checked, setChecked] = React.useState<PatientDocuments[]>([]);
+  const handleToggle =
+    (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.checked) {
+        const filtered = rows.filter((item) => item.type === value);
+        if (rows.length === checked.length) {
+          setChecked([...filtered]);
+        } else {
+          setChecked([...checked, ...filtered]);
+        }
       } else {
-        setChecked([...checked, ...filtered]);
+        const filtered = checked.filter((item) => item.type !== value);
+        setChecked([...filtered]);
       }
-    } else {
-      const filtered = checked.filter((item) => item.type !== value);
-      setChecked([...filtered]);
-    }
-  };
+    };
   const handleCheckAll = () => {
     if (rows.length === checked.length) {
       setChecked([]);
     } else {
-      setChecked(rows);
+      setChecked([...rows]);
     }
   };
 
   const isMobile = useMediaQuery("(max-width:600px)");
-  const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
+  const { t, ready } = useTranslation("patient", {
+    keyPrefix: "config",
+  });
 
   if (!ready) return <>loading translations...</>;
 
   return (
     <RootStyled>
       <CardContent>
-        <Typography gutterBottom>Type de document</Typography>
+        <Typography gutterBottom>{t("table.title")}</Typography>
         {isMobile ? (
           <PatientDetailsDocumentCard
-            data={["Tous", ...typeofDocs].map((item) => ({ lable: item }))}
-            onSellected={(v) =>
+            data={["all", ...typeofDocs].map((item) => ({
+              lable: item,
+            }))}
+            onSellected={(v: string) =>
               setChecked(
-                v === "Tous" ? rows : rows.filter((item) => item.type === v)
+                v === "all" ? rows : rows.filter((item) => item.type === v)
               )
             }
           />
@@ -187,7 +175,7 @@ function DocumentsPanel() {
                   onChange={handleCheckAll}
                 />
               }
-              label={"Tous"}
+              label={t("table.all")}
             />
             {typeofDocs.map((type, index) => (
               <FormControlLabel
@@ -202,26 +190,24 @@ function DocumentsPanel() {
                     onChange={handleToggle(type)}
                   />
                 }
-                label={type}
+                label={t(`table.${type}`)}
               />
             ))}
           </>
         )}
 
-        {/* <DocumentTable checkedType={checked} rows={rows} />  */}
         <Otable
           headers={headCells}
           rows={rows}
           state={null}
-          from={"patient"}
+          from={"patient-documents"}
           t={t}
           edit={null}
           checkedType={checked}
           handleConfig={null}
           handleChange={null}
-          minWidth={1300}
           pagination
-          defaultRow={PatientDocumentRow}
+          hideHeaderOnMobile
         />
       </CardContent>
     </RootStyled>
