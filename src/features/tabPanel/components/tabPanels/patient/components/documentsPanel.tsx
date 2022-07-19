@@ -1,20 +1,20 @@
 import React from "react";
-import { Card, CardContent, Typography, FormControlLabel } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import Checkbox from "@mui/material/Checkbox";
-import { uniqueId } from "lodash";
+import { useTranslation } from "next-i18next";
+
+// material
+import {
+  Card,
+  CardContent,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 import { useMediaQuery } from "@mui/material";
+
 //components
-// import DocumentTable from "./DocumentTable";
-// import { CallanderButtonMobile } from "src/components";
 import { PatientDetailsDocumentCard } from "@features/card";
 import { Otable } from "@features/table";
-import { useTranslation } from "next-i18next";
-const RootStyled = styled(Card)(({ theme }) => ({
-  tbody: {
-    marginTop: theme.spacing(1),
-  },
-}));
+import { uniqueId } from "lodash";
 
 const typeofDocs = ["report", "orders", "analysis", "prescription"];
 
@@ -121,7 +121,10 @@ const rows: PatientDocuments[] = [
   },
 ];
 function DocumentsPanel() {
+  // filter checked array
   const [checked, setChecked] = React.useState<PatientDocuments[]>([]);
+
+  // handle change for checkboxes
   const handleToggle =
     (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.checked) {
@@ -136,6 +139,8 @@ function DocumentsPanel() {
         setChecked([...filtered]);
       }
     };
+
+  //  handleclick all
   const handleCheckAll = () => {
     if (rows.length === checked.length) {
       setChecked([]);
@@ -144,7 +149,10 @@ function DocumentsPanel() {
     }
   };
 
+  // query media for mobile
   const isMobile = useMediaQuery("(max-width:600px)");
+
+  // translation
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "config",
   });
@@ -152,7 +160,13 @@ function DocumentsPanel() {
   if (!ready) return <>loading translations...</>;
 
   return (
-    <RootStyled>
+    <Card
+      sx={{
+        tbody: {
+          mt: 1,
+        },
+      }}
+    >
       <CardContent>
         <Typography gutterBottom>{t("table.title")}</Typography>
         {isMobile ? (
@@ -177,7 +191,7 @@ function DocumentsPanel() {
               }
               label={t("table.all")}
             />
-            {typeofDocs.map((type, index) => (
+            {typeofDocs.map((type) => (
               <FormControlLabel
                 key={uniqueId()}
                 control={
@@ -210,7 +224,7 @@ function DocumentsPanel() {
           hideHeaderOnMobile
         />
       </CardContent>
-    </RootStyled>
+    </Card>
   );
 }
 export default DocumentsPanel;

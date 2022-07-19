@@ -1,6 +1,7 @@
 import { useState } from "react";
+
+// Material
 import {
-  TableRow,
   TableCell,
   Stack,
   IconButton,
@@ -10,72 +11,16 @@ import {
   Avatar,
   Box,
   Link,
+  useMediaQuery,
 } from "@mui/material";
-// import TableHead from "src/components/Table/TableHeadSimple";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+
+// components
 import { Popover } from "@features/popover";
 import Icon from "@themes/urlIcon";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import { styled } from "@mui/material/styles";
-import { useMediaQuery } from "@mui/material";
-const RowStyled = styled(TableRow)(({ theme }) => ({
-  "& .MuiAvatar-root": {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    color: theme.palette.common.white,
-    backgroundColor: theme.palette.grey[400],
-    fontFamily: theme.typography.fontFamily,
-    "& span": {
-      fontSize: 9,
-    },
-  },
-  "& .MuiCheckbox-root": {
-    padding: 2,
-    width: 22,
-    height: 22,
-    "& .react-svg": {
-      " & svg": {
-        width: 14,
-        height: 14,
-      },
-    },
-  },
-  "& .MuiButton-root": {
-    padding: theme.spacing(0, 1),
-    fontSize: 14,
-    minWidth: 0,
-    color: theme.palette.text.primary,
-    "& .react-svg svg path": {
-      fill: theme.palette.text.primary,
-    },
-    "&:hover": {
-      backgroundColor: "transparent",
-      boxShadow: "none",
-    },
-    "&:focus, &:active": {
-      backgroundColor: "transparent",
-      color: theme.palette.text.primary,
-      "& .react-svg svg path": {
-        fill: theme.palette.text.primary,
-      },
-    },
-  },
-  "& .more-icon-btn": {
-    color: theme.palette.text.primary,
-  },
-  "& .MuiTableCell-root": {
-    backgroundColor: "transparent !important",
-    borderTop: `1px solid ${theme.palette.divider} !important`,
-    borderBottom: `1px solid ${theme.palette.divider} !important`,
-    "&:first-of-type": {
-      borderLeft: `1px solid ${theme.palette.divider} !important`,
-    },
-    "&:last-of-type": {
-      borderRight: `1px solid ${theme.palette.divider} !important`,
-    },
-  },
-}));
+import { TableRowStyled } from "@features/table";
 
+// menu data
 const menuList = [
   {
     title: "Patient Details",
@@ -96,13 +41,17 @@ const menuList = [
 
 export default function EnhancedTable({ ...props }) {
   const { checkedType, t, row } = props;
+
+  // useState tooltip
   const [openTooltip, setOpenTooltip] = useState(false);
+
+  // query for mobile view
   const isMobile = useMediaQuery("(max-width:600px)");
 
   // Avoid a layout jump when reaching the last page with empty rows.
   return (
     <>
-      <RowStyled key={row.id}>
+      <TableRowStyled key={row.id} className="document-row">
         {!isMobile ? (
           <>
             <TableCell>
@@ -115,11 +64,10 @@ export default function EnhancedTable({ ...props }) {
                 />
                 <Icon
                   path={
-                    (row.type === "Ordonnances" && "ic-traitement") ||
-                    (row.type === "Analyses" && "ic-analyse") ||
-                    (row.type === "Rapport" && "ic-lettre") ||
-                    (row.type === "Ordonnance de médicaments" &&
-                      "ic-ordonance") ||
+                    (row.type === "orders" && "ic-traitement") ||
+                    (row.type === "analysis" && "ic-analyse") ||
+                    (row.type === "report" && "ic-lettre") ||
+                    (row.type === "prescription" && "ic-ordonance") ||
                     ""
                   }
                 />
@@ -214,16 +162,15 @@ export default function EnhancedTable({ ...props }) {
           <>
             <TableCell>
               <Stack direction="row" alignItems="center">
-                <Icon
+                {/* <Icon
                   path={
-                    (row.type === "Ordonnances" && "ic-traitement") ||
-                    (row.type === "Analyses" && "ic-analyse") ||
-                    (row.type === "Rapport" && "ic-lettre") ||
-                    (row.type === "Ordonnance de médicaments" &&
-                      "ic-ordonance") ||
+                    (row.type === "orders" && "ic-traitement") ||
+                    (row.type === "analysis" && "ic-analyse") ||
+                    (row.type === "report" && "ic-lettre") ||
+                    (row.type === "prescription" && "ic-ordonance") ||
                     ""
                   }
-                />
+                /> */}
                 <Box>
                   <Typography color="text.primary" fontWeight={400}>
                     {row?.name}
@@ -328,7 +275,7 @@ export default function EnhancedTable({ ...props }) {
             </TableCell>
           </>
         )}
-      </RowStyled>
+      </TableRowStyled>
     </>
   );
 }

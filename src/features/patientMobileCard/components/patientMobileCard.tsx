@@ -85,8 +85,7 @@ const CardSection = ({ ...props }) => {
             lineHeight="18px"
           >
             <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
-            {v.nextAppointment} -{" "}
-            {moment().diff(new Date(), "years", true).toFixed()}
+            {v.nextAppointment} - {moment().diff(v.dateOfBirth, "years")}
           </Typography>
           <Box
             className="border-left-sec"
@@ -125,7 +124,7 @@ const CardSection = ({ ...props }) => {
                 <Icon path="ic-agenda" />
                 {v.nextAppointment}
                 <Icon path="ic-time" />
-                {v.time.format("HH:mm")}
+                {v.time}
               </Typography>
             )}
           </Box>
