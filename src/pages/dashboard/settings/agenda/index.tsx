@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
@@ -10,46 +10,39 @@ import {Otable} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@app/redux/hooks";
+import {Session} from "next-auth";
+import useRequest from "@app/axios/axiosServiceApi";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Theme} from "@mui/material/styles";
 
 function Agenda() {
 
-    const [selected, setSelected] = useState<MedicalEntityLocationModel>();
+    const {data: session, status} = useSession();
+    const router = useRouter();
+    const [selected, setSelected] = useState<any>();
     const [open, setOpen] = useState(false);
-
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Praticien agenda',
-            type: 'Praticien',
-            speciality: "ORL",
-            place: "Cabinet",
-            nbAcces: 3,
-            actif: true,
-            public: true,
-        },
-        {
-            id: 2,
-            name: 'Salle radiologue',
-            type: 'Salle',
-            speciality: "ORL",
-            place: "Radiologist",
-            nbAcces: 3,
-            actif: true,
-            public: false,
-        },
-        {
-            id: 3,
-            name: 'Calendar assistant',
-            type: 'Assistant',
-            speciality: "Cardiologue",
-            place: "Cabinet",
-            nbAcces: 2,
-            actif: false,
-            public: true,
-        }
-    ])
+    const [rows, setRows] = useState([])
 
     const {direction} = useAppSelector(configSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
+    const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : undefined;
+    //setRows(agenda);
+    useEffect(() => {
+        if (agenda !== undefined)
+            setRows(agenda);
+    }, [agenda])
 
     const dialogClose = () => {
         setOpen(false);
@@ -82,26 +75,18 @@ function Agenda() {
             sortable: true,
         },
         {
-            id: "speciality",
+            id: "autoConfirm",
             numeric: false,
             disablePadding: false,
-            label: "speciality",
+            label: "autoConfirm",
             align: "center",
-            sortable: true,
+            sortable: false,
         },
         {
-            id: "place",
+            id: "default",
             numeric: true,
             disablePadding: false,
-            label: "place",
-            align: "center",
-            sortable: true,
-        },
-        {
-            id: "nbAccess",
-            numeric: true,
-            disablePadding: false,
-            label: "nbAccess",
+            label: "default",
             align: "center",
             sortable: false,
         },
@@ -131,9 +116,27 @@ function Agenda() {
         },
     ];
 
-    const handleChange = (props: any, e: any) =>{
-        console.log(props)
-        console.log(e);
+    const handleChange = (props: any, e: any) => {
+
+        if (e === 'remove') {
+            setOpen(true);
+            setSelected({
+                title: t('askRemove'),
+                subtitle: t('subtitleRemove'),
+                icon: "/static/icons/ic-agenda.svg",
+                name1: props.name,
+                name2: props.type,
+                data: props
+            });
+        } else if (e === 'edit')
+            console.log(props)
+        else if (e === 'isDefault') {
+            rows.map((row: any) => row.isDefault = false);
+            props[e] = true;
+        } else
+            props[e] = !props[e];
+
+        setRows([...rows]);
     }
     return (
         <>
@@ -151,40 +154,37 @@ function Agenda() {
                     from={"agenda"}
                     t={t}
                     edit={null}
-                    handleChange={handleChange}
-                />
+                    handleChange={handleChange}/>
             </Box>
 
-            <Dialog action={""}
+            <Dialog action={"remove"}
                     open={open}
                     data={selected}
                     direction={direction}
-                    color={'#E83B68'}
-                    title={"Supprimer une agenda"}
+                    color={(theme: Theme) => theme.palette.error.main}
+                    title={t('remove')}
                     t={t}
                     actionDialog={
                         <DialogActions>
                             <Button onClick={dialogClose}
                                     startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                             <Button variant="contained"
-                                    sx={{backgroundColor: '#E83B68'}}
+                                    sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                     onClick={dialogSave}>{t('table.remove')}</Button>
                         </DialogActions>
                     }
             />
+
         </>
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, [
-            "common",
-            "menu",
-            "settings",
-        ])),
-    },
-});
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
+    }
+})
 
 export default Agenda;
 Agenda.auth = true;

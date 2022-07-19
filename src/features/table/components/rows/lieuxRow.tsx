@@ -32,17 +32,7 @@ function LieuxRow({...props}) {
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
-            {/*
-      <TableCell align="center">
-        {row ? (
-          <Typography className="name" variant="body1" color="text.primary">
-            {row.agenda} {t("table.acces")}
-          </Typography>
-        ) : (
-          <Skeleton variant="text" width={100} sx={{ m: "auto" }} />
-        )}
-      </TableCell>
-*/}
+
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
