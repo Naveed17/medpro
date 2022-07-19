@@ -16,10 +16,12 @@ function SettingsDialogs({...props}) {
                 open={props.open}
                 onClose={props.dialogClose}
                 scroll="paper"
+                maxWidth={"sm"}
                 dir={props.direction}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
-                <DialogTitle sx={{backgroundColor: props.color?props.color:'#0096d6'}} id="scroll-dialog-title">{props.title}</DialogTitle>
+                <DialogTitle sx={{backgroundColor: props.color?props.color:'#0096d6'}}
+                             id="scroll-dialog-title">{props.title}</DialogTitle>
                 <DialogContent dividers={true}>
                     <DialogContentText
                         id="scroll-dialog-description"
