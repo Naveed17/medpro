@@ -29,6 +29,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 COPY --from=builder ${APP_ROOT}/next.config.js ./
 COPY --from=builder ${APP_ROOT}/public ./public
 COPY --from=builder ${APP_ROOT}/package.json ./package.json
+COPY --from=builder ${APP_ROOT}/package-lock.json ./package-lock.json
 COPY docker/docker-entrypoint-init.d/ /docker-entrypoint-init.d/
 
 # Automatically leverage output traces to reduce image size
