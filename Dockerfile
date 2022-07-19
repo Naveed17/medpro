@@ -28,13 +28,17 @@ ENV NEXT_TELEMETRY_DISABLED 1
 # You only need to copy next.config.js if you are NOT using the default configuration
 COPY --from=builder ${APP_ROOT}/next.config.js ./
 COPY --from=builder ${APP_ROOT}/public ./public
+COPY --from=builder ${APP_ROOT}/.next ./.next
 COPY --from=builder ${APP_ROOT}/package.json ./package.json
 COPY --from=builder ${APP_ROOT}/package-lock.json ./package-lock.json
+COPY --from=builder ${APP_ROOT}/node_modules ./node_modules
+COPY --from=builder ${APP_ROOT}/next-i18next.config.js ./
+COPY --from=builder ${APP_ROOT}/next-fullcalendar.config.js ./
 COPY docker/docker-entrypoint-init.d/ /docker-entrypoint-init.d/
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/standalone ./
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/static ./.next/static
-
+EXPOSE 3000
 CMD ["npm", "run", "start"]
