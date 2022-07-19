@@ -15,7 +15,7 @@ function RdvCard({ ...props }) {
   });
   if (!ready) return <>loading translations...</>;
   return (
-    <RootStyled key={Math.random()}>
+    <RootStyled>
       <TableCell
         className="first-child"
         sx={{

@@ -18,6 +18,7 @@ function OHead({ ...props }) {
     handleConfig,
     t,
     numSelected,
+    hideHeaderOnMobile,
     rowCount,
     onSelectAllClick,
   } = props;
@@ -30,7 +31,15 @@ function OHead({ ...props }) {
   };
 
   return (
-    <TableHead>
+    <TableHead
+      className={hideHeaderOnMobile ? "sm-none" : ""}
+      sx={{
+        display: {
+          md: "table-header-group",
+          xs: hideHeaderOnMobile ? "none" : "table-header-group",
+        },
+      }}
+    >
       <TableRow>
         {data.map((headCell: any) => (
           <React.Fragment key={headCell.id}>

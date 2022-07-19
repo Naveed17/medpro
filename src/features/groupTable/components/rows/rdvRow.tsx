@@ -14,7 +14,7 @@ function RDVRow({ ...props }) {
   });
   if (!ready) return <>loading translations...</>;
   return (
-    <React.Fragment key={Math.random()}>
+    <React.Fragment>
       <TableRow>
         <TableCell colSpan={3} className="text-row">
           {row.pending ? (
@@ -47,13 +47,15 @@ function RDVRow({ ...props }) {
                   </Typography>
                 </TableCell>
               </TableRow>
-              {data.data.map((inner) =>
-                matches ? (
-                  <RDVCard inner={inner} />
-                ) : (
-                  <RDVMobileCard inner={inner} />
-                )
-              )}
+              {data.data.map((inner) => (
+                <React.Fragment key={Math.random()}>
+                  {matches ? (
+                    <RDVCard inner={inner} key={Math.random()} />
+                  ) : (
+                    <RDVMobileCard inner={inner} key={Math.random()} />
+                  )}
+                </React.Fragment>
+              ))}
             </>
           ) : matches ? (
             <RDVCard t={t} inner={data} />

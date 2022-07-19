@@ -11,6 +11,9 @@ export default function Drawer(theme) {
           },
           "& .MuiDrawer-paperAnchorRight": {
             boxShadow: theme.customShadows.drawer,
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
+            },
           },
         },
       },
