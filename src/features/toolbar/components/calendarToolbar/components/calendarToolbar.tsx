@@ -24,8 +24,8 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import {useAppDispatch} from "@app/redux/hooks";
-import {setView} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, setView} from "@features/calendar";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -45,15 +45,16 @@ type CalendarToolbarProps = {
     date: Date
 };
 
-
 function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const {view} = useAppSelector(agendaSelector);
+
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", icon: TodayIcon},
         {value: "timeGridWeek", label: "Week", icon: DayIcon},
         {value: "dayGridMonth", label: "Month", icon: WeekIcon},
-        {value: "listWeek", label: "Agenda", icon: GridIcon , color: theme.palette.primary.main},
+        {value: "listWeek", label: "Agenda", icon: GridIcon },
     ];
 
     const handleViewChagne = (view: string) => {
@@ -104,9 +105,9 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
                                 value="dayGridMonth"
                                 sx={{
                                     width: 37, height: 37, padding: 0, marginTop: '2px!important',
-                                    ...(viewOption.color !== undefined && {background: viewOption.color})
+                                    ...(viewOption.value === view && {background: theme.palette.primary.main})
                                 }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20}/>
+                                <SvgIcon component={viewOption.icon} width={20} height={20} color={"primary"} />
                             </ToggleButtonStyled>
                         </Tooltip>
                     ))}

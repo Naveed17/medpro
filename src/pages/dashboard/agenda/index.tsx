@@ -43,7 +43,7 @@ function Agenda() {
 
     const {data: httpAppointmentResponse, error: errorHttpAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=2022-01-03&end_date=2022-01-09&format=week&consultationReason=consultationReasonId&type=0..3&status=0..7`,
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=2022-01-03&end_date=2022-01-09&format=week`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -52,6 +52,7 @@ function Agenda() {
     if (errorHttpAgendas || errorHttpAppointment) return <div>failed to load</div>
     if (!ready || !httpAgendasResponse || !httpAppointmentResponse) return (<LoadingScreen/>);
 
+    console.log(httpAppointmentResponse);
     return (
         <>
             <SubHeader>
