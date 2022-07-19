@@ -4,7 +4,6 @@ const RootStyled = styled(Card)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   position: "relative",
   borderRadius: 6,
-  marginBottom: theme.spacing(1),
   "&:before": {
     content: '""',
     width: 4,

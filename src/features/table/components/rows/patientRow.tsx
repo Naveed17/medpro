@@ -63,8 +63,8 @@ function PatientRow({ ...props }) {
               className="text-time"
             >
               <Icon path="ic-anniverssaire" />
-              {row.dateOfBirth} -{" "}
-              {moment().diff(row.dateOfBirth, "years", true).toFixed()}
+              {row.dateOfBirth.format("YYYY-MM-DD")} -{" "}
+              {moment().diff(row.dateOfBirth, "years")}
             </Typography>
           </Box>
         </Box>
@@ -118,7 +118,7 @@ function PatientRow({ ...props }) {
                 color="text.primary"
               >
                 <Icon path="ic-time" />
-                {row.time.format("HH:mm")}
+                {row.time}
               </Typography>
             </Box>
           </Box>
@@ -154,7 +154,7 @@ function PatientRow({ ...props }) {
               color="text.primary"
             >
               <Icon path="ic-time" />
-              {row.time.format("HH:mm")}
+              {row.time}
             </Typography>
           </Box>
         </Box>

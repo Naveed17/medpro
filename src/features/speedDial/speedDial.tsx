@@ -13,11 +13,11 @@ export default function SpeedDialTooltipOpen({ ...props }) {
   return (
     <SpeedDial
       ariaLabel="SpeedDial tooltip example"
-      sx={{ position: "fixed", bottom: 16, right: 16 }}
       icon={<SpeedDialIcon />}
       onClose={handleClose}
       onOpen={handleOpen}
       open={open}
+      {...props}
     >
       {actions.map((action: { icon: React.ReactElement; name: string }) => (
         <SpeedDialAction
@@ -26,7 +26,7 @@ export default function SpeedDialTooltipOpen({ ...props }) {
           tooltipTitle={action.name}
           tooltipOpen
           onClick={handleClose}
-          {...props}
+          // {...props}
         />
       ))}
     </SpeedDial>

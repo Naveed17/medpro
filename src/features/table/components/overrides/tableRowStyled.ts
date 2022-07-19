@@ -50,5 +50,63 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
       "& path": { fill: theme.palette.text.primary },
     },
   },
+  "&.document-row": {
+    "& .MuiAvatar-root": {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      color: theme.palette.common.white,
+      backgroundColor: theme.palette.grey[400],
+      fontFamily: theme.typography.fontFamily,
+      "& span": {
+        fontSize: 9,
+      },
+    },
+    "& .MuiCheckbox-root": {
+      padding: 2,
+      width: 22,
+      height: 22,
+      "& .react-svg": {
+        " & svg": {
+          width: 14,
+          height: 14,
+        },
+      },
+    },
+    "& .MuiButton-root": {
+      padding: theme.spacing(0, 1),
+      fontSize: 14,
+      minWidth: 0,
+      color: theme.palette.text.primary,
+      "& .react-svg svg path": {
+        fill: theme.palette.text.primary,
+      },
+      "&:hover": {
+        backgroundColor: "transparent",
+        boxShadow: "none",
+      },
+      "&:focus, &:active": {
+        backgroundColor: "transparent",
+        color: theme.palette.text.primary,
+        "& .react-svg svg path": {
+          fill: theme.palette.text.primary,
+        },
+      },
+    },
+    "& .more-icon-btn": {
+      color: theme.palette.text.primary,
+    },
+    "& .MuiTableCell-root": {
+      backgroundColor: "transparent !important",
+      borderTop: `1px solid ${theme.palette.divider} !important`,
+      borderBottom: `1px solid ${theme.palette.divider} !important`,
+      "&:first-of-type": {
+        borderLeft: `1px solid ${theme.palette.divider} !important`,
+      },
+      "&:last-of-type": {
+        borderRight: `1px solid ${theme.palette.divider} !important`,
+      },
+    },
+  },
 }));
 export default TableRowStyled;
