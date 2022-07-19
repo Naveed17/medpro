@@ -15,6 +15,7 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@app/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
+import {Theme} from "@mui/material/styles";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -56,7 +57,7 @@ function Lieux() {
 
     useEffect(() => {
         const actives: any[] = [];
-        const bounds:any[] = []
+        const bounds: any[] = []
         rows.filter((row: MedicalEntityLocationModel) => row.isActive).map((cord) => {
             actives.push({name: (cord.address as any).location.name, points: (cord.address as any).location.point});
             bounds.push((cord.address as any).location.point);
@@ -178,7 +179,7 @@ function Lieux() {
                         open={open}
                         data={selected}
                         direction={direction}
-                        color={'#E83B68'}
+                        color={(theme: Theme) => theme.palette.error.main}
                         title={t('remove')}
                         t={t}
                         actionDialog={
@@ -186,7 +187,7 @@ function Lieux() {
                                 <Button onClick={dialogClose}
                                         startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                                 <Button variant="contained"
-                                        sx={{backgroundColor: '#E83B68'}}
+                                        sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                         onClick={dialogSave}>{t('table.remove')}</Button>
                             </DialogActions>
                         }
