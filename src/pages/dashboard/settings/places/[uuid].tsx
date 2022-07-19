@@ -36,7 +36,7 @@ const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
 });
 
-const FormStyled = styled(Form)(({ theme }) => ({
+const FormStyled = styled(Form)(({theme}) => ({
     '& .MuiCard-root': {
         border: 'none',
         marginBottom: theme.spacing(2),
@@ -85,10 +85,10 @@ const FormStyled = styled(Form)(({ theme }) => ({
         marginRight: theme.spacing(-2),
         position: 'fixed',
         bottom: 0,
-        left:0,
+        left: 0,
         zIndex: 999,
-        width:'100%',
-        borderTop:'3px solid #f0fafe'
+        width: '100%',
+        borderTop: '3px solid #f0fafe'
     }
 }));
 
@@ -124,6 +124,7 @@ function PlacesDetail() {
     useEffect(() => {
         if (data !== undefined) {
             setRow((data as any).data)
+            console.log(data);
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
@@ -522,7 +523,7 @@ function PlacesDetail() {
                                                                                     <IconUrl path="ic-time"/>
                                                                                     <Typography variant="body2"
                                                                                                 color="text.primary">
-                                                                                        {i + 1 > 1 ? i + 1 + 'em seance' : '1er seance'}
+                                                                                        {i + 1 > 1 ? (router.locale !== 'ar' ? i + 1 : '') + t('lieux.new.emsc') + (router.locale == 'ar' ? ' ' + (i + 1) : '') : t('lieux.new.firstsc')}
                                                                                     </Typography>
                                                                                 </Box>
                                                                             </Grid>}

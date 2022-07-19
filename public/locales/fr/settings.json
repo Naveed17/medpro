@@ -131,19 +131,26 @@
       "userPermission": "permission accordée",
       "add": "Ajouter",
       "remove": "Supprimer",
-      "adreq": "Adresse est obligatoire"
+      "adreq": "Adresse est obligatoire",
+      "emsc": "em seance",
+      "firstsc": "1er seance"
     }
   },
   "agenda": {
     "config": {
       "path": "Paramètres > Agenda",
+      "remove": "Supprimer une agenda",
+      "askRemove": "Voulez vous vraiment supprimer cette agenda ?",
+      "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
+
+      "cancel": "Annuler",
       "table": {
         "name": "Nom",
         "type": "Type",
         "speciality": "Spécialité",
-        "place": "Lieu de consultation",
-        "nbAccess": "NBR accés",
-        "actif": "est actif",
+        "autoConfirm": "Confirmation auto",
+        "default": "Par defaut",
+        "actif": "actif",
         "public": "public",
         "action": "action",
         "remove": "Supprimer",
