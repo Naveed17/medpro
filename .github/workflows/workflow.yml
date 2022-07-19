@@ -34,7 +34,7 @@ jobs:
       username: ${{ github.actor }}
       IMAGE: ${{needs.lowercase_name.outputs.repository}}
     secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.SMARTMEDBOT_PAT }}
 
   delete-docker-image:
     if: ((github.event.action == 'closed' || github.event.pull_request.merged == true))
