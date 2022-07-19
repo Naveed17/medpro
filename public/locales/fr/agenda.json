@@ -6,5 +6,24 @@
     "motif" : "Motif de consultation",
     "status" : "Statut",
     "type" : "Type RDV"
+  },
+  "filter": {
+    "reasons": "Motif de consultation",
+    "status" : "Statut",
+    "meetingType": "Type RDV",
+    "meeting":{
+      "cabinet": "Cabinet",
+      "home": "Domicile",
+      "teleconsultation": "Téléconsultation"
+    },
+    "all": "Tous",
+    "done": "Effectué",
+    "confirm": "Confirmé",
+    "pending": "En attente",
+    "cancel": "Annulé",
+    "expired": "Expiré",
+    "no_show": "Patient ne s'est pas présenté",
+    "cancel_patient": "Annulé par le patient",
+    "note": "Notes"
   }
 }

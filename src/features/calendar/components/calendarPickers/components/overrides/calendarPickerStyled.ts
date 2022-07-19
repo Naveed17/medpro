@@ -17,9 +17,9 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
             border: "1px solid transparent",
         },
         "&.Mui-selected": {
-            backgroundColor: theme.palette.warning.main,
+            border: `1px solid ${theme.palette.warning.main}`,
             color: theme.palette.text.primary,
-            // border: "1px solid #FFD400",
+            backgroundColor: theme.palette.background.paper,
             borderRadius: "8px",
             "&:hover, &:focus": {
                 color: theme.palette.text.primary,

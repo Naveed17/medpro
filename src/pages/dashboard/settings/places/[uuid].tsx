@@ -1,7 +1,7 @@
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
-import {FormikProvider, useFormik} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
@@ -25,16 +25,72 @@ import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
-import FormStyled from "./overrides/formStyled";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
 import useRequest from "@app/axios/axiosServiceApi";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {styled} from "@mui/material/styles";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
 });
+
+const FormStyled = styled(Form)(({ theme }) => ({
+    '& .MuiCard-root': {
+        border: 'none',
+        marginBottom: theme.spacing(2),
+        '& .MuiCardContent-root': {
+            padding: theme.spacing(3, 2),
+            paddingRight: theme.spacing(5),
+        }
+    },
+    '& .form-control': {
+        '& .MuiInputBase-root': {
+            paddingLeft: theme.spacing(0.5),
+            "& .MuiInputBase-input": {
+                paddingLeft: 0
+            },
+            '& .MuiInputAdornment-root': {
+                "& .MuiOutlinedInput-root": {
+                    border: 'none',
+                    fieldset: {
+                        border: "1px solid transparent",
+                        boxShadow: "none",
+                    },
+                    background: "transparent",
+                    "&:hover": {
+                        fieldset: {
+                            border: "1px solid transparent",
+                            boxShadow: "none",
+                        },
+                    },
+                    "&.Mui-focused": {
+                        background: "transparent",
+                        fieldset: {
+                            border: "1px solid transparent",
+                            boxShadow: "none",
+                            outline: "none",
+                        },
+                    },
+                },
+            },
+        },
+    },
+    '& .bottom-section': {
+        background: theme.palette.background.paper,
+        padding: theme.spacing(1),
+        marginTop: theme.spacing(2),
+        marginLeft: theme.spacing(0),
+        marginRight: theme.spacing(-2),
+        position: 'fixed',
+        bottom: 0,
+        left:0,
+        zIndex: 999,
+        width:'100%',
+        borderTop:'3px solid #f0fafe'
+    }
+}));
 
 function PlacesDetail() {
     const router = useRouter();
