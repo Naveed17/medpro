@@ -35,3 +35,5 @@ COPY docker/docker-entrypoint-init.d/ /docker-entrypoint-init.d/
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/standalone ./
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/static ./.next/static
+
+CMD ["npm", "run", "start"]
