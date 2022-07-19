@@ -52,7 +52,17 @@
       "add-appointment": "Ajouter un rendez-vous",
       "edit": "Modifier",
       "see-card": "Voir fiche",
-      "of": "de"
+      "of": "de",
+      "title": "Type de document",
+      "all": "Tous",
+      "report": "Rappor",
+      "orders": "Ordonnances",
+      "analysis": "Analyses",
+      "prescription": "Ordonnance de médicaments",
+      "see": "Voir",
+      "documents": "Documents",
+      "created-at": "crée le",
+      "created-by": "créé par"
     }
   },
 

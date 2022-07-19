@@ -17,7 +17,11 @@ import { onOpenDetails } from "@features/table";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
-import { PersonalInfoPanel, TabPanel } from "@features/tabPanel";
+import {
+  PersonalInfoPanel,
+  TabPanel,
+  DocumentsPanel,
+} from "@features/tabPanel";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
@@ -56,7 +60,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
         meeting: true,
       },
       {
@@ -67,7 +71,7 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
 
         meeting: true,
       },
@@ -79,14 +83,14 @@ const data: PatientDetailsRDV[] = [
         time: new Date(),
         status: "pending",
         borderColor: "#FBD400",
-        motif: "Video consultation",
+        motif: "video-consultation",
 
         meeting: true,
       },
     ],
   },
   {
-    title: "old-",
+    title: "old-appo",
     pending: false,
     data: [
       {
@@ -100,7 +104,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -112,7 +116,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
 
             meeting: true,
           },
@@ -129,7 +133,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
           {
@@ -140,7 +144,7 @@ const data: PatientDetailsRDV[] = [
             time: moment().add(1, "days"),
             status: "pending",
             borderColor: "#FBD400",
-            motif: "Video consultation",
+            motif: "video-consultation",
             meeting: true,
           },
         ],
@@ -155,14 +159,14 @@ const PatiendData = [
     id: 1,
     name: "John Doe",
     avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
+    time: moment("09:00", "hh:mm").format("hh:mm"),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
     nextAppointment: moment().format("DD-MM-YYYY"),
     lastAppointment: moment().format("DD-MM-YYYY"),
     addAppointment: true,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
+    dateOfBirth: moment(),
     status: "pending",
     action: "left",
   },
@@ -170,150 +174,15 @@ const PatiendData = [
     id: 2,
     name: "Med",
     avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
+    time: moment("09:00", "hh:mm").format("hh:mm"),
     telephone: "+1-555-555-5555",
     idCode: "123456789",
     city: "New York",
     nextAppointment: moment().format("DD-MM-YYYY"),
     lastAppointment: moment().format("DD-MM-YYYY"),
     addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
+    dateOfBirth: moment(),
     status: "success",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 3,
-    name: "Muhammad",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment(),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment().format("DD-MM-YYYY"),
-    status: "pending",
     action: "left",
   },
 ];
@@ -501,11 +370,14 @@ function Patient() {
               <Tab label={t("tabs.documents")} {...a11yProps(2)} />
             </Tabs>
             <Divider />
-            <TabPanel padding={1} key={Math.random()} value={value} index={0}>
+            <TabPanel padding={1} value={value} index={0}>
               <PersonalInfoPanel />
             </TabPanel>
-            <TabPanel padding={1} key={Math.random()} value={value} index={1}>
+            <TabPanel padding={1} value={value} index={1}>
               <GroupTable from="patient" data={data} />
+            </TabPanel>
+            <TabPanel padding={2} value={value} index={2}>
+              <DocumentsPanel />
             </TabPanel>
             <Paper
               sx={{
@@ -520,7 +392,7 @@ function Patient() {
                 size="medium"
                 variant="text-primary"
                 color="primary"
-                startIcon={<Icon path="agenda/ic-dowlaodfile" />}
+                startIcon={<Icon path="ic-dowlaodfile" />}
                 sx={{ mr: 1, width: { md: "auto", sm: "100%", xs: "100%" } }}
               >
                 {t("tabs.import")}
@@ -536,7 +408,12 @@ function Patient() {
               </Button>
             </Paper>
             <SpeedDial
-              sx={{ display: { md: "none", xs: "fixed" } }}
+              sx={{
+                position: "fixed",
+                bottom: 16,
+                right: 16,
+                display: { md: "none", xs: "flex" },
+              }}
               actions={actions}
             />
           </Box>
@@ -548,7 +425,11 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, ["patient", "menu", "common"])),
+    ...(await serverSideTranslations(locale as string, [
+      "patient",
+      "menu",
+      "common",
+    ])),
   },
 });
 

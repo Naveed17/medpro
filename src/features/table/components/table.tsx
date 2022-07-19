@@ -46,7 +46,9 @@ function Otable({ ...props }) {
     handleConfig,
     minWidth,
     pagination,
-      ...rest
+    checkedType,
+    hideHeaderOnMobile,
+    ...rest
   } = props;
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
@@ -116,6 +118,7 @@ function Otable({ ...props }) {
             orderBy={orderBy}
             state={state}
             t={t}
+            checkedType={checkedType}
             handleConfig={handleConfig}
             onRequestSort={handleRequestSort}
             data={headers}
@@ -123,6 +126,7 @@ function Otable({ ...props }) {
             onSelectAllClick={handleSelectAllClick}
             rowCount={rows.length}
             numSelected={selected.length}
+            hideHeaderOnMobile={hideHeaderOnMobile}
           />
 
           <TableBody>
@@ -144,6 +148,7 @@ function Otable({ ...props }) {
                     editMotif={edit}
                     active={active}
                     ids={ids}
+                    checkedType={checkedType}
                     labelId={labelId}
                     data={rest}
                     isItemSelected={isItemSelected}
