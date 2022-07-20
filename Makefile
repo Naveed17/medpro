@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-MEDPRO_SERVICE_NAME := medpro
+MEDPRO_SERVICE_NAME := app
 
 DC_CMD = docker-compose -f docker-compose.yml -f docker-compose.dev.yml
 
