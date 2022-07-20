@@ -15,7 +15,7 @@ import {
   Divider,
   Button,
   Paper,
-  Zoom,
+  Grow,
 } from "@mui/material";
 
 // redux
@@ -294,8 +294,8 @@ function Patient() {
   const { direction } = useAppSelector(configSelector);
 
   // state hook for details drawer
-  const [open, setopen] = useState<boolean>(true);
-  const [isAddAppointment, setAddAppointment] = useState<boolean>(true);
+  const [open, setopen] = useState<boolean>(false);
+  const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
 
   // state hook for tabs
   const [value, setValue] = useState<number>(0);
@@ -353,7 +353,7 @@ function Patient() {
             setopen(false);
           }}
         >
-          <Zoom in={!isAddAppointment}>
+          <Grow in={!isAddAppointment}>
             <Box height={!isAddAppointment ? "100%" : 0}>
               {" "}
               <PatientDetailsToolbar
@@ -449,13 +449,24 @@ function Patient() {
                     right: 16,
                     display: { md: "none", xs: "flex" },
                   }}
+                  onClick={() => setAddAppointment(!isAddAppointment)}
                   actions={actions}
                 />
               </Box>
             </Box>
-          </Zoom>
-          <Zoom in={isAddAppointment}>
-            <Box height={isAddAppointment ? "100%" : 0}>
+          </Grow>
+          <Grow in={isAddAppointment}>
+            <Box
+              height={isAddAppointment ? "100%" : 0}
+              sx={{
+                "& .MuiTabs-root": {
+                  position: "sticky",
+                  top: 0,
+                  bgcolor: (theme) => theme.palette.background.paper,
+                  zIndex: 11,
+                },
+              }}
+            >
               <CustomStepper
                 currentIndex={0}
                 translationKey="patient"
@@ -472,7 +483,7 @@ function Patient() {
                 Click me
               </Button> */}
             </Box>
-          </Zoom>
+          </Grow>
         </Drawer>
       </Box>
     </>

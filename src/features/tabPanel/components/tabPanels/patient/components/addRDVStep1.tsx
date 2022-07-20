@@ -1,39 +1,72 @@
 import React from "react";
-import Typography from "@mui/material/Typography";
+import { useTranslation } from "next-i18next";
 
+// material
+import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import { StaticDatePicker } from "@features/staticDatePicker";
 import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Button from "@mui/material/Button";
 
+// components
+import { StaticDatePicker } from "@features/staticDatePicker";
+import { TimeSlot } from "@features/timeSlot";
+import { RadioTextImage } from "@features/radioTextImage";
+import Icon from "@themes/urlIcon";
+
+// select data
 const listData = [
   { id: 1, title: "Première consultation", color: "#1BC47D" },
   { id: 2, title: "Consultation de suivi", color: "#0696D6" },
   { id: 3, title: "Troubles de la respiration", color: "#E83B68" },
   { id: 4, title: "Echo", color: "#F1AC44" },
 ];
-function AddRDVStep1() {
-  const [age, setAge] = React.useState("");
-  const [date, setdate] = React.useState<Date | null>(new Date());
 
+// time slot data
+const timeData = [
+  { time: "8:30", disabled: false },
+  { time: "8:45", disabled: false },
+  { time: "9:00", disabled: false },
+  { time: "9:15", disabled: false },
+  { time: "9:30", disabled: false },
+  { time: "9:45", disabled: false },
+  { time: "10:00", disabled: false },
+  { time: "10:15", disabled: false },
+];
+
+function AddRDVStep1() {
+  const [select, setSelect] = React.useState("");
+  const [date, setdate] = React.useState<Date | null>(new Date());
+  const [time, setTime] = React.useState("8:45");
+  const [radio, setradio] = React.useState("");
+
+  // handleChange for select
   const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
+    setSelect(event.target.value as string);
   };
+
+  const { t, ready } = useTranslation("patient", {
+    keyPrefix: "add-appointment",
+  });
+  if (!ready) return <>loading translations...</>;
+
   return (
     <div>
       <Typography variant="h6" color="text.primary">
-        Réservez un créneau
+        {t("book-a-slot")}
       </Typography>
       <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-        Motif de consultation
+        {t("reason-consultation")}
       </Typography>
       <FormControl fullWidth size="small">
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          value={age}
+          value={select}
           onChange={handleChange}
           sx={{
             "& .MuiSelect-select svg": {
@@ -42,7 +75,7 @@ function AddRDVStep1() {
           }}
         >
           {listData.map((v) => (
-            <MenuItem value={v.id}>
+            <MenuItem value={v.id} key={Math.random()}>
               <FiberManualRecordIcon
                 fontSize="small"
                 sx={{ mr: 1, color: v.color }}
@@ -52,6 +85,37 @@ function AddRDVStep1() {
           ))}
         </Select>
       </FormControl>
+      {select && (
+        <Box>
+          <Typography
+            variant="body1"
+            color="text.primary"
+            fontWeight={500}
+            mt={5}
+            sx={{ textTransform: "uppercase", fontWeight: 500 }}
+          >
+            {t("practitioner")}
+          </Typography>
+          <Typography variant="body1" color="text.primary" my={1}>
+            {t("affect-des")}
+          </Typography>
+          <Grid container spacing={2}>
+            {Array.from({ length: 2 }).map((_, index) => (
+              <Grid key={index} item xs={12} lg={6}>
+                <RadioTextImage
+                  name={`agenda-${index}`}
+                  image="/static/img/men.png"
+                  type="Dermatologue"
+                  onChange={(v: string) => setradio(v)}
+                  value={radio}
+                  fullWidth
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
       <Typography
         variant="body1"
         color="text.primary"
@@ -60,38 +124,63 @@ function AddRDVStep1() {
         mb={0.5}
         sx={{ textTransform: "uppercase", fontWeight: 500 }}
       >
-        Motif de consultation
-      </Typography>
-      <Typography variant="body1" color="text.primary">
-        Choisissez le praticien qui affecte cette consultation
-      </Typography>
-      <br />
-      <br />
-      <br />
-      <br />
-      <Typography
-        variant="body1"
-        color="text.primary"
-        fontWeight={500}
-        mt={5}
-        mb={0.5}
-        sx={{ textTransform: "uppercase", fontWeight: 500 }}
-      >
-        Créneau horaire
+        {t("time-slot")}
       </Typography>
       <Typography variant="body1" color="text.primary" mb={1}>
-        Veuillez choisir les dates du RDV
+        {t("date-message")}
       </Typography>
       <Grid container spacing={2}>
         <Grid item md={6} xs={12}>
           <StaticDatePicker
             onChange={(newDate: Date) => setdate(newDate)}
             value={date}
+            loading={false}
+          />
+        </Grid>
+        <Grid item md={6} xs={12}>
+          <Typography variant="body1" color="text.primary" my={2}>
+            {t("time-message")}
+          </Typography>
+          <TimeSlot
             loading={true}
-            selected={date}
+            data={timeData}
+            limit={16}
+            onChange={(newTime: string) => setTime(newTime)}
+            value={time}
+            seeMore
+            seeMoreText={t("see-more")}
           />
         </Grid>
       </Grid>
+      <Paper
+        sx={{
+          borderRadius: 0,
+          borderWidth: "0px",
+          mt: 4,
+          textAlign: "right",
+        }}
+      >
+        <Button
+          size="medium"
+          variant="text-primary"
+          color="primary"
+          sx={{
+            mr: 1,
+            width: { md: "auto", sm: "100%", xs: "100%" },
+          }}
+        >
+          {t("cancel")}
+        </Button>
+        <Button
+          size="medium"
+          variant="contained"
+          color="primary"
+          disabled
+          sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+        >
+          {t("next")}
+        </Button>
+      </Paper>
     </div>
   );
 }
