@@ -34,7 +34,7 @@ function Holidays() {
         },
     ]);
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays" });
+    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays.config" });
     if (!ready) return (<>loading translations...</>);
     const headCells = [
         {
