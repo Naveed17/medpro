@@ -35,7 +35,8 @@ dcshell:
 	$(DC_CMD) exec $(MEDPRO_SERVICE_NAME) bash
 
 dcdn:
-	$(DC_CMD) down --volumes
+	$(DC_CMD) down  --remove-orphans --volumes
+
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Include the .d makefiles.
 -include makefiles.d
