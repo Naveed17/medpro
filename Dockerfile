@@ -1,6 +1,6 @@
 FROM wodby/node:16 as dev
 
-COPY --chown=node:node package.json package-lock.json "${APP_ROOT}/"
+COPY --chown=node:node package.json package-lock.json "${APP_ROOT}"/
 RUN set -xe; \
   npm ci;
 
@@ -40,7 +40,5 @@ COPY --chown=node:node --from=builder ${APP_ROOT}/next-fullcalendar.config.js ./
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/standalone ./
 # COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/static ./.next/static
-
-EXPOSE 3000
 
 CMD ["npm", "run", "start"]

@@ -2,51 +2,11 @@ SHELL := /bin/bash
 
 MEDPRO_SERVICE_NAME := medpro
 
-REPO = $(CI_REGISTRY_IMAGE)
 DC_CMD = docker-compose -f docker-compose.yml -f docker-compose.dev.yml
 
-ifeq ($(REPO),)
-    # Emulate docker-compose repo structure.
-	REPO = $(shell basename $(CURDIR))_$(MEDPRO_SERVICE_NAME)
-endif
+.PHONY: dcps dcupd dcstop dclogs dcshell
 
-ifeq ($(IMAGE_TAG),)
-    IMAGE_TAG ?= latest
-endif
-
-.PHONY: all default build buildx check test pull push shell run start stop logs clean release
-
-default: build
-
-.EXPORT_ALL_VARIABLES:
-
-build:
-	docker build \
-		$(PARAMS) \
-		--cache-from $(REPO):$(IMAGE_TAG) \
-		-t $(REPO):$(IMAGE_TAG) \
-		--pull \
-		./
-
-buildx:
-	docker buildx build \
-		$(PARAMS) \
-		--cache-from=type=registry,ref=$(REPO):$(IMAGE_TAG) \
-		-t $(REPO):$(IMAGE_TAG) \
-		--push \
-		./
-
-pull:
-	-docker pull $(REPO):$(IMAGE_TAG)
-
-push:
-	docker push $(REPO):$(IMAGE_TAG)
-
-clean:
-	-docker rm -f $(NAME)
-
-# Run build steps on CI.
-ci.build: pull build push
+default: dcps
 
 # Get services URLs and docker-compose process status.
 dcps:
@@ -74,6 +34,8 @@ dclogs:
 dcshell:
 	$(DC_CMD) exec $(MEDPRO_SERVICE_NAME) bash
 
+dcdn:
+	$(DC_CMD) down --volumes
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Include the .d makefiles.
 -include makefiles.d
