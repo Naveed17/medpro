@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med.tn">
+</p>
+
 # Med Pro
 NextJS app. Frontend for SmartMedSA/med-core
 
