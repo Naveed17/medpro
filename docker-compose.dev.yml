@@ -1,12 +1,6 @@
-services: #This section defines all the different containers we will create.
-  medpro: #This is the name of our Nextjs application.
-    command: npm run dev #command to execute
+services:
+  app:
     build:
       context: .
       target: dev
-    env_file:
-      - .env.local
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/.next
+    command: npm run dev
