@@ -12,7 +12,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import useRequest from "@app/axios/axiosServiceApi";
+import useRequest from "@app/axios/useRequest";
 import {useRouter} from "next/router";
 import {useDateConverture} from "@app/hooks";
 

@@ -107,7 +107,7 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
                                     width: 37, height: 37, padding: 0, marginTop: '2px!important',
                                     ...(viewOption.value === view && {background: theme.palette.primary.main})
                                 }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20} color={"primary"} />
+                                <SvgIcon component={viewOption.icon} width={20} height={20} htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary} />
                             </ToggleButtonStyled>
                         </Tooltip>
                     ))}

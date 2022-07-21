@@ -37,11 +37,11 @@ export const siteHeader = {
         //     name: "articles",
         //     href: '#',
         // },
-        {
-            icon: "ic-questions-lite",
-            name: "questions",
-            href: '/dashboard/questions',
-        },
+        // {
+        //     icon: "ic-questions-lite",
+        //     name: "questions",
+        //     href: '/dashboard/questions',
+        // },
         // {
         //     icon: "shopping-bag",
         //     name: "shop",
