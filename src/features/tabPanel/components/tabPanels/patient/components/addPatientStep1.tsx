@@ -20,13 +20,19 @@ import {
 import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { useTranslation } from "next-i18next";
 
 function AddPatientStep1({ ...props }) {
-  const { t, onNext } = props;
+  const { onNext } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
-
   const [selected, setslected] = React.useState<any>(null);
+
+  const { t, ready } = useTranslation("patient", {
+    keyPrefix: "add-patient",
+  });
+  if (!ready) return <>loading translations...</>;
+
   const phoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
@@ -79,11 +85,10 @@ function AddPatientStep1({ ...props }) {
         noValidate
         onSubmit={handleSubmit}
       >
-        <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 4 }}>
-          {t("personal-info")}
-        </Typography>
-
-        <Stack spacing={2} sx={{ mb: 3 }}>
+        <Stack spacing={2} className="inner-section">
+          <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 2 }}>
+            {t("personal-info")}
+          </Typography>
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
               {t("group")}
@@ -320,7 +325,7 @@ function AddPatientStep1({ ...props }) {
           spacing={3}
           direction="row"
           justifyContent="flex-end"
-          mt={"auto"}
+          className="action"
         >
           <Button variant="text-black" color="primary">
             {t("cancel")}

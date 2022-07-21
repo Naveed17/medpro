@@ -50,7 +50,10 @@
       "appointment": "RDV",
       "documents": "Documents",
       "add-appo": "Ajouter RDV",
-      "import": "Importer un document"
+      "import": "Importer un document",
+      "time-slot": "Créneau horaire",
+      "advice": "Instruction / Conseil",
+      "end": "Fin"
     },
 
     "table": {

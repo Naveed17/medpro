@@ -16,7 +16,7 @@ import Button from "@mui/material/Button";
 import { StaticDatePicker } from "@features/staticDatePicker";
 import { TimeSlot } from "@features/timeSlot";
 import { RadioTextImage } from "@features/radioTextImage";
-import Icon from "@themes/urlIcon";
+import { PatientCardMobile } from "@features/card/components/patientCardMobile";
 
 // select data
 const listData = [
@@ -38,10 +38,11 @@ const timeData = [
   { time: "10:15", disabled: false },
 ];
 
-function AddRDVStep1() {
+function AddRDVStep1({ ...props }) {
+  const { onNext, onClickCancel } = props;
   const [select, setSelect] = React.useState("");
-  const [date, setdate] = React.useState<Date | null>(new Date());
-  const [time, setTime] = React.useState("8:45");
+  const [date, setdate] = React.useState<Date | null>(null);
+  const [time, setTime] = React.useState("");
   const [radio, setradio] = React.useState("");
 
   // handleChange for select
@@ -56,127 +57,148 @@ function AddRDVStep1() {
 
   return (
     <div>
-      <Typography variant="h6" color="text.primary">
-        {t("book-a-slot")}
-      </Typography>
-      <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-        {t("reason-consultation")}
-      </Typography>
-      <FormControl fullWidth size="small">
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={select}
-          onChange={handleChange}
-          sx={{
-            "& .MuiSelect-select svg": {
-              display: "none",
-            },
-          }}
-        >
-          {listData.map((v) => (
-            <MenuItem value={v.id} key={Math.random()}>
-              <FiberManualRecordIcon
-                fontSize="small"
-                sx={{ mr: 1, color: v.color }}
-              />{" "}
-              {v.title}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      {select && (
-        <Box>
-          <Typography
-            variant="body1"
-            color="text.primary"
-            fontWeight={500}
-            mt={5}
-            sx={{ textTransform: "uppercase", fontWeight: 500 }}
+      <Box className="inner-section">
+        <Typography variant="h6" color="text.primary">
+          {t("book-a-slot")}
+        </Typography>
+        <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+          {t("reason-consultation")}
+        </Typography>
+        <FormControl fullWidth size="small">
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={select}
+            onChange={handleChange}
+            sx={{
+              "& .MuiSelect-select svg": {
+                display: "none",
+              },
+            }}
           >
-            {t("practitioner")}
-          </Typography>
-          <Typography variant="body1" color="text.primary" my={1}>
-            {t("affect-des")}
-          </Typography>
-          <Grid container spacing={2}>
-            {Array.from({ length: 2 }).map((_, index) => (
-              <Grid key={index} item xs={12} lg={6}>
-                <RadioTextImage
-                  name={`agenda-${index}`}
-                  image="/static/img/men.png"
-                  type="Dermatologue"
-                  onChange={(v: string) => setradio(v)}
-                  value={radio}
-                  fullWidth
-                />
-              </Grid>
+            {listData.map((v) => (
+              <MenuItem value={v.id} key={Math.random()}>
+                <FiberManualRecordIcon
+                  fontSize="small"
+                  sx={{ mr: 1, color: v.color }}
+                />{" "}
+                {v.title}
+              </MenuItem>
             ))}
-          </Grid>
-        </Box>
-      )}
+          </Select>
+        </FormControl>
+        {select && (
+          <Box>
+            <Typography
+              variant="body1"
+              color="text.primary"
+              fontWeight={500}
+              mt={5}
+              sx={{ textTransform: "uppercase", fontWeight: 500 }}
+            >
+              {t("practitioner")}
+            </Typography>
+            <Typography variant="body1" color="text.primary" my={1}>
+              {t("affect-des")}
+            </Typography>
+            <Grid container spacing={2}>
+              {Array.from({ length: 2 }).map((_, index) => (
+                <Grid key={index} item xs={12} lg={6}>
+                  <RadioTextImage
+                    name={`agenda-${index}`}
+                    image="/static/img/men.png"
+                    type="Dermatologue"
+                    onChange={(v: string) => setradio(v)}
+                    value={radio}
+                    fullWidth
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
 
-      <Typography
-        variant="body1"
-        color="text.primary"
-        fontWeight={500}
-        mt={5}
-        mb={0.5}
-        sx={{ textTransform: "uppercase", fontWeight: 500 }}
-      >
-        {t("time-slot")}
-      </Typography>
-      <Typography variant="body1" color="text.primary" mb={1}>
-        {t("date-message")}
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item md={6} xs={12}>
-          <StaticDatePicker
-            onChange={(newDate: Date) => setdate(newDate)}
-            value={date}
-            loading={false}
-          />
+        <Typography
+          variant="body1"
+          color="text.primary"
+          fontWeight={500}
+          mt={5}
+          mb={0.5}
+          sx={{ textTransform: "uppercase", fontWeight: 500 }}
+        >
+          {t("time-slot")}
+        </Typography>
+        <Typography variant="body1" color="text.primary" mb={1}>
+          {t("date-message")}
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item md={6} xs={12}>
+            <StaticDatePicker
+              onChange={(newDate: Date) => setdate(newDate)}
+              value={date}
+              loading={!radio}
+            />
+          </Grid>
+          <Grid item md={6} xs={12}>
+            <Typography variant="body1" color="text.primary" my={2}>
+              {t("time-message")}
+            </Typography>
+            <TimeSlot
+              loading={!date}
+              data={timeData}
+              limit={16}
+              onChange={(newTime: string) => setTime(newTime)}
+              value={time}
+              seeMore
+              seeMoreText={t("see-more")}
+            />
+          </Grid>
         </Grid>
-        <Grid item md={6} xs={12}>
-          <Typography variant="body1" color="text.primary" my={2}>
-            {t("time-message")}
-          </Typography>
-          <TimeSlot
-            loading={true}
-            data={timeData}
-            limit={16}
-            onChange={(newTime: string) => setTime(newTime)}
-            value={time}
-            seeMore
-            seeMoreText={t("see-more")}
-          />
-        </Grid>
-      </Grid>
+
+        <Typography variant="body1" color="text.primary" mt={2} mb={1}>
+          Selected meetings
+        </Typography>
+        <PatientCardMobile
+          data={[
+            {
+              status: "warning",
+              date: "Fri April 10",
+              time: "14:20",
+            },
+            {
+              status: "warning",
+              date: "Fri April 10",
+              time: "14:20",
+            },
+          ]}
+          size="small"
+        />
+      </Box>
       <Paper
         sx={{
           borderRadius: 0,
           borderWidth: "0px",
-          mt: 4,
           textAlign: "right",
         }}
+        className="action"
       >
         <Button
           size="medium"
           variant="text-primary"
           color="primary"
+          onClick={() => onClickCancel()}
           sx={{
             mr: 1,
-            width: { md: "auto", sm: "100%", xs: "100%" },
           }}
         >
           {t("cancel")}
         </Button>
         <Button
+          onClick={() => onNext(1)}
           size="medium"
           variant="contained"
           color="primary"
-          disabled
-          sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+          disabled={!time}
         >
           {t("next")}
         </Button>

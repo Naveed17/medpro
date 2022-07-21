@@ -15,7 +15,7 @@ import {
   Divider,
   Button,
   Paper,
-  Grow,
+  Zoom,
 } from "@mui/material";
 
 // redux
@@ -49,15 +49,15 @@ import { AddRDVStep1, AddRDVStep2, AddPatientStep3 } from "@features/tabPanel";
 
 const stepperData = [
   {
-    title: "personal-info",
+    title: "tabs.time-slot",
     children: AddRDVStep1,
   },
   {
-    title: "additional-information",
+    title: "tabs.advice",
     children: AddRDVStep2,
   },
   {
-    title: "fin",
+    title: "tabs.fin",
     children: AddPatientStep3,
   },
 ];
@@ -353,7 +353,7 @@ function Patient() {
             setopen(false);
           }}
         >
-          <Grow in={!isAddAppointment}>
+          {!isAddAppointment && (
             <Box height={!isAddAppointment ? "100%" : 0}>
               {" "}
               <PatientDetailsToolbar
@@ -454,8 +454,8 @@ function Patient() {
                 />
               </Box>
             </Box>
-          </Grow>
-          <Grow in={isAddAppointment}>
+          )}
+          <Zoom in={isAddAppointment}>
             <Box
               height={isAddAppointment ? "100%" : 0}
               sx={{
@@ -473,17 +473,12 @@ function Patient() {
                 prefixKey="add-patient"
                 stepperData={stepperData}
                 scroll
+                t={t}
                 minWidth={726}
+                onClickCancel={() => setAddAppointment(false)}
               />
-              {/* <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setAddAppointment(!isAddAppointment)}
-              >
-                Click me
-              </Button> */}
             </Box>
-          </Grow>
+          </Zoom>
         </Drawer>
       </Box>
     </>
