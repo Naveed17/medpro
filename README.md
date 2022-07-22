@@ -3,7 +3,7 @@
 </p>
 
 # Med Pro
-NextJS app. Frontend for SmartMedSA/med-core
+NextJS app. Frontend for SmartMedSA/med-pro
 
 ### Development
 
@@ -52,12 +52,9 @@ Open `http://localhost:3000` with your browser to see the result.
 | KEYCLOAK_ISSUER            |               |
 | NEXT_PUBLIC_BACK_END_POINT |               |
 
-### API
-
+## API
 - [useRequest](#userequestrequest-config)
 - [useRequestMutation](#userequestmutationrequest-config)
-
-## API
 
 ### useRequest(request, config)
 
