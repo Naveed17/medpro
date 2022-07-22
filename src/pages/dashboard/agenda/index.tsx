@@ -86,8 +86,16 @@ function Agenda() {
     });
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        // console.log('handleOnRangeChange', event);
-        // trigger();
+        const startStr = moment(event.startStr).format('DD-MM-YYYY');
+        const endStr = moment(event.endStr).format('DD-MM-YYYY');
+
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=${startStr}&end_date=${endStr}&format=week`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true});
     }
 
     const handleOnClick = () => {
@@ -102,7 +110,6 @@ function Agenda() {
 
     return (
         <>
-            <button onClick={handleOnClick}> test</button>
             <SubHeader>
                 <CalendarToolbar date={date}/>
             </SubHeader>
