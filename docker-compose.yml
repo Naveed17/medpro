@@ -1,7 +1,9 @@
 ---
 services:
-  medpro:
+  app:
     ports:
       - 3000
+    env_file:
+      - .env.local
     volumes:
       - .:/usr/src/app

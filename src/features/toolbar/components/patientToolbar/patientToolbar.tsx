@@ -16,15 +16,15 @@ import {
 
 const stepperData = [
   {
-    title: "personal-info",
+    title: "add-patient.personal-info",
     children: AddPatientStep1,
   },
   {
-    title: "additional-information",
+    title: "add-patient.additional-information",
     children: AddPatientStep2,
   },
   {
-    title: "fin",
+    title: "add-patient.fin",
     children: AddPatientStep3,
   },
 ];
@@ -85,6 +85,7 @@ function PatientToolbar() {
           prefixKey="add-patient"
           stepperData={stepperData}
           scroll
+          t={t}
           minWidth={648}
         />
       </Drawer>

@@ -5,13 +5,13 @@ import {DashLayout} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
-import {Box} from "@mui/system";
-import {Button, Chip, Paper, Stack, Typography} from "@mui/material";
+import {Box, width} from "@mui/system";
+import {Avatar, Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
@@ -26,38 +26,59 @@ function Actes() {
     const [selected, setSelected] = useState<ActModel>();
     const [suggestion, setSuggestion] = useState<ActModel[]>([]);
     const [alert, setAlert] = useState<boolean>(false);
+    const [isProfil, setIsProfil] = useState<boolean>(false);
     const [secAlert, setSecAlert] = useState<boolean>(false);
     const [acts, setActs] = useState<ActModel[]>([]);
+    const [specialities, setSpecialities] = useState<any>({});
     const router = useRouter();
 
     const {data: user} = session as Session;
 
-    const {data, error} = useRequest({
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {data: httpProfessionalsResponse, error: errorProfil} = useRequest({
         method: "GET",
-        url: "/api/public/acts/" + router.locale,
-        params: {"specialities[]": "a84a60e8-9e9b-3234-aa35-e4458fd6fdde"},
+        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data: profil, error: errorProfil} = useRequest({
+    const medical_professional = httpProfessionalsResponse ? (httpProfessionalsResponse as HttpResponse).data : undefined;
+
+
+    const {data, error} = useRequest(isProfil ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/prfessionals/" + router.locale,
+        url: "/api/public/acts/" + router.locale,
+        params: specialities,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    } : null);
+
 
     useEffect(() => {
         if (data !== undefined) {
+            console.log(data);
             setActs(((data as any).data) as ActModel[])
             setSuggestion(((data as any).data) as ActModel[]);
         }
-        if (profil !== undefined) {
-            const infoData = (profil as any).data;
+    }, [data]);
+
+    useEffect(() => {
+
+        if (httpProfessionalsResponse !== undefined) {
+
+            const spe ={};
+
+            (httpProfessionalsResponse as any).data[0].medical_professional.specialities.map((speciality: any, index: number) => {
+                Object.assign(spe, {['specialities['+index+']']: speciality.speciality.uuid});
+            });
+
+            setSpecialities(spe);
+            setIsProfil(true);
+            const infoData = (httpProfessionalsResponse as any).data[0];
             infoData.acts.map((act: MedicalProfessionalActModel) => {
-                act.isTopAct ? setMainActes([...mainActes,act.act]) : setSecondaryActes([...secondaryActes,act.act]);
+                act.isTopAct ? setMainActes([...mainActes, act.act]) : setSecondaryActes([...secondaryActes, act.act]);
             })
         }
-    }, [data]);
+    }, [httpProfessionalsResponse])
 
     const onDrop = (id: string, ev: any) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
@@ -161,8 +182,7 @@ function Actes() {
                                 onChange={() => {
                                     setAlert(false);
                                 }}
-                                color="warning"
-                            >
+                                color="warning">
                                 info
                             </BasicAlert>
                         )}
@@ -177,6 +197,7 @@ function Actes() {
                         onChange={(event: React.ChangeEvent, value: any[]) => {
                             onChangeState(value, mainActes, setMainActes);
                         }}
+                        label={'name'}
                         initData={mainActes}
                         limit={10}
                         helperText={t("max")}
@@ -237,6 +258,7 @@ function Actes() {
                         onChange={(event: React.ChangeEvent, value: any[]) => {
                             onChangeState(value, secondaryActes, setSecondaryActes);
                         }}
+                        label={'name'}
                         initData={secondaryActes}
                         helperText={t("")}
                         placeholder={t("typing")}
@@ -262,6 +284,32 @@ function Actes() {
                         {t("suggestion")}
                     </Typography>
                     <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
+
+                        <Chip
+                            key={"x"}
+                            label={""}
+                            color="default"
+                            clickable
+                            draggable="true"
+                            avatar={<Skeleton width={90} sx={{ marginLeft: '16px !important'}} variant="text"/>}
+
+                            deleteIcon={<AddIcon/>}
+                            sx={{
+                                bgcolor: "#E4E4E4",
+                                filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                mb: 1,
+                                mr: 1,
+                                cursor: "move",
+                                "&:active": {
+                                    boxShadow: "none",
+                                    outline: "none",
+                                },
+                                "& .MuiChip-deleteIcon": {
+                                    color: (theme) => theme.palette.text.primary,
+                                },
+                            }}
+                        />
+
                         {(suggestion as ActModel[]).map((v: ActModel) => (
                             <Chip
                                 key={v.uuid}
