@@ -3,14 +3,14 @@ name: main workflow
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'develop'
     tags:
       - '**'
   pull_request:
     branches:
       - 'develop'
-      - 'master'
+      - 'main'
     types: [ opened ,closed ,synchronize ,reopened ]
 
 jobs:
