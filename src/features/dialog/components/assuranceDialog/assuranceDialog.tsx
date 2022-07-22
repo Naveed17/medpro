@@ -28,7 +28,7 @@ function AssuranceDialog(info: any) {
             setItems((data as any).data);
             setLoading(false);
         }
-    },[data])
+    },[data]);
 
     const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
