@@ -26,14 +26,15 @@ function Actes() {
     const [selected, setSelected] = useState<ActModel>();
     const [suggestion, setSuggestion] = useState<ActModel[]>([]);
     const [alert, setAlert] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
     const [isProfil, setIsProfil] = useState<boolean>(false);
     const [secAlert, setSecAlert] = useState<boolean>(false);
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
     const router = useRouter();
+    const initalData = Array.from(new Array(8));
 
     const {data: user} = session as Session;
-
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data: httpProfessionalsResponse, error: errorProfil} = useRequest({
@@ -55,9 +56,9 @@ function Actes() {
 
     useEffect(() => {
         if (data !== undefined) {
-            console.log(data);
             setActs(((data as any).data) as ActModel[])
             setSuggestion(((data as any).data) as ActModel[]);
+            setLoading(false);
         }
     }, [data]);
 
@@ -66,7 +67,8 @@ function Actes() {
         if (httpProfessionalsResponse !== undefined) {
 
             const spe ={};
-
+            setMainActes([]);
+            setSecondaryActes([]);
             (httpProfessionalsResponse as any).data[0].medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(spe, {['specialities['+index+']']: speciality.speciality.uuid});
             });
@@ -80,6 +82,14 @@ function Actes() {
         }
     }, [httpProfessionalsResponse])
 
+    useEffect(() => {
+        const selectedActes = [...mainActes, ...secondaryActes];
+
+        setSuggestion(acts.filter((nb) => {
+            return !selectedActes.some((item) => item.uuid === nb.uuid);
+        }));
+    }, [acts, mainActes, secondaryActes]);
+
     const onDrop = (id: string, ev: any) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
         setSuggestion([...deleteSuggestion]);
@@ -91,14 +101,6 @@ function Actes() {
             setSecondaryActes([...secondaryActes, (selected as ActModel)]);
         }
     };
-
-    useEffect(() => {
-        const selectedActes = [...mainActes, ...secondaryActes];
-
-        setSuggestion(acts.filter((nb) => {
-            return !selectedActes.some((item) => item.uuid === nb.uuid);
-        }));
-    }, [mainActes, secondaryActes]);
 
     const onDrag = (prop: any) => (ev: any) => {
         ev.dataTransfer.setData("Text", ev.target.id);
@@ -285,32 +287,33 @@ function Actes() {
                     </Typography>
                     <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
 
-                        <Chip
-                            key={"x"}
-                            label={""}
-                            color="default"
-                            clickable
-                            draggable="true"
-                            avatar={<Skeleton width={90} sx={{ marginLeft: '16px !important'}} variant="text"/>}
-
-                            deleteIcon={<AddIcon/>}
-                            sx={{
-                                bgcolor: "#E4E4E4",
-                                filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                mb: 1,
-                                mr: 1,
-                                cursor: "move",
-                                "&:active": {
-                                    boxShadow: "none",
-                                    outline: "none",
-                                },
-                                "& .MuiChip-deleteIcon": {
-                                    color: (theme) => theme.palette.text.primary,
-                                },
-                            }}
-                        />
-
-                        {(suggestion as ActModel[]).map((v: ActModel) => (
+                        {
+                            loading?
+                            initalData.map((item, index) => (
+                                <Chip
+                                    key={index}
+                                    label={""}
+                                    color="default"
+                                    clickable
+                                    draggable="true"
+                                    avatar={<Skeleton width={90} sx={{ marginLeft: '16px !important'}} variant="text"/>}
+                                    deleteIcon={<AddIcon/>}
+                                    sx={{
+                                        bgcolor: "#E4E4E4",
+                                        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                        mb: 1,
+                                        mr: 1,
+                                        cursor: "move",
+                                        "&:active": {
+                                            boxShadow: "none",
+                                            outline: "none",
+                                        },
+                                        "& .MuiChip-deleteIcon": {
+                                            color: (theme) => theme.palette.text.primary,
+                                        },
+                                    }}
+                                />
+                            )):(suggestion as ActModel[]).map((v: ActModel) => (
                             <Chip
                                 key={v.uuid}
                                 id={v.uuid}

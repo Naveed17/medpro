@@ -73,7 +73,6 @@ function Profil() {
                 qualif.push(qualification);
             });
             setQualifications([...qualif]);
-            console.log(qualif);
             setActs(infoData.acts)
         }
         if (error !== undefined) {
