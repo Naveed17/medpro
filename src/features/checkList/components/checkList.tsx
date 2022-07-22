@@ -1,10 +1,9 @@
-import {Box, Checkbox, InputAdornment, Skeleton, Stack, TextField, Typography} from "@mui/material";
+import {Box, Checkbox, InputAdornment, Skeleton, TextField} from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import React, {ChangeEvent, useEffect, useState} from "react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {useAppDispatch} from "@app/redux/hooks";
-import {SetAssurance, SetLangues, SetMode, SetQualifications} from "@features/checkList";
-
+import {SetAssurance, SetLangues, SetMode} from "@features/checkList";
 
 function CheckList({...props}) {
 
@@ -82,7 +81,7 @@ function CheckList({...props}) {
                     ).map((item: any, index: number) => (
                         <ItemCheckbox key={index}
                                       data={item}
-                                      checked={props.data?.data.find((i: { id: any; }) => i.id == item.id) !== undefined}
+                                      checked={props.data?.data.find((i: { uuid: string; }) => i.uuid == item.uuid) !== undefined}
                                       onChange={(v: any) => handleChangeCheck(v, item)}></ItemCheckbox>
                     ))
             }

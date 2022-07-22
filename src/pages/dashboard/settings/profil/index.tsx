@@ -47,19 +47,20 @@ function Profil() {
     const [speciality, setSpeciality] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
+    const qualif: QualificationModel[] = []
 
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {data, error} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/prfessionals/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
     useEffect(() => {
         if (data !== undefined) {
-            const infoData = (data as any).data;
+            const infoData = (data as any).data[0];
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
@@ -67,7 +68,12 @@ function Profil() {
             setLoading(false);
             setInsurances([]);
             setPaymentMeans([]);
-            setQualifications((infoData.qualification) as QualificationModel[])
+            infoData.qualification.map((qualification: QualificationModel) => {
+                Object.assign(qualification,{id: qualification.uuid})
+                qualif.push(qualification);
+            });
+            setQualifications([...qualif]);
+            console.log(qualif);
             setActs(infoData.acts)
         }
         if (error !== undefined) {
@@ -152,7 +158,8 @@ function Profil() {
                     </Grid>
                 </RootStyled>
             </SubHeader>
-            <Box bgcolor={theme => theme.palette.background.default} sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box bgcolor={theme => theme.palette.background.default}
+                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <CardStyled>
                     <CardContent>
                         <List>
@@ -217,8 +224,8 @@ function Profil() {
                                                     )) :
                                                     insurances.length > 0 ?
                                                         insurances.map((item: any) => (
-                                                            <Box key={item.id} component="img" width={35} height={35}
-                                                                 src={item.img}/>
+                                                            <Box key={item.uuid} component="img" width={35} height={35}
+                                                                 src={item.logoUrl}/>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noInsurance')}
                                                         </Typography>
@@ -247,7 +254,7 @@ function Profil() {
                                                     )) :
                                                     paymentMeans.length > 0 ?
                                                         paymentMeans.map((mode: any) => (
-                                                            <Button key={mode.id} variant="outlined" color="info"
+                                                            <Button key={mode.uuid} variant="outlined" color="info"
                                                                     onClick={() => dialogOpen('mode')}>
                                                                 {mode.name}
                                                             </Button>
@@ -370,14 +377,16 @@ function Profil() {
                         dialogClose={dialogClose}
                         actionDialog={
                             <DialogActions>
-                                <Button onClick={dialogClose} startIcon={<CloseIcon/>}>{t('profil.cancel')}</Button>
+                                <Button onClick={dialogClose}
+                                        startIcon={<CloseIcon/>}>
+                                    {t('profil.cancel')}
+                                </Button>
                                 <Button variant="contained"
                                         onClick={dialogSave}
                                         startIcon={<IconUrl
                                             path='ic-dowlaodfile'></IconUrl>}>{t('profil.save')}</Button>
                             </DialogActions>
-                        }
-                />
+                        }/>
 
             </Box>
         </>
