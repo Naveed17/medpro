@@ -23,12 +23,13 @@ import {FormatterInput} from "@fullcalendar/common";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, Event, Header} from "@features/calendar";
 
-function Calendar() {
+function Calendar({...props}) {
+    const {events: appointments, OnRangeChange} = props;
     const theme = useTheme();
     const {view} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
-    const [events, setEvents] = useState([]);
+    const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [date, setDate] = useState(moment().toDate());
 
     useEffect(() => {
@@ -38,6 +39,16 @@ function Calendar() {
             calendarApi.changeView(view as string);
         }
     }, [view]);
+
+
+    useEffect(() => {
+        setEvents(appointments);
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.refetchEvents();
+        }
+    }, [appointments]);
 
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
@@ -103,25 +114,7 @@ function Calendar() {
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
-                                initialEvents={[
-                                    {
-                                        addRoom: false,
-                                        agenda: false,
-                                        allDay: false,
-                                        borderColor: "#E83B68",
-                                        customRender: true,
-                                        description: "Unde a inventore et. Sed esse ut. Atque ducimus quibusdam fuga quas id qui fuga.",
-                                        end: "2022-07-11T09:40:30.075Z",
-                                        id: "299263f6-2964-4f30-8ee1-e71e9c50d9ec",
-                                        inProgress: false,
-                                        meeting: false,
-                                        motif: "Brady",
-                                        start: "2022-07-11T09:10:30.075Z",
-                                        status: false,
-                                        time: "2022-08-11T09:10:30.075Z",
-                                        title: "Melanie Noble"
-                                    }
-                                ]}
+                                datesSet={OnRangeChange}
                                 eventContent={(event) => <Event event={event}/>}
                                 dayHeaderContent={(event) => Header({
                                     isGridWeek,
@@ -137,7 +130,7 @@ function Calendar() {
                                 headerToolbar={false}
                                 allDayMaintainDuration
                                 eventResizableFromStart
-                                slotDuration="00:30:00"
+                                slotDuration="00:60:00"
                                 slotLabelFormat={slotFormat}
                                 plugins={[
                                     listPlugin,

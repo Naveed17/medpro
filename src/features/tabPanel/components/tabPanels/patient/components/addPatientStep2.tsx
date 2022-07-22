@@ -67,193 +67,204 @@ function AddPatientStep2({ ...props }) {
         noValidate
         onSubmit={handleSubmit}
       >
-        <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 4 }}>
-          {t("additional-information")}
-        </Typography>
-
-        <Stack spacing={2} sx={{ mb: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item md={6}>
+        <div className="inner-section">
+          <Stack spacing={2}>
+            <Typography mt={1} variant="h6" color="text.primary">
+              {t("additional-information")}
+            </Typography>
+            <div>
+              <Grid container spacing={2}>
+                <Grid item md={6} xs={12}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    {t("region")}
+                  </Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id={"region"}
+                      size="small"
+                      {...getFieldProps("region")}
+                      value={values.region}
+                      displayEmpty={true}
+                      sx={{ color: "text.secondary" }}
+                      renderValue={(value) =>
+                        value?.length
+                          ? Array.isArray(value)
+                            ? value.join(", ")
+                            : value
+                          : t("region-placeholder")
+                      }
+                    >
+                      <MenuItem value="1">1</MenuItem>
+                      <MenuItem value="2">2</MenuItem>
+                      <MenuItem value="3">3</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item md={6} xs={12}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    {t("zip")}
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    placeholder="1004"
+                    size="small"
+                    fullWidth
+                    {...getFieldProps("zipCode")}
+                  />
+                </Grid>
+              </Grid>
+            </div>
+            <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t("region")}
-              </Typography>
-              <FormControl fullWidth>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id={"region"}
-                  size="small"
-                  {...getFieldProps("region")}
-                  value={values.region}
-                  displayEmpty={true}
-                  sx={{ color: "text.secondary" }}
-                  renderValue={(value) =>
-                    value?.length
-                      ? Array.isArray(value)
-                        ? value.join(", ")
-                        : value
-                      : t("region-placeholder")
-                  }
-                >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item md={6}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t("zip")}
+                {t("address")}
               </Typography>
               <TextField
                 variant="outlined"
-                placeholder="1004"
+                multiline
+                rows={3}
+                placeholder={t("address-placeholder")}
                 size="small"
                 fullWidth
-                {...getFieldProps("zipCode")}
+                {...getFieldProps("address")}
               />
-            </Grid>
-          </Grid>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("address")}
-            </Typography>
-            <TextField
-              variant="outlined"
-              multiline
-              rows={3}
-              placeholder={t("address-placeholder")}
-              size="small"
-              fullWidth
-              {...getFieldProps("address")}
-            />
-          </Box>
-          <Box>
-            <Typography sx={{ mb: 1.5 }}>
-              <IconButton
-                onClick={handleAddInsurance}
-                className="success-light"
-                sx={{
-                  mr: 1.5,
-                  "& svg": {
-                    width: 20,
-                    height: 20,
-                    "& path": {
-                      fill: (theme) => theme.palette.text.primary,
-                    },
-                  },
-                }}
-              >
-                <Icon path="ic-plus" />
-              </IconButton>
-              {t("assurance")}
-            </Typography>
-            <Box>
-              {values.insurance.map((val, index: number) => (
-                <Grid
-                  key={Math.random()}
-                  container
-                  spacing={2}
-                  sx={{ mt: index > 0 ? 1 : 0 }}
-                >
-                  <Grid item xs={12} md={4}>
-                    <FormControl fullWidth>
-                      <Select
-                        id={"assurance"}
-                        size="small"
-                        {...getFieldProps(`insurance[${index}].name`)}
-                        value={values.insurance[index]?.name}
-                        displayEmpty={true}
-                        sx={{ color: "text.secondary" }}
-                        renderValue={(value) =>
-                          value?.length
-                            ? Array.isArray(value)
-                              ? value.join(", ")
-                              : value
-                            : t("assurance")
-                        }
-                      >
-                        <MenuItem value="1">1</MenuItem>
-                        <MenuItem value="2">2</MenuItem>
-                        <MenuItem value="3">3</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} md={8}>
-                    <Stack direction="row" spacing={2}>
-                      <TextField
-                        variant="outlined"
-                        placeholder={t("assurance-phone-error")}
-                        size="small"
-                        fullWidth
-                        {...getFieldProps(`insurance[${index}].number`)}
-                      />
-                      <IconButton
-                        onClick={() => handleRemoveInsurance(index)}
-                        className="error-light"
-                        sx={{
-                          mr: 1.5,
-                          "& svg": {
-                            width: 20,
-                            height: 20,
-                            "& path": {
-                              fill: (theme) => theme.palette.text.primary,
-                            },
-                          },
-                        }}
-                      >
-                        <Icon path="ic-moin" />
-                      </IconButton>
-                    </Stack>
-                  </Grid>
-                </Grid>
-              ))}
             </Box>
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("email")}
-            </Typography>
-            <TextField
-              placeholder={t("email-placeholder")}
-              type="email"
-              variant="outlined"
-              size="small"
-              fullWidth
-              {...getFieldProps("email")}
-            />
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("cin")}
-            </Typography>
-            <TextField
-              placeholder={t("cin-placeholder")}
-              type="number"
-              variant="outlined"
-              size="small"
-              fullWidth
-              {...getFieldProps("cin")}
-            />
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {t("from")}
-            </Typography>
-            <TextField
-              placeholder={t("from-placeholder")}
-              type="text"
-              variant="outlined"
-              size="small"
-              fullWidth
-              {...getFieldProps("from")}
-            />
-          </Box>
-        </Stack>
+            <Box>
+              <Typography sx={{ mb: 1.5 }}>
+                <IconButton
+                  onClick={handleAddInsurance}
+                  className="success-light"
+                  sx={{
+                    mr: 1.5,
+                    "& svg": {
+                      width: 20,
+                      height: 20,
+                      "& path": {
+                        fill: (theme) => theme.palette.text.primary,
+                      },
+                    },
+                  }}
+                >
+                  <Icon path="ic-plus" />
+                </IconButton>
+                {t("assurance")}
+              </Typography>
+              <Box>
+                {values.insurance.map((val, index: number) => (
+                  <Grid
+                    key={Math.random()}
+                    container
+                    spacing={2}
+                    sx={{ mt: index > 0 ? 1 : 0 }}
+                  >
+                    <Grid item xs={12} md={4}>
+                      <FormControl fullWidth>
+                        <Select
+                          id={"assurance"}
+                          size="small"
+                          {...getFieldProps(`insurance[${index}].name`)}
+                          value={values.insurance[index]?.name}
+                          displayEmpty={true}
+                          sx={{ color: "text.secondary" }}
+                          renderValue={(value) =>
+                            value?.length
+                              ? Array.isArray(value)
+                                ? value.join(", ")
+                                : value
+                              : t("assurance")
+                          }
+                        >
+                          <MenuItem value="1">1</MenuItem>
+                          <MenuItem value="2">2</MenuItem>
+                          <MenuItem value="3">3</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={12} md={8}>
+                      <Stack direction="row" spacing={2}>
+                        <TextField
+                          variant="outlined"
+                          placeholder={t("assurance-phone-error")}
+                          size="small"
+                          fullWidth
+                          {...getFieldProps(`insurance[${index}].number`)}
+                        />
+                        <IconButton
+                          onClick={() => handleRemoveInsurance(index)}
+                          className="error-light"
+                          sx={{
+                            mr: 1.5,
+                            "& svg": {
+                              width: 20,
+                              height: 20,
+                              "& path": {
+                                fill: (theme) => theme.palette.text.primary,
+                              },
+                            },
+                          }}
+                        >
+                          <Icon path="ic-moin" />
+                        </IconButton>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                ))}
+              </Box>
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t("email")}
+              </Typography>
+              <TextField
+                placeholder={t("email-placeholder")}
+                type="email"
+                variant="outlined"
+                size="small"
+                fullWidth
+                {...getFieldProps("email")}
+              />
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t("cin")}
+              </Typography>
+              <TextField
+                placeholder={t("cin-placeholder")}
+                type="number"
+                variant="outlined"
+                size="small"
+                fullWidth
+                {...getFieldProps("cin")}
+              />
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t("from")}
+              </Typography>
+              <TextField
+                placeholder={t("from-placeholder")}
+                type="text"
+                variant="outlined"
+                size="small"
+                fullWidth
+                {...getFieldProps("from")}
+              />
+            </Box>
+          </Stack>
+        </div>
         <Stack
           spacing={3}
           direction="row"
           justifyContent="flex-end"
-          mt={"auto"}
+          className="action"
         >
           <Button variant="text-black" color="primary">
             {t("return")}

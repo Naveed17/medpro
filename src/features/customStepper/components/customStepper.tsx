@@ -2,9 +2,9 @@ import { useState, ReactNode, SyntheticEvent, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import {RootStyled} from "@features/customStepper";
-import {useTranslation} from "next-i18next";
-import {TabPanel} from "@features/tabPanel";
+import { RootStyled } from "@features/customStepper";
+import { useTranslation } from "next-i18next";
+import { TabPanel } from "@features/tabPanel";
 
 function CustomStepper({ ...props }) {
   const {
@@ -14,26 +14,38 @@ function CustomStepper({ ...props }) {
     currentIndex,
     minWidth,
     scroll,
+    t,
   } = props;
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
-    const handleChange = (event: SyntheticEvent, val: number) => {
-        setValue(val);
-    };
+  const handleChange = (event: SyntheticEvent, val: number) => {
+    setValue(val);
+  };
 
-    useEffect(() => {
-        setValue(currentIndex);
-    }, [currentIndex]);
-
-    const {t, ready} = useTranslation(translationKey, {keyPrefix: prefixKey});
-    if (!ready) return <>loading translations...</>;
+  useEffect(() => {
+    setValue(currentIndex);
+  }, [currentIndex]);
 
   return (
     <>
       <RootStyled
         className={scroll ? "scroll" : ""}
-        sx={{ minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" } }}
+        sx={{
+          minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
+          "& div[role='tabpanel'] > div": {
+            p: 0,
+            "& .inner-section": {
+              height: "calc(100vh - 110px)",
+              overflow: "auto",
+              p: 3,
+            },
+            "& .action": {
+              px: 2,
+              mt: 1,
+            },
+          },
+        }}
       >
         <Tabs
           value={value}
@@ -80,11 +92,11 @@ function CustomStepper({ ...props }) {
             return (
               <TabPanel key={Math.random()} value={value} index={i}>
                 <Component
-                  t={t}
                   onNext={(val: number) => {
                     setValue(val);
                     setLast(last < stepperData.length ? last + 1 : last);
                   }}
+                  {...props}
                 />
               </TabPanel>
             );

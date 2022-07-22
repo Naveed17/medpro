@@ -3,12 +3,20 @@ import * as React from "react";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-
+interface SpeedDialProps {
+  icon: React.ReactElement;
+  name: string;
+}
 export default function SpeedDialTooltipOpen({ ...props }) {
-  const { actions } = props;
+  const { actions, onClick } = props;
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const onClickAction = (action: SpeedDialProps) => () => {
+    onClick(action);
+    setOpen(false);
+  };
 
   return (
     <SpeedDial
@@ -19,14 +27,13 @@ export default function SpeedDialTooltipOpen({ ...props }) {
       open={open}
       {...props}
     >
-      {actions.map((action: { icon: React.ReactElement; name: string }) => (
+      {actions.map((action: SpeedDialProps) => (
         <SpeedDialAction
           key={action.name}
           icon={action.icon}
           tooltipTitle={action.name}
           tooltipOpen
-          onClick={handleClose}
-          // {...props}
+          onClick={onClickAction(action)}
         />
       ))}
     </SpeedDial>
