@@ -27,31 +27,31 @@ export const siteHeader = {
             name: "patient",
             href: '/dashboard/patient',
         },
-        {
-            icon: "ic-messanger-lite",
-            name: "message",
-            href: '#',
-        },
-        {
-            icon: "ic-edit-file",
-            name: "articles",
-            href: '#',
-        },
-        {
-            icon: "ic-questions-lite",
-            name: "questions",
-            href: '/dashboard/questions',
-        },
-        {
-            icon: "shopping-bag",
-            name: "shop",
-            href: '#',
-        },
-        {
-            icon: "ic-portfeuille",
-            name: "wallet",
-            href: '',
-        }
+        // {
+        //     icon: "ic-messanger-lite",
+        //     name: "message",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-edit-file",
+        //     name: "articles",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-questions-lite",
+        //     name: "questions",
+        //     href: '/dashboard/questions',
+        // },
+        // {
+        //     icon: "shopping-bag",
+        //     name: "shop",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-portfeuille",
+        //     name: "wallet",
+        //     href: '',
+        // }
     ],
 };
 

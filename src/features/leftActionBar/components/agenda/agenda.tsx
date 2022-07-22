@@ -8,7 +8,7 @@ import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 
 const CalendarPickers = dynamic(() => import("@features/calendar/components/calendarPickers/components/calendarPickers"));

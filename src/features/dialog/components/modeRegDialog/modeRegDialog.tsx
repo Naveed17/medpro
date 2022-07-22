@@ -1,6 +1,6 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";

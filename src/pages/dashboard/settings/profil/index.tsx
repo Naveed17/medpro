@@ -25,8 +25,8 @@ import {Dialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
-import {useRouter} from 'next/router'
-import useRequest from "@app/axios/axiosServiceApi";
+import { useRouter } from 'next/router'
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
