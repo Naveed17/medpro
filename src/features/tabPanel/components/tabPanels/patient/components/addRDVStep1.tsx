@@ -198,7 +198,7 @@ function AddRDVStep1({ ...props }) {
           size="medium"
           variant="contained"
           color="primary"
-          disabled={!time}
+          // disabled={!time}
         >
           {t("next")}
         </Button>

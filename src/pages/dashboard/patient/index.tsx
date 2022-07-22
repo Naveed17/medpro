@@ -57,7 +57,7 @@ const stepperData = [
     children: AddRDVStep2,
   },
   {
-    title: "tabs.fin",
+    title: "tabs.end",
     children: AddPatientStep3,
   },
 ];

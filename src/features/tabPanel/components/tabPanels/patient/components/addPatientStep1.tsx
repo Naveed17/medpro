@@ -23,7 +23,7 @@ import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from "next-i18next";
 
 function AddPatientStep1({ ...props }) {
-  const { onNext } = props;
+  const { onNext, onClose } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const [selected, setslected] = React.useState<any>(null);
@@ -327,7 +327,11 @@ function AddPatientStep1({ ...props }) {
           justifyContent="flex-end"
           className="action"
         >
-          <Button variant="text-black" color="primary">
+          <Button
+            onClick={() => onClose()}
+            variant="text-black"
+            color="primary"
+          >
             {t("cancel")}
           </Button>
           <Button variant="contained" type="submit" color="primary">

@@ -41,7 +41,15 @@
     "time-message": "Veuillez choisir l’heure du RDV",
     "see-more": "Voir plus d’horaires",
     "cancel": "Annuler",
-    "next": "Suivant"
+    "next": "Suivant",
+    "advice": "Instruction / Conseil",
+    "instruction-patient": "Instruction pour le patient",
+    "instruction-placeholder": "Tapez instruction pour le patient",
+    "reminder": "Rappel",
+    "sms-reminder": "SMS de rappel en ",
+    "schedule": "Programmer un SMS de rappel pour le patient",
+    "to": "à",
+    "day": "Jour"
   },
 
   "config": {
