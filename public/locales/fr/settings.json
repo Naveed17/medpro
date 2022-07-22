@@ -142,7 +142,6 @@
       "remove": "Supprimer une agenda",
       "askRemove": "Voulez vous vraiment supprimer cette agenda ?",
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
-
       "cancel": "Annuler",
       "table": {
         "name": "Nom",

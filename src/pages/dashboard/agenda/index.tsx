@@ -14,11 +14,11 @@ import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import useRequest from "@app/axios/axiosServiceApi";
 import {Session} from "next-auth";
-import {Suspense} from 'react';
 
-const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
-    ssr: false
-});
+const Calendar = dynamic(() => import("@features/calendar/components/Calendar"),
+    {
+        ssr: false
+    });
 
 function Agenda() {
     const {data: session, status} = useSession();
