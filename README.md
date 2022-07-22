@@ -102,6 +102,8 @@ The main React hook to execute HTTP requests with [SWR](https://swr.vercel.app/)
 
 ### Quick Start
 ```ts
+    import {useRequest} from "@app/axios";
+
     const {data: httpResponse, error: errorHttp} = useRequest({
         method: "GET",
         url: `${url}`,
@@ -158,6 +160,8 @@ The React hook to execute HTTP requests for remote mutations (useSWRMutation).
 - 
 ### Quick Start
 ```ts
+    import {useRequestMutation} from "@app/axios";
+
     const {data: httpResponse, error: errorHttp, trigger, isMutating} = useRequestMutation({
         method: "GET",
         url: `${url}`,

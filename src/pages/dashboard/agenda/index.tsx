@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box} from "@mui/material";
 import {DashLayout} from "@features/base";
@@ -12,7 +12,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {instanceAxios, useRequest} from "@app/axios";
+import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
 import {useAppointment} from "@app/hooks/rest";

@@ -10,7 +10,7 @@ import requestAxios from "@app/axios/config";
 import { useSession } from "next-auth/react";
 import { LoadingScreen } from "@features/loadingScreen";
 import { AxiosRequestHeaders } from "axios";
-import useRequest from "@app/axios/useRequest";
+import {useRequest} from "@app/axios";
 import { Session } from "next-auth";
 
 const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({ url, method: "GET", headers }).then(res => res.data);

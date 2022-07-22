@@ -11,7 +11,7 @@ import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import useRequest from "@app/axios/useRequest";
+import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";

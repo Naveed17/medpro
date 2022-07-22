@@ -27,7 +27,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import useRequest from "@app/axios/useRequest";
+import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";

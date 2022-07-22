@@ -8,7 +8,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
-import useRequest from "@app/axios/useRequest";
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
