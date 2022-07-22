@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-
-echo "run npm ci"
+echo "INIT -- npm.sh -- start"
 cd "$APP_ROOT" || exit 1
 
-#npm ci
+# Run npm ci if package-lock.json exists.
+if [[ -f "./package-lock.json" ]]; then
+  echo "Running npm ci.."
+  npm ci --audit=false --fund=false
+fi
+
+echo "INIT -- npm.sh -- done"

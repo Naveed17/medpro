@@ -8,6 +8,8 @@ function LanguesDialog(info:any) {
 
     const { data: session, status } = useSession();
     const [items, setItems] = useState<InsuranceModel[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+
     const router = useRouter();
 
     const headers = {
@@ -22,7 +24,8 @@ function LanguesDialog(info:any) {
 
     useEffect(() => {
         if (data !== undefined){
-            setItems((data as any).data)
+            setItems((data as any).data);
+            setLoading(false);
         }
     },[data]);
 
@@ -32,6 +35,7 @@ function LanguesDialog(info:any) {
     return (
         <CheckList items={items}
                    data={info}
+                   loading={loading}
                    action={'langues'}
                    search={t('dialogs.search_lang')}/>
     )

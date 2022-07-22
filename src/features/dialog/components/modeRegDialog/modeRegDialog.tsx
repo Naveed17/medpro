@@ -9,6 +9,7 @@ function ModeRegDialog(info:any) {
 
     const { data: session, status } = useSession();
     const [items, setItems] = useState<InsuranceModel[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
@@ -24,7 +25,8 @@ function ModeRegDialog(info:any) {
 
     useEffect(() => {
         if (data !== undefined){
-            setItems((data as any).data)
+            setItems((data as any).data);
+            setLoading(false);
         }
     },[data])
 
@@ -34,6 +36,7 @@ function ModeRegDialog(info:any) {
     return (
         <CheckList items={items}
                    data={info}
+                   loading={loading}
                    action={'mode'}
                    search={''} />
     )

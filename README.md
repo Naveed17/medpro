@@ -1,15 +1,18 @@
 <p align="center">
-  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med TypeScript Starter">
+  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med.tn">
 </p>
 
-<br />
-
-<div align="center"><strong>Med TypeScript starter for Next.js</strong></div>
-<div align="center">Med project.</div>
-
-<br />
+# Med Pro
+NextJS app. Frontend for SmartMedSA/med-core
 
 ### Development
+
+Before starting, create .env.local file from the dist and update it with values provided by the development team.
+
+```
+$ cp .env.local.dist .env.local
+$ # Update with your editor of choice.
+```
 
 To start the project locally with dev console, run:
 
@@ -18,15 +21,7 @@ npm run dev:up
 ```
 
 Open `http://localhost:3000` with your browser to see the result.
-
-<br />
-To start the project in prod mode, run:
-
-```bash
-npm run prod:up
-```
 ## Documentation
-
 ### Directory Structure
 
 - [`public`](./public) — Static assets such as robots.txt, images, and favicon.<br>
@@ -42,11 +37,20 @@ npm run prod:up
   - [`types`](./src/types) — custom types for typescript.
 
 ### Scripts
-
 - `npm run dev` — Starts the application in development mode at `http://localhost:3000`.
 - `npm run build` — Creates an optimized production build of your application.
 - `npm run dev:up` — Starts the docker image in development mode .
 - `npm run prod:up` — Starts the docker image in production mode.
+
+### Environment Variables
+| Variable                   | Default Value |
+|----------------------------|---------------|
+| NEXTAUTH_URL               |               |
+| NEXTAUTH_SECRET            |               |
+| KEYCLOAK_ID                |               |
+| KEYCLOAK_SECRET            |               |
+| KEYCLOAK_ISSUER            |               |
+| NEXT_PUBLIC_BACK_END_POINT |               |
 
 ### API
 

@@ -9,6 +9,7 @@ function AssuranceDialog(info: any) {
 
     const { data: session, status } = useSession();
     const [items, setItems] = useState<InsuranceModel[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
@@ -24,7 +25,8 @@ function AssuranceDialog(info: any) {
 
     useEffect(() => {
         if (data !== undefined){
-            setItems((data as any).data)
+            setItems((data as any).data);
+            setLoading(false);
         }
     },[data])
 
@@ -32,9 +34,11 @@ function AssuranceDialog(info: any) {
     if (!ready) return (<>loading translations...</>);
 
     return (<>
+
         <CheckList items={items}
                    data={info}
                    action={'assurance'}
+                   loading={loading}
                    search={t('dialogs.search_assurance')}></CheckList>
     </>)
 }

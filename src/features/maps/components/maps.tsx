@@ -1,5 +1,5 @@
-import L, {LatLngBoundsExpression} from "leaflet";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import L from "leaflet";
+import React, {useEffect, useMemo, useState} from "react";
 import {MapContainer, TileLayer, useMapEvents, Popup, Marker} from "react-leaflet";
 
 const icon = L.icon({iconUrl: "/static/icons/ic-pin.svg", iconSize: [60, 55]});
@@ -22,6 +22,7 @@ function PlacesMarker({...props}) {
 }
 
 function LocationMarker({...props}) {
+    const {cords} = props;
     const [position, setPosition] = useState<any>(null);
     const eventHandlers = useMemo(
         () => ({
@@ -38,10 +39,19 @@ function LocationMarker({...props}) {
         locationfound(e) {
             setPosition(e.latlng)
             map.flyTo(e.latlng, map.getZoom())
-        },
+        }
+
     });
     useEffect(() => {
+        if (!cords)
             map.locate();
+        else {
+            if (cords.length > 0) {
+                setPosition(cords[0].points)
+                map.flyTo(cords[0].points, map.getZoom())
+            }
+
+        }
     }, [])
 
 
@@ -56,7 +66,6 @@ function LocationMarker({...props}) {
 }
 
 function Maps({...props}) {
-
     return (
         <>
             {props && props.outerBounds.length > 0 &&
@@ -67,8 +76,8 @@ function Maps({...props}) {
                     scrollWheelZoom={false}
                     id="mapId">
                     <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"/>
-                    {!props.data &&<LocationMarker/>}
-                    {props.data && <PlacesMarker cords={props.data}/>}
+                    {props.draggable && <LocationMarker cords={props.data}/>}
+                    {!props.draggable && <PlacesMarker cords={props.data}/>}
                 </MapContainer>
             }
         </>

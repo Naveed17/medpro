@@ -130,7 +130,7 @@ function Users() {
     console.log(props);
     setRows([...rows]);
   };
-  const { t, ready } = useTranslation("settings", { keyPrefix: "users" });
+  const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
   if (!ready) return (<>loading translations...</>);
 
   return (

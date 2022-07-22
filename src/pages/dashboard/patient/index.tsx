@@ -7,7 +7,16 @@ import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 
 // material components
-import { Box, Tabs, Tab, Drawer, Divider, Button, Paper } from "@mui/material";
+import {
+  Box,
+  Tabs,
+  Tab,
+  Drawer,
+  Divider,
+  Button,
+  Paper,
+  Zoom,
+} from "@mui/material";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
@@ -31,10 +40,27 @@ import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
 import { SpeedDial } from "@features/speedDial";
+import { CustomStepper } from "@features/customStepper";
 
 // icons
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { AddRDVStep1, AddRDVStep2, AddPatientStep3 } from "@features/tabPanel";
+
+const stepperData = [
+  {
+    title: "tabs.time-slot",
+    children: AddRDVStep1,
+  },
+  {
+    title: "tabs.advice",
+    children: AddRDVStep2,
+  },
+  {
+    title: "tabs.fin",
+    children: AddPatientStep3,
+  },
+];
 
 // interface
 interface HeadCell {
@@ -269,6 +295,7 @@ function Patient() {
 
   // state hook for details drawer
   const [open, setopen] = useState<boolean>(false);
+  const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
 
   // state hook for tabs
   const [value, setValue] = useState<number>(0);
@@ -326,97 +353,132 @@ function Patient() {
             setopen(false);
           }}
         >
-          <PatientDetailsToolbar
-            onClose={() => {
-              dispatch(onOpenDetails({ patientId: "" }));
-              setopen(false);
-            }}
-          />
-          <PatientdetailsCard />
-          <Box
-            sx={{
-              width: { md: 726, xs: "100%" },
-              bgcolor: "background.default",
-              "& div[role='tabpanel']": {
-                height: { md: "calc(100vh - 312px)", xs: "auto" },
-                overflowY: "auto",
-              },
-            }}
-          >
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              variant="scrollable"
-              aria-label="basic tabs example"
-              sx={{
-                px: 2,
-                position: "sticky",
-                top: 54,
-                borderTop: (theme) => ({
-                  md: "none",
-                  xs: `1px solid ${theme.palette.divider}`,
-                }),
-                zIndex: 112,
-                bgcolor: "background.paper",
-                button: {
-                  "&.Mui-selected": {
-                    color: (theme) => theme.palette.primary.main,
+          {!isAddAppointment && (
+            <Box height={!isAddAppointment ? "100%" : 0}>
+              {" "}
+              <PatientDetailsToolbar
+                onClose={() => {
+                  dispatch(onOpenDetails({ patientId: "" }));
+                  setopen(false);
+                }}
+              />
+              <PatientdetailsCard />
+              <Box
+                sx={{
+                  width: { md: 726, xs: "100%" },
+                  bgcolor: "background.default",
+                  "& div[role='tabpanel']": {
+                    height: { md: "calc(100vh - 312px)", xs: "auto" },
+                    overflowY: "auto",
                   },
+                }}
+              >
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  variant="scrollable"
+                  aria-label="basic tabs example"
+                  sx={{
+                    px: 2,
+                    position: "sticky",
+                    top: 54,
+                    borderTop: (theme) => ({
+                      md: "none",
+                      xs: `1px solid ${theme.palette.divider}`,
+                    }),
+                    zIndex: 112,
+                    bgcolor: "background.paper",
+                    button: {
+                      "&.Mui-selected": {
+                        color: (theme) => theme.palette.primary.main,
+                      },
+                    },
+                  }}
+                >
+                  <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+                  <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+                  <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+                </Tabs>
+                <Divider />
+                <TabPanel padding={1} value={value} index={0}>
+                  <PersonalInfoPanel />
+                </TabPanel>
+                <TabPanel padding={1} value={value} index={1}>
+                  <GroupTable from="patient" data={data} />
+                </TabPanel>
+                <TabPanel padding={2} value={value} index={2}>
+                  <DocumentsPanel />
+                </TabPanel>
+
+                <Paper
+                  sx={{
+                    borderRadius: 0,
+                    borderWidth: "0px",
+                    p: 2,
+                    textAlign: "right",
+                    display: { md: "block", xs: "none" },
+                  }}
+                >
+                  <Button
+                    size="medium"
+                    variant="text-primary"
+                    color="primary"
+                    startIcon={<Icon path="ic-dowlaodfile" />}
+                    sx={{
+                      mr: 1,
+                      width: { md: "auto", sm: "100%", xs: "100%" },
+                    }}
+                  >
+                    {t("tabs.import")}
+                  </Button>
+                  <Button
+                    onClick={() => setAddAppointment(!isAddAppointment)}
+                    size="medium"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<Icon path="ic-agenda-+" />}
+                    sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+                  >
+                    {t("tabs.add-appo")}
+                  </Button>
+                </Paper>
+                <SpeedDial
+                  sx={{
+                    position: "fixed",
+                    bottom: 16,
+                    right: 16,
+                    display: { md: "none", xs: "flex" },
+                  }}
+                  onClick={() => setAddAppointment(!isAddAppointment)}
+                  actions={actions}
+                />
+              </Box>
+            </Box>
+          )}
+          <Zoom in={isAddAppointment}>
+            <Box
+              height={isAddAppointment ? "100%" : 0}
+              sx={{
+                "& .MuiTabs-root": {
+                  position: "sticky",
+                  top: 0,
+                  bgcolor: (theme) => theme.palette.background.paper,
+                  zIndex: 11,
                 },
               }}
             >
-              <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-              <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-              <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-            </Tabs>
-            <Divider />
-            <TabPanel padding={1} value={value} index={0}>
-              <PersonalInfoPanel />
-            </TabPanel>
-            <TabPanel padding={1} value={value} index={1}>
-              <GroupTable from="patient" data={data} />
-            </TabPanel>
-            <TabPanel padding={2} value={value} index={2}>
-              <DocumentsPanel />
-            </TabPanel>
-            <Paper
-              sx={{
-                borderRadius: 0,
-                borderWidth: "0px",
-                p: 2,
-                textAlign: "right",
-                display: { md: "block", xs: "none" },
-              }}
-            >
-              <Button
-                size="medium"
-                variant="text-primary"
-                color="primary"
-                startIcon={<Icon path="ic-dowlaodfile" />}
-                sx={{ mr: 1, width: { md: "auto", sm: "100%", xs: "100%" } }}
-              >
-                {t("tabs.import")}
-              </Button>
-              <Button
-                size="medium"
-                variant="contained"
-                color="primary"
-                startIcon={<Icon path="ic-agenda-+" />}
-                sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
-              >
-                {t("tabs.add-appo")}
-              </Button>
-            </Paper>
-            <SpeedDial
-              sx={{
-                position: "fixed",
-                bottom: 16,
-                right: 16,
-                display: { md: "none", xs: "flex" },
-              }}
-              actions={actions}
-            />
-          </Box>
+              <CustomStepper
+                currentIndex={0}
+                translationKey="patient"
+                prefixKey="add-patient"
+                stepperData={stepperData}
+                scroll
+                t={t}
+                minWidth={726}
+                onClickCancel={() => setAddAppointment(false)}
+              />
+            </Box>
+          </Zoom>
         </Drawer>
       </Box>
     </>
