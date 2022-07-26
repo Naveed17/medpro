@@ -12,11 +12,13 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
-import {Suspense} from 'react';
+import moment from "moment-timezone";
+import {useAppointment} from "@app/hooks/rest";
+import {DatesSetArg} from "@fullcalendar/react";
 
-const Calendar = dynamic(() => import("@features/calendar/components/Calendar"), {
+const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
 });
 
@@ -24,7 +26,13 @@ function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const {t, ready} = useTranslation('common');
-
+    const [
+        timeRange,
+        setTimeRange
+    ] = useState({
+        start: moment().startOf('week').subtract(1, "days").format('DD-MM-YYYY'),
+        end: moment().endOf('week').subtract(1, "days").format('DD-MM-YYYY')
+    })
     const loading = status === 'loading';
     const [date, setDate] = useState(new Date());
 
@@ -40,17 +48,65 @@ function Agenda() {
     });
 
     const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data.find((item: AgendaConfigurationModel) => item.isDefault) : undefined;
+    const {
+        httpAppointmentResponse,
+        errorHttpAppointment,
+        trigger
+    } = useAppointment(agenda,
+        medical_entity.uuid,
+        session?.accessToken as string,
+        router.locale as string,
+        timeRange.start,
+        timeRange.end
+    );
 
-    const {data: httpAppointmentResponse, error: errorHttpAppointment} = useRequest(agenda ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=2022-01-03&end_date=2022-01-09&format=week&consultationReason=consultationReasonId&type=0..3&status=0..7`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    } : null);
 
-    if (errorHttpAgendas || errorHttpAppointment) return <div>failed to load</div>
-    if (!ready || !httpAgendasResponse || !httpAppointmentResponse) return (<LoadingScreen/>);
+    if (errorHttpAgendas) return <div>failed to load</div>
+    if (!ready || !httpAgendasResponse) return (<LoadingScreen/>);
+
+    const appointments = (httpAppointmentResponse as HttpResponse)?.data as ConsultationReasonTypeModel[];
+    const events: any = [];
+    appointments?.map((appointment) => {
+        events.push({
+            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
+            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
+            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
+            title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
+            addRoom: false,
+            agenda: false,
+            allDay: false,
+            borderColor: "#E83B68",
+            customRender: true,
+            description: "Unde a inventore et. Sed esse ut. Atque ducimus quibusdam fuga quas id qui fuga.",
+            id: appointment.uuid,
+            inProgress: false,
+            meeting: false,
+            status: false
+        });
+    });
+
+    const handleOnRangeChange = (event: DatesSetArg) => {
+        const startStr = moment(event.startStr).format('DD-MM-YYYY');
+        const endStr = moment(event.endStr).format('DD-MM-YYYY');
+
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=${startStr}&end_date=${endStr}&format=week`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true});
+    }
+
+    const handleOnClick = () => {
+        trigger({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: false, populateCache: true});
+    }
 
     return (
         <>
@@ -59,7 +115,8 @@ function Agenda() {
             </SubHeader>
             <Box>
                 <DesktopContainer>
-                    <Calendar/>
+                    <Calendar {...{events, agenda}}
+                              OnRangeChange={handleOnRangeChange}/>
                 </DesktopContainer>
                 <MobileContainer>
                     <div>mobile</div>

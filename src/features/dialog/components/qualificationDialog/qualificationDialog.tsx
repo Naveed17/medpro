@@ -6,7 +6,7 @@ import {useTranslation} from "next-i18next";
 import {useCallback, useEffect, useState} from "react";
 import {
     SortableList,
-    SortableItem,
+    SortableItem, SortableItemProps,
 } from '@thaddeusjiang/react-sortable-list';
 import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {SetQualifications} from "@features/checkList";
@@ -15,7 +15,10 @@ import {useAppDispatch} from "@app/redux/hooks";
 
 function QualificationDialog(info: any) {
     const [files, setFile] = useState([]);
-    const [items, setItems] = useState(info.data);
+
+    const [items, setItems] = useState<SortableItemProps[]>(info.data);
+
+    console.log(items);
 
     const dispatch = useAppDispatch();
 

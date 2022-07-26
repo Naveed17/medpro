@@ -1,20 +1,7 @@
 import useSWR, {SWRConfiguration, SWRResponse} from 'swr'
-import axios, {AxiosRequestConfig, AxiosResponse, AxiosError, Axios} from 'axios'
-
-const baseURL: string = process.env.NEXT_PUBLIC_BACK_END_POINT || 'https://coreapi.med.ovh/';
-
-export type GetRequest = AxiosRequestConfig | null
-
-export const instanceAxios = (() => {
-    return axios.create({
-        baseURL,
-        headers: {
-            Accept: "application/json",
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-        }
-    });
-})();
+import {AxiosResponse, AxiosError} from 'axios'
+import {instanceAxios} from "@app/axios";
+import {GetRequest} from "@app/axios/config";
 
 interface Return<Data, Error>
     extends Pick<SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
@@ -37,7 +24,7 @@ function useRequest<Data = unknown, Error = unknown>(
         data: response,
         error,
         isValidating,
-        mutate
+        mutate,
     } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
         request && JSON.stringify(request),
         /**
@@ -64,41 +51,6 @@ function useRequest<Data = unknown, Error = unknown>(
         isValidating,
         mutate
     }
-}
-
-// export default UseRequest;
-
-
-let instance: Axios;
-
-async function get(URL: string, params?: any, headers?: any) {
-    let query = '';
-    if (params !== undefined) {
-        const searchParams = new URLSearchParams(params)
-        query = `?${searchParams.toString()}`
-    }
-
-    return axios.get(`${URL}`, {
-        headers: {
-            accept: `application/json`
-        }
-    });
-}
-
-const post = (URL: string, body: any) => axios.post(`${baseURL}/${URL}`, body)
-
-const put = (URL: string, body: any) => axios.put(`${baseURL}/${URL}`, body)
-
-const deletes = (URL: string) => axios.delete(`${baseURL}/${URL}`)
-
-const patch = (URL: string) => axios.patch(`${baseURL}/${URL}`)
-
-const ApiService = {
-    get,
-    post,
-    put,
-    deletes,
-    patch,
 }
 
 export default useRequest;

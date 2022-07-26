@@ -3,7 +3,7 @@
 </p>
 
 # Med Pro
-NextJS app. Frontend for SmartMedSA/med-core
+NextJS app. Frontend for SmartMedSA/med-pro
 
 ### Development
 
@@ -28,6 +28,7 @@ Open `http://localhost:3000` with your browser to see the result.
 - [`src`](./src) — Application source code, including pages, features, styles.
   - [`app`](./src/app) — project config files.
   - [`features`](./src/features) — features components with redux toolkit example.
+  - [`interfaces`](./src/interfaces) — interfaces for objects .
   - [`pages`](./src/pages) — pages with custom _app.js and layout.
     - [`api`](./src/pages/api) — override next auth global configs.
     - [`auth`](./src/pages/auth) — override next auth global pages.
@@ -50,3 +51,136 @@ Open `http://localhost:3000` with your browser to see the result.
 | KEYCLOAK_SECRET            |               |
 | KEYCLOAK_ISSUER            |               |
 | NEXT_PUBLIC_BACK_END_POINT |               |
+
+## API
+- [useRequest](#userequestrequest-config)
+- [useRequestMutation](#userequestmutationrequest-config)
+
+### useRequest(request, config)
+
+The main React hook to execute HTTP requests with [SWR](https://swr.vercel.app/) and [Axios](https://github.com/axios/axios).
+
+- `request` - The axios request [config](https://github.com/axios/axios#request-config) object, the same argument accepted by `axios`.
+- `config` - An options object for [SWR](https://swr.vercel.app/) configuration.
+  - `suspense` (`false`): enable React Suspense mode (details)
+  - `fetcher` (`args`): the fetcher function
+  - `revalidateIfStale` (`true`): automatically revalidate even if there is stale data (details)
+  - `revalidateOnMount`: enable or disable automatic revalidation when component is mounted
+  - `revalidateOnFocus` (`true`): automatically revalidate when window gets focused (details)
+  - `revalidateOnReconnect` (`true`): automatically revalidate when the browser regains a network connection (via navigator.onLine) (details)
+  - `refreshInterval` (`details`):
+    - Disabled by default: refreshInterval = 0
+    - If set to a number, polling interval in milliseconds
+    - If set to a function, the function will receive the latest data and should return the interval in milliseconds
+  - `refreshWhenHidden` (`false`): polling when the window is invisible (if refreshInterval is enabled)
+  - `refreshWhenOffline` (`false`): polling when the browser is offline (determined by navigator.onLine)
+  - `shouldRetryOnError` (`true`): retry when fetcher has an error
+  - `dedupingInterval` (`2000`): dedupe requests with the same key in this time span in milliseconds
+  - `focusThrottleInterval` (`5000`): only revalidate once during a time span in milliseconds
+  - `loadingTimeout` (`3000`): timeout to trigger the onLoadingSlow event in milliseconds
+  - `errorRetryInterval`(`5000`): error retry interval in milliseconds
+  - `errorRetryCount`: max error retry count
+  - `fallback`: a key-value object of multiple fallback data (example)
+  - `fallbackData`: initial data to be returned (note: This is per-hook)
+  - `onLoadingSlow(key, config)`: callback function when a request takes too long to load (see loadingTimeout)
+  - `onSuccess(data, key, config)`: callback function when a request finishes successfully
+  - `onError(err, key, config`): callback function when a request returns an error
+  - `onErrorRetry(err, key, config, revalidate, revalidateOps)`: handler for error retry
+  - `compare(a, b)`: comparison function used to detect when returned data has changed, to avoid spurious rerenders. By default, stable-hash is used.
+  - `isPaused()`: function to detect whether pause revalidations, will ignore fetched data and errors when it returns true. Returns false by default.
+  - `use`: array of middleware functions (details)
+   
+**Returns**
+
+`[{ data, response, error, isValidating, mutate }]`
+
+- `data` - The [success response](https://github.com/axios/axios#response-schema) data property (for convenient access).
+- `response` - The whole [success response](https://github.com/axios/axios#response-schema) object.
+- `error` - The [error](https://github.com/axios/axios#handling-errors) value
+- `isValidating` - if there's a request or revalidation loading.
+- `mutate(data?, shouldRevalidate?)` - function to mutate the cached data [(details)]('https://swr.vercel.app/docs/mutation').
+
+### Quick Start
+```ts
+    import {useRequest} from "@app/axios";
+
+    const {data: httpResponse, error: errorHttp} = useRequest({
+        method: "GET",
+        url: `${url}`,
+        headers: {...}
+      },{
+        revalidateOnFocus: true,
+        ...
+      });
+```
+### useRequestMutation(request, config)
+
+The React hook to execute HTTP requests for remote mutations (useSWRMutation).
+
+- `request` - The axios request [config](https://github.com/axios/axios#request-config) object, the same argument accepted by `axios`.
+- `config` - An options object for [SWR](https://swr.vercel.app/docs/mutation) configuration.
+  - `suspense` (`false`): enable React Suspense mode (details)
+  - `fetcher` (`args`): the fetcher function
+  - `revalidateIfStale` (`true`): automatically revalidate even if there is stale data (details)
+  - `revalidateOnMount`: enable or disable automatic revalidation when component is mounted
+  - `revalidateOnFocus` (`true`): automatically revalidate when window gets focused (details)
+  - `revalidateOnReconnect` (`true`): automatically revalidate when the browser regains a network connection (via navigator.onLine) (details)
+  - `refreshInterval` (`details`):
+    - Disabled by default: refreshInterval = 0
+    - If set to a number, polling interval in milliseconds
+    - If set to a function, the function will receive the latest data and should return the interval in milliseconds
+  - `refreshWhenHidden` (`false`): polling when the window is invisible (if refreshInterval is enabled)
+  - `refreshWhenOffline` (`false`): polling when the browser is offline (determined by navigator.onLine)
+  - `shouldRetryOnError` (`true`): retry when fetcher has an error
+  - `dedupingInterval` (`2000`): dedupe requests with the same key in this time span in milliseconds
+  - `focusThrottleInterval` (`5000`): only revalidate once during a time span in milliseconds
+  - `loadingTimeout` (`3000`): timeout to trigger the onLoadingSlow event in milliseconds
+  - `errorRetryInterval`(`5000`): error retry interval in milliseconds
+  - `errorRetryCount`: max error retry count
+  - `fallback`: a key-value object of multiple fallback data (example)
+  - `fallbackData`: initial data to be returned (note: This is per-hook)
+  - `onLoadingSlow(key, config)`: callback function when a request takes too long to load (see loadingTimeout)
+  - `onSuccess(data, key, config)`: callback function when a request finishes successfully
+  - `onError(err, key, config`): callback function when a request returns an error
+  - `onErrorRetry(err, key, config, revalidate, revalidateOps)`: handler for error retry
+  - `compare(a, b)`: comparison function used to detect when returned data has changed, to avoid spurious rerenders. By default, stable-hash is used.
+  - `isPaused()`: function to detect whether pause revalidations, will ignore fetched data and errors when it returns true. Returns false by default.
+  - `use`: array of middleware functions (details)
+
+**Returns**
+
+`[{ data, response, error, trigger, isMutating, reset }]`
+
+- `data` - The [success response](https://github.com/axios/axios#response-schema) data property (for convenient access).
+- `response` - The whole [success response](https://github.com/axios/axios#response-schema) object.
+- `error` - The [error](https://github.com/axios/axios#handling-errors) value.
+- `trigger(key?, extraArgument?)` - Trigger the request manually, the extra argument will be passed to the mutator as `{ arg }`.
+- `isMutating` -if there's a request or revalidation mutated.
+- `reset` - reset the state (data, error, isMutating).
+- 
+### Quick Start
+```ts
+    import {useRequestMutation} from "@app/axios";
+
+    const {data: httpResponse, error: errorHttp, trigger, isMutating} = useRequestMutation({
+        method: "GET",
+        url: `${url}`,
+        headers: {...}
+      },{
+        revalidateOnFocus: true,
+        ...
+      });
+
+    trigger();
+    
+    //Or invoke trigger with params
+    trigger({
+      method: "GET",
+      url: `${url}`,
+      headers: {...}
+    },{
+      revalidate: true, 
+      populateCache: true,
+      ...
+    });
+```

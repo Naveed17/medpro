@@ -36,7 +36,7 @@ const RootStyled = styled("div")(({theme}) => ({
         "& .MuiBox-root": {
             flexDirection: "column",
             alignItems: "baseline",
-            justifyContent: "space-around",
+            justifyContent: "flex-start",
             "& .ic-cabinet, & .ic-video": {
                 marginLeft: theme.spacing(0.5),
             },

@@ -15,9 +15,7 @@ function Event({...props}) {
             <Typography variant="body2" component={"span"} color="text.primary">
                 <IconUrl path="ic-time" className="ic-time"/>
                 <span>
-                    {new Date(
-                        event.event._def.extendedProps.time
-                    ).toLocaleTimeString([], {
+                    {event.event._def.extendedProps.time.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                     })}
