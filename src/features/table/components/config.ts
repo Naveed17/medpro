@@ -26,6 +26,12 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "calendar",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/calendarRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "patient",
     component: dynamic((): any =>
       import("@features/table/components/rows/patientRow").then((mod) => mod)

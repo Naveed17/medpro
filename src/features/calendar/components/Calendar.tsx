@@ -6,30 +6,76 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import {
     Box,
-    DialogTitle,
     useMediaQuery,
     IconButton,
-    Typography, useTheme,
+    useTheme,
 } from "@mui/material";
 
 import RootStyled from './overrides/rootStyled';
 import CalendarStyled from './overrides/calendarStyled';
 
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import moment from "moment";
 import {FormatterInput} from "@fullcalendar/common";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, Event, Header} from "@features/calendar";
+import {Otable} from "@features/table";
+
+const tableHead = [
+    {
+        id: "meure",
+        label: "Heure",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "Motif",
+        label: "Motif",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "durée",
+        label: "durée",
+        align: "left",
+        sortable: true,
+    },
+    {
+        id: "status",
+        label: "Statut",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        label: "Patient",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "agenda",
+        label: "Agenda",
+        align: "center",
+        sortable: true,
+    },
+    {
+        id: "action",
+        label: "Action",
+        align: "right",
+        sortable: false,
+    },
+];
 
 function Calendar({...props}) {
-    const {events: appointments, OnRangeChange} = props;
+    const {events: appointments, OnRangeChange, disabledSlots, t: translation} = props;
     const theme = useTheme();
     const {view} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>([]);
     const [date, setDate] = useState(moment().toDate());
 
     useEffect(() => {
@@ -43,6 +89,28 @@ function Calendar({...props}) {
 
     useEffect(() => {
         setEvents(appointments);
+        // this gives an object with dates as keys
+        const groups = appointments.reduce((groups: { [key: string]: Array<EventCalendarModel> },
+                                            data: EventCalendarModel) => {
+            const date = moment(data.time).format('DD-MM-YYYY');
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(data);
+            return groups;
+        }, {});
+
+        // Edit: to add it in the array format instead
+        const groupArrays = Object.keys(groups).map((date) => {
+            return {
+                date,
+                events: groups[date]
+            };
+        });
+        const sortedData = groupArrays
+            .slice()
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        setEventGroupByDay(sortedData);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -77,7 +145,18 @@ function Calendar({...props}) {
             <RootStyled>
                 <CalendarStyled>
                     {view === "listWeek" ? (
-                        <></>
+                        <Box className="container">
+                            <Otable
+                                headers={tableHead}
+                                rows={eventGroupByDay}
+                                state={null}
+                                from={"calendar"}
+                                t={translation}
+                                edit={null}
+                                handleConfig={null}
+                                handleChange={null}
+                            />
+                        </Box>
                     ) : (
                         <Box position="relative">
                             {(isGridWeek || view === "timeGridDay") && (
@@ -121,9 +200,14 @@ function Calendar({...props}) {
                                     view,
                                     event
                                 })}
+                                slotLabelClassNames={(day) => {
+                                    return moment(day.date).isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
+                                }}
+                                showNonCurrentDates={true}
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}
                                 initialDate={date}
+                                firstDay={1}
                                 initialView={view}
                                 dayMaxEventRows={3}
                                 eventDisplay="block"

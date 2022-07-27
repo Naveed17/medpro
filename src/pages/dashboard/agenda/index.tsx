@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
-import {Box} from "@mui/material";
+import {Box, LinearProgress} from "@mui/material";
 import {DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -33,6 +33,10 @@ function Agenda() {
         start: moment().startOf('week').subtract(1, "days").format('DD-MM-YYYY'),
         end: moment().endOf('week').subtract(1, "days").format('DD-MM-YYYY')
     })
+    const [disabledSlots, setDisabledSlots] = useState([{
+        start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
+        end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
+    }]);
     const loading = status === 'loading';
     const [date, setDate] = useState(new Date());
 
@@ -47,7 +51,7 @@ function Agenda() {
         }
     });
 
-    const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data.find((item: AgendaConfigurationModel) => item.isDefault) : undefined;
+    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault);
     const {
         httpAppointmentResponse,
         errorHttpAppointment,
@@ -62,7 +66,7 @@ function Agenda() {
 
 
     if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready || !httpAgendasResponse) return (<LoadingScreen/>);
+    if (!ready) return (<LoadingScreen/>);
 
     const appointments = (httpAppointmentResponse as HttpResponse)?.data as ConsultationReasonTypeModel[];
     const events: any = [];
@@ -77,6 +81,7 @@ function Agenda() {
             allDay: false,
             borderColor: "#E83B68",
             customRender: true,
+            motif: "true",
             description: "Unde a inventore et. Sed esse ut. Atque ducimus quibusdam fuga quas id qui fuga.",
             id: appointment.uuid,
             inProgress: false,
@@ -96,16 +101,7 @@ function Agenda() {
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, {revalidate: true, populateCache: true});
-    }
 
-    const handleOnClick = () => {
-        trigger({
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, {revalidate: false, populateCache: true});
     }
 
     return (
@@ -115,8 +111,11 @@ function Agenda() {
             </SubHeader>
             <Box>
                 <DesktopContainer>
-                    <Calendar {...{events, agenda}}
-                              OnRangeChange={handleOnRangeChange}/>
+                    <>
+                        {(!httpAgendasResponse || !httpAppointmentResponse) && <LinearProgress color="warning"/>}
+                        {httpAgendasResponse && <Calendar {...{events, agenda, disabledSlots, t}}
+                                                          OnRangeChange={handleOnRangeChange}/>}
+                    </>
                 </DesktopContainer>
                 <MobileContainer>
                     <div>mobile</div>
