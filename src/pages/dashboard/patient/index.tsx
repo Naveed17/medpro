@@ -26,11 +26,6 @@ import { onOpenDetails } from "@features/table";
 
 // ________________________________
 import { PatientdetailsCard } from "@features/card";
-import {
-  PersonalInfoPanel,
-  TabPanel,
-  DocumentsPanel,
-} from "@features/tabPanel";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
@@ -45,7 +40,14 @@ import { CustomStepper } from "@features/customStepper";
 // icons
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { AddRDVStep1, AddRDVStep2, AddPatientStep3 } from "@features/tabPanel";
+import {
+  AddRDVStep1,
+  AddRDVStep2,
+  AddPatientStep3,
+  PersonalInfoPanel,
+  TabPanel,
+  DocumentsPanel,
+} from "@features/tabPanel";
 
 const stepperData = [
   {
@@ -469,8 +471,6 @@ function Patient() {
             >
               <CustomStepper
                 currentIndex={0}
-                translationKey="patient"
-                prefixKey="add-patient"
                 stepperData={stepperData}
                 scroll
                 t={t}

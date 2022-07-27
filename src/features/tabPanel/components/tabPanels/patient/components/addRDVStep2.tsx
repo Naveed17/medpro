@@ -133,9 +133,11 @@ function AddRDVStep2({ ...props }) {
           </FormControl>
         </Stack>
         <Stack
-          alignItems="center"
           mt={1}
-          sx={{ flexDirection: { md: "row", xs: "column" } }}
+          sx={{
+            flexDirection: { md: "row", xs: "column" },
+            alignItems: { md: "center", xs: "left" },
+          }}
         >
           <FormGroup>
             <FormControlLabel
