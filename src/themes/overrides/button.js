@@ -161,6 +161,9 @@ export default function Button(theme) {
         {
           props: { variant: "contained", color: "warning" },
           style: {
+            path: {
+              fill: theme.palette.warning.contrastText,
+            },
             "&:hover": {
               boxShadow: theme.customShadows.warningButton,
               backgroundColor: theme.palette.warning.main,
@@ -371,7 +374,6 @@ export default function Button(theme) {
             color: theme.palette.text.primary,
             backgroundColor: theme.palette.common.white,
             border: `1px solid ${theme.palette.divider}`,
-
           },
         },
       ],

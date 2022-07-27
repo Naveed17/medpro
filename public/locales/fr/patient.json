@@ -49,7 +49,9 @@
     "sms-reminder": "SMS de rappel en ",
     "schedule": "Programmer un SMS de rappel pour le patient",
     "to": "à",
-    "day": "Jour"
+    "day": "Jour",
+    "added": "RDV ajouté",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
   },
 
   "config": {
@@ -63,7 +65,18 @@
       "advice": "Instruction / Conseil",
       "end": "Fin"
     },
-
+    "no-data": {
+      "documents": {
+        "title": "Ajouter votre premier rendez-vous",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "button-text": "Ajouter un RDV"
+      },
+      "group-table": {
+        "title": "Ajouter le premier document",
+        "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur 'Ajouter un document'",
+        "button-text": "Ajouter un document "
+      }
+    },
     "table": {
       "name": "Nom du patient",
       "telephone": "Téléphone",

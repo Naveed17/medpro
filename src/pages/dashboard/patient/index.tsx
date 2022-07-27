@@ -25,7 +25,7 @@ import { configSelector } from "@features/base";
 import { onOpenDetails } from "@features/table";
 
 // ________________________________
-import { PatientdetailsCard } from "@features/card";
+import { PatientdetailsCard, NoDataCard } from "@features/card";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
@@ -43,6 +43,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {
   AddRDVStep1,
   AddRDVStep2,
+  AddRDVStep3,
   AddPatientStep3,
   PersonalInfoPanel,
   TabPanel,
@@ -60,7 +61,7 @@ const stepperData = [
   },
   {
     title: "tabs.end",
-    children: AddPatientStep3,
+    children: AddRDVStep3,
   },
 ];
 
@@ -76,110 +77,116 @@ interface HeadCell {
 
 // data for patient details RDV
 const data: PatientDetailsRDV[] = [
-  {
-    title: "pending-appo",
-    pending: true,
-    data: [
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-        meeting: true,
-      },
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-
-        meeting: true,
-      },
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-
-        meeting: true,
-      },
-    ],
-  },
-  {
-    title: "old-appo",
-    pending: false,
-    data: [
-      {
-        title: "2021",
-        data: [
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-
-            meeting: true,
-          },
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-
-            meeting: true,
-          },
-        ],
-      },
-      {
-        title: "2020",
-        data: [
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   title: "pending-appo",
+  //   pending: true,
+  //   data: [
+  //     {
+  //       title: "John Doe",
+  //       start: new Date(2020, 4, 1, 10, 30),
+  //       end: new Date(2020, 4, 1, 11, 30),
+  //       allDay: false,
+  //       time: new Date(),
+  //       status: "pending",
+  //       borderColor: "#FBD400",
+  //       motif: "video-consultation",
+  //       meeting: true,
+  //     },
+  //     {
+  //       title: "John Doe",
+  //       start: new Date(2020, 4, 1, 10, 30),
+  //       end: new Date(2020, 4, 1, 11, 30),
+  //       allDay: false,
+  //       time: new Date(),
+  //       status: "pending",
+  //       borderColor: "#FBD400",
+  //       motif: "video-consultation",
+  //       meeting: true,
+  //     },
+  //     {
+  //       title: "John Doe",
+  //       start: new Date(2020, 4, 1, 10, 30),
+  //       end: new Date(2020, 4, 1, 11, 30),
+  //       allDay: false,
+  //       time: new Date(),
+  //       status: "pending",
+  //       borderColor: "#FBD400",
+  //       motif: "video-consultation",
+  //       meeting: true,
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "old-appo",
+  //   pending: false,
+  //   data: [
+  //     {
+  //       title: "2021",
+  //       data: [
+  //         {
+  //           title: "John Doe",
+  //           start: new Date(2020, 4, 1, 10, 30),
+  //           end: new Date(2020, 4, 1, 11, 30),
+  //           allDay: false,
+  //           time: moment().add(1, "days"),
+  //           status: "pending",
+  //           borderColor: "#FBD400",
+  //           motif: "video-consultation",
+  //           meeting: true,
+  //         },
+  //         {
+  //           title: "John Doe",
+  //           start: new Date(2020, 4, 1, 10, 30),
+  //           end: new Date(2020, 4, 1, 11, 30),
+  //           allDay: false,
+  //           time: moment().add(1, "days"),
+  //           status: "pending",
+  //           borderColor: "#FBD400",
+  //           motif: "video-consultation",
+  //           meeting: true,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       title: "2020",
+  //       data: [
+  //         {
+  //           title: "John Doe",
+  //           start: new Date(2020, 4, 1, 10, 30),
+  //           end: new Date(2020, 4, 1, 11, 30),
+  //           allDay: false,
+  //           time: moment().add(1, "days"),
+  //           status: "pending",
+  //           borderColor: "#FBD400",
+  //           motif: "video-consultation",
+  //           meeting: true,
+  //         },
+  //         {
+  //           title: "John Doe",
+  //           start: new Date(2020, 4, 1, 10, 30),
+  //           end: new Date(2020, 4, 1, 11, 30),
+  //           allDay: false,
+  //           time: moment().add(1, "days"),
+  //           status: "pending",
+  //           borderColor: "#FBD400",
+  //           motif: "video-consultation",
+  //           meeting: true,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
 ];
+
+// add patient details RDV for not data
+const AddAppointmentCardData = {
+  mainIcon: "ic-agenda-+",
+  title: "no-data.group-table.title",
+  description: "no-data.group-table.description",
+  buttonText: "no-data.group-table.button-text",
+  buttonIcon: "ic-agenda-+",
+  buttonVariant: "warning",
+};
 
 // Patient data for table body
 const PatiendData = [
@@ -406,12 +413,15 @@ function Patient() {
                   <PersonalInfoPanel />
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={1}>
-                  <GroupTable from="patient" data={data} />
+                  {data.length > 0 ? (
+                    <GroupTable from="patient" data={data} />
+                  ) : (
+                    <NoDataCard t={t} data={AddAppointmentCardData} />
+                  )}
                 </TabPanel>
                 <TabPanel padding={2} value={value} index={2}>
                   <DocumentsPanel />
                 </TabPanel>
-
                 <Paper
                   sx={{
                     borderRadius: 0,

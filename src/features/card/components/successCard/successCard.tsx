@@ -8,7 +8,7 @@ const RootStyle = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 function SuccessCard({ ...props }) {
-  const { t } = props;
+  const { title, description, icon, addPatient, addRDV } = props.data;
   return (
     <RootStyle
       justifyContent="center"
@@ -28,30 +28,32 @@ function SuccessCard({ ...props }) {
         />
       </Player>
       <Typography variant="h6" gutterBottom sx={{ my: 3 }}>
-        {t("added")}
+        {title}
       </Typography>
       <Typography
         variant="body1"
         textAlign={{ xs: "center", lg: "left" }}
         color="text.secondary"
       >
-        {t("description")}
+        {description}
       </Typography>
-      <Stack direction={{ lg: "row", xs: "column" }} spacing={2} mt={5}>
-        <Button variant="text-primary">{t("add-new")}</Button>
-        <Button
-          variant="contained"
-          color="warning"
-          sx={{
-            "& svg": {
-              "& path": { fill: (theme) => theme.palette.text.primary },
-            },
-          }}
-          startIcon={<Icon path="ic-agenda-+" />}
-        >
-          {t("add-appo")}
-        </Button>
-      </Stack>
+      {addPatient && addRDV && (
+        <Stack direction={{ lg: "row", xs: "column" }} spacing={2} mt={5}>
+          <Button variant="text-primary">{addPatient}</Button>
+          <Button
+            variant="contained"
+            color="warning"
+            sx={{
+              "& svg": {
+                "& path": { fill: (theme) => theme.palette.text.primary },
+              },
+            }}
+            startIcon={<Icon path={icon} />}
+          >
+            {addRDV}
+          </Button>
+        </Stack>
+      )}
     </RootStyle>
   );
 }
