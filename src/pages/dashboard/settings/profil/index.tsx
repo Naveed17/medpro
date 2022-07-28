@@ -25,8 +25,8 @@ import {Dialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@app/redux/hooks";
 import {checkListSelector} from "@features/checkList";
-import { useRouter } from 'next/router'
-import {useRequest} from "@app/axios";
+import {useRouter} from 'next/router'
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
@@ -45,6 +45,8 @@ function Profil() {
     const [name, setName] = useState<string>("");
     const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
+    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
+
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
     const qualif: QualificationModel[] = []
@@ -52,15 +54,24 @@ function Profil() {
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data, error} = useRequest({
+    const {data: httpMedicalProfessionalResponse, error: errorHttpMedicalProfessional} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+
+    const {data: httpAppointmentResponse, error: errorHttpAppointment, trigger, isMutating} = useRequestMutation(
+        {
+            method: "GET",
+            url: "/api/medical-entity/" + router.locale,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
+
+
     useEffect(() => {
-        if (data !== undefined) {
-            const infoData = (data as any).data[0];
+        if (httpMedicalProfessionalResponse !== undefined) {
+            const infoData = (httpMedicalProfessionalResponse as any).data[0];
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
             setLanguages(medical_professional.languages);
@@ -68,17 +79,21 @@ function Profil() {
             setLoading(false);
             setInsurances([]);
             setPaymentMeans([]);
-            infoData.qualification.map((qualification: QualificationModel) => {
-                Object.assign(qualification,{id: qualification.uuid})
-                qualif.push(qualification);
-            });
-            setQualifications([...qualif]);
-            setActs(infoData.acts)
+            setMedicalProfessionalUuid(medical_professional.uuid);
+            if (infoData !== undefined) {
+                infoData.qualification.map((qualification: QualificationModel) => {
+                    Object.assign(qualification, {id: qualification.uuid})
+                    qualif.push(qualification);
+                });
+                qualif.sort((a, b) => a.order - b.order);
+                setQualifications([...qualif]);
+                setActs(infoData.acts)
+            }
         }
-        if (error !== undefined) {
-            console.log(error)
+        if (errorHttpMedicalProfessional !== undefined) {
+            console.log(errorHttpMedicalProfessional)
         }
-    }, [data, error, user])
+    }, [httpMedicalProfessionalResponse, errorHttpMedicalProfessional, user])
 
     const [dialogContent, setDialogContent] = useState('');
     const {direction} = useAppSelector(configSelector);
@@ -95,15 +110,29 @@ function Profil() {
         switch (dialogContent) {
             case "qualification":
                 setQualifications(newQualification);
+                let qualifs = ""
+                newQualification.map(qualification => qualifs += qualification.uuid + ',');
+                qualifs = qualifs.substring(0, qualifs.length - 1);
+                console.log(newQualification);
+                editQualification(qualifs);
                 break;
             case "assurance":
+                let inscurances = "";
+                newAssurances.map(inscurance => inscurances += inscurance.uuid + ',');
+                inscurances = inscurances.substring(0, inscurances.length - 1);
+                editInscurance(inscurances)
                 setInsurances(newAssurances);
                 break;
             case "mode":
                 setPaymentMeans(newMode);
                 break;
             case "langues":
-                setLanguages(newLangues);
+                let languages = "";
+                newLangues.map(langue => languages += langue.uuid + ',');
+                languages = languages.substring(0, languages.length - 1);
+                editLanguages("521ccd62-5243-3b4f-9b04-0b34cc8cdab4");
+                console.log(newLangues)
+                //setLanguages(newLangues);
                 break;
             default:
                 break;
@@ -130,6 +159,39 @@ function Profil() {
         }
         setOpen(true);
     };
+
+    const editQualification = (qualif: string) => {
+        const form = new FormData();
+        form.append('qualifications', qualif);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/qualifications/' + router.locale,
+            data: form,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
+    }
+
+    const editInscurance = (inscurance: string) => {
+        const form = new FormData();
+        form.append('insurance', inscurance);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/professionals/insurance/' + router.locale,
+            data: form,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
+    }
+
+    const editLanguages = (languages: string) => {
+        const form = new FormData();
+        form.append('languages', languages);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/languages/' + router.locale,
+            data: form,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
+    }
 
     return (
         <>
@@ -288,7 +350,7 @@ function Profil() {
                                                             <Button key={language.language.code} variant="outlined"
                                                                     color="info"
                                                                     onClick={() => dialogOpen('langues')}>
-                                                                {language.language.name}
+                                                                {'language.language.name'}
                                                             </Button>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noLanguage')}

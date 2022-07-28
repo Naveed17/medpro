@@ -18,8 +18,6 @@ function QualificationDialog(info: any) {
 
     const [items, setItems] = useState<SortableItemProps[]>(info.data);
 
-    console.log(items);
-
     const dispatch = useAppDispatch();
 
     const handleDrop = useCallback(

@@ -253,7 +253,6 @@
     "tinsctruction": "Tapez içi votre instruction",
     "insctruction": "instruction",
     "add": "Ajouter instruction",
-
     "config": {
       "path": "Paramètres > Instructions",
       "add": "Ajouter instruction",
@@ -275,5 +274,16 @@
     "FRI": "Vendredi",
     "SUN": "Samedi",
     "SAT": "Dimanche"
+  },
+  "templates": {
+    "config": {
+      "path": "Paramètres > Personalisé la suivi du consultation",
+      "add": "Ajouter un modèle",
+      "table": {
+        "name": "Nom",
+        "active": "Active",
+        "action": "Action"
+      }
+    }
   }
 }
