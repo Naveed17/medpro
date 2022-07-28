@@ -25,7 +25,7 @@ const Calendar = dynamic(() => import('@features/calendar/components/Calendar'),
 function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
-    const {t, ready} = useTranslation('common');
+    const {t, ready} = useTranslation('agenda');
     const [
         timeRange,
         setTimeRange
@@ -104,10 +104,14 @@ function Agenda() {
 
     }
 
+    const handleOnToday = (event: React.EventHandler<any>) => {
+        console.log(event);
+    }
+
     return (
         <>
             <SubHeader>
-                <CalendarToolbar date={date}/>
+                <CalendarToolbar onToday={handleOnToday} date={date}/>
             </SubHeader>
             <Box>
                 <DesktopContainer>

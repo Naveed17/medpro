@@ -3,39 +3,38 @@ import React from "react";
 
 import TableCell from "@mui/material/TableCell";
 import {Typography, Box, Skeleton, Stack, Checkbox, IconButton, TableRow, Button} from "@mui/material";
-import Switch from "@mui/material/Switch";
 import IconUrl from "@themes/urlIcon";
-import {uniqueId} from "lodash";
-import {add, differenceInMinutes} from "date-fns";
+import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
+import {Theme} from "@mui/material/styles";
 
 function CalendarRow({...props}) {
     const {row, handleChange, handleConfig, edit, t} = props;
-    console.log(row);
     return (
         <>
-            <Typography variant="body1" color="text.primary" mt={2}>
-                {moment(row.date, "DD-MM-YYYY").isSame(moment().format("DD-MM-YYYY")) ? (
+            <Typography variant={"inherit"} component="tr" color="text.primary" pt={2}>
+                {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                     "Today"
-                ) : moment(row.date, "DD-MM-YYYY").isSame(moment().add(1,'days').format("DD-MM-YYYY")) ? (
+                ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
                     "Tomorrow"
                 ) : (
-                    <>
+                    <td>
                         {moment(row.date, "DD-MM-YYYY").format("MMMM")}{" "}
                         {moment(row.date, "DD-MM-YYYY").format("DD")}
-                    </>
+                    </td>
                 )}
             </Typography>
 
             {row.events.map((data: EventCalendarModel) => (
-                <TableRow
+                <TableRowStyled
                     key={data.id}
                     sx={{
-                        bgcolor: (theme) => theme.palette.background.paper,
+                        bgcolor: (theme: Theme) => theme.palette.background.paper,
                         "&:last-child td, &:last-child th": {borderWidth: 0},
                         "& .first-child": {
                             borderWidth: 0,
+                            width: "2rem"
                         },
                         "&:hover": {
                             "& .first-child": {
@@ -152,7 +151,7 @@ function CalendarRow({...props}) {
                             Voir détails
                         </Button>
                     </TableCell>
-                </TableRow>
+                </TableRowStyled>
             ))}
         </>
     );

@@ -25,46 +25,46 @@ import {Otable} from "@features/table";
 
 const tableHead = [
     {
-        id: "meure",
-        label: "Heure",
+        id: "heure",
+        label: "header.heure",
         align: "left",
-        sortable: true,
+        sortable: true
     },
     {
-        id: "Motif",
-        label: "Motif",
+        id: "motif",
+        label: "header.motif",
         align: "left",
-        sortable: true,
+        sortable: true
     },
     {
         id: "durée",
-        label: "durée",
+        label: "header.duree",
         align: "left",
-        sortable: true,
+        sortable: true
     },
     {
         id: "status",
-        label: "Statut",
+        label: "header.status",
         align: "center",
-        sortable: true,
+        sortable: true
     },
     {
         id: "patient",
-        label: "Patient",
+        label: "header.patient",
         align: "center",
-        sortable: true,
+        sortable: true
     },
     {
         id: "agenda",
-        label: "Agenda",
+        label: "header.agenda",
         align: "center",
-        sortable: true,
+        sortable: true
     },
     {
         id: "action",
-        label: "Action",
+        label: "header.action",
         align: "right",
-        sortable: false,
+        sortable: false
     },
 ];
 
@@ -92,7 +92,7 @@ function Calendar({...props}) {
         // this gives an object with dates as keys
         const groups = appointments.reduce((groups: { [key: string]: Array<EventCalendarModel> },
                                             data: EventCalendarModel) => {
-            const date = moment(data.time).format('DD-MM-YYYY');
+            const date = moment(data.time,"ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
             if (!groups[date]) {
                 groups[date] = [];
             }
@@ -109,8 +109,11 @@ function Calendar({...props}) {
         });
         const sortedData = groupArrays
             .slice()
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .reverse();
+
         setEventGroupByDay(sortedData);
+
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -149,12 +152,8 @@ function Calendar({...props}) {
                             <Otable
                                 headers={tableHead}
                                 rows={eventGroupByDay}
-                                state={null}
                                 from={"calendar"}
                                 t={translation}
-                                edit={null}
-                                handleConfig={null}
-                                handleChange={null}
                             />
                         </Box>
                     ) : (
@@ -201,7 +200,7 @@ function Calendar({...props}) {
                                     event
                                 })}
                                 slotLabelClassNames={(day) => {
-                                    return moment(day.date).isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
+                                    return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
