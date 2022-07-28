@@ -5,7 +5,6 @@ import {
     Box,
     Button,
     Hidden,
-    Icon,
     IconButton,
     Stack,
     SvgIcon,
@@ -26,6 +25,7 @@ import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, setView} from "@features/calendar";
+import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -43,9 +43,10 @@ CalendarToolbar.propTypes = {
 
 type CalendarToolbarProps = {
     date: Date
+    onToday: React.EventHandler<any>
 };
 
-function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
+function CalendarToolbar({date, onToday,...props}: CalendarToolbarProps) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {view} = useAppSelector(agendaSelector);
@@ -54,7 +55,8 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
         {value: "timeGridDay", label: "Day", icon: TodayIcon},
         {value: "timeGridWeek", label: "Week", icon: DayIcon},
         {value: "dayGridMonth", label: "Month", icon: WeekIcon},
-        {value: "listWeek", label: "Agenda", icon: GridIcon },
+        {value: "listWeek", label: "Agenda", icon: GridIcon},
+        {value: "export", label: "Export", icon: ExportEventIcon},
     ];
 
     const handleViewChagne = (view: string) => {
@@ -69,6 +71,7 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
             <Box>
                 <Hidden smDown>
                     <IconButton
+                        onClick={onToday}
                         aria-label="Calendar"
                         sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
                         <CalendarIcon/>
@@ -99,7 +102,7 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
                 <Stack direction="row" spacing={1.5}>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
-                                 onClick={() => handleViewChagne(viewOption.value)}
+                                 onClick={() => viewOption.value !== "export" && handleViewChagne(viewOption.value)}
                                  title={viewOption.label}>
                             <ToggleButtonStyled
                                 value="dayGridMonth"
@@ -107,7 +110,8 @@ function CalendarToolbar({date, ...props}: CalendarToolbarProps) {
                                     width: 37, height: 37, padding: 0, marginTop: '2px!important',
                                     ...(viewOption.value === view && {background: theme.palette.primary.main})
                                 }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20} htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary} />
+                                <SvgIcon component={viewOption.icon} width={20} height={20}
+                                         htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary}/>
                             </ToggleButtonStyled>
                         </Tooltip>
                     ))}
