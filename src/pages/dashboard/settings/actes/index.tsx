@@ -5,8 +5,8 @@ import {DashLayout} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import AddIcon from "@mui/icons-material/Add";
-import {Box, width} from "@mui/system";
-import {Avatar, Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
+import {Box} from "@mui/system";
+import {Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
@@ -66,19 +66,21 @@ function Actes() {
 
         if (httpProfessionalsResponse !== undefined) {
 
-            const spe ={};
-            setMainActes([]);
-            setSecondaryActes([]);
+            const professionalSpecialities = {};
             (httpProfessionalsResponse as any).data[0].medical_professional.specialities.map((speciality: any, index: number) => {
-                Object.assign(spe, {['specialities['+index+']']: speciality.speciality.uuid});
+                Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
 
-            setSpecialities(spe);
+            setSpecialities(professionalSpecialities);
             setIsProfil(true);
-            const infoData = (httpProfessionalsResponse as any).data[0];
-            infoData.acts.map((act: MedicalProfessionalActModel) => {
-                act.isTopAct ? setMainActes([...mainActes, act.act]) : setSecondaryActes([...secondaryActes, act.act]);
-            })
+            const acts = (httpProfessionalsResponse as any).data[0].acts;
+            let main: ActModel[] = [];
+            let secondary: ActModel[] = [];
+            acts.map((act: MedicalProfessionalActModel) => {
+                act.isTopAct ? main.push((act.act) as ActModel) : secondary.push(act.act);
+            });
+            setMainActes(main);
+            setSecondaryActes(secondary);
         }
     }, [httpProfessionalsResponse])
 
@@ -288,59 +290,60 @@ function Actes() {
                     <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
 
                         {
-                            loading?
-                            initalData.map((item, index) => (
-                                <Chip
-                                    key={index}
-                                    label={""}
-                                    color="default"
-                                    clickable
-                                    draggable="true"
-                                    avatar={<Skeleton width={90} sx={{ marginLeft: '16px !important'}} variant="text"/>}
-                                    deleteIcon={<AddIcon/>}
-                                    sx={{
-                                        bgcolor: "#E4E4E4",
-                                        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                        mb: 1,
-                                        mr: 1,
-                                        cursor: "move",
-                                        "&:active": {
-                                            boxShadow: "none",
-                                            outline: "none",
-                                        },
-                                        "& .MuiChip-deleteIcon": {
-                                            color: (theme) => theme.palette.text.primary,
-                                        },
-                                    }}
-                                />
-                            )):(suggestion as ActModel[]).map((v: ActModel) => (
-                            <Chip
-                                key={v.uuid}
-                                id={v.uuid}
-                                label={v.name}
-                                color="default"
-                                clickable
-                                draggable="true"
-                                onDragStart={onDrag(v)}
-                                onClick={onClickChip(v)}
-                                onDelete={onClickChip(v)}
-                                deleteIcon={<AddIcon/>}
-                                sx={{
-                                    bgcolor: "#E4E4E4",
-                                    filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                    mb: 1,
-                                    mr: 1,
-                                    cursor: "move",
-                                    "&:active": {
-                                        boxShadow: "none",
-                                        outline: "none",
-                                    },
-                                    "& .MuiChip-deleteIcon": {
-                                        color: (theme) => theme.palette.text.primary,
-                                    },
-                                }}
-                            />
-                        ))}
+                            loading ?
+                                initalData.map((item, index) => (
+                                    <Chip
+                                        key={index}
+                                        label={""}
+                                        color="default"
+                                        clickable
+                                        draggable="true"
+                                        avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
+                                                          variant="text"/>}
+                                        deleteIcon={<AddIcon/>}
+                                        sx={{
+                                            bgcolor: "#E4E4E4",
+                                            filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                            mb: 1,
+                                            mr: 1,
+                                            cursor: "move",
+                                            "&:active": {
+                                                boxShadow: "none",
+                                                outline: "none",
+                                            },
+                                            "& .MuiChip-deleteIcon": {
+                                                color: (theme) => theme.palette.text.primary,
+                                            },
+                                        }}
+                                    />
+                                )) : (suggestion as ActModel[]).map((v: ActModel) => (
+                                    <Chip
+                                        key={v.uuid}
+                                        id={v.uuid}
+                                        label={v.name}
+                                        color="default"
+                                        clickable
+                                        draggable="true"
+                                        onDragStart={onDrag(v)}
+                                        onClick={onClickChip(v)}
+                                        onDelete={onClickChip(v)}
+                                        deleteIcon={<AddIcon/>}
+                                        sx={{
+                                            bgcolor: "#E4E4E4",
+                                            filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                            mb: 1,
+                                            mr: 1,
+                                            cursor: "move",
+                                            "&:active": {
+                                                boxShadow: "none",
+                                                outline: "none",
+                                            },
+                                            "& .MuiChip-deleteIcon": {
+                                                color: (theme) => theme.palette.text.primary,
+                                            },
+                                        }}
+                                    />
+                                ))}
                     </Stack>
                 </Paper>
             </Box>
