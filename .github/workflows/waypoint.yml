@@ -1,0 +1,67 @@
+name: Waypoint
+
+on:
+  workflow_call:
+    inputs:
+      workspace:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      ingress:
+        required: false
+        type: string
+        default: '{class="nginx",target="medv2-stage-tn-ec1-ingress.med.ovh", zone="med.ovh"}'
+    secrets:
+      token:
+        required: true
+      encodedString:
+        required: true
+      WAYPOINT_SERVER_TOKEN:
+        required: true
+      WAYPOINT_SERVER_ADDR:
+        required: true
+      WAYPOINT_SERVER_TLS:
+        required: false
+      WAYPOINT_SERVER_TLS_SKIP_VERIFY:
+        required: false
+
+env:
+  WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
+  WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
+  WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
+  WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
+
+jobs:
+  waypoint_up:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: install waypoint
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install waypoint
+     
+      - name: System - setup KUBECONFIG
+        id: kubeconfig
+        uses: timheuer/base64-to-file@v1.1
+        with:
+          fileName: 'config'
+          encodedString: ${{ secrets.encodedString }}
+    
+      - name: Waypoint - up
+        env:
+          KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
+          WP_VAR_registry_auth_username: ${{ github.actor }}
+          WP_VAR_registry_auth_password: ${{ secrets.token }}
+          WP_VAR_registry_image_tag: ${{ inputs.tag }}
+        run: |
+          waypoint init -plain
+          waypoint up -plain \
+            -w ${{ inputs.workspace }}

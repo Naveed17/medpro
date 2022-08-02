@@ -1,6 +1,4 @@
-project = "med-pro-minikube"
-
-labels = { "tech" = "Nextjs" }
+project = "med-pro"
 
 variable "registry_image" {
   type    = string
@@ -32,7 +30,7 @@ variable "registry_secrets" {
 }
 
 variable "k8s_context" {
-  type = string
+  type    = string
   default = "default"
 }
 
@@ -46,9 +44,9 @@ labels = {
   "app.med.tn/part-of"    = "med-pro"
 }
 
-app "med-pro-minikube" {
+app "med-pro" {
 
-      url {
+  url {
     auto_hostname = false
   }
 
@@ -56,7 +54,7 @@ app "med-pro-minikube" {
     use "docker-pull" {
       image = "ghcr.io/smartmedsa/med-pro"
       tag   = "develop"
-      
+
       auth {
         username = var.registry_auth_username
         password = var.registry_auth_password
@@ -67,8 +65,8 @@ app "med-pro-minikube" {
         image = var.registry_image
         tag   = var.registry_image_tag
         auth {
-          username = var.auth_registry_username
-          password = var.auth_registry_password
+          username = var.registry_auth_username
+          password = var.registry_auth_password
         }
       }
     }
@@ -76,10 +74,30 @@ app "med-pro-minikube" {
 
   deploy {
     use "kubernetes" {
-      image_secret = var.auth_registry_password
+      image_secret = var.registry_secrets
       replicas     = 1
       probe_path   = "/"
       service_port = 3000
+    }
+  }
+
+  release {
+    use "kubernetes" {
+      context       = var.k8s_context
+      namespace     = var.k8s_namespace
+      load_balancer = false
+
+      ingress "http" {
+        annotations = {
+          # this is important, sets correct CNAME to the Cloudflare Tunnel record
+          "external-dns.alpha.kubernetes.io/target"             = var.ingress.target
+          "external-dns.alpha.kubernetes.io/cloudflare-proxied" = true
+        }
+
+        path_type = "Prefix"
+        path      = "/"
+        host      = "med-pro-${workspace.name}.${var.ingress.hostname}"
+      }
     }
   }
 }

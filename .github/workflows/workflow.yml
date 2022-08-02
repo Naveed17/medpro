@@ -12,7 +12,9 @@ on:
       - 'develop'
       - 'main'
     types: [ opened ,closed ,synchronize ,reopened ]
-
+env:
+  GITHUB_ACTOR: ${{ github.GITHUB_ACTOR }}
+  
 jobs:
   lowercase_name:
     runs-on: ubuntu-latest
@@ -24,7 +26,7 @@ jobs:
         with:
           string: ${{ github.repository }}
 
-  build-docker-image:
+  build:
     needs: lowercase_name
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
     uses: ./.github/workflows/build-docker-image-workflow.yml
@@ -35,7 +37,7 @@ jobs:
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
-  delete-docker-image:
+  delete:
     if: ((github.event.action == 'closed' || github.event.pull_request.merged == true))
     uses: ./.github/workflows/delete-docker-image-workflow.yml
     with:
@@ -44,3 +46,18 @@ jobs:
       TAG: pr-${{ github.event.number }}
     secrets:
       token: ${{ secrets.SMARTMEDBOT_PAT }}
+
+  deploy:
+    uses: ./.github/workflows/waypoint.yml
+    needs: build
+    with:
+      workspace: develop
+      tag: develop
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      encodedString:  ${{ secrets.MEDV2_STAGE_KUBE_CONFIG_B64 }}
+      WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
+      WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
+      WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
+      WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
+
