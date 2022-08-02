@@ -15,9 +15,9 @@ type Translate = {
 
 type accordionProps = {
   data: any;
-  badge: any;
+  badge?: any;
   translate: Translate;
-  defaultValue: string;
+  defaultValue?: string;
   children?: React.ReactNode;
 };
 

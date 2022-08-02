@@ -18,6 +18,7 @@ function OHead({ ...props }) {
     handleConfig,
     t,
     numSelected,
+    hideHeaderOnMobile,
     rowCount,
     onSelectAllClick,
   } = props;
@@ -30,7 +31,15 @@ function OHead({ ...props }) {
   };
 
   return (
-    <TableHead>
+    <TableHead
+      className={hideHeaderOnMobile ? "sm-none" : ""}
+      sx={{
+        display: {
+          md: "table-header-group",
+          xs: hideHeaderOnMobile ? "none" : "table-header-group",
+        },
+      }}
+    >
       <TableRow>
         {data.map((headCell: any) => (
           <React.Fragment key={headCell.id}>
@@ -108,7 +117,7 @@ function OHead({ ...props }) {
                 )}
                 {(headCell.id === "delay_min" ||
                   headCell.id === "delay_max" ||
-                  headCell.id === "active") && (
+                  headCell.id === "isEnabled") && (
                   <Switch
                     checked={Boolean(state[headCell.id])}
                     name={headCell.id}
@@ -116,7 +125,7 @@ function OHead({ ...props }) {
                       handleChange(e.target.value, headCell.id);
                     }}
                     inputProps={{ "aria-label": "controlled" }}
-                    sx={{ m: headCell.id === "active" ? "auto" : 0 }}
+                    sx={{ m: headCell.id === "isEnabled" ? "auto" : 0 }}
                   />
                 )}
               </TableCell>

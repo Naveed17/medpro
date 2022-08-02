@@ -9,8 +9,16 @@ import { configSelector, DashLayout } from "@features/base";
 import { Otable } from "@features/table";
 import { useAppSelector } from "@app/redux/hooks";
 import { HolidayDetails } from "@features/holidayDetails";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import moment from "moment";
 
 function Holidays() {
+
+    const { data: session } = useSession();
+    const {data: user} = session as Session;
+    console.log(user);
+
 
     const { direction } = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
@@ -18,7 +26,7 @@ function Holidays() {
         {
             id: 1,
             name: 'Congés',
-            start: 'Fri April 10',
+            start: moment().format('ddd MMM DD'),
             time_start: '14:30',
             end: 'Fri April 10',
             time_end: '14:30',
@@ -26,7 +34,7 @@ function Holidays() {
         },
     ]);
 
-    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays" });
+    const { t, ready } = useTranslation("settings", { keyPrefix: "holidays.config" });
     if (!ready) return (<>loading translations...</>);
     const headCells = [
         {

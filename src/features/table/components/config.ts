@@ -32,6 +32,15 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "patient-documents",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/patientDocumentRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+
+  {
     action: "waitingRoom",
     component: dynamic((): any =>
       import("@features/table/components/rows/waitingRoomRow").then(

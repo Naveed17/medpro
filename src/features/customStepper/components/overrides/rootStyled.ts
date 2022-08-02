@@ -9,7 +9,8 @@ const RootStyled = styled("div")(({ theme }) => ({
       justifyContent: "space-around",
     },
     button: {
-      borderBottom: `2px solid ${theme.palette.grey[400]}`,
+      borderBottom: `2px solid ${theme.palette.grey[200]}`,
+
       borderRadius: 0,
       transition: "all 0.3s ease-in-out",
       [theme.breakpoints.down("sm")]: {
@@ -18,16 +19,15 @@ const RootStyled = styled("div")(({ theme }) => ({
         fontSize: theme.typography.body2.fontSize,
       },
       "&.Mui-disabled": {
-        opacity: 0.3,
         borderBottomWidth: 1,
       },
       "&.Mui-selected": {
+        color: theme.palette.primary.main,
         borderBottom: "2px solid transparent",
       },
     },
   },
   '& div[role="tabpanel"]': {
-    // height: `calc(100vh - 55px)`,
     overflow: "auto",
   },
 }));

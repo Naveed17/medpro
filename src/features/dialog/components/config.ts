@@ -33,6 +33,14 @@ const dialogData = [
       )
     ),
   },
+  {
+    action: "remove",
+    component: dynamic((): any =>
+        import("@features/dialog/components/removeDialog/removeDialog").then(
+            (mod) => mod
+        )
+    ),
+  },
 ];
 
 export default dialogData;

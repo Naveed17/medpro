@@ -23,7 +23,7 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
             '& img': {
                 height: '23px',
                 marginLeft:4,
-                marginTop: 7,
+                //marginTop: 7,
             }
         },
     }
@@ -35,6 +35,7 @@ function ItemCheckbox({...props}) {
         setChecked(event.target.checked);
         props.onChange(event.target.checked);
     };
+
     return (
         <RootStyled key={props.id} component='label' htmlFor={props.data.name}>
             <Checkbox
@@ -44,13 +45,14 @@ function ItemCheckbox({...props}) {
                 id={props.data.name}
                 name={props.data.name}
             />
-            {(props.data.icon || props.data.img) &&
+            {
+                (props.data.icon || props.data.logoUrl) &&
                 <ListItemIcon>
                     {props.data?.icon && <IconUrl path={props.data?.icon}/>}
-                    {props.data?.img && <Box component="img" src={props.data?.img} alt={props.data?.name} />}
+                    {props.data?.logoUrl && <Box component="img" src={props.data?.logoUrl} alt={props.data?.name}/>}
                 </ListItemIcon>
             }
-            <ListItemText sx={{marginLeft:1}} primary={props.data.name} />
+            <ListItemText sx={{marginLeft:1}} primary={ props.data.name } />
         </RootStyled >
     )
 }

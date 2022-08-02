@@ -76,12 +76,14 @@ export const authOptions: NextAuthOptions = {
     // async signIn({ user, account, profile, email, credentials }) {
     //   return true
     // },
-    // async redirect({ url, baseUrl }) {
-    //   return baseUrl
-    // },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      return baseUrl;
+    },
     async session({ session, token, user }) {
       // Send properties to the client, like an access_token from a provider.
-      setAxiosToken(<string>token.accessToken);
       session.accessToken = token.accessToken;
       session.data = token.data as UserDataResponse;
       return session;
@@ -92,6 +94,7 @@ export const authOptions: NextAuthOptions = {
         // Send properties to the client, like an access_token from a provider.
         token.accessToken = account.access_token;
       }
+      setAxiosToken(<string>token.accessToken);
 
       const res = await requestAxios({
         url: "/api/private/users/fr",

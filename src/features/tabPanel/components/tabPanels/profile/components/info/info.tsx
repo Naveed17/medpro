@@ -18,7 +18,7 @@ import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/cropImage";
 import {InputStyled} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -38,8 +38,6 @@ interface MyFormProps {
 
 function Info({...props}) {
     const {onSubmit} = props;
-    console.log('Info', onSubmit);
-
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     const router = useRouter();

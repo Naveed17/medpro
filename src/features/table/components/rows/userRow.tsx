@@ -60,7 +60,7 @@ function UserRow({ ...props }) {
       <TableCell align="center">
         {row ?
           <Typography className='name' variant="body1" color="text.primary">
-            {row.access} {t('agenda')}
+            {row.access} {t('table.agenda')}
           </Typography>
           : <Skeleton variant="text" width={100} sx={{ m: 'auto' }} />}
       </TableCell>
@@ -73,7 +73,7 @@ function UserRow({ ...props }) {
               color="primary"
               startIcon={<IconUrl path="setting/edit" />}
               onClick={() => console.log("edit", row)}>
-              {t('update')}
+              {t('table.update')}
             </Button>
             <Button
               variant="text"
@@ -82,7 +82,7 @@ function UserRow({ ...props }) {
               startIcon={<IconUrl path="setting/icdelete" />}
               onClick={() => console.log("remove", row)}
               sx={{ mr: 1 }}>
-              {t('remove')}
+              {t('table.remove')}
             </Button>
           </Box>
           : <Stack direction="row" spacing={1} alignItems="center" justifyContent="flex-end">

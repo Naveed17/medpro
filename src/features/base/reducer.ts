@@ -13,7 +13,7 @@ export type themeState = {
 const initialState: themeState = {
     mode: 'light',
     direction: 'ltr',
-    locale: 'frFR',
+    locale: 'frFR'
 };
 
 export const ConfigReducer = createReducer(initialState, builder => {

@@ -1,224 +1,232 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { DashLayout } from "@features/base";
-import { Box, Button, Drawer } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { EditMotifDialog } from "@features/editMotifDialog";
-import { SubHeader } from "@features/subHeader";
-import { RootStyled } from "@features/toolbar";
-import { configSelector } from "@features/base";
-import { useAppSelector } from "@app/redux/hooks";
-import { Otable } from "@features/table";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useEffect, useState} from "react";
+import {DashLayout} from "@features/base";
+import {Box, Button, Drawer, Stack, Typography} from "@mui/material";
+import {useTranslation} from "next-i18next";
+import {EditMotifDialog} from "@features/editMotifDialog";
+import {SubHeader} from "@features/subHeader";
+import {configSelector} from "@features/base";
+import {useAppSelector} from "@app/redux/hooks";
+import {Otable} from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRequest} from "@app/axios";
+import {useRouter} from "next/router";
+import {useDateConverture} from "@app/hooks";
 
 function Motif() {
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      name: "Mal de tête",
-      color: "success",
-      agenda: 1,
-      duree: "10",
-      min: "1",
-      max: "3",
-      type: "Tous",
-      active: true,
-    },
-    {
-      id: 2,
-      name: "Motif x",
-      color: "primary",
-      agenda: 2,
-      duree: "20",
-      min: "2",
-      max: "2",
-      type: "Type2",
-      active: false,
-    },
-    {
-      id: 3,
-      name: "Vertiges",
-      color: "error",
-      agenda: 3,
-      duree: "30",
-      min: "3",
-      max: "1",
-      type: "Type3",
-      active: false,
-    },
-  ]);
-  const [edit, setEdit] = useState(false);
-  const [state, setState] = useState({
-    duration: false,
-    delay_min: false,
-    delay_max: true,
-    active: false,
-  });
-  const [selected, setSelected] = useState();
-  const { direction } = useAppSelector(configSelector);
 
-  const closeDraw = () => {
-    setEdit(false);
-  };
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const router = useRouter();
 
-  const { t, ready } = useTranslation("settings", {
-    keyPrefix: "motif.config",
-  });
-  if (!ready) return <>loading translations...</>;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-  const headCells = [
-    {
-      id: "name",
-      numeric: false,
-      disablePadding: true,
-      label: "name",
-      align: "left",
-      sortable: true,
-    },
-    {
-      id: "duration",
-      numeric: false,
-      disablePadding: false,
-      label: "duration",
-      align: "left",
-      sortable: false,
-    },
-    {
-      id: "delay_min",
-      numeric: false,
-      disablePadding: false,
-      label: "delay_min",
-      align: "left",
-      sortable: false,
-    },
-    {
-      id: "delay_max",
-      numeric: true,
-      disablePadding: false,
-      label: "delay_max",
-      align: "left",
-      sortable: false,
-    },
-    {
-      id: "agenda",
-      numeric: true,
-      disablePadding: false,
-      label: "agenda",
-      align: "center",
-      sortable: false,
-    },
-    {
-      id: "type",
-      numeric: false,
-      disablePadding: false,
-      label: "type",
-      align: "center",
-      sortable: true,
-    },
-    {
-      id: "active",
-      numeric: false,
-      disablePadding: false,
-      label: "active",
-      align: "center",
-      sortable: false,
-    },
-    {
-      id: "action",
-      numeric: false,
-      disablePadding: false,
-      label: "action",
-      align: "center",
-      sortable: false,
-    },
-  ];
+    const [rows, setRows] = useState<ConsultationReasonTypeModel[]>([]);
+    const [edit, setEdit] = useState(false);
+    const [state, setState] = useState({
+        duration: true,
+        delay_min: true,
+        delay_max: true,
+        isEnabled: true
+    });
+    const [selected, setSelected] = useState();
+    const {direction} = useAppSelector(configSelector);
+    const durations = useDateConverture(15, 240)
+    const delay = useDateConverture(1440, 21600)
 
-  const handleChange = (props: any, event: string, value: string) => {
-    switch (event) {
-      case "active":
-        props.active = !props.active;
-        if (!props.active) {
-          state.active = false;
-          setState({ ...state });
+    const {data, error} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    useEffect(() => {
+        if (data !== undefined) {
+            setRows((data as any).data);
         }
-        break;
-      case "duration":
-        props.duree = value;
-        break;
-      case "min":
-        props.min = value;
-        break;
-      case "max":
-        props.max = value;
-        break;
-      default:
-        break;
+    }, [data])
+
+    const closeDraw = () => {
+        setEdit(false);
     }
-    setRows([...rows]);
-  };
 
-  const handleConfig = (props: any, event: string) => {
-    // @ts-ignore
-    state[event] = !state[event];
-    if (event === "active") {
-      rows.map((row) => (row.active = state.active));
-      setRows([...rows]);
+    const { t, ready } = useTranslation(['settings', 'common'],{
+        keyPrefix: "motif.config",
+    });
+
+    if (!ready) return (<>loading translations...</>);
+
+    const headCells = [
+        {
+            id: 'name',
+            numeric: false,
+            disablePadding: true,
+            label: "name",
+            align: 'left',
+            sortable: true,
+        },
+        {
+            id: 'duration',
+            numeric: false,
+            disablePadding: false,
+            label: 'duration',
+            align: 'left',
+            sortable: false
+        },
+        {
+            id: 'delay_min',
+            numeric: false,
+            disablePadding: false,
+            label: 'delay_min',
+            align: 'left',
+            sortable: false
+        },
+        {
+            id: 'delay_max',
+            numeric: true,
+            disablePadding: false,
+            label: 'delay_max',
+            align: 'left',
+            sortable: false
+        },
+        {
+            id: 'agenda',
+            numeric: true,
+            disablePadding: false,
+            label: 'agenda',
+            align: 'center',
+            sortable: false
+        },
+        {
+            id: 'type',
+            numeric: false,
+            disablePadding: false,
+            label: 'type',
+            align: 'center',
+            sortable: true
+        },
+        {
+            id: 'isEnabled',
+            numeric: false,
+            disablePadding: false,
+            label: 'active',
+            align: 'center',
+            sortable: false
+        },
+        {
+            id: 'action',
+            numeric: false,
+            disablePadding: false,
+            label: 'action',
+            align: 'center',
+            sortable: false
+        },
+    ];
+
+    const handleChange = (props: any, event: string, value: string) => {
+        switch (event) {
+            case "active":
+                props.isEnabled = !props.isEnabled;
+                if (!props.isEnabled) {
+                    state.isEnabled = false;
+                    setState({...state});
+                }
+                break;
+            case "duration":
+                props.duration = value;
+                break;
+            case "min":
+                props.minimumDelay = value;
+                break;
+            case "max":
+                props.maximumDelay = value;
+                break;
+            default:
+                break
+        }
+        setRows([...rows]);
     }
-    setState({ ...state });
-  };
 
-  const editMotif = (props: any) => {
-    setEdit(true);
-    setSelected(props);
-  };
+    const handleConfig = (props: any, event: string) => {
+        // @ts-ignore
+        state[event] = !state[event];
+        if (event === 'isEnabled') {
+            rows.map(row => row.isEnabled = state.isEnabled);
+            setRows([...rows]);
+        }
+        setState({...state});
+    }
 
-  return (
-    <>
-      <SubHeader>
-        <RootStyled>
-          <p style={{ margin: 0 }}>{t('path')}</p>
-          <Button type='submit'
-            variant="contained"
-            onClick={() => { editMotif(null) }}
-            color="success">
-            {t('add')}
-          </Button>
-        </RootStyled>
-      </SubHeader>
-      <Box className="container">
-        <Otable headers={headCells}
-          rows={rows}
-          state={state}
-          from={'motif'}
-          t={t}
-          edit={editMotif}
-          handleConfig={handleConfig}
-          handleChange={handleChange} />
-        <Drawer
-          anchor={'right'}
-          open={edit}
-          dir={direction}
-          onClose={closeDraw}>
-          <EditMotifDialog data={selected} closeDraw={closeDraw} />
-        </Drawer>
-      </Box>
-    </>
-  )
+    const editMotif = (props: any) => {
+        setEdit(true)
+        setSelected(props);
+    }
+
+    return (
+        <>
+            <SubHeader>
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    width={1}
+                    alignItems="center">
+                    <Typography  color="text.primary">
+                        {t("path")}
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                            editMotif(null)
+                        }}
+                        sx={{ml: "auto"}}
+                    >
+                        {t("add")}
+                    </Button>
+                </Stack>
+            </SubHeader>
+            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                <Otable headers={headCells}
+                        rows={rows}
+                        state={state}
+                        from={'motif'}
+                        t={t}
+                        edit={editMotif}
+                        durations={durations}
+                        delay={delay}
+                        handleConfig={handleConfig}
+                        handleChange={handleChange}/>
+                <Drawer
+                    anchor={'right'}
+                    open={edit}
+                    dir={direction}
+                    onClose={closeDraw}>
+                    <EditMotifDialog data={selected}
+                                     durations={durations}
+                                     delay={delay}
+                                     closeDraw={closeDraw}/>
+                </Drawer>
+            </Box>
+        </>
+    )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "settings",
-    ])),
-  },
-});
-export default Motif;
+export const getStaticProps: GetStaticProps = async (context) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
+    }
+})
+export default Motif
 
 Motif.auth = true;
 
 Motif.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
-};
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
+}
