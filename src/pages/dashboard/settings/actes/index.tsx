@@ -11,7 +11,7 @@ import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
@@ -26,12 +26,15 @@ function Actes() {
     const [selected, setSelected] = useState<ActModel>();
     const [suggestion, setSuggestion] = useState<ActModel[]>([]);
     const [alert, setAlert] = useState<boolean>(false);
+    const [edit, setEdit] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [isProfil, setIsProfil] = useState<boolean>(false);
     const [secAlert, setSecAlert] = useState<boolean>(false);
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
     const router = useRouter();
+    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
+
     const initalData = Array.from(new Array(8));
 
     const {data: user} = session as Session;
@@ -43,8 +46,12 @@ function Actes() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const medical_professional = httpProfessionalsResponse ? (httpProfessionalsResponse as HttpResponse).data : undefined;
-
+    const {trigger} = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
 
     const {data, error} = useRequest(isProfil ? {
         method: "GET",
@@ -53,6 +60,20 @@ function Actes() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    useEffect(() => {
+        if (edit){
+            console.log(mainActes);
+            console.log(secondaryActes);
+            let top = ""; let secondary = ""
+            mainActes.map(ma => top += ma.uuid + ',');
+            secondaryActes.map(ms => secondary += ms.uuid + ',');
+            top = top.substring(0, top.length - 1);
+            secondary = secondary.substring(0, secondary.length - 1);
+            setEdit(false);
+            editActs(top,secondary);
+        }
+
+    }, [edit]);
 
     useEffect(() => {
         if (data !== undefined) {
@@ -73,6 +94,7 @@ function Actes() {
 
             setSpecialities(professionalSpecialities);
             setIsProfil(true);
+            setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0].medical_professional.uuid);
             const acts = (httpProfessionalsResponse as any).data[0].acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
@@ -92,6 +114,20 @@ function Actes() {
         }));
     }, [acts, mainActes, secondaryActes]);
 
+
+    const editActs = (topAct: string,secondaryAct:string) => {
+
+        const form = new FormData();
+        form.append('topAct', topAct)
+        form.append('secondaryAct', secondaryAct);
+        trigger({
+            method: "POST",
+            url: "/api/medical-entity/" + medical_entity.uuid +  "/professionals/" + medical_professional_uuid +'/acts/' + router.locale,
+            data: form,
+            headers: {ContentType: 'application/x-www-form-urlencoded', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
+    }
+
     const onDrop = (id: string, ev: any) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
         setSuggestion([...deleteSuggestion]);
@@ -102,6 +138,8 @@ function Actes() {
             setSuggestion([...deleteSuggestion]);
             setSecondaryActes([...secondaryActes, (selected as ActModel)]);
         }
+
+        setEdit(true);
     };
 
     const onDrag = (prop: any) => (ev: any) => {
@@ -122,6 +160,7 @@ function Actes() {
         } else {
             setSecondaryActes([...secondaryActes, prop]);
         }
+        setEdit(true);
     };
 
     const onChangeState = (
@@ -130,6 +169,7 @@ function Actes() {
         setItems: (arg0: any[]) => void
     ) => {
         setItems(val.slice(0, 10));
+        setEdit(true);
     };
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
@@ -348,7 +388,6 @@ function Actes() {
                 </Paper>
             </Box>
         </>
-
     );
 }
 
