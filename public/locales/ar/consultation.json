@@ -27,5 +27,22 @@
   "honclusion": "Conclusion",
   "patients file": "Dossier patient",
   "medical observation": "Observation médicale",
-  "documents": "Documents"
+  "documents": "Documents",
+  "consultationIP": {
+    "patient_history": "Historique du patient",
+    "mediktor_report": "Rapport Mediktor",
+    "consultation_form": "Fiche de consultation",
+    "medical_procedures": "Actes médicaux",
+    "end_of_consultation": "Fin de consultation",
+    "consultation": "Consultation",
+    "reason": "Motif",
+    "tracking_data": "Donnees de suivi",
+    "diagonistic": "Diagnostic",
+    "treatment_medication": "Traitement (médicament)",
+    "billan": "Billan",
+    "document": "Document",
+    "report": "Bilan",
+    "upload_document": "Télécharger un document",
+    "enter": "Saisie"
+  }
 }
