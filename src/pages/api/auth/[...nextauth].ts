@@ -116,7 +116,10 @@ export const authOptions: NextAuthOptions = {
   events: {},
 
   // Enable debug messages in the console if you are having problems
-  debug: false,
+  debug: process.env.DEBUG ? true : false,
+
+  // TODO: delete me.
+  useSecureCookies: false
 }
 
 export default NextAuth(authOptions)

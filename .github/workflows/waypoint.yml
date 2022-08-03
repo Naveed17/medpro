@@ -27,12 +27,6 @@ on:
       WAYPOINT_SERVER_TLS_SKIP_VERIFY:
         required: false
 
-env:
-  WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
-  WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
-  WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
-  WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
-
 jobs:
   waypoint_up:
     runs-on: ubuntu-latest
@@ -42,7 +36,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: install waypoint
+      - name: System - install waypoint
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
@@ -58,10 +52,16 @@ jobs:
       - name: Waypoint - up
         env:
           KUBECONFIG: ${{ steps.kubeconfig.outputs.filePath }}
+          WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
+          WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
+          WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
+          WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
           WP_VAR_registry_auth_username: ${{ github.actor }}
           WP_VAR_registry_auth_password: ${{ secrets.token }}
           WP_VAR_registry_image_tag: ${{ inputs.tag }}
+          WP_VAR_ingress: ${{ inputs.ingress }}
         run: |
           waypoint init -plain
           waypoint up -plain \
-            -w ${{ inputs.workspace }}
+            -workspace ${{ inputs.workspace }} \
+            -prune-retain=2

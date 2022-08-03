@@ -39,6 +39,15 @@ variable "k8s_namespace" {
   default = "default"
 }
 
+variable "ingress" {
+  description = "Ingress configuration to be used during deployment."
+  type = object({
+    class  = string
+    target = string
+    zone   = string
+  })
+}
+
 labels = {
   "app.med.tn/managed-by" = "Waypoint"
   "app.med.tn/part-of"    = "med-pro"
@@ -48,6 +57,9 @@ app "med-pro" {
 
   url {
     auto_hostname = false
+  }
+
+  config {
   }
 
   build {
@@ -96,7 +108,7 @@ app "med-pro" {
 
         path_type = "Prefix"
         path      = "/"
-        host      = "med-pro-${workspace.name}.${var.ingress.hostname}"
+        host      = "med-pro-${workspace.name}.${var.ingress.zone}"
       }
     }
   }
