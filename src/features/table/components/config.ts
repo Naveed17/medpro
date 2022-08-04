@@ -74,6 +74,14 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "CIP-medical-procedures",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/cIPMedicalProceduresRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;

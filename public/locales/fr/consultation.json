@@ -43,6 +43,16 @@
     "document": "Document",
     "report": "Bilan",
     "upload_document": "Télécharger un document",
-    "enter": "Saisie"
+    "enter": "Saisie",
+    "review": "Examan",
+    "reason_for_consultation": "Motif du consultation",
+    "check": "Contrôle",
+    "notes": "Notes",
+    "hint_text": "Texte d'indice",
+    "diagnosis": "Diagnostic",
+    "treatment": "Traitement",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "apply": "Appliquer"
   }
 }

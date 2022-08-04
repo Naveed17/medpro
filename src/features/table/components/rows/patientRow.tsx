@@ -13,7 +13,7 @@ function PatientRow({ ...props }) {
   return (
     <TableRowStyled
       hover
-      onClick={() => handleClick(row.name as string)}
+      onClick={() => handleClick(row.id as number)}
       role="checkbox"
       aria-checked={isItemSelected}
       tabIndex={-1}
