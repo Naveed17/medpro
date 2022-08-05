@@ -82,6 +82,14 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "CIP-next-appointment",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/cIPNextAppointRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;

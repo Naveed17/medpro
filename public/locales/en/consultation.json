@@ -53,6 +53,13 @@
     "treatment": "Traitement",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "apply": "Appliquer"
-  }
+    "apply": "Appliquer",
+    "next_appointment": "Prochain RDV"
+  },
+  "table": {
+    "acts": "Actes",
+    "default_amount": "Montant par défaut",
+    "amount": "Montant"
+  },
+  "total": "Total"
 }

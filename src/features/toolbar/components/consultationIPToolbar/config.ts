@@ -15,5 +15,9 @@ export const tabsData = [
     {
         label: "medical_procedures",
         value: 'medical procedures',
+    },
+    {
+        label: "next_appointment",
+        value: 'next appointment',
     }
 ]

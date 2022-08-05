@@ -1,11 +1,14 @@
 import TableCell from "@mui/material/TableCell";
 import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
+import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
 
-function PatientRow({ ...props }) {
+function cIPMedicalProceduresRow({ ...props }) {
   const { row, isItemSelected, handleClick, t } = props;
+  const theme = useTheme() as Theme;
   return (
     <TableRowStyled
+      className={'cip-medical-proce-row'}
       hover
       onClick={() => handleClick(row.id as number)}
       role="checkbox"
@@ -25,12 +28,44 @@ function PatientRow({ ...props }) {
         {row.acts}
       </TableCell>
       <TableCell>
-        {row.defaultAmount}
+        <Button sx={{
+          mr: 1,
+        }} size="small" variant="outlined" color="info">
+          {row.defaultAmount}
+        </Button>
+        TND
       </TableCell>
       <TableCell>
-        {row.amount}
+        {row.amount > 0 ? (
+          <>
+            <Button sx={{
+              backgroundColor: alpha(theme.palette.success.main, 0.1),
+              borderColor: theme.palette.divider,
+              color: theme.palette.text.primary,
+              mr: 1,
+            }} size="small" variant="outlined" color="success">
+              {row.amount}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              disabled
+              sx={{
+                backgroundColor: 'transparent !important',
+                borderColor: 'transparent',
+                color: theme.palette.text.primary + ' !important',
+                mr: 1,
+              }} size="small">
+              --
+            </Button>
+          </>
+
+
+        )}
+        TND
       </TableCell>
     </TableRowStyled>
   );
 }
-export default PatientRow;
+export default cIPMedicalProceduresRow;

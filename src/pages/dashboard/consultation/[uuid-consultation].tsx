@@ -3,14 +3,16 @@ import { GetStaticProps, GetStaticPaths } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
-import { Box, Stack, Grid } from "@mui/material";
+import { Box, Stack, Grid, Button, Typography } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
+import { SubFooter } from '@features/subFooter';
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
 import { motion, AnimatePresence } from 'framer-motion';
+import Icon from '@themes/urlIcon'
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -29,7 +31,7 @@ const variants = {
     animate: {
         opacity: 1,
         transition: {
-            delay: 0.5
+            delay: 0.1,
         }
     }
 };
@@ -63,8 +65,15 @@ const PatiendData = [
         acts: "consultation-1",
         defaultAmount: 200,
         amount: 200,
+    },
+    {
+        id: 3,
+        acts: "consultation-2",
+        defaultAmount: 200,
+        amount: 0,
     }
 ];
+
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -98,6 +107,81 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "amount",
         sortable: true,
+        align: "left",
+    },
+
+];
+const PatiendData2 = [
+    {
+        id: 1,
+        status: 'confirmed',
+        reson: 'control',
+        time: '10:00',
+        length: '30/02/2022',
+    },
+    {
+        id: 2,
+        status: 'confirmed',
+        reson: 'control',
+        time: '11:00',
+        length: '31/02/2022',
+    },
+];
+const headCells2: readonly HeadCell[] = [
+    {
+        id: "time",
+        numeric: false,
+        disablePadding: true,
+        label: "time",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "reason",
+        numeric: true,
+        disablePadding: false,
+        label: "reason",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "length",
+        numeric: true,
+        disablePadding: false,
+        label: "length",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "status",
+        numeric: true,
+        disablePadding: false,
+        label: "status",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "patient",
+        numeric: true,
+        disablePadding: false,
+        label: "patient",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "agenda",
+        numeric: true,
+        disablePadding: false,
+        label: "agenda",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "action",
+        numeric: true,
+        disablePadding: false,
+        label: "action",
+        sortable: false,
         align: "left",
     },
 
@@ -150,6 +234,33 @@ function ConsultationInProgress() {
                                 rows={PatiendData}
                                 state={null}
                                 from={"CIP-medical-procedures"}
+                                t={t}
+                                edit={null}
+                                handleConfig={null}
+                                handleChange={null}
+
+                            />
+                            <Button size='small' sx={{ '& .react-svg svg': { width: theme => theme.spacing(1.5), path: { fill: theme => theme.palette.primary.main } } }} startIcon={<Icon path="ic-plus" />}>Ajouter un nouveau acte</Button>
+                            <SubFooter>
+                                <Stack spacing={2} direction="row" alignItems="center" width={1} justifyContent="flex-end">
+                                    <Typography variant="subtitle1">
+                                        <span>{t('total')} : </span>
+                                    </Typography>
+                                    <Typography fontWeight={600} variant="h6">
+                                        90 TND
+                                    </Typography>
+                                </Stack>
+
+                            </SubFooter>
+                        </TabPanel>
+                    }
+                    {
+                        value === 4 &&
+                        <TabPanel index={4}>
+                            <Otable
+                                headers={headCells2}
+                                rows={PatiendData2}
+                                from={"CIP-next-appointment"}
                                 t={t}
                                 edit={null}
                                 handleConfig={null}
