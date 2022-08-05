@@ -8,6 +8,12 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "template",
+    component: dynamic((): any =>
+        import("@features/table/components/rows/templateRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "lieux",
     component: dynamic((): any =>
       import("@features/table/components/rows/lieuxRow").then((mod) => mod)

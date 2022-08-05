@@ -1,18 +1,34 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
-import { Typography, Card, CardContent, FormHelperText, Stack, Box, TextField, FormControl, Select, MenuItem, Grid, Button } from '@mui/material'
-import { styled, Theme } from '@mui/material/styles';
+import {useFormik, Form, FormikProvider} from "formik";
+import {
+    Typography,
+    Card,
+    CardContent,
+    FormHelperText,
+    Stack,
+    Box,
+    TextField,
+    FormControl,
+    Select,
+    MenuItem,
+    Button, Checkbox, Skeleton
+} from '@mui/material'
+import {styled} from '@mui/material/styles';
 import ListCheckbox from '@themes/overrides/ListCheckbox'
 import ThemeColorPicker from "@themes/overrides/ThemeColorPicker"
-import React from "react";
-import RadioTextImage from "@themes/overrides/RadioTextImage";
-import { useTranslation } from "next-i18next";
+import React, {useState} from "react";
+import {useTranslation} from "next-i18next";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
-const  PaperStyled = styled(Form)(({ theme }) => ({
+const PaperStyled = styled(Form)(({theme}) => ({
 
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     border: 'none',
+    minWidth: '650px',
     boxShadow: theme.customShadows.motifDialog,
     padding: theme.spacing(2),
     paddingBottom: theme.spacing(0),
@@ -38,14 +54,24 @@ const  PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function EditMotifDialog({ ...props }) {
+function EditMotifDialog({...props}) {
 
-    let doctors = [
-        { id: '1', name: 'Dr Anas LAOUINI', speciality: 'sexologist', img: '/static/img/men.png', selected: false },
-        { id: '2', name: 'Dr Omar LAOUINI', speciality: 'Gynecologist', img: '/static/img/men.png', selected: false },
-        { id: '3', name: 'Dr Anouar ABDELKAFI', speciality: 'ORL', img: '/static/img/men.png', selected: false },
-    ];
-    const { t, ready } = useTranslation('settings');
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const router = useRouter();
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const initalData = Array.from(new Array(20));
+    const [submit, setSubmit] = useState(false);
+
+
+    const {trigger} = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true})
+
+    const {t, ready} = useTranslation('settings');
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -54,41 +80,96 @@ function EditMotifDialog({ ...props }) {
             .required(t('users.new.nameReq'))
     });
 
+    const {data: typesHttpResponse, error: typesHttpError} = useRequest({
+        method: "GET",
+        url: "/api/public/consultation-reason-types/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
 
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
+    const agendas = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : [];
+    const types = typesHttpResponse ? (typesHttpResponse as HttpResponse).data : [];
+
+    let typesUiids: string[] = [];
+    console.log(props.data);
+    if (props.data) {
+        props.data.types.map((type: ConsultationReasonTypeModel) => typesUiids.push(type.uuid))
+    }
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-
             name: props.data ? props.data.name as string : "",
-            color: (theme: Theme) => theme.palette.primary.main,
+            color: props.data ? props.data.color as string : "#0696D6",
             duration: props.data ? props.data.duration : "",
             minimumDelay: props.data ? props.data.minimumDelay : "",
             maximumDelay: props.data ? props.data.maximumDelay : "",
-            typeOfMotif: {},
-            doctor: doctors
+            typeOfMotif: typesUiids,
+            agendas: props.data ? props.data.agenda : []
         },
         validationSchema,
+
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            alert(JSON.stringify(values, null, 2));
+            setSubmit(true);
+            if (values.typeOfMotif.length > 0) {
+                props.closeDraw()
+                const form = new FormData();
+                form.append('color', values.color);
+                form.append('translations', JSON.stringify({
+                    "fr": values.name,
+                }));
+                form.append('duration', values.duration);
+                let selectedTypes = "";
+                let selectedAgendas = "";
+                values.typeOfMotif.map((typ) => selectedTypes += typ + ',')
+                values.agendas.map((ang: string) => selectedAgendas += ang + ',')
+                form.append('type', selectedTypes.substring(0, selectedTypes.length - 1));
+                form.append('agendas', selectedAgendas.substring(0, selectedAgendas.length - 1));
+                form.append('delay_min', values.minimumDelay);
+                form.append('delay_max', values.maximumDelay);
+                form.append('is_enabled', props.data ? props.data.isEnabled : "true");
+                if (props.data) {
+                    trigger({
+                        method: "PUT",
+                        url: "/api/medical-entity/" + medical_entity.uuid + '/consultation-reasons/' + props.data.uuid + '/' + router.locale,
+                        data: form,
+                        headers: {
+                            ContentType: 'application/x-www-form-urlencoded',
+                            Authorization: `Bearer ${session?.accessToken}`
+                        }
+                    }, {revalidate: true, populateCache: true}).then(r => console.log('update motif', r))
+                } else {
+                    trigger({
+                        method: "POST",
+                        url: "/api/medical-entity/" + medical_entity.uuid + '/consultation-reasons/' + router.locale,
+                        data: form,
+                        headers: {
+                            ContentType: 'application/x-www-form-urlencoded',
+                            Authorization: `Bearer ${session?.accessToken}`
+                        }
+                    }, {revalidate: true, populateCache: true}).then(r => console.log('add motif', r))
+                }
+
+            }
         },
     });
+
     if (!ready) return (<>loading translations...</>);
 
-    const types = [
-        { id: 1, text: t('motif.dialog.enligne'), name: 'teleconsult' },
-        { id: 2, text: t('motif.dialog.cabinet'), name: 'cabinet' },
-        { id: 3, text: t('motif.dialog.domicile'), name: 'domicile' },
-        { id: 4, text: t('motif.dialog.pro'), name: 'professionnels' },
-    ]
-
-    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
+    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
 
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                noValidate
-                className='root'
-                onSubmit={handleSubmit}>
+                         noValidate
+                         className='root'
+                         onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
                     {props.data ? t('motif.dialog.update') : t('motif.dialog.add')}
@@ -107,10 +188,11 @@ function EditMotifDialog({ ...props }) {
                                             *
                                         </Typography>
                                     </Typography>
-                                    <ThemeColorPicker onSellectColor={(v: string) => setFieldValue('color', v)} />
+                                    <ThemeColorPicker color={values.color}
+                                                      onSellectColor={(v: string) => setFieldValue('color', v)}/>
 
                                     {touched.color && errors.color && (
-                                        <FormHelperText error sx={{ mx: 0 }}>
+                                        <FormHelperText error sx={{mx: 0}}>
                                             {Boolean(touched.color && errors.color)}
                                         </FormHelperText>
                                     )}
@@ -144,17 +226,10 @@ function EditMotifDialog({ ...props }) {
                                     {...getFieldProps("duration")}
                                     value={values.duration}
                                     displayEmpty={true}
-                                    sx={{color: "text.secondary"}}
-                                    /*
-                                     renderValue={(value) =>
-                                                              value?.length
-                                                                                ? Array.isArray(value)
-                                                                                    ? value.join(", ")
-                                                                                    : value
-                                                                                : t('motif.dialog.selectGroupe')
-                                                                        }
-                                                                        */
-                                >
+                                    sx={{color: "text.secondary"}}>
+                                    <MenuItem key={'0'} value={0}>
+                                        -
+                                    </MenuItem>
                                     {
                                         props.durations.map((duration: DurationModel) =>
                                             (<MenuItem key={duration.value} value={duration.value}>
@@ -163,7 +238,7 @@ function EditMotifDialog({ ...props }) {
                                     }
                                 </Select>
                             </FormControl>
-                            <Stack spacing={2} direction={{ xs: 'column', lg: 'row' }}>
+                            <Stack spacing={2} direction={{xs: 'column', lg: 'row'}}>
                                 <Box width={1}>
                                     <FormControl size="small" fullWidth>
                                         <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -175,15 +250,10 @@ function EditMotifDialog({ ...props }) {
                                             {...getFieldProps("minimumDelay")}
                                             value={values.minimumDelay}
                                             displayEmpty={true}
-                                            sx={{color: "text.secondary"}}
-                                           /* renderValue={(value) =>
-                                                value?.length
-                                                    ? Array.isArray(value)
-                                                        ? value.join(", ")
-                                                        : value
-                                                    : t('motif.dialog.selectGroupe')
-                                            }*/
-                                        >
+                                            sx={{color: "text.secondary"}}>
+                                            <MenuItem key={'0'} value={0}>
+                                                -
+                                            </MenuItem>
                                             {
                                                 props.delay.map((duration: DurationModel) =>
                                                     (<MenuItem key={duration.value} value={duration.value}>
@@ -192,7 +262,6 @@ function EditMotifDialog({ ...props }) {
                                             }
                                         </Select>
                                     </FormControl>
-
                                 </Box>
                                 <Box width={1}>
                                     <FormControl size="small" fullWidth>
@@ -205,15 +274,10 @@ function EditMotifDialog({ ...props }) {
                                             {...getFieldProps("maximumDelay")}
                                             value={values.maximumDelay}
                                             displayEmpty={true}
-                                            sx={{color: "text.secondary"}}
-                                            /*                                            renderValue={(value) =>
-                                                                                            value?.length
-                                                                                                ? Array.isArray(value)
-                                                                                                    ? value.join(", ")
-                                                                                                    : value
-                                                                                                : t('motif.dialog.selectGroupe')
-                                                                                        }*/
-                                        >
+                                            sx={{color: "text.secondary"}}>
+                                            <MenuItem key={'0'} value={0}>
+                                                -
+                                            </MenuItem>
                                             {
                                                 props.delay.map((duration: DurationModel) =>
                                                     (<MenuItem key={duration.value} value={duration.value}>
@@ -222,31 +286,61 @@ function EditMotifDialog({ ...props }) {
                                             }
                                         </Select>
                                     </FormControl>
-
                                 </Box>
                             </Stack>
                         </Stack>
                     </CardContent>
                 </Card>
                 <Box mt={2}>
-                    <Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
+                    <Typography variant="body1" color={values.typeOfMotif.length == 0 && submit ? 'error' : ''}
+                                fontWeight={400} margin={'16px 0'} gutterBottom>
                         {t('motif.dialog.type')}
+                        <Typography component="span" color="error">
+                            *
+                        </Typography>
                     </Typography>
+
                     <Card>
                         <CardContent>
-                            {types.map((item, index) => (
-                                <ListCheckbox key={index} data={item} onChange={(v: any) => {
-                                    setFieldValue('typeOfMotif', { ...values.typeOfMotif, [item.name]: v })
-                                }} />
-                            ))}
+                            {types.length === 0 ? initalData.map((item, index) => (
+                                    <Box key={index} sx={{display: 'flex', alignItems: 'center', margin: '0 5px'}}>
+                                        <Checkbox size="small"/>
+                                        <Skeleton width={180} variant="text"/>
+                                    </Box>
+                                )) :
+                                (types as ConsultationReasonModel[]).map((item, index) => (
+                                    <ListCheckbox key={index} data={item}
+                                                  checked={values.typeOfMotif.includes(item.uuid)}
+                                                  onChange={(v: any) => {
+                                                      const i = values.typeOfMotif.findIndex(typ => item.uuid === typ);
+                                                      setFieldValue('typeOfMotif', i < 0 ? [...values.typeOfMotif, item.uuid] : [...values.typeOfMotif.slice(0, i), ...values.typeOfMotif.slice(i + 1, values.typeOfMotif.length)]);
+                                                  }}/>
+                                ))
+                            }
                         </CardContent>
                     </Card>
                 </Box>
                 <Box mt={2}>
                     <Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
-                        {t('motif.dialog.medecin')}
+                        {t('motif.dialog.agenda')}
                     </Typography>
+
                     <Card>
+                        <CardContent>
+                            {
+                                (agendas as AgendaConfigurationModel[]).map((item, index) => (
+                                    <ListCheckbox key={index} data={item}
+                                                  checked={values.agendas.includes(item.uuid)}
+
+                                                  onChange={() => {
+                                                      const i = values.agendas.findIndex((ang: string) => item.uuid === ang);
+                                                      setFieldValue('agendas', i < 0 ? [...values.agendas, item.uuid] : [...values.agendas.slice(0, i), ...values.agendas.slice(i + 1, values.agendas.length)]);
+                                                  }}/>
+                                ))
+                            }
+                        </CardContent>
+                    </Card>
+                    {/*<Card>
                         <CardContent>
                             <Typography gutterBottom margin={'16px 0'}>{t('motif.dialog.selectCalander')}</Typography>
                             <Grid container spacing={2}>
@@ -257,7 +351,7 @@ function EditMotifDialog({ ...props }) {
                                             onChange={(v: any) => {
                                                 const newArr = values.doctor.map(obj => {
                                                     if (obj.id === v.id) {
-                                                        return { ...obj, selected: !v.selected };
+                                                        return {...obj, selected: !v.selected};
                                                     }
                                                     return obj;
                                                 });
@@ -269,7 +363,7 @@ function EditMotifDialog({ ...props }) {
                                 ))}
                             </Grid>
                         </CardContent>
-                    </Card>
+                    </Card>*/}
                 </Box>
 
                 <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>

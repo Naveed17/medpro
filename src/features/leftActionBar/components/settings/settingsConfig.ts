@@ -17,6 +17,11 @@ const settingsData = {
             href: "/dashboard/settings/motif",
         },
         {
+            name: "consultation",
+            icon: "setting/ic-edit-file",
+            href: "/dashboard/settings/patient-file-templates",
+        },
+        {
             name: "lieu",
             icon: "setting/ic-pin",
             href: "/dashboard/settings/places",
