@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -19,7 +19,6 @@ import {SubHeader} from "@features/subHeader";
 function Actes() {
 
     const {data: session} = useSession();
-
 
     const [mainActes, setMainActes] = useState<ActModel[]>([]);
     const [secondaryActes, setSecondaryActes] = useState<ActModel[]>([]);
@@ -60,20 +59,31 @@ function Actes() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    useEffect(() => {
-        if (edit){
-            console.log(mainActes);
-            console.log(secondaryActes);
-            let top = ""; let secondary = ""
-            mainActes.map(ma => top += ma.uuid + ',');
-            secondaryActes.map(ms => secondary += ms.uuid + ',');
-            top = top.substring(0, top.length - 1);
-            secondary = secondary.substring(0, secondary.length - 1);
-            setEdit(false);
-            editActs(top,secondary);
-        }
+    const getData = useCallback(() => {
+        let topAct = "";
+        let secondaryAct = ""
+        mainActes.map(ma => topAct += ma.uuid + ',');
+        secondaryActes.map(ms => secondaryAct += ms.uuid + ',');
+        topAct = topAct.substring(0, topAct.length - 1);
+        secondaryAct = secondaryAct.substring(0, secondaryAct.length - 1);
+        setEdit(false);
+        const form = new FormData();
+        form.append('topAct', topAct)
+        form.append('secondaryAct', secondaryAct);
+        trigger({
+            method: "POST",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/acts/' + router.locale,
+            data: form,
+            headers: {ContentType: 'application/x-www-form-urlencoded', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
 
-    }, [edit]);
+    }, [mainActes, medical_entity.uuid, medical_professional_uuid, router.locale, secondaryActes, session?.accessToken, trigger]);
+
+    useEffect(() => {
+        if (edit) {
+            getData();
+        }
+    }, [edit, getData]);
 
     useEffect(() => {
         if (data !== undefined) {
@@ -114,19 +124,6 @@ function Actes() {
         }));
     }, [acts, mainActes, secondaryActes]);
 
-
-    const editActs = (topAct: string,secondaryAct:string) => {
-
-        const form = new FormData();
-        form.append('topAct', topAct)
-        form.append('secondaryAct', secondaryAct);
-        trigger({
-            method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid +  "/professionals/" + medical_professional_uuid +'/acts/' + router.locale,
-            data: form,
-            headers: {ContentType: 'application/x-www-form-urlencoded', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
-    }
 
     const onDrop = (id: string, ev: any) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
