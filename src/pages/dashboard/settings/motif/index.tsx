@@ -43,7 +43,7 @@ function Motif() {
     const durations = useDateConverture(15, 240)
     const delay = useDateConverture(1440, 21600)
 
-    const {data, error} = useRequest({
+    const {data, error,mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -231,6 +231,7 @@ function Motif() {
                     <EditMotifDialog data={selected}
                                      durations={durations}
                                      delay={delay}
+                                     mutateEvent={mutate}
                                      closeDraw={closeDraw}/>
                 </Drawer>
             </Box>

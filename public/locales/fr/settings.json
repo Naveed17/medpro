@@ -284,6 +284,16 @@
         "name": "Nom",
         "active": "Active",
         "action": "Action"
+      },
+      "dialog": {
+        "title": "Modèle de suivi de consultation :",
+        "titleEdit": "Modifier un modèle de suivi de consultation",
+        "titleAdd": "Ajouter un modèle de suivi de consultation",
+        "selectColor": "Veuillez choisir une couleur",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "named": "Veuillez nommer le modèle",
+        "info": "Information du modèle"
       }
     }
   }
