@@ -56,6 +56,7 @@ const PaperStyled = styled(Form)(({theme}) => ({
 
 function EditMotifDialog({...props}) {
 
+    const {mutateEvent} = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const router = useRouter();
@@ -143,7 +144,7 @@ function EditMotifDialog({...props}) {
                             ContentType: 'application/x-www-form-urlencoded',
                             Authorization: `Bearer ${session?.accessToken}`
                         }
-                    }, {revalidate: true, populateCache: true}).then(r => console.log('update motif', r))
+                    }, {revalidate: true, populateCache: true}).then(r => mutateEvent())
                 } else {
                     trigger({
                         method: "POST",
@@ -153,9 +154,8 @@ function EditMotifDialog({...props}) {
                             ContentType: 'application/x-www-form-urlencoded',
                             Authorization: `Bearer ${session?.accessToken}`
                         }
-                    }, {revalidate: true, populateCache: true}).then(r => console.log('add motif', r))
+                    }, {revalidate: true, populateCache: true}).then(r => mutateEvent())
                 }
-
             }
         },
     });
