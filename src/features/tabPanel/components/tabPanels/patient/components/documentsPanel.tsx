@@ -12,11 +12,20 @@ import {
 import { useMediaQuery } from "@mui/material";
 
 //components
-import { PatientDetailsDocumentCard } from "@features/card";
+import { PatientDetailsDocumentCard, NoDataCard } from "@features/card";
 import { Otable } from "@features/table";
 import { uniqueId } from "lodash";
 
 const typeofDocs = ["report", "orders", "analysis", "prescription"];
+
+const AddAppointmentCardData = {
+  mainIcon: "ic-doc",
+  title: "no-data.documents.title",
+  description: "no-data.documents.description",
+  buttonText: "no-data.documents.button-text",
+  buttonIcon: "ic-doc",
+  buttonVariant: "primary",
+};
 
 // interface
 interface HeadCell {
@@ -64,61 +73,61 @@ const headCells: readonly HeadCell[] = [
 ];
 
 const rows: PatientDocuments[] = [
-  {
-    id: 1,
-    name: "Nom du document",
-    firstName: "Hassen",
-    lastName: "Marzouki",
-    img: null,
-    type: "ordonnances",
-    createdAt: "19 Mars 2021",
-    createdBy: "Interne",
-    specialist: null,
-  },
-  {
-    id: 2,
-    name: "Nom du document",
-    firstName: "Nadine",
-    lastName: "Marzouki",
-    img: null,
-    type: "analysis",
-    createdAt: "19 Mars 2021",
-    createdBy: "Interne",
-    specialist: null,
-  },
-  {
-    id: 3,
-    name: "Nom du document",
-    firstName: "Hassen",
-    lastName: "Marzouki",
-    img: null,
-    type: "orders",
-    createdAt: "19 Mars 2021",
-    createdBy: "Mohamed ALi",
-    specialist: null,
-  },
-  {
-    id: 4,
-    name: "Nom du document",
-    firstName: null,
-    lastName: null,
-    img: null,
-    type: "report",
-    createdAt: "19 Mars 2021",
-    createdBy: "Dr Salma BEN SALAH",
-    specialist: "Dermatologue",
-  },
-  {
-    id: 5,
-    name: "Nom du document",
-    firstName: "Hasssen",
-    lastName: "Marzouki",
-    img: null,
-    type: "prescription",
-    createdAt: "19 Mars 2021",
-    createdBy: "Interne",
-    specialist: null,
-  },
+  // {
+  //   id: 1,
+  //   name: "Nom du document",
+  //   firstName: "Hassen",
+  //   lastName: "Marzouki",
+  //   img: null,
+  //   type: "ordonnances",
+  //   createdAt: "19 Mars 2021",
+  //   createdBy: "Interne",
+  //   specialist: null,
+  // },
+  // {
+  //   id: 2,
+  //   name: "Nom du document",
+  //   firstName: "Nadine",
+  //   lastName: "Marzouki",
+  //   img: null,
+  //   type: "analysis",
+  //   createdAt: "19 Mars 2021",
+  //   createdBy: "Interne",
+  //   specialist: null,
+  // },
+  // {
+  //   id: 3,
+  //   name: "Nom du document",
+  //   firstName: "Hassen",
+  //   lastName: "Marzouki",
+  //   img: null,
+  //   type: "orders",
+  //   createdAt: "19 Mars 2021",
+  //   createdBy: "Mohamed ALi",
+  //   specialist: null,
+  // },
+  // {
+  //   id: 4,
+  //   name: "Nom du document",
+  //   firstName: null,
+  //   lastName: null,
+  //   img: null,
+  //   type: "report",
+  //   createdAt: "19 Mars 2021",
+  //   createdBy: "Dr Salma BEN SALAH",
+  //   specialist: "Dermatologue",
+  // },
+  // {
+  //   id: 5,
+  //   name: "Nom du document",
+  //   firstName: "Hasssen",
+  //   lastName: "Marzouki",
+  //   img: null,
+  //   type: "prescription",
+  //   createdAt: "19 Mars 2021",
+  //   createdBy: "Interne",
+  //   specialist: null,
+  // },
 ];
 function DocumentsPanel() {
   // filter checked array
@@ -160,71 +169,77 @@ function DocumentsPanel() {
   if (!ready) return <>loading translations...</>;
 
   return (
-    <Card
-      sx={{
-        tbody: {
-          mt: 1,
-        },
-      }}
-    >
-      <CardContent>
-        <Typography gutterBottom>{t("table.title")}</Typography>
-        {isMobile ? (
-          <PatientDetailsDocumentCard
-            data={["all", ...typeofDocs].map((item) => ({
-              lable: item,
-            }))}
-            onSellected={(v: string) =>
-              setChecked(
-                v === "all" ? rows : rows.filter((item) => item.type === v)
-              )
-            }
-          />
-        ) : (
-          <>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checked.length === rows.length}
-                  onChange={handleCheckAll}
-                />
-              }
-              label={t("table.all")}
-            />
-            {typeofDocs.map((type) => (
-              <FormControlLabel
-                key={uniqueId()}
-                control={
-                  <Checkbox
-                    checked={
-                      checked.length === rows.length
-                        ? false
-                        : checked.some((item) => item.type === type)
-                    }
-                    onChange={handleToggle(type)}
-                  />
+    <>
+      {rows.length > 0 ? (
+        <Card
+          sx={{
+            tbody: {
+              mt: 1,
+            },
+          }}
+        >
+          <CardContent>
+            <Typography gutterBottom>{t("table.title")}</Typography>
+            {isMobile ? (
+              <PatientDetailsDocumentCard
+                data={["all", ...typeofDocs].map((item) => ({
+                  lable: item,
+                }))}
+                onSellected={(v: string) =>
+                  setChecked(
+                    v === "all" ? rows : rows.filter((item) => item.type === v)
+                  )
                 }
-                label={t(`table.${type}`)}
               />
-            ))}
-          </>
-        )}
+            ) : (
+              <>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={checked.length === rows.length}
+                      onChange={handleCheckAll}
+                    />
+                  }
+                  label={t("table.all")}
+                />
+                {typeofDocs.map((type) => (
+                  <FormControlLabel
+                    key={uniqueId()}
+                    control={
+                      <Checkbox
+                        checked={
+                          checked.length === rows.length
+                            ? false
+                            : checked.some((item) => item.type === type)
+                        }
+                        onChange={handleToggle(type)}
+                      />
+                    }
+                    label={t(`table.${type}`)}
+                  />
+                ))}
+              </>
+            )}
 
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"patient-documents"}
-          t={t}
-          edit={null}
-          checkedType={checked}
-          handleConfig={null}
-          handleChange={null}
-          pagination
-          hideHeaderOnMobile
-        />
-      </CardContent>
-    </Card>
+            <Otable
+              headers={headCells}
+              rows={rows}
+              state={null}
+              from={"patient-documents"}
+              t={t}
+              edit={null}
+              checkedType={checked}
+              handleConfig={null}
+              handleChange={null}
+              pagination
+              hideHeaderOnMobile
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <NoDataCard t={t} data={AddAppointmentCardData} />
+      )}
+    </>
   );
 }
 export default DocumentsPanel;

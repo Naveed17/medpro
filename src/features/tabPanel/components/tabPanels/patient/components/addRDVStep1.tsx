@@ -158,21 +158,20 @@ function AddRDVStep1({ ...props }) {
         <Typography variant="body1" color="text.primary" mt={2} mb={1}>
           Selected meetings
         </Typography>
-        <PatientCardMobile
-          data={[
-            {
-              status: "warning",
-              date: "Fri April 10",
-              time: "14:20",
-            },
-            {
-              status: "warning",
-              date: "Fri April 10",
-              time: "14:20",
-            },
-          ]}
-          size="small"
-        />
+        {[
+          {
+            status: "warning",
+            date: "Fri April 10",
+            time: "14:20",
+          },
+          {
+            status: "warning",
+            date: "Fri April 10",
+            time: "14:20",
+          },
+        ].map((item) => (
+          <PatientCardMobile key={Math.random()} item={item} size="small" />
+        ))}
       </Box>
       <Paper
         sx={{

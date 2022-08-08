@@ -83,16 +83,16 @@ interface cardProps {
 }
 
 export default function MobileTable({ ...props }) {
-  const { data, size } = props;
+  const { item, size } = props;
   const theme = useTheme();
   const [openTooltip, setOpenTooltip] = useState(false);
 
-  return data?.map((v: cardProps, i: number) => (
-    <SettingTable key={Math.random()}>
+  return (
+    <SettingTable>
       <List className="patient-config-list">
         <ListItem
           disablePadding
-          className={v.status}
+          className={item.status}
           sx={{
             borderRadius:
               !size && size !== "small" ? "0px 10px 10px 0px" : "6px",
@@ -100,7 +100,7 @@ export default function MobileTable({ ...props }) {
         >
           <Box sx={{ mr: "4px" }}>
             <Typography variant="body1" color="text.primary">
-              {v.name}
+              {item.name}
             </Typography>
             {!size && size !== "small" && (
               <Typography
@@ -142,7 +142,7 @@ export default function MobileTable({ ...props }) {
                 component="span"
               >
                 <Icon path="ic-agenda" />
-                {v.date}
+                {item.date}
               </Typography>
               <Typography
                 sx={{
@@ -161,21 +161,21 @@ export default function MobileTable({ ...props }) {
                 component="span"
               >
                 <Icon path="ic-time" />
-                {v.time}
+                {item.time}
               </Typography>
             </Box>
           </Box>
           <Box>
             {/* {!size && size !== "small" ? (
-              <>
-                <IconButton variant="custom">
-                  <TuneRoundedIcon className="settings-icon" />
-                </IconButton>
-                <IconButton variant="custom" color="success">
-                  <CheckRoundedIcon className="check-icon" />
-                </IconButton>
-              </>
-            ) : ( */}
+                <>
+                  <IconButton variant="custom">
+                    <TuneRoundedIcon className="settings-icon" />
+                  </IconButton>
+                  <IconButton variant="custom" color="success">
+                    <CheckRoundedIcon className="check-icon" />
+                  </IconButton>
+                </>
+              ) : ( */}
             <div>
               <Popover
                 open={openTooltip}
@@ -200,5 +200,5 @@ export default function MobileTable({ ...props }) {
         </ListItem>
       </List>
     </SettingTable>
-  ));
+  );
 }
