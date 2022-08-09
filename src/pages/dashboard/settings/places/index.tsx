@@ -8,7 +8,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
@@ -33,11 +33,18 @@ function Lieux() {
     const [open, setOpen] = useState(false);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
 
-    const {data} = useRequest({
+    const {data, error, mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
+
+    const {trigger} = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true});
 
     const {direction} = useAppSelector(configSelector);
 
@@ -47,6 +54,9 @@ function Lieux() {
 
     const dialogSave = () => {
         setOpen(false);
+        trigger(selected.request, {revalidate: true, populateCache: true}).then((r: any) => {
+            mutate();
+        });
     }
 
     useEffect(() => {
@@ -63,7 +73,6 @@ function Lieux() {
             bounds.push((cord.address as any).location.point);
         });
         setOuterBounds(bounds);
-
         setCords([...actives]);
     }, [rows])
 
@@ -115,9 +124,26 @@ function Lieux() {
     };
 
     const handleChange = (props: any, event: string) => {
+        console.log(props);
         if (event == 'active') {
             props.isActive = !props.isActive;
             setRows([...rows]);
+
+            const form = new FormData();
+            form.append('attribute', JSON.stringify({attribute: 'is_active', value: props.isActive}));
+
+            trigger({
+                method: "PATCH",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + props.uuid,
+                headers: {
+                    ContentType: 'application/x-www-form-urlencoded',
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
+                data: form,
+
+            }, {revalidate: true, populateCache: true}).then((r) => {
+                console.log(r);
+            })
         } else if (event === 'remove') {
             setSelected({
                 title: t('askRemove'),
@@ -125,7 +151,15 @@ function Lieux() {
                 icon: "/static/icons/ic-pin.svg",
                 name1: props.address.location.name,
                 name2: props.address.street,
-                data: props
+                data: props,
+                request: {
+                    method: "DELETE",
+                    url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + props.uuid,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    },
+                }
             })
             setOpen(true);
         } else if (event === 'edit') {
@@ -154,8 +188,7 @@ function Lieux() {
                         onClick={() => {
                             router.push(`/dashboard/settings/places/new`);
                         }}
-                        sx={{ml: "auto"}}
-                    >
+                        sx={{ml: "auto"}}>
                         {t("add")}
                     </Button>
                 </Stack>
@@ -187,6 +220,7 @@ function Lieux() {
                                 <Button onClick={dialogClose}
                                         startIcon={<CloseIcon/>}>{t('cancel')}</Button>
                                 <Button variant="contained"
+
                                         sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                                         onClick={dialogSave}>{t('table.remove')}</Button>
                             </DialogActions>
