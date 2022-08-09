@@ -19,8 +19,7 @@ COPY --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
 COPY --chown=node:node . "${APP_ROOT}/"
 
 RUN set -xe; \
-  npm run lint -- --max-warnings=5; \
-  npm run build -- --no-lint
+    npm run build -- --no-lint
 
 FROM wodby/node:16 AS runner
 

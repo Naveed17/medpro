@@ -12,8 +12,6 @@ on:
       - 'develop'
       - 'main'
     types: [ opened ,closed ,synchronize ,reopened ]
-env:
-  GITHUB_ACTOR: ${{ github.GITHUB_ACTOR }}
   
 jobs:
   lowercase_name:
@@ -29,7 +27,7 @@ jobs:
   build:
     needs: lowercase_name
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
-    uses: ./.github/workflows/build-docker-image-workflow.yml
+    uses: ./.github/workflows/docker_build.yml
     with:
       REGISTRY: ghcr.io
       username: ${{ github.actor }}
@@ -39,7 +37,7 @@ jobs:
 
   delete:
     if: ((github.event.action == 'closed' || github.event.pull_request.merged == true))
-    uses: ./.github/workflows/delete-docker-image-workflow.yml
+    uses: ./.github/workflows/docker_delete.yml
     with:
       REGISTRY: ghcr.io
       username: ${{ github.actor }}
