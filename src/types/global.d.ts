@@ -28,6 +28,7 @@ declare module "@mui/material/Chip" {
 
 declare module "@mui/material" {
   interface Color {
+    0: number;
     "500_32": string;
     "500_16": string;
     A0: string;

@@ -54,12 +54,31 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "apply": "Appliquer",
-    "next_appointment": "Prochain RDV"
+    "next_appointment": "Prochain RDV",
+    "RDV": "RDV",
+    "vaccine": "Vaccin",
+    "draw_up_an_order": "Rediger ordonnace",
+    "write_mail": "Rediger courrier",
+    "balance_sheet_request": "Demande bilan",
+    "print_documents": "Imprimer documents"
   },
   "table": {
     "acts": "Actes",
     "default_amount": "Montant par défaut",
-    "amount": "Montant"
+    "amount": "Montant",
+    "time": "Heure",
+    "reason": "Motif",
+    "duration": "Durée",
+    "status": "Statut",
+    "patient": "Patient",
+    "agenda": "Agenda",
+    "action": "Action",
+    "confirmed": "Confirmé",
+    "reason_for_consultation": "Motif du consultation",
+    "check": "Contrôle",
+    "send_the_link": "Envoyer le lien du questionnaire",
+    "date_of_appointment": "Date du rendez-vous",
+    "see_details": "Voir détails"
   },
   "total": "Total"
 }

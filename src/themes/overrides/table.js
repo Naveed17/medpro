@@ -109,6 +109,7 @@ export default function Table(theme) {
             span: {
               display: "flex",
               alignItems: "center",
+              justifyContent: 'space-between',
             },
             div: {
               float: "right",

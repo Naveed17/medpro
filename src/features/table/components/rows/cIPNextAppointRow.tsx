@@ -3,10 +3,10 @@ import { Typography, Box, Stack, IconButton, Link, Button } from "@mui/material"
 import NextLink from 'next/link'
 import { Label } from "@features/label";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
-import { useTheme } from "@mui/material/styles";
+import { useTheme, Theme } from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import { TableRowStyled } from "@features/table";
-function cIPMedicalProceduresRow({ ...props }) {
+function CIPMedicalProceduresRow({ ...props }) {
   const theme = useTheme();
   const { row, t } = props;
   return (
@@ -23,7 +23,7 @@ function cIPMedicalProceduresRow({ ...props }) {
               {t("table." + row.status)}
             </Label>
             <Typography fontWeight={400}>
-              Motif de consultation
+              {t("table.reason_for_consultation")}
             </Typography>
             <Typography component={Stack} spacing={1} alignItems="center" direction="row">
               <FiberManualRecordIcon fontSize="small" color={row.reson === "control" ? "success" : 'primary'} />
@@ -31,13 +31,13 @@ function cIPMedicalProceduresRow({ ...props }) {
             </Typography>
             <NextLink href="/">
               <Link underline='none' sx={{ cursor: 'pointer' }}>
-                Envoyer le lien du questionnaire
+                {t("table.send_the_link")}
               </Link>
             </NextLink>
           </Stack>
           <Box>
             <Typography fontWeight={400}>
-              Date of appointment
+              {t("table.date_of_appointment")}
             </Typography>
             <Stack sx={{ '.react-svg svg': { width: theme.spacing(1.5), path: { fill: theme.palette.text.primary } } }} spacing={4} direction="row" alignItems='center'>
               <Stack spacing={0.5} direction="row" alignItems='center'>
@@ -55,7 +55,7 @@ function cIPMedicalProceduresRow({ ...props }) {
             </Stack>
           </Box>
           <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
-            <Button size="small">Voir détails</Button>
+            <Button size="small">{t('table.see_details')}</Button>
             <IconButton size="small">
               <Icon path='ic-duotone' />
             </IconButton>
@@ -65,4 +65,4 @@ function cIPMedicalProceduresRow({ ...props }) {
     </TableRowStyled>
   );
 }
-export default cIPMedicalProceduresRow;
+export default CIPMedicalProceduresRow;

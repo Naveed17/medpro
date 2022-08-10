@@ -64,7 +64,7 @@ function Otable({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: { name: string }) => n.name);
+      const newSelecteds = rows.map((n: { id: any }) => n.id);
       setSelected(newSelecteds);
       return;
     }
@@ -151,6 +151,7 @@ function Otable({ ...props }) {
                     checkedType={checkedType}
                     labelId={labelId}
                     data={rest}
+                    selected={selected}
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
                   />

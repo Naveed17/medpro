@@ -7,9 +7,10 @@ const ConsultationIPToolbarStyled = styled(Stack)(({ theme }) => ({
             color: theme.palette.primary.main + ' !important',
         }
     },
-    "& > .action-button": {
+    ".action-button": {
         marginLeft: 'auto',
         alignSelf: 'center',
+        backgroundColor: theme.palette.background.paper,
         '& .react-svg': {
             marginRight: theme.spacing(1),
             svg: {
@@ -17,7 +18,13 @@ const ConsultationIPToolbarStyled = styled(Stack)(({ theme }) => ({
                     fill: theme.palette.primary.main
                 }
             }
-        }
+        },
+        [theme.breakpoints.down('md')]: {
+            position: 'fixed',
+            bottom: 70,
+            right: 20,
+
+        },
     }
 
 }));

@@ -1,16 +1,18 @@
+import { useState, useEffect } from "react";
 import TableCell from "@mui/material/TableCell";
 import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
 import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
-
-function cIPMedicalProceduresRow({ ...props }) {
-  const { row, isItemSelected, handleClick, t } = props;
+function CIPMedicalProceduresRow({ ...props }) {
+  const { row, isItemSelected, handleClick, selected } = props;
   const theme = useTheme() as Theme;
   return (
     <TableRowStyled
       className={'cip-medical-proce-row'}
       hover
-      onClick={() => handleClick(row.id as number)}
+      onClick={() => {
+        return handleClick(row.id as number)
+      }}
       role="checkbox"
       aria-checked={isItemSelected}
       tabIndex={-1}
@@ -68,4 +70,4 @@ function cIPMedicalProceduresRow({ ...props }) {
     </TableRowStyled>
   );
 }
-export default cIPMedicalProceduresRow;
+export default CIPMedicalProceduresRow;
