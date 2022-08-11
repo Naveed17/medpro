@@ -1,9 +1,9 @@
 import React from 'react'
-import { ListItem, Checkbox, ListItemIcon, ListItemText, Box } from '@mui/material'
-import { styled } from '@mui/material/styles';
+import {ListItem, Checkbox, ListItemIcon, ListItemText, Box} from '@mui/material'
+import {styled} from '@mui/material/styles';
 import IconUrl from "@themes/urlIcon";
 
-const RootStyled = styled(ListItem)(({ theme, }) => {
+const RootStyled = styled(ListItem)(({theme,}) => {
     return {
         cursor: 'pointer',
         width: 'max-content',
@@ -31,7 +31,7 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
     }
 })
 export default function ListCheckbox(props) {
-    const { text, data, onChange, ...rest } = props
+    const {text, data, onChange, ...rest} = props
     const [checked, setChecked] = React.useState(false);
     const handleChange = (event) => {
         setChecked(event.target.checked);
@@ -41,17 +41,17 @@ export default function ListCheckbox(props) {
         <RootStyled component='label' htmlFor={data.name}>
             <Checkbox
                 size="small"
-                checked={checked}
+                checked={props.checked}
                 onChange={handleChange}
                 id={data.name}
                 name={data.name}/>
             {(data.icon || data.img) &&
                 <ListItemIcon>
-                    {data.icon && <IconUrl path={data.icon} />}
-                    {data?.img && <Box component="img" src={data?.img} alt={data?.text} />}
+                    {data.icon && <IconUrl path={data.icon}/>}
+                    {data?.img && <Box component="img" src={data?.img} alt={data?.text}/>}
                 </ListItemIcon>
             }
-            <ListItemText primary={data.text} />
-        </RootStyled >
+            <ListItemText primary={data.name}/>
+        </RootStyled>
     )
 }

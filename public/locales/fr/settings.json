@@ -4,6 +4,7 @@
     "profile": "Profil",
     "acts": "Actes",
     "motif": "Motif de consultation",
+    "consultation": "Personnalisé la consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "horaire": "Horaire",
@@ -78,13 +79,13 @@
       "pro": "Dédié au professionnels de santé",
       "info": "Information du motif",
       "nom": "Nom motif de consultation",
-      "type": "type du motif",
+      "type": "Type du motif ",
       "tapez": "Tapez le nom du motif",
       "duree": "Durée",
       "selectGroupe": "Sélectionner un groupe",
       "delaiMin": "Délai min",
       "delaiMax": "Délai max",
-      "medecin": "Médecin",
+      "agenda": "Agenda",
       "selectCalander": "Veuillez sélectionner les calendriers qui affectent ce motif de consultation",
       "cancel": "Annuler",
       "save": "Enregistrer"
@@ -253,7 +254,6 @@
     "tinsctruction": "Tapez içi votre instruction",
     "insctruction": "instruction",
     "add": "Ajouter instruction",
-
     "config": {
       "path": "Paramètres > Instructions",
       "add": "Ajouter instruction",
@@ -275,5 +275,26 @@
     "FRI": "Vendredi",
     "SUN": "Samedi",
     "SAT": "Dimanche"
+  },
+  "templates": {
+    "config": {
+      "path": "Paramètres > Personalisé la suivi du consultation",
+      "add": "Ajouter un modèle",
+      "table": {
+        "name": "Nom",
+        "active": "Active",
+        "action": "Action"
+      },
+      "dialog": {
+        "title": "Modèle de suivi de consultation :",
+        "titleEdit": "Modifier un modèle de suivi de consultation",
+        "titleAdd": "Ajouter un modèle de suivi de consultation",
+        "selectColor": "Veuillez choisir une couleur",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "named": "Veuillez nommer le modèle",
+        "info": "Information du modèle"
+      }
+    }
   }
 }

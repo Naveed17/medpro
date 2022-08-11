@@ -11,7 +11,7 @@ function Redirect({ to }: { to: string }) {
     const router = useRouter();
     useEffect(() => {
         router.push(to);
-    }, [to]);
+    }, [router, to]);
     return null;
 }
 function Settings() {

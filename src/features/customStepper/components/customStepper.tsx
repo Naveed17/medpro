@@ -6,16 +6,15 @@ import { RootStyled } from "@features/customStepper";
 import { useTranslation } from "next-i18next";
 import { TabPanel } from "@features/tabPanel";
 
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
 function CustomStepper({ ...props }) {
-  const {
-    stepperData,
-    translationKey,
-    prefixKey,
-    currentIndex,
-    minWidth,
-    scroll,
-    t,
-  } = props;
+  const { stepperData, currentIndex, minWidth, scroll, t } = props;
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
@@ -76,6 +75,7 @@ function CustomStepper({ ...props }) {
                     <b>{i + 1}.</b> {t(`${v.title}`)}
                   </Box>
                 }
+                {...a11yProps(i)}
               />
             )
           )}

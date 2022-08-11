@@ -40,7 +40,6 @@ export default function Table(theme) {
                 "&.text-row": {
                   backgroundColor: "transparent",
                   borderColor: "transparent",
-                  borderColor: "transparent",
                   "&:first-of-type": {
                     borderColor: "transparent",
                   },

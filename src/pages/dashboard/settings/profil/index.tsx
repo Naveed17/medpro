@@ -26,7 +26,7 @@ import { SubHeader } from "@features/subHeader";
 import { useAppSelector } from "@app/redux/hooks";
 import { checkListSelector } from "@features/checkList";
 import { useRouter } from 'next/router'
-import { useRequest } from "@app/axios";
+import { useRequest, useRequestMutation } from "@app/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
@@ -45,40 +45,51 @@ function Profil() {
     const [name, setName] = useState<string>("");
     const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
+    const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
+
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
-    const qualif: QualificationModel[] = []
 
     const { data: user } = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const { data, error } = useRequest({
+    const { data: httpMedicalProfessionalResponse, error: errorHttpMedicalProfessional } = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
         headers: { Authorization: `Bearer ${session?.accessToken}` }
     });
 
+
+    const { trigger } = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: { Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true })
+
+
     useEffect(() => {
-        if (data !== undefined) {
-            const infoData = (data as any).data[0];
+        if (httpMedicalProfessionalResponse !== undefined) {
+            const infoData = (httpMedicalProfessionalResponse as any).data[0];
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
             setName(medical_professional.publicName);
-            setLanguages(medical_professional.languages);
+            let lngs: LanguageModel[] = [];
+            medical_professional.languages.map(lang => lngs.push(lang.language))
+            setLanguages(lngs);
             setSpeciality(medical_professional.specialities.filter((spe: any) => spe.isMain)[0].speciality.name);
             setLoading(false);
-            setInsurances([]);
-            setPaymentMeans([]);
-            infoData.qualification.map((qualification: QualificationModel) => {
-                Object.assign(qualification, { id: qualification.uuid })
-                qualif.push(qualification);
-            });
-            setQualifications([...qualif]);
-            setActs(infoData.acts)
+            setMedicalProfessionalUuid(medical_professional.uuid);
+            if (infoData !== undefined) {
+                setInsurances(infoData.insurances);
+                setPaymentMeans(infoData.payments);
+                setQualifications(infoData.qualification);
+                setActs(infoData.acts)
+            }
         }
-        if (error !== undefined) {
-            console.log(error)
+        if (errorHttpMedicalProfessional !== undefined) {
+            console.log(errorHttpMedicalProfessional)
         }
-    }, [data, error, user])
+    }, [errorHttpMedicalProfessional, httpMedicalProfessionalResponse, user])
 
     const [dialogContent, setDialogContent] = useState('');
     const { direction } = useAppSelector(configSelector);
@@ -95,14 +106,30 @@ function Profil() {
         switch (dialogContent) {
             case "qualification":
                 setQualifications(newQualification);
+                let qualifs = ""
+                newQualification.map(qualification => qualifs += qualification.uuid + ',');
+                qualifs = qualifs.substring(0, qualifs.length - 1);
+                editQualification(qualifs);
                 break;
             case "assurance":
+                let inscurances = "";
+                newAssurances.map(inscurance => inscurances += inscurance.uuid + ',');
+                inscurances = inscurances.substring(0, inscurances.length - 1);
+                editInscurance(inscurances)
                 setInsurances(newAssurances);
                 break;
             case "mode":
+                let paymentMeans = "";
+                newMode.map(paymentMean => paymentMeans += paymentMean.uuid + ',');
+                paymentMeans = paymentMeans.substring(0, paymentMeans.length - 1);
+                editPaymentMeans(paymentMeans);
                 setPaymentMeans(newMode);
                 break;
             case "langues":
+                let languages = "";
+                newLangues.map(langue => languages += langue.uuid + ',');
+                languages = languages.substring(0, languages.length - 1);
+                editLanguages(languages);
                 setLanguages(newLangues);
                 break;
             default:
@@ -130,6 +157,50 @@ function Profil() {
         }
         setOpen(true);
     };
+
+    const editQualification = (qualif: string) => {
+        const form = new FormData();
+        form.append('qualifications', qualif);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/qualifications/' + router.locale,
+            data: form,
+            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit qualification', r))
+    }
+
+    const editInscurance = (inscurance: string) => {
+        const form = new FormData();
+        form.append('insurance', inscurance);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/professionals/insurance/' + router.locale,
+            data: form,
+            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit insurance', r))
+    }
+
+    const editLanguages = (languages: string) => {
+        const form = new FormData();
+        form.append('languages', languages);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/languages/' + router.locale,
+            data: form,
+            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit languages', r))
+    }
+
+    const editPaymentMeans = (paymentMeans: string) => {
+        const form = new FormData();
+        form.append('paymentMeans', paymentMeans);
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/paymentMeans/" + router.locale,
+            data: form,
+            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit payment mean', r))
+    }
 
     return (
         <>
@@ -285,10 +356,10 @@ function Profil() {
                                                     )) :
                                                     languages.length > 0 ?
                                                         languages.map((language: any) => (
-                                                            <Button key={language.language.code} variant="outlined"
+                                                            <Button key={language.code} variant="outlined"
                                                                 color="info"
                                                                 onClick={() => dialogOpen('langues')}>
-                                                                {language.language.name}
+                                                                {language.name}
                                                             </Button>
                                                         )) : <Typography color={"gray"} fontWeight={400}>
                                                             {t('profil.noLanguage')}

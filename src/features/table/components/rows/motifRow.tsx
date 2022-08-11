@@ -1,27 +1,48 @@
 import React from 'react'
 import Switch from '@mui/material/Switch';
 import TableCell from '@mui/material/TableCell';
-import {IconButton, Typography, FormControl, Select, MenuItem, Skeleton} from '@mui/material';
+import {IconButton, Typography, FormControl, Select, MenuItem, Skeleton, Box} from '@mui/material';
 import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table"
 import {uniqueId} from 'lodash'
 import {useTranslation} from "next-i18next";
+import {useTheme} from "@mui/material/styles";
 
 function MotifRow({...props}) {
 
     const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
     const durations: DurationModel[] = data.durations;
     const delay: DurationModel[] = data.delay;
-
+    const theme = useTheme();
     const {t, ready} = useTranslation('common');
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ?
-                    <Typography className='name' variant="body1" color="text.primary">
-                        {row.name}
-                    </Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center'
+                        }}>
+                        <div style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: 30,
+                            backgroundColor: row.color
+                        }}></div>
+                        <Box sx={{
+                            width: 4,
+                            height: 37,
+                            margin: '0 7px',
+                            backgroundColor: row.color
+                        }}></Box>
+                        <Typography variant="body1" color="text.primary">
+                            {row.name}
+                        </Typography>
+                    </Box>
+
                     : <Skeleton variant="text" width={100}/>}
             </TableCell>
             <TableCell>
@@ -61,6 +82,9 @@ function MotifRow({...props}) {
                             }}
                             name="minimumDelay"
                             sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_min'] ? 1 : 0})}}>
+                            <MenuItem key={''} value={'0'}>
+
+                            </MenuItem>
                             {
                                 delay.map((duration) =>
                                     (<MenuItem key={duration.value} value={duration.value}>
@@ -83,6 +107,9 @@ function MotifRow({...props}) {
                             }}
                             name="maximumDelay"
                             sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_max'] ? 1 : 0})}}>
+                            <MenuItem key={''} value={'0'}>
+
+                            </MenuItem>
                             {
                                 delay.map((duration) =>
                                     (<MenuItem key={duration.value} value={duration.value}>
@@ -101,7 +128,7 @@ function MotifRow({...props}) {
                             backgroundColor: (theme: { palette: { grey: any[]; }; }) => theme.palette.grey[300],
                             px: 1.5
                         }}>
-                        {row.agenda}
+                        {row.agenda.length}
                     </Lable>
                     : <Skeleton variant="circular" width={30} height={30} sx={{m: 'auto'}}/>}
             </TableCell>

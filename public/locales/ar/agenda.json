@@ -25,5 +25,24 @@
     "no_show": "المريض لم ياتي",
     "cancel_patient": "ألغى من المريض",
     "note": "ملحوظات"
+  },
+  "table": {
+    "header": {
+      "heure": "الساعة",
+      "motif": "السبب",
+      "duree": "المدة",
+      "status": "الحالة",
+      "patient": "المريض",
+      "agenda": "الجدول",
+      "action": "تصرف"
+    },
+    "body": {
+      "add-appointment": "Add appointment",
+      "edit": "Edit",
+      "see-card": "See card"
+    },
+    "pagination": {
+      "of": "of"
+    }
   }
 }
