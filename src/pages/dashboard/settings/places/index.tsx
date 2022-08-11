@@ -16,6 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@app/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -31,9 +32,10 @@ function Lieux() {
     const [selected, setSelected] = useState<any>();
     const [cords, setCords] = useState<any[]>([]);
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
 
-    const {data, error, mutate} = useRequest({
+    const {data, mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -53,9 +55,13 @@ function Lieux() {
     };
 
     const dialogSave = () => {
-        setOpen(false);
-        trigger(selected.request, {revalidate: true, populateCache: true}).then((r: any) => {
-            mutate();
+        setLoading(true);
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(r => {
+                setOpen(false);
+                setLoading(false);
+                console.log('place removed successfully', r);
+            });
         });
     }
 
@@ -124,7 +130,6 @@ function Lieux() {
     };
 
     const handleChange = (props: any, event: string) => {
-        console.log(props);
         if (event == 'active') {
             props.isActive = !props.isActive;
             setRows([...rows]);
@@ -163,11 +168,9 @@ function Lieux() {
             })
             setOpen(true);
         } else if (event === 'edit') {
-            console.log(props)
             router.push({
                 pathname: `/dashboard/settings/places/${props.uuid}`,
-                // query: props
-            });
+            }).then(()=>{});
         }
     };
 
@@ -186,7 +189,7 @@ function Lieux() {
                         variant="contained"
                         color="success"
                         onClick={() => {
-                            router.push(`/dashboard/settings/places/new`);
+                            router.push(`/dashboard/settings/places/new`).then(()=>{});
                         }}
                         sx={{ml: "auto"}}>
                         {t("add")}
@@ -219,10 +222,10 @@ function Lieux() {
                             <DialogActions>
                                 <Button onClick={dialogClose}
                                         startIcon={<CloseIcon/>}>{t('cancel')}</Button>
-                                <Button variant="contained"
-
-                                        sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                        onClick={dialogSave}>{t('table.remove')}</Button>
+                                <LoadingButton variant="contained"
+                                               loading={loading}
+                                               sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                               onClick={dialogSave}>{t('table.remove')}</LoadingButton>
                             </DialogActions>
                         }
                 />
