@@ -151,9 +151,6 @@ function PlacesDetail() {
     useEffect(() => {
         if (row !== undefined) {
             setHoraires(row.openingHours)
-            formik.setFieldValue('name', row.name);
-            formik.setFieldValue('address', row.address.street);
-            formik.setFieldValue('postalCode', row.address.postalCode);
             setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}])
         }
@@ -162,9 +159,9 @@ function PlacesDetail() {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: '',
-            address: '',
-            postalCode: '',
+            name: row ? (row.name) as string : '',
+            address: row ? (row.address.street) as string : '',
+            postalCode: row ? row.address.postalCode : '',
             town: '',
             phone: [
                 {
@@ -198,38 +195,41 @@ function PlacesDetail() {
 
     if (!ready) return (<>loading translations...</>);
 
-    const headCells = [
-        {
-            id: 'name',
-            numeric: false,
-            disablePadding: true,
-            label: t('lieux.new.user'),
-            align: 'left',
-            sortable: true,
-        },
-        {
-            id: 'access',
-            numeric: false,
-            disablePadding: true,
-            label: t('lieux.new.userPermission'),
-            align: 'left',
-            sortable: false,
+    /*
+        // access array not exit in backend
+        const headCells = [
+            {
+                id: 'name',
+                numeric: false,
+                disablePadding: true,
+                label: t('lieux.new.user'),
+                align: 'left',
+                sortable: true,
+            },
+            {
+                id: 'access',
+                numeric: false,
+                disablePadding: true,
+                label: t('lieux.new.userPermission'),
+                align: 'left',
+                sortable: false,
+            }
+        ];
+
+        const editPlaces = (props: any) => {
+            console.log('edit', props);
         }
-    ];
+        const handleConfig = (props: any, event: string) => {
+            console.log('handleConfig', event);
+        }
 
-    const editPlaces = (props: any) => {
-        console.log('edit', props);
-    }
-    const handleConfig = (props: any, event: string) => {
-        console.log('handleConfig', event);
-    }
 
-    const handleChange = (props: any, event: any) => {
-        props.access = event.target.value
-        rows.filter(row => row.id === props.id)[0].access = event.target.value
-        setRows([...rows])
-    }
-
+        const handleChange = (props: any, event: any) => {
+            props.access = event.target.value
+            rows.filter(row => row.id === props.id)[0].access = event.target.value
+            setRows([...rows])
+        }
+    */
     const handleAddPhone = () => {
         const phones = [...values.phone, {
             countryCode: '',

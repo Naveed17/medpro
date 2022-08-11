@@ -11,7 +11,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {Otable} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useDateConverture} from "@app/hooks";
 
@@ -21,9 +21,16 @@ function Motif() {
     const {data: user} = session as Session;
     const router = useRouter();
 
+    const {trigger} = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true});
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const [rows, setRows] = useState<ConsultationReasonTypeModel[]>([]);
+    const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [edit, setEdit] = useState(false);
     const [state, setState] = useState({
         duration: true,
@@ -36,7 +43,7 @@ function Motif() {
     const durations = useDateConverture(15, 240)
     const delay = useDateConverture(1440, 21600)
 
-    const {data, error} = useRequest({
+    const {data, error,mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -52,7 +59,7 @@ function Motif() {
         setEdit(false);
     }
 
-    const { t, ready } = useTranslation(['settings', 'common'],{
+    const {t, ready} = useTranslation(['settings', 'common'], {
         keyPrefix: "motif.config",
     });
 
@@ -126,6 +133,8 @@ function Motif() {
     ];
 
     const handleChange = (props: any, event: string, value: string) => {
+        const form = new FormData();
+
         switch (event) {
             case "active":
                 props.isEnabled = !props.isEnabled;
@@ -133,19 +142,34 @@ function Motif() {
                     state.isEnabled = false;
                     setState({...state});
                 }
+                form.append('attribute', JSON.stringify({attribute: 'isEnable', value: props.isEnabled}));
                 break;
             case "duration":
                 props.duration = value;
+                form.append('attribute', JSON.stringify({attribute: 'duration', value}));
                 break;
             case "min":
                 props.minimumDelay = value;
+                form.append('attribute', JSON.stringify({attribute: 'minimumDelay', value}));
                 break;
             case "max":
                 props.maximumDelay = value;
+                form.append('attribute', JSON.stringify({attribute: 'maximumDelay', value}));
                 break;
             default:
                 break
         }
+
+        trigger({
+            method: "PATCH",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/consultation-reasons/' + props.uuid + '/' + router.locale,
+            data: form,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
+
         setRows([...rows]);
     }
 
@@ -172,7 +196,7 @@ function Motif() {
                     justifyContent="space-between"
                     width={1}
                     alignItems="center">
-                    <Typography  color="text.primary">
+                    <Typography color="text.primary">
                         {t("path")}
                     </Typography>
                     <Button
@@ -192,6 +216,7 @@ function Motif() {
                         rows={rows}
                         state={state}
                         from={'motif'}
+                        pagination={true}
                         t={t}
                         edit={editMotif}
                         durations={durations}
@@ -206,6 +231,7 @@ function Motif() {
                     <EditMotifDialog data={selected}
                                      durations={durations}
                                      delay={delay}
+                                     mutateEvent={mutate}
                                      closeDraw={closeDraw}/>
                 </Drawer>
             </Box>

@@ -20,6 +20,8 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 
 const ContentStyled = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(2),
+  maxWidth: '650px',
+
 }));
 const StackStyled = styled(Stack)(({ theme }) => ({
   background: theme.palette.background.paper,
