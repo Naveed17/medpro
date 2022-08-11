@@ -1,36 +1,20 @@
 import { Card } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { styled, alpha } from '@mui/material/styles'
 const CipMedicProCardStyled = styled(Card)(({ theme }) => ({
     border: 'none',
-    backgroundColor: 'transparent',
-    [theme.breakpoints.down('md')]: {
-        backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(2),
+    padding: theme.spacing(2),
+    borderLeft: `4px solid ${theme.palette.warning.main}`,
+    '.btn-amount': {
+        backgroundColor: alpha(theme.palette.success.main, 0.1),
+        borderColor: theme.palette.divider,
+        color: theme.palette.text.primary,
+        marginRight: theme.spacing(1),
     },
-    '.date-time': {
-        '.react-svg svg': {
-            width: theme.spacing(1.5),
-            path: {
-                fill: theme.palette.text.primary
-            }
-        }
-    },
-    '.btn-more': {
-        [theme.breakpoints.down('md')]: {
-            display: 'none'
-        }
-    },
-    '.btn-more-mobile': {
-        display: 'none',
-        svg: {
-            width: theme.spacing(2),
-            height: theme.spacing(2),
-            path: {
-            }
-        },
-        [theme.breakpoints.down('md')]: {
-            display: 'block'
-        }
+    '.btn-no-amount': {
+        backgroundColor: 'transparent !important',
+        borderColor: 'transparent',
+        color: theme.palette.text.primary + ' !important',
+        marginRight: theme.spacing(1),
     }
 }));
 export default CipMedicProCardStyled

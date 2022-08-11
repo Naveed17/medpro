@@ -7,7 +7,7 @@ import { Box, Stack, Grid, Button, Typography } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
-import { CipNextAppointCard } from "@features/card";
+import { CipNextAppointCard, CipMedicProCard } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -230,17 +230,29 @@ function ConsultationInProgress() {
                     {
                         value === 3 &&
                         <TabPanel index={3}>
-                            <Otable
-                                headers={headCells}
-                                rows={PatiendData}
-                                state={null}
-                                from={"CIP-medical-procedures"}
-                                t={t}
-                                edit={null}
-                                handleConfig={null}
-                                handleChange={null}
+                            <Box display={{ xs: 'none', md: 'block' }}>
+                                <Otable
+                                    headers={headCells}
+                                    rows={PatiendData}
+                                    state={null}
+                                    from={"CIP-medical-procedures"}
+                                    t={t}
+                                    edit={null}
+                                    handleConfig={null}
+                                    handleChange={null}
 
-                            />
+                                />
+                            </Box>
+                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
+                                {
+                                    PatiendData.map((data, index: number) => (
+                                        <React.Fragment key={index}>
+                                            <CipMedicProCard row={data} t={t} />
+                                        </React.Fragment>
+                                    ))
+                                }
+
+                            </Stack>
                             <Button size='small' sx={{ '& .react-svg svg': { width: theme => theme.spacing(1.5), path: { fill: theme => theme.palette.primary.main } } }} startIcon={<Icon path="ic-plus" />}>Ajouter un nouveau acte</Button>
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1} justifyContent="flex-end">
