@@ -1,4 +1,4 @@
-import { SuccessCard } from "@features/card/";
+import { SuccessCard } from "@features/card";
 import { useTranslation } from "next-i18next";
 function AddRDVStep3() {
   const { t, ready } = useTranslation("patient", {

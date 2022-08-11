@@ -9,7 +9,7 @@ import { AnimatePresence } from "framer-motion";
 // import global style
 import "@styles/globals.scss";
 // import moment locales
-import "moment/locale/ar";
+import "moment/locale/ar-tn";
 import "moment/locale/fr";
 // import wrap components
 import AppThemeProvider from "@themes/index";

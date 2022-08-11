@@ -296,6 +296,7 @@ function a11yProps(index: number) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
+
 function Patient() {
   const dispatch = useAppDispatch();
   // selectors

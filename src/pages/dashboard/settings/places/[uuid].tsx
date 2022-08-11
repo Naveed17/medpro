@@ -450,7 +450,7 @@ function PlacesDetail() {
                         </Card>
 
                         <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
-                            {t('lieux.new.horaire')}
+                            {t('lieux.new.timeSchedule')}
                         </Typography>
 
                         {

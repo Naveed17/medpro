@@ -27,9 +27,9 @@ const settingsData = {
             href: "/dashboard/settings/agenda",
         },
        /* {
-            name: "horaire",
+            name: "timeSchedule",
             icon: "setting/ic-time",
-            href: "/dashboard/settings/horaire",
+            href: "/dashboard/settings/timeSchedule",
         },*/
         {
             name: "conges",
