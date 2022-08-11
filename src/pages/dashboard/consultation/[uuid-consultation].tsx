@@ -188,7 +188,7 @@ const headCells2: readonly HeadCell[] = [
 
 ];
 function ConsultationInProgress() {
-    const [value, setValue] = useState();
+    const [value, setValue] = useState<number>(0);
     const { t, ready } = useTranslation("consultation");
     if (!ready) return <>loading translations...</>;
     return (

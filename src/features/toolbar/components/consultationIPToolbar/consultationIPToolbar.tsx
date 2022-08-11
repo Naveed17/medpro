@@ -7,10 +7,8 @@ import { tabsData, documentButtonList } from './config'
 import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-interface TabProps {
-    selected: (value: number) => void
-}
-function ConsultationIPToolbar({ selected }: { selected: TabProps }) {
+
+function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [value, setValue] = React.useState(tabsData[0].value);
