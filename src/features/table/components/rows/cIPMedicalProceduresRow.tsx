@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
 import TableCell from "@mui/material/TableCell";
-import { Typography, Box, Checkbox, Button, IconButton } from "@mui/material";
+import { Checkbox, Button } from "@mui/material";
 import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
 function CIPMedicalProceduresRow({ ...props }) {

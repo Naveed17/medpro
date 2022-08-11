@@ -21,6 +21,7 @@ const ConsultationIPToolbarStyled = styled(Stack)(({ theme }) => ({
         },
         [theme.breakpoints.down('md')]: {
             position: 'fixed',
+            zIndex: 99999,
             bottom: 70,
             right: 20,
 

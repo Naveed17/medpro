@@ -7,6 +7,7 @@ import { Box, Stack, Grid, Button, Typography } from "@mui/material";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
+import { CipNextAppointCard } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -257,16 +258,28 @@ function ConsultationInProgress() {
                     {
                         value === 4 &&
                         <TabPanel index={4}>
-                            <Otable
-                                headers={headCells2}
-                                rows={PatiendData2}
-                                from={"CIP-next-appointment"}
-                                t={t}
-                                edit={null}
-                                handleConfig={null}
-                                handleChange={null}
+                            <Box display={{ xs: "none", md: 'block' }}>
+                                <Otable
+                                    headers={headCells2}
+                                    rows={PatiendData2}
+                                    from={"CIP-next-appointment"}
+                                    t={t}
+                                    edit={null}
+                                    handleConfig={null}
+                                    handleChange={null}
 
-                            />
+                                />
+                            </Box>
+                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
+                                {
+                                    PatiendData2.map((data, index: number) => (
+                                        <React.Fragment key={index}>
+                                            <CipNextAppointCard row={data} t={t} />
+                                        </React.Fragment>
+                                    ))
+                                }
+
+                            </Stack>
                         </TabPanel>
                     }
                 </AnimatePresence>
