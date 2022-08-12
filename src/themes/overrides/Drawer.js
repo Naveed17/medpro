@@ -10,7 +10,7 @@ export default function Drawer(theme) {
             backgroundColor: alpha(theme.palette.primary.main, 0.2),
           },
           "& .MuiDrawer-paperAnchorRight": {
-            backgroundColor: theme.palette.info.lighter ,
+            backgroundColor: theme.palette.back.lighter ,
             boxShadow: theme.customShadows.drawer,
             [theme.breakpoints.down("md")]: {
               width: "100%",

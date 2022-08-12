@@ -40,7 +40,7 @@ function Settings() {
                                 }}
                                 className={router.pathname === v.href ? 'active' : ''}
                                 disablePadding>
-                                <ListItemButton disableRipple>
+                                <ListItemButton disabled={v.disable} disableRipple>
                                     <ListItemIcon>
                                         <IconUrl path={v.icon} />
                                     </ListItemIcon>

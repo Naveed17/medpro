@@ -22,7 +22,7 @@ const SECONDARY = {
   darker: "#091A7A",
 };
 const INFO = {
-  lighter: "#F0F7FA",
+  lighter: "#D0F2FF",
   light: "#74CAFF",
   main: "#F0F7FA",
   dark: "#0C53B7",
@@ -48,6 +48,13 @@ const ERROR = {
   main: "#E83B68",
   dark: "#B72136",
   darker: "#E83B68",
+};
+const BACK = {
+  lighter: "#F0F7FA",
+  light: "#F0F7FA",
+  main: "#F0F7FA",
+  dark: "#F0F7FA",
+  darker: "#F0F7FA",
 };
 
 const WHITE = {
@@ -104,6 +111,7 @@ const GRADIENTS = {
   success: createGradient(SUCCESS.light, SUCCESS.main),
   warning: createGradient(WARNING.light, WARNING.main),
   error: createGradient(ERROR.light, ERROR.main),
+  back: createGradient(BACK.light, BACK.main),
   white: createGradient(WHITE.lighter, WHITE.lighter),
   black: createGradient(BLACK.lighter, BLACK.lighter),
 };
@@ -118,6 +126,7 @@ const COMMON = {
   error: { ...ERROR, contrastText: "#fff" },
   white: { ...WHITE, contrastText: "#fff" },
   black: { ...BLACK, contrastText: "#000" },
+  back: { ...BACK, contrastText: "#fff" },
   grey: GREY,
   gradients: GRADIENTS,
   divider: "#DDDDDD",
