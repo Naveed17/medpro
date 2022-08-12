@@ -24,7 +24,7 @@ import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, setView} from "@features/calendar";
+import {agendaSelector, openDrawer, setView} from "@features/calendar";
 import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
 
 CalendarToolbar.propTypes = {
@@ -118,6 +118,7 @@ function CalendarToolbar({date, onToday,...props}: CalendarToolbarProps) {
                     <Button
                         startIcon={<AddEventIcon/>}
                         variant="contained"
+                        onClick={() => dispatch(openDrawer(true))}
                         color="warning">
                         {t("add")}
                     </Button>

@@ -38,9 +38,9 @@ const settingsData = {
             disable: true
         },
        /* {
-            name: "horaire",
+            name: "timeSchedule",
             icon: "setting/ic-time",
-            href: "/dashboard/settings/horaire",
+            href: "/dashboard/settings/timeSchedule",
         },*/
         {
             name: "conges",

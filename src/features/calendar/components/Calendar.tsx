@@ -22,6 +22,8 @@ import {FormatterInput} from "@fullcalendar/common";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, Event, Header} from "@features/calendar";
 import {Otable} from "@features/table";
+import {useIsMountedRef} from "@app/hooks";
+import {NoDataCard} from "@features/card";
 
 const tableHead = [
     {
@@ -68,8 +70,17 @@ const tableHead = [
     },
 ];
 
+const AddAppointmentCardData = {
+    mainIcon: "ic-agenda-+",
+    title: "table.no-data.event.title",
+    description: "table.no-data.event.description",
+    buttonText: "table.no-data.event.button-text",
+    buttonIcon: "ic-agenda-+",
+    buttonVariant: "warning"
+};
+
 function Calendar({...props}) {
-    const {events: appointments, OnRangeChange, disabledSlots, t: translation} = props;
+    const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange} = props;
     const theme = useTheme();
     const {view} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -77,12 +88,22 @@ function Calendar({...props}) {
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>([]);
     const [date, setDate] = useState(moment().toDate());
+    const isMounted = useIsMountedRef();
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (isMounted.current && calendarEl) {
+            OnInit(calendarEl)
+        }
+    }, [OnInit, isMounted]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
+        } else {
+            OnViewChange(view);
         }
     }, [view]);
 
@@ -90,15 +111,16 @@ function Calendar({...props}) {
     useEffect(() => {
         setEvents(appointments);
         // this gives an object with dates as keys
-        const groups = appointments.reduce((groups: { [key: string]: Array<EventCalendarModel> },
-                                            data: EventCalendarModel) => {
-            const date = moment(data.time,"ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
-            if (!groups[date]) {
-                groups[date] = [];
-            }
-            groups[date].push(data);
-            return groups;
-        }, {});
+        const groups = appointments.reduce(
+            (groups: { [key: string]: Array<EventCalendarModel> },
+             data: EventCalendarModel) => {
+                const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
+                if (!groups[date]) {
+                    groups[date] = [];
+                }
+                groups[date].push(data);
+                return groups;
+            }, {});
 
         // Edit: to add it in the array format instead
         const groupArrays = Object.keys(groups).map((date) => {
@@ -155,34 +177,36 @@ function Calendar({...props}) {
                                 from={"calendar"}
                                 t={translation}
                             />
+                            {eventGroupByDay.length === 0 &&
+                                <NoDataCard t={translation} data={AddAppointmentCardData}/>}
                         </Box>
                     ) : (
                         <Box position="relative">
-                            {(isGridWeek || view === "timeGridDay") && (
-                                <Box
-                                    className="action-header-main"
-                                    sx={{
-                                        svg: {
-                                            transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
-                                        },
-                                    }}
+
+                            <Box
+                                className="action-header-main"
+                                sx={{
+                                    svg: {
+                                        transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
+                                    },
+                                }}
+                            >
+                                <IconButton
+                                    onClick={handleClickDatePrev}
+                                    size="small"
+                                    aria-label="back"
                                 >
-                                    <IconButton
-                                        onClick={handleClickDatePrev}
-                                        size="small"
-                                        aria-label="back"
-                                    >
-                                        <ArrowBackIosNewIcon fontSize="small"/>
-                                    </IconButton>
-                                    <IconButton
-                                        onClick={handleClickDateNext}
-                                        size="small"
-                                        aria-label="next"
-                                    >
-                                        <ArrowForwardIosIcon fontSize="small"/>
-                                    </IconButton>
-                                </Box>
-                            )}
+                                    <ArrowBackIosNewIcon fontSize="small"/>
+                                </IconButton>
+                                <IconButton
+                                    onClick={handleClickDateNext}
+                                    size="small"
+                                    aria-label="next"
+                                >
+                                    <ArrowForwardIosIcon fontSize="small"/>
+                                </IconButton>
+                            </Box>
+
                             <FullCalendar
                                 weekends
                                 editable
