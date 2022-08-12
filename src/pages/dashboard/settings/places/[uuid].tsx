@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -158,95 +158,6 @@ function PlacesDetail() {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true});
 
-
-    useEffect(() => {
-        if (data !== undefined) {
-            setRow((data as any).data)
-        } else {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
-            });
-            setHoraires([
-                {
-                    isMain: false,
-                    isVisible: false,
-                    openingHours: {
-                        MON: [],
-                        THU: [],
-                        WED: [],
-                        TUE: [],
-                        FRI: [],
-                        SUN: [],
-                        SAT: [],
-                    }
-                }
-            ])
-        }
-
-    }, [data]);
-
-    const getCities = (state: string) => {
-        trigger({
-            method: "GET",
-            url: "/api/public/places/state/" + state + "/cities/" + router.locale,
-            headers: {
-                ContentType: 'application/x-www-form-urlencoded',
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, {revalidate: true, populateCache: true}).then((r: any) => {
-            setCities(r.data.data);
-        });
-    }
-
-    const initialCites = () => {
-        trigger({
-            method: "GET",
-            url: "/api/public/places/state/" + row.address.state.uuid + "/cities/" + router.locale,
-            headers: {
-                ContentType: 'application/x-www-form-urlencoded',
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, {revalidate: true, populateCache: true}).then((r: any) => {
-            setCities(r.data.data);
-            setFieldValue('city', row.address.city.uuid);
-            setCheck(false);
-        });
-    }
-
-    useEffect(() => {
-        if (row !== undefined && check) {
-
-            row.openingHours.map((ohours: any, index: number) => {
-                horaires[index].isMain = ohours.isMain;
-                horaires[index].isVisible = ohours.isVisible;
-                Object.keys(horaires[index].openingHours).map(day => {
-                    horaires[index].openingHours[day] = ohours.openingHours[day]
-                });
-            });
-            setHoraires([...horaires]);
-            setOuterBounds([row.address.location.point]);
-            setCords([{name: "name", points: row.address.location.point}]);
-            initialCites();
-            setCheck(false);
-            row.contacts.map((contact: ContactModel) => {
-                console.log(contact)
-                contacts.push({
-                    countryCode: '',
-                    phone: contact.value,
-                    hidden: !contact.isPublic
-                });
-            });
-
-            contacts.push({
-                countryCode: '',
-                phone: '',
-                hidden: false
-            });
-            setContacts([...contacts])
-        }
-    }, [check, contacts, horaires, initialCites, row])
-
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -316,6 +227,94 @@ function PlacesDetail() {
             });
         },
     });
+
+    useEffect(() => {
+        if (data !== undefined) {
+            setRow((data as any).data)
+        } else {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
+            });
+            setHoraires([
+                {
+                    isMain: false,
+                    isVisible: false,
+                    openingHours: {
+                        MON: [],
+                        THU: [],
+                        WED: [],
+                        TUE: [],
+                        FRI: [],
+                        SUN: [],
+                        SAT: [],
+                    }
+                }
+            ])
+        }
+
+    }, [data]);
+
+    const getCities = (state: string) => {
+        trigger({
+            method: "GET",
+            url: "/api/public/places/state/" + state + "/cities/" + router.locale,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true}).then((r: any) => {
+            setCities(r.data.data);
+        });
+    }
+
+    const initialCites = useCallback(() => {
+        trigger({
+            method: "GET",
+            url: "/api/public/places/state/" + row.address.state.uuid + "/cities/" + router.locale,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true}).then((r: any) => {
+            setCities(r.data.data);
+            formik.setFieldValue('city', row.address.city.uuid);
+            setCheck(false);
+        });
+    },[formik, router.locale, row?.address.city.uuid, row?.address.state.uuid, session?.accessToken, trigger])
+
+    useEffect(() => {
+        if (row !== undefined && check) {
+
+            row.openingHours.map((ohours: any, index: number) => {
+                horaires[index].isMain = ohours.isMain;
+                horaires[index].isVisible = ohours.isVisible;
+                Object.keys(horaires[index].openingHours).map(day => {
+                    horaires[index].openingHours[day] = ohours.openingHours[day]
+                });
+            });
+            setHoraires([...horaires]);
+            setOuterBounds([row.address.location.point]);
+            setCords([{name: "name", points: row.address.location.point}]);
+            initialCites();
+            setCheck(false);
+            row.contacts.map((contact: ContactModel) => {
+                contacts.push({
+                    countryCode: '',
+                    phone: contact.value,
+                    hidden: !contact.isPublic
+                });
+            });
+
+            contacts.push({
+                countryCode: '',
+                phone: '',
+                hidden: false
+            });
+            setContacts([...contacts])
+        }
+    }, [check, contacts, horaires, initialCites, row])
+
+
     /*    const [rows, setRows] = useState([
             {
                 id: 1,
