@@ -18,8 +18,6 @@ function QualificationDialog(info: any) {
 
     const [items, setItems] = useState<SortableItemProps[]>(info.data);
 
-    console.log(items);
-
     const dispatch = useAppDispatch();
 
     const handleDrop = useCallback(
@@ -30,8 +28,20 @@ function QualificationDialog(info: any) {
     );
 
     useEffect(() => {
+        let qualification: QualificationModel[] = [];
+        items.map(item => qualification.push({
+            order: item.order,
+            status: item.status,
+            title: item.title,
+            uuid: item.uuid,
+            id: item.uuid
+        }));
+        setItems(qualification);
+    }, []);
+
+    useEffect(() => {
         dispatch(SetQualifications(items))
-    }, [items])
+    }, [dispatch, items])
 
     const {t, ready} = useTranslation('settings');
     if (!ready) return (<>loading translations...</>);

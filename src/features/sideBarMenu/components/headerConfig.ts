@@ -1,11 +1,6 @@
 export const siteHeader = {
     topBar: [
         {
-            icon: "ic-video-contour",
-            notifications: 2,
-            name: "video-contour",
-        },
-        {
             icon: "ic-notif-lite",
             notifications: 5,
             name: "notif-lite",

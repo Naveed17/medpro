@@ -73,7 +73,7 @@ const CardSection = ({ ...props }) => {
   return (
     <Paper key={Math.random()} className="card-main">
       <Grid container>
-        <Grid item md={8} sm={8} xs={11}>
+        <Grid item md={11} sm={11} xs={11}>
           <Typography className="heading" variant="body1" component="div">
             <Icon path={v.status === "pending" ? "ic-f" : "ic-h"} />
             {v.name}
@@ -129,8 +129,13 @@ const CardSection = ({ ...props }) => {
             )}
           </Box>
         </Grid>
-        <Grid item md={4} sm={4} xs={1}>
-          <Box display="flex" alignItems="center" height="100%">
+        <Grid item md={1} sm={1} xs={1}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="end"
+            height="100%"
+          >
             <Popover
               open={openTooltip}
               handleClose={() => setOpenTooltip(false)}

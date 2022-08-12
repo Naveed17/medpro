@@ -87,6 +87,9 @@ function PatientToolbar() {
           scroll
           t={t}
           minWidth={648}
+          onClose={() => {
+            setOpenDrawer(false);
+          }}
         />
       </Drawer>
       <Dialog

@@ -27,7 +27,7 @@ function LocationMarker({...props}) {
     const eventHandlers = useMemo(
         () => ({
             dragend(e: any) {
-                console.log(e.target._latlng)
+                props.editCords(e.target._latlng)
             },
         }),
         [],
@@ -39,7 +39,10 @@ function LocationMarker({...props}) {
         locationfound(e) {
             setPosition(e.latlng)
             map.flyTo(e.latlng, map.getZoom())
+            props.editCords(e.latlng)
+
         }
+
 
     });
     useEffect(() => {
@@ -76,7 +79,8 @@ function Maps({...props}) {
                     scrollWheelZoom={false}
                     id="mapId">
                     <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"/>
-                    {props.draggable && <LocationMarker cords={props.data}/>}
+                    {props.draggable && <LocationMarker cords={props.data} editCords={props.editCords}
+                    />}
                     {!props.draggable && <PlacesMarker cords={props.data}/>}
                 </MapContainer>
             }

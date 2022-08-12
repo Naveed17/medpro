@@ -25,5 +25,49 @@
     "no_show": "المريض لم ياتي",
     "cancel_patient": "ألغى من المريض",
     "note": "ملحوظات"
+  },
+  "table": {
+    "header": {
+      "heure": "الساعة",
+      "motif": "السبب",
+      "duree": "المدة",
+      "status": "الحالة",
+      "patient": "المريض",
+      "agenda": "الجدول",
+      "action": "تصرف"
+    },
+    "body": {
+      "add-appointment": "أضف موعدًا",
+      "edit": "تعديل",
+      "see-card": "See card"
+    },
+    "pagination": {
+      "of": "of"
+    },
+    "no-data": {
+      "event": {
+        "title": "أضف موعدك الأول",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "button-text": "أضف موعدًا"
+      }
+    }
+  },
+  "steppers": {
+    "tabs": {
+      "tab-1": "نوع"
+    },
+    "stepper-0": {
+      "title": "نوع الفترة الزمنية",
+      "sub-title": "نوع",
+      "types": {
+        "rdv": "موعد في العيادة",
+        "telemed": "الاستشارة عن بعد",
+        "domicile": "موعد في المنزل",
+        "staff": "اجتماع الموظفين",
+        "absence": "غياب"
+      }
+    },
+    "next": "التالي",
+    "back": "رجوع"
   }
 }

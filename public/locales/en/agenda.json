@@ -25,5 +25,31 @@
     "no_show": "Patient No-Show",
     "cancel_patient": "Canceled by patient",
     "note": "Notes"
+  },
+  "table": {
+    "header": {
+      "heure": "Time",
+      "motif": "Reason",
+      "duree": "Duration",
+      "status": "Statut",
+      "patient": "Patient",
+      "agenda": "Calendar",
+      "action": "Action"
+    },
+    "body": {
+      "add-appointment": "Add appointment",
+      "edit": "Edit",
+      "see-card": "See card"
+    },
+    "pagination": {
+      "of": "of"
+    },
+    "no-data": {
+      "event": {
+        "title": "Add your first appointment",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "button-text": "Add an appointment"
+      }
+    }
   }
 }

@@ -10,6 +10,7 @@ export default function Table(theme) {
           borderSpacing: "0px 8px",
           background: "transparent",
           marginTop: "-8px",
+
           "& .MuiTableBody-root .MuiTableRow-root": {
             "& .MuiTableCell-root": {
               borderTop: "1px solid transparent",
@@ -39,7 +40,6 @@ export default function Table(theme) {
                 "&.text-row": {
                   backgroundColor: "transparent",
                   borderColor: "transparent",
-                  borderColor: "transparent",
                   "&:first-of-type": {
                     borderColor: "transparent",
                   },
@@ -52,6 +52,12 @@ export default function Table(theme) {
           },
           "& .action span": {
             float: "right",
+          },
+          '& .cip-medical-proce-row': {
+            "& .MuiTableCell-root": {
+              paddingTop: 0,
+              paddingBottom: 0,
+            }
           },
         },
       },
@@ -102,6 +108,7 @@ export default function Table(theme) {
             span: {
               display: "flex",
               alignItems: "center",
+              justifyContent: 'space-between',
             },
             div: {
               float: "right",

@@ -64,18 +64,18 @@ function Otable({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: { name: string }) => n.name);
+      const newSelecteds = rows.map((n: { id: any }) => n.id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
-  const handleClick = (name: string) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (id: any) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected: readonly string[] = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -92,7 +92,7 @@ function Otable({ ...props }) {
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
-  const isSelected = (name: string) => selected.indexOf(name) !== -1;
+  const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
   const ids = rows.map((row: any) => row.id);
   useEffect(() => {
@@ -136,7 +136,7 @@ function Otable({ ...props }) {
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                const isItemSelected = isSelected(row?.name as string);
+                const isItemSelected = isSelected(row?.id as number);
                 const labelId = `enhanced-table-checkbox-${index}`;
                 return (
                   <Component
@@ -151,6 +151,7 @@ function Otable({ ...props }) {
                     checkedType={checkedType}
                     labelId={labelId}
                     data={rest}
+                    selected={selected}
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
                   />
