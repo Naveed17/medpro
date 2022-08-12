@@ -36,9 +36,17 @@ const dialogData = [
   {
     action: "remove",
     component: dynamic((): any =>
-        import("@features/dialog/components/removeDialog/removeDialog").then(
-            (mod) => mod
-        )
+      import("@features/dialog/components/removeDialog/removeDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "consultation-modal",
+    component: dynamic((): any =>
+      import("@features/dialog/components/consultationModalDialog/consultationModalDialog").then(
+        (mod) => mod
+      )
     ),
   },
 ];
