@@ -45,11 +45,11 @@ const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
                 "&.Mui-disabled": {
                     justifyContent: "flex-start",
                     width: "100%",
-                    background: "#F1F1F1",
+                    background: theme.palette.info.main,
                     height: "54px",
                     boxShadow: "none",
                     color: theme.palette.common.white,
-                    border: "1px solid #DDDDDD",
+                    border: `1px solid ${theme.palette.grey["A200"]}`,
                 },
             }),
         ...(selectedvalue === title && {

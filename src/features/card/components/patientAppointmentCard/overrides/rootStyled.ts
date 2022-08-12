@@ -4,7 +4,7 @@ import {MenuItem} from "@mui/material";
 const RootStyled = styled(MenuItem)(({theme, styleProps}: any) => {
     console.log(styleProps);
     return {
-        borderTop: `${!styleProps ? '1px solid #E0E0E0' : 'none'}`,
+        borderTop: `${!styleProps ? `1px solid ${theme.palette.grey["A300"]}` : 'none'}`,
         ...(styleProps && {
             border: `1px solid ${theme.palette.divider}`,
             borderRadius: 8,
@@ -17,14 +17,14 @@ const RootStyled = styled(MenuItem)(({theme, styleProps}: any) => {
             height: 30,
         },
         '& .MuiButtonBase-root': {
-            backgroundColor: '#7E7E7E',
+            backgroundColor: theme.palette.grey["A60"],
             opacity: 0.25,
             color: theme.palette.common.white,
             width: 30,
             height: 30,
             borderRadius: 10,
             '&:hover': {
-                backgroundColor: '#7E7E7E',
+                backgroundColor: theme.palette.grey["A60"],
             }
         },
         '&:hover': {
