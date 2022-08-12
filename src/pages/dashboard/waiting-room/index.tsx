@@ -15,7 +15,7 @@ import { Otable } from "@features/table";
 
 export const rows = [
   {
-    id: "#1",
+    id: 1,
     reson: "1st consultation",
     arrivaltime: "3:00",
     appointmentTime: "3:30",
@@ -26,7 +26,7 @@ export const rows = [
     agenda: "Agenda cabinet",
   },
   {
-    id: "#2",
+    id: 2,
     reson: "1st consultation",
     arrivaltime: "3:00",
     appointmentTime: "3:30",

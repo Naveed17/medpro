@@ -6,15 +6,17 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
-    Box, Button,
+    Box,
+    Button,
     Card,
     CardContent, Collapse,
     FormControl, FormControlLabel,
     Grid,
-    InputAdornment,
-    MenuItem, Paper,
-    Select,
-    Stack, Switch,
+    InputAdornment, MenuItem,
+    Paper,
+    Select, SelectChangeEvent,
+    Stack,
+    Switch,
     TextField,
     Typography
 } from "@mui/material";
@@ -27,10 +29,13 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {DashLayout} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
+import moment from "moment";
+import {DateTime} from "next-auth/providers/kakao";
+import {LoadingButton} from "@mui/lab";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -96,6 +101,7 @@ function PlacesDetail() {
     const router = useRouter();
     const uuind = router.query.uuid;
     const {t, ready} = useTranslation("settings");
+    const [check, setCheck] = useState(true);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -105,14 +111,33 @@ function PlacesDetail() {
         address: Yup.string().required(t('lieux.new.adreq'))
     });
 
-    const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
-    const [cords, setCords] = useState<any[]>([]);
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const [row, setRow] = useState<any>()
+    const [row, setRow] = useState<any>();
+    const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
+    const [cords, setCords] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [contacts, setContacts] = useState<any[]>([]);
+    const [cities, setCities] = useState<LocationModel[]>([]);
+
+    const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
+        {
+            isMain: false,
+            isVisible: false,
+            openingHours: {
+                MON: [],
+                THU: [],
+                WED: [],
+                TUE: [],
+                FRI: [],
+                SUN: [],
+                SAT: [],
+            }
+        }
+    ])
 
     const {data} = useRequest(uuind !== 'new' ? {
         method: "GET",
@@ -120,11 +145,23 @@ function PlacesDetail() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
+    const {data: httpStateResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/places/countries/" + medical_entity.country.uuid + "/state/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const {trigger} = useRequestMutation(
+        {
+            method: "GET",
+            url: "",
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true});
+
 
     useEffect(() => {
         if (data !== undefined) {
             setRow((data as any).data)
-            console.log(data);
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
@@ -148,50 +185,151 @@ function PlacesDetail() {
 
     }, [data]);
 
+    const getCities = (state: string) => {
+        trigger({
+            method: "GET",
+            url: "/api/public/places/state/" + state + "/cities/" + router.locale,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true}).then((r: any) => {
+            setCities(r.data.data);
+        });
+    }
+
+    const initialCites = () => {
+        trigger({
+            method: "GET",
+            url: "/api/public/places/state/" + row.address.state.uuid + "/cities/" + router.locale,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: true, populateCache: true}).then((r: any) => {
+            setCities(r.data.data);
+            setFieldValue('city', row.address.city.uuid);
+            setCheck(false);
+        });
+    }
+
     useEffect(() => {
-        if (row !== undefined) {
-            setHoraires(row.openingHours)
+        if (row !== undefined && check) {
+
+            row.openingHours.map((ohours: any, index: number) => {
+                horaires[index].isMain = ohours.isMain;
+                horaires[index].isVisible = ohours.isVisible;
+                Object.keys(horaires[index].openingHours).map(day => {
+                    horaires[index].openingHours[day] = ohours.openingHours[day]
+                });
+            });
+            setHoraires([...horaires]);
             setOuterBounds([row.address.location.point]);
-            setCords([{name: "name", points: row.address.location.point}])
+            setCords([{name: "name", points: row.address.location.point}]);
+            initialCites();
+            setCheck(false);
+            row.contacts.map((contact: ContactModel) => {
+                console.log(contact)
+                contacts.push({
+                    countryCode: '',
+                    phone: contact.value,
+                    hidden: !contact.isPublic
+                });
+            });
+
+            contacts.push({
+                countryCode: '',
+                phone: '',
+                hidden: false
+            });
+            setContacts([...contacts])
         }
-    }, [row])
+    }, [check, contacts, horaires, initialCites, row])
+
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: row ? (row.name) as string : '',
+            name: row ? (row.address.location.name) as string : '',
             address: row ? (row.address.street) as string : '',
             postalCode: row ? row.address.postalCode : '',
-            town: '',
-            phone: [
-                {
-                    countryCode: '',
-                    phone: '',
-                    hidden: false
-                }
-            ],
+            town: row ? row.address.state.uuid : '',
+            city: '',
+            phone: contacts,
             information: ''
         },
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            alert(JSON.stringify(values, null, 2));
+            cleanData();
+            setLoading(true);
+            let method = '';
+            let url = '';
+            let phones: {
+                value: string,
+                type: string,
+                contact_type: string,
+                is_public: boolean,
+                is_support: boolean
+            }[] = []
+            values.phone.map(value => {
+                if (value.phone)
+                    phones.push({
+                        value: value.phone,
+                        type: "phone",
+                        contact_type: "uuid",
+                        is_public: !value.hidden,
+                        is_support: false
+                    })
+            })
+            const form = new FormData();
+            form.append('postal_code', values.postalCode);
+            form.append('access_data', JSON.stringify({}));
+            form.append('opening_hours', JSON.stringify(horaires[0].openingHours));
+            form.append('city', values.city);
+            form.append('name', JSON.stringify({fr: values.name}));
+            form.append('latitude', cords[0].points[0]);
+            form.append('longitude', cords[0].points[1]);
+            form.append('address', JSON.stringify({fr: values.address}));
+            form.append('contacts', JSON.stringify(phones));
+
+            if (data) {
+                method = 'PUT';
+                url = "/api/medical-entity/" + medical_entity.uuid + "/locations/" + (data as HttpResponse).data.uuid + '/' + router.locale;
+            } else {
+                method = 'POST'
+                url = "/api/medical-entity/" + medical_entity.uuid + "/locations/" + router.locale;
+            }
+
+            trigger({
+                method,
+                data: form,
+                url,
+                headers: {
+                    ContentType: 'application/x-www-form-urlencoded',
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then((r: any) => {
+                if (r.status === 200 || r.status === 201) {
+                    router.back();
+                    setLoading(false);
+                }
+            });
         },
     });
-    const [horaires, setHoraires] = useState<any[]>([])
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Salma Bousaiid',
-            type: 'Sécrétaire',
-            access: 3
-        },
-        {
-            id: 2,
-            name: 'Rym Jablaoui',
-            type: 'Sécrétaire',
-            access: 1
-        }
-    ]);
+    /*    const [rows, setRows] = useState([
+            {
+                id: 1,
+                name: 'Salma Bousaiid',
+                type: 'Sécrétaire',
+                access: 3
+            },
+            {
+                id: 2,
+                name: 'Rym Jablaoui',
+                type: 'Sécrétaire',
+                access: 1
+            }
+        ]);*/
 
     if (!ready) return (<>loading translations...</>);
 
@@ -223,13 +361,42 @@ function PlacesDetail() {
             console.log('handleConfig', event);
         }
 
-
         const handleChange = (props: any, event: any) => {
             props.access = event.target.value
             rows.filter(row => row.id === props.id)[0].access = event.target.value
             setRows([...rows])
         }
     */
+
+    const apply = () => {
+        const h = horaires[0].openingHours['MON'];
+        Object.keys(horaires[0].openingHours).map(day => {
+            if (day !== 'MON') {
+                horaires[0].openingHours[day] = [];
+                h.map((hour: any, index: number) => {
+                    horaires[0].openingHours[day] = [...horaires[0].openingHours[day], {
+                        start_time: h[index].start_time,
+                        end_time: h[index].end_time
+                    }];
+                })
+            }
+
+        });
+        setHoraires([...horaires]);
+    }
+    const cleanData = () => {
+        Object.keys(horaires[0].openingHours).map(day => {
+            horaires[0].openingHours[day] = horaires[0].openingHours[day].filter((hour: { start_time: string, end_time: string }) => hour.start_time !== 'Invalid date' && hour.end_time !== 'Invalid date');
+        });
+        setHoraires([...horaires]);
+    }
+
+    const onChangeState = (event: SelectChangeEvent) => {
+        setFieldValue('town', event.target.value);
+        setFieldValue('city', '');
+        getCities(event.target.value);
+    };
+
     const handleAddPhone = () => {
         const phones = [...values.phone, {
             countryCode: '',
@@ -244,7 +411,7 @@ function PlacesDetail() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{uuind === 'new' ? t('lieux.new.path') : t('lieux.config.path') + ' > name'}</p>
+                    <p style={{margin: 0}}>{uuind === 'new' ? t('lieux.new.path') : t('lieux.config.path') + (row ? ' > ' + row.address.location.name : '')}</p>
                 </RootStyled>
             </SubHeader>
 
@@ -293,7 +460,7 @@ function PlacesDetail() {
                                                 </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={10}>
+                                        <Grid item xs={12} lg={6}>
                                             <TextField
                                                 variant="outlined"
                                                 placeholder={t('lieux.new.writeAdress')}
@@ -303,6 +470,22 @@ function PlacesDetail() {
                                                 error={Boolean(touched.address && errors.address)}
                                                 {...getFieldProps("address")}/>
                                         </Grid>
+                                        <Grid item xs={12} lg={1}>
+                                            <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
+                                                        variant='body2' fontWeight={400}>
+                                                {t('lieux.new.postal')}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={3}>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t('lieux.new.writePostal')}
+                                                fullWidth
+                                                type={'number'}
+                                                required
+                                                {...getFieldProps("postalCode")}
+                                            />
+                                        </Grid>
                                     </Grid>
                                 </Box>
                                 <Box mb={2}>
@@ -310,49 +493,56 @@ function PlacesDetail() {
                                         <Grid item xs={12} lg={2}>
                                             <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary"
                                                         variant='body2' fontWeight={400}>
-                                                {t('lieux.new.postal')}
+                                                {t('lieux.new.ville')}
                                             </Typography>
                                         </Grid>
 
                                         <Grid item xs={12} lg={10}>
                                             <Grid container spacing={{lg: 2, xs: 1}} alignItems="center"
                                                   justifyContent={{lg: 'space-between', xs: 'flex-start'}}>
-                                                <Grid item xs={12} lg={5}>
-                                                    <TextField
-                                                        variant="outlined"
-                                                        placeholder={t('lieux.new.writePostal')}
-                                                        fullWidth
-                                                        type={'number'}
-                                                        required
-                                                        {...getFieldProps("postalCode")}
-                                                    />
+                                                <Grid item xs={12} lg={6}>
+                                                    <FormControl size="small" fullWidth>
+                                                        <Select
+                                                            labelId="demo-simple-select-label"
+                                                            id={"duration"}
+                                                            {...getFieldProps("town")}
+                                                            value={values.town}
+                                                            onChange={onChangeState}
+                                                            displayEmpty={true}
+                                                            sx={{color: "text.secondary"}}
+                                                            placeholder={t('lieux.new.selectCity')}>
+                                                            {
+                                                                httpStateResponse && (httpStateResponse as HttpResponse).data.map((state: LocationModel) =>
+                                                                    (<MenuItem key={state.uuid} value={state.uuid}>
+                                                                        {state.name}
+                                                                    </MenuItem>))
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
                                                 </Grid>
+
                                                 <Grid item xs={12} lg={6}>
                                                     <Stack spacing={{lg: 2, xs: 1}}
                                                            direction={{lg: 'row', xs: 'column'}}
                                                            alignItems={{lg: 'center', xs: 'flex-start'}}>
                                                         <Typography color="text.secondary" variant='body2'
                                                                     fontWeight={400}>
-                                                            {t('lieux.new.ville')}
+                                                            {t('lieux.new.city')}
                                                         </Typography>
                                                         <FormControl size="small" fullWidth>
                                                             <Select
                                                                 labelId="demo-simple-select-label"
                                                                 id={"duration"}
-                                                                {...getFieldProps("town")}
-                                                                value={values.town}
+                                                                {...getFieldProps("city")}
+                                                                value={values.city}
                                                                 displayEmpty={true}
-                                                                sx={{color: "text.secondary"}}
-                                                                renderValue={(value) =>
-                                                                    value?.length
-                                                                        ? Array.isArray(value)
-                                                                            ? value.join(", ")
-                                                                            : value
-                                                                        : t('lieux.new.selectCity')
-                                                                }>
-                                                                <MenuItem value="1">1</MenuItem>
-                                                                <MenuItem value="2">2</MenuItem>
-                                                                <MenuItem value="3">3</MenuItem>
+                                                                sx={{color: "text.secondary"}}>
+                                                                {
+                                                                    cities.map((state: LocationModel) =>
+                                                                        (<MenuItem key={state.uuid} value={state.uuid}>
+                                                                            {state.name}
+                                                                        </MenuItem>))
+                                                                }
                                                             </Select>
                                                         </FormControl>
                                                     </Stack>
@@ -368,6 +558,9 @@ function PlacesDetail() {
 
                         <Maps data={uuind === 'new' ? null : cords}
                               outerBounds={outerBounds}
+                              editCords={(c: { lat: number, lng: number }) => {
+                                  setCords([{name: values.name, points: [c.lat, c.lng]}]);
+                              }}
                               draggable={true}></Maps>
 
                         <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} marginTop={2}
@@ -457,10 +650,11 @@ function PlacesDetail() {
                             horaires.map((value: any, index) =>
                                 (
                                     <div key={index}>
-                                        <p>{value.uuid}</p>
+                                        {/*<p>{value.uuid}</p>
                                         <p>Is main {value.isMain ? 'Yes' : 'No'}</p>
                                         <p>Is visible{value.isVisible ? 'Yes' : 'No'}</p>
-
+                                        <Button onClick={apply}>Apply for the whole week</Button>
+                                        <Button onClick={cleanData}>cleanData</Button>*/}
                                         {
                                             Object.keys(value.openingHours).map((day: any, index) =>
                                                 (
@@ -490,8 +684,8 @@ function PlacesDetail() {
                                                                 onChange={(e) => {
                                                                     if (e.target.checked)
                                                                         value.openingHours[day].push({
-                                                                            start_time: '',
-                                                                            end_time: ''
+                                                                            start_time: '08:00',
+                                                                            end_time: '12:00'
                                                                         });
                                                                     else
                                                                         value.openingHours[day] = [];
@@ -531,9 +725,11 @@ function PlacesDetail() {
                                                                             <Grid item lg={4} md={6} sm={12} xs={12}>
                                                                                 <TimePicker
                                                                                     defaultValue={[hour.start_time ? new Date("2013/1/16 " + hour.start_time) : '', hour.end_time ? new Date("2013/1/16 " + hour.end_time) : '']}
-                                                                                    onChange={(s: any, e: any) => {
-                                                                                    }}
-                                                                                />
+                                                                                    onChange={(start: DateTime, end: DateTime) => {
+                                                                                        hour.start_time = moment(start).format('HH:mm');
+                                                                                        hour.end_time = moment(end).format('HH:mm');
+                                                                                        setHoraires([...horaires]);
+                                                                                    }}/>
                                                                             </Grid>}
                                                                         {i > 0 && hour && (
                                                                             <Grid item lg={3} md={3} sm={12} xs={12}>
@@ -575,6 +771,11 @@ function PlacesDetail() {
                                                                         </Button>
                                                                     </Grid>
                                                                 </Grid>
+
+                                                                {day == "MON" &&
+                                                                    <Button onClick={apply}>Apply for the whole
+                                                                        week</Button>}
+
                                                             </Paper>
                                                         </Collapse>
                                                     </Card>
@@ -592,9 +793,9 @@ function PlacesDetail() {
                             <Button onClick={() => router.back()}>
                                 {t('motif.dialog.cancel')}
                             </Button>
-                            <Button type='submit' variant="contained" color="primary">
+                            <LoadingButton loading={loading} type='submit' variant="contained" color="primary">
                                 {t('motif.dialog.save')}
-                            </Button>
+                            </LoadingButton>
                         </Stack>
                     </FormStyled>
                 </FormikProvider>
