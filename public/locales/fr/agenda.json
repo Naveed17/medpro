@@ -55,7 +55,8 @@
   "steppers": {
     "tabs": {
       "tab-1": "Type",
-      "tab-2": "Créneau horaire"
+      "tab-2": "Créneau horaire",
+      "tab-3": "Patient"
     },
     "stepper-0": {
       "title": "Type du créneau horaire",
@@ -88,6 +89,10 @@
       "day": "Jour",
       "added": "RDV ajouté",
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
+    },
+    "stepper-2": {
+      "title": "Choisissez le patient",
+      "sub-title": "vous devez ajouter un patient"
     },
     "next": "Suivant",
     "back": "Retour"

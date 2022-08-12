@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -13,46 +13,73 @@ import {TimeSlot} from "@features/timeSlot";
 import {PatientCardMobile} from "@features/card/components/patientCardMobile";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {setStepperIndex} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
-
-// select data
-const listData = [
-    { id: 1, title: "Première consultation", color: "#1BC47D" },
-    { id: 2, title: "Consultation de suivi", color: "#0696D6" },
-    { id: 3, title: "Troubles de la respiration", color: "#E83B68" },
-    { id: 4, title: "Echo", color: "#F1AC44" },
-];
+import {agendaSelector, setStepperIndex} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 // time slot data
 const timeData = [
-    { time: "8:30", disabled: false },
-    { time: "8:45", disabled: false },
-    { time: "9:00", disabled: false },
-    { time: "9:15", disabled: false },
-    { time: "9:30", disabled: false },
-    { time: "9:45", disabled: false },
-    { time: "10:00", disabled: false },
-    { time: "10:15", disabled: false },
+    {time: "8:30", disabled: false},
+    {time: "8:45", disabled: false},
+    {time: "9:00", disabled: false},
+    {time: "9:15", disabled: false},
+    {time: "9:30", disabled: false},
+    {time: "9:45", disabled: false},
+    {time: "10:00", disabled: false},
+    {time: "10:15", disabled: false},
 ];
 
-function TimeSchedule(){
+function TimeSchedule() {
+    const {data: session, status} = useSession();
+    const {config} = useAppSelector(agendaSelector);
+    console.log(config);
+    const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const [select, setSelect] = React.useState("");
+    const [loading, setLoading] = useState<boolean>(status === 'loading');
+    const [reason, setReason] = React.useState("");
+    const [location, setLocation] = React.useState("");
     const [date, setDate] = React.useState<Date | null>(null);
     const [time, setTime] = React.useState("");
     const [radio, setRadio] = React.useState("");
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const {data: httpProfessionalResponse, error: errorHttpProfessional} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${config?.uuid}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
     // handleChange for select
-    const handleChange = (event: SelectChangeEvent) => {
-        setSelect(event.target.value as string);
+    const onChangeReason = (event: SelectChangeEvent) => {
+        setReason(event.target.value as string);
     };
 
-    const { t, ready } = useTranslation("agenda", {
+    const onChangeLocation = (event: SelectChangeEvent) => {
+        setLocation(event.target.value as string);
+    };
+
+    const {t, ready} = useTranslation("agenda", {
         keyPrefix: "steppers",
     });
-    if (!ready) return <>loading translations...</>;
+
+    if (errorHttpConsultReason) return <div>failed to load</div>
+    if (!ready) return (<LoadingScreen/>);
+
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+    const locations = config?.locations;
 
     return (
         <div>
@@ -65,35 +92,60 @@ function TimeSchedule(){
                 </Typography>
                 <FormControl fullWidth size="small">
                     <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={select}
-                        onChange={handleChange}
+                        labelId="select-reason"
+                        id="select-reason"
+                        value={reason}
+                        onChange={onChangeReason}
                         sx={{
                             "& .MuiSelect-select svg": {
                                 display: "none",
                             },
                         }}
                     >
-                        {listData.map((v) => (
-                            <MenuItem value={v.id} key={Math.random()}>
+                        {reasons?.map((consultationReason) => (
+                            <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
                                 <FiberManualRecordIcon
                                     fontSize="small"
-                                    sx={{ mr: 1, color: v.color }}
-                                />{" "}
-                                {v.title}
+                                    sx={{mr: 1, color: consultationReason.color}}
+                                />
+                                {consultationReason.name}
                             </MenuItem>
                         ))}
                     </Select>
                 </FormControl>
-                {select && (
+
+                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                    {t("stepper-1.locations")}
+                </Typography>
+                <FormControl fullWidth size="small">
+                    <Select
+                        labelId="select-location"
+                        id="select-location"
+                        disabled={reason === ''}
+                        value={location}
+                        onChange={onChangeLocation}
+                        sx={{
+                            "& .MuiSelect-select svg": {
+                                display: "none",
+                            },
+                        }}
+                    >
+                        {locations?.map((location) => (
+                            <MenuItem value={location.uuid} key={location.uuid}>
+                                {location.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {location && (
                     <Box>
                         <Typography
                             variant="body1"
                             color="text.primary"
                             fontWeight={500}
                             mt={5}
-                            sx={{ textTransform: "uppercase", fontWeight: 500 }}
+                            sx={{textTransform: "uppercase", fontWeight: 500}}
                         >
                             {t("stepper-1.practitioner")}
                         </Typography>
@@ -101,7 +153,7 @@ function TimeSchedule(){
                             {t("stepper-1.affect-des")}
                         </Typography>
                         <Grid container spacing={2}>
-                            {Array.from({ length: 2 }).map((_, index) => (
+                            {Array.from({length: 2}).map((_, index) => (
                                 <Grid key={index} item xs={12} lg={6}>
                                     <RadioTextImage
                                         name={`agenda-${index}`}
@@ -117,17 +169,17 @@ function TimeSchedule(){
                     </Box>
                 )}
 
-                <Typography
+                {location && <Typography
                     variant="body1"
                     color="text.primary"
                     fontWeight={500}
                     mt={5}
                     mb={0.5}
-                    sx={{ textTransform: "uppercase", fontWeight: 500 }}
+                    sx={{textTransform: "uppercase", fontWeight: 500}}
                 >
                     {t("stepper-1.time-slot")}
-                </Typography>
-                <Typography variant="body1" color="text.primary" mb={1}>
+                </Typography>}
+                <Typography variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                     {t("stepper-1.date-message")}
                 </Typography>
                 <Grid container spacing={2}>
@@ -169,7 +221,7 @@ function TimeSchedule(){
                         time: "14:20",
                     },
                 ].map((item) => (
-                    <PatientCardMobile key={Math.random()} item={item} size="small" />
+                    <PatientCardMobile key={Math.random()} item={item} size="small"/>
                 ))}
             </Box>
             <Paper
@@ -196,6 +248,7 @@ function TimeSchedule(){
                     variant="contained"
                     color="primary"
                     disabled={!time}
+                    onClick={() => dispatch(setStepperIndex(2))}
                 >
                     {t("next")}
                 </Button>

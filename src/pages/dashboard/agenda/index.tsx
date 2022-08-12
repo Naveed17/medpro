@@ -18,8 +18,8 @@ import moment from "moment-timezone";
 import {useAppointment} from "@app/hooks/rest";
 import FullCalendar, {DatesSetArg} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule} from "@features/tabPanel";
+import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
+import {EventType, TimeSchedule, Patient} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
@@ -29,10 +29,13 @@ const Calendar = dynamic(() => import('@features/calendar/components/Calendar'),
 const EventStepper = [
     {
         title: "steppers.tabs.tab-1",
-        children: EventType,
-    },{
+        children: EventType
+    }, {
         title: "steppers.tabs.tab-2",
-        children: TimeSchedule,
+        children: TimeSchedule
+    }, {
+        title: "steppers.tabs.tab-3",
+        children: Patient
     }
 ];
 
@@ -58,7 +61,7 @@ function Agenda() {
     const [date, setDate] = useState(new Date());
 
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
-    let appointments: ConsultationReasonTypeModel[] = [];
+    let appointments: AppointmentModel[] = [];
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -71,7 +74,16 @@ function Agenda() {
         }
     });
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault);
+    const agenda = (httpAgendasResponse as HttpResponse)?.data
+        .find((item: AgendaConfigurationModel) =>
+            item.isDefault) as AgendaConfigurationModel;
+
+    useEffect(() => {
+        if (agenda) {
+            dispatch(setConfig(agenda));
+        }
+    }, [agenda, dispatch])
+
     const {
         httpAppointmentResponse,
         errorHttpAppointment,
@@ -112,7 +124,7 @@ function Agenda() {
         setCalendarEl(event);
     }
 
-    appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as ConsultationReasonTypeModel[];
+    appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
     const events: EventModal[] = [];
     appointments?.map((appointment) => {
         events.push({
