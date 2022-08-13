@@ -116,7 +116,7 @@ export const authOptions: NextAuthOptions = {
   events: {},
 
   // Enable debug messages in the console if you are having problems
-  debug: false,
+  debug: process.env.DEBUG ? true : false,
 }
 
 export default NextAuth(authOptions)
