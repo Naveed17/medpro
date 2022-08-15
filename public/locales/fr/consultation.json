@@ -60,7 +60,18 @@
     "draw_up_an_order": "Rediger ordonnace",
     "write_mail": "Rediger courrier",
     "balance_sheet_request": "Demande bilan",
-    "print_documents": "Imprimer documents"
+    "print_documents": "Imprimer documents",
+    "medical_prescription": "Ordonnance médicale",
+    "seeking_to_name_the_drug": "Veuiller nommé le médicament",
+    "dosage": "Posologie",
+    "enter_your_dosage": "Saisir sa posologie",
+    "duration": "Durée",
+    "day": "Jour",
+    "month": "Mois",
+    "year": "An",
+    "cautionary_note": "Mise en garde",
+    "add_a_drug": "Ajouter un médicament",
+    "drug_list": "Liste médicaments"
   },
   "table": {
     "acts": "Actes",

@@ -12,7 +12,7 @@ function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [value, setValue] = React.useState(tabsData[0].value);
-    const [info, setInfo] = React.useState('');
+    const [info, setInfo] = React.useState<null | string>('');
     const [tabs, setTabs] = React.useState(0);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -20,26 +20,17 @@ function ConsultationIPToolbar({ selected }: any) {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = (action: string) => {
-        console.log(action)
         switch (action) {
             case "draw_up_an_order":
-                setInfo('')
-                break;
-            case "assurance":
-                setInfo(action)
-                break;
-            case "mode":
-                setInfo(action)
-                break;
-            case "langues":
-                setInfo(action)
+                setInfo('medical_prescription')
                 break;
             default:
+                setInfo(null)
                 break;
 
         };
         setAnchorEl(null);
-
+        handleClickDialog()
 
     };
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -47,9 +38,11 @@ function ConsultationIPToolbar({ selected }: any) {
     };
     const handleClickDialog = () => {
         setOpenDialog(true);
+
     };
     const handleCloseDialog = () => {
         setOpenDialog(false);
+        setInfo(null)
     }
     useEffect(() => {
         selected(tabs);
@@ -117,29 +110,33 @@ function ConsultationIPToolbar({ selected }: any) {
                     </Button>
                 </Stack>
             </ConsultationIPToolbarStyled>
-            <Dialog action={info}
-                open={openDialog}
-                data={null}
-                change={false}
-                max
-                direction={'ltr'}
-                title={'Personaliser les données de suivi'}
-                dialogClose={handleCloseDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}
-                            startIcon={<CloseIcon />}>
-                            {t('cancel')}
-                        </Button>
-                        <Button variant="contained"
-                            onClick={handleCloseDialog}
+            {
+                info &&
+                <Dialog action={info}
+                    open={openDialog}
+                    data={null}
+                    change={false}
+                    max
+                    direction={'ltr'}
+                    title={t(info)}
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                startIcon={<CloseIcon />}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                onClick={handleCloseDialog}
 
-                            startIcon={<Icon
-                                path='ic-dowlaodfile' />}>
-                            fasdf
-                        </Button>
-                    </DialogActions>
-                } />
+                                startIcon={<Icon
+                                    path='ic-dowlaodfile' />}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+                    } />
+            }
+
         </>
     )
 }

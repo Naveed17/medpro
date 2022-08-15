@@ -49,6 +49,14 @@ const dialogData = [
       )
     ),
   },
+  {
+    action: "medical_prescription",
+    component: dynamic((): any =>
+      import("@features/dialog/components/medicalPrescriptionDialog/medicalPrescriptionDialog").then(
+        (mod) => mod
+      )
+    ),
+  }
 ];
 
 export default dialogData;
