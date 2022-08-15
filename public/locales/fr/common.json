@@ -11,6 +11,13 @@
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "logout": "Se déconnecter",
+  "type_of_document": "Type de document",
+  "prescription_of_medication": "Ordonnance de médicaments",
+  "orders": "Ordonnances",
+  "report": "Rapport",
+  "analysis": "Analyse",
+  "medical_imaging": "Imagerie médicale",
+  "mail_addressing": "Courrier adressé",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",

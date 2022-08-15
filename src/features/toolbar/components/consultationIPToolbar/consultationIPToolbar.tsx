@@ -7,6 +7,7 @@ import { tabsData, documentButtonList } from './config'
 import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
+import { UploadFile } from '@features/uploadFile'
 
 function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
@@ -14,6 +15,7 @@ function ConsultationIPToolbar({ selected }: any) {
     const [value, setValue] = React.useState(tabsData[0].value);
     const [info, setInfo] = React.useState<null | string>('');
     const [tabs, setTabs] = React.useState(0);
+    const [dialogData, setDialogData] = React.useState<any>(null)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -23,6 +25,12 @@ function ConsultationIPToolbar({ selected }: any) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
+                break;
+            case "balance_sheet_request":
+                setInfo('balance_sheet_request')
+                break;
+            case "upload_document":
+                setInfo('add_a_document')
                 break;
             default:
                 setInfo(null)
@@ -47,7 +55,7 @@ function ConsultationIPToolbar({ selected }: any) {
     useEffect(() => {
         selected(tabs);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tabs])
+    }, [tabs]);
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -114,7 +122,7 @@ function ConsultationIPToolbar({ selected }: any) {
                 info &&
                 <Dialog action={info}
                     open={openDialog}
-                    data={null}
+                    data={dialogData}
                     change={false}
                     max
                     direction={'ltr'}

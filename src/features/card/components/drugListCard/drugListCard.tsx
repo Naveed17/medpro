@@ -4,7 +4,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import DrugListCardStyled from "./overrides/drugListCardStyle";
 import Icon from '@themes/urlIcon'
 function DrugListCard({ ...props }) {
-  const { data } = props;
+  const { data, t } = props;
   return (
     <DrugListCardStyled>
       <Stack direction='row' alignItems="center">
@@ -15,12 +15,12 @@ function DrugListCard({ ...props }) {
               <ListItemIcon>
                 <CircleIcon />
               </ListItemIcon>
-              {data.dosage}</ListItem>
+              {t(data.dosage)}</ListItem>
             <ListItem>
               <ListItemIcon>
                 <CircleIcon />
               </ListItemIcon>
-              {data.duration}</ListItem>
+              {t('duration')} {data.duration} {t('days')}</ListItem>
           </List>
         </Stack>
         <Stack direction='row' spacing={1} alignItems="center" ml="auto">

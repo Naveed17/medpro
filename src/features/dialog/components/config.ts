@@ -56,6 +56,22 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "balance_sheet_request",
+    component: dynamic((): any =>
+      import("@features/dialog/components/balanceSheet/balanceSheet").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "add_a_document",
+    component: dynamic((): any =>
+      import("@features/dialog/components/addDocumentDialog/addDocumentDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 ];
 

@@ -48,7 +48,7 @@ function MedicalPrescriptionDialog() {
                                             ? Array.isArray(value)
                                                 ? value.join(",")
                                                 : value
-                                            : t("Paracetamol ou le nom du médicament")
+                                            : t("placeholder_drug_name")
                                     }
                                 >
                                     <MenuItem value="1">1</MenuItem>
@@ -142,7 +142,7 @@ function MedicalPrescriptionDialog() {
                     {
                         drugListCardData.map((item, index) => (
                             <React.Fragment key={index}>
-                                <DrugListCard data={item} />
+                                <DrugListCard data={item} t={t} />
                             </React.Fragment>
                         ))
                     }
