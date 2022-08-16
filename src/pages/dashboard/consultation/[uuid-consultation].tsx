@@ -3,13 +3,14 @@ import { GetStaticProps, GetStaticPaths } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { ReactElement } from "react";
-import { Box, Stack, Grid, Button, Typography } from "@mui/material";
+import { Box, Stack, Grid, Button, Typography, Collapse, List, ListItem, ListItemIcon, IconButton } from "@mui/material";
+//components
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
 import { CipNextAppointCard, CipMedicProCard } from "@features/card";
 import { Otable } from '@features/table';
-import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard } from "@features/card";
+import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -189,6 +190,7 @@ const headCells2: readonly HeadCell[] = [
 ];
 function ConsultationInProgress() {
     const [value, setValue] = useState<number>(0);
+    const [collapse, setCollapse] = useState<any>('');
     const { t, ready } = useTranslation("consultation");
     if (!ready) return <>loading translations...</>;
     return (
@@ -204,7 +206,55 @@ function ConsultationInProgress() {
                                 {
                                     CIPPatientHistoryCardData.map((data, index: number) => (
                                         <React.Fragment key={index}>
-                                            <CIPPatientHistoryCard data={data} />
+                                            <CIPPatientHistoryCard data={data}>
+                                                {
+                                                    data.title === "reason_for_consultation" &&
+
+                                                    <Stack spacing={2}>
+                                                        <MotifCard data={data} />
+                                                        <List dense>
+                                                            {
+                                                                data.collapse?.map((col, index: number) => (
+                                                                    <>
+                                                                        <ListItem key={index}
+                                                                            onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
+                                                                            sx={{
+                                                                                cursor: "pointer", borderTop: 1, borderColor: 'divider', px: 0,
+                                                                                '& .MuiListItemIcon-root': {
+                                                                                    minWidth: 20,
+                                                                                    svg: {
+                                                                                        width: 14,
+                                                                                        height: 14,
+                                                                                    }
+                                                                                }
+                                                                            }}>
+
+                                                                            <ListItemIcon>
+                                                                                <Icon path={col.icon} />
+                                                                            </ListItemIcon>
+                                                                            <Typography variant='body2' fontWeight={700}>
+                                                                                {t(col.title)}
+                                                                            </Typography>
+                                                                            <IconButton sx={{ ml: 'auto' }}>
+                                                                                <Icon path="ic-expand-more" />
+                                                                            </IconButton>
+                                                                        </ListItem>
+                                                                        <ListItem
+                                                                            sx={{ p: 0 }}
+                                                                        >
+                                                                            <Collapse in={collapse === col.id}>
+                                                                                faasd
+                                                                            </Collapse>
+                                                                        </ListItem>
+                                                                    </>
+                                                                ))
+                                                            }
+                                                        </List>
+                                                    </Stack>
+
+
+                                                }
+                                            </CIPPatientHistoryCard>
                                         </React.Fragment>
                                     ))}
                             </Stack>

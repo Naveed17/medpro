@@ -69,7 +69,7 @@ function AddDocumentDialog() {
                     </Grid>
                     <Grid item xs={12} lg={9}>
                         {files.length > 0 ?
-                            <Stack spacing={2}>
+                            <Stack spacing={2} maxWidth={{ xs: '100%', md: '50%' }}>
                                 {files.map((file, index) => (
                                     <FileuploadProgress key={index} file={file} progress={100} handleRemove={handleRemove} />
 
