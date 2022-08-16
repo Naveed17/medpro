@@ -1,5 +1,3 @@
-
-import PropTypes from 'prop-types';
 import { useDropzone } from 'react-dropzone';
 import React from 'react'
 // material
@@ -10,7 +8,7 @@ import {
     Stack,
 } from '@mui/material';
 import Icon from '@themes/urlIcon';
-
+import { useTranslation } from "next-i18next";
 
 // ----------------------------------------------------------------------
 
@@ -20,10 +18,12 @@ import Icon from '@themes/urlIcon';
 
 
 export default function UploadMultiFile({ ...props }) {
-    const { styleprops, onDrop, accept, multiple, singleFile, error, sx, ...other } = props;
+    const { t, ready } = useTranslation();
+    const { styleprops, singleFile, error, sx, ...other } = props;
     const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
         ...other
     });
+    if (!ready) return <>loading translations...</>;
 
     return (
         <Box sx={{ width: '100%', ...sx }}>
@@ -43,14 +43,14 @@ export default function UploadMultiFile({ ...props }) {
                 {!singleFile ? (
                     <Box sx={{ p: 1, }}>
                         <Typography sx={{ color: 'text.secondary' }}>
-                            Click Or Drop Files Upload
+                            {t('click_or_drop_files_to_upload')}
                         </Typography>
                     </Box>
                 ) : (
                     <Stack alignItems='center'>
                         <Icon path="ic_upload3" />
                         <Typography sx={{ color: 'text.secondary' }}>
-                            Drag and drop file here or click
+                            {t('drag_and_drop_file_here_or_click')}
                         </Typography>
                     </Stack>
                 )}

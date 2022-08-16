@@ -33,6 +33,7 @@ declare module "@mui/material" {
     "500_16": string;
     A0: string;
     A50: string;
+    A60: string;
     A200: string;
     A300: string;
     A400: string;

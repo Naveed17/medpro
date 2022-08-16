@@ -18,6 +18,13 @@
   "analysis": "Analyse",
   "medical_imaging": "Imagerie médicale",
   "mail_addressing": "Courrier adressé",
+  "name_of_the_document": "Nom du document",
+  "description": "Description",
+  "type_the_name_of_the_document": "Tapez le nom du document",
+  "type_a_description": "Tapez une description",
+  "import_document": "Importer un document",
+  "click_or_drop_files_to_upload": "Cliquez ou déposez les fichiers à uploader",
+  "drag_and_drop_file_here_or_click": "Glissez et déposez le fichier ici ou cliquez",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",

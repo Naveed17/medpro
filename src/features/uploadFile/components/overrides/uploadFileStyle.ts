@@ -9,8 +9,8 @@ const DropZoneStyle = styled('div')(({ theme, styleprops }): { theme: Theme, sty
         justifyContent: 'center',
         padding: theme.spacing(3.2, 1),
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: theme.palette.background.paper,
-        border: `1px dashed ${theme.palette.grey[500]}`,
+        backgroundColor: theme.palette.grey['A700'],
+        border: `1px dashed ${theme.palette.grey['A600']}`,
         '&:hover': { opacity: 0.72, cursor: 'pointer' },
         [theme.breakpoints.up('md')]: { textAlign: 'left', flexDirection: 'row' }
     }
@@ -18,8 +18,8 @@ const DropZoneStyle = styled('div')(({ theme, styleprops }): { theme: Theme, sty
         padding: theme.spacing(2, 1),
         borderRadius: theme.shape.borderRadius,
         backgroundColor: theme.palette.common.white,
-        border: `2px solid #BDBDBD`,
-        '& svg path': { fill: '#BDBDBD' },
+        border: `2px solid ${theme.palette.grey['A600']}`,
+        '& svg path': { fill: theme.palette.grey['A600'] },
         '&:hover': { opacity: 0.72, cursor: 'pointer' },
     }
     return Boolean(styleprops) ? single : multi;

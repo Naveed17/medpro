@@ -1,11 +1,23 @@
+import React, { useState } from 'react'
 import { Grid, Stack, Typography, TextField } from '@mui/material'
 import AddDocumentDialogStyled from './overrides/addDocumentDialogStyle'
 import { DocumentButton } from '@features/buttons';
 import { UploadFile } from '@features/uploadFile';
 import { useTranslation } from 'next-i18next'
+import FileuploadProgress from '@features/fileUploadProgress/components/fileUploadProgress';
 import { buttonsData } from './config'
 function AddDocumentDialog() {
-    const { t, ready } = useTranslation("common")
+    const [files, setFile] = useState([]);
+    const handleDrop = React.useCallback(
+        (acceptedFiles: React.SetStateAction<never[]>) => {
+            setFile(acceptedFiles);
+        },
+        [setFile]
+    );
+    const handleRemove = (file: object) => {
+        setFile(files.filter((_file) => _file !== file));
+    };
+    const { t, ready } = useTranslation("common");
     if (!ready) return <>loading translations...</>;
     return (
         <AddDocumentDialogStyled>
@@ -26,25 +38,25 @@ function AddDocumentDialog() {
                 <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="flex-start">
                     <Grid item xs={12} lg={3}>
                         <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
-                            Nom de l’etablissement
+                            {t("name_of_the_document")}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
                         <TextField
                             variant="outlined"
-                            placeholder="name"
+                            placeholder={t('type_the_name_of_the_document')}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
                         <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
-                            Nom de l’etablissement
+                            {t("description")}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
                         <TextField
                             variant="outlined"
-                            placeholder="name"
+                            placeholder={t('type_a_description')}
                             fullWidth
                             multiline
                             rows={4}
@@ -52,11 +64,19 @@ function AddDocumentDialog() {
                     </Grid>
                     <Grid item xs={12} lg={3}>
                         <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
-                            Nom de l’etablissement
+                            {t("import_document")}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
-                        <UploadFile />
+                        {files.length > 0 ?
+                            <Stack spacing={2}>
+                                {files.map((file, index) => (
+                                    <FileuploadProgress key={index} file={file} progress={100} handleRemove={handleRemove} />
+
+                                ))}
+                            </Stack>
+                            :
+                            <UploadFile files={files} onDrop={handleDrop} />}
                     </Grid>
                 </Grid>
             </Stack>
