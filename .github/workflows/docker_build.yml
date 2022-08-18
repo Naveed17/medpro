@@ -12,9 +12,6 @@ on:
       REGISTRY:
         required: true
         type: string
-      IMAGE:
-        required: true
-        type: string
     secrets:
       token:
         required: true
@@ -29,6 +26,12 @@ jobs:
       tags: ${{ steps.docker_metadata.outputs.tags }}
 
     steps:
+      - id: toLower
+        name: toLower
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository }}
+
       - name: checkout
         uses: actions/checkout@v3
 
@@ -44,7 +47,7 @@ jobs:
         id: docker_metadata
         uses: docker/metadata-action@v4
         with:
-          images: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE }}
+          images: ${{ inputs.REGISTRY }}/${{ steps.toLower.outputs.lowercase }}
           flavor: |
             latest=false
             
@@ -61,7 +64,7 @@ jobs:
           labels: ${{ steps.docker_metadata.outputs.labels }}
           cache-from: |
             type=registry,ref=${{ steps.docker_metadata.outputs.tags }}-cache
-            type=registry,ref=${{ inputs.REGISTRY }}/${{ inputs.IMAGE }}:${{ github.event.repository.default_branch }}
+            type=registry,ref=${{ inputs.REGISTRY }}/${{ steps.toLower.outputs.lowercase  }}:${{ github.event.repository.default_branch }}
           cache-to: type=registry,mode=max,ref=${{ steps.docker_metadata.outputs.tags }}-cache
 
   lint:

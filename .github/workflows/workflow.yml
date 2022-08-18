@@ -5,7 +5,6 @@ on:
     branches:
       - 'main'
       - 'develop'
-      - 'multistage_cache_feature'
     tags:
       - '**'
   pull_request:
@@ -15,24 +14,12 @@ on:
     types: [ opened ,closed ,synchronize ,reopened ]
   
 jobs:
-  lowercase_name:
-    runs-on: ubuntu-latest
-    outputs:
-      repository: ${{ steps.toLower.outputs.lowercase }}
-    steps:
-      - id: toLower
-        uses: ASzc/change-string-case-action@v2
-        with:
-          string: ${{ github.repository }}
-
   build:
-    needs: lowercase_name
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
     uses: ./.github/workflows/docker_build.yml
     with:
       REGISTRY: ghcr.io
       username: ${{ github.actor }}
-      IMAGE: ${{needs.lowercase_name.outputs.repository}}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
