@@ -151,12 +151,7 @@ function PlacesDetail() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true});
+    const {trigger} = useRequestMutation(null, "/settings/place");
 
     const formik = useFormik({
         enableReinitialize: true,

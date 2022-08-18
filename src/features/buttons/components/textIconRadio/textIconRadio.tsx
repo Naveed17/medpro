@@ -4,13 +4,13 @@ import CheckedRadioIcon from "@themes/overrides/icons/checkedRadioIcon";
 import RadioButtonStyled from "./overrides/radioButtonStyled";
 
 function TextIconRadio({...props}) {
-    const {title, icon, disabled, selectedValue, onChangeValue} = props;
+    const {item, title, icon, disabled, selectedValue, onChangeValue} = props;
     return (
         <RadioButtonStyled
             disabled={disabled}
-            {...{selectedvalue: selectedValue, title}}
+            {...{selectedvalue: selectedValue, id: item.id}}
             title={title}
-            onClick={() => onChangeValue(title)}
+            onClick={() => onChangeValue(item.id)}
             variant="contained"
             color="primary"
             startIcon={
@@ -22,7 +22,7 @@ function TextIconRadio({...props}) {
                     }}
                     checkedIcon={<CheckedRadioIcon/>}
                     icon={<CheckRadioIcon/>}
-                    checked={selectedValue === title}
+                    checked={selectedValue === item.id}
                     name="radio-buttons"
                     inputProps={{'aria-label': title}}
                 />
