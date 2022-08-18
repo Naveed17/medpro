@@ -8,7 +8,7 @@ import {
     Box,
     TextField,
     FormControl,
-    Button, ListItemText, ListItem, Checkbox, Collapse, Skeleton
+    Button, ListItemText, ListItem, Checkbox, Collapse, Skeleton, IconButton
 } from '@mui/material'
 import {styled} from '@mui/material/styles';
 import React, {useEffect, useState} from "react";
@@ -83,12 +83,6 @@ function PfTemplateDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    useEffect(() => {
-        if (props.data)
-            setComponents(props.data.structure);
-    }, [props])
-
-
     const {trigger} = useRequestMutation(
         {
             method: "GET",
@@ -111,7 +105,19 @@ function PfTemplateDetail({...props}) {
         if (httpProfessionalsResponse !== undefined) {
             setMedicalProfessionalUuid((httpProfessionalsResponse as HttpResponse).data[0].medical_professional.uuid);
         }
-    }, [data, httpProfessionalsResponse])
+
+        if (props.data) {
+            setComponents(props.data.structure);
+            if (data) {
+                let wdg: any[] = [];
+                props.data.structure.map((comp: any) => {
+                    const compnent = (data as HttpResponse).data.find((elm: SpecialtyJsonWidgetModel) => elm.fieldSet.key === comp.key)
+                    wdg.push({...compnent})
+                });
+                setWidget([...wdg]);
+            }
+        }
+    }, [data, httpProfessionalsResponse, props.data])
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t('users.new.ntc'))
@@ -134,25 +140,40 @@ function PfTemplateDetail({...props}) {
                 struct.push(w.fieldSet)
             });
 
-            setComponents(struct);
             const form = new FormData();
             form.append('label', values.name);
             form.append('color', modelColor);
             form.append('medicalProfessionalUuid', medical_professional_uuid)
             form.append('structure', JSON.stringify(struct));
 
-            trigger({
-                method: "POST",
-                url: "/api/medical-entity/" + medical_entity.uuid + '/modals',
-                data: form,
-                headers: {
-                    ContentType: 'application/x-www-form-urlencoded',
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }, {revalidate: true, populateCache: true}).then(() => {
-                props.mutate();
-                props.closeDraw();
-            })
+            if (props.action === 'edit' && !props.data.hasData) {
+                trigger({
+                    method: "PUT",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/modals/' + props.data.uuid,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, {revalidate: true, populateCache: true}).then(() => {
+                    props.mutate();
+                    props.closeDraw();
+                })
+
+            } else {
+                trigger({
+                    method: "POST",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/modals',
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, {revalidate: true, populateCache: true}).then(() => {
+                    props.mutate();
+                    props.closeDraw();
+                })
+            }
         },
     });
     const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
@@ -179,13 +200,20 @@ function PfTemplateDetail({...props}) {
             }
         } else {
             index === -1 ? setWidget([...widget, {...parent}]) : setWidget([...widget.slice(0, index), ...widget.slice(index + 1, widget.length)]);
-
+            updateOpenedWidget(parent.uuid, index === -1);
         }
     }
 
-    const updateOpenedWidget = (widget: string) => {
+    const updateOpenedWidget = (widget: string, state: boolean | null) => {
         const index = open.findIndex((v: string) => v === widget)
-        index === -1 ? setOpen([...open, widget]) : setOpen([...open.slice(0, index), ...open.slice(index + 1, open.length)]);
+        if (state !== null) {
+            if (index === -1 && state)
+                setOpen([...open, widget]);
+            if (index !== -1 && !state)
+                setOpen([...open.slice(0, index), ...open.slice(index + 1, open.length)])
+        } else {
+            index === -1 ? setOpen([...open, widget]) : setOpen([...open.slice(0, index), ...open.slice(index + 1, open.length)]);
+        }
     }
 
     if (!ready) return (<>loading translations...</>);
@@ -213,8 +241,7 @@ function PfTemplateDetail({...props}) {
                             form={{
                                 display: 'form',
                                 components: components
-                            }}
-                            onSubmit={(schema: any) => console.log(schema)}/>
+                            }}/>
 
                     </PaperStyled>
                 </FormikProvider>
@@ -300,10 +327,14 @@ function PfTemplateDetail({...props}) {
                                                         />
                                                         <ListItemText id="switch-list-label-bluetooth"
                                                                       onClick={() => {
-                                                                          updateOpenedWidget(section.uuid)
+                                                                          updateOpenedWidget(section.uuid, null)
                                                                       }}
                                                                       primary={section.name}/>
-                                                        <IconUrl path={'mdi_arrow_drop_down'}/>
+                                                        <IconButton sx={{width: '40px', height: '40px'}} onClick={() => {
+                                                            updateOpenedWidget(section.uuid, null)
+                                                        }}>
+                                                            <IconUrl path={'mdi_arrow_drop_down'}/>
+                                                        </IconButton>
                                                     </ListItem>
 
                                                     <Collapse
@@ -330,7 +361,7 @@ function PfTemplateDetail({...props}) {
                             </CardContent>
                         </Card>
 
-                        <Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
+                        {/*<Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
                             Preview
                         </Typography>
                         <Card>
@@ -340,9 +371,9 @@ function PfTemplateDetail({...props}) {
                                         display: 'form',
                                         components
                                     }}
-                                    onSubmit={(schema: any) => console.log(schema)}/>
+                                  />
                             </CardContent>
-                        </Card>
+                        </Card>*/}
 
                         <div style={{height: 70}}></div>
 

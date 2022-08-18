@@ -72,7 +72,6 @@ function PatientFileTemplates() {
 
     useEffect(() => {
         if (modalsHttpResponse !== undefined) {
-            //console.log(modalsHttpResponse);
             setRows((modalsHttpResponse as HttpResponse).data);
         }
     }, [modalsHttpResponse])
@@ -96,7 +95,6 @@ function PatientFileTemplates() {
     }
 
     const handleEdit = (props: ModalModel, event: string, value: string) => {
-        console.log(event, props);
         setOpen(true);
         setAction(event);
         setData(props);
