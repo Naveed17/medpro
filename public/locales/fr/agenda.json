@@ -153,5 +153,20 @@
     "added": "RDV ajouté",
     "added-description": "rendez-vous ajouté avec succès",
     "finish": "Fermer"
+  },
+  "event": {
+    "title": "Détail RDV",
+    "start": "Commencer la consultation",
+    "schedule": "Créneau horaire",
+    "motif": "Motif de consultation",
+    "date": "Date de la consultation",
+    "qr": "Qr-Code",
+    "link": "Envoyer lien",
+    "patient": "Patient",
+    "insctruction": "Insctructions",
+    "insctruction-placeholder'": "tapez ici vos instructions",
+    "add-waiting-room": "Ajouter patient à la salle d'attente",
+    "move": "Déplacer RDV",
+    "delete": "Annuler RDV"
   }
 }
