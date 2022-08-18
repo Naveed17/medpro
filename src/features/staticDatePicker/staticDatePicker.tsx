@@ -15,7 +15,7 @@ import { configSelector } from "@features/base";
 import { LocaleFnsProvider } from "@app/localization/localization";
 
 export default function StaticDatePicker({ ...props }) {
-  const { loading, value, onChange, ...rest } = props;
+  const { loading, value, onChange, onDateDisabled, ...rest } = props;
   const { locale } = useAppSelector(configSelector);
 
   return (
@@ -28,6 +28,7 @@ export default function StaticDatePicker({ ...props }) {
           reduceAnimations
           displayStaticWrapperAs="desktop"
           disablePast
+          shouldDisableDate={onDateDisabled}
           onChange={onChange}
           value={value}
           {...rest}

@@ -45,12 +45,7 @@ function Actes() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true})
+    const {trigger} = useRequestMutation(null, "/settings/acts");
 
     const {data, error} = useRequest(isProfil ? {
         method: "GET",

@@ -21,12 +21,7 @@ function Motif() {
     const {data: user} = session as Session;
     const router = useRouter();
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true});
+    const {trigger} = useRequestMutation(null, "/settings/motifs");
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 

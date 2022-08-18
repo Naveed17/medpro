@@ -54,7 +54,10 @@
   },
   "steppers": {
     "tabs": {
-      "tab-1": "نوع"
+      "tab-1": "نوع",
+      "tab-2": "فسحة زمنية",
+      "tab-3": "المرضى",
+      "tab-4": "تعليمات"
     },
     "stepper-0": {
       "title": "نوع الفترة الزمنية",
@@ -67,7 +70,82 @@
         "absence": "غياب"
       }
     },
+    "stepper-1": {
+      "title": "حجز فترة زمنية",
+      "sub-title": "فترة زمنية",
+      "reason-consultation": "سبب الاستشارة",
+      "practitioner": "صاحب مهنة",
+      "affect-des": "اختر الممارس الذي يؤثر على هذه الاستشارة",
+      "time-slot": "الفترة زمنية",
+      "date-message": "الرجاء اختيار مواعيد الموعد",
+      "time-message": "الرجاء اختيار وقت الاجتماع",
+      "see-more": "انظر المزيد من الجداول الزمنية"
+    },
+    "stepper-2": {
+      "title": "اختر المريض",
+      "sub-title": "تحتاج إلى إضافة مريض",
+      "add_button": "أضف مريض جديد",
+      "patient": {
+        "personal-info": "معلومات شخصية",
+        "additional-information": "معلومات إضافية",
+        "fin": "نهاية",
+        "group": "مجموعة",
+        "group-placeholder": "حدد مجموعة",
+        "civility": "الكياسة",
+        "mr": "السيد",
+        "mrs": "السّيدة",
+        "name": "اللقب",
+        "name-placeholder": "اكتب اسم المريض",
+        "name-error": "يجب أن يحتوي الاسم على 3 أحرف على الأقل ، بدون أحرف خاصة.",
+        "first-name": "الاسم",
+        "first-name-error": "يجب أن يحتوي الاسم الأول على 3 أحرف على الأقل ، بدون أحرف خاصة.",
+        "first-name-placeholder": "أدخل الاسم الأول للمريض",
+        "date-of-birth": "تاريخ الميلاد",
+        "day": "يوم",
+        "month": "شهر",
+        "year": "سنة",
+        "date-error": "هذه الخانة مطلوبه",
+        "telephone": "رقم الهاتف",
+        "telephone-error": "هذه الخانة مطلوبه",
+        "region": "منطقة",
+        "region-placeholder": "منطقة",
+        "zip": "الرقم البريدي",
+        "address": "العنوان الحالي",
+        "address-placeholder": "أدخل عنوان المريض",
+        "assurance": "تأمين",
+        "assurance-phone-error": "أدخل رقم التأمين",
+        "email": "البريد الإلكتروني",
+        "email-placeholder": "أدخل عنوان البريد الإلكتروني للمريض",
+        "cin": "CIN",
+        "cin-placeholder": "أدخل رقم CIN الخاص بالمريض",
+        "from": "من",
+        "from-placeholder": "أدخل تاريخ ميلاد المريض",
+        "add-new": "أضف مريض آخر",
+        "add-appo": "إضافة موعد",
+        "register": "للتسجيل",
+        "return": "الرجوع الى",
+        "dialog": {
+          "title": "تم الكشف عن تكرارات",
+          "later": "افعله لاحقا",
+          "no-duplicates": "هؤلاء المرضى ليسوا مكررين",
+          "selected": "تم اختيار المريض"
+        }
+      }
+    },
+    "stepper-3": {
+      "title": "تعليمات / نصيحة",
+      "sub-title": "تعليمات للمريض",
+      "instruction-placeholder": "اكتب تعليمات للمريض",
+      "reminder": "تذكر",
+      "sms-reminder": "تذكير SMS",
+      "schedule": "برمجة رسالة تذكير عبر الرسائل القصيرة للمريض",
+      "to": "الى",
+      "day": "يوم"
+    },
     "next": "التالي",
-    "back": "رجوع"
+    "back": "رجوع",
+    "added": "تمت إضافة الموعد",
+    "added-description": "تمت إضافة الموعد بنجاح",
+    "finish": "تمت"
   }
 }

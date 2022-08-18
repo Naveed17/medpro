@@ -34,16 +34,18 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     "& .fc-timegrid-event": {
         "& .MuiBox-root": {
-            flexDirection: "column",
-            alignItems: "baseline",
+            // flexDirection: "column",
+            // alignItems: "baseline",
             justifyContent: "flex-start",
+            padding: theme.spacing(0.5, 0),
+
             "& .ic-cabinet, & .ic-video": {
-                marginLeft: theme.spacing(0.5),
+               // marginLeft: theme.spacing(0.5),
             },
         },
     },
     "& .fc-timegrid-event-harness > .fc-timegrid-event": {
-        width: "102.6%",
+       width: "101%",
     },
     "& .fc-event-main-box": {
         overflow: "hidden",
