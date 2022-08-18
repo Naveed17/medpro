@@ -47,6 +47,7 @@ jobs:
       token: ${{ secrets.SMARTMEDBOT_PAT }}
 
   deploy:
+    if: github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/waypoint.yml
     needs: build
     with:
