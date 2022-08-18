@@ -11,6 +11,7 @@ export * from "./successCard";
 export * from "./noDataCard";
 export * from "./patientAppointmentCard";
 export * from "./drugListCard";
+export * from './appointmentCard';
 export { default as DetailsCard } from "./detailsCard";
 export { default as CollapseCard } from "./collapseCard";
 export { default as ConsultationCard } from "./consultationCard";

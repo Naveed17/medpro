@@ -4,7 +4,6 @@ import { useTranslation } from 'next-i18next'
 import RootStled from './overrides/rootStyle';
 import CircleIcon from '@mui/icons-material/Circle';
 function MotifCard({ data }: any) {
-    console.log(data)
     const { t, ready } = useTranslation('consultation', { keyPrefix: 'consultationIP' })
     if (!ready) return <>loading translations...</>
     return (
@@ -57,7 +56,7 @@ function MotifCard({ data }: any) {
                             <List dense>
                                 {
                                     data.diseases.map((disease: any) => (
-                                        <ListItem key={disease}>
+                                        <ListItem key={`list-${disease}`}>
                                             <ListItemIcon>
                                                 <CircleIcon />
                                             </ListItemIcon>

@@ -6,5 +6,8 @@ const CIPPatientHistoryCardStyled = styled(Card)(({ theme }) => ({
             marginRight: theme.spacing(1),
         }
     },
+    '.MuiCardContent-root': {
+        paddingBottom: theme.spacing(1)
+    }
 }));
 export default CIPPatientHistoryCardStyled;

@@ -14,6 +14,7 @@ declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
     google: true;
     "text-black": true;
+    'contained-white': true
     filter: true;
     "text-primary": true;
     consultationIP: true;

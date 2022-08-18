@@ -13,14 +13,13 @@ const DrugListCardStyled = styled(Card)(({ theme }) => ({
             color: theme.palette.text.secondary,
             fontSize: theme.typography.body2.fontSize,
             '.MuiListItemIcon-root': {
-                minWidth: theme.spacing(2),
+                minWidth: theme.spacing(1),
                 svg: {
                     color: theme.palette.text.secondary,
-                    width: theme.spacing(0.75),
+                    width: theme.spacing(0.5),
                 },
             },
             padding: theme.spacing(0),
-            listStyle: "disc",
         }
     },
 }));

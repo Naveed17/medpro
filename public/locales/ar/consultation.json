@@ -106,5 +106,9 @@
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails"
   },
-  "total": "Total"
+  "total": "Total",
+  "treatment_medication": "Traitement (médicament)",
+  "dosage_unit": "1c / jour",
+  "req-sheet": "Demande bilan",
+  "bal_sheet_req": "Demande bilan"
 }
