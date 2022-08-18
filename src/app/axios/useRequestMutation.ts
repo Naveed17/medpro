@@ -1,5 +1,5 @@
 import useSWRMutation, {SWRMutationConfiguration, SWRMutationResponse} from "swr/mutation";
-import axios, {Axios, AxiosError, AxiosResponse} from "axios";
+import {AxiosError, AxiosResponse} from "axios";
 import {GetRequest} from "@app/axios/config";
 import {instanceAxios} from "@app/axios";
 
@@ -19,6 +19,7 @@ export interface ConfigMutation<Data = unknown, Error = unknown>
 
 function useRequestMutation<DataMutation = unknown, Error = unknown>(
     request: GetRequest,
+    key?: string,
     {fallbackData, ...config}: ConfigMutation<DataMutation, Error> = {}
 ): ReturnMutation<DataMutation, Error> {
 
@@ -29,7 +30,7 @@ function useRequestMutation<DataMutation = unknown, Error = unknown>(
         isMutating,
         reset
     } = useSWRMutation<AxiosResponse<DataMutation>, AxiosError<Error>>(
-        request && JSON.stringify(request),
+        key ? key : request?.url,
         (key: string, requestConfig: any) => instanceAxios.request<DataMutation>(requestConfig!.arg),
         {
             ...config

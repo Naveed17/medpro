@@ -41,12 +41,7 @@ function Lieux() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true});
+    const {trigger} = useRequestMutation(null, "/settings/places");
 
     const {direction} = useAppSelector(configSelector);
 

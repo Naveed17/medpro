@@ -1,18 +1,19 @@
-import {MouseEventHandler, useState} from "react";
+import {useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import MenuList from "@mui/material/MenuList";
 import {InputAdornment} from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
-import PatientAppointmentCard from "../../card/components/patientAppointmentCard/patientAppointmentCard";
+import {PatientAppointmentCard} from "@features/card";
 
 function AutoComplete({...props}) {
-    const {data, getData} = props;
+    const {data, onSelectData} = props;
     const [focus, setFocus] = useState(true);
     const [value, setValue] = useState('');
+
     const handleListItemClick = ({...props}) => {
-        getData(props);
+        onSelectData(props);
     };
 
     const onKeyDown = (e: any) => {
@@ -52,14 +53,20 @@ function AutoComplete({...props}) {
             />
             <Box className="scroll-main">
                 <MenuList
+                    id={"item-list"}
                     autoFocusItem={!focus}
                 >
-                    {value !== '' ? data.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).map((item: any) => (
-                            <PatientAppointmentCard key={item.id} item={item} onClick={() => handleListItemClick(item)}/>
+                    {value !== '' ? data?.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).map((item: PatientModel, index: number) => (
+                            <PatientAppointmentCard
+                                key={item.uuid}
+                                item={item}
+                                onClick={() => handleListItemClick(item)}/>
                         ))
-                        : data.map((item: any, index: number) => (
-                            <PatientAppointmentCard key={item.id} item={item}
-                                                    onClick={() => handleListItemClick(item)}/>
+                        : data?.map((item: any, index: number) => (
+                            <PatientAppointmentCard
+                                key={item.uuid}
+                                item={item}
+                                onClick={() => handleListItemClick(item)}/>
                         ))}
                 </MenuList>
 

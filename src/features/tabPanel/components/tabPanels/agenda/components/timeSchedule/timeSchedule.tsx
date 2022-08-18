@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -10,7 +10,6 @@ import Grid from "@mui/material/Grid";
 import {RadioTextImage} from "@features/radioTextImage";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {TimeSlot} from "@features/timeSlot";
-import {PatientCardMobile} from "@features/card/components/patientCardMobile";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
@@ -20,32 +19,42 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
+import moment from "moment";
+import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
-// time slot data
-const timeData = [
-    {time: "8:30", disabled: false},
-    {time: "8:45", disabled: false},
-    {time: "9:00", disabled: false},
-    {time: "9:15", disabled: false},
-    {time: "9:30", disabled: false},
-    {time: "9:45", disabled: false},
-    {time: "10:00", disabled: false},
-    {time: "10:15", disabled: false},
-];
+const getDayOfWeek = (day: string) => {
+    const days: { [key: string]: number } = {
+        FRI: 5,
+        MON: 1,
+        SAT: 6,
+        SUN: 7,
+        THU: 3,
+        TUE: 2,
+        WED: 4
+    }
+    return days[day];
+}
 
-function TimeSchedule() {
+function TimeSchedule({...props}) {
+    const {onNext} = props;
     const {data: session, status} = useSession();
-    const {config} = useAppSelector(agendaSelector);
-    console.log(config);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const router = useRouter();
+    const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
     const dispatch = useAppDispatch();
 
-    const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [reason, setReason] = React.useState("");
+    const [reason, setReason] = React.useState(motif);
     const [location, setLocation] = React.useState("");
-    const [date, setDate] = React.useState<Date | null>(null);
+    const [professional, setProfessional] = React.useState("");
+    const [timeSlots, setTimeSlots] = React.useState<TimeSlotModel[]>([]);
+    const [date, setDate] = React.useState<Date | null>(selectedDate);
     const [time, setTime] = React.useState("");
-    const [radio, setRadio] = React.useState("");
+    const [limit, setLimit] = React.useState(16);
+
+    const {t, ready} = useTranslation("agenda", {
+        keyPrefix: "steppers",
+    });
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -54,32 +63,89 @@ function TimeSchedule() {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    }, SWRNoValidateConfig);
 
     const {data: httpProfessionalResponse, error: errorHttpProfessional} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${config?.uuid}/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
+    }, SWRNoValidateConfig);
+
+    const {
+        data: httpTimeSlotsResponse,
+        error: errorHttpTimeSlots,
+        trigger,
+        isMutating
+    } = useRequestMutation(null, "/calendar/slots");
 
     // handleChange for select
     const onChangeReason = (event: SelectChangeEvent) => {
-        setReason(event.target.value as string);
+        const reason = event.target.value as string;
+        setReason(reason);
+    };
+
+    const onChangeDatepicker = (date: Date) => {
+        setDate(date);
+        trigger(location ? {
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
+            /locations/${location}/professionals/${professional}?day=${moment(date).format('DD-MM-YYYY')}`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        } : null);
     };
 
     const onChangeLocation = (event: SelectChangeEvent) => {
         setLocation(event.target.value as string);
     };
 
-    const {t, ready} = useTranslation("agenda", {
-        keyPrefix: "steppers",
-    });
+    const onNextStep = () => {
+        dispatch(setAppointmentMotif(reason));
+        const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
+        console.log(dateTime);
+        dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY hh:mm').toDate()));
+        dispatch(setStepperIndex(2));
+        onNext(2);
+    }
+
+
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+    const locations = agendaConfig?.locations;
+    const professionals = (httpProfessionalResponse as HttpResponse)?.data as MedicalProfessionalModel[];
+    const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
+    const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
+
+    let disabledDay: number[] = [];
+    openingHours && Object.entries(openingHours).filter((openingHours: any) => {
+        if (!(openingHours[1].length > 0)) {
+            disabledDay.push(getDayOfWeek(openingHours[0]));
+        }
+    })
+
+    useEffect(() => {
+        if (weekTimeSlots) {
+            const slots = weekTimeSlots.find(slot =>
+                slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
+            if (slots) {
+                setTimeSlots(slots);
+            }
+        }
+    }, [date, weekTimeSlots]);
+
+    useEffect(() => {
+        if (locations && locations.length === 1) {
+            setLocation(locations[0].uuid)
+        }
+    }, [locations]);
+
+    useEffect(() => {
+        if (professionals && professionals.length === 1) {
+            setProfessional(professionals[0].uuid)
+        }
+    }, [professionals]);
+
 
     if (errorHttpConsultReason) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
-
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-    const locations = config?.locations;
 
     return (
         <div>
@@ -114,31 +180,33 @@ function TimeSchedule() {
                     </Select>
                 </FormControl>
 
-                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                    {t("stepper-1.locations")}
-                </Typography>
-                <FormControl fullWidth size="small">
-                    <Select
-                        labelId="select-location"
-                        id="select-location"
-                        disabled={reason === ''}
-                        value={location}
-                        onChange={onChangeLocation}
-                        sx={{
-                            "& .MuiSelect-select svg": {
-                                display: "none",
-                            },
-                        }}
-                    >
-                        {locations?.map((location) => (
-                            <MenuItem value={location.uuid} key={location.uuid}>
-                                {location.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                {(locations && locations.length > 1) && <>
+                    <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                        {t("stepper-1.locations")}
+                    </Typography>
+                    <FormControl fullWidth size="small">
+                        <Select
+                            labelId="select-location"
+                            id="select-location"
+                            disabled={reason === ''}
+                            value={location}
+                            onChange={onChangeLocation}
+                            sx={{
+                                "& .MuiSelect-select svg": {
+                                    display: "none",
+                                },
+                            }}
+                        >
+                            {locations?.map((location) => (
+                                <MenuItem value={location.uuid} key={location.uuid}>
+                                    {location.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </>}
 
-                {location && (
+                {(professionals && professionals.length > 1) && (
                     <Box>
                         <Typography
                             variant="body1"
@@ -159,8 +227,8 @@ function TimeSchedule() {
                                         name={`agenda-${index}`}
                                         image="/static/img/men.png"
                                         type="Dermatologue"
-                                        onChange={(v: string) => setRadio(v)}
-                                        value={radio}
+                                        onChange={(v: string) => setProfessional(v)}
+                                        value={professional}
                                         fullWidth
                                     />
                                 </Grid>
@@ -185,9 +253,10 @@ function TimeSchedule() {
                 <Grid container spacing={2}>
                     <Grid item md={6} xs={12}>
                         <StaticDatePicker
-                            onChange={(newDate: Date) => setDate(newDate)}
+                            onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
+                            onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                             value={date}
-                            loading={!radio}
+                            loading={!location || !reason}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
@@ -196,9 +265,10 @@ function TimeSchedule() {
                         </Typography>
                         <TimeSlot
                             loading={!date}
-                            data={timeData}
-                            limit={16}
+                            data={timeSlots}
+                            limit={limit}
                             onChange={(newTime: string) => setTime(newTime)}
+                            OnShowMore={() => setLimit(limit * 2)}
                             value={time}
                             seeMore
                             seeMoreText={t("stepper-1.see-more")}
@@ -206,6 +276,7 @@ function TimeSchedule() {
                     </Grid>
                 </Grid>
 
+                {/*
                 <Typography variant="body1" color="text.primary" mt={2} mb={1}>
                     Selected meetings
                 </Typography>
@@ -222,7 +293,7 @@ function TimeSchedule() {
                     },
                 ].map((item) => (
                     <PatientCardMobile key={Math.random()} item={item} size="small"/>
-                ))}
+                ))}*/}
             </Box>
             <Paper
                 sx={{
@@ -248,7 +319,7 @@ function TimeSchedule() {
                     variant="contained"
                     color="primary"
                     disabled={!time}
-                    onClick={() => dispatch(setStepperIndex(2))}
+                    onClick={onNextStep}
                 >
                     {t("next")}
                 </Button>

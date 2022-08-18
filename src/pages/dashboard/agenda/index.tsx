@@ -12,15 +12,15 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import {useAppointment} from "@app/hooks/rest";
 import FullCalendar, {DatesSetArg} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule, Patient} from "@features/tabPanel";
+import {EventType, TimeSchedule, Patient, Instruction} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
@@ -29,13 +29,20 @@ const Calendar = dynamic(() => import('@features/calendar/components/Calendar'),
 const EventStepper = [
     {
         title: "steppers.tabs.tab-1",
-        children: EventType
+        children: EventType,
+        disabled: false
     }, {
         title: "steppers.tabs.tab-2",
-        children: TimeSchedule
+        children: TimeSchedule,
+        disabled: true
     }, {
         title: "steppers.tabs.tab-3",
-        children: Patient
+        children: Patient,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-4",
+        children: Instruction,
+        disabled: true
     }
 ];
 
@@ -44,24 +51,23 @@ function Agenda() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {direction} = useAppSelector(configSelector);
-    const {drawer, currentStepper} = useAppSelector(agendaSelector);
+    const {drawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation('agenda');
     const [
         timeRange,
         setTimeRange
-    ] = useState({
-        start: moment().startOf('week').subtract(1, "days").format('DD-MM-YYYY'),
-        end: moment().endOf('week').subtract(1, "days").format('DD-MM-YYYY')
-    })
+    ] = useState({start: "", end: ""})
     const [disabledSlots, setDisabledSlots] = useState([{
         start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
         end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
     }]);
-    const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [date, setDate] = useState(new Date());
 
+    const [loading, setLoading] = useState<boolean>(status === 'loading');
+    const [date, setDate] = useState(currentDate);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
+
     let appointments: AppointmentModel[] = [];
+    let events: EventModal[] = [];
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -72,7 +78,7 @@ function Agenda() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    });
+    }, SWRNoValidateConfig);
 
     const agenda = (httpAgendasResponse as HttpResponse)?.data
         .find((item: AgendaConfigurationModel) =>
@@ -85,34 +91,30 @@ function Agenda() {
     }, [agenda, dispatch])
 
     const {
-        httpAppointmentResponse,
-        errorHttpAppointment,
+        data: httpAppointmentResponse,
+        error: errorHttpAppointment,
         trigger
-    } = useAppointment(agenda,
-        medical_entity.uuid,
-        session?.accessToken as string,
-        router.locale as string,
-        timeRange.start,
-        timeRange.end
-    );
+    } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
     if (errorHttpAgendas) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
 
-    const eventCond = (httpAppointmentResponse as HttpResponse)?.data;
-
-
-    const handleOnRangeChange = (event: DatesSetArg) => {
-        const startStr = moment(event.startStr).format('DD-MM-YYYY');
-        const endStr = moment(event.endStr).format('DD-MM-YYYY');
+    const getAppointments = (query: string) => {
         setLoading(true);
         trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?start_date=${startStr}&end_date=${endStr}&format=week`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, {revalidate: true, populateCache: true}).then(r => setLoading(false));
+    }
+
+    const handleOnRangeChange = (event: DatesSetArg) => {
+        const startStr = moment(event.startStr).format('DD-MM-YYYY');
+        const endStr = moment(event.endStr).format('DD-MM-YYYY');
+        setTimeRange({start: startStr, end: endStr});
+        getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
     }
 
     const handleOnToday = (event: React.MouseEventHandler) => {
@@ -124,8 +126,30 @@ function Agenda() {
         setCalendarEl(event);
     }
 
+    const onViewChange = (view: string) => {
+        if (view === 'listWeek') {
+            getAppointments(`format=list&page=1&limit=50`);
+        }
+    }
+
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    }
+
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        } else {
+            if (view === 'listWeek') {
+                getAppointments(`format=list&page=1&limit=50`);
+            } else {
+                getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
+            }
+        }
+    }
+
+    const eventCond = (httpAppointmentResponse as HttpResponse)?.data;
     appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-    const events: EventModal[] = [];
     appointments?.map((appointment) => {
         events.push({
             start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
@@ -138,26 +162,13 @@ function Agenda() {
             borderColor: "#E83B68",
             customRender: true,
             motif: appointment.consultationReason.name,
-            description: "Unde a inventore et. Sed esse ut. Atque ducimus quibusdam fuga quas id qui fuga.",
+            description: "",
             id: appointment.uuid,
             inProgress: false,
             meeting: false,
             status: false
         });
     });
-
-    const onViewChange = (view: string) => {
-        setLoading(true);
-        if (view === 'listWeek') {
-            trigger({
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?format=list&page=1&limit=50`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }, {revalidate: true, populateCache: true}).then(r => setLoading(false));
-        }
-    }
 
     return (
         <>
@@ -170,7 +181,7 @@ function Agenda() {
                         {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
                             <LinearProgress color="warning"/>}
                         {httpAgendasResponse &&
-                            <Calendar {...{events, agenda, disabledSlots, t, trigger}}
+                            <Calendar {...{events, agenda, disabledSlots, t}}
                                       OnInit={onLoadCalendar}
                                       OnViewChange={onViewChange}
                                       OnRangeChange={handleOnRangeChange}/>}
@@ -188,7 +199,8 @@ function Agenda() {
                     <Box height={"100%"}>
                         <CustomStepper
                             currentIndex={currentStepper}
-                            OnStepperChange={(index: number) => dispatch(setStepperIndex(index))}
+                            OnTabsChange={handleStepperChange}
+                            OnSubmitStepper={submitStepper}
                             stepperData={EventStepper}
                             scroll
                             t={t}

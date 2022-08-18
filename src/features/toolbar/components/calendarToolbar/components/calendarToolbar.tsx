@@ -8,14 +8,13 @@ import {
     IconButton,
     Stack,
     SvgIcon,
-    Tooltip,
+    Tooltip, Typography,
     useTheme
 } from "@mui/material";
 import HourglassBottomRoundedIcon from '@mui/icons-material/HourglassBottomRounded';
 
 import React from "react";
 import {useTranslation} from "next-i18next";
-import BadgeStyled from "./overrides/badgeStyled";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import AddEventIcon from "@themes/overrides/icons/addEventIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
@@ -26,6 +25,7 @@ import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setView} from "@features/calendar";
 import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
+import moment from "moment";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -46,10 +46,10 @@ type CalendarToolbarProps = {
     onToday: React.EventHandler<any>
 };
 
-function CalendarToolbar({date, onToday,...props}: CalendarToolbarProps) {
+function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {view} = useAppSelector(agendaSelector);
+    const {view, currentDate} = useAppSelector(agendaSelector);
 
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", icon: TodayIcon},
@@ -76,7 +76,12 @@ function CalendarToolbar({date, onToday,...props}: CalendarToolbarProps) {
                         sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
                         <CalendarIcon/>
                     </IconButton>
-                    <Button
+                    <Button className="Current-date" variant="text">
+                        <Typography variant="body2" component={"span"}>
+                            {moment(currentDate).format(view === 'dayGridMonth' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                        </Typography>
+                    </Button>
+                    {/*                    <Button
                         startIcon={<HourglassBottomRoundedIcon/>}
                         variant="contained"
                         color="primary"
@@ -84,7 +89,7 @@ function CalendarToolbar({date, onToday,...props}: CalendarToolbarProps) {
                         <BadgeStyled badgeContent={2}>
                             {t("pending")}
                         </BadgeStyled>
-                    </Button>
+                    </Button>*/}
                 </Hidden>
 
                 <Hidden smUp>

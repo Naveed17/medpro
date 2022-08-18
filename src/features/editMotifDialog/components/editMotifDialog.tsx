@@ -65,12 +65,7 @@ function EditMotifDialog({...props}) {
     const [submit, setSubmit] = useState(false);
 
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true})
+    const {trigger} = useRequestMutation(null, "/settings/motif");
 
     const {t, ready} = useTranslation('settings');
 
