@@ -479,14 +479,14 @@ function Patient() {
                                 },
                             }}
                         >
-                            <CustomStepper
+{/*                            <CustomStepper
                                 currentIndex={0}
                                 stepperData={stepperData}
                                 scroll
                                 t={t}
                                 minWidth={726}
                                 onClickCancel={() => setAddAppointment(false)}
-                            />
+                            />*/}
                         </Box>
                     </Zoom>
                 </Drawer>
