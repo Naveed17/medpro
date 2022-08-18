@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function SidebarCheckbox(props: Props) {
-    const {data, label = "text", onChange, translate, ...rest} = props
+    const {data, label = "text", onChange, translate} = props
     const {t, ready} = translate;
     const [checked, setChecked] = React.useState(false);
     const handleChange = (event: any) => {
@@ -36,7 +36,7 @@ export default function SidebarCheckbox(props: Props) {
             />
             {(data.color || data.icon) &&
                 <ListItemIcon>
-                    {data.color && <CircleIcon/>}
+                    {data.color && <CircleIcon htmlColor={data.color}/>}
                     {data.icon && <Icon {...(data.icon === 'ic-video') && {className: 'ic-video'}} path={data.icon}/>}
                 </ListItemIcon>
             }

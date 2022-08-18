@@ -1,9 +1,8 @@
-import {useState, ReactNode, SyntheticEvent, useEffect, useCallback} from "react";
+import {useState, ReactNode, SyntheticEvent, useCallback} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import {RootStyled} from "@features/customStepper";
-import {useTranslation} from "next-i18next";
 import {TabPanel} from "@features/tabPanel";
 
 function a11yProps(index: number) {
@@ -14,32 +13,43 @@ function a11yProps(index: number) {
 }
 
 function CustomStepper({...props}) {
-    const {stepperData, currentIndex, minWidth, scroll, t, OnStepperChange} = props;
+    const {stepperData, currentIndex = 0, minWidth, scroll, t, OnTabsChange = null, OnSubmitStepper = null} = props;
     const [value, setValue] = useState<number>(currentIndex);
     const [last, setLast] = useState<number>(1);
 
-    const stepperChange = useCallback(
+    const tabChange = useCallback(
         (event: SyntheticEvent, currentIndex: number) => {
             setValue(currentIndex);
-            OnStepperChange(currentIndex);
+            if (OnTabsChange) {
+                OnTabsChange(currentIndex);
+            }
         },
-        [OnStepperChange]
+        [OnTabsChange]
     );
 
+    const submitStepper = useCallback(
+        (currentIndex: number) => {
+            if (currentIndex < stepperData.length) {
+                setValue(currentIndex);
+                setLast(last < stepperData.length ? last + 1 : last);
+            }
+            if (OnSubmitStepper) {
+                OnSubmitStepper(currentIndex);
+            }
+        },
+        [OnSubmitStepper, last, stepperData.length]
+    );
 
     const handleChange = (event: SyntheticEvent, val: number) => {
         setValue(val);
     };
-
-    useEffect(() => {
-        setValue(currentIndex);
-    }, [currentIndex]);
 
     return (
         <>
             <RootStyled
                 className={scroll ? "scroll" : ""}
                 sx={{
+                    height: "inherit",
                     minWidth: {md: minWidth ? minWidth : "100%", xs: "100%"},
                     "& div[role='tabpanel'] > div": {
                         p: 0,
@@ -57,7 +67,7 @@ function CustomStepper({...props}) {
             >
                 <Tabs
                     value={value}
-                    onChange={OnStepperChange ? stepperChange : handleChange}
+                    onChange={OnTabsChange ? tabChange : handleChange}
                     variant="scrollable"
                     scrollButtons={false}
                     aria-label="scrollable auto tabs"
@@ -67,12 +77,13 @@ function CustomStepper({...props}) {
                             v: {
                                 title: string;
                                 children: ReactNode;
+                                disabled: boolean;
                             },
                             i: number
                         ) => (
                             <Tab
                                 key={Math.random()}
-                                disabled={i > value && i >= last}
+                                disabled={v.disabled}
                                 label={
                                     <Box
                                         sx={{
@@ -101,10 +112,7 @@ function CustomStepper({...props}) {
                         return (
                             <TabPanel key={Math.random()} value={value} index={i}>
                                 <Component
-                                    onNext={(val: number) => {
-                                        setValue(val);
-                                        setLast(last < stepperData.length ? last + 1 : last);
-                                    }}
+                                    onNext={(index: number) => submitStepper(index)}
                                     {...props}
                                 />
                             </TabPanel>
