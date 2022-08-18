@@ -1,5 +1,11 @@
 import {SWRConfig} from 'swr';
 
+export const SWRNoValidateConfig = {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false
+}
+
 function SwrProvider({children, fallback}: LayoutProps) {
     return (
         <SWRConfig value={{

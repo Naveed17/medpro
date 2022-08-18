@@ -5,42 +5,47 @@ import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
-import StaffIcon from "@themes/overrides/icons/staffIcon";
-import AbsentIcon from "@themes/overrides/icons/absentIcon";
 import DomicileIcon from "@themes/overrides/icons/domicileIcon";
 import TelemedicineIcon from "@themes/overrides/icons/telemedicineIcon";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
+import {appointmentSelector, resetAppointment, setAppointmentType} from "@features/tabPanel";
 import {setStepperIndex} from "@features/calendar";
 
 const types = [
     {
+        id: 1,
         value: "rdv",
         icon: <DateRangeIcon/>
     }, {
+        id: 3,
         value: "telemed",
         icon: <TelemedicineIcon/>
     }, {
+        id: 2,
         value: "domicile",
         icon: <DomicileIcon/>
-    }, {
-        value: "staff",
-        icon: <StaffIcon/>
-    }, {
-        value: "absence",
-        icon: <AbsentIcon/>
     },
+    /*    {
+            id: 4,
+            value: "staff",
+            icon: <StaffIcon/>
+        }, {
+            id: 5,
+            value: "absence",
+            icon: <AbsentIcon/>
+        },*/
 ]
 
-function EventType() {
+function EventType({...props}) {
+    const {onNext} = props;
     const {type} = useAppSelector(appointmentSelector);
     const dispatch = useAppDispatch();
     const [typeEvent, setTypeEvent] = useState(type);
 
     const handleTypeChange = (type: string) => {
-        setTypeEvent(type)
+        setTypeEvent(type);
         dispatch(setAppointmentType(type));
     }
 
@@ -49,6 +54,11 @@ function EventType() {
     });
 
     if (!ready) return <>loading translations...</>;
+
+    const onNextStep = () => {
+        dispatch(setStepperIndex(1));
+        onNext(1);
+    }
 
     return (
         <>
@@ -63,13 +73,13 @@ function EventType() {
                         defaultValue="female"
                         name="radio-buttons-group"
                     >
-
                         {types.map((type, index) => (
                             <FormControlLabel
                                 key={index}
-                                value={type.value}
+                                value={type.id}
                                 control={
                                     <TextIconRadio
+                                        item={type}
                                         selectedValue={typeEvent}
                                         onChangeValue={(event: string) => handleTypeChange(event)}
                                         title={t(`stepper-0.types.${type.value}`)}
@@ -77,7 +87,6 @@ function EventType() {
                                     />}
                                 label=""/>)
                         )}
-
                     </RadioGroup>
                 </FormControlStyled>
             </Box>
@@ -97,7 +106,7 @@ function EventType() {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => handleTypeChange("")}
+                    onClick={() => dispatch(resetAppointment())}
                 >
                     {t("back")}
                 </Button>
@@ -106,13 +115,12 @@ function EventType() {
                     variant="contained"
                     color="primary"
                     disabled={typeEvent === ""}
-                    onClick={() => dispatch(setStepperIndex(1))}
+                    onClick={onNextStep}
                 >
                     {t("next")}
                 </Button>
             </Paper>
         </>
-
     )
 }
 

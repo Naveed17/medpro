@@ -9,6 +9,7 @@ import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
 import {AgendaReducer} from "@features/calendar";
 
+
 export const store = configureStore({
   reducer: {
     theme: ConfigReducer,
@@ -23,6 +24,11 @@ export const store = configureStore({
     agenda: AgendaReducer,
     appointment: appointmentReducer
   },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware(
+      {
+        serializableCheck: false
+      }
+  ),
 });
 
 export type AppDispatch = typeof store.dispatch;

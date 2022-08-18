@@ -82,7 +82,7 @@ const AddAppointmentCardData = {
 function Calendar({...props}) {
     const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange} = props;
     const theme = useTheme();
-    const {view} = useAppSelector(agendaSelector);
+    const {view, currentDate} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
@@ -101,9 +101,18 @@ function Calendar({...props}) {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.gotoDate(currentDate);
+        }
+    }, [currentDate]);
+
+    useEffect(() => {
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
-            OnViewChange(view);
+            console.log(view)
+            OnViewChange(view as string);
         }
     }, [view]);
 
@@ -230,6 +239,8 @@ function Calendar({...props}) {
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}
                                 initialDate={date}
+                                slotMinTime={"08:00:00"}
+                                slotMaxTime={"20:20:00"}
                                 firstDay={1}
                                 initialView={view}
                                 dayMaxEventRows={3}
@@ -237,7 +248,7 @@ function Calendar({...props}) {
                                 headerToolbar={false}
                                 allDayMaintainDuration
                                 eventResizableFromStart
-                                slotDuration="00:60:00"
+                                slotDuration="00:30:00"
                                 slotLabelFormat={slotFormat}
                                 plugins={[
                                     listPlugin,

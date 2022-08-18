@@ -2,32 +2,31 @@ import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, ListItemIcon, ListItemText, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
+import moment from "moment";
 
 function PatientAppointmentCard({...props}) {
-    const {item, listing, getData, ...rest} = props;
-    console.log(item);
+    const {item, listing, onReset, ...rest} = props;
+
     return (
         <RootStyled
             disableRipple
             {...rest}
-            {...{styleProps: listing?.toString()}}
-            key={item.id}
+            {...{styleprops: listing?.toString()}}
         >
-            <ListItemIcon>
-                <Avatar {...(item.img !== null ? {src: item.img, alt: item.name, sx: {bgcolor: 'transparent'}} : {})} />
+            <ListItemIcon key={item.uuid}>
+                <Avatar key={item.uuid} {...(item.img !== null ? {src: item.img, alt: item.name, sx: {bgcolor: 'transparent'}} : {})} />
             </ListItemIcon>
             <Box>
                 <Stack spacing={.5} direction="row" alignItems='center'>
-                    <IconUrl path={item.gender === "male" ? "ic-h" : "ic-f"}/>
+                    <IconUrl path={item.gender !== "O" ? "ic-h" : "ic-f"}/>
                     <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
-
-                        {item.name}
+                        {item.firstName} {item.lastName}
                     </Typography>
                 </Stack>
                 <Stack spacing={.5} direction="row" alignItems='center'>
                     <IconUrl path="ic-anniverssaire"/>
                     <Typography color="text.secondary" variant="body2" sx={{fontWeight: 500, display: 'flex'}}>
-                        {item.dob} - {item.ans}
+                        {item.birthdate} - {moment().diff(moment(item.birthdate, "DD-MM-YYYY"), 'years')} ans
                     </Typography>
                 </Stack>
             </Box>
@@ -45,8 +44,7 @@ function PatientAppointmentCard({...props}) {
                 <IconButton size="small"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                getData(null);
-
+                                onReset(null);
                             }}
                 >
                     <CloseIcon/>
