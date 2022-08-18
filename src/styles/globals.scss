@@ -1,7 +1,9 @@
 @import "./variables";
+
 body {
   overflow: auto;
 }
+
 * {
   box-sizing: border-box;
   @include custom-scroll-bar();
@@ -11,6 +13,7 @@ main {
   position: relative;
   width: 100%;
   transition: all 0.4s ease-in-out;
+
   &.active-right-actionbar {
     width: calc(100% - 208px);
     @media (max-width: 600px) {
@@ -18,19 +21,24 @@ main {
     }
   }
 }
+
 //react-svg
 .react-svg {
   line-height: 0;
+
   div {
     line-height: 80%;
   }
 }
+
 .d-inline-block {
   display: inline-block;
 }
+
 .mr-1 {
   margin-right: 4px;
 }
+
 .w-full {
   width: 100%;
 }
@@ -39,16 +47,101 @@ main {
   .sm-d-block {
     display: block !important;
   }
-  .MuiAppBar-root{
+  .MuiAppBar-root {
     border: none !important;
   }
 }
-.collapse-header{
+
+.collapse-header {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  background-color: $white ;
+  background-color: $white;
   z-index: 1;
   width: 100%;
 }
 
+.formio-component-columns {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-control-material {
+  display: flex;
+  margin-bottom: 1rem;
+
+  label {
+    float: left;
+    width: 6rem;
+    margin-top: 0.4rem;
+    margin-right: 1em;
+    color: #7C878E;
+    font-size: 12px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  input {
+    background: #F8FAFC;
+    border: 1px solid #DDDDDD;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+    gap: 10px;
+    text-align: center;
+    width: 4rem;
+    height: 2rem;
+    flex: none;
+    order: 1;
+    align-self: stretch;
+    flex-grow: 1;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  .form-text {
+    color: #7C878E;
+    font-size: 12px;
+    margin: 0.4rem;
+  }
+}
+
+.form-control-pregnancy {
+  label {
+    float: left;
+    width: 7rem;
+  }
+  input {
+    width: 10rem;
+    text-align: left;
+  }
+}
+
+.fieldset-specialty-formio {
+  fieldset {
+    border: 0;
+
+    legend{
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: #00234B;
+    }
+    .fieldset-body {
+      border: 1px solid #DDDDDD;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem 1rem 0.1rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
