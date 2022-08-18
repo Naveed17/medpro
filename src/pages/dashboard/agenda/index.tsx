@@ -15,12 +15,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import FullCalendar, {DatesSetArg} from "@fullcalendar/react";
+import FullCalendar, {DatesSetArg, EventClickArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {AppointmentDetail} from "@features/dialog";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
@@ -64,6 +65,7 @@ function Agenda() {
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [date, setDate] = useState(currentDate);
+    const [event, setEvent] = useState<EventDef>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
 
     let appointments: AppointmentModel[] = [];
@@ -132,6 +134,11 @@ function Agenda() {
         }
     }
 
+    const onSelectEvent = (eventArg: EventClickArg) => {
+        setEvent(eventArg.event._def);
+        dispatch(openDrawer(true));
+    }
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     }
@@ -156,17 +163,14 @@ function Agenda() {
             time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
             end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
             title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
-            addRoom: false,
-            agenda: false,
             allDay: false,
-            borderColor: "#E83B68",
-            customRender: true,
-            motif: appointment.consultationReason.name,
+            borderColor: appointment.consultationReason.color,
+            patient: appointment.patient,
+            motif: appointment.consultationReason,
             description: "",
             id: appointment.uuid,
-            inProgress: false,
             meeting: false,
-            status: false
+            status: "Confirmed"
         });
     });
 
@@ -183,6 +187,7 @@ function Agenda() {
                         {httpAgendasResponse &&
                             <Calendar {...{events, agenda, disabledSlots, t}}
                                       OnInit={onLoadCalendar}
+                                      OnSelectEvent={onSelectEvent}
                                       OnViewChange={onViewChange}
                                       OnRangeChange={handleOnRangeChange}/>}
                     </>
@@ -194,19 +199,32 @@ function Agenda() {
                     anchor={"right"}
                     open={drawer}
                     dir={direction}
-                    onClose={() => dispatch(openDrawer(false))}
+                    onClose={() => {
+                        dispatch(openDrawer(false));
+                        setTimeout(() => {
+                            setEvent(undefined);
+                        }, 500)
+                    }}
                 >
-                    <Box height={"100%"}>
-                        <CustomStepper
-                            currentIndex={currentStepper}
-                            OnTabsChange={handleStepperChange}
-                            OnSubmitStepper={submitStepper}
-                            stepperData={EventStepper}
-                            scroll
-                            t={t}
-                            minWidth={726}
+
+                    {!event ?
+                        <Box height={"100%"}>
+                            <CustomStepper
+                                currentIndex={currentStepper}
+                                OnTabsChange={handleStepperChange}
+                                OnSubmitStepper={submitStepper}
+                                stepperData={EventStepper}
+                                scroll
+                                t={t}
+                                minWidth={726}
+                            />
+                        </Box>
+                        :
+                        <AppointmentDetail
+                            translate={t}
+                            data={event}
                         />
-                    </Box>
+                    }
                 </Drawer>
             </Box>
         </>

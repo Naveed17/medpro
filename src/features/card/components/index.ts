@@ -10,8 +10,9 @@ export * from './cipNextAppointCard'
 export * from "./successCard";
 export * from "./noDataCard";
 export * from "./patientAppointmentCard";
-export { default as DetailsCard } from "./detailsCard";
-export { default as CollapseCard } from "./collapseCard";
-export { default as ConsultationCard } from "./consultationCard";
-export { default as QuestionCard } from "./questionCard";
-export { default as PatientdetailsCard } from "./patientdetailsCard";
+export * from "./appointmentCard";
+export * from "./detailsCard";
+export * from "./collapseCard";
+export * from "./consultationCard";
+export * from "./questionCard";
+export * from "./patientdetailsCard";
