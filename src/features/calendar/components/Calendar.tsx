@@ -80,13 +80,16 @@ const AddAppointmentCardData = {
 };
 
 function Calendar({...props}) {
-    const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange, OnSelectEvent} = props;
+    const {
+        events: appointments, OnRangeChange, disabledSlots,
+        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate
+    } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
-    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>([]);
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [date, setDate] = useState(moment().toDate());
     const isMounted = useIsMountedRef();
 
@@ -119,31 +122,6 @@ function Calendar({...props}) {
 
     useEffect(() => {
         setEvents(appointments);
-        // this gives an object with dates as keys
-        const groups = appointments.reduce(
-            (groups: { [key: string]: Array<EventCalendarModel> },
-             data: EventCalendarModel) => {
-                const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
-                if (!groups[date]) {
-                    groups[date] = [];
-                }
-                groups[date].push(data);
-                return groups;
-            }, {});
-
-        // Edit: to add it in the array format instead
-        const groupArrays = Object.keys(groups).map((date) => {
-            return {
-                date,
-                events: groups[date]
-            };
-        });
-        const sortedData = groupArrays
-            .slice()
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            .reverse();
-
-        setEventGroupByDay(sortedData);
 
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -236,6 +214,7 @@ function Calendar({...props}) {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
                                 eventClick={OnSelectEvent}
+                                select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}

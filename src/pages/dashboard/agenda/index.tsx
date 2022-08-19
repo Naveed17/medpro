@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Drawer, LinearProgress} from "@mui/material";
+import {Box, Container, Drawer, LinearProgress, Typography} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -15,13 +15,14 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import FullCalendar, {DatesSetArg, EventClickArg, EventDef} from "@fullcalendar/react";
+import FullCalendar, {DateSelectArg, DatesSetArg, EventClickArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule, Patient, Instruction} from "@features/tabPanel";
+import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail} from "@features/dialog";
+import {AppointmentListMobile} from "@features/card";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
@@ -92,6 +93,7 @@ function Agenda() {
         }
     }, [agenda, dispatch])
 
+
     const {
         data: httpAppointmentResponse,
         error: errorHttpAppointment,
@@ -139,6 +141,11 @@ function Agenda() {
         dispatch(openDrawer(true));
     }
 
+    const onSelectDate = (eventArg: DateSelectArg) => {
+        dispatch(setAppointmentDate(eventArg.start));
+        dispatch(openDrawer(true));
+    }
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     }
@@ -174,6 +181,32 @@ function Agenda() {
         });
     });
 
+    // this gives an object with dates as keys
+    const groups: any = events.reduce(
+        (groups: any, data: any) => {
+            const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
+                .format('DD-MM-YYYY');
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(data);
+            return groups;
+        }, {});
+
+    // Edit: to add it in the array format instead
+    const groupArrays = Object.keys(groups).map((date) => {
+        return {
+            date,
+            events: groups[date]
+        };
+    });
+
+    const sortedData: GroupEventsModel[] = groupArrays
+        .slice()
+        .sort((a, b) =>
+            new Date(a.date).getTime() - new Date(b.date).getTime())
+        .reverse();
+
     return (
         <>
             <SubHeader>
@@ -185,15 +218,38 @@ function Agenda() {
                         {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
                             <LinearProgress color="warning"/>}
                         {httpAgendasResponse &&
-                            <Calendar {...{events, agenda, disabledSlots, t}}
+                            <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
                                       OnInit={onLoadCalendar}
                                       OnSelectEvent={onSelectEvent}
+                                      OnSelectDate={onSelectDate}
                                       OnViewChange={onViewChange}
                                       OnRangeChange={handleOnRangeChange}/>}
                     </>
                 </DesktopContainer>
                 <MobileContainer>
-                    <div>mobile</div>
+                    {sortedData?.map((row, index) => (
+                        <Container key={index}>
+                            <Typography variant={"body1"}
+                                        color="text.primary"
+                                        pb={1} pt={2}
+                                        sx={{textTransform: "capitalize", fontSize: '1rem'}}>
+                                {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
+                                    "Today"
+                                ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
+                                    "Tomorrow"
+                                ) : (
+                                    <>
+                                        {moment(row.date, "DD-MM-YYYY").format("MMMM")}{" "}
+                                        {moment(row.date, "DD-MM-YYYY").format("DD")}
+                                    </>
+                                )}
+                            </Typography>
+
+                            {row.events.map((event) => (
+                                <AppointmentListMobile key={event.id} event={event}/>
+                            ))}
+                        </Container>
+                    ))}
                 </MobileContainer>
                 <Drawer
                     anchor={"right"}
@@ -203,7 +259,7 @@ function Agenda() {
                         dispatch(openDrawer(false));
                         setTimeout(() => {
                             setEvent(undefined);
-                        }, 500)
+                        }, 300);
                     }}
                 >
 
