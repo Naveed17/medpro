@@ -19,6 +19,7 @@ declare module "@mui/material/Button" {
     "text-primary": true;
     consultationIP: true;
   }
+
 }
 
 declare module "@mui/material/Chip" {

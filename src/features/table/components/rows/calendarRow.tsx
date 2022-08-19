@@ -1,8 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
-
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Skeleton, Stack, Checkbox, IconButton, TableRow, Button} from "@mui/material";
+import {Typography, Box, Button} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
@@ -10,7 +9,7 @@ import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 
 function CalendarRow({...props}) {
-    const {row, handleChange, handleConfig, edit, t} = props;
+    const {row} = props;
     return (
         <>
             <Typography variant={"inherit"} component="tr" color="text.primary" pt={2}>
@@ -97,7 +96,7 @@ function CalendarRow({...props}) {
 
                         <Typography variant="body2" color="primary.main">
                             {" "}
-                            {data.motif}
+                            {data.motif.name}
                         </Typography>
                     </TableCell>
                     <TableCell
@@ -127,8 +126,14 @@ function CalendarRow({...props}) {
                     <TableCell align="center" sx={{py: "0!important"}}>
                         <Label
                             variant="filled"
-                            color={data.status ? "success" : "warning"}
-                            sx={{height: 21, px: 3, color: "text.primary"}}
+                            color={
+                                data?.status === "Confirmed"
+                                    ? "success"
+                                    : data?.status === "canceled"
+                                        ? "error"
+                                        : "primary"
+                            }
+                            sx={{height: 21, px: 3}}
                         >
                             {data.status ? "Confirmé" : "En attente"}
                         </Label>

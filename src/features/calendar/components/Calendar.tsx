@@ -80,7 +80,7 @@ const AddAppointmentCardData = {
 };
 
 function Calendar({...props}) {
-    const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange} = props;
+    const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange, OnSelectEvent} = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -235,6 +235,7 @@ function Calendar({...props}) {
                                 slotLabelClassNames={(day) => {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
+                                eventClick={OnSelectEvent}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
                                 height={isMobile ? "auto" : 720}
