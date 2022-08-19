@@ -1,28 +1,21 @@
 import React from 'react'
-import {CardContent, Stack, IconButton, Box, List, ListItem, Typography} from '@mui/material'
-import RootStyled from './overrides/rootStyled';
-import {Label} from "@features/label";
-import IconUrl from "@themes/urlIcon";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import { Card, CardContent, Stack, IconButton, Box, List, ListItem, Typography } from '@mui/material'
+import AppointmentCardStyled from './overrides/appointmentCardStyle';
+import { Label } from '@features/label'
+import Icon from "@themes/urlIcon";
 
-function AppointmentCard({...props}) {
-    const {data, t, ...rest} = props
+
+export default function AppointmentCard({ ...prop }) {
+    const { data, ...rest } = prop
     return (
-        <RootStyled>
+        <AppointmentCardStyled>
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
-                    <Label variant='filled'
-                           color={
-                               data?.status === "Confirmé"
-                                   ? "success"
-                                   : data?.status === "canceled"
-                                       ? "error"
-                                       : "primary"
-                           }>
-                        {data.status}
+                    <Label variant='filled' color="warning">
+                        {data?.status}
                     </Label>
                     <IconButton size="small" {...rest}>
-                        <IconUrl path='Ic-duotone'/>
+                        <Icon path='Ic-duotone' />
                     </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
@@ -30,31 +23,30 @@ function AppointmentCard({...props}) {
                         <List>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    {t('event.motif')}
+                                    Motif de consultation
                                 </Typography>
                                 <Stack spacing={2} direction='row' alignItems="center">
-                                    <FiberManualRecordIcon
-                                        fontSize="small"
-                                        sx={{color: data.motif.color}}
-                                    />
+                                    <Label className="lable" variant='filled' color={data.status === 'En attente' ? 'success' : "primary"} >
+                                        {''}
+                                    </Label>
                                     <Typography fontWeight={400}>
-                                        {data.motif.name}
+                                        {data?.reason}
                                     </Typography>
                                 </Stack>
                             </ListItem>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    {t('event.date')}
+                                    Date of appointment
                                 </Typography>
                                 <Stack spacing={4} direction="row" alignItems='center'>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='callander' path="ic-agenda-jour"/>
+                                        <Icon className='callander' path="ic-agenda-jour" />
                                         <Typography className="time-slot">
                                             {data?.date}
                                         </Typography>
                                     </Stack>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='time' path="setting/ic-time"/>
+                                        <Icon className='time' path="setting/ic-time" />
                                         <Typography className="date">
                                             {data?.time}
                                         </Typography>
@@ -66,7 +58,6 @@ function AppointmentCard({...props}) {
                     </Box>
                 </Stack>
             </CardContent>
-        </RootStyled>)
+        </AppointmentCardStyled>
+    )
 }
-
-export default AppointmentCard;

@@ -106,22 +106,22 @@ function Consultation() {
                   <Box p={1.5}>
                     <Grid container spacing={2}>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-text" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-text" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-soura" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-soura" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-ordonance" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-ordonance" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-traitement" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-traitement" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-analyse" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-analyse" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                       <Grid item xs={6} md={12}>
-                        <DocumentButton icon="ic-lettre" lable="Report" handleOnClick={(v: string) => console.log(v)} />
+                        <DocumentButton icon="ic-lettre" lable="Report" t={t} handleOnClick={(v: string) => console.log(v)} />
                       </Grid>
                     </Grid>
                   </Box>
