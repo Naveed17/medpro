@@ -1,18 +1,19 @@
-import React from 'react'
-import { Card, CardContent, Stack, IconButton, Box, List, ListItem, Typography } from '@mui/material'
+import { CardContent, Stack, IconButton, Box, List, ListItem, Typography } from '@mui/material'
 import AppointmentCardStyled from './overrides/appointmentCardStyle';
 import { Label } from '@features/label'
 import Icon from "@themes/urlIcon";
-
+import { useTranslation } from 'next-i18next';
 
 export default function AppointmentCard({ ...prop }) {
+    const { t, ready } = useTranslation("common");
     const { data, ...rest } = prop
+    if (!ready) return <>loading translations...</>;
     return (
         <AppointmentCardStyled>
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Label variant='filled' color="warning">
-                        {data?.status}
+                        {t(data?.status)}
                     </Label>
                     <IconButton size="small" {...rest}>
                         <Icon path='Ic-duotone' />
@@ -23,7 +24,7 @@ export default function AppointmentCard({ ...prop }) {
                         <List>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    Motif de consultation
+                                    {t('consultation_reson')}
                                 </Typography>
                                 <Stack spacing={2} direction='row' alignItems="center">
                                     <Label className="lable" variant='filled' color={data.status === 'En attente' ? 'success' : "primary"} >
@@ -36,7 +37,7 @@ export default function AppointmentCard({ ...prop }) {
                             </ListItem>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    Date of appointment
+                                    {t('appintment_date')}
                                 </Typography>
                                 <Stack spacing={4} direction="row" alignItems='center'>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>

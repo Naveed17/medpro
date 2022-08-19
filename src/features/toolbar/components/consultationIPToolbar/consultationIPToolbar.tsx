@@ -126,6 +126,7 @@ function ConsultationIPToolbar({ selected }: any) {
                     change={false}
                     max
                     direction={'ltr'}
+                    actions={true}
                     title={t(info)}
                     dialogClose={handleCloseDialog}
                     actionDialog={

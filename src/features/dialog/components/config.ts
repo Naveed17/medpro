@@ -72,7 +72,16 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "qr-dialog",
+    component: dynamic((): any =>
+      import("@features/dialog/components/qrCodeDialog/qrCodeDialog").then(
+        (mod) => mod
+      )
+    ),
   }
+
 ];
 
 export default dialogData;

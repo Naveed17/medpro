@@ -2,6 +2,7 @@ import { styled } from '@mui/material/styles'
 import { Paper } from "@mui/material"
 const AppointmentDetailsStyled = styled(Paper)(({ theme }) => {
     return {
+        height: '100%',
         backgroundColor: theme.palette.background.default,
         boxShadow: '-5px 14px 26px rgba(0, 150, 214, 0.37)',
         border: 'none',

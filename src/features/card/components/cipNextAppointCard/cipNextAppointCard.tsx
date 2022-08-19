@@ -56,7 +56,12 @@ function CipMedicProCard({ ...props }) {
                             dispatch(onOpenDetails({ patientId: row.id }));
                         }}
                         className="btn-more" size="small">{t('table.see_details')}</Button>
-                    <IconButton className="btn-more-mobile" size="small">
+                    <IconButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch(onOpenDetails({ patientId: row.id }));
+                        }}
+                        className="btn-more-mobile" size="small">
                         <Icon path='ic-edit-file' />
                     </IconButton>
                     <IconButton size="small">

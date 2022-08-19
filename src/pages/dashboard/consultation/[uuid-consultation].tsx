@@ -24,6 +24,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from '@themes/urlIcon'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+const options = {
+    cMapUrl: 'cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: 'standard_fonts/',
+};
+
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -204,9 +210,8 @@ function ConsultationInProgress() {
     const [open, setopen] = useState(false);
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
-    const [numPages, setNumPages] = useState<number | null>(null);
-    const [pageNumber, setPageNumber] = useState(1);
-
+    const [file, setFile] = useState('/static/files/sample.pdf');
+    const [numPages, setNumPages] = useState(null);
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     };
@@ -337,18 +342,12 @@ function ConsultationInProgress() {
                                     mx: 'auto'
                                 }
                             }}>
-                                <Document file="/static/files/resume.pdf" onLoadSuccess={onDocumentLoadSuccess}
-                                    options={{
-                                        margin: {
-                                            top: '1cm',
-                                            bottom: '1cm',
-                                            left: '1cm',
-                                            right: '1cm'
-                                        }
-
-                                    }}
+                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
-                                    <Page pageNumber={pageNumber} />
+                                    {Array.from(new Array(numPages), (el, index) => (
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                    ))}
+
                                 </Document>
                             </Box>
                         </TabPanel>
