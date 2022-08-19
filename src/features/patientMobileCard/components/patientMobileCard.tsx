@@ -76,7 +76,7 @@ const CardSection = ({ ...props }) => {
         <Grid item md={11} sm={11} xs={11}>
           <Typography className="heading" variant="body1" component="div">
             <Icon path={v.status === "pending" ? "ic-f" : "ic-h"} />
-            {v.name}
+            {v.firstName + ' ' + v.lastName}
           </Typography>
           <Typography
             variant="caption"
@@ -85,7 +85,7 @@ const CardSection = ({ ...props }) => {
             lineHeight="18px"
           >
             <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
-            {v.nextAppointment} - {moment().diff(v.dateOfBirth, "years")}
+            {v.birthdate} - {moment().diff(v.birthdate, "years") + ' ans'}
           </Typography>
           <Box
             className="border-left-sec"

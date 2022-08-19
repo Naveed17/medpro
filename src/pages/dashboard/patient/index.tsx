@@ -48,6 +48,11 @@ import {
     TabPanel,
     DocumentsPanel,
 } from "@features/tabPanel";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
 const stepperData = [
     {
@@ -188,38 +193,7 @@ const AddAppointmentCardData = {
 };
 
 // Patient data for table body
-const PatiendData = [
-    {
-        id: 1,
-        name: "John Doe",
-        avatar: "/static/icons/Med-logo_.svg",
-        time: moment("09:00", "hh:mm").format("hh:mm"),
-        telephone: "+1-555-555-5555",
-        idCode: "123456789",
-        city: "New York",
-        nextAppointment: moment().format("DD-MM-YYYY"),
-        lastAppointment: moment().format("DD-MM-YYYY"),
-        addAppointment: true,
-        dateOfBirth: moment(),
-        status: "pending",
-        action: "left",
-    },
-    {
-        id: 2,
-        name: "Med",
-        avatar: "/static/icons/Med-logo_.svg",
-        time: moment("09:00", "hh:mm").format("hh:mm"),
-        telephone: "+1-555-555-5555",
-        idCode: "123456789",
-        city: "New York",
-        nextAppointment: moment().format("DD-MM-YYYY"),
-        lastAppointment: moment().format("DD-MM-YYYY"),
-        addAppointment: false,
-        dateOfBirth: moment(),
-        status: "success",
-        action: "left",
-    },
-];
+
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -244,24 +218,16 @@ const headCells: readonly HeadCell[] = [
         numeric: true,
         disablePadding: false,
         label: "telephone",
-        sortable: true,
-        align: "left",
+        sortable: false,
+        align: "center",
     },
     {
         id: "city",
         numeric: false,
         disablePadding: false,
         label: "city",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "id",
-        numeric: true,
-        disablePadding: false,
-        label: "id",
-        sortable: true,
-        align: "left",
+        sortable: false,
+        align: "center",
     },
     {
         id: "nextAppointment",
@@ -269,7 +235,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "nextAppointment",
         sortable: false,
-        align: "left",
+        align: "center",
     },
     {
         id: "lastAppointment",
@@ -277,7 +243,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "lastAppointment",
         sortable: false,
-        align: "left",
+        align: "center",
     },
     {
         id: "action",
@@ -297,17 +263,21 @@ function a11yProps(index: number) {
 }
 
 function Patient() {
+    const {data: session, status} = useSession();
+    const loading = status === 'loading';
+    const router = useRouter();
+    let medical_entity: MedicalEntityModel | null = null;
     const dispatch = useAppDispatch();
-    // selectors
-    const {patientId} = useAppSelector(tableActionSelector);
-    const {direction} = useAppSelector(configSelector);
 
-    // state hook for details drawer
+
     const [open, setopen] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
-
     // state hook for tabs
     const [value, setValue] = useState<number>(0);
+    const [rows, setRows] = useState<PatientModel[]>([]);
+    // selectors
+    const {patient} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
 
     // handle tab change
     const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -315,14 +285,35 @@ function Patient() {
     };
     // useEffect hook for handling the table action drawer
     useEffect(() => {
-        if (Boolean(patientId !== "")) {
+        if (patient) {
             setopen(true);
         }
-    }, [patientId]);
+    }, [patient]);
+    const {
+        data: httpPatientResponse,
+        error: errorHttpAppointment,
+        trigger
+    } = useRequestMutation(null, "/patients", {revalidate: true, populateCache: false});
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
-    if (!ready) return <>loading translations...</>;
+    useEffect(() => {
+        if (medical_entity !== null) {
+            trigger({
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then(r => {
+                if (r) setRows((r.data as HttpResponse).data)
+            });
+        }
+    }, [medical_entity, router.locale, session?.accessToken, trigger]);
+
+    if (!ready || loading) return <>loading translations...</>;
+    const {data: user} = session as Session;
+    medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const actions: {
         icon: ReactElement;
@@ -341,18 +332,18 @@ function Patient() {
                 <Box display={{xs: "none", md: "block"}}>
                     <Otable
                         headers={headCells}
-                        rows={PatiendData}
+                        rows={rows}
                         state={null}
                         from={"patient"}
                         t={t}
                         edit={null}
                         handleConfig={null}
                         handleChange={null}
-                        minWidth={1300}
+                        //minWidth={1300}
                         pagination
                     />
                 </Box>
-                <PatientMobileCard ready={ready} PatiendData={PatiendData}/>
+                <PatientMobileCard ready={ready} PatiendData={rows}/>
                 <Drawer
                     anchor={"right"}
                     open={open}
@@ -380,8 +371,7 @@ function Patient() {
                                         height: {md: "calc(100vh - 312px)", xs: "auto"},
                                         overflowY: "auto",
                                     },
-                                }}
-                            >
+                                }}>
                                 <Tabs
                                     value={value}
                                     onChange={handleChange}
@@ -479,7 +469,7 @@ function Patient() {
                                 },
                             }}
                         >
-{/*                            <CustomStepper
+                            {/*                            <CustomStepper
                                 currentIndex={0}
                                 stepperData={stepperData}
                                 scroll
@@ -495,16 +485,12 @@ function Patient() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, [
-            "patient",
-            "menu",
-            "common",
-        ])),
-    },
-});
-
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'patient']))
+    }
+})
 export default Patient;
 
 Patient.getLayout = function getLayout(page: ReactElement) {
