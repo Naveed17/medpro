@@ -453,25 +453,25 @@ function ConsultationInProgress() {
                                         dispatch(onOpenDetails({ patientId: "" }));
                                         setopen(false);
                                     }}
-                                    onConsultation={(e) => {
+                                    onConsultation={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
-                                    onEditDetails={(e) => {
+                                    onEditDetails={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
-                                    onChangeIntro={(callback) => {
+                                    onChangeIntro={(callback: any) => {
                                         return callback();
                                     }}
-                                    onEditintro={(e) => {
+                                    onEditintro={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
-                                    onWaiting={(e) => {
+                                    onWaiting={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
-                                    onMoveAppointment={(e) => {
+                                    onMoveAppointment={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
-                                    onCancelAppointment={(e) => {
+                                    onCancelAppointment={(e: React.MouseEvent) => {
                                         console.log(e);
                                     }}
                                 />

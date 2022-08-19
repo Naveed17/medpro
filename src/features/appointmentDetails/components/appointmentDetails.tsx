@@ -53,7 +53,7 @@ export default function AppointmentDetails({ ...props }) {
                             code: "RDV-121220-12",
                         }
                     }
-                        onClick={(e) => { console.log(e) }}
+                        onClick={(e: React.MouseEvent) => { console.log(e) }}
                     />
                     <Stack direction="row" spacing={2} alignItems='center' mt={2}>
                         <Button variant='contained' fullWidth>
