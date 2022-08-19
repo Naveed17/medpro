@@ -83,12 +83,7 @@ function PfTemplateDetail({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {trigger} = useRequestMutation(
-        {
-            method: "GET",
-            url: "",
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true});
+    const {trigger} = useRequestMutation(null, "/settings/pfTemplateDetails");
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
