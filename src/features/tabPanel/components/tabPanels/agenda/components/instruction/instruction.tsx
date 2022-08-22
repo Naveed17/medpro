@@ -110,7 +110,7 @@ function Instruction({...props}) {
     const close = () => {
         dispatch(resetAppointment());
         dispatch(setStepperIndex(0));
-        dispatch(openDrawer(false));
+        dispatch(openDrawer({type: "add", open: false}));
     }
 
     if (!ready) return <>loading translations...</>;

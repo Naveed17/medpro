@@ -123,7 +123,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                     <Button
                         startIcon={<AddEventIcon/>}
                         variant="contained"
-                        onClick={() => dispatch(openDrawer(true))}
+                        onClick={() => dispatch(openDrawer({type: "add", open: true}))}
                         color="warning">
                         {t("add")}
                     </Button>

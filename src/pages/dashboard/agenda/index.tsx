@@ -53,7 +53,7 @@ function Agenda() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {direction} = useAppSelector(configSelector);
-    const {drawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
+    const {openViewDrawer, openAddDrawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation('agenda');
     const [
         timeRange,
@@ -136,14 +136,14 @@ function Agenda() {
         }
     }
 
-    const onSelectEvent = (eventArg: EventClickArg) => {
-        setEvent(eventArg.event._def);
-        dispatch(openDrawer(true));
+    const onSelectEvent = (event: EventDef) => {
+        setEvent(event);
+        dispatch(openDrawer({type: "view", open: true}));
     }
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
-        dispatch(openDrawer(true));
+        dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
@@ -177,6 +177,7 @@ function Agenda() {
             description: "",
             id: appointment.uuid,
             meeting: false,
+            addRoom: true,
             status: "Confirmed"
         });
     });
@@ -253,34 +254,42 @@ function Agenda() {
                 </MobileContainer>
                 <Drawer
                     anchor={"right"}
-                    open={drawer}
+                    open={openViewDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer(false));
+                        dispatch(openDrawer({type: "view", open: false}));
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
                     }}
                 >
-
-                    {!event ?
-                        <Box height={"100%"}>
-                            <CustomStepper
-                                currentIndex={currentStepper}
-                                OnTabsChange={handleStepperChange}
-                                OnSubmitStepper={submitStepper}
-                                stepperData={EventStepper}
-                                scroll
-                                t={t}
-                                minWidth={726}
-                            />
-                        </Box>
-                        :
-                        <AppointmentDetail
-                            translate={t}
-                            data={event}
+                    {event && <AppointmentDetail
+                        translate={t}
+                        data={event}
+                    />}
+                </Drawer>
+                <Drawer
+                    anchor={"right"}
+                    open={openAddDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(openDrawer({type: "add", open: false}));
+                        setTimeout(() => {
+                            setEvent(undefined);
+                        }, 300);
+                    }}
+                >
+                    <Box height={"100%"}>
+                        <CustomStepper
+                            currentIndex={currentStepper}
+                            OnTabsChange={handleStepperChange}
+                            OnSubmitStepper={submitStepper}
+                            stepperData={EventStepper}
+                            scroll
+                            t={t}
+                            minWidth={726}
                         />
-                    }
+                    </Box>
                 </Drawer>
             </Box>
         </>

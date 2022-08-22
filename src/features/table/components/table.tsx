@@ -47,6 +47,7 @@ function Otable({ ...props }) {
     minWidth,
     pagination,
     checkedType,
+    handleEvent,
     hideHeaderOnMobile,
     ...rest
   } = props;
@@ -154,6 +155,7 @@ function Otable({ ...props }) {
                     selected={selected}
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
+                    handleEvent={handleEvent}
                   />
                 );
               })}

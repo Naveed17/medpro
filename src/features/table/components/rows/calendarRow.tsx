@@ -9,7 +9,23 @@ import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 
 function CalendarRow({...props}) {
+    const {handleEvent} = props;
     const {row} = props;
+
+    const handleEventClick = (action: string, eventData: EventModal) => {
+        let event = Object.assign(eventData, {
+            extendedProps: {
+                description: eventData.description,
+                meeting: eventData.meeting,
+                motif: eventData.motif,
+                patient: eventData.patient,
+                status: eventData.status,
+                time: eventData.time
+            }
+        });
+        handleEvent(action, event);
+    }
+
     return (
         <>
             <Typography variant={"inherit"} component="tr" color="text.primary" pt={2}>
@@ -25,7 +41,7 @@ function CalendarRow({...props}) {
                 )}
             </Typography>
 
-            {row.events.map((data: EventCalendarModel) => (
+            {row.events.map((data: EventModal) => (
                 <TableRowStyled
                     key={data.id}
                     sx={{
@@ -147,12 +163,15 @@ function CalendarRow({...props}) {
                                 color="primary"
                                 size="small"
                                 sx={{mr: 1}}
+                                onClick={() => handleEventClick("waitingRoom", data)}
                             >
                                 Ajouter Salle d’attente
                             </Button>
                         )}
 
-                        <Button variant="text" color="primary" size="small">
+                        <Button onClick={() => handleEventClick("showEvent", data)} variant="text"
+                                color="primary"
+                                size="small">
                             Voir détails
                         </Button>
                     </TableCell>

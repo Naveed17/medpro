@@ -14,7 +14,7 @@ import {
 import RootStyled from './overrides/rootStyled';
 import CalendarStyled from './overrides/calendarStyled';
 
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import moment from "moment";
@@ -114,7 +114,6 @@ function Calendar({...props}) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
-            console.log(view)
             OnViewChange(view as string);
         }
     }, [view]);
@@ -140,6 +139,7 @@ function Calendar({...props}) {
         }
     }, [sortedData]);
 
+
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -158,6 +158,16 @@ function Calendar({...props}) {
         }
     };
 
+    const handleTableEvent = (action: string, eventData: EventModal) => {
+        switch (action) {
+            case "showEvent" :
+                OnSelectEvent(eventData);
+                break;
+            case "waitingRoom" :
+                console.log("waitingRoom", eventData.id);
+                break;
+        }
+    }
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const slotFormat = {hour: 'numeric', minute: '2-digit', omitZeroMinute: false, hour12: false} as FormatterInput;
@@ -171,6 +181,7 @@ function Calendar({...props}) {
                             <Otable
                                 headers={tableHead}
                                 rows={eventGroupByDay}
+                                handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
                                 from={"calendar"}
                                 t={translation}
                             />
@@ -223,7 +234,7 @@ function Calendar({...props}) {
                                 slotLabelClassNames={(day) => {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
-                                eventClick={OnSelectEvent}
+                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
