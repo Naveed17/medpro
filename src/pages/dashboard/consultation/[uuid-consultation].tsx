@@ -6,8 +6,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
-import { tableActionSelector } from "@features/table";
-import { onOpenDetails } from "@features/table";
+import { openDrawer } from "@features/dialog";
 import { ReactElement } from "react";
 import { Box, Drawer, Stack, Grid, Button, Typography, Collapse, List, ListItem, ListItemIcon, IconButton } from "@mui/material";
 //components
@@ -19,7 +18,7 @@ import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
-import { AppointmentDetails } from '@features/appointmentDetails';
+import { AppointmentDetail, DialogProps } from '@features/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from '@themes/urlIcon'
@@ -203,11 +202,51 @@ const headCells2: readonly HeadCell[] = [
     },
 
 ];
+const event = {
+    "title": "Osinski Tressa",
+    "groupId": "",
+    "publicId": "9b188379-88b8-4463-a633-78357cf35ce4",
+    "url": "",
+    "recurringDef": null,
+    "defId": "58",
+    "sourceId": "24",
+    "allDay": false,
+    "hasEnd": true,
+    "ui": {
+        "display": null,
+        "constraints": [],
+        "overlap": null,
+        "allows": [],
+        "backgroundColor": "",
+        "borderColor": "#1BC47D",
+        "textColor": "",
+        "classNames": []
+    },
+    "extendedProps": {
+        "time": "2022-08-26T03:15:00.000Z",
+        "patient": {
+            "uuid": "0f0724b4-f0ce-3e60-b42b-f168191e3754",
+            "email": "tomas.mertz@example.com",
+            "birthdate": "11-08-2020",
+            "firstName": "Tressa",
+            "lastName": "Osinski",
+            "gender": "O"
+        },
+        "motif": {
+            "uuid": "6bc36ef1-9dd8-4260-a9f1-ed8f2a528197",
+            "name": "mutate",
+            "duration": 15,
+            "color": "#1BC47D"
+        },
+        "description": "",
+        "meeting": false,
+        "status": "Confirmed"
+    }
+}
 function ConsultationInProgress() {
-    const { patientId } = useAppSelector(tableActionSelector);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { direction } = useAppSelector(configSelector);
     const dispatch = useAppDispatch();
-    const [open, setopen] = useState(false);
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
     const [file, setFile] = useState('/static/files/sample.pdf');
@@ -215,11 +254,6 @@ function ConsultationInProgress() {
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     };
-    useEffect(() => {
-        if (Boolean(patientId !== "")) {
-            setopen(true);
-        }
-    }, [patientId]);
     const { t, ready } = useTranslation("consultation");
     if (!ready) return <>loading translations...</>;
     return (
@@ -431,48 +465,14 @@ function ConsultationInProgress() {
                             </Stack>
                             <Drawer
                                 anchor={"right"}
-                                open={open}
+                                open={drawer}
                                 dir={direction}
                                 onClose={() => {
-                                    dispatch(onOpenDetails({ patientId: "" }));
-                                    setopen(false);
+                                    dispatch(openDrawer(false))
                                 }}
                             >
-                                <AppointmentDetails
-                                    data={{
-                                        name: "Muhamed Ali",
-                                        img: "",
-                                        dob: "1990/03/25",
-                                        email: "email@company.com",
-                                        phone: "+216 22 469 495",
-                                        ccode: "tn",
-                                        intro: "some intro",
-                                    }}
-                                    onClose={() => {
-                                        dispatch(onOpenDetails({ patientId: "" }));
-                                        setopen(false);
-                                    }}
-                                    onConsultation={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onEditDetails={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onChangeIntro={(callback: any) => {
-                                        return callback();
-                                    }}
-                                    onEditintro={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onWaiting={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onMoveAppointment={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onCancelAppointment={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
+                                <AppointmentDetail
+                                    data={event}
                                 />
                             </Drawer>
                         </TabPanel>

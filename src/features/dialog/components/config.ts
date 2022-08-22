@@ -80,6 +80,14 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "add_treatment",
+    component: dynamic((): any =>
+      import("@features/dialog/components/addTreatmentDialog/addTreatmentDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 
 ];

@@ -1,27 +1,27 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
-import {useRouter} from "next/router";
-import {Box, Drawer, LinearProgress} from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/toolbar";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { Box, Drawer, LinearProgress } from "@mui/material";
+import { configSelector, DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { CalendarToolbar } from "@features/toolbar";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
-import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
+import { useSession } from "next-auth/react";
+import { LoadingScreen } from "@features/loadingScreen";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { Session } from "next-auth";
 import moment from "moment-timezone";
-import FullCalendar, {DatesSetArg, EventClickArg, EventDef} from "@fullcalendar/react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule, Patient, Instruction} from "@features/tabPanel";
-import {CustomStepper} from "@features/customStepper";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {AppointmentDetail} from "@features/dialog";
+import FullCalendar, { DatesSetArg, EventClickArg, EventDef } from "@fullcalendar/react";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { agendaSelector, openDrawer, setConfig, setStepperIndex } from "@features/calendar";
+import { EventType, TimeSchedule, Patient, Instruction } from "@features/tabPanel";
+import { CustomStepper } from "@features/customStepper";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
+import { AppointmentDetail } from "@features/dialog";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
@@ -48,16 +48,16 @@ const EventStepper = [
 ];
 
 function Agenda() {
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {direction} = useAppSelector(configSelector);
-    const {drawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation('agenda');
+    const { direction } = useAppSelector(configSelector);
+    const { drawer, currentStepper, currentDate, view } = useAppSelector(agendaSelector);
+    const { t, ready } = useTranslation('agenda');
     const [
         timeRange,
         setTimeRange
-    ] = useState({start: "", end: ""})
+    ] = useState({ start: "", end: "" })
     const [disabledSlots, setDisabledSlots] = useState([{
         start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
         end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
@@ -71,10 +71,10 @@ function Agenda() {
     let appointments: AppointmentModel[] = [];
     let events: EventModal[] = [];
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+    const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
@@ -96,10 +96,10 @@ function Agenda() {
         data: httpAppointmentResponse,
         error: errorHttpAppointment,
         trigger
-    } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
+    } = useRequestMutation(null, "/agenda/appointment", { revalidate: true, populateCache: false });
 
     if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready) return (<LoadingScreen/>);
+    if (!ready) return (<LoadingScreen />);
 
     const getAppointments = (query: string) => {
         setLoading(true);
@@ -109,13 +109,13 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(r => setLoading(false));
+        }, { revalidate: true, populateCache: true }).then(r => setLoading(false));
     }
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
-        setTimeRange({start: startStr, end: endStr});
+        setTimeRange({ start: startStr, end: endStr });
         getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
     }
 
@@ -177,19 +177,19 @@ function Agenda() {
     return (
         <>
             <SubHeader>
-                <CalendarToolbar onToday={handleOnToday} date={date}/>
+                <CalendarToolbar onToday={handleOnToday} date={date} />
             </SubHeader>
             <Box>
                 <DesktopContainer>
                     <>
                         {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
-                            <LinearProgress color="warning"/>}
+                            <LinearProgress color="warning" />}
                         {httpAgendasResponse &&
-                            <Calendar {...{events, agenda, disabledSlots, t}}
-                                      OnInit={onLoadCalendar}
-                                      OnSelectEvent={onSelectEvent}
-                                      OnViewChange={onViewChange}
-                                      OnRangeChange={handleOnRangeChange}/>}
+                            <Calendar {...{ events, agenda, disabledSlots, t }}
+                                OnInit={onLoadCalendar}
+                                OnSelectEvent={onSelectEvent}
+                                OnViewChange={onViewChange}
+                                OnRangeChange={handleOnRangeChange} />}
                     </>
                 </DesktopContainer>
                 <MobileContainer>

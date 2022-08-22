@@ -1,26 +1,18 @@
 // components
+import React, { useState } from 'react';
 import ConsultationStyled from "./overrides/consultationStyled";
-import { Box, Typography, Avatar, Button, Stack, } from "@mui/material";
+import { Box, Typography, Avatar, Button, Stack, List, ListItem, ListItemIcon, IconButton, Collapse } from "@mui/material";
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import { Alert } from "@features/alert";
-import { Accordion } from "@features/accordion";
 import Icon from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import Content from "./content";
+import { collapse as collapseData } from './config';
 import { upperFirst } from "lodash";
-const data = [
-    {
-        heading: {
-            id: "background",
-            icon: "ic-edit-file2",
-            title: "background",
-        },
 
-    },
-
-];
 function Consultation() {
     const img = false;
+    const [collapse, setCollapse] = useState<any>('');
     const { t, ready } = useTranslation('consultation', { keyPrefix: 'filter' });
     if (!ready) return <>loading translations...</>;
     return (
@@ -58,17 +50,40 @@ function Consultation() {
                 </Button>
             </Stack>
             <Stack ml={-1.25}>
-                <Accordion
-                    translate={{
-                        t: t,
-                        ready: ready,
-                    }}
-                    badge={null}
-                    defaultValue={"background"}
-                    data={data}
-                >
-                    <Content />
-                </Accordion>
+                <List dense>
+                    {
+                        collapseData?.map((col, idx: number) => (
+                            <React.Fragment key={`list-item-${idx}`}>
+                                <ListItem
+                                    className='list-parent'
+                                    onClick={() => setCollapse(collapse === col.id ? "" : col.id)}>
+
+                                    <ListItemIcon>
+                                        <Icon path={col.icon} />
+                                    </ListItemIcon>
+                                    <Typography fontWeight={700}>
+                                        {upperFirst(t(col.title))}
+                                        {
+                                            col.id === 2 && <Typography fontWeight={500} ml={1} component="span">12/12/12</Typography>
+                                        }
+                                    </Typography>
+                                    <IconButton size="small" sx={{ ml: 'auto' }}>
+                                        <Icon path="ic-expand-more" />
+                                    </IconButton>
+                                </ListItem>
+                                <ListItem
+                                    sx={{ p: 0 }}
+                                >
+                                    <Collapse in={collapse === col.id} sx={{ width: 1 }}>
+                                        <Box px={1.5}>
+                                            <Content id={col.id} />
+                                        </Box>
+                                    </Collapse>
+                                </ListItem>
+                            </React.Fragment>
+                        ))
+                    }
+                </List>
             </Stack>
             <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color" />} sx={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, }}>
                 {upperFirst(t('patient record'))}

@@ -18,7 +18,11 @@
     "add history": "ajouter un antécédent",
     "allergies": "allergies",
     "add allergies": "ajouter allergies",
-    "patient record": "dossier patient"
+    "patient record": "dossier patient",
+    "treatment_in_progress": "traitement en cours",
+    "balance_sheet_pending": "Bilan en attente",
+    "consultation": "consultation",
+    "medical_history": "Antécédent médical"
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",

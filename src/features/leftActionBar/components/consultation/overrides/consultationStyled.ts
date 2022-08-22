@@ -16,6 +16,19 @@ const ConsultationStyled = styled(Box)(({ theme }) => ({
         '& .contact': {
             paddingTop: theme.typography.pxToRem(30),
         }
+    },
+    ".list-parent": {
+        cursor: "pointer",
+        borderTop: `1px solid ${theme.palette.divider}`,
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(1.5),
+        '& .MuiListItemIcon-root': {
+            minWidth: 20,
+            svg: {
+                width: 14,
+                height: 14,
+            }
+        }
     }
 }));
 

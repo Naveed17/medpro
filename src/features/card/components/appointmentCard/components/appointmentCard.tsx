@@ -2,12 +2,9 @@ import { CardContent, Stack, IconButton, Box, List, ListItem, Typography } from 
 import AppointmentCardStyled from './overrides/appointmentCardStyle';
 import { Label } from '@features/label'
 import Icon from "@themes/urlIcon";
-import { useTranslation } from 'next-i18next';
 
 export default function AppointmentCard({ ...prop }) {
-    const { t, ready } = useTranslation("common");
-    const { data, ...rest } = prop
-    if (!ready) return <>loading translations...</>;
+    const { data, t, ...rest } = prop
     return (
         <AppointmentCardStyled>
             <CardContent>
