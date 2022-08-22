@@ -5,8 +5,6 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { Popover } from "@features/popover";
 import { AppointmentCard } from '@features/card';
@@ -15,48 +13,40 @@ import AppointmentDetailsStyled from './overrides/appointmentDetailsStyle';
 import Icon from '@themes/urlIcon';
 import { useTranslation } from 'next-i18next';
 const menuList = [
+
     {
-        title: "Ajouter patient à la salle d'attente",
-        icon: <Icon color={"white"} path='ic-salle' />,
-        action: "onOpenDetails",
-    },
-    {
-        title: "Commencer la consultation",
+        title: "start_the_consultation",
         icon: <PlayCircleIcon />,
         action: "onOpenEditPatient",
     },
     {
-        title: "Voir fiche Patient",
+        title: "add_patient_to_waiting_room",
+        icon: <Icon color={"white"} path='ic-salle' />,
+        action: "onOpenDetails",
+    },
+    {
+        title: "see_patient_form",
         icon: <InsertDriveFileOutlinedIcon />,
         action: "onCancel",
     },
+
     {
-        title: "Envoyer un msg",
+        title: "send_a_message",
         icon: <SmsOutlinedIcon />,
         action: "onCancel",
     },
     {
-        title: "Import document",
+        title: "import_document",
         icon: <SaveAltOutlinedIcon />,
         action: "onCancel",
     },
     {
-        title: "Historique des RDV",
-        icon: <EventNoteOutlinedIcon />,
-        action: "onCancel",
-    },
-    {
-        title: "Annuler RDV à venir",
-        icon: <CloseOutlinedIcon />,
-        action: "onCancel",
-    },
-    {
-        title: "Déplacer RDV",
+        title: "move_appointment",
         icon: <Icon color={"white"} path="iconfinder" />,
         action: "onCancel",
     },
     {
-        title: "Annuler RDV",
+        title: "cancel_appointment",
         icon: <DeleteOutlineOutlinedIcon />,
         action: "onCancel",
     }
