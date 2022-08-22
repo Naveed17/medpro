@@ -1,5 +1,4 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
-import listPlugin from "@fullcalendar/list";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -14,7 +13,7 @@ import {
 import RootStyled from './overrides/rootStyled';
 import CalendarStyled from './overrides/calendarStyled';
 
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import moment from "moment";
@@ -87,9 +86,7 @@ function Calendar({...props}) {
     } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
-    const {opened} = useAppSelector(sideBarSelector);
 
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
@@ -141,7 +138,6 @@ function Calendar({...props}) {
             calendarApi.refetchEvents();
         }
     }, [sortedData]);
-
 
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
@@ -238,6 +234,7 @@ function Calendar({...props}) {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventChange={(info) => console.log(info)}
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
@@ -255,7 +252,6 @@ function Calendar({...props}) {
                                 slotDuration="00:30:00"
                                 slotLabelFormat={slotFormat}
                                 plugins={[
-                                    listPlugin,
                                     dayGridPlugin,
                                     timeGridPlugin,
                                     interactionPlugin

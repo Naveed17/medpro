@@ -26,8 +26,8 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setView} from "@features/calendar";
 import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
 import Zoom from '@mui/material/Zoom';
-
 import moment from "moment";
+import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -97,7 +97,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                     </Button>*/}
                 </Hidden>
 
-                <Hidden smUp>
+                {/*                <Hidden smUp>
                     <ButtonBadgeStyled
                         variant="contained"
                         color="primary">
@@ -105,8 +105,24 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                             <HourglassBottomRoundedIcon/>
                         </Badge>
                     </ButtonBadgeStyled>
-                </Hidden>
+                </Hidden>*/}
             </Box>
+
+            <Hidden smUp>
+                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"}>
+                    <CalendarViewButton
+                        data={[
+                            {icon: <TodayIcon/>, label: "Day"},
+                            {icon: <DayIcon/>, label: "Week"},
+                            {icon: <WeekIcon/>, label: "Month"},
+                            {icon: <GridIcon/>, label: "List"},
+                        ]}
+                        onSelect={(event: any) => console.log(event)}
+                    />
+
+                    <CalendarAddButton/>
+                </Stack>
+            </Hidden>
             <Hidden smDown>
                 {/*{...(viewOption.color !== undefined  && {  })}*/}
                 <Stack direction="row" spacing={1.5}>
