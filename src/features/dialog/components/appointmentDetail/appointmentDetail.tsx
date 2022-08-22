@@ -143,7 +143,7 @@ function AppointmentDetail({...props}) {
                     />
                     <IconButton
                         size="small"
-                        onClick={() => dispatch(openDrawer(false))}
+                        onClick={() => dispatch(openDrawer({type: "view", open:false}))}
                     >
                         <CloseIcon/>
                     </IconButton>

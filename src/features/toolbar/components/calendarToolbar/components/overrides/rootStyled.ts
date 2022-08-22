@@ -6,7 +6,7 @@ const RootStyled = styled("div")(({ theme }) => ({
   // alignItems: "center",
   flexDirection: "column",
   flexGrow: "1",
-  padding: theme.spacing(3, 0),
+  // padding: theme.spacing(3, 0),
   "& .Current-date":{
     color: theme.palette.text.primary,
     padding: "0 0 0 5px",
