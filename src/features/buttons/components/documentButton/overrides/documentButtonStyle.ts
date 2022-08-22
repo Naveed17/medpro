@@ -6,6 +6,7 @@ const DocumentButtonStyled = styled(Button)(({ theme }) => ({
     border: `1px solid ${theme.palette.grey[300]}`,
     width: "100%",
     minHeight: "77px",
+    height: "100%",
     "& .BaseBadge-root": {
         position: "static",
         "& .MuiBadge-badge": {

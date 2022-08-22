@@ -10,6 +10,8 @@ export * from './cipNextAppointCard'
 export * from "./successCard";
 export * from "./noDataCard";
 export * from "./patientAppointmentCard";
+export * from "./drugListCard";
+export * from './appointmentCard';
 export * from "./appointmentCard";
 export * from "./detailsCard";
 export * from "./collapseCard";

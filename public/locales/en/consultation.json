@@ -60,7 +60,33 @@
     "draw_up_an_order": "Rediger ordonnace",
     "write_mail": "Rediger courrier",
     "balance_sheet_request": "Demande bilan",
-    "print_documents": "Imprimer documents"
+    "print_documents": "Imprimer documents",
+    "medical_prescription": "Ordonnance médicale",
+    "seeking_to_name_the_drug": "Veuiller nommé le médicament",
+    "dosage": "Posologie",
+    "enter_your_dosage": "Saisir sa posologie",
+    "duration": "Durée",
+    "day": "Jour",
+    "days": "Jours",
+    "month": "Mois",
+    "year": "An",
+    "cautionary_note": "Mise en garde",
+    "add_a_drug": "Ajouter un médicament",
+    "drug_list": "Liste médicaments",
+    "placeholder_drug_name": "Ex: Paracetamol ou le nom du médicament",
+    "dosage_unit": "1c / jour",
+    "please_name_the_balance_sheet": "Veuiller nommé le bilan",
+    "placeholder_balance_sheet_name": "Ex: le nom du bilan",
+    "add_balance_sheet": "Ajouter bilan",
+    "balance_sheet_list": "Liste bilan",
+    "add_a_document": "Ajouter un document",
+    "balance_results": "Resultat Bilan",
+    "weight": "Poids",
+    "height": "Taille",
+    "temperature": "Température",
+    "see_the_curve": "Voir la courbe",
+    "angina": "Angine",
+    "ear_infections": "Otites"
   },
   "table": {
     "acts": "Actes",
@@ -80,5 +106,9 @@
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails"
   },
-  "total": "Total"
+  "total": "Total",
+  "treatment_medication": "Traitement (médicament)",
+  "dosage_unit": "1c / jour",
+  "req-sheet": "Demande bilan",
+  "bal_sheet_req": "Demande bilan"
 }

@@ -120,7 +120,7 @@ function CIPPatientHistoryCard() {
                                 fullWidth
                                 multiline
                                 rows={5}
-                                placeholder={t("hint_text")}
+                                placeholder={t("enter_your_dosage")}
                                 {...getFieldProps("treatment")}
                             />
                         </Box>
