@@ -130,6 +130,16 @@ function Calendar({...props}) {
         }
     }, [appointments]);
 
+    useEffect(() => {
+        setEventGroupByDay(sortedData);
+
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.refetchEvents();
+        }
+    }, [sortedData]);
+
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
