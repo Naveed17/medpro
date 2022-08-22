@@ -24,6 +24,7 @@ import {agendaSelector, Event, Header} from "@features/calendar";
 import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
+import {sideBarSelector} from "@features/sideBarMenu";
 
 const tableHead = [
     {
@@ -86,6 +87,8 @@ function Calendar({...props}) {
     } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
+    const {opened} = useAppSelector(sideBarSelector);
+
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
@@ -238,7 +241,7 @@ function Calendar({...props}) {
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
-                                height={isMobile ? "auto" : 720}
+                                height={"100vh"}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:20:00"}

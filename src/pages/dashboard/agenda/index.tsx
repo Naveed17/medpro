@@ -15,7 +15,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import FullCalendar, {DateSelectArg, DatesSetArg, EventClickArg, EventDef} from "@fullcalendar/react";
+import FullCalendar, {DateSelectArg, DatesSetArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
@@ -92,7 +92,6 @@ function Agenda() {
             dispatch(setConfig(agenda));
         }
     }, [agenda, dispatch])
-
 
     const {
         data: httpAppointmentResponse,
