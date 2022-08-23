@@ -23,6 +23,8 @@ import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail} from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
+import {FilterButton} from "@features/buttons";
+import {AgendaFilter} from "@features/leftActionBar";
 
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
@@ -213,10 +215,10 @@ function Agenda() {
                 <CalendarToolbar onToday={handleOnToday} date={date}/>
             </SubHeader>
             <Box>
+                {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
+                    <LinearProgress color="warning"/>}
                 <DesktopContainer>
                     <>
-                        {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
-                            <LinearProgress color="warning"/>}
                         {httpAgendasResponse &&
                             <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
                                       OnInit={onLoadCalendar}
@@ -246,11 +248,19 @@ function Agenda() {
                             </Typography>
 
                             {row.events.map((event) => (
-                                <AppointmentListMobile key={event.id} event={event}/>
+                                <AppointmentListMobile
+                                    OnSelectEvent={onSelectEvent}
+                                    key={event.id}
+                                    event={event}/>
                             ))}
                         </Container>
                     ))}
+
+                    <FilterButton>
+                        <AgendaFilter/>
+                    </FilterButton>
                 </MobileContainer>
+
                 <Drawer
                     anchor={"right"}
                     open={openViewDrawer}

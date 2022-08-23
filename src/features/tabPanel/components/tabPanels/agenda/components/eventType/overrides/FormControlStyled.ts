@@ -15,6 +15,9 @@ const FormControlStyled = styled(FormControl)<any>(({theme}) => ({
     },
     "& .MuiFormControlLabel-root":{
         padding: "8px 0",
+        [theme.breakpoints.down("sm")]:{
+            marginRight: 0
+        }
     }
 }));
 

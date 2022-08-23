@@ -21,6 +21,9 @@ const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
                 border: `1px solid ${theme.palette.divider}`,
                 color: theme.palette.text.primary,
                 textTransform: "inherit",
+                "& .MuiBox-root": {
+                    display: "contents"
+                },
                 "& .MuiButton-startIcon": {
                     path: {
                         fill: theme.palette.common.white,
