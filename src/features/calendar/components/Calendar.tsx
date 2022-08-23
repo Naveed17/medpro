@@ -1,12 +1,10 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
-import listPlugin from "@fullcalendar/list";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 import {
     Box,
-    useMediaQuery,
     IconButton,
     useTheme,
 } from "@mui/material";
@@ -80,13 +78,16 @@ const AddAppointmentCardData = {
 };
 
 function Calendar({...props}) {
-    const {events: appointments, OnRangeChange, disabledSlots, t: translation, OnInit, OnViewChange, OnSelectEvent} = props;
+    const {
+        events: appointments, OnRangeChange, disabledSlots,
+        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate
+    } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
     const calendarRef = useRef(null);
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
-    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>([]);
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [date, setDate] = useState(moment().toDate());
     const isMounted = useIsMountedRef();
 
@@ -111,7 +112,6 @@ function Calendar({...props}) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
-            console.log(view)
             OnViewChange(view as string);
         }
     }, [view]);
@@ -119,31 +119,6 @@ function Calendar({...props}) {
 
     useEffect(() => {
         setEvents(appointments);
-        // this gives an object with dates as keys
-        const groups = appointments.reduce(
-            (groups: { [key: string]: Array<EventCalendarModel> },
-             data: EventCalendarModel) => {
-                const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss").format('DD-MM-YYYY');
-                if (!groups[date]) {
-                    groups[date] = [];
-                }
-                groups[date].push(data);
-                return groups;
-            }, {});
-
-        // Edit: to add it in the array format instead
-        const groupArrays = Object.keys(groups).map((date) => {
-            return {
-                date,
-                events: groups[date]
-            };
-        });
-        const sortedData = groupArrays
-            .slice()
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            .reverse();
-
-        setEventGroupByDay(sortedData);
 
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -151,6 +126,16 @@ function Calendar({...props}) {
             calendarApi.refetchEvents();
         }
     }, [appointments]);
+
+    useEffect(() => {
+        setEventGroupByDay(sortedData);
+
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.refetchEvents();
+        }
+    }, [sortedData]);
 
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
@@ -170,6 +155,16 @@ function Calendar({...props}) {
         }
     };
 
+    const handleTableEvent = (action: string, eventData: EventModal) => {
+        switch (action) {
+            case "showEvent" :
+                OnSelectEvent(eventData);
+                break;
+            case "waitingRoom" :
+                console.log("waitingRoom", eventData.id);
+                break;
+        }
+    }
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const slotFormat = {hour: 'numeric', minute: '2-digit', omitZeroMinute: false, hour12: false} as FormatterInput;
@@ -183,6 +178,7 @@ function Calendar({...props}) {
                             <Otable
                                 headers={tableHead}
                                 rows={eventGroupByDay}
+                                handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
                                 from={"calendar"}
                                 t={translation}
                             />
@@ -235,10 +231,12 @@ function Calendar({...props}) {
                                 slotLabelClassNames={(day) => {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
-                                eventClick={OnSelectEvent}
+                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventChange={(info) => console.log(info)}
+                                select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}
-                                height={isMobile ? "auto" : 720}
+                                height={"100vh"}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:20:00"}
@@ -252,7 +250,6 @@ function Calendar({...props}) {
                                 slotDuration="00:30:00"
                                 slotLabelFormat={slotFormat}
                                 plugins={[
-                                    listPlugin,
                                     dayGridPlugin,
                                     timeGridPlugin,
                                     interactionPlugin

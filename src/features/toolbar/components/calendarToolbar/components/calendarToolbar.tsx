@@ -25,7 +25,9 @@ import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setView} from "@features/calendar";
 import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
+import Zoom from '@mui/material/Zoom';
 import moment from "moment";
+import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 
 CalendarToolbar.propTypes = {
     date: PropTypes.instanceOf(Date).isRequired,
@@ -70,12 +72,15 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
         <RootStyled {...props}>
             <Box>
                 <Hidden smDown>
-                    <IconButton
-                        onClick={onToday}
-                        aria-label="Calendar"
-                        sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
-                        <CalendarIcon/>
-                    </IconButton>
+                    <Tooltip title={"today"} TransitionComponent={Zoom}>
+                        <IconButton
+                            onClick={onToday}
+                            aria-label="Calendar"
+                            sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
+                            <CalendarIcon/>
+                        </IconButton>
+                    </Tooltip>
+
                     <Button className="Current-date" variant="text">
                         <Typography variant="body2" component={"span"}>
                             {moment(currentDate).format(view === 'dayGridMonth' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
@@ -92,7 +97,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                     </Button>*/}
                 </Hidden>
 
-                <Hidden smUp>
+                {/*                <Hidden smUp>
                     <ButtonBadgeStyled
                         variant="contained"
                         color="primary">
@@ -100,13 +105,32 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                             <HourglassBottomRoundedIcon/>
                         </Badge>
                     </ButtonBadgeStyled>
-                </Hidden>
+                </Hidden>*/}
             </Box>
+
+            <Hidden smUp>
+                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"}>
+                    <CalendarViewButton
+                        data={[
+                            {icon: <TodayIcon/>, label: "Day"},
+                            {icon: <DayIcon/>, label: "Week"},
+                            {icon: <WeekIcon/>, label: "Month"},
+                            {icon: <GridIcon/>, label: "List"},
+                        ]}
+                        onSelect={(event: any) => console.log(event)}
+                    />
+
+                    <CalendarAddButton
+                        onClickEvent={() => dispatch(openDrawer({type: "add", open: true}))}
+                    />
+                </Stack>
+            </Hidden>
             <Hidden smDown>
                 {/*{...(viewOption.color !== undefined  && {  })}*/}
                 <Stack direction="row" spacing={1.5}>
                     {VIEW_OPTIONS.map((viewOption) => (
                         <Tooltip key={viewOption.value}
+                                 TransitionComponent={Zoom}
                                  onClick={() => viewOption.value !== "export" && handleViewChagne(viewOption.value)}
                                  title={viewOption.label}>
                             <ToggleButtonStyled
@@ -123,7 +147,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                     <Button
                         startIcon={<AddEventIcon/>}
                         variant="contained"
-                        onClick={() => dispatch(openDrawer(true))}
+                        onClick={() => dispatch(openDrawer({type: "add", open: true}))}
                         color="warning">
                         {t("add")}
                     </Button>

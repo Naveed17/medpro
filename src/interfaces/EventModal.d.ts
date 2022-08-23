@@ -9,6 +9,6 @@ interface EventModal {
     description: string;
     id: string;
     meeting: boolean;
-    patient: PatientWithNextAndLatestAppointment;
+    patient: PatientModel;
     status: string;
 }
