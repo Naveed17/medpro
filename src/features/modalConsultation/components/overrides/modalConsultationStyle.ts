@@ -1,7 +1,7 @@
 import { Card } from '@mui/material';
 import { styled } from '@mui/material/styles';
 const ConsultationModalStyled = styled(Card)(({ theme }) => ({
-    height: '100vh',
+    height: '100%',
     '& .card-header': {
         '.icon-wrapper': {
             borderRadius: '50%',

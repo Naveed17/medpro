@@ -1,7 +1,6 @@
 import {styled} from "@mui/material/styles";
 
 const RootStyled = styled('div')(({ theme }) => ({
-
     '& .btn-add': {
         borderColor: theme.palette.divider,
         paddingTop: theme.spacing(2.25),

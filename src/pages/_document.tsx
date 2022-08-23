@@ -11,8 +11,11 @@ import createEmotionServer from "@emotion/server/create-instance";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
 
+
+
 class MyDocument extends Document {
   render() {
+
     return (
       <Html lang="fr">
         <Head>
