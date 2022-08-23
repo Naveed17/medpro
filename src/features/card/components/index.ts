@@ -18,4 +18,5 @@ export * from "./collapseCard";
 export * from "./consultationCard";
 export * from "./questionCard";
 export * from "./patientdetailsCard";
-
+export * from "./appointmentListMobile";
+export * from "./uploadFileCard"

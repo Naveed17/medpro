@@ -47,6 +47,7 @@ declare module "@mui/material" {
   }
   interface PaletteColor {
     lighter: string;
+    light: string;
   }
   interface ThemeOptions {
     customShadows?: CustomShadowType;

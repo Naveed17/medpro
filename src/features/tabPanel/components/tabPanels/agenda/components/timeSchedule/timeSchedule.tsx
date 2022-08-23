@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -37,18 +37,20 @@ const getDayOfWeek = (day: string) => {
 }
 
 function TimeSchedule({...props}) {
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+
     const {onNext} = props;
     const {data: session, status} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const router = useRouter();
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
-    const dispatch = useAppDispatch();
 
     const [reason, setReason] = React.useState(motif);
     const [location, setLocation] = React.useState("");
     const [professional, setProfessional] = React.useState("");
     const [timeSlots, setTimeSlots] = React.useState<TimeSlotModel[]>([]);
     const [date, setDate] = React.useState<Date | null>(selectedDate);
+
     const [time, setTime] = React.useState("");
     const [limit, setLimit] = React.useState(16);
 
@@ -73,25 +75,30 @@ function TimeSchedule({...props}) {
 
     const {
         data: httpTimeSlotsResponse,
-        error: errorHttpTimeSlots,
-        trigger,
-        isMutating
+        trigger
     } = useRequestMutation(null, "/calendar/slots");
 
-    // handleChange for select
-    const onChangeReason = (event: SelectChangeEvent) => {
-        const reason = event.target.value as string;
-        setReason(reason);
-    };
-
-    const onChangeDatepicker = (date: Date) => {
-        setDate(date);
+    const getSlots = (date: Date) => {
         trigger(location ? {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
             /locations/${location}/professionals/${professional}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null);
+    }
+
+    // handleChange for select
+    const onChangeReason = (event: SelectChangeEvent) => {
+        setReason(event.target.value as string);
+        if (date) {
+            getSlots(date);
+            setTime(moment(date).format('hh:mm'));
+        }
+    };
+
+    const onChangeDatepicker = async (date: Date) => {
+        setDate(date);
+        getSlots(date);
     };
 
     const onChangeLocation = (event: SelectChangeEvent) => {
@@ -101,12 +108,10 @@ function TimeSchedule({...props}) {
     const onNextStep = () => {
         dispatch(setAppointmentMotif(reason));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
-        console.log(dateTime);
         dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY hh:mm').toDate()));
         dispatch(setStepperIndex(2));
         onNext(2);
     }
-
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const locations = agendaConfig?.locations;
@@ -255,7 +260,7 @@ function TimeSchedule({...props}) {
                         <StaticDatePicker
                             onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
                             onChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                            value={date}
+                            value={(location || reason) ? date : null}
                             loading={!location || !reason}
                         />
                     </Grid>

@@ -25,6 +25,7 @@
   "import_document": "Importer un document",
   "click_or_drop_files_to_upload": "Cliquez ou déposez les fichiers à uploader",
   "drag_and_drop_file_here_or_click": "Glissez et déposez le fichier ici ou cliquez",
+  "drag_3": "Faites glisser les bilans ici ou cliquez pour les télécharger.",
   "qr_title": "Qr-Code",
   "qr_des": "Veuillez scanner le Qr-Code pour compléter votre profil.",
   "appointment_details": "Détail RDV",

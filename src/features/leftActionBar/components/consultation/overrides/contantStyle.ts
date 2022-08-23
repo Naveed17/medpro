@@ -3,9 +3,10 @@ import { Card } from '@mui/material';
 const ContentStyled = styled(Card)(({ theme }) => ({
     marginBottom: theme.typography.pxToRem(10),
     '.MuiCardContent-root': {
-        padding: theme.spacing(0, 1),
+        padding: theme.spacing(1),
         '.MuiList-root': {
             padding: 0,
+            paddingLeft: theme.spacing(2),
             width: '100%',
             '.MuiListItem-root': {
                 paddingLeft: 0,
@@ -18,6 +19,11 @@ const ContentStyled = styled(Card)(({ theme }) => ({
                         fill: theme.palette.text.secondary,
                     }
                 }
+            }
+        },
+        ".MuiButton-root": {
+            ".MuiButton-startIcon": {
+                marginRight: theme.spacing(0.5)
             }
         }
     }

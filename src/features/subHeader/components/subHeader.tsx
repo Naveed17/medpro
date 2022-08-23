@@ -1,13 +1,12 @@
-import { Toolbar } from "@mui/material";
-import { SubHeaderStyled } from "@features/subHeader";
+import {Toolbar} from "@mui/material";
+import {SubHeaderStyled} from "@features/subHeader";
 import React from "react";
 
 type LayoutProps = {
     children: React.ReactNode,
 };
 
-function SubHeader({ children }: LayoutProps) {
-    ;
+function SubHeader({children}: LayoutProps) {
     return (
         <SubHeaderStyled position="static" color="inherit" className="main-subheader">
             <Toolbar>
@@ -16,4 +15,5 @@ function SubHeader({ children }: LayoutProps) {
         </SubHeaderStyled>
     );
 }
+
 export default SubHeader;

@@ -22,7 +22,17 @@
     "treatment_in_progress": "traitement en cours",
     "balance_sheet_pending": "Bilan en attente",
     "consultation": "consultation",
-    "medical_history": "Antécédent médical"
+    "medical_history": "Antécédent médical",
+    "add_treatment": "Ajouter un traitement",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "dosage_unit": "jour",
+    "add": "Ajouter",
+    "add_result": "Ajouter resultat",
+    "ignore": "Ignorer",
+    "add_history": "Ajouter Antécédents",
+    "family_history": "Antécédents familiaux",
+    "surgical_history": "Antécédents chirurgicaux"
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",
@@ -90,7 +100,17 @@
     "temperature": "Température",
     "see_the_curve": "Voir la courbe",
     "angina": "Angine",
-    "ear_infections": "Otites"
+    "ear_infections": "Otites",
+    "enter_the_result": "Saisir la resultat",
+    "smoking": "Tabagisme",
+    "alcohol": "Alcool",
+    "play_any_sports": "Pratiquez-vous des sports?",
+    "work_on_the_computer": "Travaillez-vous à l’ordinateur?",
+    "weight_is_stable": "Poids est stable",
+    "last_6_months": "Depuis les 6 derniers mois?",
+    "chemical_dependency": "Avez-vous une dépendance chimique?",
+    "starting_year": "Annéé de debut",
+    "other": "Autre"
   },
   "table": {
     "acts": "Actes",
