@@ -14,10 +14,12 @@ declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
     google: true;
     "text-black": true;
+    'contained-white': true
     filter: true;
     "text-primary": true;
     consultationIP: true;
   }
+
 }
 
 declare module "@mui/material/Chip" {
@@ -28,10 +30,12 @@ declare module "@mui/material/Chip" {
 
 declare module "@mui/material" {
   interface Color {
+    0: number | string;
     "500_32": string;
     "500_16": string;
     A0: string;
     A50: string;
+    A60: string;
     A200: string;
     A300: string;
     A400: string;

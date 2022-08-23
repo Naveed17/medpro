@@ -3,9 +3,7 @@ import React from "react";
 
 import TableCell from "@mui/material/TableCell";
 import {Typography, Box, Skeleton, Stack, Checkbox, IconButton} from "@mui/material";
-import Lable from "@themes/overrides/Lable";
 import Switch from "@mui/material/Switch";
-import Button from "@mui/material/Button";
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from "lodash";
 

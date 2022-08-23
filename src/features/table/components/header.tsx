@@ -89,7 +89,7 @@ function OHead({ ...props }) {
                 {headCell.id === "duration" && (
                   <Stack direction="row" width={1} ml={2}>
                     <Checkbox
-                      checked={state.duration}
+                      checked={state?.duration}
                       onChange={(e) => {
                         handleChange(e.target.checked, headCell.id);
                       }}
@@ -102,7 +102,7 @@ function OHead({ ...props }) {
                       select
                       size="small"
                       fullWidth
-                      value={state[headCell.id]}
+                      value={state && state[headCell.id]}
                       name={headCell.id}
                       //onChange={handleChange}
                       SelectProps={{
@@ -118,16 +118,16 @@ function OHead({ ...props }) {
                 {(headCell.id === "delay_min" ||
                   headCell.id === "delay_max" ||
                   headCell.id === "isEnabled") && (
-                  <Switch
-                    checked={Boolean(state[headCell.id])}
-                    name={headCell.id}
-                    onChange={(e) => {
-                      handleChange(e.target.value, headCell.id);
-                    }}
-                    inputProps={{ "aria-label": "controlled" }}
-                    sx={{ m: headCell.id === "isEnabled" ? "auto" : 0 }}
-                  />
-                )}
+                    <Switch
+                      checked={Boolean(state && state[headCell.id])}
+                      name={headCell.id}
+                      onChange={(e) => {
+                        handleChange(e.target.value, headCell.id);
+                      }}
+                      inputProps={{ "aria-label": "controlled" }}
+                      sx={{ m: headCell.id === "isEnabled" ? "auto" : 0 }}
+                    />
+                  )}
               </TableCell>
             )}
           </React.Fragment>

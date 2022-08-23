@@ -1,24 +1,28 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { useRouter } from "next/router";
-import { Box, Typography } from "@mui/material";
-import { SubHeader } from "@features/subHeader";
-import { CalendarToolbar } from "@features/toolbar";
-import { DashLayout } from "@features/base";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState} from "react";
+import {useRouter} from "next/router";
+import {Box, Typography} from "@mui/material";
+import {SubHeader} from "@features/subHeader";
+import {CalendarToolbar} from "@features/toolbar";
+import {DashLayout} from "@features/base";
 import requestAxios from "@app/axios/config";
-import { useSession } from "next-auth/react";
-import { LoadingScreen } from "@features/loadingScreen";
-import { AxiosRequestHeaders } from "axios";
+import {useSession} from "next-auth/react";
+import {LoadingScreen} from "@features/loadingScreen";
+import {AxiosRequestHeaders} from "axios";
 import {useRequest} from "@app/axios";
-import { Session } from "next-auth";
+import {Session} from "next-auth";
 
-const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({ url, method: "GET", headers }).then(res => res.data);
+const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({
+    url,
+    method: "GET",
+    headers
+}).then(res => res.data);
 
 const API = "/api/private/user/fr";
 
 function Dashborad() {
-    const { data: session, status } = useSession();
+    const {data: session, status} = useSession();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
     console.log(session);
@@ -27,24 +31,24 @@ function Dashborad() {
         'Content-Type': 'application/json',
     }
 
-    const { data, error } = useRequest({
+    const {data, error} = useRequest({
         method: "GET",
         url: "/api/private/users/fr",
         headers
     });
 
     const loading = status === 'loading';
-    if (loading) return (<LoadingScreen />);
+    if (loading) return (<LoadingScreen/>);
 
     if (error) return <div>failed to load</div>
-    if (!data) return <LoadingScreen />;
+    if (!data) return <LoadingScreen/>;
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
 
     return (
         <>
             <SubHeader>
-                <CalendarToolbar date={date} />
+                <CalendarToolbar onToday={() => console.log('onToday')} date={date}/>
             </SubHeader>
             <Box className="container">
                 <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>

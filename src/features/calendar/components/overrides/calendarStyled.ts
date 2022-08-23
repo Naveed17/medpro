@@ -15,6 +15,10 @@ const CalendarStyled = styled('div')(({ theme }) => ({
         '--fc-list-event-hover-bg-color': theme.palette.action.hover,
         '--fc-highlight-color': alpha(theme.palette.primary.main, 0.08)
     },
+    '& .fc-day-disabled':{
+        /* absence */
+        background: `url(/static/img/absence.png), ${theme.palette.text.disabled}`
+    },
     '& .fc .fc-license-message': { display: 'none' },
     '& .fc a': { color: theme.palette.text.primary },
 

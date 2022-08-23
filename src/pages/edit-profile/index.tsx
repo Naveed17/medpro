@@ -72,6 +72,7 @@ function EditProfile() {
                                         <CustomStepper
                                             currentIndex={currentStepper}
                                             translationKey="editProfile"
+                                            t={t}
                                             prefixKey="steppers"
                                             stepperData={stepperData} />
                                     </Box>

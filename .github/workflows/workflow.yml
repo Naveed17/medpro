@@ -12,35 +12,39 @@ on:
       - 'develop'
       - 'main'
     types: [ opened ,closed ,synchronize ,reopened ]
-
+  
 jobs:
-  lowercase_name:
-    runs-on: ubuntu-latest
-    outputs:
-      repository: ${{ steps.toLower.outputs.lowercase }}
-    steps:
-      - id: toLower
-        uses: ASzc/change-string-case-action@v2
-        with:
-          string: ${{ github.repository }}
-
-  build-docker-image:
-    needs: lowercase_name
+  build:
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
-    uses: ./.github/workflows/build-docker-image-workflow.yml
+    uses: ./.github/workflows/docker_build.yml
     with:
       REGISTRY: ghcr.io
       username: ${{ github.actor }}
-      IMAGE: ${{needs.lowercase_name.outputs.repository}}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
 
-  delete-docker-image:
+  delete:
     if: ((github.event.action == 'closed' || github.event.pull_request.merged == true))
-    uses: ./.github/workflows/delete-docker-image-workflow.yml
+    uses: ./.github/workflows/docker_delete.yml
     with:
       REGISTRY: ghcr.io
       username: ${{ github.actor }}
       TAG: pr-${{ github.event.number }}
     secrets:
       token: ${{ secrets.SMARTMEDBOT_PAT }}
+
+  deploy:
+    if: github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/waypoint.yml
+    needs: build
+    with:
+      workspace: develop
+      tag: develop
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      encodedString:  ${{ secrets.MEDV2_STAGE_KUBE_CONFIG_B64 }}
+      WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
+      WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
+      WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
+      WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
+

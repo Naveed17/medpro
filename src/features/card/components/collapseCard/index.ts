@@ -1,2 +1,2 @@
-export { default } from "./collapseCard";
+export { default as CollapseCard } from "./collapseCard";
 export * from "./configs";

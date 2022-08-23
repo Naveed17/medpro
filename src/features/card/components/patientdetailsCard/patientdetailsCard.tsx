@@ -1,7 +1,7 @@
 //material-ui
 import { Box, Button, Typography, Badge } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-
+import { useRouter } from "next/router";
 // styled
 import { RootStyled } from "./overrides";
 
@@ -9,8 +9,12 @@ import { RootStyled } from "./overrides";
 import Icon from "@themes/urlIcon";
 import { pxToRem } from "@themes/formatFontSize";
 import { useTranslation } from "next-i18next";
-
+import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
 function PatientdetailsCard() {
+  const { patientId } = useAppSelector(tableActionSelector);
+  const router = useRouter();
+  const { query } = router;
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "patient-details",
   });
@@ -79,6 +83,9 @@ function PatientdetailsCard() {
         <Typography variant="body2">+216 22 469 495</Typography>
       </Box>
       <Button
+        onClick={() => {
+          router.push({ query }, `/dashboard/consultation/${patientId}`, { locale: router.locale });
+        }}
         variant="contained"
         color="warning"
         startIcon={<PlayCircleIcon />}

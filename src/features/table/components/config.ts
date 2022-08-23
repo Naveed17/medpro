@@ -8,6 +8,12 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "template",
+    component: dynamic((): any =>
+        import("@features/table/components/rows/templateRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "lieux",
     component: dynamic((): any =>
       import("@features/table/components/rows/lieuxRow").then((mod) => mod)
@@ -23,6 +29,12 @@ const rowsActionsData = [
     action: "agenda",
     component: dynamic((): any =>
       import("@features/table/components/rows/agendaRow").then((mod) => mod)
+    ),
+  },
+  {
+    action: "calendar",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/calendarRow").then((mod) => mod)
     ),
   },
   {
@@ -70,6 +82,22 @@ const rowsActionsData = [
     action: "instructions",
     component: dynamic((): any =>
       import("@features/table/components/rows/instructionRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "CIP-medical-procedures",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/cIPMedicalProceduresRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "CIP-next-appointment",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/cIPNextAppointRow").then(
         (mod) => mod
       )
     ),

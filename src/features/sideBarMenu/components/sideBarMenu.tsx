@@ -140,7 +140,6 @@ function SideBarMenu({ children }: LayoutProps) {
 
     return (
         <MainMenuStyled>
-            {/*<CssBaseline />*/}
             <TopNavBar dashboard />
             <Box
                 component="nav"

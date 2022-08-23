@@ -1,1 +1,1 @@
-export { default } from "./patientdetailsCard";
+export { default as PatientdetailsCard } from "./patientdetailsCard";
