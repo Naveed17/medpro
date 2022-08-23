@@ -1,42 +1,77 @@
-import {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ConsultationModalStyled from './overrides/modalConsultationStyle'
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
-    Stack, Box, Typography, CardContent, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Button, DialogActions
+    Stack, Typography, CardContent, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Button, DialogActions, Box
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {Dialog} from '@features/dialog';
-import CircleIcon from '@mui/icons-material/Circle';
 import {alpha} from '@mui/material/styles'
 import Icon from '@themes/urlIcon'
 import {useTranslation} from "next-i18next";
 import {motion} from 'framer-motion'
-import {data, modalConfig} from './config'
+import {modalConfig} from './config'
+import {ModelDot} from "@features/modelDot";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRequestMutation} from "@app/axios";
+import dynamic from "next/dynamic";
 
+const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
+), {
+    ssr: false,
+});
 const variants = {
     initial: {opacity: 0},
     animate: {
-        opacity: 1,
-
+        opacity: 1
     }
 };
 
 function ModalConsultation() {
+    const {data: session, status} = useSession();
+    const loading = status === 'loading';
+    let medical_entity: MedicalEntityModel | null = null;
     const [open, setOpen] = useState(false);
     const [change, setChange] = useState(false);
+    const [models, setModels] = useState<ModalModel[]>([]);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
-    const [value, setValue] = useState({
-        label: data[0].label,
-        color: data[0].color
+    const [value, setValue] = useState<ModalModel>({
+        color: "#FEBD15",
+        hasData: false,
+        isEnabled: true,
+        label: "fiche 2",
+        structure: [],
+        uuid: "8a536913-5593-4f29-a123-46b4f5f2ce37"
     });
+
+    const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
+
+
+    useEffect(() => {
+        if (medical_entity !== null) {
+            trigger({
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then(r => {
+                if (r) setModels((r.data as HttpResponse).data)
+            });
+        }
+    }, [medical_entity, session?.accessToken, trigger]);
+
+
     const handleClickAway = () => {
         setOpen(false);
     };
-    const handleClick = (prop: { label: string, color: string }) => {
+    const handleClick = (prop: ModalModel) => {
         setValue(prop);
-        setOpen(false)
+        console.log(prop)
+        setOpen(false);
     };
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -48,16 +83,20 @@ function ModalConsultation() {
     const handleChange = () => {
         setChange(true)
     }
-    if (!ready) return <>loading translations...</>;
+
+    if (!ready || loading) return <>loading translations...</>;
+    const {data: user} = session as Session;
+    medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     return (
         <>
             <ClickAwayListener onClickAway={handleClickAway}>
                 <ConsultationModalStyled>
                     <Stack spacing={1} p={2} direction="row" alignItems="center" className="card-header"
-                           bgcolor={alpha(value.color, 0.4)}>
+                           bgcolor={alpha(value.color, 0.3)}>
                         <Stack onClick={() => setOpen(prev => !prev)} spacing={1} direction="row" alignItems="center"
                                width={1} sx={{cursor: 'pointer'}}>
-                            <Box className='icon-wrapper'><CircleIcon sx={{color: value.color}}/></Box>
+                            <ModelDot color={value.color} selected={false}/>
                             <Typography fontWeight={500}>
                                 Données de suivi : {value.label}
                             </Typography>
@@ -70,19 +109,34 @@ function ModalConsultation() {
                     <CardContent sx={{
                         bgcolor: alpha(value.color, 0.1)
                     }}>
+                        <Box>
+                            {value.color !== "#FEBD15" && <FormBuilder
+                                onSubmit={console.log}
+                                onError={console.log}
+                                //submission={{ data: {taille:'3',imc:30} }}
+                                form={
+                                    {
+                                        display: "form",
+                                        components: value.structure
+                                    }
+                                }
+                            />}
+
+
+                        </Box>
                         <motion.div
                             hidden={!open}
                             variants={variants}
                             initial="initial"
                             animate={open ? "animate" : 'initial'}
-                            exit="initial"
-                        >
+                            exit="initial">
                             <Paper className="menu-list">
                                 <MenuList>
-                                    {data.map((item, index) => (
+                                    {models.map((item, index) => (
                                         <MenuItem key={index} onClick={() => handleClick(item)}>
                                             <ListItemIcon>
-                                                <CircleIcon sx={{color: item.color}}/>
+                                                <ModelDot color={item.color} selected={false} size={21} sizedot={13}
+                                                          padding={3}/>
                                             </ListItemIcon>
                                             <ListItemText>{item.label}</ListItemText>
                                         </MenuItem>

@@ -135,6 +135,19 @@ function PfTemplateDetail({...props}) {
                 struct.push(w.fieldSet)
             });
 
+            if (struct.length > 0)
+                struct[0].components.push({
+                    key: "submit",
+                    type: "button",
+                    input: true,
+                    label: "Submit",
+                    tableView: false,
+                    customClass: "sub-btn",
+                    disableOnInvalid: true,
+                    saveOnEnter: false,
+                    showValidations: false,
+                })
+
             const form = new FormData();
             form.append('label', values.name);
             form.append('color', modelColor);

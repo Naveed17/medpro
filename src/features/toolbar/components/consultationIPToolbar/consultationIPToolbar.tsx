@@ -7,39 +7,38 @@ import { tabsData, documentButtonList } from './config'
 import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
+import { UploadFile } from '@features/uploadFile'
 
 function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [value, setValue] = React.useState(tabsData[0].value);
-    const [info, setInfo] = React.useState('');
+    const [info, setInfo] = React.useState<null | string>('');
     const [tabs, setTabs] = React.useState(0);
+    const [dialogData, setDialogData] = React.useState<any>(null)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = (action: string) => {
-        console.log(action)
         switch (action) {
             case "draw_up_an_order":
-                setInfo('')
+                setInfo('medical_prescription')
                 break;
-            case "assurance":
-                setInfo(action)
+            case "balance_sheet_request":
+                setInfo('balance_sheet_request')
                 break;
-            case "mode":
-                setInfo(action)
-                break;
-            case "langues":
-                setInfo(action)
+            case "upload_document":
+                setInfo('add_a_document')
                 break;
             default:
+                setInfo(null)
                 break;
 
         };
         setAnchorEl(null);
-
+        handleClickDialog()
 
     };
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -47,14 +46,16 @@ function ConsultationIPToolbar({ selected }: any) {
     };
     const handleClickDialog = () => {
         setOpenDialog(true);
+
     };
     const handleCloseDialog = () => {
         setOpenDialog(false);
+        setInfo(null)
     }
     useEffect(() => {
         selected(tabs);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tabs])
+    }, [tabs]);
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -111,35 +112,42 @@ function ConsultationIPToolbar({ selected }: any) {
                             <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value} label={t(label)} />
                         ))}
                     </Tabs>
-                    <Button variant="outlined" color="primary" className="action-button">
+                    <Button variant="outlined" color="primary" onClick={()=>{
+                        const btn = document.getElementsByClassName('sub-btn')[1];
+                        (btn as HTMLElement).click();
+                    }} className="action-button">
                         <Icon path="ic-check" />
                         {t("end_of_consultation")}
                     </Button>
                 </Stack>
             </ConsultationIPToolbarStyled>
-            <Dialog action={info}
-                open={openDialog}
-                data={null}
-                change={false}
-                max
-                direction={'ltr'}
-                title={'Personaliser les données de suivi'}
-                dialogClose={handleCloseDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}
-                            startIcon={<CloseIcon />}>
-                            {t('cancel')}
-                        </Button>
-                        <Button variant="contained"
-                            onClick={handleCloseDialog}
+            {
+                info &&
+                <Dialog action={info}
+                    open={openDialog}
+                    data={dialogData}
+                    change={false}
+                    max
+                    direction={'ltr'}
+                    title={t(info)}
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                startIcon={<CloseIcon />}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                onClick={handleCloseDialog}
 
-                            startIcon={<Icon
-                                path='ic-dowlaodfile' />}>
-                            fasdf
-                        </Button>
-                    </DialogActions>
-                } />
+                                startIcon={<Icon
+                                    path='ic-dowlaodfile' />}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+                    } />
+            }
+
         </>
     )
 }
