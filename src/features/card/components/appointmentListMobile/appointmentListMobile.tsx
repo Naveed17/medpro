@@ -3,9 +3,24 @@ import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 
 function AppointmentListMobile({...props}) {
-    const {event} = props;
+    const {event, OnSelectEvent} = props;
+
+    const handleEventClick = () => {
+        OnSelectEvent(Object.assign(event, {
+            extendedProps: {
+                description: event.description,
+                meeting: event.meeting,
+                motif: event.motif,
+                patient: event.patient,
+                status: event.status,
+                time: event.time
+            }
+        }));
+    }
+
     return (
         <RootStyled
             sx={{
@@ -16,7 +31,7 @@ function AppointmentListMobile({...props}) {
             }}
         >
             <Stack direction="row" spacing={2}>
-                <Box className="card-main">
+                <Box className="card-main" onClick={handleEventClick}>
                     <Typography variant={"subtitle2"} color="primary.main" className="title">
                         <>
                             {event.meeting ? <IconUrl path="ic-video"/> : null}
@@ -25,7 +40,7 @@ function AppointmentListMobile({...props}) {
                     </Typography>
                     <Box className="time-badge-main">
                         <Typography variant={"subtitle2"} color="text.secondary">
-                            <IconUrl path="ic-time"/>
+                            <AccessTimeOutlinedIcon/>
                             <span>
                                 {new Date(event.time).toLocaleTimeString([], {
                                     hour: "2-digit",
@@ -47,7 +62,7 @@ function AppointmentListMobile({...props}) {
                 </Box>
                 <Box className="action">
                     <IconButton size="small">
-                        <MoreVertIcon fontSize="small"/>
+                        <MoreVertIcon/>
                     </IconButton>
                 </Box>
             </Stack>

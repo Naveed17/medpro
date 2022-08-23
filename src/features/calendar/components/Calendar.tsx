@@ -5,7 +5,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import {
     Box,
-    useMediaQuery,
     IconButton,
     useTheme,
 } from "@mui/material";
@@ -23,7 +22,6 @@ import {agendaSelector, Event, Header} from "@features/calendar";
 import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
-import {sideBarSelector} from "@features/sideBarMenu";
 
 const tableHead = [
     {
