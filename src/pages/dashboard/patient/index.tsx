@@ -5,6 +5,10 @@ import { useEffect, useState, ReactElement, SyntheticEvent } from "react";
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+
+import { Session } from "next-auth";
 
 // material components
 import {
@@ -36,6 +40,7 @@ import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
 import { SpeedDial } from "@features/speedDial";
 import { CustomStepper } from "@features/customStepper";
+import { useRequest } from "@app/axios";
 
 // icons
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
@@ -187,40 +192,6 @@ const AddAppointmentCardData = {
   buttonVariant: "warning",
 };
 
-// Patient data for table body
-const PatiendData = [
-  {
-    id: 1,
-    name: "John Doe",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment("09:00", "hh:mm").format("hh:mm"),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: true,
-    dateOfBirth: moment(),
-    status: "pending",
-    action: "left",
-  },
-  {
-    id: 2,
-    name: "Med",
-    avatar: "/static/icons/Med-logo_.svg",
-    time: moment("09:00", "hh:mm").format("hh:mm"),
-    telephone: "+1-555-555-5555",
-    idCode: "123456789",
-    city: "New York",
-    nextAppointment: moment().format("DD-MM-YYYY"),
-    lastAppointment: moment().format("DD-MM-YYYY"),
-    addAppointment: false,
-    dateOfBirth: moment(),
-    status: "success",
-    action: "left",
-  },
-];
-
 // table head data
 const headCells: readonly HeadCell[] = [
   {
@@ -298,6 +269,21 @@ function a11yProps(index: number) {
 
 function Patient() {
   const dispatch = useAppDispatch();
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const { data: user } = session as Session;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+
+  const { data: httpPatientsResponse, error: errorHttpAgendas } = useRequest({
+    method: "GET",
+    url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
+    headers: {
+      Authorization: `Bearer ${session?.accessToken}`,
+    },
+  });
+
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
@@ -341,7 +327,7 @@ function Patient() {
         <Box display={{ xs: "none", md: "block" }}>
           <Otable
             headers={headCells}
-            rows={PatiendData}
+            rows={(httpPatientsResponse as HttpResponse)?.data}
             state={null}
             from={"patient"}
             t={t}
@@ -350,9 +336,14 @@ function Patient() {
             handleChange={null}
             minWidth={1300}
             pagination
+            loading={!Boolean(httpPatientsResponse)}
           />
         </Box>
-        <PatientMobileCard ready={ready} PatiendData={PatiendData} />
+        <PatientMobileCard
+          ready={ready}
+          PatiendData={(httpPatientsResponse as HttpResponse)?.data}
+          loading={!Boolean(httpPatientsResponse)}
+        />
         <Drawer
           anchor={"right"}
           open={open}
@@ -497,6 +488,7 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
+    fallback: false,
     ...(await serverSideTranslations(locale as string, [
       "patient",
       "menu",
@@ -506,7 +498,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 });
 
 export default Patient;
-
+Patient.auth = true;
 Patient.getLayout = function getLayout(page: ReactElement) {
   return <DashLayout>{page}</DashLayout>;
 };
