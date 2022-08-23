@@ -7,7 +7,7 @@ import {Box, Typography, Paper, Grid} from "@mui/material";
 import {useAppSelector} from "@app/redux/hooks";
 import {tableActionSelector} from "@features/table";
 
-const data: { personal: { name: string, value: string } } = {
+const data: any = {
     personal: [{
         name: "",
         value: "",
@@ -82,7 +82,7 @@ function PersonalInfo() {
             </Typography>
             <Paper sx={{p: 1.5, borderWidth: 0}}>
                 <Grid container spacing={1.2}>
-                    {data.personal.map((v) => (
+                    {data.personal.map((v: { name: string, value: string }) => (
                         <React.Fragment key={Math.random()}>
                             <Grid item md={3} sm={6} xs={6}>
                                 <Typography variant="body1" color="text.secondary" noWrap>

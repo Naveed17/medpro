@@ -4,11 +4,11 @@ interface PatientWithNextAndLatestAppointment {
   firstName: string;
   lastName: string;
   email: string;
-  birthDate: string;
+  birthdate: string;
   account: AccountModel;
   gender: string;
   insurances: PatientInsuranceModel[];
-  contacts: ContactModel[];
+  contact: ContactModel[];
   addresses: AddressModel[];
   isParent: boolean;
   medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
