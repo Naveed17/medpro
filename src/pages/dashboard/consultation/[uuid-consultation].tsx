@@ -31,12 +31,12 @@ import {Otable} from '@features/table';
 import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
 import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
-import {AppointmentDetails} from '@features/appointmentDetails';
 import {motion, AnimatePresence} from 'framer-motion';
 import Icon from '@themes/urlIcon'
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {AppointmentDetail} from "@features/dialog";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -501,7 +501,7 @@ function ConsultationInProgress() {
                                     setopen(false);
                                 }}
                             >
-                                <AppointmentDetails
+                                <AppointmentDetail
                                     data={{
                                         name: "Muhamed Ali",
                                         img: "",
