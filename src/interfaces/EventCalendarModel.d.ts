@@ -3,15 +3,13 @@ interface EventCalendarModel {
     time: Date;
     end: Date;
     title: string;
-    addRoom: boolean;
-    agenda: boolean;
     allDay: boolean;
     borderColor: string;
-    customRender: boolean;
+    addRoom: boolean;
     description: string;
-    motif: string;
+    motif: ConsultationReasonModel;
     id: string;
     inProgress: boolean;
     meeting: boolean;
-    status: boolean;
+    status: string;
 }

@@ -3,15 +3,12 @@ interface EventModal {
     time: Date;
     end: Date;
     title: string;
-    addRoom: boolean;
-    agenda: boolean;
     allDay: boolean;
     borderColor: string;
-    customRender: boolean;
-    motif: string;
+    motif: ConsultationReasonModel;
     description: string;
     id: string;
-    inProgress: boolean;
     meeting: boolean;
-    status: boolean;
+    patient: PatientWithNextAndLatestAppointment;
+    status: string;
 }

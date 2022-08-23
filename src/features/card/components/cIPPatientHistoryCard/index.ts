@@ -1,2 +1,1 @@
-export { default as CIPPatientHistoryCard } from './cIPPatientHistoryCard';
-export * from './config';
+export * from './components';

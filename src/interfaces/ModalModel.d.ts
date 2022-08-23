@@ -4,5 +4,5 @@ interface ModalModel {
   uuid: string;
   isEnabled: boolean;
   hasData: boolean;
-  structure: string[];
+  structure: any[];
 }

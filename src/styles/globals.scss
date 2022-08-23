@@ -118,6 +118,7 @@ main {
     float: left;
     width: 7rem;
   }
+
   input {
     width: 10rem;
     text-align: left;
@@ -128,13 +129,14 @@ main {
   fieldset {
     border: 0;
 
-    legend{
+    legend {
       font-style: normal;
       font-weight: 400;
       font-size: 14px;
       line-height: 21px;
       color: #00234B;
     }
+
     .fieldset-body {
       border: 1px solid #DDDDDD;
       background: white;
@@ -143,5 +145,18 @@ main {
       margin-top: 0.5rem;
       margin-bottom: 1rem;
     }
+  }
+}
+
+.sub-btn {
+  visibility: hidden;
+  height: 0;
+}
+
+.alert-success {
+  visibility: hidden;
+  height: 0;
+  p {
+    margin: 0;
   }
 }

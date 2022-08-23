@@ -8,7 +8,7 @@ export type MenuState = {
 
 const initialState: MenuState = {
     tableState: {
-        patientId: "",
+        patient: null,
         addAmount: '',
     },
 };

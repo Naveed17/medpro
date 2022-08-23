@@ -1,5 +1,5 @@
 interface Table {
-  patient: PatientModel;
+  patient: PatientWithNextAndLatestAppointment | null;
   addAmount: string | number;
 }
 export default Table;
