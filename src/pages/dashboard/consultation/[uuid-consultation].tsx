@@ -19,7 +19,7 @@ import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
-import { AppointmentDetails } from '@features/appointmentDetails';
+import { AppointmentDetail } from '@features/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from '@themes/urlIcon'
@@ -439,7 +439,7 @@ function ConsultationInProgress() {
                                     setopen(false);
                                 }}
                             >
-                                <AppointmentDetails
+                                <AppointmentDetail
                                     data={{
                                         name: "Muhamed Ali",
                                         img: "",

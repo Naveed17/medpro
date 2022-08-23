@@ -4,12 +4,12 @@ import {
 } from './actions';
 
 export type SideBarState = {
-    opened: boolean;
+    opened: boolean | null;
     mobileOpened: boolean;
 };
 
 const initialState: SideBarState = {
-    opened: false,
+    opened: null,
     mobileOpened: false
 };
 
