@@ -30,8 +30,7 @@ function PatientdetailsCard() {
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right",
-                }}
-            >
+                }}>
                 <Box
                     component="img"
                     src={"/static/img/150-13 6.png"}
@@ -56,8 +55,7 @@ function PatientdetailsCard() {
                     variant="body2"
                     color="text.secondary"
                     component="span"
-                    className="date-birth"
-                >
+                    className="date-birth">
                     <Icon path="ic-anniverssaire"/>
                     {patient && patient.birthdate + ' - ' + moment().diff(patient.birthdate, "years") + ' ans'}
                 </Typography>
@@ -87,7 +85,8 @@ function PatientdetailsCard() {
             </Box>
             <Button
                 onClick={() => {
-                    router.push({query}, `/dashboard/consultation/${patient.uuid}`, {locale: router.locale});
+                    if (patient)
+                        router.push({query}, `/dashboard/consultation/${patient?.uuid}`, {locale: router.locale});
                 }}
                 variant="contained"
                 color="warning"

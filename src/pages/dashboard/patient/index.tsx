@@ -274,7 +274,7 @@ function Patient() {
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     // state hook for tabs
     const [value, setValue] = useState<number>(0);
-    const [rows, setRows] = useState<PatientModel[]>([]);
+    const [rows, setRows] = useState<PatientWithNextAndLatestAppointment[]>([]);
     // selectors
     const {patient} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
@@ -290,8 +290,6 @@ function Patient() {
         }
     }, [patient]);
     const {
-        data: httpPatientResponse,
-        error: errorHttpAppointment,
         trigger
     } = useRequestMutation(null, "/patients", {revalidate: true, populateCache: false});
 
@@ -306,6 +304,7 @@ function Patient() {
                     Authorization: `Bearer ${session?.accessToken}`
                 }
             }, {revalidate: true, populateCache: true}).then(r => {
+                //console.log((r.data as HttpResponse).data);
                 if (r) setRows((r.data as HttpResponse).data)
             });
         }

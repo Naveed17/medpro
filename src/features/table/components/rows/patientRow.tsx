@@ -36,13 +36,6 @@ function PatientRow({...props}) {
                     display="flex"
                     alignItems="center"
                     sx={{img: {borderRadius: "4px"}}}>
-                    {/*<img
-            src={row.avatar as string}
-            className="avatar"
-            alt="avatar"
-            height="28px"
-            width={28}
-          />*/}
                     <Box ml={1}>
                         <Typography
                             variant="body1"
@@ -63,9 +56,9 @@ function PatientRow({...props}) {
                             className="text-time">
                             <Icon path="ic-anniverssaire"/>
                             {row.birthdate} -{" "}
-{/*
+
                             {moment().diff(row.birthdate, "years") + ' ans'}
-*/}
+
                         </Typography>
                     </Box>
                 </Box>
@@ -73,14 +66,18 @@ function PatientRow({...props}) {
             <TableCell align={"center"}>
                 <Box display="flex" component="span" alignItems="center">
                     <Icon path="ic-tel"/>
+
                     <Typography sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
+
                 </Box>
             </TableCell>
 
+
             <TableCell align={"center"}>{row.city ? row.city : '-'}</TableCell>
 
+
             <TableCell align={"center"}>
-                {!row.nextAppointment ? (
+                {/*                {!row.nextAppointment ? (
                     <Button
                         variant="text"
                         size="small"
@@ -124,10 +121,10 @@ function PatientRow({...props}) {
                             </Typography>
                         </Box>
                     </Box>
-                )}
+                )}*/}
             </TableCell>
             <TableCell align={"center"}>
-                {!row.lastAppointment ? (
+                {/*{!row.lastAppointment ? (
                     <Button
                         variant="text"
                         size="small"
@@ -169,7 +166,7 @@ function PatientRow({...props}) {
                             </Typography>
                         </Box>
                     </Box>
-                )}
+                )}*/}
             </TableCell>
 
             <TableCell align="right">
