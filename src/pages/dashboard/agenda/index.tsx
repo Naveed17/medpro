@@ -25,7 +25,7 @@ import {AppointmentDetail} from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
-
+import { motion } from "framer-motion";
 const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
     ssr: false
 });
@@ -220,12 +220,19 @@ function Agenda() {
                 <DesktopContainer>
                     <>
                         {httpAgendasResponse &&
-                            <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
-                                      OnInit={onLoadCalendar}
-                                      OnSelectEvent={onSelectEvent}
-                                      OnSelectDate={onSelectDate}
-                                      OnViewChange={onViewChange}
-                                      OnRangeChange={handleOnRangeChange}/>}
+                            <motion.div
+                                initial={{ opacity: 0, y: -100 }}
+                                animate={{ opacity: 1, y: 0}}
+                                transition={{ease: "easeIn", duration: 1}}
+                            >
+                                <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
+                                          OnInit={onLoadCalendar}
+                                          OnSelectEvent={onSelectEvent}
+                                          OnSelectDate={onSelectDate}
+                                          OnViewChange={onViewChange}
+                                          OnRangeChange={handleOnRangeChange}/>
+                            </motion.div>
+                        }
                     </>
                 </DesktopContainer>
                 <MobileContainer>
