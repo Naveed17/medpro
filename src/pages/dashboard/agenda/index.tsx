@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
@@ -29,7 +29,7 @@ import {motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 
-const Calendar = dynamic(() => import('@features/calendar/components/Calendar'), {
+const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
 
@@ -102,7 +102,6 @@ function Agenda() {
 
     const {
         data: httpAppointmentResponse,
-        error: errorHttpAppointment,
         trigger
     } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
@@ -110,10 +109,7 @@ function Agenda() {
         trigger: updateAppointmentTrigger
     } = useRequestMutation(null, "/agenda/update/appointment", {revalidate: false, populateCache: false});
 
-    if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready) return (<LoadingScreen/>);
-
-    const getAppointments = (query: string) => {
+    const getAppointments = useCallback((query: string) => {
         setLoading(true);
         trigger({
             method: "GET",
@@ -121,8 +117,11 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(r => setLoading(false));
-    }
+        }, {revalidate: true, populateCache: true}).then(() => setLoading(false));
+    },[agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+
+    if (errorHttpAgendas) return <div>failed to load</div>
+    if (!ready) return (<LoadingScreen/>);
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
@@ -141,6 +140,7 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
+        console.log(view)
         if (view === 'listWeek') {
             getAppointments(`format=list&page=1&limit=50`);
         }
@@ -244,8 +244,7 @@ function Agenda() {
     const sortedData: GroupEventsModel[] = groupArrays
         .slice()
         .sort((a, b) =>
-            new Date(a.date).getTime() - new Date(b.date).getTime())
-        .reverse();
+            new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
         <>
@@ -259,9 +258,10 @@ function Agenda() {
                     <>
                         {httpAgendasResponse &&
                             <motion.div
+                                key={router.route}
                                 initial={{opacity: 0, y: -100}}
                                 animate={{opacity: 1, y: 0}}
-                                transition={{ease: "easeIn", duration: 1}}
+                                transition={{ease: "easeOut", duration: 1}}
                             >
                                 <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
                                           OnInit={onLoadCalendar}
