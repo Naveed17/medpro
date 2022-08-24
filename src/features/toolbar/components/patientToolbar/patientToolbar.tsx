@@ -37,6 +37,7 @@ function PatientToolbar() {
     stepsData.step1.name !== "" && stepsData.step2.email !== "";
 
   const [open, setOpen] = useState(isAlreadyExist);
+  const [addPatientData, setAddPatientData] = useState<null | {}>(null);
 
   useEffect(() => {
     setOpen(isAlreadyExist);

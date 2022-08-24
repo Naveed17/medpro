@@ -35,7 +35,6 @@ import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
 import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
-import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
 import { SpeedDial } from "@features/speedDial";
@@ -299,6 +298,7 @@ function Patient() {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+
   // useEffect hook for handling the table action drawer
   useEffect(() => {
     if (Boolean(patientId !== "")) {
@@ -362,7 +362,15 @@ function Patient() {
                   setopen(false);
                 }}
               />
-              <PatientdetailsCard />
+              <PatientdetailsCard
+                patient={
+                  httpPatientsResponse
+                    ? (httpPatientsResponse as HttpResponse)?.data.find(
+                        (patient: any) => patient.uuid === patientId
+                      )
+                    : {}
+                }
+              />
               <Box
                 sx={{
                   width: { md: 726, xs: "100%" },

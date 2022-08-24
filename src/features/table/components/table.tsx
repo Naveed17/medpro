@@ -106,7 +106,7 @@ function Otable({ ...props }) {
       }
     }
   }, [tableHeadData?.active]);
-  console.log(rows);
+
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
@@ -139,7 +139,7 @@ function Otable({ ...props }) {
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                const isItemSelected = isSelected(row?.id as number);
+                const isItemSelected = isSelected(row?.uuid as number);
                 const labelId = `enhanced-table-checkbox-${index}`;
                 return (
                   <Component

@@ -24,6 +24,7 @@ import { useTranslation } from "next-i18next";
 function AddPatientStep2({ ...props }) {
   const { onNext, t } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
+  console.log(stepsData, "reudx");
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step2).length > 0;
   const RegisterSchema = Yup.object().shape({});

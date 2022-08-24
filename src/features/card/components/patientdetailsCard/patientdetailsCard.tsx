@@ -11,7 +11,9 @@ import { pxToRem } from "@themes/formatFontSize";
 import { useTranslation } from "next-i18next";
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
-function PatientdetailsCard() {
+import moment from "moment-timezone";
+function PatientdetailsCard({ ...props }) {
+  const { patient } = props;
   const { patientId } = useAppSelector(tableActionSelector);
   const router = useRouter();
   const { query } = router;
@@ -47,7 +49,7 @@ function PatientdetailsCard() {
             textAlign: { md: "left", sm: "center", xs: "center" },
           }}
         >
-          Name
+          {patient?.firstName} {patient?.lastName}
         </Typography>
         <Typography
           variant="body2"
@@ -56,7 +58,8 @@ function PatientdetailsCard() {
           className="date-birth"
         >
           <Icon path="ic-anniverssaire" />
-          {new Date().toLocaleDateString()} - 32 Ans
+          {patient?.birthdate} -{" "}
+          {moment().diff(new Date(patient?.birthdate), "years")} {t("years")}
         </Typography>
       </Box>
       <div>
@@ -79,12 +82,18 @@ function PatientdetailsCard() {
         alignItems="center"
         sx={{ ml: { md: 1, sm: 0, xs: 0 }, mt: { md: 4, sm: 1, xs: 1 } }}
       >
-        <Icon path="ic-tel" />
-        <Typography variant="body2">+216 22 469 495</Typography>
+        {patient?.telephone && (
+          <>
+            <Icon path="ic-tel" />
+            <Typography variant="body2">{patient?.telephone}</Typography>
+          </>
+        )}
       </Box>
       <Button
         onClick={() => {
-          router.push({ query }, `/dashboard/consultation/${patientId}`, { locale: router.locale });
+          router.push({ query }, `/dashboard/consultation/${patientId}`, {
+            locale: router.locale,
+          });
         }}
         variant="contained"
         color="warning"
