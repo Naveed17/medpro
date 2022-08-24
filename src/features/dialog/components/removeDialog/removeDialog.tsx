@@ -1,5 +1,6 @@
 import React from "react";
 import {Typography} from "@mui/material";
+import Image from "next/image";
 
 
 function RemoveDialog({...props}) {
@@ -9,7 +10,7 @@ function RemoveDialog({...props}) {
         <Typography sx={{textAlign:"center"}} margin={2}>{props.data.subtitle}</Typography>
 
         <div style={{width: "fit-content",margin: "auto"}}>
-            <img style={{width: "30px"}} src={props.data.icon} alt={props.data.name1}/>
+            <Image width={30} height={30} src={props.data.icon} alt={props.data.name1}></Image>
         </div>
         <Typography variant={"body1"} color={'primary'} sx={{textAlign:"center"}}>{props.data.name1}</Typography>
         <Typography variant={"body2"} sx={{textAlign:"center",color:'#7C878E'}}>{props.data.name2}</Typography>
