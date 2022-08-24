@@ -80,7 +80,7 @@ const AddAppointmentCardData = {
 function Calendar({...props}) {
     const {
         events: appointments, OnRangeChange, disabledSlots,
-        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate, OnEventChange
+        t: translation, sortedData, OnInit, OnViewChange = null, OnSelectEvent, OnSelectDate, OnEventChange
     } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
@@ -112,14 +112,12 @@ function Calendar({...props}) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
-            OnViewChange(view as string);
+            OnViewChange(view as string)
         }
     }, [view]);
 
-
     useEffect(() => {
         setEvents(appointments);
-
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -129,7 +127,6 @@ function Calendar({...props}) {
 
     useEffect(() => {
         setEventGroupByDay(sortedData);
-
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
