@@ -153,6 +153,7 @@ function PlacesDetail() {
 
     const {trigger} = useRequestMutation(null, "/settings/place");
 
+    console.log(row)
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {

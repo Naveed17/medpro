@@ -2,6 +2,7 @@ import React from 'react'
 import TableCell from '@mui/material/TableCell';
 import {Typography, Box, MenuItem, Select,} from '@mui/material';
 import {TableRowStyled} from "@features/table"
+import Image from "next/image";
 
 
 export default function PermissionRow({...props}) {
@@ -11,7 +12,7 @@ export default function PermissionRow({...props}) {
         <TableRowStyled key={row.name}>
             <TableCell>
                 <Box display="flex" alignItems="center" sx={{p: 1}}>
-                    <img src="/static/img/avatar.svg" alt="logo" width={40}/>
+                    <Image src="/static/img/avatar.svg" alt="logo" width={40} height={40}/>
                     <Box ml={1.5}>
                         <Typography
                             variant="subtitle1"

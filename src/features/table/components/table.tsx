@@ -104,7 +104,7 @@ function Otable({ ...props }) {
         setActive([]);
       }
     }
-  }, [tableHeadData?.active]);
+  }, [ids, tableHeadData, tableHeadData?.active]);
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
