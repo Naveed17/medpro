@@ -16,27 +16,25 @@ import {
     Grid,
     Button,
     Typography,
-    Collapse,
-    List,
     ListItem,
-    ListItemIcon,
-    IconButton
 } from "@mui/material";
 //components
 import {DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from '@features/subFooter';
-import {CipNextAppointCard, CipMedicProCard, DrugListCard, drugListCardData} from "@features/card";
+import {CipNextAppointCard, CipMedicProCard} from "@features/card";
 import {Otable} from '@features/table';
 import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
 import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
 import Icon from '@themes/urlIcon'
-import {useRequest, useRequestMutation} from "@app/axios";
+import { useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {AppointmentDetail} from "@features/dialog";
+import {checkListSelector} from "@features/checkList";
+import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 

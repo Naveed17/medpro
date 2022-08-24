@@ -7,7 +7,9 @@ import { tabsData, documentButtonList } from './config'
 import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import { UploadFile } from '@features/uploadFile'
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {SetEnd, SetExaman} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 
 function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
@@ -18,6 +20,14 @@ function ConsultationIPToolbar({ selected }: any) {
     const [dialogData, setDialogData] = React.useState<any>(null)
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const dispatch = useAppDispatch();
+    const {end,examan} = useAppSelector(consultationSelector);
+
+    useEffect(() => {
+        console.log(examan)
+        console.log(end)
+    }, [examan]);
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -36,7 +46,7 @@ function ConsultationIPToolbar({ selected }: any) {
                 setInfo(null)
                 break;
 
-        };
+        }
         setAnchorEl(null);
         handleClickDialog()
 
@@ -113,8 +123,9 @@ function ConsultationIPToolbar({ selected }: any) {
                         ))}
                     </Tabs>
                     <Button variant="outlined" color="primary" onClick={()=>{
-                        const btn = document.getElementsByClassName('sub-btn')[1];
-                        (btn as HTMLElement).click();
+                        /*const btn = document.getElementsByClassName('sub-btn')[1];
+                        (btn as HTMLElement).click();*/
+                        dispatch(SetEnd(true))
                     }} className="action-button">
                         <Icon path="ic-check" />
                         {t("end_of_consultation")}

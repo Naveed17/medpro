@@ -8,6 +8,7 @@ import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@fea
 import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
 import {AgendaReducer} from "@features/calendar";
+import {ConsultationReducer} from "@features/toolbar/components/consultationIPToolbar/reducer";
 
 
 export const store = configureStore({
@@ -16,6 +17,7 @@ export const store = configureStore({
     sideBar: SideBarReducer,
     profileMenu: ProfileMenuReducer,
     checkList: CheckListReducer,
+    consultationDetails: ConsultationReducer,
     user: userReducer,
     addPatientSteps: addPatientReducer,
     stepperProfile: stepperProfileReducer,
