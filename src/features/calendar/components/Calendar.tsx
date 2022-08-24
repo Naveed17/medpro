@@ -80,7 +80,7 @@ const AddAppointmentCardData = {
 function Calendar({...props}) {
     const {
         events: appointments, OnRangeChange, disabledSlots,
-        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate
+        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate, OnEventChange
     } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
@@ -232,7 +232,7 @@ function Calendar({...props}) {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
-                                eventChange={(info) => console.log(info)}
+                                eventChange={(info) => OnEventChange(info)}
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}

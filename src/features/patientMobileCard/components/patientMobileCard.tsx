@@ -11,6 +11,7 @@ import {
   IconButton,
   Button,
   Box,
+  Skeleton,
   Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -53,7 +54,7 @@ const menuList = [
 ];
 
 const CardSection = ({ ...props }) => {
-  const { v, theme, onOpenDetails } = props;
+  const { v, theme, onOpenDetails, loading } = props;
 
   const [openTooltip, setOpenTooltip] = useState(false);
   const onClickTooltipItem = (item: {
@@ -74,24 +75,37 @@ const CardSection = ({ ...props }) => {
     <Paper key={Math.random()} className="card-main">
       <Grid container>
         <Grid item md={11} sm={11} xs={11}>
-          <Typography className="heading" variant="body1" component="div">
-            <Icon path={v.status === "pending" ? "ic-f" : "ic-h"} />
-            {v.firstName + ' ' + v.lastName}
-          </Typography>
+          {loading ? (
+            <Skeleton variant="text" width={140} />
+          ) : (
+            <>
+              <Typography className="heading" variant="body1" component="div">
+                <Icon path={"ic-f"} />
+                {v.firstName}
+              </Typography>
+            </>
+          )}
+
           <Typography
             variant="caption"
             color="text.secondary"
             component="div"
             lineHeight="18px"
           >
-            <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
-            {v.birthdate} - {moment().diff(v.birthdate, "years") + ' ans'}
+            {loading ? (
+              <Skeleton variant="text" width={100} />
+            ) : (
+              <>
+                <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
+                {v.nextAppointment.dayDate}
+              </>
+            )}
           </Typography>
           <Box
             className="border-left-sec"
             sx={{
               borderLeft: `5px solid ${
-                v.status === "success"
+                v?.isParent
                   ? theme.palette.success.main
                   : theme.palette.warning.main
               }`,
@@ -101,19 +115,25 @@ const CardSection = ({ ...props }) => {
               size="small"
               className="button"
               startIcon={
-                v.addAppointment ? (
+                v?.isParent ? (
                   <Icon path="ic-agenda" />
                 ) : (
                   <Icon path="ic-historique" />
                 )
               }
               sx={{
-                color: v.addAppointment ? "primary" : "text.secondary",
+                color: v?.isParent ? "primary" : "text.secondary",
               }}
             >
-              {v.addAppointment ? "Add Apointment" : "Next Appointment"}
+              {loading ? (
+                <Skeleton variant="text" width={100} />
+              ) : v.isParent ? (
+                "Add Apointment"
+              ) : (
+                "Next Appointment"
+              )}
             </Button>
-            {v.status === "success" && (
+            {!loading && !v.isParent && (
               <Typography
                 display="inline"
                 variant="body2"
@@ -122,9 +142,9 @@ const CardSection = ({ ...props }) => {
                 component="div"
               >
                 <Icon path="ic-agenda" />
-                {v.nextAppointment}
+                {v.nextAppointment.dayDate}
                 <Icon path="ic-time" />
-                {v.time}
+                {v.nextAppointment.startTime}
               </Typography>
             )}
           </Box>
@@ -142,15 +162,21 @@ const CardSection = ({ ...props }) => {
               menuList={menuList}
               onClickItem={onClickTooltipItem}
               button={
-                <IconButton
-                  onClick={() => {
-                    setOpenTooltip(true);
-                  }}
-                  sx={{ display: "block", ml: "auto" }}
-                  size="small"
-                >
-                  <Icon path="more-vert" />
-                </IconButton>
+                <>
+                  {loading ? (
+                    <Skeleton variant="circular" width={20} height={20} />
+                  ) : (
+                    <IconButton
+                      onClick={() => {
+                        setOpenTooltip(true);
+                      }}
+                      sx={{ display: "block", ml: "auto" }}
+                      size="small"
+                    >
+                      <Icon path="more-vert" />
+                    </IconButton>
+                  )}
+                </>
               }
             />
           </Box>
@@ -160,7 +186,7 @@ const CardSection = ({ ...props }) => {
   );
 };
 function PatientMobileCard({ ...props }) {
-  const { PatiendData } = props;
+  const { PatiendData, loading } = props;
   const dispatch = useAppDispatch();
   const theme = useTheme();
 
@@ -197,24 +223,17 @@ function PatientMobileCard({ ...props }) {
 
   return (
     <RootStyled>
-      {PatiendData.map(
-        (v: {
-          id: number | string;
-          name: string;
-          status: string;
-          addAppointment: boolean;
-          nextAppointment: Date;
-        }) => (
-          <CardSection
-            v={v}
-            key={Math.random()}
-            theme={theme}
-            onOpenDetails={(val: { patientId: number | string }) =>
-              dispatch(onOpenDetails(val))
-            }
-          />
-        )
-      )}
+      {(loading ? Array.from(new Array(5)) : PatiendData).map((v: any) => (
+        <CardSection
+          v={v}
+          key={Math.random()}
+          theme={theme}
+          onOpenDetails={(val: { patientId: number | string }) =>
+            dispatch(onOpenDetails(val))
+          }
+          loading={loading}
+        />
+      ))}
       <Button
         variant="filter"
         onClick={handleClickOpen}
