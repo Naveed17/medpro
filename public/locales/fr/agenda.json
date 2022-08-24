@@ -176,6 +176,13 @@
       "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
       "cancel": "Annuler",
       "confirm": "Confirmer"
+    },
+    "cancel-dialog": {
+      "title": "Annuler RDV",
+      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
     }
   }
 }

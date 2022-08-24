@@ -33,6 +33,16 @@ const Calendar = dynamic(() => import('@features/calendar/components/calendar'),
     ssr: false
 });
 
+const AppointmentTypes: { [key: string]: string } = {
+    0: "PENDING",
+    1: "CONFIRMED",
+    2: "REFUSED",
+    3: "WAITING_ROOM",
+    4: "ON_GOING",
+    5: "FINISHED",
+    6: "CANCELED",
+    7: "EXPIRED",
+}
 const EventStepper = [
     {
         title: "steppers.tabs.tab-1",
@@ -118,7 +128,7 @@ function Agenda() {
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, {revalidate: true, populateCache: true}).then(() => setLoading(false));
-    },[agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+    }, [agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
     if (errorHttpAgendas) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
@@ -217,7 +227,7 @@ function Agenda() {
             id: appointment.uuid,
             meeting: false,
             addRoom: true,
-            status: "Confirmed"
+            status: AppointmentTypes[appointment.type]
         });
     });
 
@@ -258,10 +268,9 @@ function Agenda() {
                     <>
                         {httpAgendasResponse &&
                             <motion.div
-                                key={"calendar"}
                                 initial={{opacity: 0, y: -100}}
                                 animate={{opacity: 1, y: 0}}
-                                transition={{ease: "easeOut", duration: 1}}
+                                transition={{ease: "easeIn", duration: 1}}
                             >
                                 <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
                                           OnInit={onLoadCalendar}
@@ -319,6 +328,7 @@ function Agenda() {
                     }}
                 >
                     {event && <AppointmentDetail
+                        onCancelAppointment={() => refreshData()}
                         translate={t}
                         data={event}
                     />}

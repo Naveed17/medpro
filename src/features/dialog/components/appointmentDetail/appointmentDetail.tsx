@@ -16,7 +16,7 @@ import {
     Link,
     TextField,
     List,
-    ListItem
+    ListItem, useTheme
 } from '@mui/material'
 
 import {Popover} from "@features/popover";
@@ -32,8 +32,14 @@ import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import {useAppDispatch} from "@app/redux/hooks";
-import {openDrawer} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, openDrawer} from "@features/calendar";
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Dialog} from "@features/dialog";
+import {EventDef} from "@fullcalendar/react";
 
 const menuList = [
     {
@@ -97,11 +103,39 @@ function AppointmentDetail({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
+    const router = useRouter();
+    const theme = useTheme();
+
+    const [alert, setAlert] = useState<boolean>(false);
+    const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
     const [value, setValue] = useState(data?.intro);
     const [openTooltip, setOpenTooltip] = useState(false);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {
+        trigger: updateStatusTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/status", {revalidate: false, populateCache: false});
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        const form = new FormData();
+        form.append('status', '6');
+        updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
+            /appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(()=> {
+            setAlert(false);
+            onCancelAppointment(appointmentUUid);
+        })
+    }
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement;
@@ -143,7 +177,7 @@ function AppointmentDetail({...props}) {
                     />
                     <IconButton
                         size="small"
-                        onClick={() => dispatch(openDrawer({type: "view", open:false}))}
+                        onClick={() => dispatch(openDrawer({type: "view", open: false}))}
                     >
                         <CloseIcon/>
                     </IconButton>
@@ -275,17 +309,91 @@ function AppointmentDetail({...props}) {
                                 startIcon={<IconUrl path='ic-salle'/>}>
                             {translate('event.add-waiting-room')}
                         </Button>
-                        <Button onClick={onMoveAppointment} fullWidth variant='contained'
+                        <Button onClick={() => setMoveAlert(true)}
+                                fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                             {translate('event.move')}
                         </Button>
-                        <Button onClick={onCancelAppointment} fullWidth variant='contained-white' color="error"
+                        <Button onClick={() => setAlert(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
                                 sx={{'& svg': {width: 14, height: 14}}} startIcon={<IconUrl path='icdelete'/>}>
                             {translate('event.delete')}
                         </Button>
                     </Stack>
                 </CardActions>
             </Box>
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setAlert(false)}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{translate("dialogs.cancel-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{translate("dialogs.cancel-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={alert}
+                title={translate("dialogs.cancel-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setAlert(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {translate("dialogs.cancel-dialog.cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"error"}
+                            onClick={()=> cancelAppointment(data.publicId)}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {translate("dialogs.cancel-dialog.confirm")}
+                        </Button>
+                    </>
+                }
+            ></Dialog>
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setMoveAlert(false)}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{translate("dialogs.move-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{translate("dialogs.move-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={moveAlert}
+                title={translate("dialogs.move-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setMoveAlert(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {translate("dialogs.move-dialog.cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"error"}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {translate("dialogs.move-dialog.confirm")}
+                        </Button>
+                    </>
+                }
+            ></Dialog>
         </RootStyled>
     )
 }

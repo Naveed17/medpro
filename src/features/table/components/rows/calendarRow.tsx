@@ -143,15 +143,15 @@ function CalendarRow({...props}) {
                         <Label
                             variant="filled"
                             color={
-                                data?.status === "Confirmed"
+                                data?.status === "CONFIRMED"
                                     ? "success"
-                                    : data?.status === "canceled"
+                                    : data?.status === "CANCELED"
                                         ? "error"
                                         : "primary"
                             }
                             sx={{height: 21, px: 3}}
                         >
-                            {data.status ? "Confirmé" : "En attente"}
+                            {data.status ? "Confirmé" : "Annuler"}
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
