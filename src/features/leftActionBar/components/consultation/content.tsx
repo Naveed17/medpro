@@ -1,5 +1,17 @@
 // components
-import { Typography, ListItem, List, Stack, ListItemIcon, CardContent, IconButton, Button, DialogActions } from "@mui/material";
+import {
+    Typography,
+    ListItem,
+    Drawer,
+    List,
+    Stack,
+    Box,
+    ListItemIcon,
+    CardContent,
+    IconButton,
+    Button,
+    DialogActions
+} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import ContentStyled from "./overrides/contantStyle";
@@ -7,13 +19,38 @@ import CircleIcon from '@mui/icons-material/Circle';
 import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
-import { upperFirst } from "lodash";
 import Add from "@mui/icons-material/Add";
 import { data1, data2, data3, data4 } from './config'
-
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
+import { configSelector } from "@features/base";
+import { agendaSelector, openDrawer, setConfig, setStepperIndex } from "@features/calendar";
+import { CustomStepper } from "@features/customStepper";
+import { EventType, TimeSchedule, Patient, Instruction, setAppointmentDate } from "@features/tabPanel";
+const EventStepper = [
+    {
+        title: "steppers.tabs.tab-1",
+        children: EventType,
+        disabled: false
+    }, {
+        title: "steppers.tabs.tab-2",
+        children: TimeSchedule,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-3",
+        children: Patient,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-4",
+        children: Instruction,
+        disabled: true
+    }
+];
 const Content = ({ ...props }) => {
     const { id } = props;
     const { t, ready } = useTranslation('consultation', { keyPrefix: 'filter' });
+    const { direction } = useAppSelector(configSelector);
+    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
+    const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [info, setInfo] = React.useState<null | string>('');
     const handleClickDialog = () => {
@@ -25,7 +62,10 @@ const Content = ({ ...props }) => {
         setInfo(null)
     }
     const handleOpen = (action: string) => {
-        console.log(action)
+        if (action === "consultation") {
+            dispatch(openDrawer({ type: "add", open: true }));
+            return
+        }
         switch (action) {
             case "add_treatment":
                 setInfo(action)
@@ -36,6 +76,12 @@ const Content = ({ ...props }) => {
             case "life_style":
                 setInfo(action)
                 break;
+            case "family_history":
+                setInfo(action)
+                break;
+            case "surgical_history":
+                setInfo(action)
+                break;
             default:
                 setInfo(null)
                 break;
@@ -44,6 +90,15 @@ const Content = ({ ...props }) => {
         handleClickDialog()
 
     };
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    };
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        }
+    }
+    if (!ready) return <>loading translations...</>;
     return (
         <React.Fragment>
             {
@@ -126,7 +181,7 @@ const Content = ({ ...props }) => {
 
                                     </List>
                                     <Stack mt={2}>
-                                        <Button onClick={() => handleOpen("add_treatment")} size="small" startIcon={
+                                        <Button onClick={() => handleOpen("consultation")} size="small" startIcon={
                                             <Add />
                                         }>
                                             {t('add')}
@@ -203,6 +258,27 @@ const Content = ({ ...props }) => {
                         </DialogActions>
                     } />
             }
+            <Drawer
+                anchor={"right"}
+                open={openAddDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({ type: "add", open: false }));
+
+                }}
+            >
+                <Box height={"100%"}>
+                    <CustomStepper
+                        currentIndex={currentStepper}
+                        OnTabsChange={handleStepperChange}
+                        OnSubmitStepper={submitStepper}
+                        stepperData={EventStepper}
+                        scroll
+                        t={t}
+                        minWidth={726}
+                    />
+                </Box>
+            </Drawer>
         </React.Fragment>
     )
 }

@@ -110,7 +110,17 @@
     "last_6_months": "Depuis les 6 derniers mois?",
     "chemical_dependency": "Avez-vous une dépendance chimique?",
     "starting_year": "Annéé de debut",
-    "other": "Autre"
+    "other": "Autre",
+    "disease_1": "Diabète / Hypoglycémie",
+    "disease_2": "Épilepsie",
+    "disease_3": "Problème respiratoire (asthme, emphysème, bronchite)",
+    "disease_4": "Cholestérol",
+    "disease_5": "Problème vasculaire / phlébite",
+    "disease_6": "Maladie de peau",
+    "father": "Père",
+    "mother": "Mère",
+    "name_of_the_allergy": "Nom de l’allergie",
+    "current_treatment": "Tapez le nom du traitement en cours"
   },
   "table": {
     "acts": "Actes",

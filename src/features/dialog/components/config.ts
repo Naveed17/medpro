@@ -104,6 +104,22 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "family_history",
+    component: dynamic((): any =>
+      import("@features/dialog/components/familyHistoryDialog/familyHistoryDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "surgical_history",
+    component: dynamic((): any =>
+      import("@features/dialog/components/surgicalHistoryDialog/surgicalHistoryDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 
 ];
