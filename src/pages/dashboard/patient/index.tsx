@@ -285,7 +285,7 @@ function Patient() {
   });
 
   // selectors
-  const { patientId } = useAppSelector(tableActionSelector);
+  const { patient } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
 
   // state hook for details drawer
@@ -301,10 +301,10 @@ function Patient() {
   };
   // useEffect hook for handling the table action drawer
   useEffect(() => {
-    if (Boolean(patientId !== "")) {
+    if (patient) {
       setopen(true);
     }
-  }, [patientId]);
+  }, [patient]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
