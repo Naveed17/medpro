@@ -168,5 +168,14 @@
     "add-waiting-room": "Ajouter patient à la salle d'attente",
     "move": "Déplacer RDV",
     "delete": "Annuler RDV"
+  },
+  "dialogs": {
+    "move-dialog": {
+      "title": "Déplacer RDV",
+      "sub-title": "Voulez-vous vraiment déplacer le RDV?",
+      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
   }
 }
