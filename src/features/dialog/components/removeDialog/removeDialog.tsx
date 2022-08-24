@@ -15,4 +15,4 @@ function RemoveDialog({...props}) {
         <Typography variant={"body2"} sx={{textAlign:"center",color:'#7C878E'}}>{props.data.name2}</Typography>
     </>)
 }
-export default RemoveDialog
+export default RemoveDialog;

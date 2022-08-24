@@ -19,7 +19,6 @@ const RootStyled = styled(Card)(({theme}) => ({
         "& .title": {
             display: "flex",
             alignItems: "center",
-
             svg: {
                 width: 10,
                 height: 10,
@@ -33,10 +32,11 @@ const RootStyled = styled(Card)(({theme}) => ({
             display: "flex",
             marginTop: theme.spacing(1),
             alignItems: "center",
-            "& .MuiTypography-body2": {
+            "& .MuiTypography-root": {
                 display: "flex",
                 alignItems: "center",
                 svg: {
+                    fontSize: 20,
                     marginRight: 5,
                     path: {
                         fill: theme.palette.text.secondary,

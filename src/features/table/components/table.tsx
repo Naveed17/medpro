@@ -14,7 +14,9 @@ function descendingComparator(a: any, b: any, orderBy: any) {
   }
   return 0;
 }
+
 type Order = "asc" | "desc";
+
 function getComparator(order: any, orderBy: any) {
   return order === "desc"
     ? (a: any, b: any) => descendingComparator(a, b, orderBy)
@@ -34,6 +36,7 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
 }
 
 const rowsPerPage = 10;
+
 function Otable({ ...props }) {
   const {
     rows,
@@ -90,8 +93,6 @@ function Otable({ ...props }) {
     }
     setSelected(newSelected);
   };
-
-  const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
@@ -177,4 +178,5 @@ function Otable({ ...props }) {
     </Box>
   );
 }
+
 export default Otable;

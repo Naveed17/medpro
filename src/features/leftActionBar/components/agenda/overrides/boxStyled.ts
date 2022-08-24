@@ -1,15 +1,19 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
+import {breakpoints} from "@mui/system";
 
 const BoxStyled = styled(Box)(({ theme }) => ({
-    marginLeft: "-20px",
+    [theme.breakpoints.up('sm')]: {
+        marginLeft: "-20px",
+        "& .MuiPickerStaticWrapper-root": {
+            marginLeft: "-.8rem",
+            '& > [class^=css-]': {
+                marginLeft: "-.6rem"
+            }
+        },
+    },
     "& .MuiPickerStaticWrapper-root": {
         marginTop: "-.8rem",
-        marginLeft: "-.8rem",
-        '& > [class^=css-]': {
-            marginLeft: "-.6rem"
-        }, '& > [class^=muirtl-]': {
-        },
     },
     '& .MuiCalendarPicker-root': {
         maxHeight: "-webkit-fill-available",

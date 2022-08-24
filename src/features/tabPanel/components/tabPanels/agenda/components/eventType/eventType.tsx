@@ -11,7 +11,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {appointmentSelector, resetAppointment, setAppointmentType} from "@features/tabPanel";
-import {setStepperIndex} from "@features/calendar";
+import {openDrawer, setStepperIndex} from "@features/calendar";
 
 const types = [
     {
@@ -106,9 +106,9 @@ function EventType({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => dispatch(resetAppointment())}
+                    onClick={() => dispatch(openDrawer({type: "add", open: false}))}
                 >
-                    {t("back")}
+                    {t("finish")}
                 </Button>
                 <Button
                     size="medium"
