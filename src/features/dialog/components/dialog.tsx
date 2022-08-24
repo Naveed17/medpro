@@ -1,16 +1,18 @@
 import { DialogData } from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import Dialog from "@mui/material/Dialog";
 import { DialogActions, DialogContent, DialogContentText, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Theme } from "@mui/material/styles";
+import Dialog, { DialogProps } from "@mui/material/Dialog";
+import { useState } from "react";
 
-function SettingsDialogs({ ...props }) {
-    const selectted = DialogData.find((item) => item.action === props.action);
+function Dialogs({ ...props }) {
+    const { action, data, contrastText, open, dialogClose, direction, color, title, actionDialog, onClose, actions } = props;
 
-    const data = props.data;
-    const { action, onClose, actions } = props;
-    const Component: any = selectted ? selectted.component : action;
+    const selected = DialogData.find((item) => item.action === action);
+    const [fullWidth, setFullWidth] = useState(true);
+    const [maxWidth, setMaxWidth] = useState<DialogProps['maxWidth']>('md');
+    const Component: any = selected ? selected.component : action;
 
     return (
         <>
@@ -57,4 +59,4 @@ function SettingsDialogs({ ...props }) {
     );
 }
 
-export default SettingsDialogs;
+export default Dialogs;

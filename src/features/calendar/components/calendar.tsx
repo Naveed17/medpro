@@ -5,7 +5,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 
 import {
     Box,
-    useMediaQuery,
     IconButton,
     useTheme,
 } from "@mui/material";
@@ -23,7 +22,6 @@ import {agendaSelector, Event, Header} from "@features/calendar";
 import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
-import {sideBarSelector} from "@features/sideBarMenu";
 
 const tableHead = [
     {
@@ -82,7 +80,7 @@ const AddAppointmentCardData = {
 function Calendar({...props}) {
     const {
         events: appointments, OnRangeChange, disabledSlots,
-        t: translation, sortedData, OnInit, OnViewChange, OnSelectEvent, OnSelectDate
+        t: translation, sortedData, OnInit, OnViewChange = null, OnSelectEvent, OnSelectDate, OnEventChange
     } = props;
     const theme = useTheme();
     const {view, currentDate} = useAppSelector(agendaSelector);
@@ -114,14 +112,12 @@ function Calendar({...props}) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
-            OnViewChange(view as string);
+            OnViewChange(view as string)
         }
     }, [view]);
 
-
     useEffect(() => {
         setEvents(appointments);
-
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -131,7 +127,6 @@ function Calendar({...props}) {
 
     useEffect(() => {
         setEventGroupByDay(sortedData);
-
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -234,7 +229,7 @@ function Calendar({...props}) {
                                     return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(disabledSlots[0].start, disabledSlots[0].end) ? 'normal' : 'disabled';
                                 }}
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
-                                eventChange={(info) => console.log(info)}
+                                eventChange={(info) => OnEventChange(info)}
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={10}

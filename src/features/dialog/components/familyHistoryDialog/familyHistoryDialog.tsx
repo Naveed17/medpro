@@ -57,6 +57,12 @@ function FamilyHistoryDialog() {
             [event.target.name]: event.target.checked,
         });
     };
+    const handleChangeTextField = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setState({
+            ...state,
+            [event.target.name]: event.target.value,
+        });
+    };
     if (!ready) return <>loading translations...</>;
     return (
         <FamilyHistoryDialogStyled display='block'>
@@ -75,16 +81,25 @@ function FamilyHistoryDialog() {
                                 <Stack direction='row' spacing={1}>
                                     <TextField
                                         placeholder={t('starting_year')}
+                                        name={`text_field_${list.name}`}
+                                        onChange={handleChangeTextField}
+
                                     />
                                     <FormControlLabel
                                         control={
-                                            <Checkbox checked={true} name="father" />
+                                            <Checkbox checked={!!state[`father_${list.name}`]}
+                                                name={`father_${list.name}`}
+                                                onChange={handleChange}
+                                            />
+
                                         }
                                         label={t('father')}
                                     />
                                     <FormControlLabel
                                         control={
-                                            <Checkbox checked={true} name="mother" />
+                                            <Checkbox checked={!!state[`mother_${list.name}`]} name={`mother_${list.name}`}
+                                                onChange={handleChange}
+                                            />
                                         }
                                         label={t('mother')}
                                     />

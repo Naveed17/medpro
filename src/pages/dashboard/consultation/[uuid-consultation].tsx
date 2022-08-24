@@ -6,7 +6,11 @@ import { Document, Page, pdfjs } from "react-pdf";
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
-import { openDrawer } from "@features/dialog";
+import { openDrawer as DialogOpenDrawer } from "@features/dialog";
+import { agendaSelector, openDrawer, setConfig, setStepperIndex } from "@features/calendar";
+import { CustomStepper } from "@features/customStepper";
+import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
+
 import { ReactElement } from "react";
 import { Box, Drawer, Stack, Grid, Button, Typography, Collapse, List, ListItem, ListItemIcon, IconButton } from "@mui/material";
 //components
@@ -243,9 +247,25 @@ const event = {
         "status": "Confirmed"
     }
 }
+const EventStepper = [
+    {
+        title: "steppers.tabs.tab-2",
+        children: TimeSchedule,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-3",
+        children: Patient,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-4",
+        children: Instruction,
+        disabled: true
+    }
+];
 function ConsultationInProgress() {
     const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { direction } = useAppSelector(configSelector);
+    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
@@ -255,6 +275,14 @@ function ConsultationInProgress() {
         setNumPages(numPages);
     };
     const { t, ready } = useTranslation("consultation");
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    };
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        }
+    }
     if (!ready) return <>loading translations...</>;
     return (
         <>
@@ -468,7 +496,7 @@ function ConsultationInProgress() {
                                 open={drawer}
                                 dir={direction}
                                 onClose={() => {
-                                    dispatch(openDrawer(false))
+                                    dispatch(DialogOpenDrawer(false))
                                 }}
                             >
                                 <AppointmentDetail
@@ -479,6 +507,27 @@ function ConsultationInProgress() {
                         </TabPanel>
                     }
                 </AnimatePresence>
+                <Drawer
+                    anchor={"right"}
+                    open={openAddDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(openDrawer({ type: "add", open: false }));
+
+                    }}
+                >
+                    <Box height={"100%"}>
+                        <CustomStepper
+                            currentIndex={currentStepper}
+                            OnTabsChange={handleStepperChange}
+                            OnSubmitStepper={submitStepper}
+                            stepperData={EventStepper}
+                            scroll
+                            t={t}
+                            minWidth={726}
+                        />
+                    </Box>
+                </Drawer>
             </Box>
         </>
     );

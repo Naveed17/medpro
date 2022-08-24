@@ -120,7 +120,10 @@ function CalendarToolbar({ date, onToday, ...props }: CalendarToolbarProps) {
                         onSelect={(event: any) => console.log(event)}
                     />
 
-                    <CalendarAddButton />
+
+                    <CalendarAddButton
+                        onClickEvent={() => dispatch(openDrawer({ type: "add", open: true }))}
+                    />
                 </Stack>
             </Hidden>
             <Hidden smDown>

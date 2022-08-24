@@ -1,4 +1,4 @@
-import { Grid, Stack, Typography, Button, Card, IconButton, Autocomplete, TextField, Box, DialogActions } from '@mui/material'
+import { Grid, Stack, Typography, Button, Card, IconButton, Autocomplete, TextField, Divider, Box, DialogActions } from '@mui/material'
 import { useFormik, Form, FormikProvider } from "formik";
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import { UploadFileCard } from '@features/card';
@@ -78,6 +78,7 @@ function MedicalPrescriptionDialog() {
                             <UploadFileCard onDrop={handleDrop} />
                         </Box>
                     </Stack>
+                    <Divider orientation="vertical" />
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>

@@ -56,6 +56,7 @@ function LifeStyleDialog() {
         });
     };
     if (!ready) return <>loading translations...</>;
+    console.log(state)
     return (
         <LifeStyleDialogStyled display='block'>
             <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">
@@ -70,7 +71,14 @@ function LifeStyleDialog() {
                             />
                             {
                                 (list.input && state[list.label]) && <TextField
+                                    name={`text_field_${list.label}`}
                                     placeholder={t('starting_year')}
+                                    onChange={(e) =>
+                                        setState({
+                                            ...state,
+                                            [e.target.name]: e.target.value,
+                                        })
+                                    }
                                 />
                             }
 
