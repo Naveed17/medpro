@@ -258,7 +258,7 @@ function Agenda() {
                     <>
                         {httpAgendasResponse &&
                             <motion.div
-                                key={router.route}
+                                key={"calendar"}
                                 initial={{opacity: 0, y: -100}}
                                 animate={{opacity: 1, y: 0}}
                                 transition={{ease: "easeOut", duration: 1}}
