@@ -1,28 +1,29 @@
+
 import React from 'react'
-import {CardContent, Stack, IconButton, Box, List, ListItem, Typography} from '@mui/material'
+import { CardContent, Stack, IconButton, Box, List, ListItem, Typography } from '@mui/material'
 import RootStyled from './overrides/rootStyled';
-import {Label} from "@features/label";
+import { Label } from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
-function AppointmentCard({...props}) {
-    const {data, t, ...rest} = props
+function AppointmentCard({ ...props }) {
+    const { data, t, ...rest } = props
     return (
         <RootStyled>
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Label variant='filled'
-                           color={
-                               data?.status === "Confirmé"
-                                   ? "success"
-                                   : data?.status === "canceled"
-                                       ? "error"
-                                       : "primary"
-                           }>
-                        {data.status}
+                        color={
+                            data?.status.key === "CONFIRMED"
+                                ? "success"
+                                : data?.status.key === "CANCELED"
+                                    ? "error"
+                                    : "primary"
+                        }>
+                        {data.status.value}
                     </Label>
                     <IconButton size="small" {...rest}>
-                        <IconUrl path='Ic-duotone'/>
+                        <IconUrl path='Ic-duotone' />
                     </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
@@ -30,12 +31,13 @@ function AppointmentCard({...props}) {
                         <List>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    {t('event.motif')}
+                                    {t('consultation_reson')}
+
                                 </Typography>
                                 <Stack spacing={2} direction='row' alignItems="center">
                                     <FiberManualRecordIcon
                                         fontSize="small"
-                                        sx={{color: data.motif.color}}
+                                        sx={{ color: data.motif.color }}
                                     />
                                     <Typography fontWeight={400}>
                                         {data.motif.name}
@@ -44,17 +46,18 @@ function AppointmentCard({...props}) {
                             </ListItem>
                             <ListItem>
                                 <Typography fontWeight={400}>
-                                    {t('event.date')}
+                                    {t('appintment_date')}
+
                                 </Typography>
                                 <Stack spacing={4} direction="row" alignItems='center'>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='callander' path="ic-agenda-jour"/>
+                                        <IconUrl className='callander' path="ic-agenda-jour" />
                                         <Typography className="time-slot">
                                             {data?.date}
                                         </Typography>
                                     </Stack>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='time' path="setting/ic-time"/>
+                                        <IconUrl className='time' path="setting/ic-time" />
                                         <Typography className="date">
                                             {data?.time}
                                         </Typography>

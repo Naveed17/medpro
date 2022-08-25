@@ -15,7 +15,6 @@ import { useMediaQuery } from "@mui/material";
 import { PatientDetailsDocumentCard, NoDataCard } from "@features/card";
 import { Otable } from "@features/table";
 import { uniqueId } from "lodash";
-
 const typeofDocs = ["report", "orders", "analysis", "prescription"];
 
 const AddAppointmentCardData = {
@@ -239,6 +238,43 @@ function DocumentsPanel() {
       ) : (
         <NoDataCard t={t} data={AddAppointmentCardData} />
       )}
+      {/* <Dialog open={true} onClose={() => console.log("adasd")}>
+        <AppBar
+          sx={{
+            position: "relative",
+            "& > div": {
+              px: 0,
+            },
+          }}
+        >
+          <Toolbar>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              Ajouter un document
+            </Typography>
+            <Button
+              color="primary"
+              variant="contained"
+              startIcon={<CloseIcon />}
+            >
+              save
+            </Button>
+          </Toolbar>
+        </AppBar>
+
+        <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here.
+            We will send updates occasionally.
+          </DialogContentText>
+        
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => console.log("adasd")}>Annuler</Button>
+          <Button variant="contained" onClick={() => console.log("adasd")}>
+            Ajouter un document
+          </Button>
+        </DialogActions>
+      </Dialog> */}
     </>
   );
 }

@@ -32,7 +32,8 @@ const checkList = [
     name: "Autre",
   },
 ];
-function patientDetailsDialog({ ...props }) {
+
+function PatientDetailsDialog({ ...props }) {
   const { data, onChangeList } = props;
   const [selected, setselected] = useState([...data.items]);
 
@@ -42,7 +43,7 @@ function patientDetailsDialog({ ...props }) {
       ...data,
       items: selected,
     });
-  }, [selected]);
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Box width={{ md: 568, xs: "100%" }}>
@@ -70,4 +71,5 @@ function patientDetailsDialog({ ...props }) {
     </Box>
   );
 }
-export default patientDetailsDialog;
+
+export default PatientDetailsDialog;

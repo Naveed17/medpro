@@ -30,7 +30,7 @@ function LocationMarker({...props}) {
                 props.editCords(e.target._latlng)
             },
         }),
-        [],
+        [props],
     )
     const map = useMapEvents({
         click() {
@@ -55,7 +55,7 @@ function LocationMarker({...props}) {
             }
 
         }
-    }, [])
+    }, [cords, map])
 
 
     return position === null ? null : (

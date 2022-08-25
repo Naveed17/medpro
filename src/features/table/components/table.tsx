@@ -22,7 +22,7 @@ function getComparator(order: any, orderBy: any) {
 }
 
 function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+  const stabilizedThis = array?.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) {
@@ -49,6 +49,7 @@ function Otable({ ...props }) {
     checkedType,
     handleEvent,
     hideHeaderOnMobile,
+    loading,
     ...rest
   } = props;
   const [page, setPage] = useState(0);
@@ -89,13 +90,13 @@ function Otable({ ...props }) {
     }
     setSelected(newSelected);
   };
-  const loading = false;
+
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
-  const ids = rows.map((row: any) => row.id);
+  const ids = rows?.map((row: any) => row.id);
   useEffect(() => {
     if (tableHeadData !== null) {
       if (tableHeadData.active) {
@@ -104,7 +105,8 @@ function Otable({ ...props }) {
         setActive([]);
       }
     }
-  }, [tableHeadData?.active]);
+  }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
@@ -125,14 +127,14 @@ function Otable({ ...props }) {
             data={headers}
             getData={(data: any) => setTableHeadData(data)}
             onSelectAllClick={handleSelectAllClick}
-            rowCount={rows.length}
+            rowCount={rows?.length}
             numSelected={selected.length}
             hideHeaderOnMobile={hideHeaderOnMobile}
           />
 
           <TableBody>
             {(loading
-              ? Array.from(new Array(3))
+              ? Array.from(new Array(10))
               : stableSort(rows, getComparator(order, orderBy))
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -156,6 +158,7 @@ function Otable({ ...props }) {
                     isItemSelected={isItemSelected}
                     handleClick={handleClick}
                     handleEvent={handleEvent}
+                    loading={loading}
                   />
                 );
               })}
@@ -163,7 +166,7 @@ function Otable({ ...props }) {
         </Table>
       </TableContainer>
       <Box py={1} />
-      {pagination && rows.length > 10 && (
+      {!loading && pagination && rows.length > 10 && (
         <Pagination
           page={page}
           total={rows.length}

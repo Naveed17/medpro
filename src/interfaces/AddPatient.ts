@@ -1,19 +1,20 @@
 interface Qualifications {
   step1: {
-    group: string;
-    name: string;
-    firstName: string;
-    dob: {
+    patient_group: string;
+    first_name: string;
+    last_name: string;
+    country_code: string;
+    birthdate: {
       day: string;
       month: string;
       year: string;
     };
-    phone: number;
-    gender: string;
+    phone: number | "";
+    gender: number;
   };
   step2: {
     region: string;
-    zipCode: number;
+    zip_code: string;
     address: string;
     email: string;
     cin: string;

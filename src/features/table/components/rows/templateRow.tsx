@@ -26,7 +26,7 @@ function MotifRow({...props}) {
                         <ModelDot color={row.color} selected={false}></ModelDot>
                         <Box sx={{backgroundColor: row.color, width: 4, height: 37, margin: '0 7px'}}></Box>
                         <Typography variant="body1" color="text.primary">
-                            {row.name}
+                            {row.label}
                         </Typography>
                     </Box>
 
@@ -36,7 +36,7 @@ function MotifRow({...props}) {
                 <Switch
                     name="active"
                     onChange={(e) => handleChange(row, "active", "")}
-                    checked={row.isActive}
+                    checked={row.isEnabled}
                 />
             </TableCell>
 

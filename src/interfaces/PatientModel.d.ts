@@ -3,11 +3,11 @@ interface PatientModel {
   firstName: string;
   lastName: string;
   email: string;
-  birthDate: string;
+  birthdate: string;
   gender: string;
   insurances: PatientInsuranceModel[];
-  contacts: ContactModel[];
-  addresses: AddressModel[];
+  contact: ContactModel[];
+  address: AddressModel[];
   account: AccountModel;
   isParent: boolean;
   medicalEntityPatientBase: MedicalEntityPatientBaseModel[];

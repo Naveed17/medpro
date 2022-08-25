@@ -56,7 +56,7 @@ function AutoComplete({...props}) {
                     id={"item-list"}
                     autoFocusItem={!focus}
                 >
-                    {value !== '' ? data?.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).map((item: PatientModel, index: number) => (
+                    {value !== '' ? data?.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).map((item: PatientWithNextAndLatestAppointment, index: number) => (
                             <PatientAppointmentCard
                                 key={item.uuid}
                                 item={item}

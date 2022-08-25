@@ -12,7 +12,7 @@ export default function TimePicker({ onChange, defaultValue }) {
   const [end, setend] = React.useState(defaultValue[1]);
   React.useEffect(() => {
     onChange(initial, end);
-  }, [initial, end]);
+  }, [initial, end, onChange]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

@@ -19,7 +19,7 @@ function Questions() {
 
     useEffect(() => {
         dispatch(setQs(data[0]));
-    }, []);
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
 
     const { t, ready } = useTranslation('questions');
