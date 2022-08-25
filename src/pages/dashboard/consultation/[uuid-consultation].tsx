@@ -280,7 +280,7 @@ const EventStepper = [
 ];
 
 function ConsultationInProgress() {
-    const {patient} = useAppSelector(tableActionSelector);
+    const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -327,7 +327,7 @@ function ConsultationInProgress() {
                 dispatch(SetPatient((res?.data as HttpResponse).data.patient))
             })
         }
-    }, [medical_entity, router.locale, session?.accessToken, trigger])
+    }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -344,10 +344,10 @@ function ConsultationInProgress() {
 
 
     useEffect(() => {
-        if (patient) {
+        if (patientId) {
             setopen(true);
         }
-    }, [patient]);
+    }, [patientId]);
     const {t, ready} = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
     const {data: user} = session as Session;
