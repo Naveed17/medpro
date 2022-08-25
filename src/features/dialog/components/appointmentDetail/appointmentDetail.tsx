@@ -16,7 +16,7 @@ import {
     Link,
     TextField,
     List,
-    ListItem
+    ListItem, useTheme
 } from '@mui/material'
 
 import {Popover} from "@features/popover";
@@ -29,55 +29,51 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import {useAppDispatch} from "@app/redux/hooks";
-import {openDrawer} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, openDrawer} from "@features/calendar";
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Dialog} from "@features/dialog";
+import {useTranslation} from "next-i18next";
 
 const menuList = [
+
     {
-        title: "Ajouter patient à la salle d'attente",
-        icon: <IconUrl color={"white"} path='ic-salle'/>,
-        action: "onOpenDetails",
-    },
-    {
-        title: "Commencer la consultation",
+        title: "start_the_consultation",
         icon: <PlayCircleIcon/>,
         action: "onOpenEditPatient",
     },
     {
-        title: "Voir fiche Patient",
+        title: "add_patient_to_waiting_room",
+        icon: <Icon color={"white"} path='ic-salle'/>,
+        action: "onOpenDetails",
+    },
+    {
+        title: "see_patient_form",
         icon: <InsertDriveFileOutlinedIcon/>,
         action: "onCancel",
     },
+
     {
-        title: "Envoyer un msg",
+        title: "send_a_message",
         icon: <SmsOutlinedIcon/>,
         action: "onCancel",
     },
     {
-        title: "Import document",
+        title: "import_document",
         icon: <SaveAltOutlinedIcon/>,
         action: "onCancel",
     },
     {
-        title: "Historique des RDV",
-        icon: <EventNoteOutlinedIcon/>,
+        title: "move_appointment",
+        icon: <Icon color={"white"} path="iconfinder"/>,
         action: "onCancel",
     },
     {
-        title: "Annuler RDV à venir",
-        icon: <CloseOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "Déplacer RDV",
-        icon: <IconUrl color={"white"} path="iconfinder"/>,
-        action: "onCancel",
-    },
-    {
-        title: "Annuler RDV",
+        title: "cancel_appointment",
         icon: <DeleteOutlineOutlinedIcon/>,
         action: "onCancel",
     }
@@ -86,7 +82,6 @@ const menuList = [
 function AppointmentDetail({...props}) {
     const {
         data,
-        translate,
         onConsultation,
         onEditDetails,
         onChangeIntro,
@@ -97,11 +92,42 @@ function AppointmentDetail({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const [offsetTop, setOffsetTop] = useState(0);
-    const rootRef = useRef<HTMLDivElement>(null);
+    const {t, ready} = useTranslation("common")
+    const {data: session} = useSession();
+    const router = useRouter();
+    const theme = useTheme();
+
+    const [alert, setAlert] = useState<boolean>(false);
+    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+    const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [value, setValue] = useState(data?.intro);
     const [openTooltip, setOpenTooltip] = useState(false);
+    const [offsetTop, setOffsetTop] = useState(0);
+    const rootRef = useRef<HTMLDivElement>(null);
 
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {
+        trigger: updateStatusTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/status", {revalidate: false, populateCache: false});
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        const form = new FormData();
+        form.append('status', '6');
+        updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
+            /appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setAlert(false);
+            onCancelAppointment(appointmentUUid);
+        })
+    }
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement;
@@ -114,11 +140,24 @@ function AppointmentDetail({...props}) {
         }
     };
 
+    const handleQr = () => {
+        handleClickDialog()
+    };
+    const handleClickDialog = () => {
+        setOpenDialog(true);
+
+    };
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
     useEffect(() => {
         if (rootRef.current) {
             setOffsetTop(rootRef.current.offsetTop)
         }
     }, [])
+
+    if (!ready) return <>loading translations...</>;
 
     return (
         <RootStyled>
@@ -143,19 +182,20 @@ function AppointmentDetail({...props}) {
                     />
                     <IconButton
                         size="small"
-                        onClick={() => dispatch(openDrawer({type: "view", open:false}))}
+                        onClick={() => dispatch(openDrawer({type: "view", open: false}))}
                     >
                         <CloseIcon/>
                     </IconButton>
                 </Toolbar>
             </AppBar>
             <Box ref={rootRef} sx={{
-                overflowY: 'auto',
+                height: 'calc(100% - 64px)',
+                overflowY: 'scroll',
             }}>
                 <Box px={1} py={2}>
                     <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                         <Typography variant="h6">
-                            {translate('event.title')}
+                            {t('appointment_details')}
                         </Typography>
                         <Button
                             variant="contained"
@@ -163,14 +203,14 @@ function AppointmentDetail({...props}) {
                             startIcon={<PlayCircleIcon/>}
                             onClick={onConsultation}
                         >
-                            {translate('event.start')}
+                            {t('event.start')}
                         </Button>
                     </Stack>
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
-                        {translate('event.schedule')}
+                        {t('time_slot')}
                     </Typography>
                     <AppointmentCard
-                        t={translate}
+                        t={t}
                         data={
                             {
                                 date: moment(data.extendedProps.time).format("DD-MM-YYYY"),
@@ -181,22 +221,16 @@ function AppointmentDetail({...props}) {
                         }
                     />
 
-                    <Stack
-                        direction="row"
-                        justifyContent="center"
-                        alignItems="center"
-                        spacing={2}
-                        sx={{mt: 2}}
-                    >
-                        <Button fullWidth variant='contained'>
-                            {translate('event.qr')}
+                    <Stack direction="row" spacing={2} alignItems='center' mt={2}>
+                        <Button onClick={handleQr} variant='contained' fullWidth>
+                            Qr-Code
                         </Button>
-                        <Button fullWidth variant='contained'>
-                            {translate('event.link')}
+                        <Button variant='contained' fullWidth>
+                            {t('send_link')}
                         </Button>
                     </Stack>
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
-                        {translate('event.patient')}
+                        {t('patient')}
                     </Typography>
                     <Card>
                         <CardContent>
@@ -218,7 +252,7 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data.extendedProps.patient.birthdate} ({moment().diff(moment(data.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} ans)
+                                        {data.extendedProps.patient.birthdate} ({moment().diff(moment(data.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
                                 {data.extendedProps.patient.email && <ListItem>
@@ -243,13 +277,13 @@ function AppointmentDetail({...props}) {
                         </CardContent>
                     </Card>
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
-                        {translate('event.insctruction')}
+                        {t('insctruction')}
                     </Typography>
                     <Card>
                         <CardContent>
                             <TextField
                                 id="outlined-multiline-static"
-                                placeholder={translate('event.insctruction-placeholder')}
+                                placeholder={t('insctruction')}
                                 multiline
                                 rows={4}
                                 value={value}
@@ -271,21 +305,102 @@ function AppointmentDetail({...props}) {
                 </Box>
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={onWaiting} fullWidth variant='contained'
-                                startIcon={<IconUrl path='ic-salle'/>}>
-                            {translate('event.add-waiting-room')}
+                        <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
+                            {t('waiting')}
                         </Button>
-                        <Button onClick={onMoveAppointment} fullWidth variant='contained'
+                        <Button onClick={() => setMoveAlert(true)}
+                                fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
-                            {translate('event.move')}
+                            {t('event.move')}
                         </Button>
-                        <Button onClick={onCancelAppointment} fullWidth variant='contained-white' color="error"
+                        <Button onClick={() => setAlert(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
                                 sx={{'& svg': {width: 14, height: 14}}} startIcon={<IconUrl path='icdelete'/>}>
-                            {translate('event.delete')}
+                            {t('event.delete')}
                         </Button>
                     </Stack>
                 </CardActions>
             </Box>
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setAlert(false)}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={alert}
+                title={t("dialogs.cancel-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setAlert(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t("dialogs.cancel-dialog.cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"error"}
+                            onClick={() => cancelAppointment(data.publicId)}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {t("dialogs.cancel-dialog.confirm")}
+                        </Button>
+                    </>
+                }
+            ></Dialog>
+
+            <Dialog
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => setMoveAlert(false)}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                        </Box>)
+                }}
+                open={moveAlert}
+                title={t("dialogs.move-dialog.title")}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setMoveAlert(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t("dialogs.move-dialog.cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"primary"}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {t("dialogs.move-dialog.confirm")}
+                        </Button>
+                    </>
+                }
+            ></Dialog>
+            <Dialog action={'qr-dialog'}
+                    open={openDialog}
+                    data={null}
+                    actions={false}
+                    onClose={handleCloseDialog}
+                    direction={'ltr'}
+                    title={t("qr_title")}
+                    dialogClose={handleCloseDialog}/>
         </RootStyled>
     )
 }

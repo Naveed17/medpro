@@ -7,7 +7,6 @@ import { tabsData, documentButtonList } from './config'
 import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import { UploadFile } from '@features/uploadFile'
 
 function ConsultationIPToolbar({ selected }: any) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
@@ -126,6 +125,7 @@ function ConsultationIPToolbar({ selected }: any) {
                     change={false}
                     max
                     direction={'ltr'}
+                    actions={true}
                     title={t(info)}
                     dialogClose={handleCloseDialog}
                     actionDialog={

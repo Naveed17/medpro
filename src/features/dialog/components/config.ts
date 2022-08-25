@@ -66,13 +66,62 @@ const dialogData = [
     ),
   },
   {
+    action: "balance_sheet_pending",
+    component: dynamic((): any =>
+      import("@features/dialog/components/balanceSheetPending/balanceSheetPending").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
     action: "add_a_document",
     component: dynamic((): any =>
       import("@features/dialog/components/addDocumentDialog/addDocumentDialog").then(
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "qr-dialog",
+    component: dynamic((): any =>
+      import("@features/dialog/components/qrCodeDialog/qrCodeDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "add_treatment",
+    component: dynamic((): any =>
+      import("@features/dialog/components/addTreatmentDialog/addTreatmentDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "life_style",
+    component: dynamic((): any =>
+      import("@features/dialog/components/lifeStyleDialog/lifeStyleDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "family_history",
+    component: dynamic((): any =>
+      import("@features/dialog/components/familyHistoryDialog/familyHistoryDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "surgical_history",
+    component: dynamic((): any =>
+      import("@features/dialog/components/surgicalHistoryDialog/surgicalHistoryDialog").then(
+        (mod) => mod
+      )
+    ),
   }
+
 ];
 
 export default dialogData;

@@ -1,8 +1,8 @@
-import {styled} from '@mui/material/styles';
-import {Paper} from "@mui/material";
+import { styled } from '@mui/material/styles';
+import { Paper } from "@mui/material";
 
-const RootStyled = styled(Paper)(({theme}) => ({
-    height: 1,
+const RootStyled = styled(Paper)(({ theme }) => ({
+    height: '100%',
     backgroundColor: theme.palette.background.default,
     boxShadow: '-5px 14px 26px rgba(0, 150, 214, 0.37)',
     border: 'none',
@@ -31,7 +31,7 @@ const RootStyled = styled(Paper)(({theme}) => ({
     },
     "& .MuiInputBase-root": {
         alignItems: "flex-start",
-        "& fieldset": {border: 0},
+        "& fieldset": { border: 0 },
         "&:hover": {
             fieldset: {
                 border: "none",
