@@ -29,12 +29,14 @@ import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
 import Icon from '@themes/urlIcon'
-import { useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {AppointmentDetail} from "@features/dialog";
 import {checkListSelector} from "@features/checkList";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
+import {useRouter} from "next/router";
+import {agendaSelector} from "@features/calendar";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -218,19 +220,31 @@ const headCells2: readonly HeadCell[] = [
 function ConsultationInProgress() {
     const {patient} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {config} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [open, setopen] = useState(false);
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
+    const [acts, setActs] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const [pageNumber, setPageNumber] = useState(1);
+    const router = useRouter();
 
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
 
+    console.log(config)
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
 
+    useEffect(()=>{
+        trigger({
+            method: "GET",
+            url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        }, { revalidate: true, populateCache: true }).then(res => setActs((res?.data as HttpResponse).data[0].acts))
+
+    },[medical_entity, router.locale, session?.accessToken, trigger])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -245,6 +259,10 @@ function ConsultationInProgress() {
     if (!ready || loading) return <>loading translations...</>;
     const {data: user} = session as Session;
     medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    console.log(medical_entity)
+
+
+
     return (
         <>
             <SubHeader>
@@ -382,8 +400,6 @@ function ConsultationInProgress() {
                             </Stack>
                         </TabPanel>
                     }
-
-
                     {value === 1 &&
                         <TabPanel index={1}>
                             <Box sx={{
@@ -425,7 +441,7 @@ function ConsultationInProgress() {
                             <Box display={{xs: 'none', md: 'block'}}>
                                 <Otable
                                     headers={headCells}
-                                    rows={PatiendData}
+                                    rows={acts}
                                     state={null}
                                     from={"CIP-medical-procedures"}
                                     t={t}
@@ -445,12 +461,14 @@ function ConsultationInProgress() {
                                 }
 
                             </Stack>
+{/*
                             <Button size='small' sx={{
                                 '& .react-svg svg': {
                                     width: theme => theme.spacing(1.5),
                                     path: {fill: theme => theme.palette.primary.main}
                                 }
                             }} startIcon={<Icon path="ic-plus"/>}>Ajouter un nouveau acte</Button>
+*/}
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1}
                                        justifyContent="flex-end">
@@ -458,7 +476,7 @@ function ConsultationInProgress() {
                                         <span>{t('total')} : </span>
                                     </Typography>
                                     <Typography fontWeight={600} variant="h6">
-                                        90 TND
+                                        -- TND
                                     </Typography>
                                 </Stack>
 
@@ -545,9 +563,14 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ["consultation", "menu", "common"])),
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, [
+            "consultation",
+            "menu",
+            "common",
+        ])),
     },
 });
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
