@@ -76,7 +76,7 @@ function AddDocumentDialog({ data }: any) {
                                 ))}
                             </Stack>
                             :
-                            <UploadFile files={files} onDrop={handleDrop} />}
+                            <UploadFile files={files} onDrop={handleDrop} singleFile={false}/>}
                     </Grid>
                 </Grid>
             </Stack>

@@ -39,7 +39,7 @@ function Patient({...props}) {
 
     if (!ready) return (<LoadingScreen/>);
 
-    const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[];
+    const patients = (httpPatientResponse as HttpResponse)?.data as PatientWithNextAndLatestAppointment[];
 
     const handleOnClick = () => {
         setAddPatient(true);

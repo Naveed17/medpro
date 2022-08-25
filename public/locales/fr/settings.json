@@ -4,7 +4,7 @@
     "profile": "Profil",
     "acts": "Actes",
     "motif": "Motif de consultation",
-    "consultation": "Personnalisé la consultation",
+    "consultation": "Personnalisé consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "horaire": "Horaire",
@@ -287,10 +287,11 @@
         "action": "Action"
       },
       "dialog": {
-        "title": "Modèle de suivi de consultation :",
+        "title": "Modèle de suivi de consultation : ",
         "titleEdit": "Modifier un modèle de suivi de consultation",
         "titleAdd": "Ajouter un modèle de suivi de consultation",
         "selectColor": "Veuillez choisir une couleur",
+        "nameReq": "Nom est obligatoire",
         "cancel": "Annuler",
         "save": "Enregistrer",
         "named": "Veuillez nommer le modèle",

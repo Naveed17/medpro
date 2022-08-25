@@ -1,6 +1,6 @@
 import {styled} from '@mui/material/styles';
 
-const UploadFileStyled = styled('div')(({theme, styleprops}: any): any => {
+const DropZoneStyle = styled('div')(({theme, property}): any => {
     const multi = {
         outline: 'none',
         display: 'flex',
@@ -23,6 +23,6 @@ const UploadFileStyled = styled('div')(({theme, styleprops}: any): any => {
         '& svg path': {fill: theme.palette.grey['A600']},
         '&:hover': {opacity: 0.72, cursor: 'pointer'},
     }
-    return Boolean(styleprops) ? single : multi;
+    return Boolean(property) ? multi : single;
 });
-export default UploadFileStyled;
+export default DropZoneStyle;

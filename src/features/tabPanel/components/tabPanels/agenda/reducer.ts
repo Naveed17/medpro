@@ -12,7 +12,7 @@ export type AppointmentState = {
     type: string;
     motif: string;
     date: Date | null;
-    patient: PatientModel | null;
+    patient: PatientWithNextAndLatestAppointment | null;
     instruction: AppointmentInstructionModel;
     submitted: boolean
 };

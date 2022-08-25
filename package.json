@@ -38,7 +38,6 @@
     "cookie": "^0.5.0",
     "date-fns": "^2.28.0",
     "formik": "^2.2.9",
-    "formiojs": "^4.14.8",
     "framer-motion": "^6.3.4",
     "jsonwebtoken": "^8.5.1",
     "jss": "^10.9.0",
