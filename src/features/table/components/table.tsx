@@ -14,9 +14,7 @@ function descendingComparator(a: any, b: any, orderBy: any) {
   }
   return 0;
 }
-
 type Order = "asc" | "desc";
-
 function getComparator(order: any, orderBy: any) {
   return order === "desc"
     ? (a: any, b: any) => descendingComparator(a, b, orderBy)
@@ -36,7 +34,6 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
 }
 
 const rowsPerPage = 10;
-
 function Otable({ ...props }) {
   const {
     rows,
@@ -94,6 +91,8 @@ function Otable({ ...props }) {
     setSelected(newSelected);
   };
 
+  const selectted = rowsActionsData.find((item) => from === item.action);
+
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -106,7 +105,7 @@ function Otable({ ...props }) {
         setActive([]);
       }
     }
-  }, [tableHeadData?.active]);
+  }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Box>
@@ -140,7 +139,7 @@ function Otable({ ...props }) {
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
-                const isItemSelected = isSelected(row?.uuid as number);
+                const isItemSelected = isSelected(row?.id as number);
                 const labelId = `enhanced-table-checkbox-${index}`;
                 return (
                   <Component
@@ -178,5 +177,4 @@ function Otable({ ...props }) {
     </Box>
   );
 }
-
 export default Otable;

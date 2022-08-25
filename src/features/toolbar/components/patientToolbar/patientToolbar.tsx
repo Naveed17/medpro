@@ -34,10 +34,9 @@ function PatientToolbar() {
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { direction } = useAppSelector(configSelector);
   const isAlreadyExist =
-    stepsData.step1.name !== "" && stepsData.step2.email !== "";
+    stepsData.step1.first_name !== "" && stepsData.step2.email !== "";
 
   const [open, setOpen] = useState(isAlreadyExist);
-  const [addPatientData, setAddPatientData] = useState<null | {}>(null);
 
   useEffect(() => {
     setOpen(isAlreadyExist);

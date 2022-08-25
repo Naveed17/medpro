@@ -36,7 +36,7 @@ function PatientFilter({ ...props }) {
     if (isMounted.current) {
       setstate({ ...state, ...query });
     }
-  }, [query, isMounted]);
+  }, [query, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Box component="figure" sx={{ m: 0 }}>

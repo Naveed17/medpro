@@ -41,19 +41,20 @@ function AddPatientStep1({ ...props }) {
   const phoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
-    name: Yup.string()
+    first_name: Yup.string()
       .min(3, t("name-error"))
       .max(50, t("name-error"))
       .required(t("name-error")),
-    firstName: Yup.string()
-      .min(3, t("first-name-error"))
-      .max(50, t("first-name-error"))
-      .required(t("first-name-error")),
+    last_name: Yup.string()
+      .min(3, t("name-error"))
+      .max(50, t("name-error"))
+      .required(t("name-error")),
+
     phone: Yup.string()
       .min(9, t("telephone-error"))
       .matches(phoneRegExp, t("telephone-error"))
       .required(t("telephone-error")),
-    dob: Yup.object().shape({
+    birthdate: Yup.object().shape({
       day: Yup.string().required(t("date-error")),
       month: Yup.string().required(t("date-error")),
       year: Yup.string().required(t("date-error")),
@@ -62,10 +63,10 @@ function AddPatientStep1({ ...props }) {
 
   const formik = useFormik({
     initialValues: {
-      group: stepsData.step1.group,
-      name: stepsData.step1.name,
-      firstName: stepsData.step1.firstName,
-      dob: stepsData.step1.dob,
+      patient_group: stepsData.step1.patient_group,
+      first_name: stepsData.step1.first_name,
+      last_name: stepsData.step1.last_name,
+      birthdate: stepsData.step1.birthdate,
       phone: stepsData.step1.phone,
       gender: stepsData.step1.gender,
     },
@@ -86,7 +87,6 @@ function AddPatientStep1({ ...props }) {
   };
   const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } =
     formik;
-
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -107,10 +107,10 @@ function AddPatientStep1({ ...props }) {
             <FormControl fullWidth>
               <Select
                 labelId="demo-simple-select-label"
-                id={"group"}
+                id={"patient_group"}
                 size="small"
-                {...getFieldProps("group")}
-                value={values.group}
+                {...getFieldProps("patient_group")}
+                value={values["patient_group"]}
                 displayEmpty={true}
                 sx={{ color: "text.secondary" }}
                 renderValue={(value) =>
@@ -131,12 +131,12 @@ function AddPatientStep1({ ...props }) {
             <FormControl component="fieldset">
               <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
                 <FormControlLabel
-                  value="Male"
+                  value={1}
                   control={<Radio size="small" />}
                   label={t("mr")}
                 />
                 <FormControlLabel
-                  value="Female"
+                  value={2}
                   control={<Radio size="small" />}
                   label={t("mrs")}
                 />
@@ -150,21 +150,21 @@ function AddPatientStep1({ ...props }) {
               gutterBottom
               component="span"
             >
-              {t("name")}{" "}
+              {t("first-name")}{" "}
               <Typography component="span" color="error">
                 *
               </Typography>
             </Typography>
             <TextField
               variant="outlined"
-              placeholder={t("name-placeholder")}
+              placeholder={t("first-name-placeholder")}
               size="small"
               fullWidth
-              {...getFieldProps("name")}
-              error={Boolean(touched.name && errors.name)}
+              {...getFieldProps("first_name")}
+              error={Boolean(touched.first_name && errors.first_name)}
               helperText={
-                Boolean(touched.name && errors.name)
-                  ? String(errors.name)
+                Boolean(touched.first_name && errors.first_name)
+                  ? String(errors.first_name)
                   : undefined
               }
             />
@@ -176,25 +176,26 @@ function AddPatientStep1({ ...props }) {
               gutterBottom
               component="span"
             >
-              {t("first-name")}
+              {t("last-name")}{" "}
               <Typography component="span" color="error">
                 *
               </Typography>
             </Typography>
             <TextField
-              placeholder={t("first-name-placeholder")}
               variant="outlined"
+              placeholder={t("last-name-placeholder")}
               size="small"
               fullWidth
-              {...getFieldProps("firstName")}
-              error={Boolean(touched.firstName && errors.firstName)}
+              {...getFieldProps("last_name")}
+              error={Boolean(touched.last_name && errors.last_name)}
               helperText={
-                Boolean(touched.firstName && errors.firstName)
-                  ? errors.firstName
+                Boolean(touched.last_name && errors.last_name)
+                  ? String(errors.last_name)
                   : undefined
               }
             />
           </Box>
+
           <Box>
             <Typography
               variant="body2"
@@ -212,8 +213,8 @@ function AddPatientStep1({ ...props }) {
                 <Select
                   labelId="demo-simple-select-label"
                   id={"day"}
-                  {...getFieldProps("dob.day")}
-                  value={values.dob.day}
+                  {...getFieldProps("birthdate.day")}
+                  value={values.birthdate.day}
                   displayEmpty={true}
                   sx={{ color: "text.secondary" }}
                   renderValue={(value: string) =>
@@ -223,15 +224,15 @@ function AddPatientStep1({ ...props }) {
                         : value
                       : t("day")
                   }
-                  error={Boolean(touched.dob && errors.dob)}
+                  error={Boolean(touched.birthdate && errors.birthdate)}
                 >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="01">1</MenuItem>
+                  <MenuItem value="02">2</MenuItem>
+                  <MenuItem value="03">3</MenuItem>
                 </Select>
-                {touched.dob && errors.dob && (
+                {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.dob?.day && errors.dob?.day}
+                    {touched.birthdate?.day && errors.birthdate?.day}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -239,8 +240,8 @@ function AddPatientStep1({ ...props }) {
                 <Select
                   labelId="demo-simple-select-label"
                   id={"day"}
-                  {...getFieldProps("dob.month")}
-                  value={values.dob.month}
+                  {...getFieldProps("birthdate.month")}
+                  value={values.birthdate.month}
                   displayEmpty={true}
                   sx={{ color: "text.secondary" }}
                   renderValue={(value) =>
@@ -250,15 +251,15 @@ function AddPatientStep1({ ...props }) {
                         : value
                       : t("month")
                   }
-                  error={Boolean(touched.dob && errors.dob)}
+                  error={Boolean(touched.birthdate && errors.birthdate)}
                 >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="01">1</MenuItem>
+                  <MenuItem value="02">2</MenuItem>
+                  <MenuItem value="03">3</MenuItem>
                 </Select>
-                {touched.dob && errors.dob && (
+                {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.dob.month && errors.dob.month}
+                    {touched.birthdate.month && errors.birthdate.month}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -266,8 +267,8 @@ function AddPatientStep1({ ...props }) {
                 <Select
                   labelId="demo-simple-select-label"
                   id={"day"}
-                  {...getFieldProps("dob.year")}
-                  value={values.dob.year}
+                  {...getFieldProps("birthdate.year")}
+                  value={values.birthdate.year}
                   displayEmpty={true}
                   sx={{ color: "text.secondary" }}
                   renderValue={(value) =>
@@ -277,15 +278,15 @@ function AddPatientStep1({ ...props }) {
                         : value
                       : t("year")
                   }
-                  error={Boolean(touched.dob && errors.dob)}
+                  error={Boolean(touched.birthdate && errors.birthdate)}
                 >
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
+                  <MenuItem value="1996">1996</MenuItem>
+                  <MenuItem value="1997">1997</MenuItem>
+                  <MenuItem value="1998">1998</MenuItem>
                 </Select>
-                {touched.dob && errors.dob && (
+                {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.dob.year && errors.dob.year}
+                    {touched.birthdate.year && errors.birthdate.year}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -309,7 +310,6 @@ function AddPatientStep1({ ...props }) {
               </Grid>
               <Grid item md={6} lg={8} xs={12}>
                 <TextField
-                  type="number"
                   variant="outlined"
                   size="small"
                   {...getFieldProps("phone")}

@@ -1,4 +1,4 @@
-import React from "react";
+import Image from "next/image";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Fade from "@mui/material/Fade";
@@ -62,7 +62,7 @@ export default function TextIconRadio({ ...props }) {
           sx={{ display: "flex", svg: { mr: 1 }, div: { height: "100%" } }}
           className="text-inner"
         >
-          <img src={image} alt={image} width={38} height={38} />
+          <Image layout="fill" src={image} alt={image} width={38} height={38} />
 
           <Box sx={{ ml: 1 }}>
             <Typography

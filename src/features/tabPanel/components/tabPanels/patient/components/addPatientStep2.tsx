@@ -1,4 +1,5 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
+import { useRouter } from "next/router";
 import * as Yup from "yup";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
@@ -18,20 +19,39 @@ import Icon from "@themes/urlIcon";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
-
+import { useSession } from "next-auth/react";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { Session } from "next-auth";
 import { useTranslation } from "next-i18next";
 
 function AddPatientStep2({ ...props }) {
   const { onNext, t } = props;
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState<boolean>(status === "loading");
   const { stepsData } = useAppSelector(addPatientSelector);
-  console.log(stepsData, "reudx");
   const dispatch = useAppDispatch();
   const isAlreadyExist = _.keys(stepsData.step2).length > 0;
-  const RegisterSchema = Yup.object().shape({});
+  const RegisterSchema = Yup.object().shape({
+    email: Yup.string().email("Invalid email").required("Required"),
+  });
+
+  const { data: user } = session as Session;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+
+  const { data: httpAddPatientResponse, trigger } = useRequestMutation(
+    null,
+    "add-patient",
+    { revalidate: true, populateCache: false }
+  );
+
+  console.log(httpAddPatientResponse, "response");
+
   const formik = useFormik({
     initialValues: {
       region: isAlreadyExist ? stepsData.step2.region : "Ariana",
-      zipCode: isAlreadyExist ? stepsData.step2.zipCode : "",
+      zip_code: isAlreadyExist ? stepsData.step2.zip_code : "",
       address: isAlreadyExist ? stepsData.step2.address : "",
       email: isAlreadyExist ? stepsData.step2.email : "",
       cin: isAlreadyExist ? stepsData.step2.cin : "",
@@ -43,10 +63,35 @@ function AddPatientStep2({ ...props }) {
       handleChange(null, values);
     },
   });
+
   const handleChange = (event: ChangeEvent | null, { ...values }) => {
+    const { first_name, last_name, birthdate, phone, gender } = stepsData.step1;
+    const { day, month, year } = birthdate;
+    console.log(birthdate);
+    setLoading(true);
+    trigger(
+      {
+        method: "POST",
+        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}`,
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+        data: {
+          first_name,
+          last_name,
+          phone,
+          gender,
+          birthdate: `${day}-${month}-${year}`,
+          ...values,
+          address: "",
+          insurance: "",
+        },
+      },
+      { revalidate: true, populateCache: true }
+    ).then(() => setLoading(false));
     // popupDataSet({ ...popupData, step2: values });
-    onNext(2);
-    dispatch(onAddPatient({ ...stepsData, step2: values }));
+    // onNext(2);
+    // dispatch(onAddPatient({ ...stepsData, step2: values }));
   };
   const { values, handleSubmit, getFieldProps } = formik;
   const handleAddInsurance = () => {
@@ -116,10 +161,10 @@ function AddPatientStep2({ ...props }) {
                   </Typography>
                   <TextField
                     variant="outlined"
-                    placeholder="1004"
+                    placeholder="10004"
                     size="small"
                     fullWidth
-                    {...getFieldProps("zipCode")}
+                    {...getFieldProps("zip_code")}
                   />
                 </Grid>
               </Grid>
@@ -239,7 +284,6 @@ function AddPatientStep2({ ...props }) {
               </Typography>
               <TextField
                 placeholder={t("cin-placeholder")}
-                type="number"
                 variant="outlined"
                 size="small"
                 fullWidth

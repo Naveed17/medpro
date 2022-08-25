@@ -275,7 +275,11 @@ function Patient() {
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
 
-  const { data: httpPatientsResponse, error: errorHttpAgendas } = useRequest({
+  const {
+    data: httpPatientsResponse,
+    error: errorHttpPatient,
+    mutate,
+  } = useRequest({
     method: "GET",
     url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
     headers: {
