@@ -12,16 +12,15 @@ function AppointmentCard({ ...props }) {
         <RootStyled>
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
-
                     <Label variant='filled'
                         color={
-                            data?.status === "Confirmé"
+                            data?.status.key === "CONFIRMED"
                                 ? "success"
-                                : data?.status === "canceled"
+                                : data?.status.key === "CANCELED"
                                     ? "error"
                                     : "primary"
                         }>
-                        {data.status}
+                        {data.status.value}
                     </Label>
                     <IconButton size="small" {...rest}>
                         <IconUrl path='Ic-duotone' />

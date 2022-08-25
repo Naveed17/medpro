@@ -4,6 +4,7 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import React from "react";
 
 function AppointmentListMobile({...props}) {
     const {event, OnSelectEvent} = props;
@@ -48,12 +49,15 @@ function AppointmentListMobile({...props}) {
                                 })}
                               </span>
                         </Typography>
-                        <Label
-                            variant="filled"
-                            color={event.status ? "success" : "warning"}
-                            className="label"
-                        >
-                            {event.status ? "Confirmé" : "En attente"}
+                        <Label variant='filled'
+                               color={
+                                   event?.status.key === "CONFIRMED"
+                                       ? "success"
+                                       : event?.status.key === "CANCELED"
+                                           ? "error"
+                                           : "primary"
+                               }>
+                            {event.status.value}
                         </Label>
                     </Box>
                     <Typography variant={"subtitle2"} color="text.primary" mt={1}>
