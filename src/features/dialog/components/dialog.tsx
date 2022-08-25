@@ -27,6 +27,7 @@ function Dialogs({ ...props }) {
                 aria-describedby="scroll-dialog-description">
                 <DialogTitle sx={{
                     backgroundColor: props.color ? props.color : (theme: Theme) => theme.palette.primary.main,
+                    color: `${contrastText} !important` as any,
                     position: 'relative',
                 }}
                     id="scroll-dialog-title">{props.title}

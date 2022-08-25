@@ -11,5 +11,5 @@ interface EventModal {
     meeting: boolean;
     addRoom: boolean;
     patient: PatientModel;
-    status: string;
+    status: AppointmentTypeModel;
 }
