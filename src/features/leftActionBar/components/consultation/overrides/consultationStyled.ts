@@ -2,10 +2,12 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
 const ConsultationStyled = styled(Box)(({ theme }) => ({
+    overflowX: "hidden",
     paddingTop: theme.typography.pxToRem(10),
-    marginLeft: theme.typography.pxToRem(-10),
+    marginLeft: theme.typography.pxToRem(-18),
     [theme.breakpoints.down("md")]: {
-        marginRight: theme.typography.pxToRem(-16),
+        marginRight: theme.typography.pxToRem(-10),
+        marginLeft: theme.typography.pxToRem(-10),
     },
     '& .header': {
         paddingBottom: theme.typography.pxToRem(18),

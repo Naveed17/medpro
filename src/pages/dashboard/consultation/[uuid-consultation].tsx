@@ -17,6 +17,8 @@ import { Box, Drawer, Stack, Grid, Button, Typography, Collapse, List, ListItem,
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
+import { DrawerBottom } from '@features/drawerBottom';
+import { ConsultationFilter } from '@features/leftActionBar';
 import { CipNextAppointCard, CipMedicProCard, DrugListCard, drugListCardData } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
@@ -266,6 +268,7 @@ function ConsultationInProgress() {
     const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { direction } = useAppSelector(configSelector);
     const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
+    const [filterDrawer, setFilterDrawer] = useState(false);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
@@ -528,6 +531,21 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
+                <Button
+                    startIcon={<Icon path="ic-filter" />}
+                    variant="filter"
+                    onClick={() => setFilterDrawer(!drawer)}
+                    sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                >
+                    Filtrer (0)
+                </Button>
+                <DrawerBottom
+                    handleClose={() => setFilterDrawer(false)}
+                    open={filterDrawer}
+                    title={null}
+                >
+                    <ConsultationFilter />
+                </DrawerBottom>
             </Box>
         </>
     );
