@@ -37,51 +37,43 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Dialog} from "@features/dialog";
-import {EventDef} from "@fullcalendar/react";
+import {useTranslation} from "next-i18next";
 
 const menuList = [
+
     {
-        title: "Ajouter patient à la salle d'attente",
-        icon: <IconUrl color={"white"} path='ic-salle'/>,
-        action: "onOpenDetails",
-    },
-    {
-        title: "Commencer la consultation",
+        title: "start_the_consultation",
         icon: <PlayCircleIcon/>,
         action: "onOpenEditPatient",
     },
     {
-        title: "Voir fiche Patient",
+        title: "add_patient_to_waiting_room",
+        icon: <Icon color={"white"} path='ic-salle'/>,
+        action: "onOpenDetails",
+    },
+    {
+        title: "see_patient_form",
         icon: <InsertDriveFileOutlinedIcon/>,
         action: "onCancel",
     },
+
     {
-        title: "Envoyer un msg",
+        title: "send_a_message",
         icon: <SmsOutlinedIcon/>,
         action: "onCancel",
     },
     {
-        title: "Import document",
+        title: "import_document",
         icon: <SaveAltOutlinedIcon/>,
         action: "onCancel",
     },
     {
-        title: "Historique des RDV",
-        icon: <EventNoteOutlinedIcon/>,
+        title: "move_appointment",
+        icon: <Icon color={"white"} path="iconfinder"/>,
         action: "onCancel",
     },
     {
-        title: "Annuler RDV à venir",
-        icon: <CloseOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "Déplacer RDV",
-        icon: <IconUrl color={"white"} path="iconfinder"/>,
-        action: "onCancel",
-    },
-    {
-        title: "Annuler RDV",
+        title: "cancel_appointment",
         icon: <DeleteOutlineOutlinedIcon/>,
         action: "onCancel",
     }
@@ -100,18 +92,19 @@ function AppointmentDetail({...props}) {
     } = props;
 
     const dispatch = useAppDispatch();
-    const { t, ready } = useTranslation("common")
-    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+    const {t, ready} = useTranslation("common")
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
 
     const [alert, setAlert] = useState<boolean>(false);
+    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
-    const [offsetTop, setOffsetTop] = useState(0);
-    const rootRef = useRef<HTMLDivElement>(null);
     const [value, setValue] = useState(data?.intro);
     const [openTooltip, setOpenTooltip] = useState(false);
+    const [offsetTop, setOffsetTop] = useState(0);
+    const rootRef = useRef<HTMLDivElement>(null);
+
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
@@ -130,7 +123,7 @@ function AppointmentDetail({...props}) {
             /appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(()=> {
+        }).then(() => {
             setAlert(false);
             onCancelAppointment(appointmentUUid);
         })
@@ -157,7 +150,15 @@ function AppointmentDetail({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    useEffect(() => {
+        if (rootRef.current) {
+            setOffsetTop(rootRef.current.offsetTop)
+        }
+    }, [])
+
     if (!ready) return <>loading translations...</>;
+
     return (
         <RootStyled>
             <AppBar position="static" color='inherit'>
@@ -172,10 +173,10 @@ function AppointmentDetail({...props}) {
                                 onClick={() => {
                                     setOpenTooltip(true);
                                 }}
-                                sx={{ display: "block", ml: "auto" }}
+                                sx={{display: "block", ml: "auto"}}
                                 size="small"
                             >
-                                <Icon path="more-vert" />
+                                <Icon path="more-vert"/>
                             </IconButton>
                         }
                     />
@@ -183,11 +184,11 @@ function AppointmentDetail({...props}) {
                         size="small"
                         onClick={() => dispatch(openDrawer({type: "view", open: false}))}
                     >
-                        <CloseIcon />
+                        <CloseIcon/>
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <Box sx={{
+            <Box ref={rootRef} sx={{
                 height: 'calc(100% - 64px)',
                 overflowY: 'scroll',
             }}>
@@ -199,13 +200,13 @@ function AppointmentDetail({...props}) {
                         <Button
                             variant="contained"
                             color="warning"
-                            startIcon={<PlayCircleIcon />}
+                            startIcon={<PlayCircleIcon/>}
                             onClick={onConsultation}
                         >
                             {t('event.start')}
                         </Button>
                     </Stack>
-                    <Typography sx={{ mt: 2, mb: 1 }} variant="body1" fontWeight={600}>
+                    <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
                     <AppointmentCard
@@ -228,54 +229,54 @@ function AppointmentDetail({...props}) {
                             {t('send_link')}
                         </Button>
                     </Stack>
-                    <Typography sx={{ mt: 2, mb: 1 }} variant="body1" fontWeight={600}>
+                    <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('patient')}
                     </Typography>
                     <Card>
                         <CardContent>
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
-                                    <Avatar sx={{ width: 24, height: 24 }} />
+                                    <Avatar sx={{width: 24, height: 24}}/>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
                                         {data.title}
                                     </Typography>
                                 </Stack>
                                 <IconButton size="small"
-                                    onClick={onEditDetails}
+                                            onClick={onEditDetails}
                                 >
-                                    <IconUrl path='Ic-duotone' />
+                                    <IconUrl path='Ic-duotone'/>
                                 </IconButton>
                             </Stack>
-                            <List sx={{ py: 0, pl: 2 }}>
+                            <List sx={{py: 0, pl: 2}}>
                                 <ListItem>
-                                    <IconUrl path='ic-anniverssaire' />
-                                    <Typography sx={{ ml: 1, fontSize: 11 }} variant="caption" color="text.secondary"
-                                        fontWeight={400}>
+                                    <IconUrl path='ic-anniverssaire'/>
+                                    <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
+                                                fontWeight={400}>
                                         {data.extendedProps.patient.birthdate} ({moment().diff(moment(data.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
                                 {data.extendedProps.patient.email && <ListItem>
-                                    <IconUrl path='ic-message-contour' />
-                                    <Link underline="none" href={`mailto:${data.email}`} sx={{ ml: 1, fontSize: 11 }}
-                                        variant="caption" color="primary" fontWeight={400}>
+                                    <IconUrl path='ic-message-contour'/>
+                                    <Link underline="none" href={`mailto:${data.email}`} sx={{ml: 1, fontSize: 11}}
+                                          variant="caption" color="primary" fontWeight={400}>
                                         {data.extendedProps.patient.email}
                                     </Link>
                                 </ListItem>}
                                 {data.extendedProps.patient.phone && <ListItem>
-                                    <IconUrl path='ic-tel' />
+                                    <IconUrl path='ic-tel'/>
                                     <Box component='img'
-                                        src={`https://flagcdn.com/w20/${data?.ccode}.png`}
-                                        srcSet={`https://flagcdn.com/w40/${data?.ccode}.png 2x`}
-                                        sx={{ width: 13, ml: 1 }} />
-                                    <Link underline="none" href={`tel:${data?.phone}`} sx={{ ml: 1, fontSize: 11 }}
-                                        variant="caption" color="text.secondary" fontWeight={400}>
+                                         src={`https://flagcdn.com/w20/${data?.ccode}.png`}
+                                         srcSet={`https://flagcdn.com/w40/${data?.ccode}.png 2x`}
+                                         sx={{width: 13, ml: 1}}/>
+                                    <Link underline="none" href={`tel:${data?.phone}`} sx={{ml: 1, fontSize: 11}}
+                                          variant="caption" color="text.secondary" fontWeight={400}>
                                         {data.extendedProps.patient.phone}
                                     </Link>
                                 </ListItem>}
                             </List>
                         </CardContent>
                     </Card>
-                    <Typography sx={{ mt: 2, mb: 1 }} variant="body1" fontWeight={600}>
+                    <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('insctruction')}
                     </Typography>
                     <Card>
@@ -302,22 +303,22 @@ function AppointmentDetail({...props}) {
                         </CardContent>
                     </Card>
                 </Box>
-                <CardActions sx={{ pb: 4 }}>
+                <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle' />}>
+                        <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
                         <Button onClick={() => setMoveAlert(true)}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
-                            {translate('event.move')}
+                            {t('event.move')}
                         </Button>
                         <Button onClick={() => setAlert(true)}
                                 fullWidth
                                 variant='contained-white'
                                 color="error"
                                 sx={{'& svg': {width: 14, height: 14}}} startIcon={<IconUrl path='icdelete'/>}>
-                            {translate('event.delete')}
+                            {t('event.delete')}
                         </Button>
                     </Stack>
                 </CardActions>
@@ -330,13 +331,13 @@ function AppointmentDetail({...props}) {
                     return (
                         <Box sx={{minHeight: 150}}>
                             <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{translate("dialogs.cancel-dialog.sub-title")}</Typography>
+                                        variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")}</Typography>
                             <Typography sx={{textAlign: "center"}}
-                                        margin={2}>{translate("dialogs.cancel-dialog.description")}</Typography>
+                                        margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
                         </Box>)
                 }}
                 open={alert}
-                title={translate("dialogs.cancel-dialog.title")}
+                title={t("dialogs.cancel-dialog.title")}
                 actionDialog={
                     <>
                         <Button
@@ -344,15 +345,15 @@ function AppointmentDetail({...props}) {
                             onClick={() => setAlert(false)}
                             startIcon={<CloseIcon/>}
                         >
-                            {translate("dialogs.cancel-dialog.cancel")}
+                            {t("dialogs.cancel-dialog.cancel")}
                         </Button>
                         <Button
                             variant="contained"
                             color={"error"}
-                            onClick={()=> cancelAppointment(data.publicId)}
+                            onClick={() => cancelAppointment(data.publicId)}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
-                            {translate("dialogs.cancel-dialog.confirm")}
+                            {t("dialogs.cancel-dialog.confirm")}
                         </Button>
                     </>
                 }
@@ -366,13 +367,13 @@ function AppointmentDetail({...props}) {
                     return (
                         <Box sx={{minHeight: 150}}>
                             <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{translate("dialogs.move-dialog.sub-title")}</Typography>
+                                        variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
                             <Typography sx={{textAlign: "center"}}
-                                        margin={2}>{translate("dialogs.move-dialog.description")}</Typography>
+                                        margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                         </Box>)
                 }}
                 open={moveAlert}
-                title={translate("dialogs.move-dialog.title")}
+                title={t("dialogs.move-dialog.title")}
                 actionDialog={
                     <>
                         <Button
@@ -380,27 +381,26 @@ function AppointmentDetail({...props}) {
                             onClick={() => setMoveAlert(false)}
                             startIcon={<CloseIcon/>}
                         >
-                            {translate("dialogs.move-dialog.cancel")}
+                            {t("dialogs.move-dialog.cancel")}
                         </Button>
                         <Button
                             variant="contained"
                             color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
-                            {translate("dialogs.move-dialog.confirm")}
+                            {t("dialogs.move-dialog.confirm")}
                         </Button>
                     </>
                 }
             ></Dialog>
             <Dialog action={'qr-dialog'}
-                open={openDialog}
-                data={null}
-                max
-                actions={false}
-                onClose={handleCloseDialog}
-                direction={'ltr'}
-                title={t("qr_title")}
-                dialogClose={handleCloseDialog} />
+                    open={openDialog}
+                    data={null}
+                    actions={false}
+                    onClose={handleCloseDialog}
+                    direction={'ltr'}
+                    title={t("qr_title")}
+                    dialogClose={handleCloseDialog}/>
         </RootStyled>
     )
 }

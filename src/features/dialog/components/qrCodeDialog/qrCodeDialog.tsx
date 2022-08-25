@@ -3,6 +3,7 @@ import React from 'react'
 import QrCodeDialogStyled from './overrides/qrCodeDialogStyle'
 import { QrCodeScanner } from '@features/qrCodeScanner'
 import { useTranslation } from 'next-i18next'
+
 function QrCodeDialog() {
     const { t, ready } = useTranslation("common")
     const imgUrl = null

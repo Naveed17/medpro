@@ -7,21 +7,22 @@ import Dialog, { DialogProps } from "@mui/material/Dialog";
 import { useState } from "react";
 
 function Dialogs({ ...props }) {
-    const { action, data, contrastText, open, dialogClose, direction, color, title, actionDialog, onClose, actions } = props;
+    const {action, data, contrastText, open, dialogClose, direction, color, title, actionDialog, onClose, size = 'md'} = props;
 
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth, setFullWidth] = useState(true);
-    const [maxWidth, setMaxWidth] = useState<DialogProps['maxWidth']>('md');
+    const [maxWidth, setMaxWidth] = useState<DialogProps['maxWidth']>(size);
     const Component: any = selected ? selected.component : action;
 
     return (
         <>
             <Dialog
-                open={props.open}
-                onClose={props.dialogClose}
+                open={open}
+                fullWidth={fullWidth}
+                maxWidth={maxWidth}
+                onClose={dialogClose}
                 scroll="paper"
-                {...(props.max ? { maxWidth: 'lg' } : { maxWidth: 'sm' })}
-                dir={props.direction}
+                dir={direction}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
                 <DialogTitle sx={{
@@ -51,7 +52,7 @@ function Dialogs({ ...props }) {
                         tabIndex={-1} />
                     <Component data={data} />
                 </DialogContent>
-                {actions ? (
+                {actionDialog ? (
                     <DialogActions>{props.actionDialog}</DialogActions>
                 ) : null}
             </Dialog>
