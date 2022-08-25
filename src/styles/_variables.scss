@@ -1,0 +1,71 @@
+$primary: #0096d6;
+$primary-light: #e7f5fb;
+$secondary: #ffd400;
+$noir: #1b2746;
+$blue: #24388f;
+$gray: #7c878e;
+$alert: #e83b68;
+$success: #339941;
+$light: #f0f7fa;
+$white: #ffffff;
+$black: #000000;
+$light-black: #1b2746;
+$text-grey: #5e5873;
+$dark-grey: #3c3c3b;
+$gray-secondary: #c9c8c8;
+$light-gray: #dddddd;
+$very-light-gray: #f2f2f2;
+
+
+@mixin custom-scroll-bar() {
+  &::-webkit-scrollbar {
+    border-radius: 10px;
+    height: 10px;
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $light-gray;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+}
+// font base url
+$poppins-font-path: "/static/fonts/Poppins/";
+$montserrat-font-path: "/static/fonts/Montserrat/";
+$roboto-font-path: "/static/fonts/Roboto/";
+$lato-font-path: "/static/fonts/Lato/";
+
+// Poppins
+
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Regular.ttf");
+  font-family: "Poppins";
+  font-display: auto;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Bold.ttf");
+  font-family: "Poppins-Bold";
+  font-display: auto;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-SemiBold.ttf");
+  font-family: "Poppins-SemiBold";
+  font-display: auto;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Light.ttf");
+  font-family: "Poppins-Light";
+  font-display: swap;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-Medium.ttf");
+  font-family: "Poppins-Medium";
+  font-display: swap;
+}
+@font-face {
+  src: url("#{$poppins-font-path}Poppins-ExtraBold.ttf");
+  font-family: "Poppins-ExtraBold";
+  font-display: swap;
+}

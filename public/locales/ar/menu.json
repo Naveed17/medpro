@@ -1,0 +1,26 @@
+{
+  "main-menu": {
+    "agenda": "جدول مواعيدي",
+    "room": "قاعة انتظار",
+    "patient": "سجل مرضايا",
+    "message": "رسائلي",
+    "articles": "مقالات",
+    "questions": "أسئلة طبية",
+    "shop": "خدماتي",
+    "wallet": "محفظتى",
+    "stats": "إحصائيات",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
+  },
+  "doctor-dropdown":{
+    "news" : "اخر الاخبار",
+    "messages": "رسائلي",
+    "questions": "أسئلة طبية",
+    "articles": "المجلة الطبية",
+    "wallet": "خدماتي",
+    "settings": "حسابي",
+    "statistics": "إحصائيات",
+    "switch-agenda": "إعادة تعيين جدول مواعيدي",
+    "logout": "تسجيل الخروج"
+  }
+}
