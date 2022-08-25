@@ -49,7 +49,7 @@ function CallanderButton({ ...props }) {
       setWidth(element.width);
     }
     onSellected(selected?.lable);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <RootStyled>

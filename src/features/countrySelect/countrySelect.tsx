@@ -1,4 +1,5 @@
 import * as React from "react";
+import Image from "next/image";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -13,7 +14,7 @@ export default function CountrySelect({ ...props }) {
   });
   React.useEffect(() => {
     props.selected(state);
-  }, [state]);
+  }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Autocomplete
       id="country-select-demo"
@@ -34,12 +35,13 @@ export default function CountrySelect({ ...props }) {
           sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
           {...props}
         >
-          <img
-            loading="lazy"
-            width="20"
+          <Image
+            // loading="lazy"
+            width="20px"
+            layout="fill"
             src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-            srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-            alt=""
+            // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+            alt={option.code}
           />
           {option.label}
         </Box>
@@ -47,16 +49,17 @@ export default function CountrySelect({ ...props }) {
       renderInput={(params) => {
         params.InputProps.startAdornment = (
           <InputAdornment position="start">
-            <img
-              loading="lazy"
-              width="27"
+            <Image
+              // loading="lazy"
+              width="27px"
+              layout="fill"
               style={{ marginLeft: 3 }}
               src={`https://flagcdn.com/w20/${
                 state && state.code.toLowerCase()
               }.png`}
-              srcSet={`https://flagcdn.com/w40/${
-                state && state.code.toLowerCase()
-              }.png 2x`}
+              // srcSet={`https://flagcdn.com/w40/${
+              //   state && state.code.toLowerCase()
+              // }.png 2x`}
               alt=""
             />
           </InputAdornment>
