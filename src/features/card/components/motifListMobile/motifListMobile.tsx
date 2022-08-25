@@ -1,71 +1,137 @@
-import { Typography, IconButton, Stack, Box } from "@mui/material";
+import { Typography, IconButton, Stack, Box, Select, Switch, MenuItem, SelectChangeEvent, List, ListItem, Grid } from "@mui/material";
 import RootStyled from './overrides/rootStyled';
-import { Label } from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-
+import Lable from '@themes/overrides/Lable'
+import { useState } from 'react'
 function MotifListMobile({ ...props }) {
-    const { event, OnSelectEvent } = props;
-
-    const handleEventClick = () => {
-        OnSelectEvent(Object.assign(event, {
-            extendedProps: {
-                description: event.description,
-                meeting: event.meeting,
-                motif: event.motif,
-                patient: event.patient,
-                status: event.status,
-                time: event.time
-            }
-        }));
-    }
-
+    const { data, t } = props;
+    console.log(data)
+    const [state, setstate] = useState<any>({
+        duration: `${data?.duration}`,
+        min: `${data?.minimumDelay}`,
+        max: `${data?.maximumDelay}`,
+    });
+    const handleChange = (event: SelectChangeEvent) => {
+        setstate({
+            ...state,
+            [event.target.name]: event.target.value as string
+        })
+    };
     return (
         <RootStyled
             sx={{
                 "&:before": {
-                    bgcolor: event.borderColor,
+                    bgcolor: data?.color,
                     width: ".4rem"
                 },
             }}
         >
-            <Stack direction="row" spacing={2}>
-                <Box className="card-main" onClick={handleEventClick}>
-                    <Typography variant={"subtitle2"} color="primary.main" className="title">
-                        <>
-                            {event.meeting ? <IconUrl path="ic-video" /> : null}
-                            <span>{event.title}</span>
-                        </>
-                    </Typography>
-                    <Box className="time-badge-main">
-                        <Typography variant={"subtitle2"} color="text.secondary">
-                            <AccessTimeOutlinedIcon />
-                            <span>
-                                {new Date(event.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </span>
+
+            <Box className="card-main">
+                <Typography variant={"subtitle2"} color="primary.main" className="title">
+                    {data?.name}
+                </Typography>
+                <Grid container spacing={1}>
+                    <Grid item xs={4}>
+                        <Typography gutterBottom variant="body2" fontWeight={500}>
+                            {t("duration")}
                         </Typography>
-                        <Label
-                            variant="filled"
-                            color={event.status ? "success" : "warning"}
-                            className="label"
+                        <Select
+                            fullWidth
+                            labelId="demo-simple-select-label"
+                            id={"dur"}
+                            name="duration"
+                            size="small"
+                            onChange={handleChange}
+                            value={state.duration}
+                            displayEmpty={true}
+                            sx={{ color: "text.secondary" }}
+                            renderValue={(value) =>
+                                value?.length
+                                    ? Array.isArray(value)
+                                        ? value.join(", ")
+                                        : value
+                                    : t("duration")
+                            }
                         >
-                            {event.status ? "Confirmé" : "En attente"}
-                        </Label>
-                    </Box>
-                    <Typography variant={"subtitle2"} color="text.primary" mt={1}>
-                        {event.motif.name}
-                    </Typography>
-                </Box>
-                <Box className="action">
-                    <IconButton size="small">
-                        <MoreVertIcon />
-                    </IconButton>
-                </Box>
-            </Stack>
+                            <MenuItem value="1">1</MenuItem>
+                            <MenuItem value="2">2</MenuItem>
+                            <MenuItem value="3">3</MenuItem>
+                        </Select>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Typography gutterBottom variant="body2" fontWeight={500}>
+                            {t("delay_min")}
+                        </Typography>
+                        <Select
+                            fullWidth
+                            labelId="demo-simple-select-label"
+                            id={"min"}
+                            name="min"
+                            size="small"
+                            onChange={handleChange}
+                            value={state.min}
+                            displayEmpty={true}
+                            sx={{ color: "text.secondary" }}
+                            renderValue={(value) =>
+                                value?.length
+                                    ? Array.isArray(value)
+                                        ? value.join(", ")
+                                        : value
+                                    : t("delay_min")
+                            }
+                        >
+                            <MenuItem value="1">1</MenuItem>
+                            <MenuItem value="2">2</MenuItem>
+                            <MenuItem value="3">3</MenuItem>
+                        </Select>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Typography gutterBottom variant="body2" fontWeight={500}>
+                            {t("delay_max")}
+                        </Typography>
+                        <Select
+                            fullWidth
+                            labelId="demo-simple-select-label"
+                            id={"max"}
+                            name="max"
+                            size="small"
+                            onChange={handleChange}
+                            value={state.max}
+                            displayEmpty={true}
+                            sx={{ color: "text.secondary" }}
+                            renderValue={(value) =>
+                                value?.length
+                                    ? Array.isArray(value)
+                                        ? value.join(", ")
+                                        : value
+                                    : t("delay_max")
+                            }
+                        >
+                            <MenuItem value="1">1</MenuItem>
+                            <MenuItem value="2">2</MenuItem>
+                            <MenuItem value="3">3</MenuItem>
+                        </Select>
+                    </Grid>
+                </Grid>
+                <Stack direction='row' alignItems="center">
+                    <List>
+                        <ListItem sx={{ py: 0 }}>
+                            {t('agenda')} : <Lable sx={{ ml: 1 }}>{data?.agenda?.length}</Lable>
+                        </ListItem>
+                        <ListItem>
+                            {t('type')} :<Lable sx={{ ml: 1 }}>{data?.types?.length}</Lable>
+                        </ListItem>
+                    </List>
+                    <Stack ml={'auto'} direction="row" spacing={1} justifyContent="flex-start" alignItems="center">
+                        <Switch name='active' checked={data.isEnabled} />
+                        <IconButton size="small" sx={{ mr: { md: 1 } }}>
+                            <IconUrl path="setting/edit" />
+                        </IconButton>
+                    </Stack>
+                </Stack>
+            </Box>
+
         </RootStyled>
     )
 }

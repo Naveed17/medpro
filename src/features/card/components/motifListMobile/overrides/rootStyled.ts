@@ -1,14 +1,14 @@
-import {Card} from "@mui/material";
-import {styled} from "@mui/material/styles";
+import { Card } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const RootStyled = styled(Card)(({theme}) => ({
+const RootStyled = styled(Card)(({ theme }) => ({
     padding: theme.spacing(1, 2),
+    borderLeftWidth: 0,
     position: "relative",
     borderRadius: 6,
     marginBottom: theme.spacing(1),
     "&:before": {
         content: '""',
-        width: 4,
         height: "100%",
         position: "absolute",
         left: 0,

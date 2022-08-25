@@ -35,7 +35,7 @@ const settingsData = {
             name: "agenda",
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",
-            disable: false
+            disable: true
         },
         /* {
              name: "timeSchedule",
@@ -46,19 +46,19 @@ const settingsData = {
             name: "conges",
             icon: "setting/ic-time",
             href: "/dashboard/settings/holidays",
-            disable: false
+            disable: true
         },
         {
             name: "remplaçants",
             icon: "setting/ic-refrech",
             href: "/dashboard/settings/substitute",
-            disable: false
+            disable: true
         },
         {
             name: "utilisateurs",
             icon: "setting/ic-user",
             href: "/dashboard/settings/users",
-            disable: false
+            disable: true
         },
         /*
          {
@@ -71,7 +71,7 @@ const settingsData = {
             name: "instructions",
             icon: "setting/ic-messagerie",
             href: "/dashboard/settings/instructions",
-            disable: false
+            disable: true
         },
 
     ],

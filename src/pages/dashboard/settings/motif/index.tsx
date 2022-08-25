@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { useDateConverture } from "@app/hooks";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
+import { MotifListMobile } from '@features/card'
 function Motif() {
 
     const { data: session } = useSession();
@@ -226,7 +227,16 @@ function Motif() {
             </DesktopContainer>
             <MobileContainer>
                 <Container>
+                    <Box pt={3.7}>
+                        {
+                            rows.map((row, idx) =>
+                                <React.Fragment key={idx}>
+                                    <MotifListMobile t={t} data={row} />
+                                </React.Fragment>
+                            )
+                        }
 
+                    </Box>
                 </Container>
             </MobileContainer>
             <Drawer
