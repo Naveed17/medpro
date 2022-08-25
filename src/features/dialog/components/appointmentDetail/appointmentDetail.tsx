@@ -29,8 +29,6 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from 'next-i18next';
@@ -141,7 +139,7 @@ function AppointmentDetail({ ...props }) {
                     />
                     <IconButton
                         size="small"
-                        onClick={() => dispatch(openDrawer({type: "view", open:false}))}
+                        onClick={() => dispatch(openDrawer(false))}
                     >
                         <CloseIcon />
                     </IconButton>
