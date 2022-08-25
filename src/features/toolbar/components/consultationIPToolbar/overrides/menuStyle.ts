@@ -5,6 +5,8 @@ import Menu from '@mui/material/Menu';
 
 const StyledMenu = styled(Menu)(({ theme }) => ({
     '& .MuiPaper-root': {
+        paddingBottom: theme.spacing(2),
+        paddingTop: theme.spacing(2),
         borderRadius: 4,
         marginTop: theme.spacing(1),
         maxWidth: 220,

@@ -6,8 +6,11 @@ import { Document, Page, pdfjs } from "react-pdf";
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
-import { tableActionSelector } from "@features/table";
-import { onOpenDetails } from "@features/table";
+import { openDrawer as DialogOpenDrawer } from "@features/dialog";
+import { agendaSelector, openDrawer, setConfig, setStepperIndex } from "@features/calendar";
+import { CustomStepper } from "@features/customStepper";
+import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
+
 import { ReactElement } from "react";
 import { Box, Drawer, Stack, Grid, Button, Typography, Collapse, List, ListItem, ListItemIcon, IconButton } from "@mui/material";
 //components
@@ -19,11 +22,17 @@ import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
-import { AppointmentDetail } from '@features/dialog';
+import { AppointmentDetail, DialogProps } from '@features/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import CircleIcon from '@mui/icons-material/Circle';
 import Icon from '@themes/urlIcon'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+const options = {
+    cMapUrl: 'cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: 'standard_fonts/',
+};
+
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -197,25 +206,83 @@ const headCells2: readonly HeadCell[] = [
     },
 
 ];
+const event = {
+    "title": "Osinski Tressa",
+    "groupId": "",
+    "publicId": "9b188379-88b8-4463-a633-78357cf35ce4",
+    "url": "",
+    "recurringDef": null,
+    "defId": "58",
+    "sourceId": "24",
+    "allDay": false,
+    "hasEnd": true,
+    "ui": {
+        "display": null,
+        "constraints": [],
+        "overlap": null,
+        "allows": [],
+        "backgroundColor": "",
+        "borderColor": "#1BC47D",
+        "textColor": "",
+        "classNames": []
+    },
+    "extendedProps": {
+        "time": "2022-08-26T03:15:00.000Z",
+        "patient": {
+            "uuid": "0f0724b4-f0ce-3e60-b42b-f168191e3754",
+            "email": "tomas.mertz@example.com",
+            "birthdate": "11-08-2020",
+            "firstName": "Tressa",
+            "lastName": "Osinski",
+            "gender": "O"
+        },
+        "motif": {
+            "uuid": "6bc36ef1-9dd8-4260-a9f1-ed8f2a528197",
+            "name": "mutate",
+            "duration": 15,
+            "color": "#1BC47D"
+        },
+        "description": "",
+        "meeting": false,
+        "status": "Confirmed"
+    }
+}
+const EventStepper = [
+    {
+        title: "steppers.tabs.tab-2",
+        children: TimeSchedule,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-3",
+        children: Patient,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-4",
+        children: Instruction,
+        disabled: true
+    }
+];
 function ConsultationInProgress() {
-    const { patientId } = useAppSelector(tableActionSelector);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { direction } = useAppSelector(configSelector);
+    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
-    const [open, setopen] = useState(false);
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
-    const [numPages, setNumPages] = useState<number | null>(null);
-    const [pageNumber, setPageNumber] = useState(1);
-
+    const [file, setFile] = useState('/static/files/sample.pdf');
+    const [numPages, setNumPages] = useState(null);
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     };
-    useEffect(() => {
-        if (Boolean(patientId !== "")) {
-            setopen(true);
-        }
-    }, [patientId]);
     const { t, ready } = useTranslation("consultation");
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    };
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        }
+    }
     if (!ready) return <>loading translations...</>;
     return (
         <>
@@ -337,18 +404,12 @@ function ConsultationInProgress() {
                                     mx: 'auto'
                                 }
                             }}>
-                                <Document file="/static/files/resume.pdf" onLoadSuccess={onDocumentLoadSuccess}
-                                    options={{
-                                        margin: {
-                                            top: '1cm',
-                                            bottom: '1cm',
-                                            left: '1cm',
-                                            right: '1cm'
-                                        }
-
-                                    }}
+                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
-                                    <Page pageNumber={pageNumber} />
+                                    {Array.from(new Array(numPages), (el, index) => (
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                    ))}
+
                                 </Document>
                             </Box>
                         </TabPanel>
@@ -432,53 +493,41 @@ function ConsultationInProgress() {
                             </Stack>
                             <Drawer
                                 anchor={"right"}
-                                open={open}
+                                open={drawer}
                                 dir={direction}
                                 onClose={() => {
-                                    dispatch(onOpenDetails({ patientId: "" }));
-                                    setopen(false);
+                                    dispatch(DialogOpenDrawer(false))
                                 }}
                             >
                                 <AppointmentDetail
-                                    data={{
-                                        name: "Muhamed Ali",
-                                        img: "",
-                                        dob: "1990/03/25",
-                                        email: "email@company.com",
-                                        phone: "+216 22 469 495",
-                                        ccode: "tn",
-                                        intro: "some intro",
-                                    }}
-                                    onClose={() => {
-                                        dispatch(onOpenDetails({ patientId: "" }));
-                                        setopen(false);
-                                    }}
-                                    onConsultation={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onEditDetails={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onChangeIntro={(callback: any) => {
-                                        return callback();
-                                    }}
-                                    onEditintro={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onWaiting={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onMoveAppointment={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
-                                    onCancelAppointment={(e: React.MouseEvent) => {
-                                        console.log(e);
-                                    }}
+                                    data={event}
+
                                 />
                             </Drawer>
                         </TabPanel>
                     }
                 </AnimatePresence>
+                <Drawer
+                    anchor={"right"}
+                    open={openAddDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(openDrawer({ type: "add", open: false }));
+
+                    }}
+                >
+                    <Box height={"100%"}>
+                        <CustomStepper
+                            currentIndex={currentStepper}
+                            OnTabsChange={handleStepperChange}
+                            OnSubmitStepper={submitStepper}
+                            stepperData={EventStepper}
+                            scroll
+                            t={t}
+                            minWidth={726}
+                        />
+                    </Box>
+                </Drawer>
             </Box>
         </>
     );
