@@ -5,17 +5,17 @@ import { DocumentButton } from '@features/buttons';
 import { UploadFile } from '@features/uploadFile';
 import { useTranslation } from 'next-i18next'
 import FileuploadProgress from '@features/fileUploadProgress/components/fileUploadProgress';
-import { buttonsData } from './config'
-function AddDocumentDialog() {
-    const [files, setFile] = useState([]);
+import { buttonsData } from './config';
+function AddDocumentDialog({ data }: any) {
+    const [files, setFile] = useState(data);
     const handleDrop = React.useCallback(
         (acceptedFiles: React.SetStateAction<never[]>) => {
             setFile(acceptedFiles);
         },
         [setFile]
     );
-    const handleRemove = (file: object) => {
-        setFile(files.filter((_file) => _file !== file));
+    const handleRemove = (file: any) => {
+        setFile(files.filter((_file: any) => _file !== file));
     };
     const { t, ready } = useTranslation("common");
     if (!ready) return <>loading translations...</>;
@@ -68,9 +68,9 @@ function AddDocumentDialog() {
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
-                        {files.length > 0 ?
+                        {files?.length > 0 ?
                             <Stack spacing={2} maxWidth={{ xs: '100%', md: '50%' }}>
-                                {files.map((file, index) => (
+                                {files?.map((file: any, index: number) => (
                                     <FileuploadProgress key={index} file={file} progress={100} handleRemove={handleRemove} />
 
                                 ))}
