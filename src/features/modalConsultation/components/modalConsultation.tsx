@@ -17,6 +17,8 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
+import {useAppDispatch} from "@app/redux/hooks";
+import {SetEnd, SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -38,6 +40,7 @@ function ModalConsultation() {
     const [models, setModels] = useState<ModalModel[]>([]);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
+    const dispatch = useAppDispatch();
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
@@ -111,7 +114,7 @@ function ModalConsultation() {
                     }}>
                         <Box>
                             {value.color !== "#FEBD15" && <FormBuilder
-                                onSubmit={console.log}
+                                onSubmit={(ev:any)=>{dispatch(SetFiche(ev.data))}}
                                 onError={console.log}
                                 //submission={{ data: {taille:'3',imc:30} }}
                                 form={

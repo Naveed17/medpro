@@ -1,32 +1,32 @@
-import React, { useEffect } from 'react'
-import { Tabs, Tab, Stack, Button, MenuItem, DialogActions } from '@mui/material'
+import React, {useEffect, useState} from 'react'
+import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
-import { useTranslation } from 'next-i18next'
-import { tabsData, documentButtonList } from './config'
-import { Dialog } from '@features/dialog';
+import {useTranslation} from 'next-i18next'
+import {tabsData, documentButtonList} from './config'
+import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {SetEnd, SetExaman} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetEnd} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 
-function ConsultationIPToolbar({ selected }: any) {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
-    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const [value, setValue] = React.useState(tabsData[0].value);
-    const [info, setInfo] = React.useState<null | string>('');
-    const [tabs, setTabs] = React.useState(0);
-    const [dialogData, setDialogData] = React.useState<any>(null)
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+function ConsultationIPToolbar({selected}: any) {
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [value, setValue] = useState(tabsData[0].value);
+    const [info, setInfo] = useState<null | string>('');
+    const [tabs, setTabs] = useState(0);
+    const [dialogData, setDialogData] = useState<any>(null)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const {end,examan} = useAppSelector(consultationSelector);
+    const {end, examan, fiche} = useAppSelector(consultationSelector);
 
     useEffect(() => {
-        console.log(examan)
-        console.log(end)
-    }, [examan]);
+        if (examan) console.log(examan);
+        if (fiche) console.log(fiche);
+    }, [examan, fiche]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -104,7 +104,7 @@ function ConsultationIPToolbar({ selected }: any) {
                     >
                         {documentButtonList.map((item, index) => (
                             <MenuItem key={`document-button-list-${index}`} onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon} />
+                                <Icon path={item.icon}/>
                                 {t(item.label)}
                             </MenuItem>
                         ))}
@@ -118,16 +118,17 @@ function ConsultationIPToolbar({ selected }: any) {
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({ label, value }, index) => (
-                            <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value} label={t(label)} />
+                        {tabsData.map(({label, value}, index) => (
+                            <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value}
+                                 label={t(label)}/>
                         ))}
                     </Tabs>
-                    <Button variant="outlined" color="primary" onClick={()=>{
-                        /*const btn = document.getElementsByClassName('sub-btn')[1];
-                        (btn as HTMLElement).click();*/
+                    <Button variant="outlined" color="primary" onClick={() => {
+                        const btn = document.getElementsByClassName('sub-btn')[1];
+                        (btn as HTMLElement)?.click();
                         dispatch(SetEnd(true))
                     }} className="action-button">
-                        <Icon path="ic-check" />
+                        <Icon path="ic-check"/>
                         {t("end_of_consultation")}
                     </Button>
                 </Stack>
@@ -135,28 +136,28 @@ function ConsultationIPToolbar({ selected }: any) {
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={dialogData}
-                    change={false}
-                    max
-                    direction={'ltr'}
-                    title={t(info)}
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleCloseDialog}
+                        open={openDialog}
+                        data={dialogData}
+                        change={false}
+                        max
+                        direction={'ltr'}
+                        title={t(info)}
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog}
+                                        startIcon={<CloseIcon/>}>
+                                    {t('cancel')}
+                                </Button>
+                                <Button variant="contained"
+                                        onClick={handleCloseDialog}
 
-                                startIcon={<Icon
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                    } />
+                                        startIcon={<Icon
+                                            path='ic-dowlaodfile'/>}>
+                                    {t('save')}
+                                </Button>
+                            </DialogActions>
+                        }/>
             }
 
         </>

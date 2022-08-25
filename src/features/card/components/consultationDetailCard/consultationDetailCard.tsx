@@ -22,7 +22,6 @@ function CIPPatientHistoryCard() {
     let medical_entity: MedicalEntityModel | null = null;
     const {end} = useAppSelector(consultationSelector);
 
-
     const RegisterSchema = Yup.object().shape({
         motif: Yup.string().required("Motif is required"),
     });

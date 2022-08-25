@@ -1,16 +1,18 @@
 import { createReducer } from '@reduxjs/toolkit';
 import {
-    SetEnd, SetExaman
+    SetEnd, SetExaman, SetFiche
 } from './actions';
 
 export type MenuState = {
     end: boolean
-    examan: any
+    examan: any,
+    fiche:any
 };
 
 const initialState: MenuState = {
     end: false,
-    examan: null
+    examan: null,
+    fiche: null
 };
 
 export const ConsultationReducer = createReducer(initialState, builder => {
@@ -20,6 +22,9 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetExaman, (state, action) => {
             state.examan = action.payload;
+        })
+        .addCase(SetFiche, (state, action) => {
+            state.fiche = action.payload;
         })
 
 });

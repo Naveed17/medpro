@@ -120,7 +120,7 @@ main {
   }
 
   input {
-    width: 10rem;
+    width: 100%;
     text-align: left;
   }
 }
@@ -156,6 +156,7 @@ main {
 .alert-success {
   visibility: hidden;
   height: 0;
+
   p {
     margin: 0;
   }
