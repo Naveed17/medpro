@@ -1,6 +1,6 @@
 import axios, {AxiosRequestConfig} from "axios";
 
-const baseURL: string = process.env.NEXT_PUBLIC_BACK_END_POINT || 'https://coreapi.med.ovh/';
+const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
 export type GetRequest = AxiosRequestConfig | null
 
