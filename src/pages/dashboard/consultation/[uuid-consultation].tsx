@@ -7,7 +7,7 @@ import {Document, Page, pdfjs} from "react-pdf";
 import {useAppSelector, useAppDispatch} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import {tableActionSelector} from "@features/table";
-import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
+import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 
 import {ReactElement} from "react";
 import {
@@ -18,9 +18,9 @@ import {
     Typography,
     ListItem,
 } from "@mui/material";
-import { openDrawer as DialogOpenDrawer } from "@features/dialog";
-import { CustomStepper } from "@features/customStepper";
-import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
+import {openDrawer as DialogOpenDrawer} from "@features/dialog";
+import {CustomStepper} from "@features/customStepper";
+import {TimeSchedule, Patient, Instruction} from "@features/tabPanel";
 
 //components
 import {DashLayout} from "@features/base";
@@ -32,11 +32,13 @@ import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard
 import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
-import { useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import { AppointmentDetail, DialogProps } from '@features/dialog';
+import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
+import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
+import {SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
@@ -108,7 +110,6 @@ const PatiendData = [
         amount: 0,
     }
 ];
-
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -281,9 +282,8 @@ const EventStepper = [
 function ConsultationInProgress() {
     const {patient} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {config} = useAppSelector(agendaSelector);
-    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
-    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
@@ -291,28 +291,48 @@ function ConsultationInProgress() {
     const [acts, setActs] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
+    const [appointement, setAppointement] = useState(false);
 
     const router = useRouter();
+
+    const {examan, fiche, patient: patientInfo} = useAppSelector(consultationSelector);
+
+    useEffect(() => {
+        if (examan) console.log(examan);
+    }, [examan]);
+    useEffect(() => {
+        if (fiche) console.log(fiche);
+    }, [fiche]);
 
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
 
-    console.log(config)
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
 
-    useEffect(()=>{
-        trigger({
-            method: "GET",
-            url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
-            headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
-        }, { revalidate: true, populateCache: true }).then(res => setActs((res?.data as HttpResponse).data[0].acts))
+    useEffect(() => {
+        if (medical_entity) {
+            trigger({
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+            }, {revalidate: true, populateCache: true}).then(res => setActs((res?.data as HttpResponse).data[0].acts))
 
-    },[medical_entity, router.locale, session?.accessToken, trigger])
+            trigger({
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/" + router.locale,
+                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+            }, {revalidate: true, populateCache: true}).then(res => {
+                setAppointement((res?.data as HttpResponse).data)
+                dispatch(SetPatient((res?.data as HttpResponse).data.patient))
+            })
+        }
+    }, [medical_entity, router.locale, session?.accessToken, trigger])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
@@ -332,10 +352,6 @@ function ConsultationInProgress() {
     if (!ready || loading) return <>loading translations...</>;
     const {data: user} = session as Session;
     medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    console.log(medical_entity)
-
-
-
     return (
         <>
             <SubHeader>
@@ -483,7 +499,7 @@ function ConsultationInProgress() {
                                 <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                     ))}
 
                                 </Document>
@@ -528,7 +544,7 @@ function ConsultationInProgress() {
                                 }
 
                             </Stack>
-{/*
+                            {/*
                             <Button size='small' sx={{
                                 '& .react-svg svg': {
                                     width: theme => theme.spacing(1.5),
@@ -597,7 +613,7 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({ type: "add", open: false }));
+                        dispatch(openDrawer({type: "add", open: false}));
 
                     }}
                 >
@@ -618,7 +634,7 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, [

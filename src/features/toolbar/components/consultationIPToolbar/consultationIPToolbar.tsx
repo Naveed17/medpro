@@ -21,12 +21,7 @@ function ConsultationIPToolbar({selected}: any) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const {end, examan, fiche} = useAppSelector(consultationSelector);
 
-    useEffect(() => {
-        if (examan) console.log(examan);
-        if (fiche) console.log(fiche);
-    }, [examan, fiche]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
