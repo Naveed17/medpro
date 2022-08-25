@@ -383,7 +383,7 @@ function Agenda() {
                                 onClick={() => setAlert(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.move-dialog.cancel")}
+                                {t("dialogs.move-dialog.garde-date")}
                             </Button>
                             <LoadingButton
                                 {...(loading && {loading})}
