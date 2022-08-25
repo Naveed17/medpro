@@ -9,20 +9,21 @@ export type MenuState = {
 const initialState: MenuState = {
   stepsData: {
     step1: {
-      group: "",
-      name: "",
-      firstName: "",
-      dob: {
+      patient_group: "",
+      first_name: "",
+      last_name: "",
+      birthdate: {
         day: "",
         month: "",
         year: "",
       },
-      phone: 123123123,
-      gender: "",
+      country_code: "",
+      phone: "",
+      gender: 1,
     },
     step2: {
       region: "",
-      zipCode: 0,
+      zip_code: "12345",
       address: "",
       email: "",
       cin: "",

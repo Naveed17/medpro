@@ -15,19 +15,6 @@ import { useMediaQuery } from "@mui/material";
 import { PatientDetailsDocumentCard, NoDataCard } from "@features/card";
 import { Otable } from "@features/table";
 import { uniqueId } from "lodash";
-
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-
-import CloseIcon from "@mui/icons-material/Close";
-
 const typeofDocs = ["report", "orders", "analysis", "prescription"];
 
 const AddAppointmentCardData = {
@@ -251,7 +238,7 @@ function DocumentsPanel() {
       ) : (
         <NoDataCard t={t} data={AddAppointmentCardData} />
       )}
-      <Dialog open={true} onClose={() => console.log("adasd")}>
+      {/* <Dialog open={true} onClose={() => console.log("adasd")}>
         <AppBar
           sx={{
             position: "relative",
@@ -267,7 +254,6 @@ function DocumentsPanel() {
             <Button
               color="primary"
               variant="contained"
-              // onClick={handleClose}
               startIcon={<CloseIcon />}
             >
               save
@@ -280,15 +266,7 @@ function DocumentsPanel() {
             To subscribe to this website, please enter your email address here.
             We will send updates occasionally.
           </DialogContentText>
-          {/* <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Email Address"
-            type="email"
-            fullWidth
-            variant="standard"
-          /> */}
+        
         </DialogContent>
         <DialogActions>
           <Button onClick={() => console.log("adasd")}>Annuler</Button>
@@ -296,7 +274,7 @@ function DocumentsPanel() {
             Ajouter un document
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 }

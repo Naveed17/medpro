@@ -20,7 +20,7 @@ function PatientRow({ ...props }) {
   return (
     <TableRowStyled
       hover
-      onClick={() => !loading && handleClick(row.uuid as number)}
+      onClick={() => !loading && handleClick(row.uuid as any)}
       role="checkbox"
       aria-checked={isItemSelected}
       tabIndex={-1}
@@ -277,7 +277,7 @@ function PatientRow({ ...props }) {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                dispatch(onOpenDetails({ patientId: row.id }));
+                dispatch(onOpenDetails({ patientId: row.uuid }));
               }}
               size="small"
             >

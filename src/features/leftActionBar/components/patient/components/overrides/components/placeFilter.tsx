@@ -72,7 +72,7 @@ function PlaceFilter({ ...props }) {
         });
       }
     }
-  }, [query, isMounted]);
+  }, [query, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Box component="figure" sx={{ m: 0 }}>
       <Typography variant="body2" color="text.secondary" gutterBottom>
