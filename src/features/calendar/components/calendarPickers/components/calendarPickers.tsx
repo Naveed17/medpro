@@ -6,7 +6,7 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {LocaleFnsProvider} from "@app/localization/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {TextField} from "@mui/material";
-import {StaticDatePicker} from "@mui/x-date-pickers";
+import {StaticDatePicker} from '@mui/x-date-pickers/StaticDatePicker';
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 
 type CalendarPickerView = "day" | "month" | "year";
