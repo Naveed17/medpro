@@ -31,7 +31,8 @@ const variants = {
     }
 };
 
-function ModalConsultation() {
+function ModalConsultation({...props}) {
+    const {modal} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
@@ -45,13 +46,19 @@ function ModalConsultation() {
         color: "#FEBD15",
         hasData: false,
         isEnabled: true,
-        label: "fiche 2",
+        label: "",
         structure: [],
-        uuid: "8a536913-5593-4f29-a123-46b4f5f2ce37"
+        uuid: ""
     });
 
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
 
+
+    useEffect(() => {
+        setTimeout(() => {
+            setValue(modal.default_modal);
+        }, 1000)
+    }, [modal])
 
     useEffect(() => {
         if (medical_entity !== null) {
@@ -114,9 +121,11 @@ function ModalConsultation() {
                     }}>
                         <Box>
                             {value.color !== "#FEBD15" && <FormBuilder
-                                onSubmit={(ev:any)=>{dispatch(SetFiche(ev.data))}}
+                                onSubmit={(ev: any) => {
+                                    dispatch(SetFiche(ev.data))
+                                }}
                                 onError={console.log}
-                                //submission={{ data: {taille:'3',imc:30} }}
+                                submission={{data: modal.data}}
                                 form={
                                     {
                                         display: "form",

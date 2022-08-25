@@ -32,7 +32,7 @@ import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard
 import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {AppointmentDetail, DialogProps} from '@features/dialog';
@@ -291,7 +291,8 @@ function ConsultationInProgress() {
     const [acts, setActs] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
-    const [appointement, setAppointement] = useState(false);
+    const [appointement, setAppointement] = useState<any>();
+    const [mpUuid, setMpUuid] = useState("");
 
     const router = useRouter();
 
@@ -316,18 +317,25 @@ function ConsultationInProgress() {
                 method: "GET",
                 url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
                 headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(res => setActs((res?.data as HttpResponse).data[0].acts))
+            }, {revalidate: true, populateCache: true}).then(res => {
+                setMpUuid((res?.data as HttpResponse).data[0].medical_professional.uuid);
+                setActs((res?.data as HttpResponse).data[0].acts)
+            })
 
+        }
+    }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
+
+    useEffect(() => {
+        if (mpUuid)
             trigger({
                 method: "GET",
-                url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/" + router.locale,
+                url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/professionals/" + mpUuid +'/'+ router.locale,
                 headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
             }, {revalidate: true, populateCache: true}).then(res => {
                 setAppointement((res?.data as HttpResponse).data)
-                dispatch(SetPatient((res?.data as HttpResponse).data.patient))
+                dispatch(SetPatient((res?.data as HttpResponse).data.appointment.patient))
             })
-        }
-    }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
+    }, [dispatch, medical_entity, mpUuid, router.locale, session?.accessToken, trigger])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -510,10 +518,10 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation/>
+                                    <ModalConsultation modal={appointement?.consultation_sheet.modal}/>
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard/>
+                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
                                 </Grid>
                             </Grid>
                         </TabPanel>

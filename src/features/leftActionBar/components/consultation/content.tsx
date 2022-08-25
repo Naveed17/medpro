@@ -81,7 +81,7 @@ const Content = ({ ...props }) => {
                                 <Stack spacing={1} alignItems="flex-start">
                                     <List dense>
                                         {
-                                            data1.map((list, index) =>
+                                            patient?.antecedentsTreatment.map((list:any, index:number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
                                                         <CircleIcon />
