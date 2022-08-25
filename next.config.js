@@ -4,6 +4,7 @@ const path = require("path");
 
 /** @type {{}} */
 const nextConfig = withTM({
+  output: 'standalone',
   i18n,
   webpack: (config, { nextRuntime }) => {
     config.module.rules.push({
