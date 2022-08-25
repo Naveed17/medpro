@@ -25,7 +25,7 @@ import {AppointmentDetail, Dialog} from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
-import {motion} from "framer-motion";
+import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 
@@ -267,19 +267,21 @@ function Agenda() {
                 <DesktopContainer>
                     <>
                         {httpAgendasResponse &&
-                            <motion.div
-                                initial={{opacity: 0, y: -100}}
-                                animate={{opacity: 1, y: 0}}
-                                transition={{ease: "easeIn", duration: 1}}
-                            >
-                                <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
-                                          OnInit={onLoadCalendar}
-                                          OnSelectEvent={onSelectEvent}
-                                          OnEventChange={OnEventChange}
-                                          OnSelectDate={onSelectDate}
-                                          OnViewChange={onViewChange}
-                                          OnRangeChange={handleOnRangeChange}/>
-                            </motion.div>
+                            <AnimatePresence exitBeforeEnter>
+                                <motion.div
+                                    initial={{opacity: 0, y: -100}}
+                                    animate={{opacity: 1, y: 0}}
+                                    transition={{ease: "easeIn", duration: 1}}
+                                >
+                                    <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
+                                              OnInit={onLoadCalendar}
+                                              OnSelectEvent={onSelectEvent}
+                                              OnEventChange={OnEventChange}
+                                              OnSelectDate={onSelectDate}
+                                              OnViewChange={onViewChange}
+                                              OnRangeChange={handleOnRangeChange}/>
+                                </motion.div>
+                            </AnimatePresence>
                         }
                     </>
                 </DesktopContainer>

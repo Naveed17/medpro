@@ -361,8 +361,8 @@ function AppointmentDetail({...props}) {
             ></Dialog>
 
             <Dialog
-                color={theme.palette.error.main}
-                contrastText={theme.palette.error.contrastText}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
                 dialogClose={() => setMoveAlert(false)}
                 action={() => {
                     return (
@@ -386,7 +386,7 @@ function AppointmentDetail({...props}) {
                         </Button>
                         <Button
                             variant="contained"
-                            color={"error"}
+                            color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
                             {translate("dialogs.move-dialog.confirm")}
