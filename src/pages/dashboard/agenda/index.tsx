@@ -17,7 +17,7 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
+import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -28,20 +28,21 @@ import {AgendaFilter} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
+import {LoadingButton} from "@mui/lab";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
 
-const AppointmentTypes: { [key: string]: string } = {
-    0: "PENDING",
-    1: "CONFIRMED",
-    2: "REFUSED",
-    3: "WAITING_ROOM",
-    4: "ON_GOING",
-    5: "FINISHED",
-    6: "CANCELED",
-    7: "EXPIRED",
+const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
+    0: {key: "PENDING", value: "En attende"},
+    1: {key: "CONFIRMED", value: "Confirmé"},
+    2: {key: "REFUSED", value: "Effectué"},
+    3: {key: "WAITING_ROOM", value: "Salle d'attende"},
+    4: {key: "ON_GOING", value: "en attende"},
+    5: {key: "FINISHED", value: "en attende"},
+    6: {key: "CANCELED", value: "Annulé"},
+    7: {key: "EXPIRED", value: "Expiré"},
 }
 const EventStepper = [
     {
@@ -158,6 +159,7 @@ function Agenda() {
 
     const onSelectEvent = (event: EventDef) => {
         setEvent(event);
+        dispatch(setSelectedEvent(event));
         dispatch(openDrawer({type: "view", open: true}));
     }
 
@@ -227,7 +229,7 @@ function Agenda() {
             id: appointment.uuid,
             meeting: false,
             addRoom: true,
-            status: AppointmentTypes[appointment.type]
+            status: AppointmentTypes[appointment.status]
         });
     });
 
@@ -329,11 +331,11 @@ function Agenda() {
                         }, 300);
                     }}
                 >
-                    {event && <AppointmentDetail
-                        onCancelAppointment={() => refreshData()}
-                        translate={t}
-                        data={event}
-                    />}
+                    {event &&
+                        <AppointmentDetail
+                            onCancelAppointment={() => refreshData()}
+                            translate={t}
+                        />}
                 </Drawer>
                 <Drawer
                     anchor={"right"}
@@ -381,16 +383,17 @@ function Agenda() {
                                 onClick={() => setAlert(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.move-dialog.cancel")}
+                                {t("dialogs.move-dialog.garde-date")}
                             </Button>
-                            <Button
+                            <LoadingButton
+                                {...(loading && {loading})}
                                 variant="contained"
                                 color={"warning"}
                                 onClick={() => handleMoveAppointment(event as EventDef)}
                                 startIcon={<Icon path="iconfinder"></Icon>}
                             >
                                 {t("dialogs.move-dialog.confirm")}
-                            </Button>
+                            </LoadingButton>
                         </>
                     }
                 ></Dialog>

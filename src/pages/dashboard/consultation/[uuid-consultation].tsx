@@ -609,7 +609,6 @@ function ConsultationInProgress() {
                             >
                                 <AppointmentDetail
                                     data={event}
-
                                 />
                             </Drawer>
                         </TabPanel>

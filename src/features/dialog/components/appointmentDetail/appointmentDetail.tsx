@@ -31,13 +31,14 @@ import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Dialog} from "@features/dialog";
 import {useTranslation} from "next-i18next";
+import {LoadingButton} from "@mui/lab";
 
 const menuList = [
 
@@ -81,7 +82,6 @@ const menuList = [
 
 function AppointmentDetail({...props}) {
     const {
-        data,
         onConsultation,
         onEditDetails,
         onChangeIntro,
@@ -96,16 +96,17 @@ function AppointmentDetail({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
 
     const [alert, setAlert] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
-    const [value, setValue] = useState(data?.intro);
+    const [value, setValue] = useState(data?.extendedProps.insctruction);
     const [openTooltip, setOpenTooltip] = useState(false);
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
-
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -115,6 +116,7 @@ function AppointmentDetail({...props}) {
     } = useRequestMutation(null, "/agenda/update/appointment/status", {revalidate: false, populateCache: false});
 
     const cancelAppointment = (appointmentUUid: string) => {
+        setLoading(true);
         const form = new FormData();
         form.append('status', '6');
         updateStatusTrigger({
@@ -124,6 +126,12 @@ function AppointmentDetail({...props}) {
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
+            setLoading(false);
+            const eventUpdated: any = {
+                ...data, extendedProps:
+                    {...data?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
+            };
+            dispatch(setSelectedEvent(eventUpdated));
             setAlert(false);
             onCancelAppointment(appointmentUUid);
         })
@@ -213,10 +221,10 @@ function AppointmentDetail({...props}) {
                         t={t}
                         data={
                             {
-                                date: moment(data.extendedProps.time).format("DD-MM-YYYY"),
-                                time: moment(data.extendedProps.time).format("hh:mm"),
-                                motif: data.extendedProps.motif,
-                                status: 'Confirmé'
+                                date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
+                                time: moment(data?.extendedProps.time).format("hh:mm"),
+                                motif: data?.extendedProps.motif,
+                                status: data?.extendedProps.status
                             }
                         }
                     />
@@ -238,7 +246,7 @@ function AppointmentDetail({...props}) {
                                 <Stack spacing={2} direction="row" alignItems='center'>
                                     <Avatar sx={{width: 24, height: 24}}/>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
-                                        {data.title}
+                                        {data?.title}
                                     </Typography>
                                 </Stack>
                                 <IconButton size="small"
@@ -252,23 +260,25 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data.extendedProps.patient.birthdate} ({moment().diff(moment(data.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        {data?.extendedProps.patient.birthdate} ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
-                                {data.extendedProps.patient.email && <ListItem>
+                                {data?.extendedProps.patient.email && <ListItem>
                                     <IconUrl path='ic-message-contour'/>
-                                    <Link underline="none" href={`mailto:${data.email}`} sx={{ml: 1, fontSize: 11}}
+                                    <Link underline="none" href={`mailto:${data?.extendedProps.patient.email}`}
+                                          sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="primary" fontWeight={400}>
-                                        {data.extendedProps.patient.email}
+                                        {data?.extendedProps.patient.email}
                                     </Link>
                                 </ListItem>}
-                                {data.extendedProps.patient.phone && <ListItem>
+                                {data?.extendedProps.patient.phone && <ListItem>
                                     <IconUrl path='ic-tel'/>
                                     <Box component='img'
-                                         src={`https://flagcdn.com/w20/${data?.ccode}.png`}
-                                         srcSet={`https://flagcdn.com/w40/${data?.ccode}.png 2x`}
+                                         src={`https://flagcdn.com/w20/${data?.extendedProps.patient.phone.ccode}.png`}
+                                         srcSet={`https://flagcdn.com/w40/${data?.extendedProps.patient.phone.ccode}.png 2x`}
                                          sx={{width: 13, ml: 1}}/>
-                                    <Link underline="none" href={`tel:${data?.phone}`} sx={{ml: 1, fontSize: 11}}
+                                    <Link underline="none" href={`tel:${data?.extendedProps.patient.phone}`}
+                                          sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="text.secondary" fontWeight={400}>
                                         {data.extendedProps.patient.phone}
                                     </Link>
@@ -347,14 +357,15 @@ function AppointmentDetail({...props}) {
                         >
                             {t("dialogs.cancel-dialog.cancel")}
                         </Button>
-                        <Button
+                        <LoadingButton
+                            {...(loading && loading)}
                             variant="contained"
                             color={"error"}
-                            onClick={() => cancelAppointment(data.publicId)}
+                            onClick={() => cancelAppointment(data?.publicId as string)}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
                             {t("dialogs.cancel-dialog.confirm")}
-                        </Button>
+                        </LoadingButton>
                     </>
                 }
             ></Dialog>
