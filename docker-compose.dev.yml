@@ -1,6 +1,0 @@
-services:
-  app:
-    build:
-      context: .
-      target: dev
-    command: npm run dev
