@@ -9,7 +9,7 @@ function QRCodeScanner({ value }: { value: string }) {
     return (
         <QrCodeDialogStyled>
             <Box className='code-wrapper' />
-            <QRCode size={isMobile ? 150 : 180} value={value} />
+            <QRCode size={isMobile ? 150 : 160} value={value} />
         </QrCodeDialogStyled>
     )
 }
