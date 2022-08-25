@@ -1,29 +1,20 @@
-import { GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import {
-  Box,
-  Button,
-  Container,
-  Drawer,
-  LinearProgress,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import { configSelector, DashLayout } from "@features/base";
-import { SubHeader } from "@features/subHeader";
-import { CalendarToolbar } from "@features/toolbar";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
+import {GetStaticProps} from "next";
+import {useTranslation} from "next-i18next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useCallback, useEffect, useState} from "react";
+import {useRouter} from "next/router";
+import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {configSelector, DashLayout} from "@features/base";
+import {SubHeader} from "@features/subHeader";
+import {CalendarToolbar} from "@features/toolbar";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
-import { LoadingScreen } from "@features/loadingScreen";
-import { useRequest, useRequestMutation } from "@app/axios";
-import { Session } from "next-auth";
+import {useSession} from "next-auth/react";
+import {LoadingScreen} from "@features/loadingScreen";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
 import moment from "moment-timezone";
-
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setConfig, setStepperIndex} from "@features/calendar";
@@ -38,12 +29,9 @@ import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 
-const Calendar = dynamic(
-  () => import("@features/calendar/components/calendar"),
-  {
-    ssr: false,
-  }
-);
+const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
+    ssr: false
+});
 
 const AppointmentTypes: { [key: string]: string } = {
     0: "PENDING",
@@ -56,26 +44,23 @@ const AppointmentTypes: { [key: string]: string } = {
     7: "EXPIRED",
 }
 const EventStepper = [
-  {
-    title: "steppers.tabs.tab-1",
-    children: EventType,
-    disabled: false,
-  },
-  {
-    title: "steppers.tabs.tab-2",
-    children: TimeSchedule,
-    disabled: true,
-  },
-  {
-    title: "steppers.tabs.tab-3",
-    children: Patient,
-    disabled: true,
-  },
-  {
-    title: "steppers.tabs.tab-4",
-    children: Instruction,
-    disabled: true,
-  },
+    {
+        title: "steppers.tabs.tab-1",
+        children: EventType,
+        disabled: false
+    }, {
+        title: "steppers.tabs.tab-2",
+        children: TimeSchedule,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-3",
+        children: Patient,
+        disabled: true
+    }, {
+        title: "steppers.tabs.tab-4",
+        children: Instruction,
+        disabled: true
+    }
 ];
 
 function Agenda() {
@@ -164,164 +149,66 @@ function Agenda() {
         setCalendarEl(event);
     }
 
-  const [loading, setLoading] = useState<boolean>(status === "loading");
-  const [date, setDate] = useState(currentDate);
-  const [event, setEvent] = useState<EventDef>();
-  const [alert, setAlert] = useState<boolean>(false);
-  const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
-
-  let appointments: AppointmentModel[] = [];
-  let events: EventModal[] = [];
-
-  const { data: user } = session as Session;
-  const medical_entity = (user as UserDataResponse)
-    .medical_entity as MedicalEntityModel;
-
-  const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest(
-    {
-      method: "GET",
-      url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    },
-    SWRNoValidateConfig
-  );
-
-  const agenda = (httpAgendasResponse as HttpResponse)?.data.find(
-    (item: AgendaConfigurationModel) => item.isDefault
-  ) as AgendaConfigurationModel;
-
-  useEffect(() => {
-    if (agenda) {
-      dispatch(setConfig(agenda));
+    const onViewChange = (view: string) => {
+        console.log(view)
+        if (view === 'listWeek') {
+            getAppointments(`format=list&page=1&limit=50`);
+        }
     }
-  }, [agenda, dispatch]);
 
-  const { data: httpAppointmentResponse, trigger } = useRequestMutation(
-    null,
-    "/agenda/appointment",
-    { revalidate: true, populateCache: false }
-  );
-
-  const { trigger: updateAppointmentTrigger } = useRequestMutation(
-    null,
-    "/agenda/update/appointment",
-    { revalidate: false, populateCache: false }
-  );
-
-  const getAppointments = useCallback(
-    (query: string) => {
-      setLoading(true);
-      trigger(
-        {
-          method: "GET",
-          url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-        { revalidate: true, populateCache: true }
-      ).then(() => setLoading(false));
-    },
-    [
-      agenda?.uuid,
-      medical_entity.uuid,
-      router.locale,
-      session?.accessToken,
-      trigger,
-    ]
-  );
-
-  if (errorHttpAgendas) return <div>failed to load</div>;
-  if (!ready) return <LoadingScreen />;
-
-  const handleOnRangeChange = (event: DatesSetArg) => {
-    const startStr = moment(event.startStr).format("DD-MM-YYYY");
-    const endStr = moment(event.endStr).format("DD-MM-YYYY");
-    setTimeRange({ start: startStr, end: endStr });
-    getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
-  };
-
-  const handleOnToday = (event: React.MouseEventHandler) => {
-    const calendarApi = (calendarEl as FullCalendar).getApi();
-    calendarApi.today();
-  };
-
-  const onLoadCalendar = (event: FullCalendar) => {
-    setCalendarEl(event);
-  };
-
-  const onViewChange = (view: string) => {
-    console.log(view);
-    if (view === "listWeek") {
-      getAppointments(`format=list&page=1&limit=50`);
+    const onSelectEvent = (event: EventDef) => {
+        setEvent(event);
+        dispatch(openDrawer({type: "view", open: true}));
     }
-  };
 
-  const onSelectEvent = (event: EventDef) => {
-    setEvent(event);
-    dispatch(openDrawer({ type: "view", open: true }));
-  };
-
-  const OnEventChange = (info: EventChangeArg) => {
-    const startDate = moment(info.event._instance?.range.start);
-    const defEvent = {
-      ...info.event._def,
-      extendedProps: { newDate: startDate },
-    };
-    setEvent(defEvent);
-    setAlert(true);
-  };
-
-  const handleMoveAppointment = (event: EventDef) => {
-    setLoading(true);
-    const form = new FormData();
-    form.append("start_date", event.extendedProps.newDate.format("DD-MM-YYYY"));
-    form.append(
-      "start_time",
-      event.extendedProps.newDate.subtract(1, "hours").format("hh:mm")
-    );
-    updateAppointmentTrigger(
-      {
-        method: "PUT",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${event.publicId}/change-date/${router.locale}`,
-        data: form,
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      },
-      { revalidate: false, populateCache: false }
-    ).then(() => {
-      refreshData();
-      setAlert(false);
-    });
-  };
-
-  const onSelectDate = (eventArg: DateSelectArg) => {
-    dispatch(setAppointmentDate(eventArg.start));
-    dispatch(openDrawer({ type: "add", open: true }));
-  };
-
-  const handleStepperChange = (index: number) => {
-    dispatch(setStepperIndex(index));
-  };
-
-  const submitStepper = (index: number) => {
-    if (EventStepper.length !== index) {
-      EventStepper[index].disabled = false;
-    } else {
-      refreshData();
+    const OnEventChange = (info: EventChangeArg) => {
+        const startDate = moment(info.event._instance?.range.start);
+        const defEvent = {...info.event._def, extendedProps: {newDate: startDate}};
+        setEvent(defEvent);
+        setAlert(true);
     }
-  };
 
-  const refreshData = () => {
-    if (view === "listWeek") {
-      getAppointments(`format=list&page=1&limit=50`);
-    } else {
-      getAppointments(
-        `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`
-      );
+    const handleMoveAppointment = (event: EventDef) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
+        form.append('start_time', event.extendedProps.newDate.subtract(1, 'hours').format("hh:mm"));
+        updateAppointmentTrigger({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${event.publicId}/change-date/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, {revalidate: false, populateCache: false}).then(() => {
+            refreshData();
+            setAlert(false);
+        });
+    }
+
+    const onSelectDate = (eventArg: DateSelectArg) => {
+        dispatch(setAppointmentDate(eventArg.start));
+        dispatch(openDrawer({type: "add", open: true}));
+    }
+
+    const handleStepperChange = (index: number) => {
+        dispatch(setStepperIndex(index));
+    }
+
+    const submitStepper = (index: number) => {
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        } else {
+            refreshData();
+        }
+    }
+
+    const refreshData = () => {
+        if (view === 'listWeek') {
+            getAppointments(`format=list&page=1&limit=50`);
+        } else {
+            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
+        }
     }
 
     const eventCond = (httpAppointmentResponse as HttpResponse)?.data;
@@ -513,20 +400,20 @@ function Agenda() {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => ({
-  props: {
-    fallback: false,
-    ...(await serverSideTranslations(context.locale as string, [
-      "common",
-      "menu",
-      "agenda",
-    ])),
-  },
-});
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
+    }
+})
 
-export default Agenda;
+export default Agenda
 
-Agenda.auth = true;
+Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
-};
+    return (
+        <DashLayout>
+            {page}
+        </DashLayout>
+    )
+}
