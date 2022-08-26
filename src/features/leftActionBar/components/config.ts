@@ -5,9 +5,9 @@ const LeftActionsData = [
   {
     pathname: path(ROOTS.app, "/settings"),
     component: dynamic((): any =>
-      import(
-        "@features/leftActionBar/components/settingsActionBar/settingsActionBar"
-      ).then((mod) => mod)
+      import("@features/leftActionBar/components/settings/settings").then(
+        (mod) => mod
+      )
     ),
   },
   {
@@ -18,20 +18,27 @@ const LeftActionsData = [
       ).then((mod) => mod)
     ),
   },
-
+  {
+    pathname: path(ROOTS.app, "/consultation"),
+    component: dynamic((): any =>
+      import(
+        "@features/leftActionBar/components/consultation/consultation"
+      ).then((mod) => mod)
+    ),
+  },
   {
     pathname: path(ROOTS.app, "/patient"),
     component: dynamic((): any =>
       import(
-        "@features/leftActionBar/components/patientListActionBar/patientListActionBar"
+        "@features/leftActionBar/components/patient/components/patient"
       ).then((mod) => mod)
     ),
   },
   {
-    pathname: path(ROOTS.app, "/waiting-room"),
+    pathname: path(ROOTS.app, "/questions"),
     component: dynamic((): any =>
       import(
-        "@features/leftActionBar/components/waitingRoom/components/waitingRoom"
+        "@features/leftActionBar/components/questions/components/questions"
       ).then((mod) => mod)
     ),
   },

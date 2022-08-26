@@ -1,8 +1,4 @@
-services: #This section defines all the different containers we will create.
-  medpro: #This is the name of our Nextjs application.
-    build:
-      context: .
-    env_file:
-      - .env.local
+services:
+  app:
     command: >
         bash -c "npm run build && npm run start"

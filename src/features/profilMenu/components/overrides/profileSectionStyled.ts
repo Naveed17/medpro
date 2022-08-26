@@ -1,23 +1,32 @@
 //components styles
-import { styled } from "@mui/material/styles";
-import {pxToRem} from "@themes/formatFontSize";
+import { alpha, styled } from "@mui/material/styles";
+import { pxToRem } from "@themes/formatFontSize";
 
 const ProfileSectionStyled = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     "& .profile-btn": {
+        marginLeft: "auto",
+        borderColor: "transparent",
+        width: 60,
+        minWidth: 60,
+        height: 38,
+        padding: "0 4px",
         "& .profile-img": {
             borderRadius: 8,
-            overflow: 'hidden',
+            // overflow: "hidden",
             marginRight: 3,
-            width: pxToRem(26),
-            height: pxToRem(26),
+            width: pxToRem(22),
+            height: pxToRem(22),
         },
-        "& .react-svg": {
-            [theme.breakpoints.down('md')]: {
-                display: "none"
+        [theme.breakpoints.down("md")]: {
+            width: 38,
+            minWidth: 38,
+            justifyContent: "space-evenly",
+            img: {
+                marginRight: 0,
             },
-        }
+        },
     },
     "& .profile-menu-container": {
         zIndex: 9999,
@@ -28,13 +37,10 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
             boxShadow: theme.shadows[5],
             borderRadius: 10,
 
-            [theme.breakpoints.down('sm')]: {
-                minWidth: "auto"
+            [theme.breakpoints.down("sm")]: {
+                minWidth: "auto",
             },
             "& .profile-menu": {
-                "& .profile-img": {
-                    borderRadius: 8
-                },
                 position: "relative",
                 "&::before, &::after": {
                     bottom: "100%",
@@ -47,13 +53,13 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                     pointerEvents: "none",
                 },
                 "&::after": {
-                    borderColor: "rgba(255, 255, 255, 0)",
-                    borderBottomColor: "#fff",
+                    borderColor: alpha(theme.palette.common.white, 0),
+                    borderBottomColor: theme.palette.common.white,
                     borderWidth: 6,
                     marginLeft: -6,
                 },
                 "&::before": {
-                    borderColor: "rgba(0, 0, 0, 0)",
+                    borderColor: alpha(theme.palette.common.black, 0),
                     borderBottomColor: theme.palette.divider,
                     borderWidth: 7,
                     marginLeft: -7,
@@ -69,19 +75,19 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                                 marginLeft: 14,
                                 "& .name": {
                                     color: theme.palette.primary.main,
-                                }
+                                },
                             },
                             "&:hover": {
-                                backgroundColor: 'transparent'
-                            }
-                        }
+                                backgroundColor: "transparent",
+                            },
+                        },
                     },
                     "&:hover": {
-                        backgroundColor: 'transparent'
-                    }
+                        backgroundColor: "transparent",
+                    },
                 },
                 "& .item-list": {
-                    [theme.breakpoints.down('sm')]: {
+                    [theme.breakpoints.down("sm")]: {
                         paddingTop: 0,
                         paddingBottom: 0,
                         minHeight: pxToRem(36),
@@ -95,21 +101,18 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                     "& .item-name": {
                         color: theme.palette.text.secondary,
                         marginLeft: 12,
-                        "& + .react-svg": {
-                            marginLeft: "auto",
-                        }
                     },
                     "& .react-svg": {
                         "& svg": {
                             width: pxToRem(16),
                             height: pxToRem(16),
-                        }
+                        },
                     },
                     "&.has-items": {
                         position: "relative",
                         "& .sub-items": {
                             position: "absolute",
-                            backgroundColor: theme.palette.grey[50],
+                            backgroundColor: theme.palette.grey[0],
                             border: `1px solid ${theme.palette.divider}`,
                             borderRadius: 10,
                             opacity: 0,
@@ -118,7 +121,7 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                             left: "-100%",
                             width: "100%",
                             "& li": {
-                                [theme.breakpoints.down('sm')]: {
+                                [theme.breakpoints.down("sm")]: {
                                     paddingTop: 0,
                                     paddingBottom: 0,
                                     minHeight: pxToRem(36),
@@ -134,27 +137,49 @@ const ProfileSectionStyled = styled('div')(({ theme }) => ({
                                     marginLeft: 12,
                                     "& + .react-svg": {
                                         marginLeft: "auto",
-                                    }
+                                    },
                                 },
                                 "& .react-svg": {
                                     "& svg": {
                                         width: 16,
                                         height: 16,
-                                    }
+                                    },
                                 },
-                            }
+                            },
                         },
                         "&:hover": {
                             "& .sub-items": {
                                 opacity: 1,
                                 visibility: "visible",
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "&[data-popper-placement='top-end']": {
+            "& .MuiList-root": {
+                "&:after": {
+                    top: "100%",
+                    left: "89%",
+                    // borderTopColor: theme.palette.divider,
+                    border: "solid transparent",
+                    borderTopColor: theme.palette.common.white,
+                    borderWidth: 6,
+                    marginLeft: -6,
+                },
+                "&:before": {
+                    top: "100%",
+                    left: "89%",
+                    border: "solid transparent",
+                    borderColor: theme.palette.common.black,
+                    borderTopColor: theme.palette.divider,
+                    borderWidth: 7,
+                    marginLeft: -7,
+                },
+            },
+        },
+    },
 }));
 
-export default  ProfileSectionStyled;
+export default ProfileSectionStyled;

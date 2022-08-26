@@ -1,55 +1,66 @@
-import React from 'react'
-
-import TableRow from '@mui/material/TableRow';
-import Switch from '@mui/material/Switch';
-import TableCell from '@mui/material/TableCell';
-import { Typography, Box,} from '@mui/material';
+import React from "react";
+import Switch from "@mui/material/Switch";
+import TableCell from "@mui/material/TableCell";
+import {Typography, Box, Skeleton, Stack, IconButton} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import Button from "@mui/material/Button";
-import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
+import {TableRowStyled} from "@features/table";
+import {uniqueId} from "lodash";
 
-function LieuxRow(props: { row: any, handleChange:any ,edit:any, t:any }) {
+function LieuxRow({...props}) {
 
-    const { row, handleChange, edit, t } = props;
+    const {row, handleChange, edit, t} = props;
 
     return (
-        <TableRowStyled key={row.name}>
+        <TableRowStyled key={uniqueId}>
             <TableCell>
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.name}
-                </Typography>
+                {row ? (
+                    <Typography className="name" variant="body1" color="text.primary">
+                        {row.address.location.name}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
             </TableCell>
             <TableCell align="center">
-                {" "}
-                <Switch name='active' onChange={(e) => handleChange(row, 'active','')} checked={row.actif} />
+                {row ? (
+                    <Switch
+                        name="active"
+                        onChange={(e) => handleChange(row, "active", "")}
+                        checked={row.isActive}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
             </TableCell>
-            <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.agenda} {t('lieux.acces')}
-                </Typography>
-            </TableCell>
+
             <TableCell align="right">
-                <Box display="flex" sx={{ float: "right" }} alignItems="center">
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="error"
-                        startIcon={<IconUrl path="setting/icdelete"/>}
-                        onClick={() => console.log("remove",row)}
-                        sx={{ mr: 1 }}>
-                        {t('lieux.remove')}
-                    </Button>
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="primary"
-                        startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("edit",row)}>
-                        {t('lieux.update')}
-                    </Button>
-                </Box>
+                {row ? (
+                    <Box display="flex" sx={{float: "right"}} alignItems="center">
+                        <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                            handleChange(row, 'edit')
+                        }}>
+                            <IconUrl path="setting/edit"/>
+                        </IconButton>
+                        <IconButton onClick={() => {
+                            handleChange(row, 'remove')
+                        }} size="small" sx={{mr: {md: 1}}}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>
+                    </Box>
+                ) : (
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        justifyContent="flex-end"
+                    >
+                        <Skeleton variant="text" width={50}/>
+                        <Skeleton variant="text" width={50}/>
+                    </Stack>
+                )}
             </TableCell>
         </TableRowStyled>
-    )
+    );
 }
-export default LieuxRow
+
+export default LieuxRow;

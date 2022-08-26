@@ -26,7 +26,7 @@
   },
   "table": {
     "Id": "Id",
-    "arrival time": "heure d'arrivée",
+    "arrival time": "وقت الوصول",
     "Appointment time": "Heure du RDV",
     "Reason": "Motif",
     "Status": "Statut",
@@ -37,7 +37,8 @@
     "min": "min",
     "completed": "Effectuée",
     "canceled": "Annulée",
-    "1st consultation": "1ère consultation"
+    "1st consultation": "1ère consultation",
+    "room": "salle"
   },
   "room": "قاعة داتينتي"
 }

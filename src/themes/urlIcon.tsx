@@ -1,14 +1,36 @@
 import React from "react";
-import { ReactSVG } from "react-svg";
+import {ReactSVG} from "react-svg";
 
-interface iconUrl{
+interface iconUrl {
     path?: string
-    onChange?:any
+    onChange?: any
     className?: string
+    height?: string
+    color?: string
+    width?: string
     variant?: string
 }
 
-export default function IconUrl({ path, onChange, className, ...props }: iconUrl) {
+export default function IconUrl({path, onChange, className, ...props}: iconUrl) {
+    const {color, height, width} = props;
     const prefix = "/static/icons/";
-    return <ReactSVG  {...props} onClick={onChange} className={`react-svg ${className ? className : ''}`} src={`${prefix}${path}.svg`} />;
+    return <ReactSVG  {...props}
+                      sx={{height: 1}}
+                      onClick={onChange}
+                      {...(color || height || width) ? {
+                          beforeInjection: ((svg) => {
+                              if (color) {
+                                  // Modify the first `g` element within the SVG.
+                                  const firstGElement = svg.querySelectorAll('path');
+                                  firstGElement.forEach(path => path.setAttribute('fill', color as string))
+                              }
+
+                              if (height && width) {
+                                  svg.setAttribute('height', `${height}px`);
+                                  svg.setAttribute('width', `${width}px`);
+                              }
+                          })
+                      } : {}}
+                      className={`react-svg ${className ? className : ''}`}
+                      src={`${prefix}${path}.svg`}/>;
 }

@@ -16,7 +16,7 @@ function responsiveFontSizes({ sm, md, lg }: any) {
   };
 }
 
-const FONT_PRIMARY = ["Poppins"];
+const FONT_PRIMARY = ["Poppins"].join(", ");
 // const FONT_SECONDARY = ["Montserrat"];
 
 const typography: any = {
@@ -79,10 +79,12 @@ const typography: any = {
   body1: {
     fontSize: pxToRem(14),
     lineHeight: 1.5,
+    fontWeight: 400,
   },
   body2: {
     fontSize: pxToRem(12),
     lineHeight: 22 / 14,
+    fontWeight: 400,
   },
   caption: {
     fontSize: pxToRem(12),
@@ -99,7 +101,7 @@ const typography: any = {
     textTransform: "normal",
     borderRadius: 6,
     fontWeight: 500,
-    fontFamily: "Montserrat-Medium",
+    fontFamily: "Poppins-Medium",
   },
 };
 

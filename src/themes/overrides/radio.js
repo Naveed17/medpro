@@ -1,11 +1,10 @@
-// ----------------------------------------------------------------------
-import Icon from "@themes/urlIcon";
+import IconUrl from "../urlIcon";
 
 export default function Radio(theme) {
   return {
     MuiRadio: {
       defaultProps: {
-        checkedIcon: <Icon path="ic_check-primary" />,
+        checkedIcon: <IconUrl path="ic_check-primary" />,
       },
       styleOverrides: {
         root: {
@@ -14,7 +13,7 @@ export default function Radio(theme) {
           height: 36,
           svg: {
             width: 19,
-            color: "#DDDDDD",
+            color: theme.palette.divider,
           },
           "& .MuiTypography-root": {
             fontSize: 12,

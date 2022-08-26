@@ -8,8 +8,8 @@ function createGradient(color1: string, color2: string) {
 
 // SETUP COLORS
 const PRIMARY = {
-  lighter: "#C8FACD",
-  light: "#5BE584",
+  lighter: alpha("#0696D6", 0.1),
+  light: alpha("#0696D6", 0.12),
   main: "#0696D6",
   dark: "#04618B",
   darker: "#005249",
@@ -32,7 +32,7 @@ const SUCCESS = {
   lighter: "#E9FCD4",
   light: "#AAF27F",
   main: "#1BC47D",
-  dark: "#1BC47D",
+  dark: "#28C76F",
   darker: "#138958",
 };
 const WARNING = {
@@ -48,6 +48,13 @@ const ERROR = {
   main: "#E83B68",
   dark: "#B72136",
   darker: "#E83B68",
+};
+const BACK = {
+  lighter: "#F0F7FA",
+  light: "#F0F7FA",
+  main: "#F0F7FA",
+  dark: "#F0F7FA",
+  darker: "#F0F7FA",
 };
 
 const WHITE = {
@@ -74,10 +81,21 @@ export const GREY = {
   400: "#7C878E",
   500: "#3C3C3B",
   600: "#1B2746",
-  700: "#00234B",
+  700: "#B8BCCA",
   800: "#212B36",
   900: "#161C24",
+  A0: "#959CBD",
+  A50: "#647F94",
+  A60: "#7E7E7E",
   A100: "#E3EAEF",
+  A200: "#6E6B7B",
+  A300: "#E0E0E0",
+  A400: "#F1FAFF",
+  A500: "#F9F9FB",
+  A600: "#BDBDBD",
+  A700: "#E7F5FB",
+  A800: "#FCFCFC",
+  A900: "#EEEEEE",
   500_8: alpha("#919EAB", 0.08),
   500_12: alpha("#919EAB", 0.12),
   500_16: alpha("#919EAB", 0.16),
@@ -85,7 +103,7 @@ export const GREY = {
   500_32: alpha("#919EAB", 0.32),
   500_48: alpha("#919EAB", 0.48),
   500_56: alpha("#919EAB", 0.56),
-  500_80: alpha("#919EAB", 0.8),
+  500_80: alpha("#919EAB", 0.8)
 };
 
 const GRADIENTS = {
@@ -94,6 +112,7 @@ const GRADIENTS = {
   success: createGradient(SUCCESS.light, SUCCESS.main),
   warning: createGradient(WARNING.light, WARNING.main),
   error: createGradient(ERROR.light, ERROR.main),
+  back: createGradient(BACK.light, BACK.main),
   white: createGradient(WHITE.lighter, WHITE.lighter),
   black: createGradient(BLACK.lighter, BLACK.lighter),
 };
@@ -108,6 +127,7 @@ const COMMON = {
   error: { ...ERROR, contrastText: "#fff" },
   white: { ...WHITE, contrastText: "#fff" },
   black: { ...BLACK, contrastText: "#000" },
+  back: { ...BACK, contrastText: "#fff" },
   grey: GREY,
   gradients: GRADIENTS,
   divider: "#DDDDDD",
@@ -127,12 +147,12 @@ const palette = {
   text: {
     primary: "#1B2746",
     secondary: "#7C878E",
-    disabled: GREY[500],
+    disabled: "#959CBD",
   },
   background: {
     default: "#F0FAFF",
     paper: "#ffffff",
-    neutral: GREY[200],
+    neutral: "#E7F5FB",
   },
   action: {
     active: GREY[600],

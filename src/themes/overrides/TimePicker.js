@@ -8,11 +8,11 @@ import Box from "@mui/material/Box";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export default function TimePicker({ onChange, defaultValue }) {
-  const [initial, setinitial] = React.useState(defaultValue[0]);
+  const [initial, setInitial] = React.useState(defaultValue[0]);
   const [end, setend] = React.useState(defaultValue[1]);
   React.useEffect(() => {
     onChange(initial, end);
-  }, [initial, end]);
+  }, [initial, end, onChange]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -23,15 +23,16 @@ export default function TimePicker({ onChange, defaultValue }) {
           flexDirection: "row",
         }}
       >
+
         <MuiTimePicker
           ampm={false}
           openTo="hours"
           views={["hours", "minutes"]}
           inputFormat="HH:mm"
           mask="__:__"
-          value={initial}
+          value={defaultValue[0]}
           onChange={(newValue) => {
-            setinitial(newValue);
+              setInitial(newValue);
           }}
           renderInput={(params) => <TextField {...params} />}
         />
@@ -44,7 +45,7 @@ export default function TimePicker({ onChange, defaultValue }) {
           views={["hours", "minutes"]}
           inputFormat="HH:mm"
           mask="__:__"
-          value={end}
+          value={defaultValue[1]}
           onChange={(newValue) => {
             setend(newValue);
           }}

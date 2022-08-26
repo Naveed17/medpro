@@ -11,7 +11,7 @@ export default function Pagination({ ...props }) {
     <Box display="flex" justifyContent="space-between" alignItems="center">
       <Typography variant="body1" color="text.primary">
         {(page + 1) * 10 - 9} -{" "}
-        {total < (page + 1) * 10 ? total : (page + 1) * 10} of {total}
+        {total < (page + 1) * 10 ? total : (page + 1) * 10} sur {total}
       </Typography>
       <Stack spacing={2}>
         <BasicPagination

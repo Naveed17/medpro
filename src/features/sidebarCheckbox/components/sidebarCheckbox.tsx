@@ -1,11 +1,12 @@
 import React from 'react'
-import { Checkbox, ListItemIcon, ListItemText } from '@mui/material'
+import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
 import CircleIcon from '@mui/icons-material/Circle';
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import Icon from '@themes/urlIcon';
 
 interface Props {
     data: any;
+    label?: string;
     onChange: (v: any) => void;
     translate: {
         t: Function;
@@ -15,8 +16,8 @@ interface Props {
 }
 
 export default function SidebarCheckbox(props: Props) {
-    const { data, onChange, translate, ...rest } = props
-    const { t, ready } = translate;
+    const {data, label = "text", onChange, translate} = props
+    const {t, ready} = translate;
     const [checked, setChecked] = React.useState(false);
     const handleChange = (event: any) => {
         setChecked(event.target.checked);
@@ -25,7 +26,7 @@ export default function SidebarCheckbox(props: Props) {
     if (!ready) return (<>loading translations...</>);
     return (
         <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
-            component='label' htmlFor={data.name}>
+                               component='label' htmlFor={data.name}>
             <Checkbox
                 size="small"
                 checked={checked}
@@ -35,11 +36,11 @@ export default function SidebarCheckbox(props: Props) {
             />
             {(data.color || data.icon) &&
                 <ListItemIcon>
-                    {data.color && <CircleIcon />}
-                    {data.icon && <Icon {...(data.icon === 'ic-video') && { className: 'ic-video' }} path={data.icon} />}
+                    {data.color && <CircleIcon htmlColor={data.color}/>}
+                    {data.icon && <Icon {...(data.icon === 'ic-video') && {className: 'ic-video'}} path={data.icon}/>}
                 </ListItemIcon>
             }
-            <ListItemText primary={t(data.text)} />
+            <ListItemText primary={label === "text" ? t(data[label]) : data[label]}/>
         </SidebarCheckboxStyled>
     )
 }

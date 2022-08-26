@@ -1,152 +1,194 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
-import { SubHeader } from "@features/subHeader";
-import {RootStyled} from "@features/calendarToolbar";
+import React, {ReactElement, useEffect, useState} from "react";
+import {SubHeader} from "@features/subHeader";
+import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
-import { Box } from "@mui/material";
-import {DashLayout} from "@features/base";
+import {Box, Button, DialogActions} from "@mui/material";
+import {configSelector, DashLayout} from "@features/base";
 import {Otable} from "@features/table";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import {useAppSelector} from "@app/redux/hooks";
+import {Session} from "next-auth";
+import {useRequest} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Theme} from "@mui/material/styles";
 
 function Agenda() {
 
-    const [rows, setRows] = useState([
-        {
-            id: 1,
-            name: 'Praticien agenda',
-            type: 'Praticien',
-            speciality: "ORL",
-            place: "Cabinet",
-            nbAcces: 3,
-            actif: true,
-            public: true,
-        },
-        {
-            id: 2,
-            name: 'Salle radiologue',
-            type: 'Salle',
-            speciality: "ORL",
-            place: "Radiologist",
-            nbAcces: 3,
-            actif: true,
-            public: false,
-        },
-        {
-            id: 3,
-            name: 'Calendar assistant',
-            type: 'Assistant',
-            speciality: "Cardiologue",
-            place: "Cabinet",
-            nbAcces: 2,
-            actif: false,
-            public: true,
-        }
-    ])
+    const {data: session, status} = useSession();
+    const router = useRouter();
+    const [selected, setSelected] = useState<any>();
+    const [open, setOpen] = useState(false);
+    const [rows, setRows] = useState([])
 
-    const {t, ready} = useTranslation("settings");
-    if (!ready) return (<>loading translations...</>);
+    const {direction} = useAppSelector(configSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
+    const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : undefined;
+    //setRows(agenda);
+    useEffect(() => {
+        if (agenda !== undefined)
+            setRows(agenda);
+    }, [agenda])
+
+    const dialogClose = () => {
+        setOpen(false);
+    };
+
+    const dialogSave = () => {
+        setOpen(false);
+    }
+
+    const {t, ready} = useTranslation("settings", {
+        keyPrefix: "agenda.config",
+    });
+    if (!ready) return <>loading translations...</>;
 
     const headCells = [
         {
-            id: 'name',
+            id: "name",
             numeric: false,
             disablePadding: true,
-            label: t('agenda.name'),
-            align: 'left',
+            label: "name",
+            align: "left",
             sortable: true,
         },
         {
-            id: 'type',
+            id: "type",
             numeric: false,
             disablePadding: false,
-            label: t('agenda.type'),
-            align: 'center',
-            sortable: true
+            label: "type",
+            align: "center",
+            sortable: true,
         },
         {
-            id: 'speciality',
+            id: "autoConfirm",
             numeric: false,
             disablePadding: false,
-            label: t('agenda.speciality'),
-            align: 'center',
-            sortable: true
+            label: "autoConfirm",
+            align: "center",
+            sortable: false,
         },
         {
-            id: 'place',
+            id: "default",
             numeric: true,
             disablePadding: false,
-            label: t('agenda.place'),
-            align: 'center',
-            sortable: true
+            label: "default",
+            align: "center",
+            sortable: false,
         },
         {
-            id: 'nbAccess',
-            numeric: true,
-            disablePadding: false,
-            label: t('agenda.nbAccess'),
-            align: 'center',
-            sortable: false
-        },
-        {
-            id: 'actif',
+            id: "actif",
             numeric: false,
             disablePadding: false,
-            label: t('agenda.actif'),
-            align: 'center',
-            sortable: false
+            label: "actif",
+            align: "center",
+            sortable: false,
         },
         {
-            id: 'public',
+            id: "public",
             numeric: false,
             disablePadding: false,
-            label: t('agenda.public'),
-            align: 'center',
-            sortable: false
+            label: "public",
+            align: "center",
+            sortable: false,
         },
         {
-            id: 'action',
+            id: "action",
             numeric: false,
             disablePadding: false,
-            label: t('motif.action'),
-            align: 'center',
-            sortable: false
+            label: "action",
+            align: "center",
+            sortable: false,
         },
     ];
 
-    return (<>
-        <SubHeader>
-            <RootStyled>
-                <p style={{margin: 0}}>{t('agenda.path')}</p>
-            </RootStyled>
-        </SubHeader>
+    const handleChange = (props: any, e: any) => {
 
-        <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-            <Otable headers={headCells}
+        if (e === 'remove') {
+            setOpen(true);
+            setSelected({
+                title: t('askRemove'),
+                subtitle: t('subtitleRemove'),
+                icon: "/static/icons/ic-agenda.svg",
+                name1: props.name,
+                name2: props.type,
+                data: props
+            });
+        } else if (e === 'edit')
+            console.log(props)
+        else if (e === 'isDefault') {
+            rows.map((row: any) => row.isDefault = false);
+            props[e] = true;
+        } else
+            props[e] = !props[e];
+
+        setRows([...rows]);
+    }
+    return (
+        <>
+            <SubHeader>
+                <RootStyled>
+                    <p style={{margin: 0}}>{t("path")}</p>
+                </RootStyled>
+            </SubHeader>
+
+            <Box className="container">
+                <Otable
+                    headers={headCells}
                     rows={rows}
                     state={null}
-                    from={'agenda'}
+                    from={"agenda"}
                     t={t}
                     edit={null}
-                    handleConfig={null}
-                    handleChange={null}/>
-        </Box>
+                    handleChange={handleChange}/>
+            </Box>
 
-    </>)
+            <Dialog action={"remove"}
+                    open={open}
+                    data={selected}
+                    direction={direction}
+                    color={(theme: Theme) => theme.palette.error.main}
+                    title={t('remove')}
+                    t={t}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={dialogClose}
+                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            <Button variant="contained"
+                                    sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                    onClick={dialogSave}>{t('table.remove')}</Button>
+                        </DialogActions>
+                    }
+            />
+
+        </>
+    );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ['common', 'menu','settings']))
+        fallback: false,
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
     }
 })
 
-export default Agenda
+export default Agenda;
 Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-     return (
-         <DashLayout>
-             {page}
-         </DashLayout>
-     )
-}
+    return <DashLayout>{page}</DashLayout>;
+};

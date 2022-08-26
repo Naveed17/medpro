@@ -1,15 +1,20 @@
-import {Box, Typography, useTheme} from "@mui/material";
-import {RootStyled} from "@features/loadingScreen";
+import { Box, Typography, useTheme } from "@mui/material";
+import { RootStyled } from "@features/loadingScreen";
 import { motion } from "framer-motion";
 import IconUrl from "@themes/urlIcon";
+import { useTranslation } from "next-i18next";
+import React from "react";
 
-function LoadingScreen({ ...props }){
+function LoadingScreen({ ...props }) {
     const theme = useTheme();
+    const { t, ready } = useTranslation('common');
+    if (!ready) return (<>loading translations...</>);
+
     const Icon = {
         hidden: {
             opacity: 0,
             pathLength: 0,
-            fill: "rgba(255, 255, 255, 0)",
+            fill: theme.palette.background.paper,
         },
         visible: {
             opacity: 1,
@@ -63,8 +68,8 @@ function LoadingScreen({ ...props }){
 
 
                     <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-                         width="54" height="54" viewBox="0 0 192.000000 192.000000"
-                         preserveAspectRatio="xMidYMid meet" fill="#0096d6">
+                        width="54" height="54" viewBox="0 0 192.000000 192.000000"
+                        preserveAspectRatio="xMidYMid meet" fill="#0096d6">
 
                         <g transform="translate(0.000000,192.000000) scale(0.100000,-0.100000)"
                             stroke="none">
@@ -122,7 +127,7 @@ c14 -42 51 -50 99 -22 22 13 55 22 79 22 38 0 41 -2 34 -22 -12 -40 -42 -75
                     </motion.ul>
                 </Box>
                 <Typography variant="body1" mt={3} px={2} color="text.primary">
-                    Veuillez patienter un instant le temps de chargement
+                    {t('loading')}
                 </Typography>
             </Box>
         </RootStyled>

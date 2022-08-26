@@ -8,7 +8,7 @@ export default function IconButton(theme) {
             background: "transparent",
             boxSizing: "border-box",
             borderRadius: "10px",
-            '&.MuiIconButton-sizeLarge': {
+            "&.MuiIconButton-sizeLarge": {
               minHeight: "48px",
               minWidth: "48px",
             },
@@ -36,6 +36,32 @@ export default function IconButton(theme) {
               },
             },
           },
+          "&.success-light": {
+            border: `1px solid ${theme.palette.success.dark}`,
+            backgroundColor: theme.palette.success.dark,
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: theme.palette.success.dark,
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.success.main,
+              },
+            },
+          },
+          "&.error-light": {
+            border: `1px solid ${theme.palette.error.lighter}`,
+            backgroundColor: theme.palette.error.lighter,
+            borderRadius: "10px",
+            "&:hover": {
+              backgroundColor: theme.palette.error.lighter,
+            },
+            "& svg": {
+              "& path": {
+                fill: theme.palette.error.main,
+              },
+            },
+          },
         },
       },
       variants: [
@@ -46,14 +72,13 @@ export default function IconButton(theme) {
             borderRadius: "10px",
             "& svg": {
               "& path": {
-                fill: '#647F94'
+                fill: theme.palette.grey["A50"],
               },
             },
-            '&:hover': {
-              backgroundColor: 'transparent'
-            }
+            "&:hover": {
+              backgroundColor: "transparent",
+            },
           },
-
         },
         {
           props: { variant: "custom", color: "success" },
@@ -65,52 +90,19 @@ export default function IconButton(theme) {
                 fill: theme.palette.common.white,
               },
             },
-            '&:hover': {
-              backgroundColor: theme.palette.success.main
-            }
-          },
-
-        },
-        {
-          props: { variant: "success-light" },
-          style: {
-            border: `1px solid rgba(40, 199, 111, 0.12)`,
-            backgroundColor: "rgba(40, 199, 111, 0.12)",
-            borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(40, 199, 111, 0.12)"
-            },
-            "& svg": {
-              "& path": {
-                fill: theme.palette.success.main,
-              },
-            },
-          },
-        },
-        {
-          props: { variant: "error-light" },
-          style: {
-            border: `1px solid rgba(228, 51, 50, 0.1)`,
-            backgroundColor: "rgba(228, 51, 50, 0.1)",
-            borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(228, 51, 50, 0.1)"
-            },
-            "& svg": {
-              "& path": {
-                fill: theme.palette.error.main,
-              },
+            "&:hover": {
+              backgroundColor: theme.palette.success.main,
             },
           },
         },
         {
           props: { variant: "warning-light" },
           style: {
-            border: `1px solid rgba(244, 150, 0, 0.1)`,
-            backgroundColor: "rgba(244, 150, 0, 0.1)",
+            border: `1px solid ${theme.palette.warning.lighter}`,
+            backgroundColor: theme.palette.warning.lighter,
             borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(244, 150, 0, 0.1)"
+            "&:hover": {
+              backgroundColor: theme.palette.warning.lighter,
             },
             "& svg": {
               "& path": {
@@ -122,11 +114,11 @@ export default function IconButton(theme) {
         {
           props: { variant: "primary-light" },
           style: {
-            border: `1px solid rgba(0, 149, 183, 0.1)`,
-            backgroundColor: "rgba(0, 149, 183, 0.1)",
+            border: `1px solid ${theme.palette.primary.lighter}`,
+            backgroundColor: theme.palette.primary.lighter,
             borderRadius: "10px",
-            '&:hover': {
-              backgroundColor: "rgba(0, 149, 183, 0.1)"
+            "&:hover": {
+              backgroundColor: theme.palette.primary.lighter,
             },
             "& svg": {
               "& path": {
@@ -135,8 +127,7 @@ export default function IconButton(theme) {
             },
           },
         },
-
-      ]
+      ],
     },
   };
 }

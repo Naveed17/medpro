@@ -1,75 +1,106 @@
-import TableRowStyled from "@features/table/components/overrides/TableRowStyled"
-import React from 'react'
+import {TableRowStyled} from "@features/table";
+import React from "react";
 
-import TableCell from '@mui/material/TableCell';
-import { Typography, Box,} from '@mui/material';
-import Lable from "@themes/overrides/Lable";
+import TableCell from "@mui/material/TableCell";
+import {Typography, Box, Skeleton, Stack, Checkbox, IconButton} from "@mui/material";
 import Switch from "@mui/material/Switch";
-import Button from "@mui/material/Button";
 import IconUrl from "@themes/urlIcon";
+import {uniqueId} from "lodash";
 
-function AgendaRow(props: { row:any, handleChange:any,edit: any, t:any }) {
-
-    const  { row, handleChange,edit, t } = props
+function AgendaRow({...props}) {
+    const {row, handleChange, handleConfig, edit, t} = props;
     return (
-        <TableRowStyled key={row.name}>
+        <TableRowStyled key={uniqueId}>
             <TableCell>
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.name}
-                </Typography>
+                {row ? (
+                    <Typography className="name" variant="body1" color="text.primary">
+                        {row.name}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100}/>
+                )}
             </TableCell>
             <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.type}
-                </Typography>
+                {row ? (
+                    <Typography className="name" variant="body1" color="text.primary">
+                        {row.type}
+                    </Typography>
+                ) : (
+                    <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
+                )}
             </TableCell>
             <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.speciality}
-                </Typography>
-            </TableCell>
-            <TableCell align="center">
-                <Typography className='name' variant="body1" color="text.primary">
-                    {row.place}
-                </Typography>
-            </TableCell>
-            <TableCell align="center">
-                <Lable
-                    variant="filled"
-                    sx={{ backgroundColor: (theme: { palette: { grey: any[]; }; }) => theme.palette.grey[300], px: 1.5 }}>
-                    {row.nbAcces}
-                </Lable>
+                <Switch
+                    name="isAutoConfirm"
+                    onChange={(e) => handleChange(row, "isAutoConfirm", "")}
+                    checked={row.isAutoConfirm}
+                />
             </TableCell>
 
             <TableCell align="center">
-                <Switch name='actif' onChange={(e) => handleChange(row, 'active','')} checked={row.actif} />
+                {row ? (
+                    <Checkbox
+                        name="isDefault"
+                        onChange={(e) => handleChange(row, "isDefault", "")}
+                        checked={row.isDefault}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
             </TableCell>
 
             <TableCell align="center">
-                <Switch name='public' onChange={(e) => handleChange(row, 'active','')} checked={row.public} />
+                {row ? (
+                    <Switch
+                        name="isActive"
+                        onChange={(e) => handleChange(row, "isActive", "")}
+                        checked={row.isActive}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
             </TableCell>
-            <TableCell>
-                <Box display="flex" sx={{ float: "right" }} alignItems="center">
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="error"
-                        startIcon={<IconUrl path="setting/icdelete" />}
-                        onClick={() => console.log("remove",row)}
-                        sx={{ mr: 1 }}>
-                        {t('lieux.remove')}
-                    </Button>
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="primary"
-                        startIcon={<IconUrl path="setting/edit" />}
-                        onClick={() => console.log("edit",row)}>
-                        {t('lieux.update')}
-                    </Button>
-                </Box>
+
+
+            <TableCell align="center">
+                {row ? (
+                    <Switch
+                        name="isPublic"
+                        onChange={(e) => handleChange(row, "isPublic", "")}
+                        checked={row.isPublic}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
+            </TableCell>
+            <TableCell align="right">
+                {row ? (
+                    <Box display="flex" sx={{float: "right"}} alignItems="center">
+                        <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                            handleChange(row, 'edit')
+                        }}>
+                            <IconUrl path="setting/edit"/>
+                        </IconButton>
+                        <IconButton onClick={() => {
+                            handleChange(row, 'remove')
+                        }} size="small" sx={{mr: {md: 1}}}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>
+                    </Box>
+                ) : (
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        justifyContent="flex-end"
+                    >
+                        <Skeleton variant="text" width={50}/>
+                        <Skeleton variant="text" width={50}/>
+                    </Stack>
+                )}
             </TableCell>
         </TableRowStyled>
-    )
+    );
 }
-export default AgendaRow
+
+export default AgendaRow;

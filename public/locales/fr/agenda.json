@@ -1,10 +1,174 @@
 {
   "pending": "Rdv en attente",
   "add": "Ajouter",
-  "side-bar" : {
-    "all" : "tous",
-    "motif" : "Motif de consultation",
-    "status" : "Statut",
-    "type" : "Type RDV"
+  "side-bar": {
+    "all": "tous",
+    "motif": "Motif de consultation",
+    "status": "Statut",
+    "type": "Type RDV"
+  },
+  "filter": {
+    "reasons": "Motif de consultation",
+    "status": "Statut",
+    "meetingType": "Type RDV",
+    "meeting": {
+      "cabinet": "Cabinet",
+      "home": "Domicile",
+      "teleconsultation": "Téléconsultation"
+    },
+    "all": "Tous",
+    "done": "Effectué",
+    "confirm": "Confirmé",
+    "pending": "En attente",
+    "cancel": "Annulé",
+    "expired": "Expiré",
+    "no_show": "Patient ne s'est pas présenté",
+    "cancel_patient": "Annulé par le patient",
+    "note": "Notes"
+  },
+  "table": {
+    "header": {
+      "heure": "Heure",
+      "motif": "Motif",
+      "duree": "Durée",
+      "status": "Status",
+      "patient": "Patient",
+      "agenda": "Agenda",
+      "action": "Action"
+    },
+    "body": {
+      "add-appointment": "Add appointment",
+      "edit": "Edit",
+      "see-card": "See card"
+    },
+    "pagination": {
+      "of": "of"
+    },
+    "no-data": {
+      "event": {
+        "title": "Ajouter votre premier rendez-vous",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "button-text": "Ajouter un RDV"
+      }
+    }
+  },
+  "steppers": {
+    "tabs": {
+      "tab-1": "Type",
+      "tab-2": "Créneau horaire",
+      "tab-3": "Patient",
+      "tab-4": "Instruction"
+    },
+    "stepper-0": {
+      "title": "Type du créneau horaire",
+      "sub-title": "Type",
+      "types": {
+        "rdv": "Rendez-vous au cabinet",
+        "telemed": "Téléconsultation",
+        "domicile": "Rendez-vous à domicile",
+        "staff": "Réunion de staff",
+        "absence": "Absence"
+      }
+    },
+    "stepper-1": {
+      "title": "Réservez un créneau horaire",
+      "sub-title": "Créneau horaire",
+      "reason-consultation": "Motif de consultation",
+      "practitioner": "Praticien",
+      "affect-des": "Choose the practitioner who affects this consultation",
+      "time-slot": "Créneau horaire",
+      "date-message": "Veuillez choisir les dates du RDV",
+      "time-message": "Veuillez choisir l’heure du RDV",
+      "see-more": "Voir plus d’horaires"
+    },
+    "stepper-2": {
+      "title": "Choisissez le patient",
+      "sub-title": "vous devez ajouter un patient",
+      "add_button": "Ajouter un nouveau patient",
+      "patient": {
+        "personal-info": "Information personnelle",
+        "additional-information": "Info supplémentaires",
+        "fin": "Fin",
+        "group": "Groupe",
+        "group-placeholder": "Sélectionner un groupe",
+        "civility": "Civilité",
+        "mr": "M.",
+        "mrs": "Mme",
+        "name": "Nom",
+        "name-placeholder": "Tapez le nom du patient",
+        "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
+        "first-name": "Prénom",
+        "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
+        "first-name-placeholder": "Tapez le prénom du patient",
+        "date-of-birth": "Date de naissance",
+        "day": "Jour",
+        "month": "Mois",
+        "year": "Année",
+        "date-error": "Ce champ est obligatoir",
+        "telephone": "Numéro de téléphone",
+        "telephone-error": "Ce champ est obligatoire",
+        "cancel": "Annuler",
+        "next": "Suivant",
+        "region": "Région",
+        "region-placeholder": "Région",
+        "zip": "Code postal",
+        "address": "Adresse",
+        "address-placeholder": "Entrez l'adresse du patient",
+        "assurance": "Assurance",
+        "assurance-phone-error": "Entrez le numéro d'assurance",
+        "email": "Courriel",
+        "email-placeholder": "Saisissez l'adresse e-mail du patient",
+        "cin": "CIN",
+        "cin-placeholder": "Saisir le CIN du patient",
+        "from": "De",
+        "from-placeholder": "Saisir la date de naissance du patient",
+        "added": "Patient ajouté",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
+        "add-new": "Ajouter un autre patient",
+        "add-appo": "Ajouter RDV",
+        "register": "Enregistrer",
+        "return": "Retourner à",
+        "dialog": {
+          "title": "Duplicatas détectés",
+          "later": "Le faire plus tard",
+          "no-duplicates": "Ces patients ne sont pas doublons ",
+          "selected": "Patient sélectionné"
+        }
+      }
+    },
+    "stepper-3": {
+      "title": "Instruction / Conseil",
+      "sub-title": "Instruction pour le patient",
+      "instruction-placeholder": "Tapez instruction pour le patient",
+      "reminder": "Rappel",
+      "sms-reminder": "SMS de rappel en ",
+      "schedule": "Programmer un SMS de rappel pour le patient",
+      "to": "à",
+      "day": "Jour",
+      "added": "RDV ajouté",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
+    },
+    "next": "Suivant",
+    "back": "Retour",
+    "added": "RDV ajouté",
+    "added-description": "rendez-vous ajouté avec succès",
+    "finish": "Fermer"
+  },
+  "dialogs": {
+    "move-dialog": {
+      "title": "Déplacer RDV",
+      "sub-title": "Voulez-vous vraiment déplacer le RDV?",
+      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "garde-date": "Gardez la date",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    },
+    "cancel-dialog": {
+      "title": "Annuler RDV",
+      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "cancel": "Annuler",
+      "confirm": "Confirmer"
+    }
   }
 }

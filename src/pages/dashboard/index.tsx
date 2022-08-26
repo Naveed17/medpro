@@ -1,58 +1,58 @@
-import {GetServerSideProps, GetStaticProps} from "next";
+import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {useRouter} from "next/router";
 import {Box, Typography} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/calendarToolbar";
+import {CalendarToolbar} from "@features/toolbar";
 import {DashLayout} from "@features/base";
 import requestAxios from "@app/axios/config";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
 import {AxiosRequestHeaders} from "axios";
-import {getToken} from "next-auth/jwt";
-import useSWR, {useSWRConfig} from "swr";
-import useRequest from "@app/axios/axiosServiceApi";
+import {useRequest} from "@app/axios";
+import {Session} from "next-auth";
 
-const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({url, method: "GET", headers}).then(res => res.data);
+const fetcher = (url: string, headers: AxiosRequestHeaders) => requestAxios({
+    url,
+    method: "GET",
+    headers
+}).then(res => res.data);
 
 const API = "/api/private/user/fr";
 
-function Dashborad({...props}) {
-    const { cache } = useSWRConfig();
-    const { data: session, status } = useSession();
+function Dashborad() {
+    const {data: session, status} = useSession();
     const router = useRouter();
     const [date, setDate] = useState(new Date());
+    console.log(session);
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
     }
 
-    const { data, error, response, mutate, isValidating} = useRequest({
+    const {data, error} = useRequest({
         method: "GET",
-        url: "/api/private/user/fr",
+        url: "/api/private/users/fr",
         headers
     });
-    // const { data, error } = useSWR(API);
 
     const loading = status === 'loading';
-    if (loading) return (<LoadingScreen />);
-
-    const { data: user, accessToken } = session as Session;
+    if (loading) return (<LoadingScreen/>);
 
     if (error) return <div>failed to load</div>
-    if (!data) return <LoadingScreen />;
+    if (!data) return <LoadingScreen/>;
+
+    const {data: user} = session as Session;
 
     return (
         <>
             <SubHeader>
-                <CalendarToolbar date={date}/>
+                <CalendarToolbar onToday={() => console.log('onToday')} date={date}/>
             </SubHeader>
-            <Box bgcolor="#F0FAFF"
-                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+            <Box className="container">
                 <Typography variant="subtitle1">Hello from {router.pathname.slice(1)}</Typography>
-                {session && <Typography>URL: {(user as any)?.data.general_information.first_name}</Typography>}
+                {session && <Typography>URL: {(user as UserDataResponse)?.general_information.firstName}</Typography>}
             </Box>
         </>
     )

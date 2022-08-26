@@ -1,14 +1,13 @@
 // material
 import RootStyled from "./overrides/labelStyled";
 import React from "react";
-import { SxProps } from "@mui/system";
-import { Theme } from "@mui/material/styles";
+import { SxProps, Theme } from "@mui/material";
 
 type LabelProps = {
     children: React.ReactNode,
     color: string,
     variant: string,
-    sx?: SxProps<Theme>,
+    sx?: SxProps<Theme>
     className?: string,
 };
 

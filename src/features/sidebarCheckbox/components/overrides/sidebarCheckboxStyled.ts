@@ -7,7 +7,7 @@ type Props = {
     htmlFor?: string;
 }
 
-const SidebarCheckboxStyled = styled(ListItem)(({ theme, styleprops }: Props) => ({
+const SidebarCheckboxStyled = styled(ListItem)(({ theme }: Props) => ({
     cursor: 'pointer',
     padding: theme.spacing(0.5, 1),
     '& .MuiCheckbox-root': {
@@ -34,7 +34,7 @@ const SidebarCheckboxStyled = styled(ListItem)(({ theme, styleprops }: Props) =>
         '& .MuiSvgIcon-root': {
             width: '10px',
             height: '10px',
-            color: theme.palette[styleprops].main,
+            // color: theme.palette["primary"].main,
         }
     },
     '& .MuiListItemText-root': {

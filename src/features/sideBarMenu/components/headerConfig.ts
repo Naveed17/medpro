@@ -1,11 +1,6 @@
 export const siteHeader = {
     topBar: [
         {
-            icon: "ic-video-contour",
-            notifications: 2,
-            name: "video-contour",
-        },
-        {
             icon: "ic-notif-lite",
             notifications: 5,
             name: "notif-lite",
@@ -15,7 +10,7 @@ export const siteHeader = {
         {
             icon: "ic-agenda",
             name: "agenda",
-            href: '/dashboard',
+            href: '/dashboard/agenda',
         },
         {
             icon: "ic-salle-sidenav",
@@ -27,30 +22,32 @@ export const siteHeader = {
             name: "patient",
             href: '/dashboard/patient',
         },
-        {
-            icon: "ic-messanger-lite",
-            name: "message",
-            href: '#',
-        },
-        {
-            icon: "ic-edit-file",
-            name: "articles",
-            href: '#',
-        },
-        {
-            icon: "ic-questions-lite",
-            name: "questions",
-            href: '#',
-        },
-        {
-            icon: "shopping-bag",
-            name: "shop",
-            href: '#',
-        },
-        {
-            icon: "ic-portfeuille",
-            name: "wallet",
-            href: '',
-        }
+        // {
+        //     icon: "ic-messanger-lite",
+        //     name: "message",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-edit-file",
+        //     name: "articles",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-questions-lite",
+        //     name: "questions",
+        //     href: '/dashboard/questions',
+        // },
+        // {
+        //     icon: "shopping-bag",
+        //     name: "shop",
+        //     href: '#',
+        // },
+        // {
+        //     icon: "ic-portfeuille",
+        //     name: "wallet",
+        //     href: '',
+        // }
     ],
 };
+
+export default siteHeader;

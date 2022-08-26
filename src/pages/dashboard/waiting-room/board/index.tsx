@@ -6,24 +6,24 @@ import { useTranslation } from "next-i18next";
 import { DashLayout } from "@features/base";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
-import { CollapseCard } from "@features/collapseCard";
-import { RoomToolbar } from "@features/roomToolbar";
-import { data } from '@features/collapseCard';
-import { DetailsCard } from '@features/waitingRoom';
-
+import { CollapseCard } from "@features/card";
+import { RoomToolbar } from "@features/toolbar";
+import { data } from '@features/card/components/collapseCard';
+import { DetailsCard } from '@features/card';
+import rows from "@features/card/components/detailsCard/config";
 function Board() {
     const { t, ready } = useTranslation('waitingRoom');
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const [open, setopen] = useState<number[]>([]);
     const [mobileCollapse, setmobileCollapse] = useState(0);
-
     useEffect(() => {
         setopen(data.map(item => item.id));
     }, []);
 
     const handleClick: (id: number) => void = (id) => {
         setopen(open.includes(id) ? open.filter((item: number) => item !== id) : [...open, id]);
-    }
+    };
+
     if (!ready) return (<>loading translations...</>);
 
     return (
@@ -31,8 +31,7 @@ function Board() {
             <SubHeader>
                 <RoomToolbar board data={data} handleCollapse={(v: number) => setmobileCollapse(v)} />
             </SubHeader>
-            <Box bgcolor="#F0FAFF"
-                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+            <Box className="container">
                 <Stack
                     direction="row"
                     spacing={2}
@@ -61,14 +60,7 @@ function Board() {
                             {
                                 open.includes(item.id) && (
                                     <>
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
-                                        <DetailsCard />
+                                        <DetailsCard rows={rows} waitingRoom />
                                     </>
                                 )
 
