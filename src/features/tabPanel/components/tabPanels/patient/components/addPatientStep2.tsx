@@ -15,23 +15,20 @@ import {
   IconButton,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-
-import { addPatientSelector, onAddPatient } from "@features/tabPanel";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { addPatientSelector } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
 import { useSession } from "next-auth/react";
-import { useRequest, useRequestMutation } from "@app/axios";
+import { useRequestMutation } from "@app/axios";
 import { Session } from "next-auth";
-import { useTranslation } from "next-i18next";
 
 function AddPatientStep2({ ...props }) {
-  const { onNext, t } = props;
+  const { onNext, t, onAddPatient } = props;
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState<boolean>(status === "loading");
   const { stepsData } = useAppSelector(addPatientSelector);
-  const dispatch = useAppDispatch();
-  const isAlreadyExist = _.keys(stepsData.step2).length > 0;
   const RegisterSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Required"),
   });
@@ -46,17 +43,15 @@ function AddPatientStep2({ ...props }) {
     { revalidate: true, populateCache: false }
   );
 
-  console.log(httpAddPatientResponse, "response");
-
   const formik = useFormik({
     initialValues: {
-      region: isAlreadyExist ? stepsData.step2.region : "Ariana",
-      zip_code: isAlreadyExist ? stepsData.step2.zip_code : "",
-      address: isAlreadyExist ? stepsData.step2.address : "",
-      email: isAlreadyExist ? stepsData.step2.email : "",
-      cin: isAlreadyExist ? stepsData.step2.cin : "",
-      from: isAlreadyExist ? stepsData.step2.from : "",
-      insurance: isAlreadyExist ? stepsData.step2.insurance : [],
+      region: "",
+      zip_code: "",
+      address: "",
+      email: "",
+      cin: "",
+      from: "",
+      insurance: [],
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {
@@ -67,7 +62,7 @@ function AddPatientStep2({ ...props }) {
   const handleChange = (event: ChangeEvent | null, { ...values }) => {
     const { first_name, last_name, birthdate, phone, gender } = stepsData.step1;
     const { day, month, year } = birthdate;
-    console.log(birthdate);
+
     setLoading(true);
     trigger(
       {
@@ -88,10 +83,15 @@ function AddPatientStep2({ ...props }) {
         },
       },
       { revalidate: true, populateCache: true }
-    ).then(() => setLoading(false));
-    // popupDataSet({ ...popupData, step2: values });
-    // onNext(2);
-    // dispatch(onAddPatient({ ...stepsData, step2: values }));
+    ).then((res: any) => {
+      const { data } = res;
+      const { status } = data;
+      setLoading(false);
+      if (status === "success") {
+        onNext(2);
+        onAddPatient();
+      }
+    });
   };
   const { values, handleSubmit, getFieldProps } = formik;
   const handleAddInsurance = () => {
@@ -314,9 +314,15 @@ function AddPatientStep2({ ...props }) {
           <Button variant="text-black" color="primary">
             {t("return")}
           </Button>
-          <Button variant="contained" type="submit" color="primary">
+
+          <LoadingButton
+            type="submit"
+            color="primary"
+            loading={loading}
+            variant="contained"
+          >
             {t("register")}
-          </Button>
+          </LoadingButton>
         </Stack>
       </Stack>
     </FormikProvider>

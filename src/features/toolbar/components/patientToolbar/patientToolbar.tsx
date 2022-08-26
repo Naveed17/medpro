@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "next-i18next";
 import { CustomStepper } from "@features/customStepper";
-import { DuplicateDetected } from "@features/duplicateDetected";
-import IconUrl from "@themes/urlIcon";
-import { Dialog } from "@features/dialog";
-import { Box, Typography, Button, Drawer, Stack } from "@mui/material";
+// import { DuplicateDetected } from "@features/duplicateDetected";
+// import IconUrl from "@themes/urlIcon";
+// import { Dialog } from "@features/dialog";
+import { Typography, Button, Drawer, Stack } from "@mui/material";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import {
@@ -29,18 +29,19 @@ const stepperData = [
   },
 ];
 
-function PatientToolbar() {
+function PatientToolbar({ ...props }) {
+  const { onAddPatient } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { direction } = useAppSelector(configSelector);
-  const isAlreadyExist =
-    stepsData.step1.first_name !== "" && stepsData.step2.email !== "";
+  // const isAlreadyExist =
+  //   stepsData.step1.first_name !== "" && stepsData.step2.email !== "";
 
-  const [open, setOpen] = useState(isAlreadyExist);
+  // const [open, setOpen] = useState(isAlreadyExist);
 
-  useEffect(() => {
-    setOpen(isAlreadyExist);
-  }, [isAlreadyExist]);
+  // useEffect(() => {
+  //   setOpen(isAlreadyExist);
+  // }, [isAlreadyExist]);
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
   return (
@@ -89,9 +90,10 @@ function PatientToolbar() {
           onClose={() => {
             setOpenDrawer(false);
           }}
+          onAddPatient={() => onAddPatient()}
         />
       </Drawer>
-      <Dialog
+      {/* <Dialog
         action={DuplicateDetected}
         open={open}
         data={{ ...stepsData.step1, ...stepsData.step2 }}
@@ -138,7 +140,7 @@ function PatientToolbar() {
           </>
         }
         dialogClose={() => setOpen(false)}
-      />
+      /> */}
     </>
   );
 }

@@ -21,6 +21,7 @@ import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from "next-i18next";
+import { days, months, years } from "./data";
 
 function AddPatientStep1({ ...props }) {
   const {
@@ -87,6 +88,7 @@ function AddPatientStep1({ ...props }) {
   };
   const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } =
     formik;
+  console.log("success");
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -225,10 +227,11 @@ function AddPatientStep1({ ...props }) {
                       : t("day")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="01">1</MenuItem>
-                  <MenuItem value="02">2</MenuItem>
-                  <MenuItem value="03">3</MenuItem>
+                  {days.map((v) => (
+                    <option value={v}>{v}</option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
@@ -252,10 +255,11 @@ function AddPatientStep1({ ...props }) {
                       : t("month")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="01">1</MenuItem>
-                  <MenuItem value="02">2</MenuItem>
-                  <MenuItem value="03">3</MenuItem>
+                  {months.map((v) => (
+                    <option value={v.value}>{v.title}</option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
@@ -279,10 +283,11 @@ function AddPatientStep1({ ...props }) {
                       : t("year")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="1996">1996</MenuItem>
-                  <MenuItem value="1997">1997</MenuItem>
-                  <MenuItem value="1998">1998</MenuItem>
+                  {years.map((v) => (
+                    <option value={v}>{v}</option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>

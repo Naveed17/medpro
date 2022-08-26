@@ -30,15 +30,11 @@ export default function CountrySelect({ ...props }) {
       disableClearable
       isOptionEqualToValue={(option, value) => option.label === value.label}
       renderOption={(props, option) => (
-        <Box
-          component="li"
-          sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-          {...props}
-        >
+        <Box component="li" sx={{ "& > img": { flexShrink: 0 } }} {...props}>
           <Image
             // loading="lazy"
             width="20px"
-            layout="fill"
+            height={13}
             src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
             // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
             alt={option.code}
@@ -52,7 +48,7 @@ export default function CountrySelect({ ...props }) {
             <Image
               // loading="lazy"
               width="27px"
-              layout="fill"
+              height={18}
               style={{ marginLeft: 3 }}
               src={`https://flagcdn.com/w20/${
                 state && state.code.toLowerCase()
