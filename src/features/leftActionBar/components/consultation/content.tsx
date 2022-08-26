@@ -26,7 +26,7 @@ import { openDrawer } from "@features/calendar";
 
 
 const Content = ({ ...props }) => {
-    const { id } = props;
+    const { id,patient } = props;
     const { t, ready } = useTranslation('consultation', { keyPrefix: 'filter' });
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);

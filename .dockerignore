@@ -45,5 +45,3 @@ yarn-error.log*
 .sentryclirc
 .github
 .git
-
-.package-lock.json

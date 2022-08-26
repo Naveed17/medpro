@@ -305,7 +305,7 @@ function Patient() {
 
   // useEffect hook for handling the table action drawer
   useEffect(() => {
-    if (Boolean(patientId !== "")) {
+    if (patientId) {
       setopen(true);
     }
   }, [patientId]);
