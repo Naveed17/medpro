@@ -36,12 +36,11 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Dialog} from "@features/dialog";
+import {Dialog, MoveAppointmentDialog, QrCodeDialog} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {LoadingButton} from "@mui/lab";
 
 const menuList = [
-
     {
         title: "start_the_consultation",
         icon: <PlayCircleIcon/>,
@@ -105,6 +104,7 @@ function AppointmentDetail({...props}) {
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [value, setValue] = useState(data?.extendedProps.insctruction);
     const [openTooltip, setOpenTooltip] = useState(false);
+
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
 
@@ -371,18 +371,15 @@ function AppointmentDetail({...props}) {
             ></Dialog>
 
             <Dialog
+                size={"sm"}
                 color={theme.palette.primary.main}
                 contrastText={theme.palette.primary.contrastText}
                 dialogClose={() => setMoveAlert(false)}
-                action={() => {
-                    return (
-                        <Box sx={{minHeight: 150}}>
-                            <Typography sx={{textAlign: "center"}}
-                                        variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
-                            <Typography sx={{textAlign: "center"}}
-                                        margin={2}>{t("dialogs.move-dialog.description")}</Typography>
-                        </Box>)
-                }}
+                action={ () =>
+                    <MoveAppointmentDialog
+                        t={t}
+                        data={data}
+                    />}
                 open={moveAlert}
                 title={t("dialogs.move-dialog.title")}
                 actionDialog={
@@ -392,19 +389,19 @@ function AppointmentDetail({...props}) {
                             onClick={() => setMoveAlert(false)}
                             startIcon={<CloseIcon/>}
                         >
-                            {t("dialogs.move-dialog.cancel")}
+                            {t("dialogs.move-dialog.garde-date")}
                         </Button>
                         <Button
                             variant="contained"
                             color={"primary"}
-                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                         >
                             {t("dialogs.move-dialog.confirm")}
                         </Button>
                     </>
                 }
             ></Dialog>
-            <Dialog action={'qr-dialog'}
+            <Dialog action={()=> <QrCodeDialog data={data} />}
                     open={openDialog}
                     data={null}
                     actions={false}
