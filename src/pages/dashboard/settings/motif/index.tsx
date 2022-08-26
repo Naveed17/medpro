@@ -231,7 +231,8 @@ function Motif() {
                         {
                             rows.map((row, idx) =>
                                 <React.Fragment key={idx}>
-                                    <MotifListMobile t={t} data={row} />
+                                    <MotifListMobile t={t} data={row} durations={durations}
+                                        delay={delay} />
                                 </React.Fragment>
                             )
                         }

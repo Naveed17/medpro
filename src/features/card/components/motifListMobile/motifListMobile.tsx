@@ -4,7 +4,7 @@ import IconUrl from "@themes/urlIcon";
 import Lable from '@themes/overrides/Lable'
 import { useState } from 'react'
 function MotifListMobile({ ...props }) {
-    const { data, t } = props;
+    const { data, t, durations, delay } = props;
     console.log(data)
     const [state, setstate] = useState<any>({
         duration: `${data?.duration}`,
@@ -34,7 +34,7 @@ function MotifListMobile({ ...props }) {
                 <Grid container spacing={1}>
                     <Grid item xs={4}>
                         <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("duration")}
+                            {t("table.duration")}
                         </Typography>
                         <Select
                             fullWidth
@@ -54,14 +54,17 @@ function MotifListMobile({ ...props }) {
                                     : t("duration")
                             }
                         >
-                            <MenuItem value="1">1</MenuItem>
-                            <MenuItem value="2">2</MenuItem>
-                            <MenuItem value="3">3</MenuItem>
+                            {
+                                durations.map((duration) =>
+                                (<MenuItem key={duration.value} value={duration.value}>
+                                    {duration.date + ' ' + t('times.' + duration.unity)}
+                                </MenuItem>))
+                            }
                         </Select>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("delay_min")}
+                            {t("table.delay_min")}
                         </Typography>
                         <Select
                             fullWidth
@@ -78,17 +81,20 @@ function MotifListMobile({ ...props }) {
                                     ? Array.isArray(value)
                                         ? value.join(", ")
                                         : value
-                                    : t("delay_min")
+                                    : t("table.delay_min")
                             }
                         >
-                            <MenuItem value="1">1</MenuItem>
-                            <MenuItem value="2">2</MenuItem>
-                            <MenuItem value="3">3</MenuItem>
+                            {
+                                delay.map((duration) =>
+                                (<MenuItem key={duration.value} value={duration.value}>
+                                    {duration.date + ' ' + t('times.' + duration.unity)}
+                                </MenuItem>))
+                            }
                         </Select>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography gutterBottom variant="body2" fontWeight={500}>
-                            {t("delay_max")}
+                            {t("table.delay_max")}
                         </Typography>
                         <Select
                             fullWidth
@@ -105,22 +111,25 @@ function MotifListMobile({ ...props }) {
                                     ? Array.isArray(value)
                                         ? value.join(", ")
                                         : value
-                                    : t("delay_max")
+                                    : t("table.delay_max")
                             }
                         >
-                            <MenuItem value="1">1</MenuItem>
-                            <MenuItem value="2">2</MenuItem>
-                            <MenuItem value="3">3</MenuItem>
+                            {
+                                delay.map((duration) =>
+                                (<MenuItem key={duration.value} value={duration.value}>
+                                    {duration.date + ' ' + t('times.' + duration.unity)}
+                                </MenuItem>))
+                            }
                         </Select>
                     </Grid>
                 </Grid>
                 <Stack direction='row' alignItems="center">
                     <List>
                         <ListItem sx={{ py: 0 }}>
-                            {t('agenda')} : <Lable sx={{ ml: 1 }}>{data?.agenda?.length}</Lable>
+                            {t('table.agenda')} : <Lable sx={{ ml: 1 }}>{data?.agenda?.length}</Lable>
                         </ListItem>
                         <ListItem>
-                            {t('type')} :<Lable sx={{ ml: 1 }}>{data?.types?.length}</Lable>
+                            {t('table.type')} :<Lable sx={{ ml: 1 }}>{data?.types?.length}</Lable>
                         </ListItem>
                     </List>
                     <Stack ml={'auto'} direction="row" spacing={1} justifyContent="flex-start" alignItems="center">

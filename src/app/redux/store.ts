@@ -7,6 +7,7 @@ import { userReducer } from "@features/user";
 import { addPatientReducer, appointmentReducer, stepperProfileReducer } from "@features/tabPanel";
 import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
+import {ConsultationReducer} from "@features/toolbar/components/consultationIPToolbar/reducer";
 import { AgendaReducer } from "@features/calendar";
 import { DialogReducer } from "@features/dialog";
 
@@ -17,6 +18,7 @@ export const store = configureStore({
     sideBar: SideBarReducer,
     profileMenu: ProfileMenuReducer,
     checkList: CheckListReducer,
+    consultationDetails: ConsultationReducer,
     user: userReducer,
     addPatientSteps: addPatientReducer,
     stepperProfile: stepperProfileReducer,

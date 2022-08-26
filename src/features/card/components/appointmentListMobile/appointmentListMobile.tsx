@@ -1,12 +1,13 @@
-import {Typography, IconButton, Stack, Box} from "@mui/material";
+import { Typography, IconButton, Stack, Box } from "@mui/material";
 import RootStyled from './overrides/rootStyled';
-import {Label} from "@features/label";
+import { Label } from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
+import React from "react";
 
-function AppointmentListMobile({...props}) {
-    const {event, OnSelectEvent} = props;
+function AppointmentListMobile({ ...props }) {
+    const { event, OnSelectEvent } = props;
 
     const handleEventClick = () => {
         OnSelectEvent(Object.assign(event, {
@@ -34,26 +35,30 @@ function AppointmentListMobile({...props}) {
                 <Box className="card-main" onClick={handleEventClick}>
                     <Typography variant={"subtitle2"} color="primary.main" className="title">
                         <>
-                            {event.meeting ? <IconUrl path="ic-video"/> : null}
+                            {event.meeting ? <IconUrl path="ic-video" /> : null}
                             <span>{event.title}</span>
                         </>
                     </Typography>
                     <Box className="time-badge-main">
                         <Typography variant={"subtitle2"} color="text.secondary">
-                            <AccessTimeOutlinedIcon/>
+                            <AccessTimeOutlinedIcon />
                             <span>
                                 {new Date(event.time).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                 })}
-                              </span>
+                            </span>
                         </Typography>
-                        <Label
-                            variant="filled"
-                            color={event.status ? "success" : "warning"}
-                            className="label"
-                        >
-                            {event.status ? "Confirmé" : "En attente"}
+                        <Label variant='filled'
+                            sx={{ ml: 1 }}
+                            color={
+                                event?.status.key === "CONFIRMED"
+                                    ? "success"
+                                    : event?.status.key === "CANCELED"
+                                        ? "error"
+                                        : "primary"
+                            }>
+                            {event.status.value}
                         </Label>
                     </Box>
                     <Typography variant={"subtitle2"} color="text.primary" mt={1}>
@@ -62,7 +67,7 @@ function AppointmentListMobile({...props}) {
                 </Box>
                 <Box className="action">
                     <IconButton size="small">
-                        <MoreVertIcon/>
+                        <MoreVertIcon />
                     </IconButton>
                 </Box>
             </Stack>

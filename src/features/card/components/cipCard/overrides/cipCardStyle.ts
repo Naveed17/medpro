@@ -5,6 +5,11 @@ const CipCardStyled = styled(Card)(({ theme }) => ({
     marginRight: theme.spacing(1),
     ".MuiIconButton-root": {
         color: theme.palette.grey[0]
+    },
+    '.label': {
+        [theme.breakpoints.down("md")]: {
+            display: 'none'
+        }
     }
 }));
 export default CipCardStyled

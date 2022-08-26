@@ -6,11 +6,11 @@ import { IconButton, Stack, Typography, Box } from '@mui/material';
 function CipCard() {
     return (
         <CipCardStyled>
-            <Stack spacing={2} direction='row' alignItems="center" px={1.7}>
+            <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center" px={{ xs: 0.7, md: 1.7 }}>
                 <IconButton size="small">
                     <PlayCircleRoundedIcon />
                 </IconButton>
-                <Typography color="common.white">
+                <Typography color="common.white" display={{ xs: 'none', md: "block" }}>
                     Muhammad Ali
                 </Typography>
                 <Box>
@@ -18,7 +18,7 @@ function CipCard() {
                         12:12:00
                     </Typography>
                 </Box>
-                <Label color='warning' variant='filled'>
+                <Label color='warning' variant='filled' className='label'>
                     En cours
                 </Label>
             </Stack>

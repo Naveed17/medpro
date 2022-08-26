@@ -1,5 +1,5 @@
 interface Table {
-  patientId: string | number;
+  patientId: string | null ;
   addAmount: string | number;
 }
 export default Table;

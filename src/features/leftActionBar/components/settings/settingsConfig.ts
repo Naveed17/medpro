@@ -21,7 +21,7 @@ const settingsData = {
         },
         {
             name: "consultation",
-            icon: "setting/ic-edit-file",
+            icon: "setting/ic-patient-file",
             href: "/dashboard/settings/patient-file-templates",
             disable: false
         },

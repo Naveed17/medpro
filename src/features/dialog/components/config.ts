@@ -120,6 +120,14 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "end_consultation",
+    component: dynamic((): any =>
+      import("@features/dialog/components/endConsultationDialog/endConsultationDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 
 ];

@@ -1,7 +1,8 @@
+
 import { GetStaticProps } from "next";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { DashLayout } from "@features/base";
 import { Button, Box, Drawer, useMediaQuery } from "@mui/material";
 import { RootStyled } from "@features/toolbar";
@@ -10,15 +11,22 @@ import { SubHeader } from "@features/subHeader";
 import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
 import { PfTemplateDetail } from "@features/pfTemplateDetail";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 import AddIcon from '@mui/icons-material/Add';
+
 function PatientFileTemplates() {
+
+    const { data: session } = useSession();
+    const { data: user } = session as Session;
     const isMobile = useMediaQuery("(max-width:669px)");
     const { direction } = useAppSelector(configSelector);
     const [state, setState] = useState({
         active: true,
     });
     const [action, setAction] = useState('');
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<ModalModel | null>(null);
     const headCells = [
         {
             id: 'name',
@@ -45,25 +53,45 @@ function PatientFileTemplates() {
             sortable: false
         },
     ];
-    const [rows, setRows] = useState([
-        { uuid: '1', name: 'Modele 1', isActive: true, color: '#FEBD15' },
-        { uuid: '2', name: 'Modele 2', isActive: true, color: '#FF9070' },
-        { uuid: '3', name: 'Modele 3', isActive: true, color: '#DF607B' },
-        { uuid: '4', name: 'Modele 4', isActive: true, color: '#9A5E8A' },
-        { uuid: '5', name: 'Modele 5', isActive: true, color: '#526686' },
-        { uuid: '6', name: 'Modele 6', isActive: true, color: '#96B9E8' },
-        { uuid: '7', name: 'Modele 7', isActive: true, color: '#72D0BE' },
-        { uuid: '8', name: 'Modele 8', isActive: true, color: '#56A97F' }
-    ]);
+    const [rows, setRows] = useState<ModalModel[]>([]);
     const [open, setOpen] = useState(false);
 
-    const handleChange = (props: any, event: string, value: string) => {
-        props.isActive = !props.isActive;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const { data: modalsHttpResponse, error, mutate } = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
+        headers: { Authorization: `Bearer ${session?.accessToken}` }
+    });
+
+    const { trigger } = useRequestMutation(null, "/settings/patient-file-template");
+
+
+    useEffect(() => {
+        if (modalsHttpResponse !== undefined) {
+            setRows((modalsHttpResponse as HttpResponse).data);
+        }
+    }, [modalsHttpResponse])
+
+    const handleChange = (props: ModalModel, event: string, value: string) => {
+        props.isEnabled = !props.isEnabled;
         setState({ ...state });
 
+        const form = new FormData();
+        form.append('enabled', props.isEnabled.toString());
+
+        trigger({
+            method: "PATCH",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/modals/' + props.uuid + '/activity',
+            data: form,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit qualification', r));
     }
-    const handleEdit = (props: any, event: string, value: string) => {
-        console.log(event, props);
+
+    const handleEdit = (props: ModalModel, event: string, value: string) => {
         setOpen(true);
         setAction(event);
         setData(props);
@@ -113,7 +141,10 @@ function PatientFileTemplates() {
                     open={open}
                     dir={direction}
                     onClose={closeDraw}>
-                    <PfTemplateDetail action={action} data={data}></PfTemplateDetail>
+                    <PfTemplateDetail action={action}
+                        mutate={mutate}
+                        closeDraw={closeDraw}
+                        data={data}></PfTemplateDetail>
                 </Drawer>
             </Box>
         </>

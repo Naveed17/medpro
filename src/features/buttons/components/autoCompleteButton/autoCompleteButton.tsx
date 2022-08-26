@@ -14,9 +14,9 @@ function AutoCompleteButton({...props}) {
 
     const {translation, data, OnClickAction} = props;
     const [focus, setFocus] = useState(false);
-    const [patient, setPatient] = useState<PatientModel | null>(initData);
+    const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
 
-    const onSubmitPatient = (data: PatientModel) => {
+    const onSubmitPatient = (data: PatientWithNextAndLatestAppointment) => {
         setPatient(data);
         dispatch(setAppointmentPatient(data));
     }

@@ -14,7 +14,6 @@ function MotifRow({ ...props }) {
     const { row, tableHeadData, active, handleChange, editMotif, ids, data } = props;
     const durations: DurationModel[] = data.durations;
     const delay: DurationModel[] = data.delay;
-    const theme = useTheme();
     const { t, ready } = useTranslation('common');
     return (
         <TableRowStyled key={uniqueId}>
@@ -60,12 +59,12 @@ function MotifRow({ ...props }) {
                                 }}
                                 name="duration"
                                 sx={{ opacity: 0, ...(tableHeadData !== null && { opacity: tableHeadData.duration ? 1 : 0 }) }}>
-                                {/* {
+                                {
                                     durations.map((duration) =>
                                     (<MenuItem key={duration.value} value={duration.value}>
                                         {duration.date + ' ' + t('times.' + duration.unity)}
                                     </MenuItem>))
-                                } */}
+                                }
                             </Select>
                         </FormControl>
                         : <Skeleton variant="rectangular" width={150} height={30} />}
@@ -85,12 +84,12 @@ function MotifRow({ ...props }) {
                             <MenuItem key={''} value={'0'}>
 
                             </MenuItem>
-                            {/* {
+                            {
                                 delay.map((duration) =>
                                 (<MenuItem key={duration.value} value={duration.value}>
                                     {duration.date + ' ' + t('times.' + duration.unity)}
                                 </MenuItem>))
-                            } */}
+                            }
                         </Select>
                     </FormControl>
                     : <Skeleton variant="rectangular" width={150} height={30} />}
@@ -110,12 +109,12 @@ function MotifRow({ ...props }) {
                             <MenuItem key={''} value={'0'}>
 
                             </MenuItem>
-                            {/* {
+                            {
                                 delay.map((duration) =>
                                 (<MenuItem key={duration.value} value={duration.value}>
                                     {duration.date + ' ' + t('times.' + duration.unity)}
                                 </MenuItem>))
-                            } */}
+                            }
                         </Select>
                     </FormControl>
                     : <Skeleton variant="rectangular" width={150} height={30} sx={{ m: 'auto' }} />}

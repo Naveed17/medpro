@@ -26,7 +26,7 @@ function CIPMedicalProceduresRow({ ...props }) {
         />
       </TableCell>
       <TableCell>
-        {row.acts}
+        {row.act.name}
       </TableCell>
       <TableCell>
         <Button sx={{

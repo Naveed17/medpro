@@ -6,28 +6,43 @@ import { Document, Page, pdfjs } from "react-pdf";
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
+import { tableActionSelector } from "@features/table";
+import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
+
+import { ReactElement } from "react";
+import {
+    Box,
+    Drawer,
+    Stack,
+    Grid,
+    Typography,
+    ListItem,
+    Button
+} from "@mui/material";
 import { openDrawer as DialogOpenDrawer } from "@features/dialog";
-import { agendaSelector, openDrawer, setConfig, setStepperIndex } from "@features/calendar";
 import { CustomStepper } from "@features/customStepper";
 import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 
-import { ReactElement } from "react";
-import { Box, Drawer, Stack, Grid, Button, Typography, Collapse, List, ListItem, ListItemIcon, IconButton } from "@mui/material";
 //components
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
+import { CipNextAppointCard, CipMedicProCard } from "@features/card";
+import { Otable } from '@features/table';
 import { DrawerBottom } from '@features/drawerBottom';
 import { ConsultationFilter } from '@features/leftActionBar';
-import { CipNextAppointCard, CipMedicProCard, DrugListCard, drugListCardData } from "@features/card";
-import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
 import { ConsultationIPToolbar } from '@features/toolbar';
-import { AppointmentDetail, DialogProps } from '@features/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import CircleIcon from '@mui/icons-material/Circle';
-import Icon from '@themes/urlIcon'
+import { useRequestMutation } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { AppointmentDetail, DialogProps } from '@features/dialog';
+import { useRouter } from "next/router";
+import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
+import { SetPatient } from "@features/toolbar/components/consultationIPToolbar/actions";
+import Icon from "@themes/urlIcon";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -38,8 +53,8 @@ const options = {
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
-
 }
+
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -48,6 +63,7 @@ interface HeadCell {
     sortable: boolean;
     align: "left" | "right" | "center";
 }
+
 const variants = {
     initial: { opacity: 0, },
     animate: {
@@ -57,6 +73,7 @@ const variants = {
         }
     }
 };
+
 function TabPanel(props: TabPanelProps) {
     const { children, index, ...other } = props;
 
@@ -74,6 +91,7 @@ function TabPanel(props: TabPanelProps) {
         </motion.div>
     );
 }
+
 // Patient data for table body
 const PatiendData = [
     {
@@ -95,7 +113,6 @@ const PatiendData = [
         amount: 0,
     }
 ];
-
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -264,20 +281,62 @@ const EventStepper = [
         disabled: true
     }
 ];
+
 function ConsultationInProgress() {
-    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const { patientId } = useAppSelector(tableActionSelector);
     const { direction } = useAppSelector(configSelector);
+    const [filterdrawer, setFilterDrawer] = useState(false);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
-    const [filterDrawer, setFilterDrawer] = useState(false);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
     const [file, setFile] = useState('/static/files/sample.pdf');
-    const [numPages, setNumPages] = useState(null);
+    const [acts, setActs] = useState<any>('');
+    const [numPages, setNumPages] = useState<number | null>(null);
+    const [open, setopen] = useState(false);
+    const [appointement, setAppointement] = useState(false);
+
+    const router = useRouter();
+
+    const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
+
+    useEffect(() => {
+        if (examan) console.log(examan);
+    }, [examan]);
+    useEffect(() => {
+        if (fiche) console.log(fiche);
+    }, [fiche]);
+
+    const { data: session, status } = useSession();
+    const loading = status === 'loading';
+    let medical_entity: MedicalEntityModel | null = null;
+
+    const { trigger } = useRequestMutation(null, "/consultation/", { revalidate: true, populateCache: false });
+
+    useEffect(() => {
+        if (medical_entity) {
+            trigger({
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+                headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+            }, { revalidate: true, populateCache: true }).then(res => setActs((res?.data as HttpResponse).data[0].acts))
+
+            trigger({
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/" + router.locale,
+                headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+            }, { revalidate: true, populateCache: true }).then(res => {
+                setAppointement((res?.data as HttpResponse).data)
+                dispatch(SetPatient((res?.data as HttpResponse).data.patient))
+            })
+        }
+    }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
+
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
-    };
-    const { t, ready } = useTranslation("consultation");
+    }
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
@@ -286,7 +345,17 @@ function ConsultationInProgress() {
             EventStepper[index].disabled = false;
         }
     }
-    if (!ready) return <>loading translations...</>;
+
+
+    useEffect(() => {
+        if (patientId) {
+            setopen(true);
+        }
+    }, [patientId]);
+    const { t, ready } = useTranslation("consultation");
+    if (!ready || loading) return <>loading translations...</>;
+    const { data: user } = session as Session;
+    medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     return (
         <>
             <SubHeader>
@@ -294,6 +363,7 @@ function ConsultationInProgress() {
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
+
                     {value === 0 &&
                         <TabPanel index={0}>
                             <Stack spacing={2}>
@@ -306,14 +376,17 @@ function ConsultationInProgress() {
 
                                                 <Stack spacing={2}>
                                                     <MotifCard data={data} />
-                                                    <List dense>
+                                                    {/*<List dense>
                                                         {
                                                             data.collapse?.map((col, idx: number) => (
                                                                 <React.Fragment key={`list-item-${idx}`}>
                                                                     <ListItem
                                                                         onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
                                                                         sx={{
-                                                                            cursor: "pointer", borderTop: 1, borderColor: 'divider', px: 0,
+                                                                            cursor: "pointer",
+                                                                            borderTop: 1,
+                                                                            borderColor: 'divider',
+                                                                            px: 0,
                                                                             '& .MuiListItemIcon-root': {
                                                                                 minWidth: 20,
                                                                                 svg: {
@@ -324,39 +397,55 @@ function ConsultationInProgress() {
                                                                         }}>
 
                                                                         <ListItemIcon>
-                                                                            <Icon path={col.icon} />
+                                                                            <Icon path={col.icon}/>
                                                                         </ListItemIcon>
                                                                         <Typography variant='body2' fontWeight={700}>
                                                                             {t(col.title)}
                                                                         </Typography>
-                                                                        <IconButton size="small" sx={{ ml: 'auto' }}>
-                                                                            <Icon path="ic-expand-more" />
+                                                                        <IconButton size="small" sx={{ml: 'auto'}}>
+                                                                            <Icon path="ic-expand-more"/>
                                                                         </IconButton>
                                                                     </ListItem>
                                                                     <ListItem
-                                                                        sx={{ p: 0 }}
+                                                                        sx={{p: 0}}
                                                                     >
-                                                                        <Collapse in={collapse === col.id} sx={{ width: 1 }}>
+                                                                        <Collapse in={collapse === col.id}
+                                                                                  sx={{width: 1}}>
                                                                             {
                                                                                 col.type === "treatment" &&
                                                                                 col.drugs?.map((item, i) => (
-                                                                                    <React.Fragment key={`durg-list-${i}`}>
-                                                                                        <DrugListCard data={item} t={t} list />
+                                                                                    <React.Fragment
+                                                                                        key={`durg-list-${i}`}>
+                                                                                        <DrugListCard data={item} t={t}
+                                                                                                      list/>
                                                                                     </React.Fragment>
                                                                                 ))
                                                                             }
                                                                             {
                                                                                 col.type === "document" &&
-                                                                                <List sx={{ py: 0 }}>
+                                                                                <List sx={{py: 0}}>
                                                                                     {
                                                                                         col.documents?.map((item, i) => (
-                                                                                            <ListItem key={`doc-list${i}`}
-                                                                                                sx={{ bgcolor: theme => theme.palette.grey['A100'], mb: 1, borderRadius: 0.7 }}>
-                                                                                                <Typography variant='body2' display='flex' alignItems="center">
-                                                                                                    <CircleIcon sx={{ fontSize: 5, mr: 1 }} /> {item}
+                                                                                            <ListItem
+                                                                                                key={`doc-list${i}`}
+                                                                                                sx={{
+                                                                                                    bgcolor: theme => theme.palette.grey['A100'],
+                                                                                                    mb: 1,
+                                                                                                    borderRadius: 0.7
+                                                                                                }}>
+                                                                                                <Typography
+                                                                                                    variant='body2'
+                                                                                                    display='flex'
+                                                                                                    alignItems="center">
+                                                                                                    <CircleIcon sx={{
+                                                                                                        fontSize: 5,
+                                                                                                        mr: 1
+                                                                                                    }}/> {item}
                                                                                                 </Typography>
-                                                                                                <IconButton size="small" sx={{ ml: 'auto' }}>
-                                                                                                    <Icon path="ic-document" />
+                                                                                                <IconButton size="small"
+                                                                                                            sx={{ml: 'auto'}}>
+                                                                                                    <Icon
+                                                                                                        path="ic-document"/>
                                                                                                 </IconButton>
                                                                                             </ListItem>
                                                                                         ))
@@ -368,7 +457,7 @@ function ConsultationInProgress() {
                                                                 </React.Fragment>
                                                             ))
                                                         }
-                                                    </List>
+                                                    </List>*/}
                                                 </Stack>
 
 
@@ -377,7 +466,11 @@ function ConsultationInProgress() {
                                                 data.title === "balance_results" &&
                                                 data.list?.map((item, i) => (
                                                     <ListItem key={`balance-list${i}`}
-                                                        sx={{ bgcolor: theme => theme.palette.grey['A100'], mb: 1, borderRadius: 0.7 }}>
+                                                        sx={{
+                                                            bgcolor: theme => theme.palette.grey['A100'],
+                                                            mb: 1,
+                                                            borderRadius: 0.7
+                                                        }}>
                                                         <Typography variant='body2'>
                                                             {item}
                                                         </Typography>
@@ -404,7 +497,8 @@ function ConsultationInProgress() {
                         <TabPanel index={1}>
                             <Box sx={{
                                 '.react-pdf__Page__canvas': {
-                                    mx: 'auto'
+                                    mx: 'auto',
+                                    maxWidth: "100%",
                                 }
                             }}>
                                 <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
@@ -420,10 +514,10 @@ function ConsultationInProgress() {
                     {value === 2 &&
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
-                                <Grid item xs={12} md={4}>
+                                <Grid item xs={12} md={5}>
                                     <ModalConsultation />
                                 </Grid>
-                                <Grid item xs={12} md={8}>
+                                <Grid item xs={12} md={7}>
                                     <ConsultationDetailCard />
                                 </Grid>
                             </Grid>
@@ -435,7 +529,7 @@ function ConsultationInProgress() {
                             <Box display={{ xs: 'none', md: 'block' }}>
                                 <Otable
                                     headers={headCells}
-                                    rows={PatiendData}
+                                    rows={acts}
                                     state={null}
                                     from={"CIP-medical-procedures"}
                                     t={t}
@@ -455,14 +549,22 @@ function ConsultationInProgress() {
                                 }
 
                             </Stack>
-                            <Button size='small' sx={{ '& .react-svg svg': { width: theme => theme.spacing(1.5), path: { fill: theme => theme.palette.primary.main } } }} startIcon={<Icon path="ic-plus" />}>Ajouter un nouveau acte</Button>
+                            {/*
+                            <Button size='small' sx={{
+                                '& .react-svg svg': {
+                                    width: theme => theme.spacing(1.5),
+                                    path: {fill: theme => theme.palette.primary.main}
+                                }
+                            }} startIcon={<Icon path="ic-plus"/>}>Ajouter un nouveau acte</Button>
+*/}
                             <SubFooter>
-                                <Stack spacing={2} direction="row" alignItems="center" width={1} justifyContent="flex-end">
+                                <Stack spacing={2} direction="row" alignItems="center" width={1}
+                                    justifyContent="flex-end">
                                     <Typography variant="subtitle1">
                                         <span>{t('total')} : </span>
                                     </Typography>
                                     <Typography fontWeight={600} variant="h6">
-                                        90 TND
+                                        -- TND
                                     </Typography>
                                 </Stack>
 
@@ -504,11 +606,11 @@ function ConsultationInProgress() {
                             >
                                 <AppointmentDetail
                                     data={event}
-
                                 />
                             </Drawer>
                         </TabPanel>
                     }
+
                 </AnimatePresence>
                 <Drawer
                     anchor={"right"}
@@ -533,15 +635,15 @@ function ConsultationInProgress() {
                 </Drawer>
                 <Button
                     startIcon={<Icon path="ic-filter" />}
-                    variant="filter"
                     onClick={() => setFilterDrawer(!drawer)}
                     sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                    variant="filter"
                 >
                     Filtrer (0)
                 </Button>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
-                    open={filterDrawer}
+                    open={filterdrawer}
                     title={null}
                 >
                     <ConsultationFilter />
@@ -550,9 +652,15 @@ function ConsultationInProgress() {
         </>
     );
 }
+
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
-        ...(await serverSideTranslations(locale as string, ["consultation", "menu", "common"])),
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, [
+            "consultation",
+            "menu",
+            "common",
+        ])),
     },
 });
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {

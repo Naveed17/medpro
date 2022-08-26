@@ -120,7 +120,11 @@ function PlacesDetail() {
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
     const [cords, setCords] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [contacts, setContacts] = useState<any[]>([]);
+    const [contacts, setContacts] = useState<any[]>([{
+        countryCode: '',
+        phone: '',
+        hidden: false
+    }]);
     const [cities, setCities] = useState<LocationModel[]>([]);
 
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
@@ -153,6 +157,7 @@ function PlacesDetail() {
 
     const {trigger} = useRequestMutation(null, "/settings/place");
 
+    console.log(row)
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -298,12 +303,6 @@ function PlacesDetail() {
                     phone: contact.value,
                     hidden: !contact.isPublic
                 });
-            });
-
-            contacts.push({
-                countryCode: '',
-                phone: '',
-                hidden: false
             });
             setContacts([...contacts])
         }

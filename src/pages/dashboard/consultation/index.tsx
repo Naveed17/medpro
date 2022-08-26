@@ -134,7 +134,7 @@ function Consultation() {
       </Box>
       <SubFooter sx={{ display: { xs: 'none', md: 'block' } }}>
         <Stack width={1} direction="row" spacing={2} justifyContent="flex-end">
-          <Button variant="text-black">
+          <Button>
             {upperFirst(t("cancel"))}
           </Button>
           <Button variant="contained" color="primary">
@@ -144,9 +144,9 @@ function Consultation() {
       </SubFooter>
       <Button
         startIcon={<Icon path="ic-filter" />}
-        variant="filter"
         onClick={() => setDrawer(!drawer)}
         sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+        variant="filter"
       >
         Filtrer (0)
       </Button>
