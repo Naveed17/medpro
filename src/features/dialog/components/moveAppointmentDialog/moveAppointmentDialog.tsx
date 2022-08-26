@@ -73,7 +73,7 @@ function MoveAppointmentDialog({...props}) {
                             lineHeight: "24px"
                         }}
                         variant="subtitle1">
-                {t("dialogs.cancel-dialog.sub-title")}</Typography>
+                {t("dialogs.move-dialog.week-day-slot")}</Typography>
             <WeekDayPicker
                 onChange={(v: any) => setDate(v)}
                 date={data?.extendedProps.time}/>
@@ -82,7 +82,7 @@ function MoveAppointmentDialog({...props}) {
                 <Typography variant="body1"
                             ml={14}
                             color="text.primary" my={2}>
-                    {t("stepper-1.time-message")}
+                    {t("dialogs.move-dialog.time-message")}
                 </Typography>
                 <TimeSlot
                     loading={!date}
@@ -93,7 +93,7 @@ function MoveAppointmentDialog({...props}) {
                     OnShowMore={() => setLimit(limit * 2)}
                     value={time}
                     seeMore
-                    seeMoreText={t("stepper-1.see-more")}
+                    seeMoreText={t("dialogs.move-dialog.see-more")}
                 />
             </Grid>
         </Box>
