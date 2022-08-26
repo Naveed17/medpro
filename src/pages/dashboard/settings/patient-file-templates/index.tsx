@@ -58,7 +58,6 @@ function PatientFileTemplates() {
     const [open, setOpen] = useState(false);
 
     const handleChange = (props: any, event: string, value: string) => {
-        console.log('handleChange', props);
         props.isActive = !props.isActive;
         setState({ ...state });
 
