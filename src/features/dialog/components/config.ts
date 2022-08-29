@@ -128,6 +128,14 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "secretary_consultation_alert",
+    component: dynamic((): any =>
+      import("@features/dialog/components/secretaryConsultationDialog/secretaryConsultationDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 
 ];
