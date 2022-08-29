@@ -16,6 +16,9 @@ on:
       tag:
         required: true
         type: string
+      helm_dir:
+        required: false
+        type: string
     secrets:
       token:
         required: true
@@ -70,8 +73,9 @@ jobs:
           encodedString: ${{ secrets.kubeconfig }}
 
       - name: script - helm dependency update
+        if: inputs.helm_dir
         run: |
-          helm dependency update chart/
+          helm dependency update ${{ inputs.helm_dir }}
 
       - name: run - waypoint
         id: waypoint
