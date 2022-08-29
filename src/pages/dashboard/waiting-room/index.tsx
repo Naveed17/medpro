@@ -142,7 +142,7 @@ function Room() {
           />
         </Box>
         <Stack spacing={1} mt={2} display={{ xs: "flex", md: "none" }}>
-          <DetailsCard waitingRoom rows={rows} />
+          <DetailsCard waitingRoom rows={rows} t={t} />
         </Stack>
       </Box>
     </>

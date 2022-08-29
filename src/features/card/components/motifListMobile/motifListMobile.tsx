@@ -55,7 +55,7 @@ function MotifListMobile({ ...props }) {
                             }
                         >
                             {
-                                durations.map((duration) =>
+                                durations.map((duration: any) =>
                                 (<MenuItem key={duration.value} value={duration.value}>
                                     {duration.date + ' ' + t('times.' + duration.unity)}
                                 </MenuItem>))
