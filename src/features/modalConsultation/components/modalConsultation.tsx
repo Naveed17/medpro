@@ -41,12 +41,13 @@ function ModalConsultation({...props}) {
     const [models, setModels] = useState<ModalModel[]>([]);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
+    const [loadModel, setLoadModel] = useState(true);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
         isEnabled: true,
-        label: "",
+        label: "--",
         structure: [],
         uuid: ""
     });
@@ -55,9 +56,13 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
-        setTimeout(() => {
+        //setTimeout(() => {
+        if (modal)
             setValue(modal.default_modal);
-        }, 1000)
+
+        setTimeout(() => {
+            setLoadModel(false)
+        }, 3000)
     }, [modal])
 
     useEffect(() => {
@@ -120,12 +125,12 @@ function ModalConsultation({...props}) {
                         bgcolor: alpha(value.color, 0.1)
                     }}>
                         <Box>
-                            {value.color !== "#FEBD15" && <FormBuilder
+                            {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
                                     dispatch(SetFiche(ev.data))
                                 }}
                                 onError={console.log}
-                                submission={{data: modal.data}}
+                                //submission={{data: modal.data}}
                                 form={
                                     {
                                         display: "form",

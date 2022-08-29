@@ -18,8 +18,8 @@ function Dialogs({ ...props }) {
         <>
             <Dialog
                 open={open}
-                fullWidth={fullWidth}
-                maxWidth={maxWidth}
+                {...(props.max ? { maxWidth: 'lg' } : { maxWidth: 'sm' })}
+
                 onClose={dialogClose}
                 scroll="paper"
                 dir={direction}

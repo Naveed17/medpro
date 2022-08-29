@@ -584,8 +584,10 @@ function PlacesDetail() {
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
+{/*
                                                                         <CountryCodeSelect
                                                                             selected={(v: any) => setFieldValue(`phone[${index}].countryCode`, v?.phone)}/>
+*/}
                                                                     </InputAdornment>
                                                                 ),
                                                             }}/>

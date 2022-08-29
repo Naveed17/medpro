@@ -23,6 +23,7 @@ import Add from "@mui/icons-material/Add";
 import { data1, data2, data3, data4 } from './config'
 import { useAppDispatch } from "@app/redux/hooks";
 import { openDrawer } from "@features/calendar";
+import {pxToRem} from "@themes/formatFontSize";
 
 
 const Content = ({ ...props }) => {
@@ -64,11 +65,10 @@ const Content = ({ ...props }) => {
                 setInfo(null)
                 break;
 
-        };
+        }
         handleClickDialog()
 
     };
-
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -76,12 +76,12 @@ const Content = ({ ...props }) => {
             {
                 id !== 4 ?
                     <ContentStyled>
-                        <CardContent>
+                        <CardContent style={{paddingBottom:pxToRem(15)}}>
                             {id === 1 &&
                                 <Stack spacing={1} alignItems="flex-start">
                                     <List dense>
                                         {
-                                            patient?.antecedentsTreatment.map((list:any, index:number) =>
+                                            [].map((list:any, index:number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
                                                         <CircleIcon />
@@ -97,9 +97,9 @@ const Content = ({ ...props }) => {
                                         }
 
                                     </List>
-                                    <Button onClick={() => handleOpen("add_treatment")} size="small" startIcon={
-                                        <Add />
-                                    }>
+                                    <Button onClick={() => handleOpen("add_treatment")} size="small"
+                                            style={{paddingBottom: pxToRem(0)}}
+                                            startIcon={<Add />}>
                                         {t('add')}
                                     </Button>
                                 </Stack>
@@ -163,12 +163,10 @@ const Content = ({ ...props }) => {
                             }
 
                         </CardContent>
-
-
                     </ContentStyled> :
                     data4.map((card, idx) =>
-                        <ContentStyled key={`card-${idx}`}>
-                            <CardContent>
+                        <ContentStyled key={`card-${idx}`} style={{paddingBottom:pxToRem(15)}}>
+                            <CardContent style={{paddingBottom:pxToRem(0),paddingTop:'1rem'}}>
                                 <Typography fontWeight={600}>
                                     {t(card.title)}
 

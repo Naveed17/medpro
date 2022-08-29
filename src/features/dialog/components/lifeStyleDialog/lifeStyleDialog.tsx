@@ -1,54 +1,25 @@
 import React from 'react'
 import LifeStyleDialogStyled from './overrides/lifeStyleDialogStyle'
-import { useTranslation } from 'next-i18next';
-import { FormGroup, FormControlLabel, Checkbox, TextField, Box } from '@mui/material'
-const data = [
-    {
-        id: 1,
-        label: 'smoking',
-        input: true,
-    },
-    {
-        id: 2,
-        label: 'alcohol',
-        input: true,
-    },
-    {
-        id: 3,
-        label: 'play_any_sports',
-        input: true,
-    },
-    {
-        id: 4,
-        label: 'work_on_the_computer',
-        input: false,
-    },
-    {
-        id: 5,
-        label: 'weight_is_stable',
-        input: false,
-    },
-    {
-        id: 6,
-        label: 'last_6_months',
-        input: false,
-    },
-    {
-        id: 7,
-        label: 'chemical_dependency',
-        input: false,
-    },
-    {
-        id: 8,
-        label: 'other',
-        input: false,
-    }
+import {useTranslation} from 'next-i18next';
+import {FormGroup, FormControlLabel, Checkbox, TextField, Box} from '@mui/material'
+import {useRequest} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
-
-]
 function LifeStyleDialog() {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [state, setState] = React.useState<any>({});
+    const {data: session} = useSession();
+    const router = useRouter();
+
+    const {data: httpAntecedentsResponse} = useRequest({
+        method: "GET",
+        url: `/api/antecedents/0/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setState({
             ...state,
@@ -56,22 +27,22 @@ function LifeStyleDialog() {
         });
     };
     if (!ready) return <>loading translations...</>;
-    console.log(state)
+    console.log(state);
     return (
         <LifeStyleDialogStyled display='block'>
-            <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">
-                {
-                    data.map((list, idx) =>
+            <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
+                {httpAntecedentsResponse &&
+                    (httpAntecedentsResponse as HttpResponse).data.map((list: { uuid: string, name: string, type: number }, idx: number) =>
                         <FormGroup row key={idx}>
                             <FormControlLabel
                                 control={
-                                    <Checkbox checked={!!state[list.label]} onChange={handleChange} name={list.label} />
+                                    <Checkbox checked={!!state[list.uuid]} onChange={handleChange} name={list.uuid}/>
                                 }
-                                label={t(list.label)}
+                                label={list.name}
                             />
                             {
-                                (list.input && state[list.label]) && <TextField
-                                    name={`text_field_${list.label}`}
+                                (list.uuid && state[list.uuid]) && <TextField
+                                    name={`text_field_${list.name}`}
                                     placeholder={t('starting_year')}
                                     onChange={(e) =>
                                         setState({

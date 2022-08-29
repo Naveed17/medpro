@@ -2,52 +2,10 @@ import React from 'react'
 import FamilyHistoryDialogStyled from './overrides/familyHistoryDialogStyle'
 import { useTranslation } from 'next-i18next';
 import { FormGroup, FormControlLabel, Checkbox, TextField, Box, Stack } from '@mui/material'
-const data = [
-    {
-        id: 1,
-        label: 'disease_1',
-        input: true,
-        name: "diabetes"
-    },
-    {
-        id: 2,
-        label: 'disease_2',
-        input: true,
-        name: "epilepsy"
-    },
-    {
-        id: 3,
-        label: 'disease_3',
-        input: true,
-        name: "respiratory_problems"
-    },
-    {
-        id: 4,
-        label: 'disease_4',
-        input: true,
-        name: "cholesterol"
-    },
-    {
-        id: 5,
-        label: 'disease_5',
-        input: true,
-        name: "phlebitis"
-    },
-    {
-        id: 6,
-        label: 'disease_6',
-        input: true,
-        name: "skin_disease"
-    },
-    {
-        id: 7,
-        label: 'other',
-        input: false,
-        name: "other"
-    }
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {useRequest} from "@app/axios";
 
-
-]
 function FamilyHistoryDialog() {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [state, setState] = React.useState<any>({});
@@ -63,21 +21,32 @@ function FamilyHistoryDialog() {
             [event.target.name]: event.target.value,
         });
     };
+    const {data: session} = useSession();
+    const router = useRouter();
+
+    const {data: httpAntecedentsResponse} = useRequest({
+        method: "GET",
+        url: `/api/antecedents/1/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
+    });
+    console.log(httpAntecedentsResponse);
     if (!ready) return <>loading translations...</>;
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">
-                {
-                    data.map((list, idx) =>
+                { httpAntecedentsResponse &&
+                    (httpAntecedentsResponse as HttpResponse).data.map((list:{ id: number, name: string, type: number }, idx:number) =>
                         <FormGroup key={idx}>
                             <FormControlLabel
                                 control={
                                     <Checkbox checked={!!state[list.name]} onChange={handleChange} name={list.name} />
                                 }
-                                label={t(list.label)}
+                                label={list.name}
                             />
                             {
-                                (list.input && state[list.name]) &&
+                                (list.name && state[list.name]) &&
                                 <Stack direction='row' spacing={1}>
                                     <TextField
                                         placeholder={t('starting_year')}
