@@ -325,7 +325,7 @@ function Patient() {
   return (
     <>
       <SubHeader>
-        <PatientToolbar />
+        <PatientToolbar onAddPatient={()=>mutate()} />
       </SubHeader>
       <Box className="container">
         <Box display={{ xs: "none", md: "block" }}>
