@@ -85,7 +85,7 @@ function MotifListMobile({ ...props }) {
                             }
                         >
                             {
-                                delay.map((duration) =>
+                                delay.map((duration: any) =>
                                 (<MenuItem key={duration.value} value={duration.value}>
                                     {duration.date + ' ' + t('times.' + duration.unity)}
                                 </MenuItem>))
@@ -115,7 +115,7 @@ function MotifListMobile({ ...props }) {
                             }
                         >
                             {
-                                delay.map((duration) =>
+                                delay.map((duration: any) =>
                                 (<MenuItem key={duration.value} value={duration.value}>
                                     {duration.date + ' ' + t('times.' + duration.unity)}
                                 </MenuItem>))

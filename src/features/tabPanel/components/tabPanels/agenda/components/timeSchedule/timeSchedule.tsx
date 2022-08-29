@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -45,14 +45,14 @@ function TimeSchedule({...props}) {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
 
-    const [reason, setReason] = React.useState(motif);
-    const [location, setLocation] = React.useState("");
-    const [professional, setProfessional] = React.useState("");
-    const [timeSlots, setTimeSlots] = React.useState<TimeSlotModel[]>([]);
-    const [date, setDate] = React.useState<Date | null>(selectedDate);
+    const [reason, setReason] = useState(motif);
+    const [location, setLocation] = useState("");
+    const [professional, setProfessional] = useState("");
+    const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
+    const [date, setDate] = useState<Date | null>(selectedDate);
 
-    const [time, setTime] = React.useState("");
-    const [limit, setLimit] = React.useState(16);
+    const [time, setTime] = useState("");
+    const [limit, setLimit] = useState(16);
 
     const {t, ready} = useTranslation("agenda", {
         keyPrefix: "steppers",
@@ -265,10 +265,11 @@ function TimeSchedule({...props}) {
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
-                        <Typography variant="body1" color="text.primary" my={2}>
+                        <Typography variant="body1" align={"center"} color="text.primary" my={2}>
                             {t("stepper-1.time-message")}
                         </Typography>
                         <TimeSlot
+                            sx={{width: 248, margin: "auto"}}
                             loading={!date}
                             data={timeSlots}
                             limit={limit}

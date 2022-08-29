@@ -3,7 +3,6 @@ import { styled } from "@mui/material/styles";
 import { pxToRem } from "@themes/formatFontSize";
 
 const RootStyled = styled(Stack)(({ theme }) => ({
-  width: 248,
   "& .MuiChip-root": {
     height: pxToRem(29),
     width: pxToRem(56),

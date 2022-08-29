@@ -4,7 +4,11 @@ const path = require("path");
 
 /** @type {{}} */
 const nextConfig = withTM({
+  output: 'standalone',
   i18n,
+  images: {
+    domains: ["flagcdn.com"],
+  },
   webpack: (config, { nextRuntime }) => {
     config.module.rules.push({
       test: /\.svg$/,

@@ -26,6 +26,13 @@ const RootStyled = styled("div")(({ theme }) => ({
         borderBottom: "2px solid transparent",
       },
     },
+    "& .submitted": {
+      borderBottom: "2px solid " + theme.palette.text.primary,
+    },
+    "& .pending": {
+      borderBottom: "2px solid " + theme.palette.text.secondary,
+      opacity: 0.4,
+    },
   },
   '& div[role="tabpanel"]': {
     overflow: "auto",

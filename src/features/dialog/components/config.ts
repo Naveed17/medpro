@@ -135,6 +135,14 @@ const dialogData = [
       import("@features/dialog/components/secretaryConsultationDialog/secretaryConsultationDialog").then(
         (mod) => mod
       )
+    )
+  },
+  {
+    action: "move_appointment",
+    component: dynamic((): any =>
+      import("@features/dialog/components/moveAppointmentDialog/moveAppointmentDialog").then(
+        (mod) => mod
+      )
     ),
   }
 
