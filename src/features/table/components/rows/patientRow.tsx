@@ -141,7 +141,7 @@ function PatientRow({ ...props }) {
                 ) : (
                   <>
                     <Icon path="ic-agenda" />
-                    {row.nextAppointment.dayDate}
+                    {row.nextAppointment?.dayDate || "-"}
                   </>
                 )}
               </Typography>
@@ -162,7 +162,8 @@ function PatientRow({ ...props }) {
                   <Skeleton variant="text" width={100} />
                 ) : (
                   <>
-                    <Icon path="ic-time" /> {row.nextAppointment.startTime}
+                    <Icon path="ic-time" />{" "}
+                    {row.nextAppointment?.startTime || "-"}
                   </>
                 )}
               </Typography>
@@ -202,7 +203,7 @@ function PatientRow({ ...props }) {
                 ) : (
                   <>
                     <Icon path="ic-agenda" />
-                    {row.nextAppointment.dayDate}
+                    {row.nextAppointment?.dayDate || "-"}
                   </>
                 )}
               </Typography>
@@ -223,7 +224,8 @@ function PatientRow({ ...props }) {
                   <Skeleton variant="text" width={100} />
                 ) : (
                   <>
-                    <Icon path="ic-time" /> {row.nextAppointment.startTime}
+                    <Icon path="ic-time" />{" "}
+                    {row.nextAppointment?.startTime || "-"}
                   </>
                 )}
               </Typography>

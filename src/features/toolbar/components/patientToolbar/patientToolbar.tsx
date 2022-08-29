@@ -11,7 +11,6 @@ import {
   AddPatientStep1,
   AddPatientStep2,
   AddPatientStep3,
-  addPatientSelector,
 } from "@features/tabPanel";
 
 const stepperData = [
@@ -31,17 +30,8 @@ const stepperData = [
 
 function PatientToolbar({ ...props }) {
   const { onAddPatient } = props;
-  const { stepsData } = useAppSelector(addPatientSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { direction } = useAppSelector(configSelector);
-  // const isAlreadyExist =
-  //   stepsData.step1.first_name !== "" && stepsData.step2.email !== "";
-
-  // const [open, setOpen] = useState(isAlreadyExist);
-
-  // useEffect(() => {
-  //   setOpen(isAlreadyExist);
-  // }, [isAlreadyExist]);
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
   return (

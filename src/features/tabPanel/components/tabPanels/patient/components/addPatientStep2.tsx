@@ -17,11 +17,16 @@ import {
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { addPatientSelector } from "@features/tabPanel";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { useAppSelector } from "@app/redux/hooks";
 import _ from "lodash";
 import { useSession } from "next-auth/react";
 import { useRequestMutation } from "@app/axios";
 import { Session } from "next-auth";
+
+interface insuranceProps {
+  name: string;
+  id: string | number;
+}
 
 function AddPatientStep2({ ...props }) {
   const { onNext, t, onAddPatient } = props;
@@ -30,7 +35,7 @@ function AddPatientStep2({ ...props }) {
   const [loading, setLoading] = useState<boolean>(status === "loading");
   const { stepsData } = useAppSelector(addPatientSelector);
   const RegisterSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Required"),
+    email: Yup.string().email("Invalid email").required("Email Required"),
   });
 
   const { data: user } = session as Session;
@@ -51,7 +56,7 @@ function AddPatientStep2({ ...props }) {
       email: "",
       cin: "",
       from: "",
-      insurance: [],
+      insurance: [] as insuranceProps[],
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {
@@ -93,7 +98,7 @@ function AddPatientStep2({ ...props }) {
       }
     });
   };
-  const { values, handleSubmit, getFieldProps } = formik;
+  const { values, handleSubmit, getFieldProps, touched, errors } = formik;
   const handleAddInsurance = () => {
     const insurance = [...values.insurance, { name: "", number: "" }];
     formik.setFieldValue("insurance", insurance);
@@ -276,6 +281,12 @@ function AddPatientStep2({ ...props }) {
                 size="small"
                 fullWidth
                 {...getFieldProps("email")}
+                error={Boolean(touched.email && errors.email)}
+                helperText={
+                  Boolean(touched.email && errors.email)
+                    ? String(errors.email)
+                    : undefined
+                }
               />
             </Box>
             <Box>
@@ -311,7 +322,11 @@ function AddPatientStep2({ ...props }) {
           justifyContent="flex-end"
           className="action"
         >
-          <Button variant="text-black" color="primary">
+          <Button
+            variant="text-black"
+            color="primary"
+            onClick={() => onNext(0)}
+          >
             {t("return")}
           </Button>
 

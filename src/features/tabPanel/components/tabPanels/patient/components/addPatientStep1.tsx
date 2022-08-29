@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from "react";
+import React, { ChangeEvent } from "react";
 import * as Yup from "yup";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
@@ -88,7 +88,6 @@ function AddPatientStep1({ ...props }) {
   };
   const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } =
     formik;
-  console.log("success");
   return (
     <FormikProvider value={formik}>
       <Stack
@@ -230,7 +229,9 @@ function AddPatientStep1({ ...props }) {
                   native
                 >
                   {days.map((v) => (
-                    <option value={v}>{v}</option>
+                    <option key={Math.random()} value={v}>
+                      {v}
+                    </option>
                   ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
@@ -258,7 +259,9 @@ function AddPatientStep1({ ...props }) {
                   native
                 >
                   {months.map((v) => (
-                    <option value={v.value}>{v.title}</option>
+                    <option key={Math.random()} value={v.value}>
+                      {v.title}
+                    </option>
                   ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
@@ -286,7 +289,9 @@ function AddPatientStep1({ ...props }) {
                   native
                 >
                   {years.map((v) => (
-                    <option value={v}>{v}</option>
+                    <option key={Math.random()} value={v}>
+                      {v}
+                    </option>
                   ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
