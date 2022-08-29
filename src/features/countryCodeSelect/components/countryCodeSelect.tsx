@@ -38,7 +38,7 @@ function CountryCodeSelect({ ...props }) {
             // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
             alt={option.code}
             width="20px"
-            layout="fill"
+            // layout="fill"
           />
           {option?.phone}
         </Box>
@@ -56,7 +56,7 @@ function CountryCodeSelect({ ...props }) {
               //   }.png 2x`}
               alt=""
               width="27px"
-              layout="fill"
+              // layout="fill"
             />
           </InputAdornment>
         );
