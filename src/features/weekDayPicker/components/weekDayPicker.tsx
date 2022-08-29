@@ -9,8 +9,9 @@ const months: String[] = [];
 
 function WeekDayPicker({...props}) {
     const {date: initDate, onChange} = props;
-    const offsetYearWeek = moment(initDate).week() - moment().week();
-    const [currentWeek, setWeek] = useState([offsetYearWeek, offsetYearWeek + 7]);
+    const offsetYearWeekStart = moment(initDate).week() - moment().week();
+    const offsetYearWeekEnd = offsetYearWeekStart + 1;
+    const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
     const clonedDate = new Date(initDate.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
 
@@ -35,8 +36,6 @@ function WeekDayPicker({...props}) {
     }
 
     getMonths();
-
-    console.log("currentWeek", currentWeek);
 
     return (
         <WeekDayPickerStyled>
@@ -80,7 +79,10 @@ function WeekDayPicker({...props}) {
                                 },
                             }}
                             className="day"
-                            onClick={() => handleDateChange(v)}
+                            onClick={(event) => {
+                                event.preventDefault();
+                                handleDateChange(v)
+                            }}
                         >
                             <Typography
                                 variant="body2"

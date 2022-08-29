@@ -31,7 +31,7 @@ export default function TimeSlot({...props}) {
             sx={{flexWrap: "wrap", ...sx}}
         >
             {loading ?
-                [1, 2, 3, 4, 5, 6, 7, 8].map((item: number, index: number) => <Skeleton
+                Array.from(Array(limit).keys()).map((item: number, index: number) => <Skeleton
                     variant="rectangular"
                     width={56}
                     height={29}

@@ -104,6 +104,7 @@ function AppointmentDetail({...props}) {
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [value, setValue] = useState(data?.extendedProps.insctruction);
     const [openTooltip, setOpenTooltip] = useState(false);
+    const [selectedMoveDate, setSelectedMoveDate] = useState(false);
 
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
@@ -136,6 +137,7 @@ function AppointmentDetail({...props}) {
             onCancelAppointment(appointmentUUid);
         })
     }
+
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement;
@@ -151,19 +153,26 @@ function AppointmentDetail({...props}) {
     const handleQr = () => {
         handleClickDialog()
     };
+
     const handleClickDialog = () => {
         setOpenDialog(true);
 
     };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
+    };
+
+    const handleMoveDataChange = (date: Date, time: string) => {
+        console.log({date, time});
+        setSelectedMoveDate(true);
     };
 
     useEffect(() => {
         if (rootRef.current) {
             setOffsetTop(rootRef.current.offsetTop)
         }
-    }, [])
+    }, []);
 
     if (!ready) return <>loading translations...</>;
 
@@ -375,9 +384,10 @@ function AppointmentDetail({...props}) {
                 color={theme.palette.primary.main}
                 contrastText={theme.palette.primary.contrastText}
                 dialogClose={() => setMoveAlert(false)}
-                action={ () =>
+                action={() =>
                     <MoveAppointmentDialog
                         t={t}
+                        OnDateChange={(date: Date, time: string) => handleMoveDataChange(date, time)}
                         data={data}
                     />}
                 open={moveAlert}
@@ -392,6 +402,7 @@ function AppointmentDetail({...props}) {
                             {t("dialogs.move-dialog.garde-date")}
                         </Button>
                         <Button
+                            disabled={!selectedMoveDate}
                             variant="contained"
                             color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
@@ -401,7 +412,7 @@ function AppointmentDetail({...props}) {
                     </>
                 }
             ></Dialog>
-            <Dialog action={()=> <QrCodeDialog data={data} />}
+            <Dialog action={() => <QrCodeDialog data={data}/>}
                     open={openDialog}
                     data={null}
                     actions={false}

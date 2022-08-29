@@ -202,6 +202,12 @@ function Agenda() {
             EventStepper[index].disabled = false;
         } else {
             refreshData();
+            dispatch(setStepperIndex(0));
+            EventStepper.map((stepper, index) => {
+                if (index > 0) {
+                    stepper.disabled = true;
+                }
+            })
         }
     }
 

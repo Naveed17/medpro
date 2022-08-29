@@ -13,7 +13,7 @@ import {Session} from "next-auth";
 import {useIsMountedRef} from "@app/hooks";
 
 function MoveAppointmentDialog({...props}) {
-    const {t, data} = props;
+    const {t, data, OnDateChange} = props;
     const {data: session} = useSession();
     const isMounted = useIsMountedRef();
 
@@ -21,6 +21,7 @@ function MoveAppointmentDialog({...props}) {
     const [time, setTime] = useState(moment(data?.extendedProps.time).format("hh:mm"));
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [limit, setLimit] = useState(10);
+    const [loading, setLoading] = useState(true);
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
@@ -40,9 +41,8 @@ function MoveAppointmentDialog({...props}) {
             /locations/${agendaConfig?.locations[0].uuid}/professionals/
             ${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null);
+        } : null).then(() => setLoading(false));
     }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, session?.accessToken, trigger]);
-
 
     const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
@@ -62,6 +62,20 @@ function MoveAppointmentDialog({...props}) {
         }
     }, [date, weekTimeSlots]);
 
+    const onDateChange = useCallback((newDate: Date, newTime: string) => {
+        OnDateChange(newDate, newTime);
+    }, [OnDateChange]);
+
+    const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
+        if (type === "date") {
+            onDateChange(newDate as Date, time);
+            setDate(newDate as Date);
+        } else {
+            onDateChange(date, newTime as string);
+            setTime(newTime as string);
+        }
+    }
+
     return (
         <Box sx={{minHeight: 150}}>
             <AppointmentPatientCard data={data?.extendedProps}/>
@@ -75,7 +89,7 @@ function MoveAppointmentDialog({...props}) {
                         variant="subtitle1">
                 {t("dialogs.move-dialog.week-day-slot")}</Typography>
             <WeekDayPicker
-                onChange={(v: any) => setDate(v)}
+                onChange={(v: any) => handleDateChange("date", v)}
                 date={data?.extendedProps.time}/>
 
             <Grid item md={6} xs={12}>
@@ -85,11 +99,11 @@ function MoveAppointmentDialog({...props}) {
                     {t("dialogs.move-dialog.time-message")}
                 </Typography>
                 <TimeSlot
-                    loading={!date}
+                    loading={loading}
                     data={timeSlots}
                     limit={limit}
                     sx={{width: "60%", margin: "auto"}}
-                    onChange={(newTime: string) => setTime(newTime)}
+                    onChange={(time: string) => handleDateChange("time", undefined, time)}
                     OnShowMore={() => setLimit(limit * 2)}
                     value={time}
                     seeMore
