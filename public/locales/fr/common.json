@@ -97,6 +97,7 @@
       "title": "Déplacer RDV",
       "sub-title": "Voulez-vous vraiment déplacer le RDV?",
       "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "garde-date": "Gardez la date",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },

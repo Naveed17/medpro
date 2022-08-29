@@ -13,6 +13,7 @@ interface timeDataProps {
 export default function TimeSlot({...props}) {
     const {
         limit = 30,
+        sx,
         data,
         value,
         onChange,
@@ -27,7 +28,7 @@ export default function TimeSlot({...props}) {
         <RootStyled
             direction="row"
             justifyContent="space-between"
-            sx={{flexWrap: "wrap"}}
+            sx={{flexWrap: "wrap", ...sx}}
         >
             {loading ?
                 [1, 2, 3, 4, 5, 6, 7, 8].map((item: number, index: number) => <Skeleton
