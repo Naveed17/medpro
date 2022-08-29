@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Box, Typography, IconButton, Container, Divider} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -12,7 +12,7 @@ function WeekDayPicker({...props}) {
     const offsetYearWeekStart = moment(initDate).week() - moment().week();
     const offsetYearWeekEnd = offsetYearWeekStart + 1;
     const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
-    const clonedDate = new Date(initDate.getTime());
+    const clonedDate = new Date(initDate?.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
 
     const now = new Date();
@@ -30,12 +30,18 @@ function WeekDayPicker({...props}) {
             months.push(moment().set('month', index).format("MMMM")))
     }
 
+    const onChangeCallback = useCallback((date: Date)=>{
+        onChange(date);
+    },[onChange]);
+
     const handleDateChange = (date: Date) => {
         setDate(date);
-        onChange(date);
+        onChangeCallback(date);
     }
 
-    getMonths();
+    useEffect(()=>{
+        getMonths();
+    },[])
 
     return (
         <WeekDayPickerStyled>
@@ -79,10 +85,7 @@ function WeekDayPicker({...props}) {
                                 },
                             }}
                             className="day"
-                            onClick={(event) => {
-                                event.preventDefault();
-                                handleDateChange(v)
-                            }}
+                            onClick={(event) => handleDateChange(v)}
                         >
                             <Typography
                                 variant="body2"

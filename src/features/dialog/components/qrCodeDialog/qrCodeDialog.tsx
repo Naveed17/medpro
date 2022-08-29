@@ -18,7 +18,7 @@ function QrCodeDialog({...props}) {
             <Typography variant='subtitle1'>
                 {t('qr_des')}
             </Typography>
-            <QrCodeScanner value={data?.publicId}/>
+            <QrCodeScanner value={data?.publicId ? data?.publicId : data?.id}/>
         </QrCodeDialogStyled>
     )
 }

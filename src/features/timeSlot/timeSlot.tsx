@@ -3,6 +3,7 @@ import {Chip, Skeleton, Button} from "@mui/material";
 
 // styles
 import {RootStyled} from "./overrides";
+import {useEffect, useState} from "react";
 
 interface timeDataProps {
     start: string;
@@ -45,7 +46,7 @@ export default function TimeSlot({...props}) {
                     }}
                 />)
                 :
-                data.slice(0, limit).map((item: timeDataProps, index: number) =>
+                data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
                     <Chip
                         {...rest}
                         key={`time-slot-${index}`}

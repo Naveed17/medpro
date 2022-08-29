@@ -18,7 +18,7 @@ import {
     Typography,
     ListItem,
 } from "@mui/material";
-import {openDrawer as DialogOpenDrawer} from "@features/dialog";
+import {dialogSelector, openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
 import {TimeSchedule, Patient, Instruction} from "@features/tabPanel";
 
@@ -282,7 +282,7 @@ const EventStepper = [
 function ConsultationInProgress() {
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const {drawer} = useAppSelector(dialogSelector);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);

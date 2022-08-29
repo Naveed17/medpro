@@ -9,7 +9,7 @@ import { QsSidebarReducer } from "@features/leftActionBar";
 import { tableReducer } from "@features/table";
 import {ConsultationReducer} from "@features/toolbar/components/consultationIPToolbar/reducer";
 import { AgendaReducer } from "@features/calendar";
-import { DialogReducer } from "@features/dialog";
+import { DialogReducer, dialogMoveAppointmentReducer } from "@features/dialog";
 
 
 export const store = configureStore({
@@ -27,6 +27,7 @@ export const store = configureStore({
     agenda: AgendaReducer,
     appointment: appointmentReducer,
     dialog: DialogReducer,
+    dialogMove: dialogMoveAppointmentReducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(
     {

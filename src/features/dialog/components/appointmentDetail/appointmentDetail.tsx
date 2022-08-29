@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import {
     AppBar,
@@ -36,9 +36,17 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Dialog, MoveAppointmentDialog, QrCodeDialog} from "@features/dialog";
+import {
+    Dialog,
+    dialogMoveSelector,
+    MoveAppointmentDialog,
+    QrCodeDialog,
+    setMoveDate, setMoveDateTime,
+    setMoveTime
+} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {LoadingButton} from "@mui/lab";
+import {SetQualifications} from "@features/checkList";
 
 const menuList = [
     {
@@ -96,6 +104,7 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
+    const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
 
     const [alert, setAlert] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -104,7 +113,7 @@ function AppointmentDetail({...props}) {
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [value, setValue] = useState(data?.extendedProps.insctruction);
     const [openTooltip, setOpenTooltip] = useState(false);
-    const [selectedMoveDate, setSelectedMoveDate] = useState(false);
+    const [selectedMoveDate, setSelectedMoveDate] = useState(null);
 
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
@@ -163,9 +172,12 @@ function AppointmentDetail({...props}) {
         setOpenDialog(false);
     };
 
-    const handleMoveDataChange = (date: Date, time: string) => {
-        console.log({date, time});
-        setSelectedMoveDate(true);
+    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
+        if (type === 'date') {
+            dispatch(setMoveDate(moveDialogDate));
+        } else {
+            dispatch(setMoveTime(moveDialogTime));
+        }
     };
 
     useEffect(() => {
@@ -327,7 +339,13 @@ function AppointmentDetail({...props}) {
                         <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
-                        <Button onClick={() => setMoveAlert(true)}
+                        <Button onClick={() => {
+                            dispatch(setMoveDateTime({
+                                date: data?.extendedProps.time,
+                                time: moment(data?.extendedProps.time).format("hh:mm")
+                            }));
+                            setMoveAlert(true)
+                        }}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                             {t('event.move')}
@@ -386,9 +404,9 @@ function AppointmentDetail({...props}) {
                 dialogClose={() => setMoveAlert(false)}
                 action={() =>
                     <MoveAppointmentDialog
+                        OnDateChange={handleMoveDataChange}
                         t={t}
-                        OnDateChange={(date: Date, time: string) => handleMoveDataChange(date, time)}
-                        data={data}
+                        data={{...data}}
                     />}
                 open={moveAlert}
                 title={t("dialogs.move-dialog.title")}
@@ -402,7 +420,6 @@ function AppointmentDetail({...props}) {
                             {t("dialogs.move-dialog.garde-date")}
                         </Button>
                         <Button
-                            disabled={!selectedMoveDate}
                             variant="contained"
                             color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
