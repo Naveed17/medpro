@@ -1,4 +1,4 @@
-name: main workflow
+name: CI/CD
 
 on:
   push:
@@ -10,41 +10,37 @@ on:
   pull_request:
     branches:
       - 'develop'
-      - 'main'
     types: [ opened ,closed ,synchronize ,reopened ]
   
 jobs:
-  build:
+  CI:
+    runs-on: ubuntu-latest
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
-    uses: ./.github/workflows/docker_build.yml
-    with:
-      REGISTRY: ghcr.io
-      username: ${{ github.actor }}
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
 
-  delete:
-    if: ((github.event.action == 'closed' || github.event.pull_request.merged == true))
-    uses: ./.github/workflows/docker_delete.yml
-    with:
-      REGISTRY: ghcr.io
-      username: ${{ github.actor }}
-      TAG: pr-${{ github.event.number }}
-    secrets:
-      token: ${{ secrets.SMARTMEDBOT_PAT }}
+      - name: setup-node - ${{ secrets.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ secrets.NODE_VERSION }}
 
-  deploy:
+      - run: npm ci
+
+      - run: npm run lint
+
+  CD:
     if: github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/waypoint.yml
-    needs: build
+    needs: CI
     with:
+      environment: develop
       workspace: develop
       tag: develop
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-      encodedString:  ${{ secrets.MEDV2_STAGE_KUBE_CONFIG_B64 }}
+      kubeconfig:  ${{ secrets.KUBECONFIG }}
       WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
       WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
       WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
       WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
-
+      WP_VARS_HCL: ${{ secrets.WP_VARS_HCL }}
