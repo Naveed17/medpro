@@ -21,8 +21,7 @@ import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from "next-i18next";
-import { days, months, years } from "./data";
-
+import moment from "moment-timezone";
 function AddPatientStep1({ ...props }) {
   const {
     onNext,
@@ -43,14 +42,13 @@ function AddPatientStep1({ ...props }) {
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
     first_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
+      .min(3, t("first-name-error"))
+      .max(50, t("first-name-error"))
+      .required(t("first-name-error")),
     last_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
-
+      .min(3, t("last-name-error"))
+      .max(50, t("last-name-error"))
+      .required(t("last-name-error")),
     phone: Yup.string()
       .min(9, t("telephone-error"))
       .matches(phoneRegExp, t("telephone-error"))
@@ -228,9 +226,19 @@ function AddPatientStep1({ ...props }) {
                   error={Boolean(touched.birthdate && errors.birthdate)}
                   native
                 >
-                  {days.map((v) => (
-                    <option key={Math.random()} value={v}>
-                      {v}
+                  {Array.from(
+                    Array(
+                      moment(
+                        `${values.birthdate.year}-${values.birthdate.month}`,
+                        "YYYY-MM"
+                      ).daysInMonth()
+                    ).keys()
+                  ).map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={i > 9 ? `${i}` : `0${i + 1}`}
+                    >
+                      {i + 1}
                     </option>
                   ))}
                 </Select>
@@ -258,9 +266,12 @@ function AddPatientStep1({ ...props }) {
                   error={Boolean(touched.birthdate && errors.birthdate)}
                   native
                 >
-                  {months.map((v) => (
-                    <option key={Math.random()} value={v.value}>
-                      {v.title}
+                  {moment.monthsShort().map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={i > 9 ? `${i}` : `0${i + 1}`}
+                    >
+                      {v}
                     </option>
                   ))}
                 </Select>
@@ -288,9 +299,12 @@ function AddPatientStep1({ ...props }) {
                   error={Boolean(touched.birthdate && errors.birthdate)}
                   native
                 >
-                  {years.map((v) => (
-                    <option key={Math.random()} value={v}>
-                      {v}
+                  {Array.from(Array(100).keys()).map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={`${moment().year() - 100 + i + 1}`}
+                    >
+                      {moment().year() - 100 + i + 1}
                     </option>
                   ))}
                 </Select>

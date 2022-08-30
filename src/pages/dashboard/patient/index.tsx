@@ -52,6 +52,7 @@ import {
   TabPanel,
   DocumentsPanel,
 } from "@features/tabPanel";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 
 const stepperData = [
   {
@@ -279,13 +280,18 @@ function Patient() {
     data: httpPatientsResponse,
     error: errorHttpPatient,
     mutate,
-  } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
+  } = useRequest(
+    {
+      method: "GET",
+      url: `/api/medical-entity/${medical_entity.uuid}/patients/${
+        router.locale
+      }?page=${router.query.page || 1}&limit=10&withPagination=true`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
     },
-  });
+    SWRNoValidateConfig
+  );
 
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
@@ -325,13 +331,13 @@ function Patient() {
   return (
     <>
       <SubHeader>
-        <PatientToolbar onAddPatient={()=>mutate()} />
+        <PatientToolbar onAddPatient={() => mutate()} />
       </SubHeader>
       <Box className="container">
         <Box display={{ xs: "none", md: "block" }}>
           <Otable
             headers={headCells}
-            rows={(httpPatientsResponse as HttpResponse)?.data}
+            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
             state={null}
             from={"patient"}
             t={t}
@@ -340,12 +346,16 @@ function Patient() {
             handleChange={null}
             minWidth={1300}
             pagination
+            total={(httpPatientsResponse as HttpResponse)?.data?.total}
+            totalPages={
+              (httpPatientsResponse as HttpResponse)?.data?.totalPages
+            }
             loading={!Boolean(httpPatientsResponse)}
           />
         </Box>
         <PatientMobileCard
           ready={ready}
-          PatiendData={(httpPatientsResponse as HttpResponse)?.data}
+          PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
           loading={!Boolean(httpPatientsResponse)}
         />
         <Drawer
@@ -369,7 +379,7 @@ function Patient() {
               <PatientdetailsCard
                 patient={
                   httpPatientsResponse
-                    ? (httpPatientsResponse as HttpResponse)?.data.find(
+                    ? (httpPatientsResponse as HttpResponse)?.data?.list.find(
                         (patient: any) => patient.uuid === patientId
                       )
                     : {}
@@ -390,22 +400,7 @@ function Patient() {
                   onChange={handleChange}
                   variant="scrollable"
                   aria-label="basic tabs example"
-                  sx={{
-                    px: 2,
-                    position: "sticky",
-                    top: 54,
-                    borderTop: (theme) => ({
-                      md: "none",
-                      xs: `1px solid ${theme.palette.divider}`,
-                    }),
-                    zIndex: 112,
-                    bgcolor: "background.paper",
-                    button: {
-                      "&.Mui-selected": {
-                        color: (theme) => theme.palette.primary.main,
-                      },
-                    },
-                  }}
+                  className="tabs-bg-white"
                 >
                   <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
                   <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
