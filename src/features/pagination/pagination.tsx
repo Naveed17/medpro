@@ -3,21 +3,33 @@ import { Pagination as BasicPagination } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { useRouter } from "next/router";
 
 export default function Pagination({ ...props }) {
-  const { page, count, setPage, total } = props;
+  const { total, count } = props;
+  const router = useRouter();
+  const { page: currentPage } = router.query;
+  const [page, setPage] = React.useState<number>(1);
+
+  React.useEffect(() => {
+    setPage(parseInt((currentPage as any) || "1"));
+  }, [currentPage]);
 
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
       <Typography variant="body1" color="text.primary">
-        {(page + 1) * 10 - 9} -{" "}
-        {total < (page + 1) * 10 ? total : (page + 1) * 10} sur {total}
+        {page * 10 - 9} - {total < page * 10 ? total : page * 10} sur {total}
       </Typography>
       <Stack spacing={2}>
         <BasicPagination
-          onChange={(e, v) => setPage(v - 1)}
-          count={parseInt(count)}
-          page={page + 1}
+          onChange={(e, v) => {
+            setPage(v);
+            router.push({
+              query: { page: v },
+            });
+          }}
+          count={count}
+          page={page}
           color="primary"
         />
       </Stack>

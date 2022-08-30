@@ -12,7 +12,7 @@ function AddPatientStep3({ ...props }) {
     last_name: "",
     birthdate: "",
     phone: "",
-    gender: "",
+    gender: "1",
   };
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "add-patient" });
