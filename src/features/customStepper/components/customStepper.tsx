@@ -57,21 +57,8 @@ function CustomStepper({ ...props }) {
       <RootStyled
         className={scroll ? "scroll" : ""}
         sx={{
-          height: "inherit",
           minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
           maxWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
-          "& div[role='tabpanel'] > div": {
-            p: 0,
-            "& .inner-section": {
-              height: "calc(100vh - 110px)",
-              overflow: "auto",
-              p: 3,
-            },
-            "& .action": {
-              px: 2,
-              mt: 1,
-            },
-          },
         }}
       >
         <Tabs
@@ -80,6 +67,7 @@ function CustomStepper({ ...props }) {
           variant="scrollable"
           scrollButtons={false}
           aria-label="scrollable auto tabs"
+          className="stepper-tabs"
         >
           {stepperData.map(
             (

@@ -376,15 +376,15 @@ function Patient() {
                   setopen(false);
                 }}
               />
-              {/* <PatientdetailsCard
+              <PatientdetailsCard
                 patient={
                   httpPatientsResponse
-                    ? (httpPatientsResponse as HttpResponse)?.data.find(
+                    ? (httpPatientsResponse as HttpResponse)?.data?.list.find(
                         (patient: any) => patient.uuid === patientId
                       )
                     : {}
                 }
-              /> */}
+              />
               <Box
                 sx={{
                   width: { md: 726, xs: "100%" },
@@ -400,22 +400,7 @@ function Patient() {
                   onChange={handleChange}
                   variant="scrollable"
                   aria-label="basic tabs example"
-                  sx={{
-                    px: 2,
-                    position: "sticky",
-                    top: 54,
-                    borderTop: (theme) => ({
-                      md: "none",
-                      xs: `1px solid ${theme.palette.divider}`,
-                    }),
-                    zIndex: 112,
-                    bgcolor: "background.paper",
-                    button: {
-                      "&.Mui-selected": {
-                        color: (theme) => theme.palette.primary.main,
-                      },
-                    },
-                  }}
+                  className="tabs-bg-white"
                 >
                   <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
                   <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
