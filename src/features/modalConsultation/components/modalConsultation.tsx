@@ -114,7 +114,9 @@ function ModalConsultation() {
                     }}>
                         <Box>
                             {value.color !== "#FEBD15" && <FormBuilder
-                                onSubmit={(ev:any)=>{dispatch(SetFiche(ev.data))}}
+                                onSubmit={(ev: any) => {
+                                    dispatch(SetFiche(ev.data))
+                                }}
                                 onError={console.log}
                                 //submission={{ data: {taille:'3',imc:30} }}
                                 form={
@@ -154,7 +156,7 @@ function ModalConsultation() {
                     open={openDialog}
                     data={{data: modalConfig, change}}
                     change={change}
-                    max
+                    size={"lg"}
                     direction={'ltr'}
                     title={'Personaliser les données de suivi'}
                     dialogClose={handleCloseDialog}

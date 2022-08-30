@@ -13,21 +13,21 @@ import {
     DialogActions
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from '@mui/icons-material/Circle';
-import { Dialog } from "@features/dialog";
+import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
 import Add from "@mui/icons-material/Add";
-import { data1, data2, data3, data4 } from './config'
-import { useAppDispatch } from "@app/redux/hooks";
-import { openDrawer } from "@features/calendar";
+import {data1, data2, data3, data4} from './config'
+import {useAppDispatch} from "@app/redux/hooks";
+import {openDrawer} from "@features/calendar";
 
 
-const Content = ({ ...props }) => {
-    const { id,patient } = props;
-    const { t, ready } = useTranslation('consultation', { keyPrefix: 'filter' });
+const Content = ({...props}) => {
+    const {id, patient} = props;
+    const {t, ready} = useTranslation('consultation', {keyPrefix: 'filter'});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [info, setInfo] = React.useState<null | string>('');
@@ -41,7 +41,7 @@ const Content = ({ ...props }) => {
     }
     const handleOpen = (action: string) => {
         if (action === "consultation") {
-            dispatch(openDrawer({ type: "add", open: true }));
+            dispatch(openDrawer({type: "add", open: true}));
             return
         }
         switch (action) {
@@ -64,7 +64,8 @@ const Content = ({ ...props }) => {
                 setInfo(null)
                 break;
 
-        };
+        }
+        ;
         handleClickDialog()
 
     };
@@ -84,13 +85,13 @@ const Content = ({ ...props }) => {
                                             data1.map((list, index) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
-                                                        <CircleIcon />
+                                                        <CircleIcon/>
                                                     </ListItemIcon>
                                                     <Typography variant="body2" color="text.secondary">
                                                         {list.name} / {list.duration} {t(list.dosage)}
                                                     </Typography>
-                                                    <IconButton size="small" sx={{ ml: 'auto' }}>
-                                                        <Icon path="setting/icdelete" />
+                                                    <IconButton size="small" sx={{ml: 'auto'}}>
+                                                        <Icon path="setting/icdelete"/>
                                                     </IconButton>
                                                 </ListItem>
                                             )
@@ -98,7 +99,7 @@ const Content = ({ ...props }) => {
 
                                     </List>
                                     <Button onClick={() => handleOpen("add_treatment")} size="small" startIcon={
-                                        <Add />
+                                        <Add/>
                                     }>
                                         {t('add')}
                                     </Button>
@@ -111,7 +112,7 @@ const Content = ({ ...props }) => {
                                             data2.map((list, index) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
-                                                        <CircleIcon />
+                                                        <CircleIcon/>
                                                     </ListItemIcon>
                                                     <Typography variant="body2" color="text.secondary">
                                                         {list.name}
@@ -122,13 +123,14 @@ const Content = ({ ...props }) => {
 
                                     </List>
                                     <Stack direction="row" spacing={2}>
-                                        <Button onClick={() => handleOpen("balance_sheet_pending")} size="small" startIcon={
-                                            <Add />
-                                        }>
+                                        <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
+                                                startIcon={
+                                                    <Add/>
+                                                }>
                                             {t('add_result')}
                                         </Button>
                                         <Button color="error" size="small" startIcon={
-                                            <Icon path="setting/icdelete" />
+                                            <Icon path="setting/icdelete"/>
                                         }>
                                             {t('ignore')}
                                         </Button>
@@ -142,7 +144,7 @@ const Content = ({ ...props }) => {
                                             data3.map((list, index) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
-                                                        <CircleIcon />
+                                                        <CircleIcon/>
                                                     </ListItemIcon>
                                                     <Typography variant="body2" color="text.secondary">
                                                         {list.date}
@@ -154,7 +156,7 @@ const Content = ({ ...props }) => {
                                     </List>
                                     <Stack mt={2}>
                                         <Button onClick={() => handleOpen("consultation")} size="small" startIcon={
-                                            <Add />
+                                            <Add/>
                                         }>
                                             {t('add')}
                                         </Button>
@@ -178,13 +180,13 @@ const Content = ({ ...props }) => {
                                         card.list.map((item, index) =>
                                             <ListItem key={`list-${index}`}>
                                                 <ListItemIcon>
-                                                    <CircleIcon />
+                                                    <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
                                                     {item.name}
                                                 </Typography>
-                                                <IconButton size="small" sx={{ ml: 'auto' }}>
-                                                    <Icon path="setting/icdelete" />
+                                                <IconButton size="small" sx={{ml: 'auto'}}>
+                                                    <Icon path="setting/icdelete"/>
                                                 </IconButton>
                                             </ListItem>
                                         )
@@ -193,7 +195,7 @@ const Content = ({ ...props }) => {
                                 </List>
                                 <Stack mt={2} alignItems="flex-start">
                                     <Button onClick={() => handleOpen(card.title)} size="small" startIcon={
-                                        <Add />
+                                        <Add/>
                                     }>
                                         {card.title === "life_style" ? t('add') : t("add_history")}
                                     </Button>
@@ -206,29 +208,29 @@ const Content = ({ ...props }) => {
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={null}
-                    change={false}
-                    max
-                    direction={'ltr'}
-                    actions={true}
-                    title={t(info)}
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleCloseDialog}
+                        open={openDialog}
+                        data={null}
+                        change={false}
+                        size={"lg"}
+                        direction={'ltr'}
+                        actions={true}
+                        title={t(info)}
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog}
+                                        startIcon={<CloseIcon/>}>
+                                    {t('cancel')}
+                                </Button>
+                                <Button variant="contained"
+                                        onClick={handleCloseDialog}
 
-                                startIcon={<Icon
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                    } />
+                                        startIcon={<Icon
+                                            path='ic-dowlaodfile'/>}>
+                                    {t('save')}
+                                </Button>
+                            </DialogActions>
+                        }/>
             }
 
         </React.Fragment>
