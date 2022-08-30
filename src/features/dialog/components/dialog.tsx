@@ -7,7 +7,7 @@ import Dialog, { DialogProps } from "@mui/material/Dialog";
 import { useState } from "react";
 
 function Dialogs({ ...props }) {
-    const { action, data, contrastText, open, dialogClose, direction, color, title, actionDialog, onClose, size = 'md' } = props;
+    const { action, data, contrastText, open, dialogClose, direction, color, title, actionDialog, onClose, size = 'md', ...rest } = props;
 
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth, setFullWidth] = useState(true);
@@ -17,6 +17,7 @@ function Dialogs({ ...props }) {
     return (
         <>
             <Dialog
+                {...rest}
                 open={open}
                 fullWidth={fullWidth}
                 maxWidth={maxWidth}
