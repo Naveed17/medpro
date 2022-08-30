@@ -104,11 +104,10 @@ const CardSection = ({ ...props }) => {
           <Box
             className="border-left-sec"
             sx={{
-              borderLeft: `5px solid ${
-                v?.isParent
+              borderLeft: `5px solid ${v?.isParent
                   ? theme.palette.success.main
                   : theme.palette.warning.main
-              }`,
+                }`,
             }}
           >
             <Button

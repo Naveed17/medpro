@@ -146,6 +146,7 @@ function Consultation() {
         startIcon={<Icon path="ic-filter" />}
         onClick={() => setDrawer(!drawer)}
         sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+        variant="filter"
       >
         Filtrer (0)
       </Button>

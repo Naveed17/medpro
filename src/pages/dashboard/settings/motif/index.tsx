@@ -1,27 +1,29 @@
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
-import {Box, Button, Drawer, Stack, Typography} from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {EditMotifDialog} from "@features/editMotifDialog";
-import {SubHeader} from "@features/subHeader";
-import {configSelector} from "@features/base";
-import {useAppSelector} from "@app/redux/hooks";
-import {Otable} from "@features/table";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {useRouter} from "next/router";
-import {useDateConverture} from "@app/hooks";
-
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DashLayout } from "@features/base";
+import { Box, Button, Container, Drawer, Stack, Typography } from "@mui/material";
+import { useTranslation } from "next-i18next";
+import { EditMotifDialog } from "@features/editMotifDialog";
+import { SubHeader } from "@features/subHeader";
+import { configSelector } from "@features/base";
+import { useAppSelector } from "@app/redux/hooks";
+import { Otable } from "@features/table";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { useRouter } from "next/router";
+import { useDateConverture } from "@app/hooks";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { MotifListMobile } from '@features/card'
 function Motif() {
 
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
+    const { data: session } = useSession();
+    const { data: user } = session as Session;
     const router = useRouter();
 
-    const {trigger} = useRequestMutation(null, "/settings/motifs");
+    const { trigger } = useRequestMutation(null, "/settings/motifs");
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -34,14 +36,14 @@ function Motif() {
         isEnabled: true
     });
     const [selected, setSelected] = useState();
-    const {direction} = useAppSelector(configSelector);
+    const { direction } = useAppSelector(configSelector);
     const durations = useDateConverture(15, 240)
     const delay = useDateConverture(1440, 21600)
 
-    const {data, error,mutate} = useRequest({
+    const { data, error, mutate } = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        headers: { Authorization: `Bearer ${session?.accessToken}` }
     });
 
     useEffect(() => {
@@ -54,7 +56,7 @@ function Motif() {
         setEdit(false);
     }
 
-    const {t, ready} = useTranslation(['settings', 'common'], {
+    const { t, ready } = useTranslation(['settings', 'common'], {
         keyPrefix: "motif.config",
     });
 
@@ -135,21 +137,21 @@ function Motif() {
                 props.isEnabled = !props.isEnabled;
                 if (!props.isEnabled) {
                     state.isEnabled = false;
-                    setState({...state});
+                    setState({ ...state });
                 }
-                form.append('attribute', JSON.stringify({attribute: 'isEnable', value: props.isEnabled}));
+                form.append('attribute', JSON.stringify({ attribute: 'isEnable', value: props.isEnabled }));
                 break;
             case "duration":
                 props.duration = value;
-                form.append('attribute', JSON.stringify({attribute: 'duration', value}));
+                form.append('attribute', JSON.stringify({ attribute: 'duration', value }));
                 break;
             case "min":
                 props.minimumDelay = value;
-                form.append('attribute', JSON.stringify({attribute: 'minimumDelay', value}));
+                form.append('attribute', JSON.stringify({ attribute: 'minimumDelay', value }));
                 break;
             case "max":
                 props.maximumDelay = value;
-                form.append('attribute', JSON.stringify({attribute: 'maximumDelay', value}));
+                form.append('attribute', JSON.stringify({ attribute: 'maximumDelay', value }));
                 break;
             default:
                 break
@@ -163,7 +165,7 @@ function Motif() {
                 ContentType: 'application/x-www-form-urlencoded',
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit qualification', r))
 
         setRows([...rows]);
     }
@@ -175,7 +177,7 @@ function Motif() {
             rows.map(row => row.isEnabled = state.isEnabled);
             setRows([...rows]);
         }
-        setState({...state});
+        setState({ ...state });
     }
 
     const editMotif = (props: any) => {
@@ -200,36 +202,55 @@ function Motif() {
                         onClick={() => {
                             editMotif(null)
                         }}
-                        sx={{ml: "auto"}}
+                        sx={{ ml: "auto" }}
                     >
                         {t("add")}
                     </Button>
                 </Stack>
             </SubHeader>
-            <Box bgcolor="#F0FAFF" sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
-                <Otable headers={headCells}
-                        rows={rows}
-                        state={state}
-                        from={'motif'}
-                        pagination={true}
-                        t={t}
-                        edit={editMotif}
-                        durations={durations}
-                        delay={delay}
-                        handleConfig={handleConfig}
-                        handleChange={handleChange}/>
-                <Drawer
-                    anchor={'right'}
-                    open={edit}
-                    dir={direction}
-                    onClose={closeDraw}>
-                    <EditMotifDialog data={selected}
-                                     durations={durations}
-                                     delay={delay}
-                                     mutateEvent={mutate}
-                                     closeDraw={closeDraw}/>
-                </Drawer>
-            </Box>
+            <DesktopContainer>
+                <Container>
+                    <Box pt={3.7}>
+                        <Otable headers={headCells}
+                            rows={rows}
+                            state={state}
+                            from={'motif'}
+                            pagination={true}
+                            t={t}
+                            edit={editMotif}
+                            durations={durations}
+                            delay={delay}
+                            handleConfig={handleConfig}
+                            handleChange={handleChange} />
+                    </Box>
+                </Container>
+            </DesktopContainer>
+            <MobileContainer>
+                <Container>
+                    <Box pt={3.7}>
+                        {
+                            rows.map((row, idx) =>
+                                <React.Fragment key={idx}>
+                                    <MotifListMobile t={t} data={row} durations={durations}
+                                        delay={delay} />
+                                </React.Fragment>
+                            )
+                        }
+
+                    </Box>
+                </Container>
+            </MobileContainer>
+            <Drawer
+                anchor={'right'}
+                open={edit}
+                dir={direction}
+                onClose={closeDraw}>
+                <EditMotifDialog data={selected}
+                    durations={durations}
+                    delay={delay}
+                    mutateEvent={mutate}
+                    closeDraw={closeDraw} />
+            </Drawer>
         </>
     )
 }

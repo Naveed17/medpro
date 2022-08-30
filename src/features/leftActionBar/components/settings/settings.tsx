@@ -13,9 +13,9 @@ import {
 // utils
 
 // config data
-import  settingsData  from "./settingsConfig";
-import {SettingBarStyled} from "@features/leftActionBar";
-import {useTranslation} from "next-i18next";
+import settingsData from "./settingsConfig";
+import { SettingBarStyled } from "@features/leftActionBar";
+import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 
 function Settings() {
@@ -36,15 +36,16 @@ function Settings() {
                             <ListItem
                                 key={v.name}
                                 onClick={() => {
-                                    router.push(`${v.href}`);
+                                    !v.disable && router.push(`${v.href}`);
                                 }}
+
                                 className={router.pathname === v.href ? 'active' : ''}
                                 disablePadding>
                                 <ListItemButton disabled={v.disable} disableRipple>
                                     <ListItemIcon>
                                         <IconUrl path={v.icon} />
                                     </ListItemIcon>
-                                    <ListItemText primary={t('menu.'+v.name)} />
+                                    <ListItemText primary={t('menu.' + v.name)} />
                                 </ListItemButton>
                             </ListItem>
                         ))}

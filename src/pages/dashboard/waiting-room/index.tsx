@@ -16,10 +16,10 @@ import { Otable } from "@features/table";
 export const rows = [
   {
     id: 1,
-    reson: "1st consultation",
+    reson: "Consultation",
     arrivaltime: "3:00",
     appointmentTime: "3:30",
-    duration: "30",
+    waiting: "30",
     type: "cabinet",
     status: "completed",
     patient: "John Doe",
@@ -27,14 +27,13 @@ export const rows = [
   },
   {
     id: 2,
-    reson: "1st consultation",
+    reson: "Control",
     arrivaltime: "3:00",
     appointmentTime: "3:30",
-    duration: "30",
+    waiting: "30",
     type: "teleconsultation",
     status: "canceled",
     patient: "John Doe",
-    agenda: "Agenda cabinet",
   },
 ];
 export const headCells = [
@@ -63,20 +62,20 @@ export const headCells = [
     sortable: false,
   },
   {
+    id: "waiting",
+    numeric: false,
+    disablePadding: true,
+    label: "waiting",
+    align: "left",
+    sortable: true,
+  },
+  {
     id: "motif",
     numeric: false,
     disablePadding: true,
     label: "Reason",
     align: "left",
     sortable: false,
-  },
-  {
-    id: "status",
-    numeric: false,
-    disablePadding: true,
-    label: "Status",
-    align: "left",
-    sortable: true,
   },
   {
     id: "patient",
@@ -87,10 +86,10 @@ export const headCells = [
     sortable: true,
   },
   {
-    id: "agenda",
+    id: "status",
     numeric: false,
     disablePadding: true,
-    label: "Agenda",
+    label: "Status",
     align: "left",
     sortable: true,
   },
@@ -143,7 +142,7 @@ function Room() {
           />
         </Box>
         <Stack spacing={1} mt={2} display={{ xs: "flex", md: "none" }}>
-          <DetailsCard waitingRoom rows={rows} />
+          <DetailsCard waitingRoom rows={rows} t={t} />
         </Stack>
       </Box>
     </>
