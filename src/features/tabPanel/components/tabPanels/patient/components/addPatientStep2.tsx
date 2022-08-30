@@ -189,7 +189,7 @@ function AddPatientStep2({ ...props }) {
               />
             </Box>
             <Box>
-              <Typography sx={{ mb: 1.5 }}>
+              <Typography sx={{ mb: 1.5, textTransform: "capitalize" }}>
                 <IconButton
                   onClick={handleAddInsurance}
                   className="success-light"
@@ -198,9 +198,6 @@ function AddPatientStep2({ ...props }) {
                     "& svg": {
                       width: 20,
                       height: 20,
-                      "& path": {
-                        fill: (theme) => theme.palette.text.primary,
-                      },
                     },
                   }}
                 >

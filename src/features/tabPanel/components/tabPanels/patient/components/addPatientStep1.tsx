@@ -43,14 +43,13 @@ function AddPatientStep1({ ...props }) {
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
     first_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
+      .min(3, t("first-name-error"))
+      .max(50, t("first-name-error"))
+      .required(t("first-name-error")),
     last_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
-
+      .min(3, t("last-name-error"))
+      .max(50, t("last-name-error"))
+      .required(t("last-name-error")),
     phone: Yup.string()
       .min(9, t("telephone-error"))
       .matches(phoneRegExp, t("telephone-error"))

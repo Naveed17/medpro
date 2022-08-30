@@ -52,6 +52,7 @@ import {
   TabPanel,
   DocumentsPanel,
 } from "@features/tabPanel";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 
 const stepperData = [
   {
@@ -279,13 +280,18 @@ function Patient() {
     data: httpPatientsResponse,
     error: errorHttpPatient,
     mutate,
-  } = useRequest({
-    method: "GET",
-    url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
-    headers: {
-      Authorization: `Bearer ${session?.accessToken}`,
+  } = useRequest(
+    {
+      method: "GET",
+      url: `/api/medical-entity/${medical_entity.uuid}/patients/${
+        router.locale
+      }?page=${router.query.page || 1}&limit=10&withPagination=true`,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
     },
-  });
+    SWRNoValidateConfig
+  );
 
   // selectors
   const { patientId } = useAppSelector(tableActionSelector);
@@ -325,7 +331,7 @@ function Patient() {
   return (
     <>
       <SubHeader>
-        <PatientToolbar onAddPatient={()=>mutate()} />
+        <PatientToolbar onAddPatient={() => mutate()} />
       </SubHeader>
       <Box className="container">
         <Box display={{ xs: "none", md: "block" }}>
@@ -345,7 +351,7 @@ function Patient() {
         </Box>
         <PatientMobileCard
           ready={ready}
-          PatiendData={(httpPatientsResponse as HttpResponse)?.data}
+          PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
           loading={!Boolean(httpPatientsResponse)}
         />
         <Drawer
@@ -366,7 +372,7 @@ function Patient() {
                   setopen(false);
                 }}
               />
-              <PatientdetailsCard
+              {/* <PatientdetailsCard
                 patient={
                   httpPatientsResponse
                     ? (httpPatientsResponse as HttpResponse)?.data.find(
@@ -374,7 +380,7 @@ function Patient() {
                       )
                     : {}
                 }
-              />
+              /> */}
               <Box
                 sx={{
                   width: { md: 726, xs: "100%" },

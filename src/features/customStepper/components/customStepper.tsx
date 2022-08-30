@@ -59,7 +59,7 @@ function CustomStepper({ ...props }) {
         sx={{
           height: "inherit",
           minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
-
+          maxWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
           "& div[role='tabpanel'] > div": {
             p: 0,
             "& .inner-section": {
