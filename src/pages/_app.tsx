@@ -16,6 +16,7 @@ import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@app/keycloak/keycloakSession";
 import SwrProvider from "@app/swr/swrProvider";
 import AuthGuard from "@app/keycloak/authGuard";
+import moment from "moment-timezone";
 
 interface MyAppProps extends AppProps {
   Component: AppProps["Component"] & NextPageWithLayout;
@@ -27,6 +28,7 @@ type NextPageWithLayout = NextPage & {
 
 function MyApp({ Component, pageProps: { ...pageProps } }: MyAppProps) {
   // Use the dashLayout defined at the page level, if available
+  moment.tz.setDefault(moment.tz.guess());
   const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <Provider store={store}>

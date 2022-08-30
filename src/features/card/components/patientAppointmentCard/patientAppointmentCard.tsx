@@ -2,7 +2,7 @@ import RootStyled from './overrides/rootStyled';
 import {Avatar, Box, IconButton, ListItemIcon, ListItemText, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import moment from "moment";
+import moment from "moment-timezone";
 
 function PatientAppointmentCard({...props}) {
     const {item, listing, onReset, ...rest} = props;

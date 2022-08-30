@@ -23,7 +23,7 @@ import {Popover} from "@features/popover";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
-import moment from "moment";
+import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
@@ -102,7 +102,11 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
-    const {date: moveDialogDate, time: moveDialogTime, selected: moveDateChanged} = useAppSelector(dialogMoveSelector);
+    const {
+        date: moveDialogDate,
+        time: moveDialogTime,
+        selected: moveDateChanged
+    } = useAppSelector(dialogMoveSelector);
 
     const [alert, setAlert] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -176,7 +180,8 @@ function AppointmentDetail({...props}) {
     };
 
     const submitMoveAppointment = () => {
-        console.log(moveDialogDate, moveDialogTime);
+        setMoveAlert(false);
+        onMoveAppointment({date: moveDialogDate, time: moveDialogTime});
     }
 
     useEffect(() => {
@@ -339,13 +344,13 @@ function AppointmentDetail({...props}) {
                             {t('waiting')}
                         </Button>
                         <Button onClick={() => {
-                                    dispatch(setMoveDateTime({
-                                        date: data?.extendedProps.time,
-                                        time: moment(data?.extendedProps.time).format("hh:mm"),
-                                        selected: false
-                                    }));
-                                    setMoveAlert(true)
-                                }}
+                            dispatch(setMoveDateTime({
+                                date: data?.extendedProps.time,
+                                time: moment(data?.extendedProps.time).format("hh:mm"),
+                                selected: false
+                            }));
+                            setMoveAlert(true)
+                        }}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                             {t('event.move')}
@@ -388,7 +393,7 @@ function AppointmentDetail({...props}) {
                             {...(loading && loading)}
                             variant="contained"
                             color={"error"}
-                            onClick={() => cancelAppointment(data?.publicId as string)}
+                            onClick={() => cancelAppointment(data?.publicId ? data?.publicId as string : (data as any)?.id)}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                         >
                             {t("dialogs.cancel-dialog.confirm")}
@@ -406,7 +411,7 @@ function AppointmentDetail({...props}) {
                     <MoveAppointmentDialog
                         OnDateChange={handleMoveDataChange}
                         t={t}
-                        data={{...data}}
+                        data={data}
                     />}
                 open={moveAlert}
                 title={t("dialogs.move-dialog.title")}
@@ -433,8 +438,6 @@ function AppointmentDetail({...props}) {
             ></Dialog>
             <Dialog action={() => <QrCodeDialog data={data}/>}
                     open={openDialog}
-                    data={null}
-                    actions={false}
                     onClose={handleCloseDialog}
                     direction={'ltr'}
                     title={t("qr_title")}

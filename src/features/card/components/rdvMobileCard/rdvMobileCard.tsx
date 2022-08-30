@@ -14,7 +14,7 @@ import Icon from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 // ____________________
-import moment from "moment";
+import moment from "moment-timezone";
 
 function RDVMobileCard({ ...props }) {
   const { inner } = props;
