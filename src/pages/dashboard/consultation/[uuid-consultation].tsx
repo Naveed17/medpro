@@ -333,7 +333,8 @@ function ConsultationInProgress() {
                 headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
             }, {revalidate: true, populateCache: true}).then(res => {
                 setAppointement((res?.data as HttpResponse).data)
-                dispatch(SetPatient((res?.data as HttpResponse).data.appointment.patient))
+                console.log(res)
+                dispatch(SetPatient((res?.data as HttpResponse).data.patient))
             })
     }, [dispatch, medical_entity, mpUuid, router.locale, session?.accessToken, trigger])
 

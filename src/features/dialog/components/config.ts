@@ -98,7 +98,7 @@ const dialogData = [
     ),
   },
   {
-    action: "life_style",
+    action: "way_of_life",
     component: dynamic((): any =>
       import("@features/dialog/components/lifeStyleDialog/lifeStyleDialog").then(
         (mod) => mod
@@ -106,7 +106,15 @@ const dialogData = [
     ),
   },
   {
-    action: "family_history",
+    action: "allergic",
+    component: dynamic((): any =>
+        import("@features/dialog/components/lifeStyleDialog/lifeStyleDialog").then(
+            (mod) => mod
+        )
+    ),
+  },
+  {
+    action: "family_antecedents",
     component: dynamic((): any =>
       import("@features/dialog/components/familyHistoryDialog/familyHistoryDialog").then(
         (mod) => mod
@@ -114,7 +122,7 @@ const dialogData = [
     ),
   },
   {
-    action: "surgical_history",
+    action: "surgical_antecedents",
     component: dynamic((): any =>
       import("@features/dialog/components/surgicalHistoryDialog/surgicalHistoryDialog").then(
         (mod) => mod

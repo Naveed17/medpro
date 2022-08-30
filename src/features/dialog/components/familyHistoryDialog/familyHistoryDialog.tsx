@@ -26,7 +26,7 @@ function FamilyHistoryDialog() {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/antecedents/1/${router.locale}`,
+        url: `/api/antecedents/4/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
