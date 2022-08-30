@@ -3,6 +3,7 @@ import {Chip, Skeleton, Button} from "@mui/material";
 
 // styles
 import {RootStyled} from "./overrides";
+import {useEffect, useState} from "react";
 
 interface timeDataProps {
     start: string;
@@ -31,7 +32,7 @@ export default function TimeSlot({...props}) {
             sx={{flexWrap: "wrap", ...sx}}
         >
             {loading ?
-                [1, 2, 3, 4, 5, 6, 7, 8].map((item: number, index: number) => <Skeleton
+                Array.from(Array(limit).keys()).map((item: number, index: number) => <Skeleton
                     variant="rectangular"
                     width={56}
                     height={29}
@@ -45,7 +46,7 @@ export default function TimeSlot({...props}) {
                     }}
                 />)
                 :
-                data.slice(0, limit).map((item: timeDataProps, index: number) =>
+                data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
                     <Chip
                         {...rest}
                         key={`time-slot-${index}`}

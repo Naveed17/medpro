@@ -14,7 +14,10 @@ import {
     Box,
     Grid,
     Avatar,
-    Skeleton, DialogActions
+    Skeleton,
+    DialogActions,
+    useMediaQuery,
+    Theme,
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -60,7 +63,7 @@ function Profil() {
     });
 
     const { trigger } = useRequestMutation(null, "/settings");
-
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     useEffect(() => {
         if (httpMedicalProfessionalResponse !== undefined) {
             const infoData = (httpMedicalProfessionalResponse as any).data[0];
@@ -232,7 +235,9 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2"
                                             fontWeight={600}>{t('profil.specialities')}</Typography>
-                                        <Button variant="outlined" color="info">
+                                        <Button
+                                            {...(isMobile && { fullWidth: true })}
+                                            variant="outlined" color="info">
                                             {loading ? <Skeleton width={50} variant="text" /> : speciality}
                                         </Button>
                                         <BasicAlert icon="danger"
@@ -306,18 +311,20 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                             fontWeight={600}>{t('profil.regMode')}</Typography>
-                                        <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems={{ xs: "stretch", md: "flex-start" }} width={1}>
                                             {
                                                 loading ?
                                                     initalData.map((mode: any, index) => (
-                                                        <Button key={index} variant="outlined" color="info"
+                                                        <Button
+                                                            key={index} variant="outlined" color="info"
                                                             onClick={() => dialogOpen('mode')}>
                                                             {<Skeleton width={50} variant="text" />}
                                                         </Button>
                                                     )) :
                                                     paymentMeans.length > 0 ?
                                                         paymentMeans.map((mode: any) => (
-                                                            <Button key={mode.uuid} variant="outlined" color="info"
+                                                            <Button
+                                                                key={mode.uuid} variant="outlined" color="info"
                                                                 onClick={() => dialogOpen('mode')}>
                                                                 {mode.name}
                                                             </Button>
@@ -338,7 +345,7 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                             fontWeight={600}>{t('profil.langues')}</Typography>
-                                        <Stack spacing={1} direction="row" alignItems="flex-start" width={1}>
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems={{ xs: "stretch", md: "flex-start" }} width={1}>
                                             {
                                                 loading ?
                                                     initalData.map((language: any, index) => (
@@ -371,7 +378,7 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                             fontWeight={600}>{t('profil.actes')}</Typography>
-                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start"
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems={{ xs: "stretch", md: "flex-start" }}
                                             width={1}>
                                             {
                                                 loading ?
@@ -404,7 +411,7 @@ function Profil() {
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" gutterBottom
                                             fontWeight={600}>{t('profil.actesSec')}</Typography>
-                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems="flex-start"
+                                        <Stack spacing={1} direction={{ xs: 'column', md: 'row' }} alignItems={{ xs: "stretch", md: "flex-start" }}
                                             width={1}>
                                             {
                                                 loading ?

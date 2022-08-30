@@ -15,31 +15,21 @@ FROM wodby/node:16 AS builder
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
+COPY --chown=node:node --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
 COPY --chown=node:node . "${APP_ROOT}/"
 
 RUN set -xe; \
-    npm run build -- --no-lint
+  npm run build -- --no-lint
 
 FROM wodby/node:16 AS runner
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# You only need to copy next.config.js if you are NOT using the default configuration
-COPY docker/docker-entrypoint-init.d/ /docker-entrypoint-init.d/
-COPY --chown=node:node --from=builder ${APP_ROOT}/next.config.js ./
-COPY --chown=node:node --from=builder ${APP_ROOT}/public ./public
-COPY --chown=node:node --from=builder ${APP_ROOT}/.next ./.next
-COPY --chown=node:node --from=builder ${APP_ROOT}/package.json ./package.json
-COPY --chown=node:node --from=builder ${APP_ROOT}/package-lock.json ./package-lock.json
-COPY --chown=node:node --from=builder ${APP_ROOT}/node_modules ./node_modules
-COPY --chown=node:node --from=builder ${APP_ROOT}/next-i18next.config.js ./next-i18next.config.js
-COPY --chown=node:node --from=builder ${APP_ROOT}/next-fullcalendar.config.js ./next-fullcalendar.config.js
-
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-# COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/standalone ./
-# COPY --from=builder --chown=node:nodejs ${APP_ROOT}/.next/static ./.next/static
+COPY --from=builder --chown=node:node ${APP_ROOT}/public ./public
+COPY --from=builder --chown=node:node ${APP_ROOT}/.next/standalone ./
+COPY --from=builder --chown=node:node ${APP_ROOT}/.next/static ./.next/static
 
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]

@@ -36,7 +36,13 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {Dialog, MoveAppointmentDialog, QrCodeDialog} from "@features/dialog";
+import {
+    Dialog,
+    dialogMoveSelector,
+    MoveAppointmentDialog,
+    QrCodeDialog,
+    setMoveDateTime
+} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {LoadingButton} from "@mui/lab";
 
@@ -96,6 +102,7 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
+    const {date: moveDialogDate, time: moveDialogTime, selected: moveDateChanged} = useAppSelector(dialogMoveSelector);
 
     const [alert, setAlert] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -113,7 +120,8 @@ function AppointmentDetail({...props}) {
 
     const {
         trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status", {revalidate: false, populateCache: false});
+    } = useRequestMutation(null, "/agenda/update/appointment/status",
+        {revalidate: false, populateCache: false});
 
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
@@ -136,6 +144,7 @@ function AppointmentDetail({...props}) {
             onCancelAppointment(appointmentUUid);
         })
     }
+
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement;
@@ -151,19 +160,30 @@ function AppointmentDetail({...props}) {
     const handleQr = () => {
         handleClickDialog()
     };
+
     const handleClickDialog = () => {
         setOpenDialog(true);
 
     };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
+        dispatch(setMoveDateTime(type === 'date' ?
+            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
+    };
+
+    const submitMoveAppointment = () => {
+        console.log(moveDialogDate, moveDialogTime);
+    }
 
     useEffect(() => {
         if (rootRef.current) {
             setOffsetTop(rootRef.current.offsetTop)
         }
-    }, [])
+    }, []);
 
     if (!ready) return <>loading translations...</>;
 
@@ -318,7 +338,14 @@ function AppointmentDetail({...props}) {
                         <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
-                        <Button onClick={() => setMoveAlert(true)}
+                        <Button onClick={() => {
+                                    dispatch(setMoveDateTime({
+                                        date: data?.extendedProps.time,
+                                        time: moment(data?.extendedProps.time).format("hh:mm"),
+                                        selected: false
+                                    }));
+                                    setMoveAlert(true)
+                                }}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                             {t('event.move')}
@@ -375,10 +402,11 @@ function AppointmentDetail({...props}) {
                 color={theme.palette.primary.main}
                 contrastText={theme.palette.primary.contrastText}
                 dialogClose={() => setMoveAlert(false)}
-                action={ () =>
+                action={() =>
                     <MoveAppointmentDialog
+                        OnDateChange={handleMoveDataChange}
                         t={t}
-                        data={data}
+                        data={{...data}}
                     />}
                 open={moveAlert}
                 title={t("dialogs.move-dialog.title")}
@@ -393,6 +421,8 @@ function AppointmentDetail({...props}) {
                         </Button>
                         <Button
                             variant="contained"
+                            disabled={!moveDateChanged}
+                            onClick={() => submitMoveAppointment()}
                             color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                         >
@@ -401,7 +431,7 @@ function AppointmentDetail({...props}) {
                     </>
                 }
             ></Dialog>
-            <Dialog action={()=> <QrCodeDialog data={data} />}
+            <Dialog action={() => <QrCodeDialog data={data}/>}
                     open={openDialog}
                     data={null}
                     actions={false}

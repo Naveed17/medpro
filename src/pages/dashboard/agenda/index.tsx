@@ -29,21 +29,12 @@ import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
+import {AppointmentTypes} from "@features/calendar";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
 
-const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
-    0: {key: "PENDING", value: "En attende"},
-    1: {key: "CONFIRMED", value: "Confirmé"},
-    2: {key: "REFUSED", value: "Effectué"},
-    3: {key: "WAITING_ROOM", value: "Salle d'attende"},
-    4: {key: "ON_GOING", value: "en attende"},
-    5: {key: "FINISHED", value: "en attende"},
-    6: {key: "CANCELED", value: "Annulé"},
-    7: {key: "EXPIRED", value: "Expiré"},
-}
 const EventStepper = [
     {
         title: "steppers.tabs.tab-1",
@@ -165,7 +156,11 @@ function Agenda() {
 
     const OnEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
-        const defEvent = {...info.event._def, extendedProps: {newDate: startDate}};
+        const oldStartDate = moment(info.oldEvent._instance?.range.start);
+        const defEvent = {
+            ...info.event._def,
+            extendedProps: {newDate: startDate, oldDate: oldStartDate}
+        };
         setEvent(defEvent);
         setAlert(true);
     }
@@ -202,6 +197,12 @@ function Agenda() {
             EventStepper[index].disabled = false;
         } else {
             refreshData();
+            dispatch(setStepperIndex(0));
+            EventStepper.map((stepper, index) => {
+                if (index > 0) {
+                    stepper.disabled = true;
+                }
+            })
         }
     }
 
@@ -371,7 +372,11 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                                            margin={2}>
+                                    {event?.extendedProps.oldDate.format("DD-MM-YYYY hh:mm")} {" => "}
+                                    {event?.extendedProps.newDate.format("DD-MM-YYYY hh:mm")}
+                                </Typography><Typography sx={{textAlign: "center"}}
+                                                         margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
                     open={alert}

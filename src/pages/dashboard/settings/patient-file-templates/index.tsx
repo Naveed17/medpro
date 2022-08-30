@@ -1,25 +1,27 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout} from "@features/base";
-import {Button, Box, Drawer} from "@mui/material";
-import {RootStyled} from "@features/toolbar";
-import {configSelector} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {useAppSelector} from "@app/redux/hooks";
-import {Otable} from "@features/table";
-import {PfTemplateDetail} from "@features/pfTemplateDetail";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
+
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DashLayout } from "@features/base";
+import { Button, Box, Drawer, useMediaQuery } from "@mui/material";
+import { RootStyled } from "@features/toolbar";
+import { configSelector } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { useAppSelector } from "@app/redux/hooks";
+import { Otable } from "@features/table";
+import { PfTemplateDetail } from "@features/pfTemplateDetail";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import AddIcon from '@mui/icons-material/Add';
 
 function PatientFileTemplates() {
 
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-
-    const {direction} = useAppSelector(configSelector);
+    const { data: session } = useSession();
+    const { data: user } = session as Session;
+    const isMobile = useMediaQuery("(max-width:669px)");
+    const { direction } = useAppSelector(configSelector);
     const [state, setState] = useState({
         active: true,
     });
@@ -56,13 +58,13 @@ function PatientFileTemplates() {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: modalsHttpResponse, error, mutate} = useRequest({
+    const { data: modalsHttpResponse, error, mutate } = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        headers: { Authorization: `Bearer ${session?.accessToken}` }
     });
 
-    const {trigger} = useRequestMutation(null, "/settings/patient-file-template");
+    const { trigger } = useRequestMutation(null, "/settings/patient-file-template");
 
 
     useEffect(() => {
@@ -73,7 +75,7 @@ function PatientFileTemplates() {
 
     const handleChange = (props: ModalModel, event: string, value: string) => {
         props.isEnabled = !props.isEnabled;
-        setState({...state});
+        setState({ ...state });
 
         const form = new FormData();
         form.append('enabled', props.isEnabled.toString());
@@ -86,7 +88,7 @@ function PatientFileTemplates() {
                 ContentType: 'application/x-www-form-urlencoded',
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r));
+        }, { revalidate: true, populateCache: true }).then(r => console.log('edit qualification', r));
     }
 
     const handleEdit = (props: ModalModel, event: string, value: string) => {
@@ -99,7 +101,7 @@ function PatientFileTemplates() {
         setOpen(false);
     }
 
-    const {t, ready} = useTranslation('settings', {
+    const { t, ready } = useTranslation('settings', {
         keyPrefix: "templates.config",
     });
     if (!ready) return (<>loading translations...</>);
@@ -108,31 +110,31 @@ function PatientFileTemplates() {
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{margin: 0}}>{t('path')}</p>
+                    <p style={{ margin: 0 }}>{t('path')}</p>
                 </RootStyled>
 
                 <Button type='submit'
-                        variant="contained"
-                        onClick={() => {
-                            setOpen(true);
-                            setData(null);
-                            setAction('add');
-                        }}
-                        color="success">
-                    {t('add')}
+                    variant="contained"
+                    onClick={() => {
+                        setOpen(true);
+                        setData(null);
+                        setAction('add');
+                    }}
+                    color="success">
+                    {!isMobile ? t('add') : <AddIcon />}
                 </Button>
             </SubHeader>
             <Box bgcolor={theme => theme.palette.background.default}
-                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
+                sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
 
                 <Otable headers={headCells}
-                        rows={rows}
-                        state={state}
-                        from={'template'}
-                        t={t}
-                        edit={handleEdit}
-                        handleConfig={null}
-                        handleChange={handleChange}/>
+                    rows={rows}
+                    state={state}
+                    from={'template'}
+                    t={t}
+                    edit={handleEdit}
+                    handleConfig={null}
+                    handleChange={handleChange} />
 
                 <Drawer
                     anchor={'right'}
@@ -140,9 +142,9 @@ function PatientFileTemplates() {
                     dir={direction}
                     onClose={closeDraw}>
                     <PfTemplateDetail action={action}
-                                      mutate={mutate}
-                                      closeDraw={closeDraw}
-                                      data={data}></PfTemplateDetail>
+                        mutate={mutate}
+                        closeDraw={closeDraw}
+                        data={data}></PfTemplateDetail>
                 </Drawer>
             </Box>
         </>

@@ -24,8 +24,8 @@ function Dialogs({ ...props }) {
     actionDialog,
     onClose,
     size = "md",
+    ...rest
   } = props;
-
   const selected = DialogData.find((item) => item.action === action);
   const [fullWidth, setFullWidth] = useState(true);
   const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
@@ -34,6 +34,7 @@ function Dialogs({ ...props }) {
   return (
     <>
       <Dialog
+        {...rest}
         open={open}
         fullWidth={fullWidth}
         maxWidth={maxWidth}
@@ -45,15 +46,15 @@ function Dialogs({ ...props }) {
       >
         <DialogTitle
           sx={{
-            backgroundColor: props.color
-              ? props.color
+            backgroundColor: color
+              ? color
               : (theme: Theme) => theme.palette.primary.main,
             color: `${contrastText} !important` as any,
             position: "relative",
           }}
           id="scroll-dialog-title"
         >
-          {props.title}
+          {title}
           {onClose ? (
             <IconButton
               aria-label="close"
@@ -72,11 +73,9 @@ function Dialogs({ ...props }) {
         </DialogTitle>
         <DialogContent dividers={true}>
           <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
-          <Component data={data} {...props} />
+          <Component data={data} />
         </DialogContent>
-        {actionDialog ? (
-          <DialogActions>{props.actionDialog}</DialogActions>
-        ) : null}
+        {actionDialog ? <DialogActions>{actionDialog}</DialogActions> : null}
       </Dialog>
     </>
   );
