@@ -19,7 +19,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
-import moment from "moment";
+import moment from "moment-timezone";
 import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 

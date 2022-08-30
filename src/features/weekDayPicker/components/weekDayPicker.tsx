@@ -3,7 +3,7 @@ import {Box, Typography, IconButton, Container, Divider} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import WeekDayPickerStyled from './overrides/weekDayPickerStyled';
-import moment from "moment";
+import moment from "moment-timezone";
 
 const months: String[] = [];
 

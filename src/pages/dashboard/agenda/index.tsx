@@ -165,14 +165,33 @@ function Agenda() {
         setAlert(true);
     }
 
+    const onMoveAppointment = (dateTime: { date: Date, time: string }) => {
+        const timeSplit = dateTime.time.split(':');
+        const date = moment(dateTime.date.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
+        const defEvent = {
+            ...event,
+            extendedProps: {
+                ...event?.extendedProps,
+                newDate: date,
+                from: 'modal',
+                oldDate: moment(event?.extendedProps.time)
+            }
+        } as EventDef;
+        setEvent(defEvent);
+        setAlert(true);
+    }
+
     const handleMoveAppointment = (event: EventDef) => {
         setLoading(true);
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time', event.extendedProps.newDate.subtract(1, 'hours').format("hh:mm"));
+        form.append('start_time',
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("hh:mm"));
+        const eventId = event.publicId ? event.publicId : (event as any).id;
+
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${event.publicId}/change-date/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -335,6 +354,7 @@ function Agenda() {
                     {event &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            onMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
                 </Drawer>
@@ -373,8 +393,9 @@ function Agenda() {
                                             variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
-                                    {event?.extendedProps.oldDate.format("DD-MM-YYYY hh:mm")} {" => "}
-                                    {event?.extendedProps.newDate.format("DD-MM-YYYY hh:mm")}
+                                    {event?.extendedProps.modal}
+                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")} {" => "}
+                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")}
                                 </Typography><Typography sx={{textAlign: "center"}}
                                                          margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)

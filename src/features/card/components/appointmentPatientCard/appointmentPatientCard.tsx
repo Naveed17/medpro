@@ -1,6 +1,6 @@
 import {Paper, Stack, Box, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import moment from "moment";
+import moment from "moment-timezone";
 
 function AppointmentPatientCard({...props}) {
     const {data} = props;

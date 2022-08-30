@@ -3,7 +3,7 @@ import { Typography, TableCell, Button, Box } from "@mui/material";
 
 // urils
 import Icon from "@themes/urlIcon";
-import moment from "moment";
+import moment from "moment-timezone";
 import { useTranslation } from "next-i18next";
 // style
 import RootStyled from "./overrides/rootStyled";

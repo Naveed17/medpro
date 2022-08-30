@@ -19,21 +19,21 @@ function CustomStepper({ ...props }) {
     minWidth,
     scroll,
     t,
-    // OnTabsChange = null,
+    OnTabsChange = null,
     OnSubmitStepper = null,
   } = props;
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
-  //   const tabChange = useCallback(
-  //     (event: SyntheticEvent, currentIndex: number) => {
-  //       setValue(currentIndex);
-  //       if (OnTabsChange) {
-  //         OnTabsChange(currentIndex);
-  //       }
-  //     },
-  //     [OnTabsChange]
-  //   );
+    const tabChange = useCallback(
+      (event: SyntheticEvent, currentIndex: number) => {
+        setValue(currentIndex);
+        if (OnTabsChange) {
+          OnTabsChange(currentIndex);
+        }
+      },
+      [OnTabsChange]
+    );
 
   const submitStepper = useCallback(
     (currentIndex: number) => {
@@ -48,9 +48,9 @@ function CustomStepper({ ...props }) {
     [OnSubmitStepper, last, stepperData.length]
   );
 
-  //   const handleChange = (event: SyntheticEvent, val: number) => {
-  //     setValue(val);
-  //   };
+    const handleChange = (event: SyntheticEvent, val: number) => {
+      setValue(val);
+    };
 
   return (
     <>
@@ -76,7 +76,7 @@ function CustomStepper({ ...props }) {
       >
         <Tabs
           value={value}
-          // onChange={OnTabsChange ? tabChange : handleChange}
+          onChange={OnTabsChange ? tabChange : handleChange}
           variant="scrollable"
           scrollButtons={false}
           aria-label="scrollable auto tabs"
