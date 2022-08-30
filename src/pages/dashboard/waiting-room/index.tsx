@@ -113,9 +113,7 @@ function Room() {
       <SubHeader>
         <RoomToolbar />
       </SubHeader>
-      <Box
-        className="container"
-      >
+      <Box className="container">
         <Label
           variant="filled"
           color="success"

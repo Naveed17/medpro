@@ -337,7 +337,7 @@ function Patient() {
         <Box display={{ xs: "none", md: "block" }}>
           <Otable
             headers={headCells}
-            rows={(httpPatientsResponse as HttpResponse)?.data}
+            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
             state={null}
             from={"patient"}
             t={t}
@@ -346,6 +346,10 @@ function Patient() {
             handleChange={null}
             minWidth={1300}
             pagination
+            total={(httpPatientsResponse as HttpResponse)?.data?.total}
+            totalPages={
+              (httpPatientsResponse as HttpResponse)?.data?.totalPages
+            }
             loading={!Boolean(httpPatientsResponse)}
           />
         </Box>

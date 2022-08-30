@@ -4,8 +4,6 @@ import { Box, TableBody, TableContainer, Table } from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 import { Pagination } from "@features/pagination";
-import { useRouter } from "next/router";
-import TablePaginationActions from "@mui/material/TablePagination/TablePaginationActions";
 
 function descendingComparator(a: any, b: any, orderBy: any) {
   if (b[orderBy] < a[orderBy]) {
@@ -50,6 +48,8 @@ function Otable({ ...props }) {
     handleEvent,
     hideHeaderOnMobile,
     loading,
+    totalPages,
+    total,
     ...rest
   } = props;
   // const router = useRouter();
@@ -97,7 +97,7 @@ function Otable({ ...props }) {
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
-  const ids = rows?.list.map((row: any) => row.id);
+  const ids = rows?.map((row: any) => row.id);
   useEffect(() => {
     if (tableHeadData !== null) {
       if (tableHeadData.active) {
@@ -128,7 +128,7 @@ function Otable({ ...props }) {
             data={headers}
             getData={(data: any) => setTableHeadData(data)}
             onSelectAllClick={handleSelectAllClick}
-            rowCount={rows?.list?.length}
+            rowCount={rows?.length}
             numSelected={selected.length}
             hideHeaderOnMobile={hideHeaderOnMobile}
           />
@@ -136,7 +136,7 @@ function Otable({ ...props }) {
           <TableBody>
             {(loading
               ? Array.from(new Array(10))
-              : stableSort(rows.list, getComparator(order, orderBy))
+              : stableSort(rows, getComparator(order, orderBy))
             ).map((row, index) => {
               const isItemSelected = isSelected(row?.id as number);
               const labelId = `enhanced-table-checkbox-${index}`;
@@ -165,8 +165,8 @@ function Otable({ ...props }) {
         </Table>
       </TableContainer>
       <Box py={1} />
-      {!loading && pagination && parseInt(rows.totalPages) > 1 && (
-        <Pagination total={rows.total} count={rows.totalPages} />
+      {!loading && pagination && parseInt(totalPages) > 1 && (
+        <Pagination total={total} count={totalPages} />
       )}
     </Box>
   );

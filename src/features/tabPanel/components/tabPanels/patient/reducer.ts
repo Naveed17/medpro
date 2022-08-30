@@ -13,9 +13,9 @@ const initialState: MenuState = {
       first_name: "",
       last_name: "",
       birthdate: {
-        day: "",
-        month: "",
-        year: "",
+        day: "01",
+        month: "01",
+        year: "1970",
       },
       country_code: "",
       phone: "",
