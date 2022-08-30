@@ -18,8 +18,8 @@ function Dialogs({ ...props }) {
         <>
             <Dialog
                 open={open}
-                sx={{ '& .MuiPaper-root': { width: { xs: '100%', md: 'auto' } } }}
-                {...(props.max ? { maxWidth: 'lg' } : { maxWidth: 'sm' })}
+                fullWidth={fullWidth}
+                maxWidth={maxWidth}
                 onClose={dialogClose}
                 scroll="paper"
                 dir={direction}

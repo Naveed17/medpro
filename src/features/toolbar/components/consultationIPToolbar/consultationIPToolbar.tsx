@@ -131,22 +131,22 @@ function ConsultationIPToolbar({selected}: any) {
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={dialogData}
-                    change={false}
-                    max
-                    direction={'ltr'}
-                    actions={true}
-                    title={t(info)}
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleCloseDialog}
+                        open={openDialog}
+                        data={dialogData}
+                        change={false}
+                        size={"lg"}
+                        direction={'ltr'}
+                        actions={true}
+                        title={t(info)}
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog}
+                                        startIcon={<CloseIcon/>}>
+                                    {t('cancel')}
+                                </Button>
+                                <Button variant="contained"
+                                        onClick={handleCloseDialog}
 
                                         startIcon={<Icon
                                             path='ic-dowlaodfile'/>}>
