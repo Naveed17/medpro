@@ -62,7 +62,7 @@ const WHITE = {
   light: "#F2F2F2",
   main: "#DDDDDD",
   dark: "#C9C8C8",
-  darker: "#7C878E",
+  darker: "#3F4254",
 };
 
 const BLACK = {

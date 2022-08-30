@@ -1,15 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import {GetStaticProps, GetStaticPaths} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {Document, Page, pdfjs} from "react-pdf";
+import React, { useState, useEffect } from 'react';
+import { GetStaticProps, GetStaticPaths } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { Document, Page, pdfjs } from "react-pdf";
 // redux
-import {useAppSelector, useAppDispatch} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
-import {tableActionSelector} from "@features/table";
-import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
+import { configSelector } from "@features/base";
+import { tableActionSelector } from "@features/table";
+import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
 
-import {ReactElement} from "react";
+import { ReactElement } from "react";
 import {
     Box,
     Drawer,
@@ -17,29 +17,32 @@ import {
     Grid,
     Typography,
     ListItem,
+    Button
 } from "@mui/material";
-import {openDrawer as DialogOpenDrawer} from "@features/dialog";
-import {CustomStepper} from "@features/customStepper";
-import {TimeSchedule, Patient, Instruction} from "@features/tabPanel";
+import { openDrawer as DialogOpenDrawer } from "@features/dialog";
+import { CustomStepper } from "@features/customStepper";
+import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 
 //components
-import {DashLayout} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {SubFooter} from '@features/subFooter';
-import {CipNextAppointCard, CipMedicProCard} from "@features/card";
-import {Otable} from '@features/table';
-import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
-import {ModalConsultation} from '@features/modalConsultation';
-import {ConsultationIPToolbar} from '@features/toolbar';
-import {motion, AnimatePresence} from 'framer-motion';
-import {useRequestMutation} from "@app/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {AppointmentDetail, DialogProps} from '@features/dialog';
-import {useRouter} from "next/router";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
-
+import { DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { SubFooter } from '@features/subFooter';
+import { CipNextAppointCard, CipMedicProCard } from "@features/card";
+import { Otable } from '@features/table';
+import { DrawerBottom } from '@features/drawerBottom';
+import { ConsultationFilter } from '@features/leftActionBar';
+import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
+import { ModalConsultation } from '@features/modalConsultation';
+import { ConsultationIPToolbar } from '@features/toolbar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRequestMutation } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { AppointmentDetail, DialogProps } from '@features/dialog';
+import { useRouter } from "next/router";
+import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
+import { SetPatient } from "@features/toolbar/components/consultationIPToolbar/actions";
+import Icon from "@themes/urlIcon";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -62,7 +65,7 @@ interface HeadCell {
 }
 
 const variants = {
-    initial: {opacity: 0,},
+    initial: { opacity: 0, },
     animate: {
         opacity: 1,
         transition: {
@@ -72,7 +75,7 @@ const variants = {
 };
 
 function TabPanel(props: TabPanelProps) {
-    const {children, index, ...other} = props;
+    const { children, index, ...other } = props;
 
     return (
         <motion.div
@@ -280,10 +283,11 @@ const EventStepper = [
 ];
 
 function ConsultationInProgress() {
-    const {patientId} = useAppSelector(tableActionSelector);
-    const {direction} = useAppSelector(configSelector);
-    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const { patientId } = useAppSelector(tableActionSelector);
+    const { direction } = useAppSelector(configSelector);
+    const [filterdrawer, setFilterDrawer] = useState(false);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
@@ -295,7 +299,7 @@ function ConsultationInProgress() {
 
     const router = useRouter();
 
-    const {examan, fiche, patient: patientInfo} = useAppSelector(consultationSelector);
+    const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
 
     useEffect(() => {
         if (examan) console.log(examan);
@@ -304,32 +308,32 @@ function ConsultationInProgress() {
         if (fiche) console.log(fiche);
     }, [fiche]);
 
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
 
-    const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
+    const { trigger } = useRequestMutation(null, "/consultation/", { revalidate: true, populateCache: false });
 
     useEffect(() => {
         if (medical_entity) {
             trigger({
                 method: "GET",
                 url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
-                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(res => setActs((res?.data as HttpResponse).data[0].acts))
+                headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+            }, { revalidate: true, populateCache: true }).then(res => setActs((res?.data as HttpResponse).data[0].acts))
 
             trigger({
                 method: "GET",
                 url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/" + router.locale,
-                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(res => {
+                headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+            }, { revalidate: true, populateCache: true }).then(res => {
                 setAppointement((res?.data as HttpResponse).data)
                 dispatch(SetPatient((res?.data as HttpResponse).data.patient))
             })
         }
     }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
 
-    function onDocumentLoadSuccess({numPages}: any) {
+    function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     }
 
@@ -348,14 +352,14 @@ function ConsultationInProgress() {
             setopen(true);
         }
     }, [patientId]);
-    const {t, ready} = useTranslation("consultation");
+    const { t, ready } = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar selected={(v: number) => setValue(v)}/>
+                <ConsultationIPToolbar selected={(v: number) => setValue(v)} />
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -371,7 +375,7 @@ function ConsultationInProgress() {
                                                 data.title === "reason_for_consultation" &&
 
                                                 <Stack spacing={2}>
-                                                    <MotifCard data={data}/>
+                                                    <MotifCard data={data} />
                                                     {/*<List dense>
                                                         {
                                                             data.collapse?.map((col, idx: number) => (
@@ -462,11 +466,11 @@ function ConsultationInProgress() {
                                                 data.title === "balance_results" &&
                                                 data.list?.map((item, i) => (
                                                     <ListItem key={`balance-list${i}`}
-                                                              sx={{
-                                                                  bgcolor: theme => theme.palette.grey['A100'],
-                                                                  mb: 1,
-                                                                  borderRadius: 0.7
-                                                              }}>
+                                                        sx={{
+                                                            bgcolor: theme => theme.palette.grey['A100'],
+                                                            mb: 1,
+                                                            borderRadius: 0.7
+                                                        }}>
                                                         <Typography variant='body2'>
                                                             {item}
                                                         </Typography>
@@ -493,13 +497,14 @@ function ConsultationInProgress() {
                         <TabPanel index={1}>
                             <Box sx={{
                                 '.react-pdf__Page__canvas': {
-                                    mx: 'auto'
+                                    mx: 'auto',
+                                    maxWidth: "100%",
                                 }
                             }}>
                                 <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
                                     ))}
 
                                 </Document>
@@ -510,10 +515,10 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation/>
+                                    <ModalConsultation />
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard/>
+                                    <ConsultationDetailCard />
                                 </Grid>
                             </Grid>
                         </TabPanel>
@@ -521,7 +526,7 @@ function ConsultationInProgress() {
                     {
                         value === 3 &&
                         <TabPanel index={3}>
-                            <Box display={{xs: 'none', md: 'block'}}>
+                            <Box display={{ xs: 'none', md: 'block' }}>
                                 <Otable
                                     headers={headCells}
                                     rows={acts}
@@ -534,11 +539,11 @@ function ConsultationInProgress() {
 
                                 />
                             </Box>
-                            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
+                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
                                 {
                                     PatiendData.map((data, index: number) => (
                                         <React.Fragment key={`cip-card-${index}`}>
-                                            <CipMedicProCard row={data} t={t}/>
+                                            <CipMedicProCard row={data} t={t} />
                                         </React.Fragment>
                                     ))
                                 }
@@ -554,7 +559,7 @@ function ConsultationInProgress() {
 */}
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1}
-                                       justifyContent="flex-end">
+                                    justifyContent="flex-end">
                                     <Typography variant="subtitle1">
                                         <span>{t('total')} : </span>
                                     </Typography>
@@ -569,7 +574,7 @@ function ConsultationInProgress() {
                     {
                         value === 4 &&
                         <TabPanel index={4}>
-                            <Box display={{xs: "none", md: 'block'}}>
+                            <Box display={{ xs: "none", md: 'block' }}>
                                 <Otable
                                     headers={headCells2}
                                     rows={PatiendData2}
@@ -581,11 +586,11 @@ function ConsultationInProgress() {
 
                                 />
                             </Box>
-                            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
+                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
                                 {
                                     PatiendData2.map((data, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
-                                            <CipNextAppointCard row={data} t={t}/>
+                                            <CipNextAppointCard row={data} t={t} />
                                         </React.Fragment>
                                     ))
                                 }
@@ -612,7 +617,7 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
+                        dispatch(openDrawer({ type: "add", open: false }));
 
                     }}
                 >
@@ -628,12 +633,27 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
+                <Button
+                    startIcon={<Icon path="ic-filter" />}
+                    onClick={() => setFilterDrawer(!drawer)}
+                    sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                    variant="filter"
+                >
+                    Filtrer (0)
+                </Button>
+                <DrawerBottom
+                    handleClose={() => setFilterDrawer(false)}
+                    open={filterdrawer}
+                    title={null}
+                >
+                    <ConsultationFilter />
+                </DrawerBottom>
             </Box>
         </>
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, [

@@ -1,48 +1,48 @@
-import {GetStaticProps} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useCallback, useEffect, useState} from "react";
-import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {CalendarToolbar} from "@features/toolbar";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
+import { GetStaticProps } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { Box, Button, Container, Drawer, LinearProgress, Typography, useTheme } from "@mui/material";
+import { configSelector, DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { CalendarToolbar } from "@features/toolbar";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
-import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
+import { useSession } from "next-auth/react";
+import { LoadingScreen } from "@features/loadingScreen";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { Session } from "next-auth";
 import moment from "moment-timezone";
-import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
-import {CustomStepper} from "@features/customStepper";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {AppointmentDetail, Dialog} from "@features/dialog";
-import {AppointmentListMobile} from "@features/card";
-import {FilterButton} from "@features/buttons";
-import {AgendaFilter} from "@features/leftActionBar";
-import {AnimatePresence, motion} from "framer-motion";
+import FullCalendar, { DateSelectArg, DatesSetArg, EventChangeArg, EventDef } from "@fullcalendar/react";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex } from "@features/calendar";
+import { EventType, TimeSchedule, Patient, Instruction, setAppointmentDate } from "@features/tabPanel";
+import { CustomStepper } from "@features/customStepper";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
+import { AppointmentDetail, Dialog } from "@features/dialog";
+import { AppointmentListMobile } from "@features/card";
+import { FilterButton } from "@features/buttons";
+import { AgendaFilter } from "@features/leftActionBar";
+import { AnimatePresence, motion } from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-import {LoadingButton} from "@mui/lab";
+import { LoadingButton } from "@mui/lab";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
 
 const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
-    0: {key: "PENDING", value: "En attende"},
-    1: {key: "CONFIRMED", value: "Confirmé"},
-    2: {key: "REFUSED", value: "Effectué"},
-    3: {key: "WAITING_ROOM", value: "Salle d'attende"},
-    4: {key: "ON_GOING", value: "en attende"},
-    5: {key: "FINISHED", value: "en attende"},
-    6: {key: "CANCELED", value: "Annulé"},
-    7: {key: "EXPIRED", value: "Expiré"},
+    0: { key: "PENDING", value: "En attende" },
+    1: { key: "CONFIRMED", value: "Confirmé" },
+    2: { key: "REFUSED", value: "Effectué" },
+    3: { key: "WAITING_ROOM", value: "Salle d'attende" },
+    4: { key: "ON_GOING", value: "en attende" },
+    5: { key: "FINISHED", value: "en attende" },
+    6: { key: "CANCELED", value: "Annulé" },
+    7: { key: "EXPIRED", value: "Expiré" },
 }
 const EventStepper = [
     {
@@ -65,17 +65,17 @@ const EventStepper = [
 ];
 
 function Agenda() {
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {direction} = useAppSelector(configSelector);
-    const {openViewDrawer, openAddDrawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation('agenda');
+    const { direction } = useAppSelector(configSelector);
+    const { openViewDrawer, openAddDrawer, currentStepper, currentDate, view } = useAppSelector(agendaSelector);
+    const { t, ready } = useTranslation('agenda');
     const [
         timeRange,
         setTimeRange
-    ] = useState({start: "", end: ""})
+    ] = useState({ start: "", end: "" })
     const [disabledSlots, setDisabledSlots] = useState([{
         start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
         end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
@@ -90,10 +90,10 @@ function Agenda() {
     let appointments: AppointmentModel[] = [];
     let events: EventModal[] = [];
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+    const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
@@ -114,11 +114,11 @@ function Agenda() {
     const {
         data: httpAppointmentResponse,
         trigger
-    } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
+    } = useRequestMutation(null, "/agenda/appointment", { revalidate: true, populateCache: false });
 
     const {
         trigger: updateAppointmentTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment", {revalidate: false, populateCache: false});
+    } = useRequestMutation(null, "/agenda/update/appointment", { revalidate: false, populateCache: false });
 
     const getAppointments = useCallback((query: string) => {
         setLoading(true);
@@ -128,16 +128,16 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(() => setLoading(false));
+        }, { revalidate: true, populateCache: true }).then(() => setLoading(false));
     }, [agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
     if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready) return (<LoadingScreen/>);
+    if (!ready) return (<LoadingScreen />);
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
-        setTimeRange({start: startStr, end: endStr});
+        setTimeRange({ start: startStr, end: endStr });
         getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
     }
 
@@ -160,12 +160,12 @@ function Agenda() {
     const onSelectEvent = (event: EventDef) => {
         setEvent(event);
         dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
+        dispatch(openDrawer({ type: "view", open: true }));
     }
 
     const OnEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
-        const defEvent = {...info.event._def, extendedProps: {newDate: startDate}};
+        const defEvent = { ...info.event._def, extendedProps: { newDate: startDate } };
         setEvent(defEvent);
         setAlert(true);
     }
@@ -182,7 +182,7 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: false, populateCache: false}).then(() => {
+        }, { revalidate: false, populateCache: false }).then(() => {
             refreshData();
             setAlert(false);
         });
@@ -190,7 +190,7 @@ function Agenda() {
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
-        dispatch(openDrawer({type: "add", open: true}));
+        dispatch(openDrawer({ type: "add", open: true }));
     }
 
     const handleStepperChange = (index: number) => {
@@ -261,27 +261,27 @@ function Agenda() {
     return (
         <>
             <SubHeader>
-                <CalendarToolbar onToday={handleOnToday} date={date}/>
+                <CalendarToolbar onToday={handleOnToday} date={date} />
             </SubHeader>
             <Box>
                 {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
-                    <LinearProgress color="warning"/>}
+                    <LinearProgress color="warning" />}
                 <DesktopContainer>
                     <>
                         {httpAgendasResponse &&
                             <AnimatePresence exitBeforeEnter>
                                 <motion.div
-                                    initial={{opacity: 0, y: -100}}
-                                    animate={{opacity: 1, y: 0}}
-                                    transition={{ease: "easeIn", duration: 1}}
+                                    initial={{ opacity: 0, y: -100 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ ease: "easeIn", duration: 1 }}
                                 >
-                                    <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
-                                              OnInit={onLoadCalendar}
-                                              OnSelectEvent={onSelectEvent}
-                                              OnEventChange={OnEventChange}
-                                              OnSelectDate={onSelectDate}
-                                              OnViewChange={onViewChange}
-                                              OnRangeChange={handleOnRangeChange}/>
+                                    <Calendar {...{ events, agenda, disabledSlots, t, sortedData }}
+                                        OnInit={onLoadCalendar}
+                                        OnSelectEvent={onSelectEvent}
+                                        OnEventChange={OnEventChange}
+                                        OnSelectDate={onSelectDate}
+                                        OnViewChange={onViewChange}
+                                        OnRangeChange={handleOnRangeChange} />
                                 </motion.div>
                             </AnimatePresence>
                         }
@@ -291,9 +291,9 @@ function Agenda() {
                     {sortedData?.map((row, index) => (
                         <Container key={index}>
                             <Typography variant={"body1"}
-                                        color="text.primary"
-                                        pb={1} pt={2}
-                                        sx={{textTransform: "capitalize", fontSize: '1rem'}}>
+                                color="text.primary"
+                                pb={1} pt={2}
+                                sx={{ textTransform: "capitalize", fontSize: '1rem' }}>
                                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                                     "Today"
                                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
@@ -310,13 +310,13 @@ function Agenda() {
                                 <AppointmentListMobile
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
-                                    event={event}/>
+                                    event={event} />
                             ))}
                         </Container>
                     ))}
 
                     <FilterButton>
-                        <AgendaFilter/>
+                        <AgendaFilter />
                     </FilterButton>
                 </MobileContainer>
 
@@ -325,7 +325,7 @@ function Agenda() {
                     open={openViewDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({type: "view", open: false}));
+                        dispatch(openDrawer({ type: "view", open: false }));
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
@@ -342,7 +342,7 @@ function Agenda() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
+                        dispatch(openDrawer({ type: "add", open: false }));
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
@@ -367,11 +367,11 @@ function Agenda() {
                     dialogClose={() => setAlert(false)}
                     action={() => {
                         return (
-                            <Box sx={{minHeight: 150}}>
-                                <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
-                                <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                            <Box sx={{ minHeight: 150 }}>
+                                <Typography sx={{ textAlign: "center" }}
+                                    variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
+                                <Typography sx={{ textAlign: "center" }}
+                                    margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
                     open={alert}
@@ -381,12 +381,12 @@ function Agenda() {
                             <Button
                                 variant="text-primary"
                                 onClick={() => setAlert(false)}
-                                startIcon={<CloseIcon/>}
+                                startIcon={<CloseIcon />}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
                             </Button>
                             <LoadingButton
-                                {...(loading && {loading})}
+                                {...(loading && { loading })}
                                 variant="contained"
                                 color={"warning"}
                                 onClick={() => handleMoveAppointment(event as EventDef)}

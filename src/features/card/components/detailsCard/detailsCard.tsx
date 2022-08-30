@@ -9,10 +9,13 @@ import {
     Link
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import DetailCardStyled from "./overrides/detailCardStyle";
+import CircleIcon from '@mui/icons-material/Circle';
+import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 export default function DetailsCard({ ...props }) {
-    const { rows, consultation, waitingRoom } = props;
+    const { rows, consultation, waitingRoom, t } = props;
     const theme = useTheme();
     return (
         <>
@@ -59,35 +62,55 @@ export default function DetailsCard({ ...props }) {
                                             {item.arrivaltime}
                                         </span>
                                     </Box>
-                                    <Button
-
-                                        size="small"
+                                    <Stack direction="row"
+                                        alignItems="center"
+                                        spacing={1}
+                                    >
+                                        <CircleIcon fontSize="small" sx={{
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            borderRadius: '50%',
+                                            p: 0.2,
+                                        }}
+                                            color='primary'
+                                        />
+                                        <Typography color="primary">
+                                            {item.reson}
+                                        </Typography>
+                                    </Stack>
+                                </Box>
+                                <Stack direction='row' alignItems="center">
+                                    <Typography
                                         color="primary"
                                         sx={{
-                                            '& .react-svg svg': {
-                                                width: 15,
-                                            }
+                                            mt: 1
                                         }}
-                                        startIcon={
-                                            item.type === "cabinet" ? <Icon path="ic-cabinet" /> :
-                                                item.type === "teleconsultation" ? <Icon path="ic-video-red" />
-                                                    :
-                                                    null
-
-                                        }
+                                        lineHeight={1}
+                                        variant="body1"
                                     >
-                                        {item.reson}
-                                    </Button>
-                                </Box>
-                                <Typography
-                                    sx={{
-                                        mt: 1
-                                    }}
-                                    lineHeight={1}
-                                    variant="body1"
-                                >
-                                    {item.patient}
-                                </Typography>
+                                        {item.patient}
+                                    </Typography>
+                                    <Stack spacing={2} direction="row" alignItems="center" ml="auto" mt={2}>
+                                        <Label
+                                            variant="filled"
+                                            color={
+                                                item?.status === "completed"
+                                                    ? "success"
+                                                    : item?.status === "canceled"
+                                                        ? "error"
+                                                        : "primary"
+                                            }
+                                        >
+                                            {t(`table.${item.status}`)}
+                                        </Label>
+                                        <PlayCircleRoundedIcon color="success" />
+                                        <Typography variant="body2">
+                                            120 TND
+                                        </Typography>
+                                    </Stack>
+
+                                </Stack>
+
                             </Grid>
                             <Grid item md={2} sm={2} xs={1}>
                                 <Box display="flex" alignItems="center" height="100%">
