@@ -165,7 +165,11 @@ function Agenda() {
 
     const OnEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
-        const defEvent = {...info.event._def, extendedProps: {newDate: startDate}};
+        const oldStartDate = moment(info.oldEvent._instance?.range.start);
+        const defEvent = {
+            ...info.event._def,
+            extendedProps: {newDate: startDate, oldDate: oldStartDate}
+        };
         setEvent(defEvent);
         setAlert(true);
     }
@@ -377,7 +381,11 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                                            margin={2}>
+                                    {event?.extendedProps.oldDate.format("DD-MM-YYYY hh:mm")} {" => "}
+                                    {event?.extendedProps.newDate.format("DD-MM-YYYY hh:mm")}
+                                </Typography><Typography sx={{textAlign: "center"}}
+                                                         margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
                     open={alert}

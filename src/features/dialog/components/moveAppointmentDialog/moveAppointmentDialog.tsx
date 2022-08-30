@@ -33,36 +33,29 @@ function MoveAppointmentDialog({...props}) {
         trigger
     } = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = useCallback((date: Date) => {
+    const getSlots = useCallback(() => {
         trigger(agendaConfig ? {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
             /locations/${agendaConfig?.locations[0].uuid}/professionals/
-            ${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
+            ${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then(() => setLoading(false));
-    }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, session?.accessToken, trigger]);
+    }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
 
     const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
     useEffect(() => {
         if (isMounted.current) {
-            getSlots(moveDialogDate as Date);
+            getSlots();
         }
-    }, [moveDialogDate, getSlots, isMounted]);
-
-
-    const onDateChange = useCallback((type: string, newDate: Date, newTime: string) => {
-        OnDateChange(type, newDate, newTime);
-    }, [OnDateChange]);
+    }, [getSlots, isMounted]);
 
     const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
         if (type === "date") {
-            onDateChange(type, newDate as Date, moveDialogTime);
-            //setDate(newDate as Date);
+            OnDateChange(type, newDate as Date, moveDialogTime);
         } else {
-            onDateChange(type, moveDialogDate as Date, newTime as string);
-            // setTime(newTime as string);
+            OnDateChange(type, moveDialogDate as Date, newTime as string);
         }
     }
 

@@ -1,4 +1,4 @@
-import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import {
     AppBar,
@@ -41,12 +41,10 @@ import {
     dialogMoveSelector,
     MoveAppointmentDialog,
     QrCodeDialog,
-    setMoveDate, setMoveDateTime,
-    setMoveTime
+    setMoveDateTime
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import {LoadingButton} from "@mui/lab";
-import {SetQualifications} from "@features/checkList";
 
 const menuList = [
     {
@@ -104,7 +102,7 @@ function AppointmentDetail({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
-    const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
+    const {date: moveDialogDate, time: moveDialogTime, selected: moveDateChanged} = useAppSelector(dialogMoveSelector);
 
     const [alert, setAlert] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -113,7 +111,6 @@ function AppointmentDetail({...props}) {
     const [moveAlert, setMoveAlert] = useState<boolean>(false);
     const [value, setValue] = useState(data?.extendedProps.insctruction);
     const [openTooltip, setOpenTooltip] = useState(false);
-    const [selectedMoveDate, setSelectedMoveDate] = useState(null);
 
     const [offsetTop, setOffsetTop] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
@@ -123,7 +120,8 @@ function AppointmentDetail({...props}) {
 
     const {
         trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status", {revalidate: false, populateCache: false});
+    } = useRequestMutation(null, "/agenda/update/appointment/status",
+        {revalidate: false, populateCache: false});
 
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
@@ -173,12 +171,13 @@ function AppointmentDetail({...props}) {
     };
 
     const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        if (type === 'date') {
-            dispatch(setMoveDate(moveDialogDate));
-        } else {
-            dispatch(setMoveTime(moveDialogTime));
-        }
+        dispatch(setMoveDateTime(type === 'date' ?
+            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
     };
+
+    const submitMoveAppointment = () => {
+        console.log(moveDialogDate, moveDialogTime);
+    }
 
     useEffect(() => {
         if (rootRef.current) {
@@ -340,12 +339,13 @@ function AppointmentDetail({...props}) {
                             {t('waiting')}
                         </Button>
                         <Button onClick={() => {
-                            dispatch(setMoveDateTime({
-                                date: data?.extendedProps.time,
-                                time: moment(data?.extendedProps.time).format("hh:mm")
-                            }));
-                            setMoveAlert(true)
-                        }}
+                                    dispatch(setMoveDateTime({
+                                        date: data?.extendedProps.time,
+                                        time: moment(data?.extendedProps.time).format("hh:mm"),
+                                        selected: false
+                                    }));
+                                    setMoveAlert(true)
+                                }}
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                             {t('event.move')}
@@ -421,6 +421,8 @@ function AppointmentDetail({...props}) {
                         </Button>
                         <Button
                             variant="contained"
+                            disabled={!moveDateChanged}
+                            onClick={() => submitMoveAppointment()}
                             color={"primary"}
                             startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                         >
