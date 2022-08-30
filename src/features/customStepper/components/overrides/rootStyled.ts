@@ -2,7 +2,8 @@ import { styled } from "@mui/material/styles";
 
 const RootStyled = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  "& .MuiTabs-root": {
+  height: "inherit",
+  "& .stepper-tabs": {
     borderBottom: `1px solid ${theme.palette.divider}`,
     padding: theme.spacing(0, 0.5),
     "& .MuiTabs-flexContainer": {
@@ -26,9 +27,28 @@ const RootStyled = styled("div")(({ theme }) => ({
         borderBottom: "2px solid transparent",
       },
     },
+    "& .submitted": {
+      borderBottom: "2px solid " + theme.palette.text.primary,
+    },
+    "& .pending": {
+      borderBottom: "2px solid " + theme.palette.text.secondary,
+      opacity: 0.4,
+    },
   },
   '& div[role="tabpanel"]': {
     overflow: "auto",
+  },
+  "& div[role='tabpanel'] > div": {
+    padding: theme.spacing(0),
+    "& .inner-section": {
+      height: "calc(100vh - 110px)",
+      overflow: "auto",
+      padding: theme.spacing(3),
+    },
+    "& .action": {
+      padding: theme.spacing(0, 3),
+      marginTop: theme.spacing(1),
+    },
   },
 }));
 export default RootStyled;

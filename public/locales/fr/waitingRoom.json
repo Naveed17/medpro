@@ -36,10 +36,18 @@
       "Agenda": "Agenda",
       "Action": "Action",
       "See details": "Voir les détails",
+      "waiting": "Attente",
       "min": "min",
       "completed": "Effectuée",
       "canceled": "Annulée",
-      "1st consultation": "1ère consultation"
+      "1st consultation": "1ère consultation",
+      "end_consultation": "Fin de consultation",
+      "end_of_consultation_with": "Fin de consultation avec",
+      "price_of_the_consultation": "Prix de la consultation",
+      "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
+      "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
+      "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
+      "cancel": "Annuler"
     }
   },
   "room": "salle"

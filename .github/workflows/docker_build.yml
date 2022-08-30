@@ -3,8 +3,8 @@ name: build docker image
 on:
   workflow_call:
     outputs:
-      tag:
-        value: ${{ jobs.build.outputs.tag }}
+      tags:
+        value: ${{ jobs.build.outputs.tags }}
     inputs:
       username:
         required: true

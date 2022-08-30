@@ -18,6 +18,7 @@ const NavbarStyled = styled(AppBar)(({ theme }) => ({
   "& .topbar-nav": {
     display: "flex",
     marginLeft: "auto",
+    alignItems: 'center',
     padding: 0,
     "& .custom-badge": {
       "& .MuiBadge-badge": {

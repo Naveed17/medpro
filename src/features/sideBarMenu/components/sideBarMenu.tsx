@@ -95,19 +95,19 @@ function SideBarMenu({ children }: LayoutProps) {
                 ))}
             </List>
             <List className="list-bottom">
-                <Link href="#">
-                    <ListItem
-                        disableRipple
-                        button
-                        className={router.pathname === "/dashboard/statistics" ? "active" : ""}>
-                        <ListItemIcon>
-                            <StatsIcon />
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "stats")} />
-                        </Hidden>
-                    </ListItem>
-                </Link>
+                {/*<Link href="#">*/}
+                {/*    <ListItem*/}
+                {/*        disableRipple*/}
+                {/*        button*/}
+                {/*        className={router.pathname === "/dashboard/statistics" ? "active" : ""}>*/}
+                {/*        <ListItemIcon>*/}
+                {/*            <StatsIcon />*/}
+                {/*        </ListItemIcon>*/}
+                {/*        <Hidden smUp>*/}
+                {/*            <ListItemText primary={t("main-menu." + "stats")} />*/}
+                {/*        </Hidden>*/}
+                {/*    </ListItem>*/}
+                {/*</Link>*/}
 
 
                 <ListItem

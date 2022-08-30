@@ -1,3 +1,4 @@
+import { alpha } from "@mui/material/styles";
 // ----------------------------------------------------------------------
 export default function IconButton(theme) {
   return {
@@ -37,15 +38,14 @@ export default function IconButton(theme) {
             },
           },
           "&.success-light": {
-            border: `1px solid ${theme.palette.success.dark}`,
-            backgroundColor: theme.palette.success.dark,
+            backgroundColor: alpha(theme.palette.success.main, 0.3),
             borderRadius: "10px",
             "&:hover": {
-              backgroundColor: theme.palette.success.dark,
+              backgroundColor: alpha(theme.palette.success.main, 0.6),
             },
             "& svg": {
               "& path": {
-                fill: theme.palette.success.main,
+                fill: theme.palette.text.primary,
               },
             },
           },

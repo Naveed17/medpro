@@ -11,7 +11,7 @@ import { useAppSelector } from "@app/redux/hooks";
 import { HolidayDetails } from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import moment from "moment";
+import moment from "moment-timezone";
 
 function Holidays() {
 

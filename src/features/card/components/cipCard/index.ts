@@ -1,0 +1,1 @@
+export { default as CipCard } from './cipCard'

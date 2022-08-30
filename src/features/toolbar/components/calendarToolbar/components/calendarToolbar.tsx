@@ -26,7 +26,7 @@ import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { agendaSelector, openDrawer, setView } from "@features/calendar";
 import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
 import Zoom from '@mui/material/Zoom';
-import moment from "moment";
+import moment from "moment-timezone";
 import { CalendarViewButton, CalendarAddButton } from "@features/buttons";
 
 CalendarToolbar.propTypes = {

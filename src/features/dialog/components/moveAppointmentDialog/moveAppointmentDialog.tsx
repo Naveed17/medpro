@@ -5,24 +5,24 @@ import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
 import {useRequestMutation} from "@app/axios";
-import moment from "moment";
-import {useAppSelector} from "@app/redux/hooks";
+import moment from "moment-timezone";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useIsMountedRef} from "@app/hooks";
+import {dialogMoveSelector, setLimit} from "@features/dialog";
 
 function MoveAppointmentDialog({...props}) {
-    const {t, data} = props;
+    const {t, data, OnDateChange} = props;
     const {data: session} = useSession();
+    const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
 
-    const [date, setDate] = useState<Date>(data?.extendedProps.time);
-    const [time, setTime] = useState(moment(data?.extendedProps.time).format("hh:mm"));
-    const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
-    const [limit, setLimit] = useState(10);
-
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {date: moveDialogDate, time: moveDialogTime, limit: initLimit} = useAppSelector(dialogMoveSelector);
+
+    const [loading, setLoading] = useState(true);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -33,34 +33,31 @@ function MoveAppointmentDialog({...props}) {
         trigger
     } = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = useCallback((date: Date) => {
+    const getSlots = useCallback(() => {
         trigger(agendaConfig ? {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
             /locations/${agendaConfig?.locations[0].uuid}/professionals/
-            ${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
+            ${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null);
-    }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, session?.accessToken, trigger]);
-
+        } : null).then(() => setLoading(false));
+    }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
 
     const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
     useEffect(() => {
         if (isMounted.current) {
-            getSlots(date);
+            getSlots();
         }
-    }, [date, getSlots, isMounted]);
+    }, [getSlots, isMounted]);
 
-    useEffect(() => {
-        if (weekTimeSlots) {
-            const slots = weekTimeSlots.find(slot =>
-                slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
-            if (slots) {
-                setTimeSlots(slots);
-            }
+    const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
+        if (type === "date") {
+            OnDateChange(type, newDate as Date, moveDialogTime);
+        } else {
+            OnDateChange(type, moveDialogDate as Date, newTime as string);
         }
-    }, [date, weekTimeSlots]);
+    }
 
     return (
         <Box sx={{minHeight: 150}}>
@@ -75,8 +72,8 @@ function MoveAppointmentDialog({...props}) {
                         variant="subtitle1">
                 {t("dialogs.move-dialog.week-day-slot")}</Typography>
             <WeekDayPicker
-                onChange={(v: any) => setDate(v)}
-                date={data?.extendedProps.time}/>
+                onChange={(v: any) => handleDateChange("date", v)}
+                date={moveDialogDate}/>
 
             <Grid item md={6} xs={12}>
                 <Typography variant="body1"
@@ -85,13 +82,14 @@ function MoveAppointmentDialog({...props}) {
                     {t("dialogs.move-dialog.time-message")}
                 </Typography>
                 <TimeSlot
-                    loading={!date}
-                    data={timeSlots}
-                    limit={limit}
+                    loading={loading}
+                    data={weekTimeSlots?.find(slot =>
+                        slot.date === moment(moveDialogDate).format("DD-MM-YYYY"))?.slots}
+                    limit={initLimit}
                     sx={{width: "60%", margin: "auto"}}
-                    onChange={(newTime: string) => setTime(newTime)}
-                    OnShowMore={() => setLimit(limit * 2)}
-                    value={time}
+                    onChange={(time: string) => handleDateChange("time", undefined, time)}
+                    OnShowMore={() => dispatch(setLimit(initLimit * 2))}
+                    value={moveDialogTime}
                     seeMore
                     seeMoreText={t("dialogs.move-dialog.see-more")}
                 />

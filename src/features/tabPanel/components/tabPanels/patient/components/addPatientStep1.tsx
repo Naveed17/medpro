@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from "react";
+import React, { ChangeEvent } from "react";
 import * as Yup from "yup";
 import { useFormik, Form, FormikProvider } from "formik";
 import {
@@ -21,7 +21,7 @@ import { CountrySelect } from "@features/countrySelect";
 import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from "next-i18next";
-
+import moment from "moment-timezone";
 function AddPatientStep1({ ...props }) {
   const {
     onNext,
@@ -42,14 +42,13 @@ function AddPatientStep1({ ...props }) {
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
   const RegisterSchema = Yup.object().shape({
     first_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
+      .min(3, t("first-name-error"))
+      .max(50, t("first-name-error"))
+      .required(t("first-name-error")),
     last_name: Yup.string()
-      .min(3, t("name-error"))
-      .max(50, t("name-error"))
-      .required(t("name-error")),
-
+      .min(3, t("last-name-error"))
+      .max(50, t("last-name-error"))
+      .required(t("last-name-error")),
     phone: Yup.string()
       .min(9, t("telephone-error"))
       .matches(phoneRegExp, t("telephone-error"))
@@ -225,10 +224,23 @@ function AddPatientStep1({ ...props }) {
                       : t("day")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="01">1</MenuItem>
-                  <MenuItem value="02">2</MenuItem>
-                  <MenuItem value="03">3</MenuItem>
+                  {Array.from(
+                    Array(
+                      moment(
+                        `${values.birthdate.year}-${values.birthdate.month}`,
+                        "YYYY-MM"
+                      ).daysInMonth()
+                    ).keys()
+                  ).map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={i > 9 ? `${i}` : `0${i + 1}`}
+                    >
+                      {i + 1}
+                    </option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
@@ -252,10 +264,16 @@ function AddPatientStep1({ ...props }) {
                       : t("month")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="01">1</MenuItem>
-                  <MenuItem value="02">2</MenuItem>
-                  <MenuItem value="03">3</MenuItem>
+                  {moment.monthsShort().map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={i > 9 ? `${i}` : `0${i + 1}`}
+                    >
+                      {v}
+                    </option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
@@ -279,10 +297,16 @@ function AddPatientStep1({ ...props }) {
                       : t("year")
                   }
                   error={Boolean(touched.birthdate && errors.birthdate)}
+                  native
                 >
-                  <MenuItem value="1996">1996</MenuItem>
-                  <MenuItem value="1997">1997</MenuItem>
-                  <MenuItem value="1998">1998</MenuItem>
+                  {Array.from(Array(100).keys()).map((v, i) => (
+                    <option
+                      key={Math.random()}
+                      value={`${moment().year() - 100 + i + 1}`}
+                    >
+                      {moment().year() - 100 + i + 1}
+                    </option>
+                  ))}
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>

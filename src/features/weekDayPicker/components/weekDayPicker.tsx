@@ -1,17 +1,18 @@
-import React, {useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Box, Typography, IconButton, Container, Divider} from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import WeekDayPickerStyled from './overrides/weekDayPickerStyled';
-import moment from "moment";
+import moment from "moment-timezone";
 
 const months: String[] = [];
 
 function WeekDayPicker({...props}) {
     const {date: initDate, onChange} = props;
-    const offsetYearWeek = moment(initDate).week() - moment().week();
-    const [currentWeek, setWeek] = useState([offsetYearWeek, offsetYearWeek + 7]);
-    const clonedDate = new Date(initDate.getTime());
+    const offsetYearWeekStart = moment(initDate).week() - moment().week();
+    const offsetYearWeekEnd = offsetYearWeekStart + 1;
+    const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
+    const clonedDate = new Date(initDate?.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
 
     const now = new Date();
@@ -29,14 +30,18 @@ function WeekDayPicker({...props}) {
             months.push(moment().set('month', index).format("MMMM")))
     }
 
+    const onChangeCallback = useCallback((date: Date)=>{
+        onChange(date);
+    },[onChange]);
+
     const handleDateChange = (date: Date) => {
         setDate(date);
-        onChange(date);
+        onChangeCallback(date);
     }
 
-    getMonths();
-
-    console.log("currentWeek", currentWeek);
+    useEffect(()=>{
+        getMonths();
+    },[])
 
     return (
         <WeekDayPickerStyled>
@@ -80,7 +85,7 @@ function WeekDayPicker({...props}) {
                                 },
                             }}
                             className="day"
-                            onClick={() => handleDateChange(v)}
+                            onClick={(event) => handleDateChange(v)}
                         >
                             <Typography
                                 variant="body2"

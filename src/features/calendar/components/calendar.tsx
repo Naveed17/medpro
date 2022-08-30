@@ -11,7 +11,7 @@ import CalendarStyled from "./overrides/calendarStyled";
 import React, {useEffect, useRef, useState} from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import moment from "moment";
+import moment from "moment-timezone";
 import {FormatterInput} from "@fullcalendar/common";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, Event, Header} from "@features/calendar";
@@ -223,6 +223,7 @@ function Calendar({...props}) {
                             </Box>
 
                             <FullCalendar
+                                timeZone={'local'}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}

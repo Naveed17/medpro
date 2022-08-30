@@ -4,6 +4,7 @@ function AddRDVStep3() {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "add-appointment",
   });
+
   if (!ready) return <>loading translations...</>;
   return (
     <SuccessCard

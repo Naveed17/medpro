@@ -97,18 +97,17 @@ const CardSection = ({ ...props }) => {
             ) : (
               <>
                 <Icon path="ic-anniverssaire" className="d-inline-block mr-1" />
-                {v.nextAppointment.dayDate}
+                {v.nextAppointment?.dayDate || "-"}
               </>
             )}
           </Typography>
           <Box
             className="border-left-sec"
             sx={{
-              borderLeft: `5px solid ${
-                v?.isParent
+              borderLeft: `5px solid ${v?.isParent
                   ? theme.palette.success.main
                   : theme.palette.warning.main
-              }`,
+                }`,
             }}
           >
             <Button
@@ -142,9 +141,9 @@ const CardSection = ({ ...props }) => {
                 component="div"
               >
                 <Icon path="ic-agenda" />
-                {v.nextAppointment.dayDate}
+                {v.nextAppointment?.dayDate || "-"}
                 <Icon path="ic-time" />
-                {v.nextAppointment.startTime}
+                {v.nextAppointment?.startTime || "-"}
               </Typography>
             )}
           </Box>
