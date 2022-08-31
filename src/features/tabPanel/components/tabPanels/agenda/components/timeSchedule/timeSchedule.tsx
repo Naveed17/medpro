@@ -169,15 +169,44 @@ function TimeSchedule({...props}) {
                         onChange={onChangeReason}
                         sx={{
                             "& .MuiSelect-select svg": {
-                                display: "none",
+                                position: "fixed",
+                                border: .1,
+                                borderColor: 'divider',
+                                borderRadius: '50%',
+                                p: 0.05
                             },
+                            "& .MuiTypography-root": {
+                                ml: 3.5
+                            }
+                        }}
+                        renderValue={value => {
+                            const motif = reasons.find(reason => reason.uuid === value);
+                            return (
+                                <Box sx={{display: "inline-flex"}}>
+                                    <FiberManualRecordIcon
+                                        fontSize="small"
+                                        sx={{
+                                            color: motif?.color
+                                        }}
+                                    />
+                                    <Typography>{motif?.name}</Typography>
+                                </Box>
+
+                            )
                         }}
                     >
                         {reasons?.map((consultationReason) => (
                             <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
                                 <FiberManualRecordIcon
                                     fontSize="small"
-                                    sx={{mr: 1, color: consultationReason.color}}
+                                    sx={{
+                                        border: .1,
+                                        borderColor: 'divider',
+                                        borderRadius: '50%',
+                                        p: 0.05,
+                                        mr: 1,
+                                        color: consultationReason.color
+                                    }}
                                 />
                                 {consultationReason.name}
                             </MenuItem>

@@ -7,6 +7,8 @@ import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import TimeIcon from "@themes/overrides/icons/time";
 
 function CalendarRow({...props}) {
     const {handleEvent} = props;
@@ -80,12 +82,12 @@ function CalendarRow({...props}) {
                                 height: "100%",
                                 width: 4,
                                 bgcolor: data.borderColor,
-                            },
+                            }
                         }}
                         className="first-child"
                     >
                         <Box sx={{display: "flex"}}>
-                            <IconUrl path="ic-time"/>
+                            <TimeIcon />
                             <Typography variant="body2" color="text.secondary">
                                 {new Date(data.time).toLocaleTimeString([], {
                                     hour: "2-digit",
@@ -129,7 +131,7 @@ function CalendarRow({...props}) {
                         }}
                     >
                         <Box sx={{display: "flex", justifyContent: "left"}}>
-                            <IconUrl path="ic-time"/>
+                            <TimeIcon />
                             <Typography variant="body2" color="text.secondary">
                                 {differenceInMinutes(
                                     new Date(data.end),

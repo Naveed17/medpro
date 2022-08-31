@@ -62,7 +62,7 @@ function Agenda() {
     const dispatch = useAppDispatch();
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, openAddDrawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation('agenda');
+    const {t, ready} = useTranslation(['agenda', 'common']);
     const [
         timeRange,
         setTimeRange
