@@ -3,12 +3,12 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from "next-i18next";
 // ________________________
 import { uniqueId } from "lodash";
 import { RootStyled } from "@features/popover";
 function BasicPopover({ ...props }) {
-  const { t, ready } = useTranslation('common');
+  const { t, ready } = useTranslation("common");
   const { button, handleClose, open, menuList, onClickItem } = props;
   if (!ready) return <>loading translations...</>;
   return (

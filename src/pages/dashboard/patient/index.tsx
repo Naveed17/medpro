@@ -39,7 +39,7 @@ import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
 import { SpeedDial } from "@features/speedDial";
 import { CustomStepper } from "@features/customStepper";
-import { useRequest } from "@app/axios";
+import { useRequest, useRequestMutation } from "@app/axios";
 
 // icons
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
@@ -227,14 +227,6 @@ const headCells: readonly HeadCell[] = [
     align: "left",
   },
   {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "id",
-    sortable: true,
-    align: "left",
-  },
-  {
     id: "nextAppointment",
     numeric: false,
     disablePadding: false,
@@ -278,7 +270,7 @@ function Patient() {
 
   const {
     data: httpPatientsResponse,
-    error: errorHttpPatient,
+    error: errorHttpPatients,
     mutate,
   } = useRequest(
     {
@@ -309,10 +301,29 @@ function Patient() {
     setValue(newValue);
   };
 
+  // mutate for patient details
+  const { data: httpPatientDetailsResponse, trigger } = useRequestMutation(
+    null,
+    `patient-details`
+  );
+
+  const [loading, setLoading] = useState<boolean>(true);
+
   // useEffect hook for handling the table action drawer
   useEffect(() => {
     if (patientId) {
       setopen(true);
+      trigger(
+        {
+          method: "GET",
+          url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/${router.locale}`,
+          headers: {
+            ContentType: "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        },
+        { revalidate: true, populateCache: true }
+      ).then((r) => setLoading(false));
     }
   }, [patientId]);
 
@@ -344,7 +355,7 @@ function Patient() {
             edit={null}
             handleConfig={null}
             handleChange={null}
-            minWidth={1300}
+            minWidth={1100}
             pagination
             total={(httpPatientsResponse as HttpResponse)?.data?.total}
             totalPages={
@@ -377,13 +388,8 @@ function Patient() {
                 }}
               />
               <PatientdetailsCard
-                patient={
-                  httpPatientsResponse
-                    ? (httpPatientsResponse as HttpResponse)?.data?.list.find(
-                        (patient: any) => patient.uuid === patientId
-                      )
-                    : {}
-                }
+                loading={loading}
+                patient={(httpPatientDetailsResponse as HttpResponse)?.data}
               />
               <Box
                 sx={{

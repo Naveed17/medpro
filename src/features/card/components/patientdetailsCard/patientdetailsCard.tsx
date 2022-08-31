@@ -1,5 +1,5 @@
 //material-ui
-import { Box, Button, Typography, Badge } from "@mui/material";
+import { Box, Button, Typography, Badge, Skeleton } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import { useRouter } from "next/router";
 // styled
@@ -13,7 +13,8 @@ import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import moment from "moment-timezone";
 function PatientdetailsCard({ ...props }) {
-  const { patient } = props;
+  const { patient, loading } = props;
+  console.log(patient, "patient");
   const { patientId } = useAppSelector(tableActionSelector);
   const router = useRouter();
   const { query } = router;
@@ -31,13 +32,22 @@ function PatientdetailsCard({ ...props }) {
           horizontal: "right",
         }}
       >
-        <Box
-          component="img"
-          src={"/static/img/150-13 6.png"}
-          width={pxToRem(59)}
-          height={pxToRem(59)}
-          sx={{ borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1 }}
-        />
+        {loading ? (
+          <Skeleton
+            variant="rectangular"
+            width={pxToRem(59)}
+            height={pxToRem(59)}
+            sx={{ borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1 }}
+          />
+        ) : (
+          <Box
+            component="img"
+            src={"/static/img/150-13 6.png"}
+            width={pxToRem(59)}
+            height={pxToRem(59)}
+            sx={{ borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1 }}
+          />
+        )}
       </Badge>
       <Box mx={1}>
         <Typography
@@ -49,7 +59,11 @@ function PatientdetailsCard({ ...props }) {
             textAlign: { md: "left", sm: "center", xs: "center" },
           }}
         >
-          {patient?.firstName} {patient?.lastName}
+          {loading ? (
+            <Skeleton variant="text" />
+          ) : (
+            `${patient?.firstName} ${patient?.lastName}`
+          )}
         </Typography>
         <Typography
           variant="body2"

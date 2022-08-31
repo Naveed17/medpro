@@ -10,10 +10,11 @@ import {
 import { TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-
+import ReactSVG from "@themes/urlIcon";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
 import { onOpenDetails } from "@features/table";
+
 function PatientRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId, loading } = props;
   const dispatch = useAppDispatch();
@@ -69,7 +70,7 @@ function PatientRow({ ...props }) {
               ) : (
                 <>
                   <Icon path={"ic-f"} />
-                  {row.firstName}
+                  {row.firstName} {row.lastName}
                 </>
               )}
             </Typography>
@@ -105,9 +106,6 @@ function PatientRow({ ...props }) {
       </TableCell>
       <TableCell>
         {loading ? <Skeleton variant="text" /> : row.city || "-"}
-      </TableCell>
-      <TableCell>
-        {loading ? <Skeleton variant="text" /> : row.idCode || "-"}
       </TableCell>
       <TableCell>
         {false ? (
@@ -264,27 +262,41 @@ function PatientRow({ ...props }) {
             >
               <Icon path="ic-autre2" />
             </IconButton>
-
-            <Button
-              size="small"
-              sx={{
-                ml: 0.6,
-                color: (theme) => theme.palette.common.black,
-                path: { fill: (theme) => theme.palette.common.black },
-              }}
-            >
-              {t("table.edit")}
-            </Button>
-
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                dispatch(onOpenDetails({ patientId: row.uuid }));
-              }}
-              size="small"
-            >
-              {t("table.see-card")}
-            </Button>
+            <Box className="lg-down">
+              <Button
+                size="small"
+                sx={{
+                  ml: 0.6,
+                  color: (theme) => theme.palette.common.black,
+                  path: { fill: (theme) => theme.palette.common.black },
+                }}
+              >
+                {t("table.edit")}
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                }}
+                size="small"
+              >
+                {t("table.see-card")}
+              </Button>
+            </Box>
+            <Box className="lg-up">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                }}
+              >
+                <ReactSVG path="/ic-voir" />
+              </IconButton>
+              <IconButton size="small" className="edit-icon-button">
+                <ReactSVG path="/ic-edit" />
+              </IconButton>
+            </Box>
           </>
         )}
       </TableCell>

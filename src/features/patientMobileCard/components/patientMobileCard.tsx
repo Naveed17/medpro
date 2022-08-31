@@ -29,7 +29,6 @@ import {
 import { Popover } from "@features/popover";
 import { DrawerBottom } from "@features/drawerBottom";
 import { Accordion } from "@features/accordion/components";
-import moment from "moment-timezone";
 
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
@@ -54,7 +53,7 @@ const menuList = [
 ];
 
 const CardSection = ({ ...props }) => {
-  const { v, theme, onOpenDetails, loading } = props;
+  const { v, theme, onOpenPatientDetails, loading } = props;
 
   const [openTooltip, setOpenTooltip] = useState(false);
   const onClickTooltipItem = (item: {
@@ -64,7 +63,7 @@ const CardSection = ({ ...props }) => {
   }) => {
     switch (item.action) {
       case "onOpenDetails":
-        onOpenDetails({ patientId: v.id });
+        onOpenPatientDetails({ patientId: v.uuid });
         break;
 
       default:
@@ -104,10 +103,11 @@ const CardSection = ({ ...props }) => {
           <Box
             className="border-left-sec"
             sx={{
-              borderLeft: `5px solid ${v?.isParent
+              borderLeft: `5px solid ${
+                v?.isParent
                   ? theme.palette.success.main
                   : theme.palette.warning.main
-                }`,
+              }`,
             }}
           >
             <Button
@@ -161,21 +161,19 @@ const CardSection = ({ ...props }) => {
               menuList={menuList}
               onClickItem={onClickTooltipItem}
               button={
-                <>
-                  {loading ? (
-                    <Skeleton variant="circular" width={20} height={20} />
-                  ) : (
-                    <IconButton
-                      onClick={() => {
-                        setOpenTooltip(true);
-                      }}
-                      sx={{ display: "block", ml: "auto" }}
-                      size="small"
-                    >
-                      <Icon path="more-vert" />
-                    </IconButton>
-                  )}
-                </>
+                loading ? (
+                  <Skeleton variant="circular" width={20} height={20} />
+                ) : (
+                  <IconButton
+                    onClick={() => {
+                      setOpenTooltip(true);
+                    }}
+                    sx={{ display: "block", ml: "auto" }}
+                    size="small"
+                  >
+                    <Icon path="more-vert" />
+                  </IconButton>
+                )
               }
             />
           </Box>
@@ -227,9 +225,9 @@ function PatientMobileCard({ ...props }) {
           v={v}
           key={Math.random()}
           theme={theme}
-          onOpenDetails={(val: { patientId: number | string }) =>
-            dispatch(onOpenDetails(val))
-          }
+          onOpenPatientDetails={(val: { patientId: number | string }) => {
+            dispatch(onOpenDetails(val));
+          }}
           loading={loading}
         />
       ))}
