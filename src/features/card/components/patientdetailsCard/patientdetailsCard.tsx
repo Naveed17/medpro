@@ -60,7 +60,7 @@ function PatientdetailsCard({ ...props }) {
           }}
         >
           {loading ? (
-            <Skeleton variant="text" />
+            <Skeleton variant="text" width={150} />
           ) : (
             `${patient?.firstName} ${patient?.lastName}`
           )}
@@ -71,24 +71,42 @@ function PatientdetailsCard({ ...props }) {
           component="span"
           className="date-birth"
         >
-          <Icon path="ic-anniverssaire" />
-          {patient?.birthdate} -{" "}
-          {moment().diff(new Date(patient?.birthdate), "years")} {t("years")}
+          {loading ? (
+            <Skeleton variant="text" width={150} />
+          ) : (
+            <>
+              <Icon path="ic-anniverssaire" />
+              {patient?.birthdate} -{" "}
+              {moment().diff(new Date(patient?.birthdate), "years")}{" "}
+              {t("years")}
+            </>
+          )}
         </Typography>
       </Box>
       <div>
-        <Typography variant="body2" component="span" className="alert">
-          <Icon path="danger" />
-          {t("duplicate")}
-        </Typography>
+        {loading ? (
+          <Skeleton variant="text" width={150} />
+        ) : (
+          <Typography variant="body2" component="span" className="alert">
+            <Icon path="danger" />
+            {t("duplicate")}
+          </Typography>
+        )}
+
         <Typography
           variant="body2"
           color="primary"
           component="span"
           className="email-link"
         >
-          <Icon path="ic-message-contour" />
-          {t("add-email")}
+          {loading ? (
+            <Skeleton variant="text" width={100} />
+          ) : (
+            <>
+              <Icon path="ic-message-contour" />
+              {t("add-email")}
+            </>
+          )}
         </Typography>
       </div>
       <Box
@@ -96,30 +114,50 @@ function PatientdetailsCard({ ...props }) {
         alignItems="center"
         sx={{ ml: { md: 1, sm: 0, xs: 0 }, mt: { md: 4, sm: 1, xs: 1 } }}
       >
-        {patient?.telephone && (
+        {loading ? (
+          <Skeleton variant="text" width={100} />
+        ) : (
           <>
-            <Icon path="ic-tel" />
-            <Typography variant="body2">{patient?.telephone}</Typography>
+            {patient?.telephone && (
+              <>
+                <Icon path="ic-tel" />
+                <Typography variant="body2">{patient?.telephone}</Typography>
+              </>
+            )}
           </>
         )}
       </Box>
-      <Button
-        onClick={() => {
-          router.push({ query }, `/dashboard/consultation/${patientId}`, {
-            locale: router.locale,
-          });
-        }}
-        variant="contained"
-        color="warning"
-        startIcon={<PlayCircleIcon />}
-        sx={{
-          ml: { md: "auto", sm: 0, xs: 0 },
-          maxWidth: { md: 193, sm: "100%", xs: "100%" },
-          my: 2,
-        }}
-      >
-        {t("start-consultation")}
-      </Button>
+      {loading ? (
+        <Skeleton
+          variant="rectangular"
+          sx={{
+            ml: { md: "auto", xs: 0 },
+            maxWidth: { md: 193, xs: "100%" },
+            minHeight: { md: 60, xs: 40 },
+            width: 153,
+            my: 2,
+            borderRadius: "4px",
+          }}
+        />
+      ) : (
+        <Button
+          onClick={() => {
+            router.push({ query }, `/dashboard/consultation/${patientId}`, {
+              locale: router.locale,
+            });
+          }}
+          variant="contained"
+          color="warning"
+          startIcon={<PlayCircleIcon />}
+          sx={{
+            ml: { md: "auto", sm: 0, xs: 0 },
+            maxWidth: { md: 193, xs: "100%" },
+            my: 2,
+          }}
+        >
+          {t("start-consultation")}
+        </Button>
+      )}
     </RootStyled>
   );
 }

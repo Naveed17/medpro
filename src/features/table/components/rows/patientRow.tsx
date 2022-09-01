@@ -98,8 +98,10 @@ function PatientRow({ ...props }) {
             <Skeleton variant="text" width={100} />
           ) : (
             <>
-              {row.telephone && <Icon path="ic-tel" />}
-              <Typography sx={{ ml: 0.6 }}>{row.telephone || "-"}</Typography>
+              {row.contact.length > 0 && <Icon path="ic-tel" />}
+              <Typography sx={{ ml: 0.6 }}>
+                {(row.contact.length > 0 && row.contact[0].value) || "-"}
+              </Typography>
             </>
           )}
         </Box>

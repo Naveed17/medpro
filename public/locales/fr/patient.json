@@ -120,7 +120,7 @@
     "last-name": "Nom de famille",
     "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
     "last-name-placeholder": "Tapez le nom de famille du patient",
-    "date-of-birth": "Date de naissance",
+    "birthdate": "Date de naissance",
     "day": "Jour",
     "month": "Mois",
     "year": "Année",

@@ -7,6 +7,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
     alignItems: "center",
     marginBottom: theme.spacing(1),
     svg: { marginRight: theme.spacing(1) },
+    textTransform: "capitalize",
   },
 }));
 

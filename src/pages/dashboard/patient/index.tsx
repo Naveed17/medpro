@@ -53,6 +53,7 @@ import {
   DocumentsPanel,
 } from "@features/tabPanel";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
+import moment from "moment-timezone";
 
 const stepperData = [
   {
@@ -81,105 +82,105 @@ interface HeadCell {
 
 // data for patient details RDV
 const data: PatientDetailsRDV[] = [
-  // {
-  //   title: "pending-appo",
-  //   pending: true,
-  //   data: [
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "old-appo",
-  //   pending: false,
-  //   data: [
-  //     {
-  //       title: "2021",
-  //       data: [
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "2020",
-  //       data: [
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+  {
+    title: "pending-appo",
+    pending: true,
+    data: [
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+    ],
+  },
+  {
+    title: "old-appo",
+    pending: false,
+    data: [
+      {
+        title: "2021",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+        ],
+      },
+      {
+        title: "2020",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // add patient details RDV for not data
@@ -414,11 +415,21 @@ function Patient() {
                 </Tabs>
                 <Divider />
                 <TabPanel padding={1} value={value} index={0}>
-                  <PersonalInfoPanel />
+                  <PersonalInfoPanel
+                    loading={loading}
+                    patient={(httpPatientDetailsResponse as HttpResponse)?.data}
+                  />
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={1}>
                   {data.length > 0 ? (
-                    <GroupTable from="patient" data={data} />
+                    !loading && (
+                      <GroupTable
+                        from="patient"
+                        data={
+                          (httpPatientDetailsResponse as HttpResponse)?.data
+                        }
+                      />
+                    )
                   ) : (
                     <NoDataCard t={t} data={AddAppointmentCardData} />
                   )}
