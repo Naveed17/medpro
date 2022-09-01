@@ -1,11 +1,11 @@
 // ______________________________
 import { PersonalInfoCard, BackgroundCard } from "@features/card";
 
-function PersonInfoPanel() {
+function PersonInfoPanel({ ...props }) {
   return (
     <div>
-      <PersonalInfoCard />
-      <BackgroundCard />
+      <PersonalInfoCard {...props} />
+      <BackgroundCard {...props} />
     </div>
   );
 }

@@ -15,42 +15,42 @@ function a11yProps(index: number) {
 function CustomStepper({ ...props }) {
   const {
     stepperData,
-    currentIndex = 0,
+    // currentIndex = 0,
     minWidth,
     scroll,
     t,
-    OnTabsChange = null,
-    OnSubmitStepper = null,
+    // OnTabsChange = null,
+    // OnSubmitStepper = null,
   } = props;
-  const [value, setValue] = useState<number>(currentIndex);
-  const [last, setLast] = useState<number>(1);
+  const [value, setValue] = useState<number>(0);
+  // const [last, setLast] = useState<number>(1);
 
-    const tabChange = useCallback(
-      (event: SyntheticEvent, currentIndex: number) => {
-        setValue(currentIndex);
-        if (OnTabsChange) {
-          OnTabsChange(currentIndex);
-        }
-      },
-      [OnTabsChange]
-    );
+  // const tabChange = useCallback(
+  //   (event: SyntheticEvent, currentIndex: number) => {
+  //     setValue(currentIndex);
+  //     if (OnTabsChange) {
+  //       OnTabsChange(currentIndex);
+  //     }
+  //   },
+  //   [OnTabsChange]
+  // );
 
-  const submitStepper = useCallback(
-    (currentIndex: number) => {
-      if (currentIndex < stepperData.length) {
-        setValue(currentIndex);
-        setLast(last < stepperData.length ? last + 1 : last);
-      }
-      if (OnSubmitStepper) {
-        OnSubmitStepper(currentIndex);
-      }
-    },
-    [OnSubmitStepper, last, stepperData.length]
-  );
+  // const submitStepper = useCallback(
+  //   (currentIndex: number) => {
+  //     if (currentIndex < stepperData.length) {
+  //       setValue(currentIndex);
+  //       // setLast(last < stepperData.length ? last + 1 : last);
+  //     }
+  //     if (OnSubmitStepper) {
+  //       OnSubmitStepper(currentIndex);
+  //     }
+  //   },
+  //   [OnSubmitStepper, stepperData.length]
+  // );
 
-    const handleChange = (event: SyntheticEvent, val: number) => {
-      setValue(val);
-    };
+  // const handleChange = (event: SyntheticEvent, val: number) => {
+  //   setValue(val);
+  // };
 
   return (
     <>
@@ -63,7 +63,7 @@ function CustomStepper({ ...props }) {
       >
         <Tabs
           value={value}
-          onChange={OnTabsChange ? tabChange : handleChange}
+          // onChange={handleChange}
           variant="scrollable"
           scrollButtons={false}
           aria-label="scrollable auto tabs"
@@ -108,9 +108,9 @@ function CustomStepper({ ...props }) {
           ) => {
             const Component: any = v.children;
             return (
-              <TabPanel key={Math.random()} value={value} index={i}>
+              <TabPanel key={Math.random()} value={Number(value)} index={i}>
                 <Component
-                  onNext={(index: number) => submitStepper(index)}
+                  onNext={(index: number) => setValue(index)}
                   {...props}
                 />
               </TabPanel>
