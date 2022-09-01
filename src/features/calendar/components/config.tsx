@@ -84,7 +84,7 @@ export const CalendarContextMenu = [
     {
         title: "see_patient_form",
         icon: <InsertDriveFileOutlinedIcon/>,
-        action: "onShowPatient",
+        action: "onPatientDetail",
     },
     {
         title: "send_a_message",
