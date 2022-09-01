@@ -9,7 +9,12 @@ import {useRouter} from "next/router";
 function LifeStyleDialog({...props}) {
     const codes: any = {
         way_of_life: '0',
-        allergic: '1'
+        allergic: '1',
+        treatment: '2',
+        antecedents:'3',
+        family_antecedents:'4',
+        surgical_antecedents:'5',
+        medical_antecedents: '6'
     }
     const action = props.data.action;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})

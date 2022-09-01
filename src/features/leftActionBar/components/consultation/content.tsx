@@ -35,6 +35,7 @@ const Content = ({...props}) => {
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>('');
+    const [size, setSize] = useState<string>('sm');
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
     const {mutate} = useAppSelector(consultationSelector);
     const {trigger} = useRequestMutation(null, "/antecedent");
@@ -43,7 +44,11 @@ const Content = ({...props}) => {
     const codes: any = {
         way_of_life: '0',
         allergic: '1',
-        family_antecedents:'4'
+        treatment: '2',
+        antecedents:'3',
+        family_antecedents:'4',
+        surgical_antecedents:'5',
+        medical_antecedents: '6'
     }
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -69,7 +74,10 @@ const Content = ({...props}) => {
             return
         }
         setState(patient.antecedents[action])
+        console.log(action)
         setInfo(action)
+        action === 'add_treatment'? setSize('lg'):setSize('sm');
+
         handleClickDialog()
     };
 
@@ -233,7 +241,7 @@ const Content = ({...props}) => {
                         data={{state: state, setState: setState, patient_uuid: patient.uuid, action: info}}
                         change={false}
                         max
-                        size={"lg"}
+                        size={size}
                         direction={'ltr'}
                         actions={true}
                         title={t(info)}
