@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useTranslation } from "next-i18next";
 // material
-import { Typography, Paper, Grid, Button, Stack } from "@mui/material";
+import { Typography, Paper, Grid, Button, Skeleton } from "@mui/material";
 // ____________________________________
 import { Dialog, PatientDetailsDialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -23,7 +23,13 @@ const cardItems: PatientDetailsList[] = [
   },
 ];
 
-function BackgroundCard() {
+const emptyObject = {
+  title: "",
+  value: "",
+};
+
+function BackgroundCard({ ...props }) {
+  const { loading, patient } = props;
   const [open, setopen] = useState(false);
   const [data, setdata] = useState([...cardItems]);
   const [selected, setselected] = useState({});
@@ -47,49 +53,69 @@ function BackgroundCard() {
         fontFamily="Poppins"
         sx={{ my: 1, pt: 1 }}
       >
-        {t("title")}
+        {loading ? (
+          <Skeleton variant="text" sx={{ maxWidth: 200 }} />
+        ) : (
+          t("title")
+        )}
       </Typography>
       <Grid container spacing={2}>
-        {data.map((item) => (
-          <Grid key={item.id} item md={6} sm={12} xs={12}>
-            <Paper sx={{ p: 1.5, borderWidth: 0 }}>
-              <Typography
-                variant="body1"
-                color="text.primary"
-                className="item"
-                component="span"
-              >
-                <Icon path={item.icon} /> {t("family-history")}
-              </Typography>
-              {item.items.map((v) => (
+        {Object.keys(loading ? emptyObject : patient.antecedents).map(
+          (item: any) => (
+            <Grid key={Math.random()} item md={6} sm={12} xs={12}>
+              <Paper sx={{ p: 1.5, borderWidth: 0, height: "100%" }}>
                 <Typography
-                  key={Math.random()}
-                  mt={0.5}
-                  color="text.secondary"
-                  fontSize={11}
+                  variant="body1"
+                  color="text.primary"
+                  className="item"
+                  component="span"
                 >
-                  {v.name}
+                  {/* <Icon path={item.icon} /> */}
+                  {loading ? (
+                    <Skeleton
+                      variant="text"
+                      sx={{ maxWidth: 150, width: "100%" }}
+                    />
+                  ) : (
+                    item.split("_").join(" ")
+                  )}
                 </Typography>
-              ))}
-
-              <Button
-                variant="text"
-                color="primary"
-                size="small"
-                onClick={() => {
-                  setopen(true);
-                  setselected(item);
-                }}
-                sx={{
-                  mt: 1,
-                  svg: { width: 15, mr: 0.5, path: { fill: "#0696D6" } },
-                }}
-              >
-                <Icon path="ic-plus" /> {t("add-background")}
-              </Button>
-            </Paper>
-          </Grid>
-        ))}
+                {(loading
+                  ? Array.from(new Array(3))
+                  : patient.antecedents[item]
+                ).map((v: any) => (
+                  <Typography
+                    key={Math.random()}
+                    mt={0.5}
+                    color="text.secondary"
+                    fontSize={11}
+                  >
+                    {loading ? <Skeleton variant="text" /> : v.name}
+                  </Typography>
+                ))}
+                {loading ? (
+                  <Skeleton variant="text" sx={{ maxWidth: 200 }} />
+                ) : (
+                  <Button
+                    variant="text"
+                    color="primary"
+                    size="small"
+                    onClick={() => {
+                      setopen(true);
+                      setselected(item);
+                    }}
+                    sx={{
+                      mt: 1,
+                      svg: { width: 15, mr: 0.5, path: { fill: "#0696D6" } },
+                    }}
+                  >
+                    <Icon path="ic-plus" /> {t("add-background")}
+                  </Button>
+                )}
+              </Paper>
+            </Grid>
+          )
+        )}
       </Grid>
       <Dialog
         action={PatientDetailsDialog}

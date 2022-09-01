@@ -10,7 +10,11 @@ function AddPatientStep3({ ...props }) {
     patient_group: "",
     first_name: "",
     last_name: "",
-    birthdate: "",
+    birthdate: {
+      day: "01",
+      month: "01",
+      year: "1970",
+    },
     phone: "",
     gender: "1",
   };

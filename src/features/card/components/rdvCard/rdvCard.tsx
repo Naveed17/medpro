@@ -20,21 +20,18 @@ function RdvCard({ ...props }) {
         className="first-child"
         sx={{
           "&:after": {
-            bgcolor: inner.borderColor,
+            bgcolor: inner.consultationReason.color,
           },
         }}
       >
         <Box sx={{ display: "flex" }}>
           <Icon path="ic-agenda" />
           <Typography variant="body2" color="text.secondary" sx={{ mr: 3 }}>
-            {moment(new Date(inner.time)).format("ddd DD MMM")}
+            {inner.dayDate}
           </Typography>
           <Icon path="ic-time" />
           <Typography variant="body2" color="text.secondary">
-            {new Date(inner.time).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {inner.startTime}
           </Typography>
         </Box>
       </TableCell>
@@ -43,7 +40,7 @@ function RdvCard({ ...props }) {
 
         <Typography variant="body2" color="primary.main">
           {" "}
-          {t(inner.motif)}
+          {inner.consultationReason.name}
         </Typography>
       </TableCell>
 
