@@ -50,7 +50,7 @@ Open `http://localhost:3000` with your browser to see the result.
 | KEYCLOAK_ID                |               |
 | KEYCLOAK_SECRET            |               |
 | KEYCLOAK_ISSUER            |               |
-| NEXT_PUBLIC_BACK_END_POINT |               |
+| NEXT_PUBLIC_API_URL        |               |
 
 ## API
 - [useRequest](#userequestrequest-config)

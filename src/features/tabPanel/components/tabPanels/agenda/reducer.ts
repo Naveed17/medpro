@@ -44,7 +44,7 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
     }).addCase(setAppointmentInstruction, (state, action) => {
         state.instruction = action.payload;
     }).addCase(setAppointmentSubmit, (state, action) => {
-        state.submitted = action.payload;
+        return {...initialState, submitted: true};
     }).addCase(resetAppointment, (state, action) => {
         return {...state, ...initialState};
     });

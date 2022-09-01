@@ -29,21 +29,12 @@ import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
+import {AppointmentTypes} from "@features/calendar";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
 
-const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
-    0: {key: "PENDING", value: "En attende"},
-    1: {key: "CONFIRMED", value: "Confirmé"},
-    2: {key: "REFUSED", value: "Effectué"},
-    3: {key: "WAITING_ROOM", value: "Salle d'attende"},
-    4: {key: "ON_GOING", value: "en attende"},
-    5: {key: "FINISHED", value: "en attende"},
-    6: {key: "CANCELED", value: "Annulé"},
-    7: {key: "EXPIRED", value: "Expiré"},
-}
 const EventStepper = [
     {
         title: "steppers.tabs.tab-1",
@@ -165,7 +156,27 @@ function Agenda() {
 
     const OnEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
-        const defEvent = {...info.event._def, extendedProps: {newDate: startDate}};
+        const oldStartDate = moment(info.oldEvent._instance?.range.start);
+        const defEvent = {
+            ...info.event._def,
+            extendedProps: {newDate: startDate, oldDate: oldStartDate}
+        };
+        setEvent(defEvent);
+        setAlert(true);
+    }
+
+    const onMoveAppointment = (dateTime: { date: Date, time: string }) => {
+        const timeSplit = dateTime.time.split(':');
+        const date = moment(dateTime.date.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
+        const defEvent = {
+            ...event,
+            extendedProps: {
+                ...event?.extendedProps,
+                newDate: date,
+                from: 'modal',
+                oldDate: moment(event?.extendedProps.time)
+            }
+        } as EventDef;
         setEvent(defEvent);
         setAlert(true);
     }
@@ -174,10 +185,13 @@ function Agenda() {
         setLoading(true);
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time', event.extendedProps.newDate.subtract(1, 'hours').format("hh:mm"));
+        form.append('start_time',
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("hh:mm"));
+        const eventId = event.publicId ? event.publicId : (event as any).id;
+
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${event.publicId}/change-date/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -202,6 +216,12 @@ function Agenda() {
             EventStepper[index].disabled = false;
         } else {
             refreshData();
+            dispatch(setStepperIndex(0));
+            EventStepper.map((stepper, index) => {
+                if (index > 0) {
+                    stepper.disabled = true;
+                }
+            })
         }
     }
 
@@ -334,6 +354,7 @@ function Agenda() {
                     {event &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            onMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
                 </Drawer>
@@ -371,7 +392,12 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             variant="subtitle1">{t("dialogs.move-dialog.sub-title")}</Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.move-dialog.description")}</Typography>
+                                            margin={2}>
+                                    {event?.extendedProps.modal}
+                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")} {" => "}
+                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")}
+                                </Typography><Typography sx={{textAlign: "center"}}
+                                                         margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
                     open={alert}

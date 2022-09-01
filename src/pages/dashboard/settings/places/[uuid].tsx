@@ -33,7 +33,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
-import moment from "moment";
+import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 

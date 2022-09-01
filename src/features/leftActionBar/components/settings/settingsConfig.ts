@@ -37,11 +37,11 @@ const settingsData = {
             href: "/dashboard/settings/agenda",
             disable: true
         },
-       /* {
-            name: "timeSchedule",
-            icon: "setting/ic-time",
-            href: "/dashboard/settings/timeSchedule",
-        },*/
+        /* {
+             name: "timeSchedule",
+             icon: "setting/ic-time",
+             href: "/dashboard/settings/timeSchedule",
+         },*/
         {
             name: "conges",
             icon: "setting/ic-time",

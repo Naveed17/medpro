@@ -32,8 +32,6 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-
-const rowsPerPage = 10;
 function Otable({ ...props }) {
   const {
     rows,
@@ -50,9 +48,12 @@ function Otable({ ...props }) {
     handleEvent,
     hideHeaderOnMobile,
     loading,
+    totalPages,
+    total,
     ...rest
   } = props;
-  const [page, setPage] = useState(0);
+  // const router = useRouter();
+  // const { query } = router;
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("calories");
   const [tableHeadData, setTableHeadData] = useState<any>(null);
@@ -136,43 +137,36 @@ function Otable({ ...props }) {
             {(loading
               ? Array.from(new Array(10))
               : stableSort(rows, getComparator(order, orderBy))
-            )
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const isItemSelected = isSelected(row?.id as number);
-                const labelId = `enhanced-table-checkbox-${index}`;
-                return (
-                  <Component
-                    key={index}
-                    row={row}
-                    t={t}
-                    tableHeadData={state}
-                    handleChange={handleChange}
-                    editMotif={edit}
-                    active={active}
-                    ids={ids}
-                    checkedType={checkedType}
-                    labelId={labelId}
-                    data={rest}
-                    selected={selected}
-                    isItemSelected={isItemSelected}
-                    handleClick={handleClick}
-                    handleEvent={handleEvent}
-                    loading={loading}
-                  />
-                );
-              })}
+            ).map((row, index) => {
+              const isItemSelected = isSelected(row?.id as number);
+              const labelId = `enhanced-table-checkbox-${index}`;
+              return (
+                <Component
+                  key={index}
+                  row={row}
+                  t={t}
+                  tableHeadData={state}
+                  handleChange={handleChange}
+                  editMotif={edit}
+                  active={active}
+                  ids={ids}
+                  checkedType={checkedType}
+                  labelId={labelId}
+                  data={rest}
+                  selected={selected}
+                  isItemSelected={isItemSelected}
+                  handleClick={handleClick}
+                  handleEvent={handleEvent}
+                  loading={loading}
+                />
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
       <Box py={1} />
-      {!loading && pagination && rows.length > 10 && (
-        <Pagination
-          page={page}
-          total={rows.length}
-          count={(rows.length / rowsPerPage + 1).toFixed(0)}
-          setPage={(v: number) => setPage(v)}
-        />
+      {!loading && pagination && parseInt(totalPages) > 1 && (
+        <Pagination total={total} count={totalPages} />
       )}
     </Box>
   );

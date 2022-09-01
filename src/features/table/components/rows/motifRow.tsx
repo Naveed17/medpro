@@ -1,21 +1,20 @@
 import React from 'react'
 import Switch from '@mui/material/Switch';
 import TableCell from '@mui/material/TableCell';
-import {IconButton, Typography, FormControl, Select, MenuItem, Skeleton, Box} from '@mui/material';
+import { IconButton, Typography, FormControl, Select, MenuItem, Skeleton, Box } from '@mui/material';
 import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
-import {TableRowStyled} from "@features/table"
-import {uniqueId} from 'lodash'
-import {useTranslation} from "next-i18next";
-import {useTheme} from "@mui/material/styles";
+import { TableRowStyled } from "@features/table"
+import { uniqueId } from 'lodash'
+import { useTranslation } from "next-i18next";
+import { useTheme } from "@mui/material/styles";
 
-function MotifRow({...props}) {
+function MotifRow({ ...props }) {
 
-    const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
+    const { row, tableHeadData, active, handleChange, editMotif, ids, data } = props;
     const durations: DurationModel[] = data.durations;
     const delay: DurationModel[] = data.delay;
-    const theme = useTheme();
-    const {t, ready} = useTranslation('common');
+    const { t, ready } = useTranslation('common');
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -43,7 +42,7 @@ function MotifRow({...props}) {
                         </Typography>
                     </Box>
 
-                    : <Skeleton variant="text" width={100}/>}
+                    : <Skeleton variant="text" width={100} />}
             </TableCell>
             <TableCell>
                 {
@@ -59,21 +58,21 @@ function MotifRow({...props}) {
                                     handleChange(row, 'duration', ev.target.value)
                                 }}
                                 name="duration"
-                                sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData.duration ? 1 : 0})}}>
+                                sx={{ opacity: 0, ...(tableHeadData !== null && { opacity: tableHeadData.duration ? 1 : 0 }) }}>
                                 {
                                     durations.map((duration) =>
-                                        (<MenuItem key={duration.value} value={duration.value}>
-                                            {duration.date + ' ' + t('times.' + duration.unity)}
-                                        </MenuItem>))
+                                    (<MenuItem key={duration.value} value={duration.value}>
+                                        {duration.date + ' ' + t('times.' + duration.unity)}
+                                    </MenuItem>))
                                 }
                             </Select>
                         </FormControl>
-                        : <Skeleton variant="rectangular" width={150} height={30}/>}
+                        : <Skeleton variant="rectangular" width={150} height={30} />}
             </TableCell>
             <TableCell>
                 {row ?
                     <FormControl size="small" fullWidth
-                                 disabled={tableHeadData === null ? true : !tableHeadData['delay_min']}>
+                        disabled={tableHeadData === null ? true : !tableHeadData['delay_min']}>
                         <Select
                             id="demo-select-small"
                             value={row.minimumDelay}
@@ -81,24 +80,24 @@ function MotifRow({...props}) {
                                 handleChange(row, 'min', e.target.value)
                             }}
                             name="minimumDelay"
-                            sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_min'] ? 1 : 0})}}>
+                            sx={{ opacity: 0, ...(tableHeadData !== null && { opacity: tableHeadData['delay_min'] ? 1 : 0 }) }}>
                             <MenuItem key={''} value={'0'}>
 
                             </MenuItem>
                             {
                                 delay.map((duration) =>
-                                    (<MenuItem key={duration.value} value={duration.value}>
-                                        {duration.date + ' ' + t('times.' + duration.unity)}
-                                    </MenuItem>))
+                                (<MenuItem key={duration.value} value={duration.value}>
+                                    {duration.date + ' ' + t('times.' + duration.unity)}
+                                </MenuItem>))
                             }
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30}/>}
+                    : <Skeleton variant="rectangular" width={150} height={30} />}
             </TableCell>
             <TableCell>
                 {row ?
                     <FormControl size="small" fullWidth
-                                 disabled={tableHeadData === null ? true : !tableHeadData['delay_max']}>
+                        disabled={tableHeadData === null ? true : !tableHeadData['delay_max']}>
                         <Select
                             id="demo-select-small"
                             value={row.maximumDelay}
@@ -106,19 +105,19 @@ function MotifRow({...props}) {
                                 handleChange(row, 'max', e.target.value)
                             }}
                             name="maximumDelay"
-                            sx={{opacity: 0, ...(tableHeadData !== null && {opacity: tableHeadData['delay_max'] ? 1 : 0})}}>
+                            sx={{ opacity: 0, ...(tableHeadData !== null && { opacity: tableHeadData['delay_max'] ? 1 : 0 }) }}>
                             <MenuItem key={''} value={'0'}>
 
                             </MenuItem>
                             {
                                 delay.map((duration) =>
-                                    (<MenuItem key={duration.value} value={duration.value}>
-                                        {duration.date + ' ' + t('times.' + duration.unity)}
-                                    </MenuItem>))
+                                (<MenuItem key={duration.value} value={duration.value}>
+                                    {duration.date + ' ' + t('times.' + duration.unity)}
+                                </MenuItem>))
                             }
                         </Select>
                     </FormControl>
-                    : <Skeleton variant="rectangular" width={150} height={30} sx={{m: 'auto'}}/>}
+                    : <Skeleton variant="rectangular" width={150} height={30} sx={{ m: 'auto' }} />}
             </TableCell>
             <TableCell align="center">
                 {row ?
@@ -130,7 +129,7 @@ function MotifRow({...props}) {
                         }}>
                         {row.agenda.length}
                     </Lable>
-                    : <Skeleton variant="circular" width={30} height={30} sx={{m: 'auto'}}/>}
+                    : <Skeleton variant="circular" width={30} height={30} sx={{ m: 'auto' }} />}
             </TableCell>
             <TableCell align="center">
                 {row ?
@@ -142,21 +141,21 @@ function MotifRow({...props}) {
                         }}>
                         {row.types.length}
                     </Lable>
-                    : <Skeleton width={40} height={40} sx={{m: 'auto'}}/>}
+                    : <Skeleton width={40} height={40} sx={{ m: 'auto' }} />}
             </TableCell>
             <TableCell align="center">
                 {row ?
 
-                    <Switch name='active' onChange={(e) => handleChange(row, 'active', '')} checked={row.isEnabled}/>
-                    : <Skeleton width={50} height={40} sx={{m: 'auto'}}/>}
+                    <Switch name='active' onChange={(e) => handleChange(row, 'active', '')} checked={row.isEnabled} />
+                    : <Skeleton width={50} height={40} sx={{ m: 'auto' }} />}
             </TableCell>
 
             <TableCell align="center">
                 {row ?
-                    <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => editMotif(row)}>
-                        <IconUrl path="setting/edit"/>
+                    <IconButton size="small" sx={{ mr: { md: 1 } }} onClick={() => editMotif(row)}>
+                        <IconUrl path="setting/edit" />
                     </IconButton>
-                    : <Skeleton width={30} height={40} sx={{m: 'auto'}}/>}
+                    : <Skeleton width={30} height={40} sx={{ m: 'auto' }} />}
             </TableCell>
         </TableRowStyled>
     )

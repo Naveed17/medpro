@@ -128,6 +128,30 @@ const dialogData = [
         (mod) => mod
       )
     ),
+  },
+  {
+    action: "end_consultation",
+    component: dynamic((): any =>
+      import("@features/dialog/components/endConsultationDialog/endConsultationDialog").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "secretary_consultation_alert",
+    component: dynamic((): any =>
+      import("@features/dialog/components/secretaryConsultationDialog/secretaryConsultationDialog").then(
+        (mod) => mod
+      )
+    )
+  },
+  {
+    action: "move_appointment",
+    component: dynamic((): any =>
+      import("@features/dialog/components/moveAppointmentDialog/moveAppointmentDialog").then(
+        (mod) => mod
+      )
+    ),
   }
 
 ];
