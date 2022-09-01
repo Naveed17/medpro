@@ -74,6 +74,7 @@
       "title": "حجز فترة زمنية",
       "sub-title": "فترة زمنية",
       "reason-consultation": "سبب الاستشارة",
+      "reason-consultation-placeholder": "اختر سبب الاستشارة الخاص بك",
       "practitioner": "صاحب مهنة",
       "affect-des": "اختر الممارس الذي يؤثر على هذه الاستشارة",
       "time-slot": "الفترة زمنية",

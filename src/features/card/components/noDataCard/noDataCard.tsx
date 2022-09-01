@@ -21,17 +21,17 @@ export default function AddAppointmentCard({ ...props }) {
         my={3}
         fontWeight={600}
       >
-        {t(title)}
+        {t(title, { ns: 'agenda' })}
       </Typography>
       <Typography variant="body2" color="#00234B" mb={3}>
-        {t(description)}
+        {t(description, { ns: 'agenda' })}
       </Typography>
       <Button
         variant="contained"
         color={buttonVariant}
         startIcon={<Icon path={buttonIcon} />}
       >
-        {t(buttonText)}
+        {t(buttonText, { ns: 'agenda' })}
       </Button>
     </RootStyled>
   );

@@ -21,7 +21,7 @@ import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {AppointmentDetail, Dialog} from "@features/dialog";
+import {AppointmentDetail, Dialog, dialogMoveSelector, MoveAppointmentDialog, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
@@ -60,9 +60,20 @@ function Agenda() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const {t, ready} = useTranslation(['agenda', 'common']);
+
     const {direction} = useAppSelector(configSelector);
-    const {openViewDrawer, openAddDrawer, currentStepper, currentDate, view} = useAppSelector(agendaSelector);
-    const {t, ready} = useTranslation('agenda');
+    const {
+        openViewDrawer,
+        selectedEvent,
+        openAddDrawer, currentStepper, currentDate, view
+    } = useAppSelector(agendaSelector);
+    const {
+        date: moveDialogDate,
+        time: moveDialogTime,
+        selected: moveDateChanged
+    } = useAppSelector(dialogMoveSelector);
+
     const [
         timeRange,
         setTimeRange
@@ -73,9 +84,12 @@ function Agenda() {
     }]);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
+    const [moveAlert, setMoveAlert] = useState<boolean>(false);
+    const [alertCancel, setAlertCancel] = useState<boolean>(false);
+    const [alert, setAlert] = useState<boolean>(false);
+
     const [date, setDate] = useState(currentDate);
     const [event, setEvent] = useState<EventDef>();
-    const [alert, setAlert] = useState<boolean>(false);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
 
     let appointments: AppointmentModel[] = [];
@@ -111,6 +125,11 @@ function Agenda() {
         trigger: updateAppointmentTrigger
     } = useRequestMutation(null, "/agenda/update/appointment", {revalidate: false, populateCache: false});
 
+    const {
+        trigger: updateStatusTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/status",
+        {revalidate: false, populateCache: false});
+
     const getAppointments = useCallback((query: string) => {
         setLoading(true);
         trigger({
@@ -142,7 +161,6 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        console.log(view)
         if (view === 'listWeek') {
             getAppointments(`format=list&page=1&limit=50`);
         }
@@ -154,7 +172,8 @@ function Agenda() {
         dispatch(openDrawer({type: "view", open: true}));
     }
 
-    const OnEventChange = (info: EventChangeArg) => {
+    const onEventChange = (info: EventChangeArg) => {
+        console.log(info);
         const startDate = moment(info.event._instance?.range.start);
         const oldStartDate = moment(info.oldEvent._instance?.range.start);
         const defEvent = {
@@ -165,9 +184,25 @@ function Agenda() {
         setAlert(true);
     }
 
-    const onMoveAppointment = (dateTime: { date: Date, time: string }) => {
-        const timeSplit = dateTime.time.split(':');
-        const date = moment(dateTime.date.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
+    const onMenuActions = (action: string, event: EventDef) => {
+        switch (action) {
+            case "onCancel":
+                setAlertCancel(true);
+                break;
+            case "onMove":
+                dispatch(setMoveDateTime({
+                    date: event?.extendedProps.time,
+                    time: moment(event?.extendedProps.time).format("hh:mm"),
+                    selected: false
+                }));
+                setMoveAlert(true);
+                break;
+        }
+    }
+
+    const onMoveAppointment = () => {
+        const timeSplit = moveDialogTime.split(':');
+        const date = moment(moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
         const defEvent = {
             ...event,
             extendedProps: {
@@ -178,6 +213,7 @@ function Agenda() {
             }
         } as EventDef;
         setEvent(defEvent);
+        setMoveAlert(false);
         setAlert(true);
     }
 
@@ -201,6 +237,33 @@ function Agenda() {
             setAlert(false);
         });
     }
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('status', '6');
+        updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}
+            /appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            const eventUpdated: any = {
+                ...event, extendedProps:
+                    {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
+            };
+            dispatch(setSelectedEvent(eventUpdated));
+            setLoading(false);
+            setAlertCancel(false);
+            refreshData();
+        })
+    }
+
+    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
+        dispatch(setMoveDateTime(type === 'date' ?
+            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
+    };
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
@@ -298,7 +361,8 @@ function Agenda() {
                                     <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
                                               OnInit={onLoadCalendar}
                                               OnSelectEvent={onSelectEvent}
-                                              OnEventChange={OnEventChange}
+                                              OnEventChange={onEventChange}
+                                              OnMenuActions={onMenuActions}
                                               OnSelectDate={onSelectDate}
                                               OnViewChange={onViewChange}
                                               OnRangeChange={handleOnRangeChange}/>
@@ -354,6 +418,8 @@ function Agenda() {
                     {event &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            setMoveDialog={() => setMoveAlert(true)}
+                            setCancelDialog={() => setAlertCancel(true)}
                             onMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
@@ -423,6 +489,79 @@ function Agenda() {
                         </>
                     }
                 ></Dialog>
+
+                <Dialog
+                    color={theme.palette.error.main}
+                    contrastText={theme.palette.error.contrastText}
+                    dialogClose={() => setAlertCancel(false)}
+                    action={() => {
+                        return (
+                            <Box sx={{minHeight: 150}}>
+                                <Typography sx={{textAlign: "center"}}
+                                            variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")}</Typography>
+                                <Typography sx={{textAlign: "center"}}
+                                            margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
+                            </Box>)
+                    }}
+                    open={alertCancel}
+                    title={t("dialogs.cancel-dialog.title")}
+                    actionDialog={
+                        <>
+                            <Button
+                                variant="text-primary"
+                                onClick={() => setAlertCancel(false)}
+                                startIcon={<CloseIcon/>}
+                            >
+                                {t("dialogs.cancel-dialog.cancel")}
+                            </Button>
+                            <LoadingButton
+                                {...(loading && loading)}
+                                variant="contained"
+                                color={"error"}
+                                onClick={() => cancelAppointment(selectedEvent?.publicId ? selectedEvent?.publicId as string : (selectedEvent as any)?.id)}
+                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                            >
+                                {t("dialogs.cancel-dialog.confirm")}
+                            </LoadingButton>
+                        </>
+                    }
+                ></Dialog>
+
+                <Dialog
+                    size={"sm"}
+                    color={theme.palette.primary.main}
+                    contrastText={theme.palette.primary.contrastText}
+                    dialogClose={() => setMoveAlert(false)}
+                    action={() =>
+                        <MoveAppointmentDialog
+                            OnDateChange={handleMoveDataChange}
+                            t={t}
+                            data={selectedEvent}
+                        />}
+                    open={moveAlert}
+                    title={t("dialogs.move-dialog.title")}
+                    actionDialog={
+                        <>
+                            <Button
+                                variant="text-primary"
+                                onClick={() => setMoveAlert(false)}
+                                startIcon={<CloseIcon/>}
+                            >
+                                {t("dialogs.move-dialog.garde-date")}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                disabled={!moveDateChanged}
+                                onClick={onMoveAppointment}
+                                color={"primary"}
+                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
+                            >
+                                {t("dialogs.move-dialog.confirm")}
+                            </Button>
+                        </>
+                    }
+                ></Dialog>
+
             </Box>
         </>
     )

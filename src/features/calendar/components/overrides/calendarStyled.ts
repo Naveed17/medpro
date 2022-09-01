@@ -1,6 +1,6 @@
-import { styled, alpha } from '@mui/material/styles';
+import {styled, alpha} from '@mui/material/styles';
 
-const CalendarStyled = styled('div')(({ theme }) => ({
+const CalendarStyled = styled('div')(({theme}) => ({
     width: 'calc(100% + 2px)',
     marginLeft: -1,
     marginBottom: -1,
@@ -15,17 +15,17 @@ const CalendarStyled = styled('div')(({ theme }) => ({
         '--fc-list-event-hover-bg-color': theme.palette.action.hover,
         '--fc-highlight-color': alpha(theme.palette.primary.main, 0.08)
     },
-    '& .fc-day-disabled':{
+    '& .fc-day-disabled': {
         /* absence */
         background: `url(/static/img/absence.png), ${theme.palette.text.disabled}`
     },
-    '& .fc .fc-license-message': { display: 'none' },
-    '& .fc a': { color: theme.palette.text.primary },
+    '& .fc .fc-license-message': {display: 'none'},
+    '& .fc a': {color: theme.palette.text.primary},
 
     // Table Head
     '& .fc .fc-col-header ': {
         boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-        '& th': { borderColor: 'transparent' },
+        '& th': {borderColor: 'transparent'},
         '& .fc-col-header-cell-cushion': {
             ...theme.typography.subtitle2,
             padding: '13px 0'
@@ -41,7 +41,7 @@ const CalendarStyled = styled('div')(({ theme }) => ({
         borderRadius: 4,
         backgroundColor: theme.palette.common.white,
         transition: theme.transitions.create('filter'),
-        '&:hover': { filter: 'brightness(0.92)' },
+        '&:hover': {filter: 'brightness(0.92)'},
         '&:before,&:after': {
             top: 0,
             left: 0,
@@ -96,7 +96,7 @@ const CalendarStyled = styled('div')(({ theme }) => ({
     '& .fc .fc-popover-close': {
         opacity: 0.48,
         transition: theme.transitions.create('opacity'),
-        '&:hover': { opacity: 1 }
+        '&:hover': {opacity: 1}
     },
     '& .fc .fc-more-popover .fc-popover-body': {
         padding: theme.spacing(1.5)
@@ -153,7 +153,7 @@ const CalendarStyled = styled('div')(({ theme }) => ({
         '& th, td': {
             borderColor: 'transparent'
         }
-    }
+    },
 }));
 
 export default CalendarStyled;
