@@ -1,7 +1,7 @@
 import React from 'react'
 import LifeStyleDialogStyled from './overrides/lifeStyleDialogStyle'
 import {useTranslation} from 'next-i18next';
-import {FormGroup, FormControlLabel, Checkbox, TextField, Box} from '@mui/material'
+import {FormGroup, FormControlLabel, Checkbox, TextField, Box, Stack} from '@mui/material'
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -13,8 +13,10 @@ function LifeStyleDialog({...props}) {
     }
     const action = props.data.action;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const [state, setState] = React.useState<AntecedentsModel[]>(props.data.data);
+    const state: AntecedentsModel[] = props.data.state;
+    const setState = props.data.setState;
     const {data: session} = useSession();
+
     const router = useRouter();
 
     const {data: httpAntecedentsResponse} = useRequest({
@@ -54,17 +56,32 @@ function LifeStyleDialog({...props}) {
                                 label={list.name}
                             />
                             {
-                                state?.find(inf => inf.uuid == list.uuid) && <TextField
-                                    name={`${list.uuid}`}
-                                    value={state.find(i => i.uuid === list.uuid)?.startDate}
-                                    placeholder={t('starting_year')}
-                                    onChange={(e) => {
-                                        const antecedent = state.find(ant => ant.uuid === e.target.name)
-                                        if (antecedent) antecedent.startDate = e.target.value
-                                        setState([...state])
-                                    }
-                                    }
-                                />
+                                state?.find((inf:AntecedentsModel) => inf.uuid == list.uuid) && <Stack spacing={1} direction={'row'}>
+                                    <TextField
+                                        name={`${list.uuid}`}
+                                        value={state.find((i:AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i:AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
+                                        placeholder={t('starting_year')}
+                                        sx={{width: 130}}
+                                        onChange={(e) => {
+                                            let items = state.map((item:AntecedentsModel) => ({...item}));
+                                            let item = items.find((i:AntecedentsModel) => i.uuid === list.uuid)
+                                            if (item) item.startDate = e.target.value;
+                                            setState(items)
+                                        }
+                                        }/>
+                                    <TextField
+                                        name={`${list.uuid}`}
+                                        sx={{width: 130}}
+                                        value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
+                                        placeholder={t('ending_year')}
+                                        onChange={(e) => {
+                                            let items = state.map(item => ({...item}));
+                                            let item = items.find(i => i.uuid === list.uuid)
+                                            if (item) item.endDate = e.target.value;
+                                            setState(items)
+                                        }
+                                        }/>
+                                </Stack>
                             }
                         </FormGroup>
                     )

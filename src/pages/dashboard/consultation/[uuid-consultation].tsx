@@ -32,13 +32,12 @@ import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard
 import {ModalConsultation} from '@features/modalConsultation';
 import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetMutation, SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
@@ -147,81 +146,7 @@ const headCells: readonly HeadCell[] = [
     },
 
 ];
-const PatiendData2 = [
-    {
-        id: 1,
-        status: 'confirmed',
-        reson: 'check',
-        time: '10:00',
-        length: '30/02/2022',
-    },
-    {
-        id: 2,
-        status: 'confirmed',
-        reson: 'check',
-        time: '11:00',
-        length: '31/02/2022',
-    },
-];
-const headCells2: readonly HeadCell[] = [
-    {
-        id: "time",
-        numeric: false,
-        disablePadding: true,
-        label: "time",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "reason",
-        numeric: true,
-        disablePadding: false,
-        label: "reason",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "length",
-        numeric: true,
-        disablePadding: false,
-        label: "duration",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "status",
-        numeric: true,
-        disablePadding: false,
-        label: "status",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "patient",
-        numeric: true,
-        disablePadding: false,
-        label: "patient",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "agenda",
-        numeric: true,
-        disablePadding: false,
-        label: "agenda",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "action",
-        numeric: true,
-        disablePadding: false,
-        label: "action",
-        sortable: false,
-        align: "left",
-    },
 
-];
 const event = {
     "title": "Osinski Tressa",
     "groupId": "",
@@ -292,6 +217,7 @@ function ConsultationInProgress() {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
     const [appointement, setAppointement] = useState<any>();
+    const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
 
     const router = useRouter();
@@ -307,36 +233,44 @@ function ConsultationInProgress() {
 
     const {data: session, status} = useSession();
     const loading = status === 'loading';
-    let medical_entity: MedicalEntityModel | null = null;
+    let medical_entity: any;
 
-    const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
+    medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
 
-    useEffect(() => {
-        if (medical_entity) {
-            trigger({
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
-                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(res => {
-                setMpUuid((res?.data as HttpResponse).data[0].medical_professional.uuid);
-                setActs((res?.data as HttpResponse).data[0].acts)
-            })
-
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest(medical_entity ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
         }
-    }, [dispatch, medical_entity, router.locale, session?.accessToken, trigger])
+    } : null);
+
+    const {data: httpMPResponse, error: errorHttpMP} = useRequest(medical_entity ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
 
     useEffect(() => {
-        if (mpUuid)
-            trigger({
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/professionals/" + mpUuid +'/'+ router.locale,
-                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(res => {
-                setAppointement((res?.data as HttpResponse).data)
-                console.log(res)
-                dispatch(SetPatient((res?.data as HttpResponse).data.patient))
-            })
-    }, [dispatch, medical_entity, mpUuid, router.locale, session?.accessToken, trigger])
+        setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
+        setActs((httpMPResponse as HttpResponse)?.data[0].acts)
+    }, [httpMPResponse])
+
+    const {data: httpAppResponse, error: errorHttpApp, mutate} = useRequest(mpUuid ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/professionals/" + mpUuid + '/' + router.locale,
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+    useEffect(() => {
+        setAppointement((httpAppResponse as HttpResponse)?.data)
+        setPatient((httpAppResponse as HttpResponse)?.data.patient);
+
+        dispatch(SetPatient((httpAppResponse as HttpResponse)?.data.patient))
+        dispatch(SetMutation(mutate))
+
+    }, [dispatch, httpAppResponse, mutate])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -359,8 +293,7 @@ function ConsultationInProgress() {
     }, [patientId]);
     const {t, ready} = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
-    const {data: user} = session as Session;
-    medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     return (
         <>
             <SubHeader>
@@ -580,8 +513,8 @@ function ConsultationInProgress() {
                         <TabPanel index={4}>
                             <Box display={{xs: "none", md: 'block'}}>
                                 <Otable
-                                    headers={headCells2}
-                                    rows={PatiendData2}
+                                    headers={[]}
+                                    rows={patient.nextAppointments}
                                     from={"CIP-next-appointment"}
                                     t={t}
                                     edit={null}
@@ -592,7 +525,7 @@ function ConsultationInProgress() {
                             </Box>
                             <Stack spacing={2} display={{xs: "block", md: 'none'}}>
                                 {
-                                    PatiendData2.map((data, index: number) => (
+                                    patient.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
                                             <CipNextAppointCard row={data} t={t}/>
                                         </React.Fragment>
@@ -642,16 +575,18 @@ function ConsultationInProgress() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(locale as string, [
-            "consultation",
-            "menu",
-            "common",
-        ])),
-    },
-});
+export const getStaticProps: GetStaticProps = async (context) => {
+    return ({
+        props: {
+            fallback: false,
+            ...(await serverSideTranslations(context.locale as string, [
+                "consultation",
+                "menu",
+                "common",
+            ]))
+        }
+    })
+};
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
 
     return {

@@ -18,7 +18,7 @@ import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
 import {useAppDispatch} from "@app/redux/hooks";
-import {SetEnd, SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {

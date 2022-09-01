@@ -7,9 +7,8 @@ import {tabsData, documentButtonList} from './config'
 import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch} from "@app/redux/hooks";
 import {SetEnd} from "@features/toolbar/components/consultationIPToolbar/actions";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 
 function ConsultationIPToolbar({selected}: any) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
