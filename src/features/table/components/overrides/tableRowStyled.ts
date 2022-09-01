@@ -35,6 +35,21 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
         background: styleprops ? theme.palette[styleprops].main : "",
       },
     },
+    "& .lg-down": {
+      [theme.breakpoints.down("xl")]: {
+        display: "none",
+      },
+    },
+    "& .lg-up": {
+      "& .edit-icon-button": {
+        path: {
+          fill: theme.palette.text.primary,
+        },
+      },
+      [theme.breakpoints.up("xl")]: {
+        display: "none",
+      },
+    },
   },
   "& .text-time": {
     display: "flex",

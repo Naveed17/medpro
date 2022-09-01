@@ -19,7 +19,6 @@ const RootStyled = styled("div")(({theme}) => ({
         background: "#F0FAFF",
         border: `4px solid ${theme.palette.warning.main}`,
     },
-
     "& .fc-col-header-cell-cushion ": {
         padding: "5px 0!important",
         width: "100%",
@@ -57,7 +56,9 @@ const RootStyled = styled("div")(({theme}) => ({
         padding: theme.spacing(0.5, 0),
         position: "relative",
         "& .ic-time": {
-            marginLeft: theme.spacing(0.5),
+            marginLeft: theme.spacing(1),
+            width: 11,
+            height: 11
         },
         "& .ic-video": {
             path: {

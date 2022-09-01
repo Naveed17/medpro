@@ -39,7 +39,6 @@ const RootStyled = styled(Card)(({theme}) => {
                     },
                 }
             },
-
             '& .code-scan-container': {
                 position: "relative",
                 display: "flex",
