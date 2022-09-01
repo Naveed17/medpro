@@ -2,7 +2,12 @@ import {Box, Button, Divider, Paper, Tab, Tabs, Zoom} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenDetails} from "@features/table";
 import {NoDataCard, PatientdetailsCard} from "@features/card";
-import {AddRDVStep1, AddRDVStep2, AddRDVStep3, DocumentsPanel, PersonalInfoPanel, TabPanel} from "@features/tabPanel";
+import {
+    DocumentsPanel, Instruction,
+    PersonalInfoPanel,
+    TabPanel,
+    TimeSchedule
+} from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
@@ -15,6 +20,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {SyntheticEvent, useState} from "react";
 
 function a11yProps(index: number) {
     return {
@@ -23,20 +29,6 @@ function a11yProps(index: number) {
     };
 }
 
-const stepperData = [
-    {
-        title: "tabs.time-slot",
-        children: AddRDVStep1,
-    },
-    {
-        title: "tabs.advice",
-        children: AddRDVStep2,
-    },
-    {
-        title: "tabs.end",
-        children: AddRDVStep3,
-    },
-];
 
 // add patient details RDV for not data
 const AddAppointmentCardData = {
@@ -53,10 +45,27 @@ function PatientDetail({...props}) {
         patientId, isAddAppointment = false, currentStepper = 0,
         onCloseDialog, onChangeStepper, onAddAppointment
     } = props;
-    console.log(props);
+
+    const stepperData = [
+        {
+            title: "tabs.time-slot",
+            children: TimeSchedule,
+            disabled: false
+        },
+        {
+            title: "tabs.advice",
+            children: Instruction,
+            disabled: true
+        }
+    ];
+
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {data: session} = useSession();
+
+    // state hook for tabs
+    const [index, setIndex] = useState<number>(currentStepper);
+    const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
@@ -65,140 +74,137 @@ function PatientDetail({...props}) {
     // mutate for patient details
     const {data: httpPatientDetailsResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`
+        }
     });
+
+    // handle tab change
+    const handleStepperIndexChange = (event: SyntheticEvent, newValue: number) => {
+        setIndex(newValue);
+    };
+
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+
+    if (!ready) return <>loading translations...</>;
 
     return (
         <>
-            {!isAddAppointment && (
-                <Box height={!isAddAppointment ? "100%" : 0}>
-                    {" "}
-                    <PatientDetailsToolbar
-                        onClose={() => {
-                            dispatch(onOpenDetails({patientId: ""}));
-                            onCloseDialog(false);
-                        }}
-                    />
-                    <PatientdetailsCard
-                        loading={httpPatientDetailsResponse}
-                        patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-                    />
-                    <Box
-                        sx={{
-                            width: {md: 726, xs: "100%"},
-                            bgcolor: "background.default",
-                            "& div[role='tabpanel']": {
-                                height: {md: "calc(100vh - 312px)", xs: "auto"},
-                                overflowY: "auto",
-                            },
-                        }}
-                    >
-                        <Tabs
-                            value={currentStepper}
-                            onChange={onChangeStepper}
-                            variant="scrollable"
-                            aria-label="basic tabs example"
-                            className="tabs-bg-white"
-                        >
-                            <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-                            <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-                            <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-                        </Tabs>
-                        <Divider/>
-                        <TabPanel padding={1} value={currentStepper} index={0}>
-                            <PersonalInfoPanel
-                                loading={httpPatientDetailsResponse}
-                                patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-                            />
-                        </TabPanel>
-                        <TabPanel padding={1} value={currentStepper} index={1}>
-                            {[].length > 0 ? (
-                                !httpPatientDetailsResponse && (
-                                    <GroupTable
-                                        from="patient"
-                                        data={
-                                            (httpPatientDetailsResponse as HttpResponse)?.data
-                                        }
-                                    />
-                                )
-                            ) : (
-                                <NoDataCard t={t} data={AddAppointmentCardData}/>
-                            )}
-                        </TabPanel>
-                        <TabPanel padding={2} value={currentStepper} index={2}>
-                            <DocumentsPanel/>
-                        </TabPanel>
-                        <Paper
+            {!isAdd ? (
+                    <Box height={!isAdd ? "100%" : 0}>
+                        {" "}
+                        <PatientDetailsToolbar
+                            onClose={() => {
+                                dispatch(onOpenDetails({patientId: ""}));
+                                onCloseDialog(false);
+                            }}
+                        />
+                        <PatientdetailsCard
+                            loading={!patient}
+                            patient={patient}
+                        />
+                        <Box
                             sx={{
-                                borderRadius: 0,
-                                borderWidth: "0px",
-                                p: 2,
-                                textAlign: "right",
-                                display: {md: "block", xs: "none"},
+                                width: {md: 726, xs: "100%"},
+                                bgcolor: "background.default",
+                                "& div[role='tabpanel']": {
+                                    height: {md: "calc(100vh - 312px)", xs: "auto"},
+                                    overflowY: "auto",
+                                },
                             }}
                         >
-                            <Button
-                                size="medium"
-                                variant="text-primary"
-                                color="primary"
-                                startIcon={<Icon path="ic-dowlaodfile"/>}
+                            <Tabs
+                                value={index}
+                                onChange={handleStepperIndexChange}
+                                variant="scrollable"
+                                aria-label="basic tabs example"
+                                className="tabs-bg-white"
+                            >
+                                <Tab disableRipple label={t("tabs.personal-info")} {...a11yProps(0)} />
+                                <Tab disableRipple label={t("tabs.appointment")} {...a11yProps(1)} />
+                                <Tab disableRipple label={t("tabs.documents")} {...a11yProps(2)} />
+                            </Tabs>
+                            <Divider/>
+                            <TabPanel padding={1} value={index} index={0}>
+                                <PersonalInfoPanel
+                                    loading={!patient}
+                                    patient={patient}
+                                />
+                            </TabPanel>
+                            <TabPanel padding={1} value={index} index={1}>
+                                {[].length > 0 ? (
+                                    !httpPatientDetailsResponse && (
+                                        <GroupTable
+                                            from="patient"
+                                            data={patient}
+                                        />
+                                    )
+                                ) : (
+                                    <NoDataCard t={t} data={AddAppointmentCardData}/>
+                                )}
+                            </TabPanel>
+                            <TabPanel padding={2} value={index} index={2}>
+                                <DocumentsPanel/>
+                            </TabPanel>
+                            <Paper
                                 sx={{
-                                    mr: 1,
-                                    width: {md: "auto", sm: "100%", xs: "100%"},
+                                    borderRadius: 0,
+                                    borderWidth: "0px",
+                                    p: 2,
+                                    textAlign: "right",
+                                    display: {md: "block", xs: "none"},
                                 }}
                             >
-                                {t("tabs.import")}
-                            </Button>
-                            <Button
-                                onClick={() => onAddAppointment(!isAddAppointment)}
-                                size="medium"
-                                variant="contained"
-                                color="primary"
-                                startIcon={<Icon path="ic-agenda-+"/>}
-                                sx={{width: {md: "auto", sm: "100%", xs: "100%"}}}
-                            >
-                                {t("tabs.add-appo")}
-                            </Button>
-                        </Paper>
-                        <SpeedDial
-                            sx={{
-                                position: "fixed",
-                                bottom: 16,
-                                right: 16,
-                                display: {md: "none", xs: "flex"},
-                            }}
-                            onClick={() => onAddAppointment(!isAddAppointment)}
-                            actions={[
-                                {icon: <SpeedDialIcon/>, name: t("tabs.add-appo")},
-                                {icon: <CloudUploadIcon/>, name: t("tabs.import")},
-                            ]}
-                        />
+                                <Button
+                                    size="medium"
+                                    variant="text-primary"
+                                    color="primary"
+                                    startIcon={<Icon path="ic-dowlaodfile"/>}
+                                    sx={{
+                                        mr: 1,
+                                        width: {md: "auto", sm: "100%", xs: "100%"},
+                                    }}
+                                >
+                                    {t("tabs.import")}
+                                </Button>
+                                <Button
+                                    onClick={() => setIsAdd(!isAdd)}
+                                    size="medium"
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<Icon path="ic-agenda-+"/>}
+                                    sx={{width: {md: "auto", sm: "100%", xs: "100%"}}}
+                                >
+                                    {t("tabs.add-appo")}
+                                </Button>
+                            </Paper>
+                            <SpeedDial
+                                sx={{
+                                    position: "fixed",
+                                    bottom: 16,
+                                    right: 16,
+                                    display: {md: "none", xs: "flex"},
+                                }}
+                                onClick={() => setIsAdd(!isAdd)}
+                                actions={[
+                                    {icon: <SpeedDialIcon/>, name: t("tabs.add-appo")},
+                                    {icon: <CloudUploadIcon/>, name: t("tabs.import")},
+                                ]}
+                            />
+                        </Box>
                     </Box>
-                </Box>
-            )}
-            <Zoom in={isAddAppointment}>
-                <Box
-                    height={isAddAppointment ? "100%" : 0}
-                    sx={{
-                        "& .MuiTabs-root": {
-                            position: "sticky",
-                            top: 0,
-                            bgcolor: (theme) => theme.palette.background.paper,
-                            zIndex: 11,
-                        },
-                    }}
-                >
-                    <CustomStepper
-                        currentIndex={0}
-                        stepperData={stepperData}
-                        scroll
-                        t={t}
-                        minWidth={726}
-                        onClickCancel={() => onAddAppointment(false)}
-                    />
-                </Box>
-            </Zoom>
+                ) :
+                <CustomStepper
+                    stepperData={stepperData}
+                    onBackButton={(index: number) => index === 0 && setIsAdd(false)}
+                    scroll
+                    t={t}
+                    minWidth={726}
+                    onClickCancel={() => setIsAdd(false)}
+                />
+            }
+
         </>
     )
 }
