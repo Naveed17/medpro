@@ -1,4 +1,4 @@
-import FullCalendar from "@fullcalendar/react"; // => request placed at the top
+import FullCalendar, {EventDef} from "@fullcalendar/react"; // => request placed at the top
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -40,6 +40,7 @@ function Calendar({...props}) {
         OnSelectEvent,
         OnSelectDate,
         OnEventChange,
+        OnMenuActions
     } = props;
 
     const theme = useTheme();
@@ -52,6 +53,7 @@ function Calendar({...props}) {
         useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] =
         useState<GroupEventsModel[]>(sortedData);
+    const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(moment().toDate());
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -218,19 +220,13 @@ function Calendar({...props}) {
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 eventContent={(event) => <Event event={event}/>}
-                                eventDidMount={mountArg => mountArg.el.oncontextmenu = handleContextMenu}
-                                businessHours={() => [ // specify an array instead
-                                    {
-                                        daysOfWeek: [1, 2, 3], // Monday, Tuesday, Wednesday
-                                        startTime: '08:00', // 8am
-                                        endTime: '18:00' // 6pm
-                                    },
-                                    {
-                                        daysOfWeek: [4, 5], // Thursday, Friday
-                                        startTime: '10:00', // 10am
-                                        endTime: '16:00' // 4pm
-                                    }
-                                ]}
+                                eventDidMount={mountArg => {
+                                    mountArg.el.addEventListener('contextmenu', (ev) => {
+                                        ev.preventDefault();
+                                        setEventMenu(mountArg.event._def);
+                                        handleContextMenu(ev);
+                                    })
+                                }}
                                 dayHeaderContent={(event) =>
                                     Header({
                                         isGridWeek,
@@ -279,7 +275,7 @@ function Calendar({...props}) {
                                             padding: theme.spacing(2),
                                             display: "flex",
                                             alignItems: "center",
-                                            svg: { color: "#fff", marginRight: theme.spacing(1), fontSize: 20 },
+                                            svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
                                             cursor: "pointer",
                                         }
                                     },
@@ -303,13 +299,14 @@ function Calendar({...props}) {
                                         <MenuItem
                                             key={uniqueId()}
                                             onClick={() => {
+                                                OnMenuActions(v.action, eventMenu);
                                                 handleClose();
                                             }}
                                             className="popover-item"
                                         >
                                             {v.icon}
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                {translation(v.title)}
+                                                {translation(`${v.title}`, { ns: 'common' })}
                                             </Typography>
                                         </MenuItem>
                                     )

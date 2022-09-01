@@ -15,7 +15,7 @@ function WeekDayPicker({...props}) {
     const clonedDate = new Date(initDate?.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
 
-    const now = new Date();
+    const now = moment().startOf('week').toDate();
     let daysOfYear = [];
     for (
         let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -30,18 +30,18 @@ function WeekDayPicker({...props}) {
             months.push(moment().set('month', index).format("MMMM")))
     }
 
-    const onChangeCallback = useCallback((date: Date)=>{
+    const onChangeCallback = useCallback((date: Date) => {
         onChange(date);
-    },[onChange]);
+    }, [onChange]);
 
     const handleDateChange = (date: Date) => {
         setDate(date);
         onChangeCallback(date);
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         getMonths();
-    },[])
+    }, [])
 
     return (
         <WeekDayPickerStyled>

@@ -103,8 +103,8 @@ export default function Button(theme) {
           style: {
             background: theme.palette.common.white,
             color: theme.palette.error.main,
-            "& svg path": {
-              fill: theme.palette.error.main,
+            "& :not(.Mui-disabled) svg path": {
+              // fill: theme.palette.error.main,
             },
             "&:hover": {
               boxShadow: theme.customShadows.textErrorButton,

@@ -166,10 +166,11 @@ function TimeSchedule({...props}) {
                         labelId="select-reason"
                         id="select-reason"
                         value={reason}
+                        displayEmpty
                         onChange={onChangeReason}
                         sx={{
                             "& .MuiSelect-select svg": {
-                                position: "fixed",
+                                position: "absolute",
                                 border: .1,
                                 borderColor: 'divider',
                                 borderRadius: '50%',
@@ -179,8 +180,12 @@ function TimeSchedule({...props}) {
                                 ml: 3.5
                             }
                         }}
-                        renderValue={value => {
-                            const motif = reasons.find(reason => reason.uuid === value);
+                        renderValue={selected => {
+                            if (selected.length === 0) {
+                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                            }
+
+                            const motif = reasons.find(reason => reason.uuid === selected);
                             return (
                                 <Box sx={{display: "inline-flex"}}>
                                     <FiberManualRecordIcon

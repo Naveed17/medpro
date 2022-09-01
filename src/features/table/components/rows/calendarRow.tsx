@@ -7,7 +7,6 @@ import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import TimeIcon from "@themes/overrides/icons/time";
 
 function CalendarRow({...props}) {

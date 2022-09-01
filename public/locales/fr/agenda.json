@@ -74,6 +74,7 @@
       "title": "Réservez un créneau horaire",
       "sub-title": "Créneau horaire",
       "reason-consultation": "Motif de consultation",
+      "reason-consultation-placeholder": "Choisissez votre motif de consultation",
       "practitioner": "Praticien",
       "affect-des": "Choose the practitioner who affects this consultation",
       "time-slot": "Créneau horaire",

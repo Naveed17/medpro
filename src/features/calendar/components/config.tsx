@@ -84,22 +84,22 @@ export const CalendarContextMenu = [
     {
         title: "see_patient_form",
         icon: <InsertDriveFileOutlinedIcon/>,
-        action: "onCancel",
+        action: "onShowPatient",
     },
     {
         title: "send_a_message",
         icon: <SmsOutlinedIcon/>,
-        action: "onCancel",
+        action: "onSend",
     },
     {
         title: "import_document",
         icon: <SaveAltOutlinedIcon/>,
-        action: "onCancel",
+        action: "onImport",
     },
     {
         title: "move_appointment",
         icon: <Icon color={"white"} path="iconfinder"/>,
-        action: "onCancel",
+        action: "onMove",
     },
     {
         title: "cancel_appointment",
