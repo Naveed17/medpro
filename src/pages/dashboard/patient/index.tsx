@@ -326,7 +326,7 @@ function Patient() {
         { revalidate: true, populateCache: true }
       ).then((r) => setLoading(false));
     }
-  }, [patientId]);
+  }, [medical_entity.uuid, patientId, router.locale, session?.accessToken, trigger]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 

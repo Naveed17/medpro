@@ -21,7 +21,9 @@ function CustomStepper({...props}) {
         t,
         OnTabsChange = null,
         OnSubmitStepper = null,
+        onBackButton = null,
     } = props;
+    
     const [value, setValue] = useState<number>(currentIndex);
     const [last, setLast] = useState<number>(1);
 
@@ -108,9 +110,15 @@ function CustomStepper({...props}) {
                     ) => {
                         const Component: any = v.children;
                         return (
-                            <TabPanel key={Math.random()} value={value} index={i}>
+                            <TabPanel key={Math.random()} value={Number(value)} index={i}>
                                 <Component
                                     onNext={(index: number) => submitStepper(index)}
+                                    onBack={() => {
+                                        if (currentIndex > 0) {
+                                            setValue(currentIndex - 1);
+                                        }
+                                        onBackButton(currentIndex);
+                                    }}
                                     {...props}
                                 />
                             </TabPanel>

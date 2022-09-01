@@ -40,7 +40,7 @@ function TimeSchedule({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const {onNext} = props;
+    const {onNext, onBack} = props;
     const {data: session, status} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
@@ -108,7 +108,7 @@ function TimeSchedule({...props}) {
     const onNextStep = () => {
         dispatch(setAppointmentMotif(reason));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
-        dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY hh:mm').toDate()));
+        dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY HH:mm').toDate()));
         dispatch(setStepperIndex(2));
         onNext(2);
     }
@@ -350,7 +350,7 @@ function TimeSchedule({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => dispatch(setStepperIndex(0))}
+                    onClick={onBack}
                 >
                     {t("back")}
                 </Button>
