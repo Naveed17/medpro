@@ -21,7 +21,14 @@ import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {AppointmentDetail, Dialog, dialogMoveSelector, MoveAppointmentDialog, setMoveDateTime} from "@features/dialog";
+import {
+    AppointmentDetail,
+    Dialog,
+    dialogMoveSelector,
+    PatientDetail,
+    MoveAppointmentDialog,
+    setMoveDateTime
+} from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
@@ -66,7 +73,8 @@ function Agenda() {
     const {
         openViewDrawer,
         selectedEvent,
-        openAddDrawer, currentStepper, currentDate, view
+        openAddDrawer, openPatientDrawer,
+        currentStepper, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
         date: moveDialogDate,
@@ -188,6 +196,9 @@ function Agenda() {
         switch (action) {
             case "onCancel":
                 setAlertCancel(true);
+                break;
+            case "onPatientDetail":
+                dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
                 dispatch(setMoveDateTime({
@@ -448,6 +459,28 @@ function Agenda() {
                     </Box>
                 </Drawer>
 
+                <Drawer
+                    anchor={"right"}
+                    open={openPatientDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(openDrawer({type: "patient", open: false}));
+                        setTimeout(() => {
+                            setEvent(undefined);
+                        }, 300);
+                    }}
+                >
+                    <Box height={"100%"}>
+                        test
+                        {event &&
+                            <PatientDetail
+                                onCloseDialog={() => console.log("onCloseDialog")}
+                                onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
+                                onAddAppointment={() => console.log("onAddAppointment")}
+                                patientId={event?.extendedProps.patient.uuid}/>}
+                    </Box>
+                </Drawer>
+
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
@@ -488,7 +521,7 @@ function Agenda() {
                             </LoadingButton>
                         </>
                     }
-                ></Dialog>
+                />
 
                 <Dialog
                     color={theme.palette.error.main}
@@ -525,7 +558,7 @@ function Agenda() {
                             </LoadingButton>
                         </>
                     }
-                ></Dialog>
+                />
 
                 <Dialog
                     size={"sm"}
@@ -560,8 +593,7 @@ function Agenda() {
                             </Button>
                         </>
                     }
-                ></Dialog>
-
+                />
             </Box>
         </>
     )
