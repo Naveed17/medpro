@@ -17,7 +17,7 @@ function WaitingRoomRow({...props}) {
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions, setActions] = useState<boolean>(false);
-    console.log(row)
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null)
