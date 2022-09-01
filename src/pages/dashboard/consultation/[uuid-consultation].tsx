@@ -16,7 +16,7 @@ import {
     Stack,
     Grid,
     Typography,
-    ListItem,
+    ListItem, Icon, Button,
 } from "@mui/material";
 import {openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
@@ -38,6 +38,9 @@ import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import {SetMutation, SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {DrawerBottom} from "@features/drawerBottom";
+import {ConsultationFilter} from "@features/leftActionBar";
+import IconUrl from "@themes/urlIcon";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
@@ -207,6 +210,7 @@ const EventStepper = [
 function ConsultationInProgress() {
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const [filterdrawer, setFilterDrawer] = useState(false);
     const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
@@ -570,6 +574,22 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter" />}
+                    onClick={() => setFilterDrawer(!drawer)}
+                    sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                    variant="filter"
+                >
+                    Filtrer (0)
+                </Button>
+                <DrawerBottom
+                    handleClose={() => setFilterDrawer(false)}
+                    open={filterdrawer}
+                    title={null}
+                >
+                    <ConsultationFilter />
+                </DrawerBottom>
+
             </Box>
         </>
     );

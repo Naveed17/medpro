@@ -169,6 +169,7 @@ function ModalConsultation({...props}) {
                     data={{data: modalConfig, change}}
                     change={change}
                     max
+                    size={"lg"}
                     direction={'ltr'}
                     title={'Personaliser les données de suivi'}
                     dialogClose={handleCloseDialog}

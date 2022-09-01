@@ -233,6 +233,7 @@ const Content = ({...props}) => {
                         data={{state: state, setState: setState, patient_uuid: patient.uuid, action: info}}
                         change={false}
                         max
+                        size={"lg"}
                         direction={'ltr'}
                         actions={true}
                         title={t(info)}
