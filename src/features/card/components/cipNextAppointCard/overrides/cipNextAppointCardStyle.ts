@@ -2,11 +2,8 @@ import { Card } from '@mui/material'
 import { styled } from '@mui/material/styles'
 const CipNextAppointCardStyled = styled(Card)(({ theme }) => ({
     border: 'none',
-    backgroundColor: 'transparent',
-    [theme.breakpoints.down('md')]: {
-        backgroundColor: theme.palette.background.paper,
-        padding: theme.spacing(2),
-    },
+    backgroundColor: theme.palette.background.paper,
+    padding: theme.spacing(2),
     '.date-time': {
         '.react-svg svg': {
             width: theme.spacing(1.5),

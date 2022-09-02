@@ -481,6 +481,7 @@ function Agenda() {
                                 }}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
+                                ConsultationId={event?.publicId}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>

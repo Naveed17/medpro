@@ -14,7 +14,7 @@ import {tableActionSelector} from "@features/table";
 import moment from "moment-timezone";
 
 function PatientdetailsCard({...props}) {
-    const {patient, loading} = props;
+    const {patient, consultation, loading} = props;
     const {patientId} = useAppSelector(tableActionSelector);
     const router = useRouter();
     const {query} = router;
@@ -142,7 +142,7 @@ function PatientdetailsCard({...props}) {
             ) : (
                 <Button
                     onClick={() => {
-                        router.push({query}, `/dashboard/consultation/${patientId}`, {
+                        router.push({query}, `/dashboard/consultation/${consultation}`, {
                             locale: router.locale,
                         });
                     }}

@@ -5,7 +5,7 @@ import { SxProps, Theme } from "@mui/material";
 
 type LabelProps = {
     children: React.ReactNode,
-    color: string,
+    color?: string,
     variant: string,
     sx?: SxProps<Theme>
     className?: string,
