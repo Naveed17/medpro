@@ -8,16 +8,20 @@ import Icon from "@themes/urlIcon";
 import {useAppDispatch} from "@app/redux/hooks";
 import {openDrawer,} from "@features/dialog";
 import {ModelDot} from "@features/modelDot";
+import {AppointmentTypes, setSelectedEvent} from "@features/calendar";
+import moment from "moment";
 
 function CipMedicProCard({...props}) {
     const dispatch = useAppDispatch();
-    const {row, t} = props
+    const {row, patient, t} = props
+    const status = AppointmentTypes[row.status];
+
     return (
         <CipNextAppointCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
                 <Stack spacing={1} alignItems={'flex-start'}>
-                    <Label variant='filled' color={row.status === "confirmed" ? "success" : 'primary'}>
-                        {t("table." + row.status)}
+                    <Label variant='filled' sx={{backgroundColor: status.color, color: "#fff"}}>
+                        {status.value}
                     </Label>
                     <Typography fontWeight={400}>
                         {t("table.reason_for_consultation")}
@@ -52,9 +56,22 @@ function CipMedicProCard({...props}) {
                         </Stack>
                     </Stack>
                 </Box>
-                <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
+                {patient && <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
                     <Button
                         onClick={(e) => {
+                            const event = {
+                                title: `${patient.lastName}  ${patient.firstName}`,
+                                publicId: row.uuid,
+                                extendedProps: {
+                                    time: moment(`${row.dayDate} ${row.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                    patient: patient,
+                                    motif: row.consultationReason,
+                                    description: "",
+                                    meeting: false,
+                                    status: status.value
+                                }
+                            }
+                            dispatch(setSelectedEvent(event as any));
                             dispatch(openDrawer(true));
                         }}
                         className="btn-more" size="small">{t('table.see_details')}</Button>
@@ -68,7 +85,7 @@ function CipMedicProCard({...props}) {
                     <IconButton size="small">
                         <Icon path='ic-duotone'/>
                     </IconButton>
-                </Stack>
+                </Stack>}
             </Stack>
         </CipNextAppointCardStyled>
     )

@@ -42,7 +42,7 @@ const AddAppointmentCardData = {
 
 function PatientDetail({...props}) {
     const {
-        patientId, isAddAppointment = false, currentStepper = 0,
+        patientId, ConsultationId, isAddAppointment = false, currentStepper = 0,
         onCloseDialog, onChangeStepper, onAddAppointment
     } = props;
 
@@ -103,6 +103,7 @@ function PatientDetail({...props}) {
                         <PatientdetailsCard
                             loading={!patient}
                             patient={patient}
+                            consultation={ConsultationId}
                         />
                         <Box
                             sx={{

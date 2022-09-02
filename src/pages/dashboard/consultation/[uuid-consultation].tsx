@@ -41,6 +41,7 @@ import {SetMutation, SetPatient} from "@features/toolbar/components/consultation
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
@@ -150,47 +151,6 @@ const headCells: readonly HeadCell[] = [
 
 ];
 
-const event = {
-    "title": "Osinski Tressa",
-    "groupId": "",
-    "publicId": "9b188379-88b8-4463-a633-78357cf35ce4",
-    "url": "",
-    "recurringDef": null,
-    "defId": "58",
-    "sourceId": "24",
-    "allDay": false,
-    "hasEnd": true,
-    "ui": {
-        "display": null,
-        "constraints": [],
-        "overlap": null,
-        "allows": [],
-        "backgroundColor": "",
-        "borderColor": "#1BC47D",
-        "textColor": "",
-        "classNames": []
-    },
-    "extendedProps": {
-        "time": "2022-08-26T03:15:00.000Z",
-        "patient": {
-            "uuid": "0f0724b4-f0ce-3e60-b42b-f168191e3754",
-            "email": "tomas.mertz@example.com",
-            "birthdate": "11-08-2020",
-            "firstName": "Tressa",
-            "lastName": "Osinski",
-            "gender": "O"
-        },
-        "motif": {
-            "uuid": "6bc36ef1-9dd8-4260-a9f1-ed8f2a528197",
-            "name": "mutate",
-            "duration": 15,
-            "color": "#1BC47D"
-        },
-        "description": "",
-        "meeting": false,
-        "status": "Confirmed"
-    }
-}
 const EventStepper = [
     {
         title: "steppers.tabs.tab-2",
@@ -247,13 +207,13 @@ function ConsultationInProgress() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     const {data: httpMPResponse, error: errorHttpMP} = useRequest(medical_entity ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
 
     useEffect(() => {
@@ -515,7 +475,7 @@ function ConsultationInProgress() {
                     {
                         value === 4 &&
                         <TabPanel index={4}>
-                            <Box display={{xs: "none", md: 'block'}}>
+                            {/*                            <Box display={{xs: "none", md: 'block'}}>
                                 <Otable
                                     headers={[]}
                                     rows={patient.nextAppointments}
@@ -526,12 +486,12 @@ function ConsultationInProgress() {
                                     handleChange={null}
 
                                 />
-                            </Box>
-                            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
+                            </Box>*/}
+                            <Stack spacing={2}>
                                 {
                                     patient.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
-                                            <CipNextAppointCard row={data} t={t}/>
+                                            <CipNextAppointCard row={data} patient={patient} t={t}/>
                                         </React.Fragment>
                                     ))
                                 }
@@ -545,9 +505,7 @@ function ConsultationInProgress() {
                                     dispatch(DialogOpenDrawer(false))
                                 }}
                             >
-                                <AppointmentDetail
-                                    data={event}
-                                />
+                                <AppointmentDetail/>
                             </Drawer>
                         </TabPanel>
                     }
@@ -575,9 +533,16 @@ function ConsultationInProgress() {
                     </Box>
                 </Drawer>
                 <Button
-                    startIcon={<IconUrl path="ic-filter" />}
+                    startIcon={<IconUrl path="ic-filter"/>}
                     onClick={() => setFilterDrawer(!drawer)}
-                    sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                    sx={{
+                        position: 'fixed',
+                        bottom: 50,
+                        transform: 'translateX(-50%)',
+                        left: '50%',
+                        zIndex: 999,
+                        display: {xs: 'flex', md: 'none'}
+                    }}
                     variant="filter"
                 >
                     Filtrer (0)
@@ -587,7 +552,7 @@ function ConsultationInProgress() {
                     open={filterdrawer}
                     title={null}
                 >
-                    <ConsultationFilter />
+                    <ConsultationFilter/>
                 </DrawerBottom>
 
             </Box>
