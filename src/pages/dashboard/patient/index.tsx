@@ -54,6 +54,7 @@ import {
 } from "@features/tabPanel";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import moment from "moment-timezone";
+import { PatientDetail } from "@features/dialog";
 
 const stepperData = [
   {
@@ -313,6 +314,7 @@ function Patient() {
   // useEffect hook for handling the table action drawer
   useEffect(() => {
     if (patientId) {
+      setLoading(true);
       setopen(true);
       trigger(
         {
@@ -326,7 +328,13 @@ function Patient() {
         { revalidate: true, populateCache: true }
       ).then((r) => setLoading(false));
     }
-  }, [medical_entity.uuid, patientId, router.locale, session?.accessToken, trigger]);
+  }, [
+    medical_entity.uuid,
+    patientId,
+    router.locale,
+    session?.accessToken,
+    trigger,
+  ]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
@@ -380,107 +388,119 @@ function Patient() {
           }}
         >
           {!isAddAppointment && (
-            <Box height={!isAddAppointment ? "100%" : 0}>
-              {" "}
-              <PatientDetailsToolbar
-                onClose={() => {
-                  dispatch(onOpenDetails({ patientId: "" }));
-                  setopen(false);
-                }}
-              />
-              <PatientdetailsCard
-                loading={loading}
-                patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-              />
-              <Box
-                sx={{
-                  width: { md: 726, xs: "100%" },
-                  bgcolor: "background.default",
-                  "& div[role='tabpanel']": {
-                    height: { md: "calc(100vh - 312px)", xs: "auto" },
-                    overflowY: "auto",
-                  },
-                }}
-              >
-                <Tabs
-                  value={value}
-                  onChange={handleChange}
-                  variant="scrollable"
-                  aria-label="basic tabs example"
-                  className="tabs-bg-white"
-                >
-                  <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-                  <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-                  <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-                </Tabs>
-                <Divider />
-                <TabPanel padding={1} value={value} index={0}>
-                  <PersonalInfoPanel
-                    loading={loading}
-                    patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-                  />
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={1}>
-                  {data.length > 0 ? (
-                    !loading && (
-                      <GroupTable
-                        from="patient"
-                        data={
-                          (httpPatientDetailsResponse as HttpResponse)?.data
-                        }
-                      />
-                    )
-                  ) : (
-                    <NoDataCard t={t} data={AddAppointmentCardData} />
-                  )}
-                </TabPanel>
-                <TabPanel padding={2} value={value} index={2}>
-                  <DocumentsPanel />
-                </TabPanel>
-                <Paper
-                  sx={{
-                    borderRadius: 0,
-                    borderWidth: "0px",
-                    p: 2,
-                    textAlign: "right",
-                    display: { md: "block", xs: "none" },
-                  }}
-                >
-                  <Button
-                    size="medium"
-                    variant="text-primary"
-                    color="primary"
-                    startIcon={<Icon path="ic-dowlaodfile" />}
-                    sx={{
-                      mr: 1,
-                      width: { md: "auto", sm: "100%", xs: "100%" },
-                    }}
-                  >
-                    {t("tabs.import")}
-                  </Button>
-                  <Button
-                    onClick={() => setAddAppointment(!isAddAppointment)}
-                    size="medium"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<Icon path="ic-agenda-+" />}
-                    sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
-                  >
-                    {t("tabs.add-appo")}
-                  </Button>
-                </Paper>
-                <SpeedDial
-                  sx={{
-                    position: "fixed",
-                    bottom: 16,
-                    right: 16,
-                    display: { md: "none", xs: "flex" },
-                  }}
-                  onClick={() => setAddAppointment(!isAddAppointment)}
-                  actions={actions}
-                />
-              </Box>
-            </Box>
+            <PatientDetail
+              onCloseDialog={() => {
+                dispatch(onOpenDetails({ patientId: "" }));
+                setopen(false);
+              }}
+              onChangeStepper={(index: number) =>
+                console.log("onChangeStepper", index)
+              }
+              onAddAppointment={() => console.log("onAddAppointment")}
+              ConsultationId=""
+              patientId={patientId}
+            />
+            // <Box height={!isAddAppointment ? "100%" : 0}>
+            //   {" "}
+            //   <PatientDetailsToolbar
+            //     onClose={() => {
+            //       dispatch(onOpenDetails({ patientId: "" }));
+            //       setopen(false);
+            //     }}
+            //   />
+            //   <PatientdetailsCard
+            //     loading={loading}
+            //     patient={(httpPatientDetailsResponse as HttpResponse)?.data}
+            //   />
+            //   <Box
+            //     sx={{
+            //       width: { md: 726, xs: "100%" },
+            //       bgcolor: "background.default",
+            //       "& div[role='tabpanel']": {
+            //         height: { md: "calc(100vh - 312px)", xs: "auto" },
+            //         overflowY: "auto",
+            //       },
+            //     }}
+            //   >
+            //     <Tabs
+            //       value={value}
+            //       onChange={handleChange}
+            //       variant="scrollable"
+            //       aria-label="basic tabs example"
+            //       className="tabs-bg-white"
+            //     >
+            //       <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
+            //       <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
+            //       <Tab label={t("tabs.documents")} {...a11yProps(2)} />
+            //     </Tabs>
+            //     <Divider />
+            //     <TabPanel padding={1} value={value} index={0}>
+            //       <PersonalInfoPanel
+            //         loading={loading}
+            //         patient={(httpPatientDetailsResponse as HttpResponse)?.data}
+            //       />
+            //     </TabPanel>
+            //     <TabPanel padding={1} value={value} index={1}>
+            //       {data.length > 0 ? (
+            //         !loading && (
+            //           <GroupTable
+            //             from="patient"
+            //             data={
+            //               (httpPatientDetailsResponse as HttpResponse)?.data
+            //             }
+            //           />
+            //         )
+            //       ) : (
+            //         <NoDataCard t={t} data={AddAppointmentCardData} />
+            //       )}
+            //     </TabPanel>
+            //     <TabPanel padding={2} value={value} index={2}>
+            //       <DocumentsPanel />
+            //     </TabPanel>
+            //     <Paper
+            //       sx={{
+            //         borderRadius: 0,
+            //         borderWidth: "0px",
+            //         p: 2,
+            //         textAlign: "right",
+            //         display: { md: "block", xs: "none" },
+            //       }}
+            //     >
+            //       <Button
+            //         size="medium"
+            //         variant="text-primary"
+            //         color="primary"
+            //         startIcon={<Icon path="ic-dowlaodfile" />}
+            //         sx={{
+            //           mr: 1,
+            //           width: { md: "auto", sm: "100%", xs: "100%" },
+            //         }}
+            //       >
+            //         {t("tabs.import")}
+            //       </Button>
+            //       <Button
+            //         onClick={() => setAddAppointment(!isAddAppointment)}
+            //         size="medium"
+            //         variant="contained"
+            //         color="primary"
+            //         startIcon={<Icon path="ic-agenda-+" />}
+            //         sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+            //       >
+            //         {t("tabs.add-appo")}
+            //       </Button>
+            //     </Paper>
+            //     <SpeedDial
+            //       sx={{
+            //         position: "fixed",
+            //         bottom: 16,
+            //         right: 16,
+            //         display: { md: "none", xs: "flex" },
+            //       }}
+            //       onClick={() => setAddAppointment(!isAddAppointment)}
+            //       actions={actions}
+            //     />
+            //   </Box>
+            // </Box>
           )}
           <Zoom in={isAddAppointment}>
             <Box
