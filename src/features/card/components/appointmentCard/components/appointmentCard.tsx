@@ -1,29 +1,28 @@
-
 import React from 'react'
-import { CardContent, Stack, IconButton, Box, List, ListItem, Typography } from '@mui/material'
+import {CardContent, Stack, IconButton, Box, List, ListItem, Typography} from '@mui/material'
 import RootStyled from './overrides/rootStyled';
-import { Label } from "@features/label";
+import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
-function AppointmentCard({ ...props }) {
-    const { data, t, ...rest } = props
+function AppointmentCard({...props}) {
+    const {data, t, ...rest} = props
     return (
         <RootStyled>
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Label variant='filled'
-                        color={
-                            data?.status.key === "CONFIRMED"
-                                ? "success"
-                                : data?.status.key === "CANCELED"
-                                    ? "error"
-                                    : "primary"
-                        }>
+                           color={
+                               data?.status.key === "CONFIRMED"
+                                   ? "success"
+                                   : data?.status.key === "CANCELED"
+                                       ? "error"
+                                       : "primary"
+                           }>
                         {data.status.value}
                     </Label>
                     <IconButton size="small" {...rest}>
-                        <IconUrl path='Ic-duotone' />
+                        <IconUrl path='Ic-duotone'/>
                     </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
@@ -36,9 +35,17 @@ function AppointmentCard({ ...props }) {
                                 </Typography>
                                 <Stack spacing={2} direction='row' alignItems="center">
                                     <FiberManualRecordIcon
+                                        className={'motif-circle'}
                                         fontSize="small"
-                                        sx={{ color: data.motif.color }}
+                                        sx={{
+                                            border: .1,
+                                            borderColor: 'divider',
+                                            borderRadius: '50%',
+                                            p: 0.05,
+                                            color: data.motif.color
+                                        }}
                                     />
+
                                     <Typography fontWeight={400}>
                                         {data.motif.name}
                                     </Typography>
@@ -51,13 +58,13 @@ function AppointmentCard({ ...props }) {
                                 </Typography>
                                 <Stack spacing={4} direction="row" alignItems='center'>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='callander' path="ic-agenda-jour" />
+                                        <IconUrl className='callander' path="ic-agenda-jour"/>
                                         <Typography className="time-slot">
                                             {data?.date}
                                         </Typography>
                                     </Stack>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>
-                                        <IconUrl className='time' path="setting/ic-time" />
+                                        <IconUrl className='time' path="setting/ic-time"/>
                                         <Typography className="date">
                                             {data?.time}
                                         </Typography>

@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -8,9 +8,9 @@ import CodeIcon from "@mui/icons-material/Code";
 import {PatientAppointmentCard} from "@features/card";
 
 function AutoComplete({...props}) {
-    const {data, onSelectData} = props;
+    const {data: initData, onSelectData} = props;
     const [focus, setFocus] = useState(true);
-    const [value, setValue] = useState('');
+    const [data, setData] = useState(initData);
 
     const handleListItemClick = ({...props}) => {
         onSelectData(props);
@@ -21,9 +21,15 @@ function AutoComplete({...props}) {
             setFocus(false);
         }
     };
+
     const handleChange = (e: any) => {
-        setValue(e.target.value);
+        const filtered = initData?.filter((item: any) =>
+            item.firstName.toLowerCase().includes(e.target.value.toLowerCase()) ||
+            item.lastName.toLowerCase().includes(e.target.value.toLowerCase()) ||
+            item.contact[0]?.value.toLowerCase().includes(e.target.value.toLowerCase()));
+        setData(filtered);
     }
+
     return (
         <RootStyled>
             <TextField
@@ -56,22 +62,15 @@ function AutoComplete({...props}) {
                     id={"item-list"}
                     autoFocusItem={!focus}
                 >
-                    {value !== '' ? data?.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase())).map((item: PatientWithNextAndLatestAppointment, index: number) => (
-                            <PatientAppointmentCard
-                                key={item.uuid}
-                                item={item}
-                                onClick={() => handleListItemClick(item)}/>
-                        ))
-                        : data?.map((item: any, index: number) => (
-                            <PatientAppointmentCard
-                                key={item.uuid}
-                                item={item}
-                                onClick={() => handleListItemClick(item)}/>
-                        ))}
+                    {data?.map((item: any, index: number) => (
+                        <PatientAppointmentCard
+                            key={item.uuid}
+                            item={item}
+                            onClick={() => handleListItemClick(item)}/>
+                    ))}
                 </MenuList>
 
             </Box>
-
         </RootStyled>
     );
 }

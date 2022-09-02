@@ -31,7 +31,7 @@ function Patient({...props}) {
 
     const {data: httpPatientResponse} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?withPagination=false`,
+        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=1&limit=10&withPagination=true`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -39,7 +39,7 @@ function Patient({...props}) {
 
     if (!ready) return (<LoadingScreen/>);
 
-    const patients = (httpPatientResponse as HttpResponse)?.data as PatientWithNextAndLatestAppointment[];
+    const patients = (httpPatientResponse as HttpResponse)?.data.list as PatientWithNextAndLatestAppointment[];
 
     const handleOnClick = () => {
         setAddPatient(true);

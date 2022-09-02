@@ -1,5 +1,6 @@
 import {Paper, Stack, Box, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
+import CallIcon from '@mui/icons-material/Call';
 import moment from "moment-timezone";
 
 function AppointmentPatientCard({...props}) {
@@ -29,7 +30,7 @@ function AppointmentPatientCard({...props}) {
                         sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
                         component="span"
                     >
-                        <IconUrl path="ic-tel"/> +216 22 555 007
+                        <CallIcon /> +216 22 555 007
                     </Typography>
                 </Box>
             </Stack>

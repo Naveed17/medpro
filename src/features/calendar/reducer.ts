@@ -9,6 +9,7 @@ export type CalendarProps = {
     view: string | undefined;
     openViewDrawer: boolean;
     openAddDrawer: boolean;
+    openPatientDrawer: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     currentDate: Date;
@@ -19,6 +20,7 @@ const initialState: CalendarProps = {
     view: 'timeGridWeek',
     openViewDrawer: false,
     openAddDrawer: false,
+    openPatientDrawer: false,
     currentStepper: 0,
     config: null,
     currentDate: new Date(),
@@ -31,6 +33,8 @@ export const AgendaReducer = createReducer(initialState, builder => {
     }).addCase(openDrawer, (state, action) => {
         if (action.payload.type === "view") {
             state.openViewDrawer = action.payload.open;
+        } else if (action.payload.type === "patient") {
+            state.openPatientDrawer = action.payload.open;
         } else {
             state.openAddDrawer = action.payload.open;
         }

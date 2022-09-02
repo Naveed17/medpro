@@ -39,7 +39,7 @@ import Icon from "@themes/urlIcon";
 import { GroupTable } from "@features/groupTable";
 import { SpeedDial } from "@features/speedDial";
 import { CustomStepper } from "@features/customStepper";
-import { useRequest } from "@app/axios";
+import { useRequest, useRequestMutation } from "@app/axios";
 
 // icons
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
@@ -53,6 +53,7 @@ import {
   DocumentsPanel,
 } from "@features/tabPanel";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
+import moment from "moment-timezone";
 
 const stepperData = [
   {
@@ -81,105 +82,105 @@ interface HeadCell {
 
 // data for patient details RDV
 const data: PatientDetailsRDV[] = [
-  // {
-  //   title: "pending-appo",
-  //   pending: true,
-  //   data: [
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //     {
-  //       title: "John Doe",
-  //       start: new Date(2020, 4, 1, 10, 30),
-  //       end: new Date(2020, 4, 1, 11, 30),
-  //       allDay: false,
-  //       time: new Date(),
-  //       status: "pending",
-  //       borderColor: "#FBD400",
-  //       motif: "video-consultation",
-  //       meeting: true,
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "old-appo",
-  //   pending: false,
-  //   data: [
-  //     {
-  //       title: "2021",
-  //       data: [
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "2020",
-  //       data: [
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //         {
-  //           title: "John Doe",
-  //           start: new Date(2020, 4, 1, 10, 30),
-  //           end: new Date(2020, 4, 1, 11, 30),
-  //           allDay: false,
-  //           time: moment().add(1, "days"),
-  //           status: "pending",
-  //           borderColor: "#FBD400",
-  //           motif: "video-consultation",
-  //           meeting: true,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
+  {
+    title: "pending-appo",
+    pending: true,
+    data: [
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+      {
+        title: "John Doe",
+        start: new Date(2020, 4, 1, 10, 30),
+        end: new Date(2020, 4, 1, 11, 30),
+        allDay: false,
+        time: new Date(),
+        status: "pending",
+        borderColor: "#FBD400",
+        motif: "video-consultation",
+        meeting: true,
+      },
+    ],
+  },
+  {
+    title: "old-appo",
+    pending: false,
+    data: [
+      {
+        title: "2021",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+        ],
+      },
+      {
+        title: "2020",
+        data: [
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+          {
+            title: "John Doe",
+            start: new Date(2020, 4, 1, 10, 30),
+            end: new Date(2020, 4, 1, 11, 30),
+            allDay: false,
+            time: moment().add(1, "days"),
+            status: "pending",
+            borderColor: "#FBD400",
+            motif: "video-consultation",
+            meeting: true,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // add patient details RDV for not data
@@ -227,14 +228,6 @@ const headCells: readonly HeadCell[] = [
     align: "left",
   },
   {
-    id: "id",
-    numeric: true,
-    disablePadding: false,
-    label: "id",
-    sortable: true,
-    align: "left",
-  },
-  {
     id: "nextAppointment",
     numeric: false,
     disablePadding: false,
@@ -278,7 +271,7 @@ function Patient() {
 
   const {
     data: httpPatientsResponse,
-    error: errorHttpPatient,
+    error: errorHttpPatients,
     mutate,
   } = useRequest(
     {
@@ -309,12 +302,31 @@ function Patient() {
     setValue(newValue);
   };
 
+  // mutate for patient details
+  const { data: httpPatientDetailsResponse, trigger } = useRequestMutation(
+    null,
+    `patient-details`
+  );
+
+  const [loading, setLoading] = useState<boolean>(true);
+
   // useEffect hook for handling the table action drawer
   useEffect(() => {
     if (patientId) {
       setopen(true);
+      trigger(
+        {
+          method: "GET",
+          url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/${router.locale}`,
+          headers: {
+            ContentType: "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        },
+        { revalidate: true, populateCache: true }
+      ).then((r) => setLoading(false));
     }
-  }, [patientId]);
+  }, [medical_entity.uuid, patientId, router.locale, session?.accessToken, trigger]);
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
@@ -344,7 +356,7 @@ function Patient() {
             edit={null}
             handleConfig={null}
             handleChange={null}
-            minWidth={1300}
+            minWidth={1100}
             pagination
             total={(httpPatientsResponse as HttpResponse)?.data?.total}
             totalPages={
@@ -377,13 +389,8 @@ function Patient() {
                 }}
               />
               <PatientdetailsCard
-                patient={
-                  httpPatientsResponse
-                    ? (httpPatientsResponse as HttpResponse)?.data?.list.find(
-                        (patient: any) => patient.uuid === patientId
-                      )
-                    : {}
-                }
+                loading={loading}
+                patient={(httpPatientDetailsResponse as HttpResponse)?.data}
               />
               <Box
                 sx={{
@@ -408,11 +415,21 @@ function Patient() {
                 </Tabs>
                 <Divider />
                 <TabPanel padding={1} value={value} index={0}>
-                  <PersonalInfoPanel />
+                  <PersonalInfoPanel
+                    loading={loading}
+                    patient={(httpPatientDetailsResponse as HttpResponse)?.data}
+                  />
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={1}>
                   {data.length > 0 ? (
-                    <GroupTable from="patient" data={data} />
+                    !loading && (
+                      <GroupTable
+                        from="patient"
+                        data={
+                          (httpPatientDetailsResponse as HttpResponse)?.data
+                        }
+                      />
+                    )
                   ) : (
                     <NoDataCard t={t} data={AddAppointmentCardData} />
                   )}

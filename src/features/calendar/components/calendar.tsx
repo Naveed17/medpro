@@ -1,9 +1,9 @@
-import FullCalendar from "@fullcalendar/react"; // => request placed at the top
+import FullCalendar, {EventDef} from "@fullcalendar/react"; // => request placed at the top
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
-import {Box, IconButton, useTheme} from "@mui/material";
+import {Box, IconButton, Menu, MenuItem, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
@@ -14,64 +14,19 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import moment from "moment-timezone";
 import {FormatterInput} from "@fullcalendar/common";
 import {useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, Event, Header} from "@features/calendar";
+import {
+    AddAppointmentCardData,
+    agendaSelector,
+    CalendarContextMenu,
+    Event,
+    Header,
+    TableHead
+} from "@features/calendar";
 import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
-
-const tableHead = [
-    {
-        id: "heure",
-        label: "header.heure",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "motif",
-        label: "header.motif",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "durée",
-        label: "header.duree",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "status",
-        label: "header.status",
-        align: "center",
-        sortable: true,
-    },
-    {
-        id: "patient",
-        label: "header.patient",
-        align: "center",
-        sortable: true,
-    },
-    {
-        id: "agenda",
-        label: "header.agenda",
-        align: "center",
-        sortable: true,
-    },
-    {
-        id: "action",
-        label: "header.action",
-        align: "right",
-        sortable: false,
-    },
-];
-
-const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "table.no-data.event.title",
-    description: "table.no-data.event.description",
-    buttonText: "table.no-data.event.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
-};
+import {uniqueId} from "lodash";
+import Typography from "@mui/material/Typography";
 
 function Calendar({...props}) {
     const {
@@ -85,17 +40,27 @@ function Calendar({...props}) {
         OnSelectEvent,
         OnSelectDate,
         OnEventChange,
+        OnMenuActions
     } = props;
+
     const theme = useTheme();
+    const isMounted = useIsMountedRef();
+    const calendarRef = useRef(null);
+
     const {view, currentDate} = useAppSelector(agendaSelector);
 
-    const calendarRef = useRef(null);
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] =
         useState<GroupEventsModel[]>(sortedData);
+    const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(moment().toDate());
-    const isMounted = useIsMountedRef();
+    const [contextMenu, setContextMenu] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
+
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -168,6 +133,27 @@ function Calendar({...props}) {
                 break;
         }
     };
+
+    const handleContextMenu = (event: MouseEvent) => {
+        event.preventDefault();
+        setAnchorEl(event.currentTarget);
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                  // Other native context menus might behave different.
+                  // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                null,
+        );
+    };
+
+    const handleClose = () => {
+        setContextMenu(null);
+    };
+
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const slotFormat = {
@@ -184,7 +170,7 @@ function Calendar({...props}) {
                     {view === "listWeek" ? (
                         <Box className="container">
                             <Otable
-                                headers={tableHead}
+                                headers={TableHead}
                                 rows={eventGroupByDay}
                                 handleEvent={(action: string, eventData: EventModal) =>
                                     handleTableEvent(action, eventData)
@@ -234,6 +220,13 @@ function Calendar({...props}) {
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 eventContent={(event) => <Event event={event}/>}
+                                eventDidMount={mountArg => {
+                                    mountArg.el.addEventListener('contextmenu', (ev) => {
+                                        ev.preventDefault();
+                                        setEventMenu(mountArg.event._def);
+                                        handleContextMenu(ev);
+                                    })
+                                }}
                                 dayHeaderContent={(event) =>
                                     Header({
                                         isGridWeek,
@@ -269,6 +262,57 @@ function Calendar({...props}) {
                                 slotLabelFormat={slotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
+
+                            <Menu
+                                open={contextMenu !== null}
+                                onClose={handleClose}
+                                anchorReference="anchorPosition"
+                                PaperProps={{
+                                    elevation: 0,
+                                    sx: {
+                                        backgroundColor: theme.palette.text.primary,
+                                        "& .popover-item": {
+                                            padding: theme.spacing(2),
+                                            display: "flex",
+                                            alignItems: "center",
+                                            svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                            cursor: "pointer",
+                                        }
+                                    },
+                                }}
+                                anchorPosition={
+                                    contextMenu !== null
+                                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                        : undefined
+                                }
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                            >
+                                {CalendarContextMenu.map(
+                                    (v: any) => (
+                                        <MenuItem
+                                            key={uniqueId()}
+                                            disabled={v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED"}
+                                            onClick={() => {
+                                                OnMenuActions(v.action, eventMenu);
+                                                handleClose();
+                                            }}
+                                            className="popover-item"
+                                        >
+                                            {v.icon}
+                                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                {translation(`${v.title}`, { ns: 'common' })}
+                                            </Typography>
+                                        </MenuItem>
+                                    )
+                                )}
+                            </Menu>
                         </Box>
                     )}
                 </CalendarStyled>

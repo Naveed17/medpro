@@ -14,7 +14,6 @@ import Icon from "@themes/urlIcon";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 // ____________________
-import moment from "moment-timezone";
 
 function RDVMobileCard({ ...props }) {
   const { inner } = props;
@@ -24,7 +23,7 @@ function RDVMobileCard({ ...props }) {
         <RootStyled
           sx={{
             "&:before": {
-              bgcolor: inner.borderColor,
+              bgcolor: inner.consultationReason.color,
             },
           }}
         >
@@ -49,7 +48,7 @@ function RDVMobileCard({ ...props }) {
                   className="time-main"
                 >
                   <Icon path="ic-agenda" />
-                  <span>{moment(new Date()).format("ddd DD MMMM")}</span>
+                  <span>{inner.dayDate}</span>
                 </Typography>
 
                 <Typography
@@ -59,12 +58,7 @@ function RDVMobileCard({ ...props }) {
                   className="time-main"
                 >
                   <Icon path="ic-time" />
-                  <span>
-                    {new Date(inner.time).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+                  <span>{inner.startTime}</span>
                 </Typography>
               </Box>
             </Box>

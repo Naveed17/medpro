@@ -40,7 +40,7 @@ function TimeSchedule({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const {onNext} = props;
+    const {onNext, onBack} = props;
     const {data: session, status} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
@@ -108,7 +108,7 @@ function TimeSchedule({...props}) {
     const onNextStep = () => {
         dispatch(setAppointmentMotif(reason));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
-        dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY hh:mm').toDate()));
+        dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY HH:mm').toDate()));
         dispatch(setStepperIndex(2));
         onNext(2);
     }
@@ -166,18 +166,52 @@ function TimeSchedule({...props}) {
                         labelId="select-reason"
                         id="select-reason"
                         value={reason}
+                        displayEmpty
                         onChange={onChangeReason}
                         sx={{
                             "& .MuiSelect-select svg": {
-                                display: "none",
+                                position: "absolute",
+                                border: .1,
+                                borderColor: 'divider',
+                                borderRadius: '50%',
+                                p: 0.05
                             },
+                            "& .MuiTypography-root": {
+                                ml: 3.5
+                            }
+                        }}
+                        renderValue={selected => {
+                            if (selected.length === 0) {
+                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                            }
+
+                            const motif = reasons.find(reason => reason.uuid === selected);
+                            return (
+                                <Box sx={{display: "inline-flex"}}>
+                                    <FiberManualRecordIcon
+                                        fontSize="small"
+                                        sx={{
+                                            color: motif?.color
+                                        }}
+                                    />
+                                    <Typography>{motif?.name}</Typography>
+                                </Box>
+
+                            )
                         }}
                     >
                         {reasons?.map((consultationReason) => (
                             <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
                                 <FiberManualRecordIcon
                                     fontSize="small"
-                                    sx={{mr: 1, color: consultationReason.color}}
+                                    sx={{
+                                        border: .1,
+                                        borderColor: 'divider',
+                                        borderRadius: '50%',
+                                        p: 0.05,
+                                        mr: 1,
+                                        color: consultationReason.color
+                                    }}
                                 />
                                 {consultationReason.name}
                             </MenuItem>
@@ -316,7 +350,7 @@ function TimeSchedule({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => dispatch(setStepperIndex(0))}
+                    onClick={onBack}
                 >
                     {t("back")}
                 </Button>

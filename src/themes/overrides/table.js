@@ -53,11 +53,11 @@ export default function Table(theme) {
           "& .action span": {
             float: "right",
           },
-          '& .cip-medical-proce-row': {
+          "& .cip-medical-proce-row": {
             "& .MuiTableCell-root": {
               paddingTop: 0,
               paddingBottom: 0,
-            }
+            },
           },
         },
       },
@@ -108,7 +108,10 @@ export default function Table(theme) {
             span: {
               display: "flex",
               alignItems: "center",
-              justifyContent: 'space-between',
+              justifyContent: "space-between",
+              [theme.breakpoints.down("xl")]: {
+                fontSize: 9,
+              },
             },
             div: {
               float: "right",
