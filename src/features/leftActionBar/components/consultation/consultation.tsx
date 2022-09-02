@@ -20,19 +20,23 @@ import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {collapse as collapseData} from './config';
 import {upperFirst} from "lodash";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import moment from "moment-timezone";
+import {toggleSideBar} from "@features/sideBarMenu";
 
 function Consultation() {
     const img = false;
     const [collapse, setCollapse] = useState<any>('');
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'filter'});
     const {patient} = useAppSelector(consultationSelector);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
-        console.log(patient);
-    }, [patient])
+        if (patient)
+            dispatch(toggleSideBar(false));
+        console.log(patient)
+    }, [dispatch, patient])
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -48,7 +52,7 @@ function Consultation() {
                         <Typography variant="body1" color='primary.main'
                                     sx={{fontFamily: 'Poppins'}}>{patient?.firstName + ' ' + patient?.lastName}</Typography>
                         <Typography variant="body2"
-                                    color='text.secondary'>{patient?.birthdate} ({patient?.birthdate ?moment().diff(new Date(patient?.birthdate), "years"):'--' } {t('year')})</Typography>
+                                    color='text.secondary'>{patient?.birthdate} ({patient?.birthdate ? moment().diff(new Date(patient?.birthdate), "years") : '--'} {t('year')})</Typography>
                     </Box>
 
                 </Box>

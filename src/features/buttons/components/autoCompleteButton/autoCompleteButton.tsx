@@ -9,10 +9,11 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 
 function AutoCompleteButton({...props}) {
+    const {translation, data, loading, OnClickAction, onSearchChange} = props;
+
     const dispatch = useAppDispatch();
     const {patient: initData} = useAppSelector(appointmentSelector);
 
-    const {translation, data, OnClickAction} = props;
     const [focus, setFocus] = useState(false);
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
 
@@ -24,6 +25,7 @@ function AutoCompleteButton({...props}) {
     const handleClick = () => {
         setFocus(!focus);
     }
+
     const handleClickAway = () => {
         setFocus(false);
     };
@@ -40,7 +42,9 @@ function AutoCompleteButton({...props}) {
                         <ClickAwayListener onClickAway={handleClickAway}>
                             <Box sx={{mb: 4}} className="autocomplete-container">
                                 <AutoComplete
+                                    onSearchChange={onSearchChange}
                                     data={data}
+                                    loading={loading}
                                     onSelectData={onSubmitPatient}
                                 />
                                 <Button variant="outlined" size="large"

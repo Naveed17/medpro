@@ -13,15 +13,15 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import {SetEnd, SetExaman} from "@features/toolbar/components/consultationIPToolbar/actions";
 
-function CIPPatientHistoryCard() {
+function CIPPatientHistoryCard({...props}) {
     const {data: session, status} = useSession();
+    const {exam} = props
     const loading = status === 'loading';
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
     const dispatch = useAppDispatch();
     let medical_entity: MedicalEntityModel | null = null;
     const {end} = useAppSelector(consultationSelector);
-
     const RegisterSchema = Yup.object().shape({
         motif: Yup.string().required("Motif is required"),
     });
@@ -39,18 +39,9 @@ function CIPPatientHistoryCard() {
     });
 
     useEffect(() => {
-        if (medical_entity !== null) {
-            trigger({
-                method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/",
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }, {revalidate: true, populateCache: true}).then(r => {
-                if (r) setCReason((r.data as HttpResponse).data)
-            });
-        }
-    }, [medical_entity, session?.accessToken, trigger]);
+        setCReason(exam.consultation_reasons)
+    }, [exam]);
+
     const {handleSubmit, values, getFieldProps, errors, touched} = formik;
 
     useEffect(() => {

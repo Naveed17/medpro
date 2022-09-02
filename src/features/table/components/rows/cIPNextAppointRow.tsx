@@ -1,18 +1,18 @@
 import TableCell from "@mui/material/TableCell";
-import { TableRowStyled } from "@features/table";
-import { CipNextAppointCard } from "@features/card";
-function CIPNextAppointRow({ ...props }) {
-  const { row, t } = props;
-  return (
-    <TableRowStyled
-      hover
-      key={Math.random()}
+import {TableRowStyled} from "@features/table";
+import {CipNextAppointCard} from "@features/card";
 
-    >
-      <TableCell align="left" colSpan={7}>
-        <CipNextAppointCard row={row} t={t} />
-      </TableCell>
-    </TableRowStyled>
-  );
+function CIPNextAppointRow({...props}) {
+    return (
+        <TableRowStyled
+            hover
+            key={Math.random()}
+        >
+            <TableCell align="left" colSpan={7}>
+                <CipNextAppointCard {...props} />
+            </TableCell>
+        </TableRowStyled>
+    );
 }
+
 export default CIPNextAppointRow;

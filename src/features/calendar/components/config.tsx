@@ -6,14 +6,14 @@ import SaveAltOutlinedIcon from "@mui/icons-material/SaveAltOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 export const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
-    0: {key: "PENDING", value: "En attende"},
-    1: {key: "CONFIRMED", value: "Confirmé"},
-    2: {key: "REFUSED", value: "Effectué"},
-    3: {key: "WAITING_ROOM", value: "Salle d'attende"},
-    4: {key: "ON_GOING", value: "en attende"},
-    5: {key: "FINISHED", value: "en attende"},
-    6: {key: "CANCELED", value: "Annulé"},
-    7: {key: "EXPIRED", value: "Expiré"},
+    0: {key: "PENDING", value: "En attende", color: "#FFD400"},
+    1: {key: "CONFIRMED", value: "Confirmé", color: "#1BC47D"},
+    2: {key: "REFUSED", value: "Effectué", color: "#E83B68"},
+    3: {key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B"},
+    4: {key: "ON_GOING", value: "en attende", color: "#1939B7"},
+    5: {key: "FINISHED", value: "en attende", color: "#0096d6"},
+    6: {key: "CANCELED", value: "Annulé", color: "#c92a2a"},
+    7: {key: "EXPIRED", value: "Expiré", color: "#ff6600"},
 }
 
 export const TableHead = [
@@ -74,7 +74,7 @@ export const CalendarContextMenu = [
     {
         title: "start_the_consultation",
         icon: <PlayCircleIcon/>,
-        action: "onOpenEditPatient",
+        action: "onConsultationDetail",
     },
     {
         title: "add_patient_to_waiting_room",

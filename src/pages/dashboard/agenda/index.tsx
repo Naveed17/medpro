@@ -87,8 +87,8 @@ function Agenda() {
         setTimeRange
     ] = useState({start: "", end: ""})
     const [disabledSlots, setDisabledSlots] = useState([{
-        start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
-        end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
+        start: moment("27-07-2022 13:00", "DD-MM-YYYY HH:mm").toDate(),
+        end: moment("27-07-2022 13:30", "DD-MM-YYYY HH:mm").toDate()
     }]);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
@@ -196,6 +196,10 @@ function Agenda() {
             case "onCancel":
                 setAlertCancel(true);
                 break;
+            case "onConsultationDetail":
+                const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                break;
             case "onPatientDetail":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
@@ -203,7 +207,7 @@ function Agenda() {
             case "onMove":
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
-                    time: moment(event?.extendedProps.time).format("hh:mm"),
+                    time: moment(event?.extendedProps.time).format("HH:mm"),
                     selected: false
                 }));
                 setMoveAlert(true);
@@ -233,7 +237,7 @@ function Agenda() {
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
         form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("hh:mm"));
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
 
         updateAppointmentTrigger({
@@ -311,9 +315,9 @@ function Agenda() {
     appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
     appointments?.map((appointment) => {
         events.push({
-            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
-            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
-            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
+            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
             title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
             allDay: false,
             borderColor: appointment.consultationReason.color,
@@ -481,6 +485,7 @@ function Agenda() {
                                 }}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
+                                ConsultationId={event?.publicId}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
@@ -497,8 +502,8 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
                                     {event?.extendedProps.modal}
-                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")} {" => "}
-                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")}
+                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
+                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                 </Typography><Typography sx={{textAlign: "center"}}
                                                          margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)

@@ -298,7 +298,9 @@ function Calendar({...props}) {
                                     (v: any) => (
                                         <MenuItem
                                             key={uniqueId()}
-                                            disabled={v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED"}
+                                            disabled={
+                                            v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                            v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
                                             onClick={() => {
                                                 OnMenuActions(v.action, eventMenu);
                                                 handleClose();

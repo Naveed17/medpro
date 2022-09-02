@@ -18,7 +18,7 @@ import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
 import {useAppDispatch} from "@app/redux/hooks";
-import {SetEnd, SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -31,7 +31,8 @@ const variants = {
     }
 };
 
-function ModalConsultation() {
+function ModalConsultation({...props}) {
+    const {modal} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
@@ -40,18 +41,29 @@ function ModalConsultation() {
     const [models, setModels] = useState<ModalModel[]>([]);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
+    const [loadModel, setLoadModel] = useState(true);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
         isEnabled: true,
-        label: "fiche 2",
+        label: "--",
         structure: [],
-        uuid: "8a536913-5593-4f29-a123-46b4f5f2ce37"
+        uuid: ""
     });
 
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
 
+
+    useEffect(() => {
+        //setTimeout(() => {
+        if (modal)
+            setValue(modal.default_modal);
+
+        setTimeout(() => {
+            setLoadModel(false)
+        }, 3000)
+    }, [modal])
 
     useEffect(() => {
         if (medical_entity !== null) {
@@ -113,12 +125,12 @@ function ModalConsultation() {
                         bgcolor: alpha(value.color, 0.1)
                     }}>
                         <Box>
-                            {value.color !== "#FEBD15" && <FormBuilder
+                            {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
                                     dispatch(SetFiche(ev.data))
                                 }}
                                 onError={console.log}
-                                //submission={{ data: {taille:'3',imc:30} }}
+                                //submission={{data: modal.data}}
                                 form={
                                     {
                                         display: "form",
@@ -156,6 +168,7 @@ function ModalConsultation() {
                     open={openDialog}
                     data={{data: modalConfig, change}}
                     change={change}
+                    max
                     size={"lg"}
                     direction={'ltr'}
                     title={'Personaliser les données de suivi'}
