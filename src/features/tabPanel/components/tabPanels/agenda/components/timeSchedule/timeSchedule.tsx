@@ -92,7 +92,7 @@ function TimeSchedule({...props}) {
         setReason(event.target.value as string);
         if (date) {
             getSlots(date);
-            setTime(moment(date).format('hh:mm'));
+            setTime(moment(date).format('HH:mm'));
         }
     };
 

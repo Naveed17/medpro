@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
+import React, {ChangeEvent, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
 import {Box} from "@mui/material";
@@ -21,6 +21,7 @@ function Patient({...props}) {
     const dispatch = useAppDispatch();
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
+    const [query, setQuery] = useState("");
 
     const {t, ready} = useTranslation("agenda", {
         keyPrefix: "steppers",
@@ -29,20 +30,26 @@ function Patient({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpPatientResponse} = useRequest({
+    const {data: httpPatientResponse, isValidating} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=1&limit=10&withPagination=true`,
+        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
     });
 
-    if (!ready) return (<LoadingScreen/>);
 
-    const patients = (httpPatientResponse as HttpResponse)?.data.list as PatientWithNextAndLatestAppointment[];
+    if (!ready) return (<LoadingScreen/>);
 
     const handleOnClick = () => {
         setAddPatient(true);
+    }
+
+    const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const search = event.target.value;
+        if (search.length >= 3) {
+            setQuery(search);
+        }
     }
 
     const onNextStep = () => {
@@ -61,9 +68,11 @@ function Patient({...props}) {
                             {t("stepper-2.sub-title")}
                         </Typography>
                         <AutoCompleteButton
+                            onSearchChange={handleSearchChange}
                             OnClickAction={handleOnClick}
                             translation={t}
-                            {...{data: patients}} />
+                            loading={isValidating}
+                            data={(httpPatientResponse as HttpResponse)?.data}/>
 
                     </Box>
                     <Paper
