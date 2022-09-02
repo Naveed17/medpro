@@ -181,7 +181,6 @@ function Agenda() {
     }
 
     const onEventChange = (info: EventChangeArg) => {
-        console.log(info);
         const startDate = moment(info.event._instance?.range.start);
         const oldStartDate = moment(info.oldEvent._instance?.range.start);
         const defEvent = {
@@ -198,6 +197,7 @@ function Agenda() {
                 setAlertCancel(true);
                 break;
             case "onPatientDetail":
+                setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
@@ -426,7 +426,7 @@ function Agenda() {
                         }, 300);
                     }}
                 >
-                    {event &&
+                    {(event && openViewDrawer) &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
                             setMoveDialog={() => setMoveAlert(true)}
@@ -471,10 +471,14 @@ function Agenda() {
                     }}
                 >
                     <Box height={"100%"}>
-                        test
-                        {event &&
+                        {(event && openPatientDrawer) &&
                             <PatientDetail
-                                onCloseDialog={() => console.log("onCloseDialog")}
+                                onCloseDialog={() => {
+                                    dispatch(openDrawer({type: "patient", open: false}));
+                                    setTimeout(() => {
+                                        setEvent(undefined);
+                                    }, 300);
+                                }}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 patientId={event?.extendedProps.patient.uuid}/>}
@@ -602,7 +606,7 @@ function Agenda() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda']))
+        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda', 'patient']))
     }
 })
 
