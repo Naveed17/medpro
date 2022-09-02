@@ -6,7 +6,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 function LanguesDialog(info:any) {
 
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -16,7 +16,7 @@ function LanguesDialog(info:any) {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
     }
-    const { data, error } = useRequest({
+    const { data } = useRequest({
         method: "GET",
         url: "/api/public/languages/"+router.locale,
         headers
