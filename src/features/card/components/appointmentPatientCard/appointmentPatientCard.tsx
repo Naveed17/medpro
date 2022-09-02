@@ -62,7 +62,7 @@ function AppointmentPatientCard({...props}) {
                             sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}
                             component="span"
                         >
-                            <IconUrl path="ic-time"/> {moment(data?.time).format("hh:mm")}
+                            <IconUrl path="ic-time"/> {moment(data?.time).format("HH:mm")}
                         </Typography>
                     </Stack>
                 </Box>
