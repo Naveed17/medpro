@@ -34,14 +34,17 @@ function PatientToolbar({ ...props }) {
     {
       title: "add-patient.personal-info",
       children: AddPatientStep1,
+      disabled: false,
     },
     {
       title: "add-patient.additional-information",
       children: AddPatientStep2,
+      disabled: true,
     },
     {
       title: "add-patient.fin",
       children: AddPatientStep3,
+      disabled: true,
     },
   ];
 
