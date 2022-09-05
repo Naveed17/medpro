@@ -47,7 +47,7 @@ const RootStyled = styled("div")(({theme}) => ({
        width: "101%",
     },
     "& .fc-event-main-box": {
-        overflow: "hidden",
+        overflowX: "inherit",
         color: theme.palette.primary.main,
         alignItems: "center",
         display: "flex",
@@ -75,7 +75,7 @@ const RootStyled = styled("div")(({theme}) => ({
             position: "absolute",
             top: 0,
             left: -1,
-            width: "4px",
+            width: 3,
             height: "100%",
             zIndex: 100,
         },

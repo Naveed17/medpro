@@ -23,7 +23,7 @@ function CustomStepper({...props}) {
         OnSubmitStepper = null,
         onBackButton = null,
     } = props;
-    
+
     const [value, setValue] = useState<number>(currentIndex);
     const [last, setLast] = useState<number>(1);
 
@@ -117,7 +117,9 @@ function CustomStepper({...props}) {
                                         if (currentIndex > 0) {
                                             setValue(currentIndex - 1);
                                         }
-                                        onBackButton(currentIndex);
+                                        if (onBackButton) {
+                                            onBackButton(currentIndex);
+                                        }
                                     }}
                                     {...props}
                                 />

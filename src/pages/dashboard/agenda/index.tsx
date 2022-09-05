@@ -321,6 +321,7 @@ function Agenda() {
             description: "",
             id: appointment.uuid,
             meeting: false,
+            new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
             addRoom: true,
             status: AppointmentTypes[appointment.status]
         });
@@ -428,6 +429,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            onEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             setMoveDialog={() => setMoveAlert(true)}
                             setCancelDialog={() => setAlertCancel(true)}
                             onMoveAppointment={onMoveAppointment}
@@ -464,9 +466,11 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "patient", open: false}));
-                        setTimeout(() => {
-                            setEvent(undefined);
-                        }, 300);
+                        if (!openViewDrawer) {
+                            setTimeout(() => {
+                                setEvent(undefined);
+                            }, 300);
+                        }
                     }}
                 >
                     <Box height={"100%"}>
