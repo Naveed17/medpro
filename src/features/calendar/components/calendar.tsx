@@ -219,7 +219,7 @@ function Calendar({...props}) {
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
-                                eventContent={(event) => <Event event={event}/>}
+                                eventContent={(event) => <Event event={event} t={translation}/>}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         ev.preventDefault();

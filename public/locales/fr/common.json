@@ -78,6 +78,7 @@
     "milliseconds": "millisecondes"
   },
   "event": {
+    "new": "nouveau rendez-vous",
     "title": "Détail RDV",
     "start": "Commencer la consultation",
     "schedule": "Créneau horaire",

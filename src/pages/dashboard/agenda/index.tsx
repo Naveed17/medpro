@@ -26,7 +26,6 @@ import {
     Dialog,
     dialogMoveSelector,
     PatientDetail,
-    MoveAppointmentDialog,
     setMoveDateTime
 } from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
@@ -205,6 +204,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
                     time: moment(event?.extendedProps.time).format("HH:mm"),
@@ -275,11 +275,6 @@ function Agenda() {
         })
     }
 
-    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        dispatch(setMoveDateTime(type === 'date' ?
-            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
-    };
-
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
         dispatch(openDrawer({type: "add", open: true}));
@@ -326,6 +321,7 @@ function Agenda() {
             description: "",
             id: appointment.uuid,
             meeting: false,
+            new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
             addRoom: true,
             status: AppointmentTypes[appointment.status]
         });
@@ -433,6 +429,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            onEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             setMoveDialog={() => setMoveAlert(true)}
                             setCancelDialog={() => setAlertCancel(true)}
                             onMoveAppointment={onMoveAppointment}
@@ -469,9 +466,11 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "patient", open: false}));
-                        setTimeout(() => {
-                            setEvent(undefined);
-                        }, 300);
+                        if (!openViewDrawer) {
+                            setTimeout(() => {
+                                setEvent(undefined);
+                            }, 300);
+                        }
                     }}
                 >
                     <Box height={"100%"}>
@@ -574,12 +573,7 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveAlert(false)}
-                    action={() =>
-                        <MoveAppointmentDialog
-                            OnDateChange={handleMoveDataChange}
-                            t={t}
-                            data={selectedEvent}
-                        />}
+                    action={"move_appointment"}
                     open={moveAlert}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
