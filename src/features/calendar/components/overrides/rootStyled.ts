@@ -65,11 +65,11 @@ const RootStyled = styled("div")(({theme}) => ({
                 fill: theme.palette.error.main,
             },
         },
-        svg: {
+/*        svg: {
             width: 8,
             height: 8,
             margin: theme.spacing(0, 0.5),
-        },
+        },*/
         "&:before": {
             content: '""',
             position: "absolute",
