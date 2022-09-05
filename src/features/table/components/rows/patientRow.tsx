@@ -13,7 +13,7 @@ import moment from "moment-timezone";
 import ReactSVG from "@themes/urlIcon";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
-import { onOpenDetails } from "@features/table";
+import { onOpenPatientDrawer } from "@features/table";
 
 function PatientRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId, loading } = props;
@@ -21,7 +21,7 @@ function PatientRow({ ...props }) {
   return (
     <TableRowStyled
       hover
-      onClick={() => !loading && handleClick(row.uuid as any)}
+      onClick={() => !loading && handleClick(row.uuid as string)}
       role="checkbox"
       aria-checked={isItemSelected}
       tabIndex={-1}
@@ -272,13 +272,27 @@ function PatientRow({ ...props }) {
                   color: (theme) => theme.palette.common.black,
                   path: { fill: (theme) => theme.palette.common.black },
                 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "EDIT_PATIENT",
+                    })
+                  );
+                }}
               >
                 {t("table.edit")}
               </Button>
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "PATIENT_DETAILS",
+                    })
+                  );
                 }}
                 size="small"
               >
@@ -290,12 +304,29 @@ function PatientRow({ ...props }) {
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "PATIENT_DETAILS",
+                    })
+                  );
                 }}
               >
                 <ReactSVG path="/ic-voir" />
               </IconButton>
-              <IconButton size="small" className="edit-icon-button">
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "EDIT_PATIENT",
+                    })
+                  );
+                }}
+                size="small"
+                className="edit-icon-button"
+              >
                 <ReactSVG path="/ic-edit" />
               </IconButton>
             </Box>

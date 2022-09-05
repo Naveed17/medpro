@@ -49,7 +49,7 @@ const menuList = [
     {
         title: "add_patient_to_waiting_room",
         icon: <Icon color={"white"} path='ic-salle'/>,
-        action: "onOpenDetails",
+        action: "onOpenPatientDrawer",
     },
     {
         title: "see_patient_form",
@@ -106,8 +106,8 @@ function AppointmentDetail({...props}) {
         action: string;
     }) => {
         switch (item.action) {
-            case "onOpenDetails":
-                console.log("onOpenDetails");
+            case "onOpenPatientDrawer":
+                console.log("onOpenPatientDrawer");
                 break;
         }
     };

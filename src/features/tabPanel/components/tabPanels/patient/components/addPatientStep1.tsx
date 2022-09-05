@@ -27,6 +27,7 @@ function AddPatientStep1({ ...props }) {
     onNext,
     onClose,
     OnSubmit = null,
+    selectedPatient,
     translationKey = "patient",
     translationPrefix = "add-patient",
   } = props;
@@ -63,11 +64,23 @@ function AddPatientStep1({ ...props }) {
   const formik = useFormik({
     initialValues: {
       patient_group: stepsData.step1.patient_group,
-      first_name: stepsData.step1.first_name,
-      last_name: stepsData.step1.last_name,
-      birthdate: stepsData.step1.birthdate,
+      first_name: Boolean(selectedPatient)
+        ? selectedPatient.firstName
+        : stepsData.step1.first_name,
+      last_name: Boolean(selectedPatient)
+        ? selectedPatient.lastName
+        : stepsData.step1.last_name,
+      birthdate: Boolean(selectedPatient)
+        ? {
+            day: selectedPatient.birthdate.slice(0, 2),
+            month: selectedPatient.birthdate.slice(3, 5),
+            year: selectedPatient.birthdate.slice(6, 10),
+          }
+        : stepsData.step1.birthdate,
       phone: stepsData.step1.phone,
-      gender: stepsData.step1.gender,
+      gender: Boolean(selectedPatient)
+        ? selectedPatient.gender
+        : stepsData.step1.gender,
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {

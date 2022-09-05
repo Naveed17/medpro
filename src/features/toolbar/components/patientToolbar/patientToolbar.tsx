@@ -1,37 +1,50 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "next-i18next";
 import { CustomStepper } from "@features/customStepper";
 // import { DuplicateDetected } from "@features/duplicateDetected";
 // import IconUrl from "@themes/urlIcon";
 // import { Dialog } from "@features/dialog";
 import { Typography, Button, Drawer, Stack } from "@mui/material";
-import { useAppSelector } from "@app/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import {
   AddPatientStep1,
   AddPatientStep2,
   AddPatientStep3,
 } from "@features/tabPanel";
-
-const stepperData = [
-  {
-    title: "add-patient.personal-info",
-    children: AddPatientStep1,
-  },
-  {
-    title: "add-patient.additional-information",
-    children: AddPatientStep2,
-  },
-  {
-    title: "add-patient.fin",
-    children: AddPatientStep3,
-  },
-];
+// redux
+import { tableActionSelector, onOpenPatientDrawer } from "@features/table";
 
 function PatientToolbar({ ...props }) {
-  const { onAddPatient } = props;
+  const { onAddPatient, selectedPatient } = props;
+  // selectors
+  const dispatch = useAppDispatch();
+  const { patientId, patientAction } = useAppSelector(tableActionSelector);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { direction } = useAppSelector(configSelector);
+
+  // useEffect hook for handling the table action drawer
+  useEffect(() => {
+    if (patientId && patientAction === "EDIT_PATIENT") {
+      setOpenDrawer(true);
+    }
+  }, [patientId, patientAction]);
+
+  const stepperData = [
+    {
+      title: "add-patient.personal-info",
+      children: AddPatientStep1,
+    },
+    {
+      title: "add-patient.additional-information",
+      children: AddPatientStep2,
+    },
+    {
+      title: "add-patient.fin",
+      children: AddPatientStep3,
+    },
+  ];
+
   const { t, ready } = useTranslation("patient");
   if (!ready) return <>loading translations...</>;
   return (
@@ -60,6 +73,12 @@ function PatientToolbar({ ...props }) {
         dir={direction}
         onClose={() => {
           setOpenDrawer(false);
+          dispatch(
+            onOpenPatientDrawer({
+              patientId: "",
+              patientAction: "",
+            })
+          );
         }}
         sx={{
           "& .MuiTabs-root": {
@@ -81,6 +100,8 @@ function PatientToolbar({ ...props }) {
             setOpenDrawer(false);
           }}
           onAddPatient={() => onAddPatient()}
+          currentIndex={0}
+          selectedPatient={selectedPatient}
         />
       </Drawer>
       {/* <Dialog

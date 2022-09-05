@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Paper, Tab, Tabs, Zoom } from "@mui/material";
 import { PatientDetailsToolbar } from "@features/toolbar";
-import { onOpenDetails } from "@features/table";
+import { onOpenPatientDrawer } from "@features/table";
 import { NoDataCard, PatientdetailsCard } from "@features/card";
 import {
   DocumentsPanel,
@@ -106,7 +106,7 @@ function PatientDetail({ ...props }) {
           {" "}
           <PatientDetailsToolbar
             onClose={() => {
-              dispatch(onOpenDetails({ patientId: "" }));
+              dispatch(onOpenPatientDrawer({ patientId: "" }));
               onCloseDialog(false);
             }}
           />
