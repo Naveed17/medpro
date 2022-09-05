@@ -26,7 +26,6 @@ import {
     Dialog,
     dialogMoveSelector,
     PatientDetail,
-    MoveAppointmentDialog,
     setMoveDateTime
 } from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
@@ -205,6 +204,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
                     time: moment(event?.extendedProps.time).format("HH:mm"),
@@ -274,11 +274,6 @@ function Agenda() {
             refreshData();
         })
     }
-
-    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        dispatch(setMoveDateTime(type === 'date' ?
-            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
-    };
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
@@ -574,12 +569,7 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveAlert(false)}
-                    action={() =>
-                        <MoveAppointmentDialog
-                            OnDateChange={handleMoveDataChange}
-                            t={t}
-                            data={selectedEvent}
-                        />}
+                    action={"move_appointment"}
                     open={moveAlert}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
