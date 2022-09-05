@@ -6,7 +6,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/qualificationDialog/qualificationDialog"
-                ).then((mod) => mod)
+            ).then((mod) => mod)
         ),
     },
     {
@@ -14,7 +14,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/assuranceDialog/assuranceDialog"
-                ).then((mod) => mod)
+            ).then((mod) => mod)
         ),
     },
     {
@@ -138,6 +138,14 @@ const dialogData = [
         ),
     },
     {
+        action: "document_detail",
+        component: dynamic((): any =>
+            import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "end_consultation",
         component: dynamic((): any =>
             import("@features/dialog/components/endConsultationDialog/endConsultationDialog").then(
@@ -160,7 +168,9 @@ const dialogData = [
                 (mod) => mod
             )
         ),
-    }
+    },
+
+
 
 ];
 

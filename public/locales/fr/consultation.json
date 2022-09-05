@@ -125,7 +125,20 @@
     "father": "Père",
     "mother": "Mère",
     "name_of_the_allergy": "Nom de l’allergie",
-    "current_treatment": "Tapez le nom du traitement en cours"
+    "current_treatment": "Tapez le nom du traitement en cours",
+    "doc_detail_title": "Nom du document Certificat medicale",
+    "print": "Imrimer",
+    "share": "Partager",
+    "download": "Télécharger",
+    "delete": "Supprimer",
+    "document_name": "Nom du document",
+    "modifier": "modifier",
+    "document_type": "type de document",
+    "biology_order": "Ordonnance de biologie",
+    "patient": "Patient",
+    "created_on": "cree le",
+    "created_by": "créé par",
+    "you": "vous"
   },
   "table": {
     "acts": "Actes",

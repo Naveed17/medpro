@@ -43,6 +43,8 @@ function Dialogs({ ...props }) {
         dir={direction}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
+
+
       >
         <DialogTitle
           sx={{

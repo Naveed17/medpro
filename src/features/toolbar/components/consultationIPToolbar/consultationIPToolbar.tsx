@@ -1,20 +1,20 @@
-import React, {useEffect, useState} from 'react'
-import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
+import React, { useEffect, useState } from 'react'
+import { Tabs, Tab, Stack, Button, MenuItem, DialogActions } from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
-import {useTranslation} from 'next-i18next'
-import {tabsData, documentButtonList} from './config'
-import {Dialog} from '@features/dialog';
+import { useTranslation } from 'next-i18next'
+import { tabsData, documentButtonList } from './config'
+import { Dialog } from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import {useAppDispatch} from "@app/redux/hooks";
-import {SetEnd} from "@features/toolbar/components/consultationIPToolbar/actions";
-
-function ConsultationIPToolbar({selected}: any) {
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+import { useAppDispatch } from "@app/redux/hooks";
+import { SetEnd } from "@features/toolbar/components/consultationIPToolbar/actions";
+function ConsultationIPToolbar({ selected }: any) {
+    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState(tabsData[0].value);
     const [info, setInfo] = useState<null | string>('');
+    const [action, setactions] = useState<boolean>(false);
     const [tabs, setTabs] = useState(0);
     const [dialogData, setDialogData] = useState<any>(null)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -42,7 +42,8 @@ function ConsultationIPToolbar({selected}: any) {
 
         }
         setAnchorEl(null);
-        handleClickDialog()
+        handleClickDialog();
+        setactions(true)
 
     };
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -60,13 +61,19 @@ function ConsultationIPToolbar({selected}: any) {
         selected(tabs);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
-
     if (!ready) return <>loading translations...</>;
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
                 <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-                    <Button variant="contained">
+                    <Button variant="contained"
+                        onClick={() => {
+                            setInfo("document_detail");
+                            handleClickDialog();
+                            setactions(false)
+                        }
+                        }
+                    >
                         {t("RDV")}
                     </Button>
                     <Button variant="contained">
@@ -98,7 +105,7 @@ function ConsultationIPToolbar({selected}: any) {
                     >
                         {documentButtonList.map((item, index) => (
                             <MenuItem key={`document-button-list-${index}`} onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon}/>
+                                <Icon path={item.icon} />
                                 {t(item.label)}
                             </MenuItem>
                         ))}
@@ -112,9 +119,9 @@ function ConsultationIPToolbar({selected}: any) {
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({label, value}, index) => (
+                        {tabsData.map(({ label, value }, index) => (
                             <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value}
-                                 label={t(label)}/>
+                                label={t(label)} />
                         ))}
                     </Tabs>
                     <Button variant="outlined" color="primary" onClick={() => {
@@ -122,7 +129,7 @@ function ConsultationIPToolbar({selected}: any) {
                         (btn as HTMLElement)?.click();
                         dispatch(SetEnd(true))
                     }} className="action-button">
-                        <Icon path="ic-check"/>
+                        <Icon path="ic-check" />
                         {t("end_of_consultation")}
                     </Button>
                 </Stack>
@@ -130,29 +137,34 @@ function ConsultationIPToolbar({selected}: any) {
             {
                 info &&
                 <Dialog action={info}
-                        open={openDialog}
-                        data={dialogData}
-                        change={false}
-                        size={"lg"}
-                        direction={'ltr'}
-                        actions={true}
-                        title={t(info)}
-                        dialogClose={handleCloseDialog}
-                        actionDialog={
-                            <DialogActions>
-                                <Button onClick={handleCloseDialog}
-                                        startIcon={<CloseIcon/>}>
-                                    {t('cancel')}
-                                </Button>
-                                <Button variant="contained"
-                                        onClick={handleCloseDialog}
+                    open={openDialog}
+                    data={dialogData}
+                    size={"lg"}
+                    direction={'ltr'}
+                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                    {
+                    ...(info === "document_detail" && {
+                        onClose: handleCloseDialog
+                    })
+                    }
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        action ? <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                startIcon={<CloseIcon />}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                onClick={handleCloseDialog}
 
-                                        startIcon={<Icon
-                                            path='ic-dowlaodfile'/>}>
-                                    {t('save')}
-                                </Button>
-                            </DialogActions>
-                        }/>
+                                startIcon={<Icon
+                                    path='ic-dowlaodfile' />}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+                            : null
+
+                    } />
             }
 
         </>
