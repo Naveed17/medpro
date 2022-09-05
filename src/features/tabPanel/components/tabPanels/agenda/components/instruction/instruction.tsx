@@ -78,7 +78,7 @@ function Instruction({...props}) {
         const form = new FormData();
         form.append('dates', JSON.stringify([{
             "start_date": moment(date).format('DD-MM-YYYY'),
-            "start_time": moment(date).format('hh:mm')
+            "start_time": moment(date).format('HH:mm')
         }]));
         form.append('consultation_reason_uuid', motif);
         form.append('title', `${patient?.lastName} ${patient?.firstName}`);
@@ -87,7 +87,7 @@ function Instruction({...props}) {
         form.append('global_instructions', description);
         form.append('reminder', JSON.stringify([{
             "type": "1: email, 2: sms, 3: push",
-            "time": moment(timeRappel).format('hh:mm'),
+            "time": moment(timeRappel).format('HH:mm'),
             "number_of_day": moment(timeRappel).format('YYYY-MM-DD'),
             "reminder_language": smsLang,
             "reminder_message": smsLang

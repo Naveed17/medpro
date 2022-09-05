@@ -182,7 +182,7 @@ function AppointmentDetail({...props}) {
                         data={
                             {
                                 date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
-                                time: moment(data?.extendedProps.time).format("hh:mm"),
+                                time: moment(data?.extendedProps.time).format("HH:mm"),
                                 motif: data?.extendedProps.motif,
                                 status: data?.extendedProps.status
                             }
@@ -283,7 +283,7 @@ function AppointmentDetail({...props}) {
                             onClick={() => {
                                 dispatch(setMoveDateTime({
                                     date: data?.extendedProps.time,
-                                    time: moment(data?.extendedProps.time).format("hh:mm"),
+                                    time: moment(data?.extendedProps.time).format("HH:mm"),
                                     selected: false
                                 }));
                                 setMoveDialog(true)
