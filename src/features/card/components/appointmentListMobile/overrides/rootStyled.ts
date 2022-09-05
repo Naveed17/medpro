@@ -3,16 +3,16 @@ import {styled} from "@mui/material/styles";
 
 const RootStyled = styled(Card)(({theme}) => ({
     padding: theme.spacing(1, 2),
-    position: "relative",
+    // position: "relative",
     borderRadius: 6,
     marginBottom: theme.spacing(1),
     "&:before": {
-        content: '""',
+/*        content: '""',
         width: 4,
         height: "100%",
         position: "absolute",
         left: 0,
-        top: 0,
+        top: 0,*/
     },
     "& .card-main": {
         width: "100%",

@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {Box, Button, Container, Drawer, IconButton, LinearProgress, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -17,7 +17,14 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {
+    agendaSelector,
+    CalendarContextMenu,
+    openDrawer,
+    setConfig,
+    setSelectedEvent,
+    setStepperIndex
+} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -36,6 +43,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {AppointmentTypes} from "@features/calendar";
+import {Popover} from "@features/popover";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -406,6 +414,7 @@ function Agenda() {
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
                                     event={event}/>
+
                             ))}
                         </Container>
                     ))}
