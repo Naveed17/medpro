@@ -27,7 +27,6 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 
-
 const Content = ({...props}) => {
     const {id, patient} = props;
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'filter'});
@@ -55,17 +54,34 @@ const Content = ({...props}) => {
     };
     const handleCloseDialog = () => {
         const form = new FormData();
-        form.append('antecedents', JSON.stringify(state));
-        form.append('patient_uuid', patient.uuid);
-        trigger({
-            method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + codes[info] + '/' + router.locale,
-            data: form,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r));
-        mutate();
+        if (codes[info]) {
+            form.append('antecedents', JSON.stringify(state));
+            form.append('patient_uuid', patient.uuid);
+            trigger({
+                method: "POST",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + codes[info] + '/' + router.locale,
+                data: form,
+                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+            }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+
+        } else if (info === 'add_treatment'){
+            form.append('globalNote', "");
+            form.append('isOtherProfessional', "false");
+            form.append('drugs', JSON.stringify(state));
+
+            trigger({
+                method: "POST",
+                url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescriptions/' + router.locale,
+                data: form,
+                headers: {
+                    ContentType: 'application/x-www-form-urlencoded',
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+        }
+
         setOpenDialog(false);
-        setInfo('')
+        setInfo('');
     }
     const handleOpen = (action: string) => {
         if (action === "consultation") {
@@ -99,15 +115,28 @@ const Content = ({...props}) => {
                                 <Stack spacing={1} alignItems="flex-start">
                                     <List dense>
                                         {
-                                            [].map((list: any, index: number) =>
+                                            patient?.treatment.map((list: any, index: number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
                                                         <CircleIcon/>
                                                     </ListItemIcon>
                                                     <Typography variant="body2" color="text.secondary">
-                                                        {list.name} / {list.duration} {t(list.dosage)}
+                                                        {list.name} / {list.duration} {list.durationType}
                                                     </Typography>
-                                                    <IconButton size="small" onClick={console.log} sx={{ml: 'auto'}}>
+                                                    <IconButton size="small" onClick={()=>{
+                                                        console.log(list)
+
+                                                        trigger({
+                                                            method: "PATCH",
+                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/'+list.uuid+'/' + router.locale,
+                                                            headers: {
+                                                                ContentType: 'application/x-www-form-urlencoded',
+                                                                Authorization: `Bearer ${session?.accessToken}`
+                                                            }
+                                                        }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+
+
+                                                    }} sx={{ml: 'auto'}}>
                                                         <Icon path="setting/icdelete"/>
                                                     </IconButton>
                                                 </ListItem>
@@ -126,7 +155,7 @@ const Content = ({...props}) => {
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
                                         {
-                                            patient?.requestedAnalyses.map((list:any, index:number) =>
+                                            patient?.requestedAnalyses.map((list: any, index: number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
                                                         <CircleIcon/>

@@ -10,7 +10,7 @@ import {
     FormControlLabel,
     Radio,
     Button,
-    Divider, Autocomplete
+    Divider, Autocomplete, Input
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
@@ -54,9 +54,9 @@ function MedicalPrescriptionDialog({...props}) {
 
                 drugs.push(values)
                 setDrugs([...drugs])
-                data.setState([...drugs]);
+                data.setState([...drugs])
                 setDrug(null)
-                resetForm();
+                resetForm()
             }
         },
     });
@@ -145,27 +145,15 @@ function MedicalPrescriptionDialog({...props}) {
                             <Stack spacing={1}>
                                 <Grid container spacing={3}>
                                     <Grid item xs={12} md={3}>
-                                        <Select
+                                        <TextField
                                             fullWidth
-                                            labelId="demo-simple-select-label"
                                             id={"duration"}
                                             size="small"
+                                            type={"number"}
                                             {...getFieldProps("duration")}
                                             value={values.duration}
-                                            displayEmpty={true}
-                                            sx={{color: "text.secondary"}}
-                                            renderValue={(value) =>
-                                                value?.length
-                                                    ? Array.isArray(value)
-                                                        ? value.join(",")
-                                                        : value
-                                                    : t("duration")
-                                            }
-                                        >
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
-                                        </Select>
+                                            placeholder={t("duration")}
+                                            sx={{color: "text.secondary"}}/>
                                     </Grid>
                                     <Grid item xs={12} md={9}>
                                         <FormControl component="fieldset">

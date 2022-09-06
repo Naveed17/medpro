@@ -25,7 +25,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const {selected,appuuid} = props;
+    const {selected, appuuid, mutate} = props;
 
 
     const {trigger} = useRequestMutation(null, "/drugs");
@@ -72,7 +72,7 @@ function ConsultationIPToolbar({...props}) {
         switch (info) {
             case 'medical_prescription':
                 setPrescription(state)
-                console.log('closed',state)
+                console.log('closed', state)
 
         }
 
@@ -80,9 +80,10 @@ function ConsultationIPToolbar({...props}) {
         setInfo(null)
     }
     const handleSaveDialog = () => {
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
-                console.log('save',state)
+                console.log('save', state)
                 const form = new FormData();
                 form.append('globalNote', "");
                 form.append('isOtherProfessional', "false");
@@ -90,13 +91,14 @@ function ConsultationIPToolbar({...props}) {
 
                 trigger({
                     method: "POST",
-                    url: "/api/medical-entity/" + medical_entity.uuid  +'/appointments/'+appuuid+'/prescriptions/' + router.locale,
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/prescriptions/' + router.locale,
                     data: form,
                     headers: {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
                 }, {revalidate: true, populateCache: true}).then(() => {
+                    mutate();
                     setPrescription([])
                 })
                 break;
@@ -180,7 +182,7 @@ function ConsultationIPToolbar({...props}) {
                 info &&
                 <Dialog action={info}
                         open={openDialog}
-                        data={{state,setState}}
+                        data={{state, setState}}
                         change={false}
                         size={"lg"}
                         direction={'ltr'}
