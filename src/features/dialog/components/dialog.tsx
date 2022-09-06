@@ -24,6 +24,7 @@ function Dialogs({ ...props }) {
     actionDialog,
     onClose,
     size = "md",
+    sx,
     ...rest
   } = props;
   const selected = DialogData.find((item) => item.action === action);
@@ -43,8 +44,6 @@ function Dialogs({ ...props }) {
         dir={direction}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
-
-
       >
         <DialogTitle
           sx={{
@@ -73,7 +72,7 @@ function Dialogs({ ...props }) {
             </IconButton>
           ) : null}
         </DialogTitle>
-        <DialogContent dividers={true}>
+        <DialogContent dividers={true} sx={{ ...sx }}>
           <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
           <Component data={data} />
         </DialogContent>

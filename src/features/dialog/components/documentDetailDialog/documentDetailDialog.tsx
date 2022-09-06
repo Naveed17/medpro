@@ -1,6 +1,6 @@
 import { Grid, Stack, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, TextField, Button } from '@mui/material'
 import { useFormik, Form, FormikProvider } from "formik";
-import DocumentDetailDialogStyled from './overrides/documentDetailDialogtyle';
+import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import { useTranslation } from 'next-i18next'
 import { capitalize } from 'lodash'
 import React, { useState } from 'react';
@@ -54,7 +54,7 @@ function DocumentDetailDialog() {
                         </Stack>
                     </FormikProvider>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={4} className="sidebar">
                     <List>
                         {
                             actionButtons.map((button, idx) =>
