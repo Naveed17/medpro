@@ -138,7 +138,10 @@
     "patient": "Patient",
     "created_on": "cree le",
     "created_by": "créé par",
-    "you": "vous"
+    "you": "vous",
+    "documents": "Documents",
+    "in_progress": "En cours",
+    "orderly": "Ordonnace"
   },
   "table": {
     "acts": "Actes",

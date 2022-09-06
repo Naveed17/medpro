@@ -5,7 +5,6 @@ import {
     Box,
     Typography,
     Avatar,
-    Button,
     Stack,
     List,
     ListItem,
@@ -13,21 +12,18 @@ import {
     IconButton,
     Collapse
 } from "@mui/material";
-import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
-import {Alert} from "@features/alert";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {collapse as collapseData} from './config';
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
+import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
 
 function Consultation() {
-    const img = false;
-    const [collapse, setCollapse] = useState<any>('');
+    const [collapse, setCollapse] = useState<any>(4);
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'filter'});
     const {patient} = useAppSelector(consultationSelector);
     const dispatch = useAppDispatch();
@@ -43,11 +39,9 @@ function Consultation() {
         <ConsultationStyled>
             <Box className="header">
                 <Box className="about">
-                    <Avatar {...(img ? {
-                        src: 'xyz',
-                        alt: "name",
-                        sx: {bgcolor: 'transparent', mr: 1}
-                    } : {sx: {bgcolor: theme => theme.palette.primary.main, mr: 1}})} />
+                    <Avatar
+                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
+                        src={patient?.gender === 'w' ? "/static/icons/women-avatar.svg" : "/static/icons/men-avatar.svg"}/>
                     <Box>
                         <Typography variant="body1" color='primary.main'
                                     sx={{fontFamily: 'Poppins'}}>{patient?.firstName + ' ' + patient?.lastName}</Typography>
@@ -77,7 +71,7 @@ function Consultation() {
                 </Box>
             </Box>
 
-            <Stack spacing={1} mb={1}>
+            {/* <Stack spacing={1} mb={1}>
                 <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
                     <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
                 </Alert>
@@ -85,7 +79,7 @@ function Consultation() {
                         sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
                     {upperFirst(t('consultation in progress'))}
                 </Button>
-            </Stack>
+            </Stack>*/}
             <Stack ml={-1.25}>
                 <List dense>
                     {
@@ -123,10 +117,10 @@ function Consultation() {
                     }
                 </List>
             </Stack>
-            <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color"/>}
+            {/*  <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color"/>}
                     sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0,}}>
                 {upperFirst(t('patient record'))}
-            </Button>
+            </Button>*/}
         </ConsultationStyled>
     )
 }

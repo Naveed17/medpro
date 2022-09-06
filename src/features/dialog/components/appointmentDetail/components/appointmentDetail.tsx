@@ -82,7 +82,7 @@ const menuList = [
 function AppointmentDetail({ ...props }) {
     const {
         onConsultation,
-        onEditDetails,
+        onEditDetail,
         onChangeIntro,
         onEditintro,
         onWaiting,
@@ -210,7 +210,7 @@ function AppointmentDetail({ ...props }) {
                                     </Typography>
                                 </Stack>
                                 <IconButton size="small"
-                                    onClick={onEditDetails}
+                                    onClick={onEditDetail}
                                 >
                                     <IconUrl path='Ic-duotone' />
                                 </IconButton>
