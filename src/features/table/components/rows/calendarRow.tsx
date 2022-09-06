@@ -8,10 +8,12 @@ import {Label} from "@features/label";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
+import {setCurrentDate, setView} from "@features/calendar";
+import {useAppDispatch} from "@app/redux/hooks";
 
 function CalendarRow({...props}) {
-    const {handleEvent} = props;
-    const {row} = props;
+    const {row, handleEvent} = props;
+    const dispatch = useAppDispatch();
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = Object.assign(eventData, {
@@ -27,9 +29,22 @@ function CalendarRow({...props}) {
         handleEvent(action, event);
     }
 
+    const handleMobileGroupClick = (date: Date) => {
+        dispatch(setView("timeGridDay"));
+        dispatch(setCurrentDate({date, fallback: true}));
+    }
+
     return (
         <>
-            <Typography variant={"inherit"} component="tr" color="text.primary" pt={2}>
+            <Typography variant={"inherit"}
+                        sx={{
+                            "&:hover":{
+                                textDecoration: "underline",
+                                cursor: "pointer"
+                            }
+                        }}
+                        onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
+                        component="tr" color="text.primary" pt={2}>
                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                     "Today"
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
@@ -86,7 +101,7 @@ function CalendarRow({...props}) {
                         className="first-child"
                     >
                         <Box sx={{display: "flex"}}>
-                            <TimeIcon />
+                            <TimeIcon/>
                             <Typography variant="body2" color="text.secondary">
                                 {new Date(data.time).toLocaleTimeString([], {
                                     hour: "2-digit",
@@ -130,7 +145,7 @@ function CalendarRow({...props}) {
                         }}
                     >
                         <Box sx={{display: "flex", justifyContent: "left"}}>
-                            <TimeIcon />
+                            <TimeIcon/>
                             <Typography variant="body2" color="text.secondary">
                                 {differenceInMinutes(
                                     new Date(data.end),

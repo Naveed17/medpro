@@ -4,6 +4,7 @@ import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutl
 import SmsOutlinedIcon from "@mui/icons-material/SmsOutlined";
 import SaveAltOutlinedIcon from "@mui/icons-material/SaveAltOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import {FormatterInput} from "@fullcalendar/common";
 
 export const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
     0: {key: "PENDING", value: "En attende", color: "#FFD400"},
@@ -69,6 +70,13 @@ export const AddAppointmentCardData = {
     buttonIcon: "ic-agenda-+",
     buttonVariant: "warning",
 };
+
+export const SlotFormat = {
+    hour: "numeric",
+    minute: "2-digit",
+    omitZeroMinute: false,
+    hour12: false,
+} as FormatterInput;
 
 export const CalendarContextMenu = [
     {
