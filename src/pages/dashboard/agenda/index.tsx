@@ -26,7 +26,6 @@ import {
     Dialog,
     dialogMoveSelector,
     PatientDetail,
-    MoveAppointmentDialog,
     setMoveDateTime
 } from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
@@ -87,8 +86,8 @@ function Agenda() {
         setTimeRange
     ] = useState({start: "", end: ""})
     const [disabledSlots, setDisabledSlots] = useState([{
-        start: moment("27-07-2022 13:00", "DD-MM-YYYY hh:mm").toDate(),
-        end: moment("27-07-2022 13:30", "DD-MM-YYYY hh:mm").toDate()
+        start: moment("27-07-2022 13:00", "DD-MM-YYYY HH:mm").toDate(),
+        end: moment("27-07-2022 13:30", "DD-MM-YYYY HH:mm").toDate()
     }]);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
@@ -196,14 +195,19 @@ function Agenda() {
             case "onCancel":
                 setAlertCancel(true);
                 break;
+            case "onConsultationDetail":
+                const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                break;
             case "onPatientDetail":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
-                    time: moment(event?.extendedProps.time).format("hh:mm"),
+                    time: moment(event?.extendedProps.time).format("HH:mm"),
                     selected: false
                 }));
                 setMoveAlert(true);
@@ -233,7 +237,7 @@ function Agenda() {
         const form = new FormData();
         form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
         form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("hh:mm"));
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
 
         updateAppointmentTrigger({
@@ -271,11 +275,6 @@ function Agenda() {
         })
     }
 
-    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        dispatch(setMoveDateTime(type === 'date' ?
-            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
-    };
-
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
         dispatch(openDrawer({type: "add", open: true}));
@@ -311,9 +310,9 @@ function Agenda() {
     appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
     appointments?.map((appointment) => {
         events.push({
-            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
-            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").toDate(),
-            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY hh:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
+            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
             title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
             allDay: false,
             borderColor: appointment.consultationReason.color,
@@ -322,6 +321,7 @@ function Agenda() {
             description: "",
             id: appointment.uuid,
             meeting: false,
+            new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
             addRoom: true,
             status: AppointmentTypes[appointment.status]
         });
@@ -429,6 +429,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             onCancelAppointment={() => refreshData()}
+                            onEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             setMoveDialog={() => setMoveAlert(true)}
                             setCancelDialog={() => setAlertCancel(true)}
                             onMoveAppointment={onMoveAppointment}
@@ -465,9 +466,11 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "patient", open: false}));
-                        setTimeout(() => {
-                            setEvent(undefined);
-                        }, 300);
+                        if (!openViewDrawer) {
+                            setTimeout(() => {
+                                setEvent(undefined);
+                            }, 300);
+                        }
                     }}
                 >
                     <Box height={"100%"}>
@@ -498,8 +501,8 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
                                     {event?.extendedProps.modal}
-                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")} {" => "}
-                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY hh:mm")}
+                                    {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
+                                    {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                 </Typography><Typography sx={{textAlign: "center"}}
                                                          margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
@@ -570,12 +573,7 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveAlert(false)}
-                    action={() =>
-                        <MoveAppointmentDialog
-                            OnDateChange={handleMoveDataChange}
-                            t={t}
-                            data={selectedEvent}
-                        />}
+                    action={"move_appointment"}
                     open={moveAlert}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={

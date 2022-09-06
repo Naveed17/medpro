@@ -74,7 +74,7 @@ export const CalendarContextMenu = [
     {
         title: "start_the_consultation",
         icon: <PlayCircleIcon/>,
-        action: "onOpenEditPatient",
+        action: "onConsultationDetail",
     },
     {
         title: "add_patient_to_waiting_room",
