@@ -1,12 +1,13 @@
-import {Paper, Stack, Box, Typography} from "@mui/material";
+import {Stack, Box, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import CallIcon from '@mui/icons-material/Call';
 import moment from "moment-timezone";
+import PaperStyled from "./overrides/paperStyled";
 
 function AppointmentPatientCard({...props}) {
     const {data} = props;
     return (
-        <Paper sx={{borderRadius: "8px", overflow: "auto", width: "60%", margin: "auto"}}>
+        <PaperStyled>
             <Stack
                 direction="row"
                 spacing={2}
@@ -30,7 +31,7 @@ function AppointmentPatientCard({...props}) {
                         sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
                         component="span"
                     >
-                        <CallIcon /> +216 22 555 007
+                        <CallIcon/> +216 22 555 007
                     </Typography>
                 </Box>
             </Stack>
@@ -67,7 +68,7 @@ function AppointmentPatientCard({...props}) {
                     </Stack>
                 </Box>
             </Stack>
-        </Paper>
+        </PaperStyled>
     )
 }
 

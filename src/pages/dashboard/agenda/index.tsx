@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {Box, Button, Container, Drawer, IconButton, LinearProgress, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -17,7 +17,14 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {
+    agendaSelector,
+    CalendarContextMenu,
+    openDrawer,
+    setConfig,
+    setSelectedEvent,
+    setStepperIndex
+} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -36,6 +43,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {AppointmentTypes} from "@features/calendar";
+import {Popover} from "@features/popover";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -196,7 +204,7 @@ function Agenda() {
                 setAlertCancel(true);
                 break;
             case "onConsultationDetail":
-                const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any )?.id}`;
                 router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
@@ -213,6 +221,11 @@ function Agenda() {
                 setMoveAlert(true);
                 break;
         }
+    }
+
+    const onConsultationDetail = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${(event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
     const onMoveAppointment = () => {
@@ -295,6 +308,15 @@ function Agenda() {
                     stepper.disabled = true;
                 }
             })
+        }
+    }
+
+    const cleanDrawData = () => {
+        dispatch(openDrawer({type: "patient", open: false}));
+        if (!openViewDrawer) {
+            setTimeout(() => {
+                setEvent(undefined);
+            }, 300);
         }
     }
 
@@ -403,9 +425,11 @@ function Agenda() {
 
                             {row.events.map((event) => (
                                 <AppointmentListMobile
+                                    OnMenuActions={onMenuActions}
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
                                     event={event}/>
+
                             ))}
                         </Container>
                     ))}
@@ -428,11 +452,12 @@ function Agenda() {
                 >
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
-                            onCancelAppointment={() => refreshData()}
-                            onEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
-                            setMoveDialog={() => setMoveAlert(true)}
-                            setCancelDialog={() => setAlertCancel(true)}
-                            onMoveAppointment={onMoveAppointment}
+                            OnConsultation={onConsultationDetail}
+                            OnCancelAppointment={() => refreshData()}
+                            OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
+                            SetMoveDialog={() => setMoveAlert(true)}
+                            SetCancelDialog={() => setAlertCancel(true)}
+                            OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
                 </Drawer>
@@ -464,24 +489,12 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "patient", open: false}));
-                        if (!openViewDrawer) {
-                            setTimeout(() => {
-                                setEvent(undefined);
-                            }, 300);
-                        }
-                    }}
+                    onClose={cleanDrawData}
                 >
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
-                                onCloseDialog={() => {
-                                    dispatch(openDrawer({type: "patient", open: false}));
-                                    setTimeout(() => {
-                                        setEvent(undefined);
-                                    }, 300);
-                                }}
+                                onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 ConsultationId={event?.publicId}
@@ -570,6 +583,13 @@ function Agenda() {
 
                 <Dialog
                     size={"sm"}
+                    sx={{
+                        [theme.breakpoints.down('sm')]: {
+                            "& .MuiDialogContent-root": {
+                                padding: 1
+                            }
+                        }
+                    }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveAlert(false)}
