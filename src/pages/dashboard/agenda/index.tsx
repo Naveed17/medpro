@@ -19,11 +19,10 @@ import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
-    CalendarContextMenu,
     openDrawer,
-    setConfig,
+    setConfig, setCurrentDate,
     setSelectedEvent,
-    setStepperIndex
+    setStepperIndex, setView
 } from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
@@ -43,7 +42,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {AppointmentTypes} from "@features/calendar";
-import {Popover} from "@features/popover";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -103,7 +101,7 @@ function Agenda() {
     const [alertCancel, setAlertCancel] = useState<boolean>(false);
     const [alert, setAlert] = useState<boolean>(false);
 
-    const [date, setDate] = useState(currentDate);
+    const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
 
@@ -204,7 +202,7 @@ function Agenda() {
                 setAlertCancel(true);
                 break;
             case "onConsultationDetail":
-                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any )?.id}`;
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                 router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
@@ -224,7 +222,7 @@ function Agenda() {
     }
 
     const onConsultationDetail = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${(event as any)?.id}`;
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 

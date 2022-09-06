@@ -204,7 +204,9 @@ function AppointmentDetail({...props}) {
                         <CardContent>
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
-                                    <Avatar sx={{width: 24, height: 24}}/>
+                                    <Avatar sx={{width: 24, height: 24}}
+                                            src={`/static/icons/${data?.extendedProps.patient.gender !== "O" ?
+                                                "men" : "women"}-avatar.svg`}/>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
                                         {data?.title}
                                     </Typography>
@@ -220,7 +222,8 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data?.extendedProps.patient.birthdate} ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        {data?.extendedProps.patient.birthdate}
+                                        ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
                                 {data?.extendedProps.patient.email && <ListItem>
@@ -275,7 +278,10 @@ function AppointmentDetail({...props}) {
                 </Box>
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={OnWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
+                        <Button onClick={OnWaiting}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
                         <Button

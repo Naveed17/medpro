@@ -1,32 +1,33 @@
-import FullCalendar, {EventDef} from "@fullcalendar/react"; // => request placed at the top
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-
-import {Box, IconButton, Menu, MenuItem, useTheme} from "@mui/material";
+import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
+import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
 
 import React, {useEffect, useRef, useState} from "react";
+
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import Typography from "@mui/material/Typography";
+
 import moment from "moment-timezone";
-import {FormatterInput} from "@fullcalendar/common";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
-    CalendarContextMenu,
+    CalendarContextMenu, DayOfWeek,
     Event,
-    Header,
+    Header, setCurrentDate, setView, SlotFormat,
     TableHead
 } from "@features/calendar";
 import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
-import Typography from "@mui/material/Typography";
+import {BusinessHoursInput} from "@fullcalendar/common";
 
 function Calendar({...props}) {
     const {
@@ -43,11 +44,12 @@ function Calendar({...props}) {
         OnMenuActions
     } = props;
 
+    const dispatch = useAppDispatch();
     const theme = useTheme();
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
 
-    const {view, currentDate} = useAppSelector(agendaSelector);
+    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
@@ -55,25 +57,44 @@ function Calendar({...props}) {
         useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(moment().toDate());
+    const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
-
+    const isGridWeek = Boolean(view === "timeGridWeek");
+    const isRTL = theme.direction === "rtl";
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
+    const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
+            let days: BusinessHoursInput[] = [];
+            if (openingHours) {
+                Object.entries(openingHours).map((openingHours: any) => {
+                    if ((openingHours[1].length > 0)) {
+                        days.push({
+                            daysOfWeek: [DayOfWeek(openingHours[0], 0)],
+                            startTime: openingHours[1][0].start_time,
+                            endTime: openingHours[1][0].end_time
+                        });
+                    }
+                });
+                setDaysOfWeek(days);
+            }
         }
-    }, [OnInit, isMounted]);
+    }, [OnInit, isMounted, openingHours]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(currentDate);
+            if (currentDate.fallback) {
+                calendarApi.gotoDate(currentDate.date);
+            }
         }
     }, [currentDate]);
 
@@ -123,6 +144,16 @@ function Calendar({...props}) {
         }
     };
 
+    const handleNavLinkDayClick = (date: Date, jsEvent: VUIEvent) => {
+        const calendarEl = calendarRef.current;
+        if (calendarEl) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.gotoDate(date);
+            dispatch(setView("timeGridDay"));
+            dispatch(setCurrentDate({date, fallback: false}));
+        }
+    }
+
     const handleTableEvent = (action: string, eventData: EventModal) => {
         switch (action) {
             case "showEvent":
@@ -153,15 +184,6 @@ function Calendar({...props}) {
     const handleClose = () => {
         setContextMenu(null);
     };
-
-    const isGridWeek = Boolean(view === "timeGridWeek");
-    const isRTL = theme.direction === "rtl";
-    const slotFormat = {
-        hour: "numeric",
-        minute: "2-digit",
-        omitZeroMinute: false,
-        hour12: false,
-    } as FormatterInput;
 
     return (
         <Box bgcolor="#F0FAFF">
@@ -214,11 +236,14 @@ function Calendar({...props}) {
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
                                 droppable
+                                navLinks
                                 selectable
+                                eventDurationEditable={false}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
+                                navLinkDayClick={handleNavLinkDayClick}
                                 eventContent={(event) => <Event event={event} t={translation}/>}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
@@ -251,15 +276,17 @@ function Calendar({...props}) {
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:20:00"}
+                                businessHours={daysOfWeek}
                                 firstDay={1}
                                 initialView={view}
-                                dayMaxEventRows={3}
+                                dayMaxEventRows={isLgScreen ? 6 : 3}
                                 eventDisplay="block"
                                 headerToolbar={false}
                                 allDayMaintainDuration
                                 eventResizableFromStart
+                                slotLabelInterval={{minutes: 15}}
                                 slotDuration="00:30:00"
-                                slotLabelFormat={slotFormat}
+                                slotLabelFormat={SlotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
 
@@ -299,8 +326,8 @@ function Calendar({...props}) {
                                         <MenuItem
                                             key={uniqueId()}
                                             disabled={
-                                            v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
-                                            v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
+                                                v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                                v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
                                             onClick={() => {
                                                 OnMenuActions(v.action, eventMenu);
                                                 handleClose();
@@ -309,7 +336,7 @@ function Calendar({...props}) {
                                         >
                                             {v.icon}
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                {translation(`${v.title}`, { ns: 'common' })}
+                                                {translation(`${v.title}`, {ns: 'common'})}
                                             </Typography>
                                         </MenuItem>
                                     )

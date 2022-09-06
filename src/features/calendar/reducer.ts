@@ -12,7 +12,7 @@ export type CalendarProps = {
     openPatientDrawer: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
-    currentDate: Date;
+    currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null
 };
 
@@ -23,7 +23,7 @@ const initialState: CalendarProps = {
     openPatientDrawer: false,
     currentStepper: 0,
     config: null,
-    currentDate: new Date(),
+    currentDate: {date: new Date(), fallback: true},
     selectedEvent: null
 };
 
