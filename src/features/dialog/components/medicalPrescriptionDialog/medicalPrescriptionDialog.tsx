@@ -2,8 +2,6 @@ import {
     Grid,
     Stack,
     Typography,
-    Select,
-    MenuItem,
     TextField,
     FormControl,
     RadioGroup,
@@ -17,19 +15,28 @@ import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDial
 import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
-import React, {SyntheticEvent, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import * as Yup from "yup";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data:state} = props
-    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(state);
+    const {data} = props
+    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(data.state);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
+
+    const validationSchema = Yup.object().shape({
+        dosage: Yup.string().required(),
+        duration: Yup.string().required(),
+        durationType: Yup.string().required()
+    });
+
+    const {trigger} = useRequestMutation(null, "/drugs");
+
 
     const formik = useFormik({
         initialValues: {
@@ -40,23 +47,23 @@ function MedicalPrescriptionDialog({...props}) {
             durationType: '',
             note: ''
         },
+        validationSchema,
         onSubmit: async (values) => {
-
             if (drug) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
+
+                drugs.push(values)
+                setDrugs([...drugs])
+                data.setState([...drugs])
+                setDrug(null)
+                resetForm()
             }
-            drugs.push(values)
-            setDrugs([...drugs])
-
-            setDrug(null)
-            resetForm();
-
         },
     });
     const router = useRouter();
     const {data: session} = useSession();
-    const {data: httpDrugsResponse, error: errorHttpMedicalProfessional} = useRequest({
+    const {data: httpDrugsResponse} = useRequest({
         method: "GET",
         url: "/api/drugs/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -69,8 +76,6 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {
         values,
-        errors,
-        touched,
         handleSubmit,
         getFieldProps,
         setFieldValue,
@@ -81,34 +86,23 @@ function MedicalPrescriptionDialog({...props}) {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         drugs.splice(selected, 1);
         setDrugs([...drugs])
-        //console.log(selected);
+        data.setState([...drugs]);
     }
 
     const edit = (ev: PrespectionDrugModel) => {
-
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
         setFieldValue('dosage', drugs[selected].dosage)
         setFieldValue('duration', drugs[selected].duration)
         setFieldValue('durationType', drugs[selected].durationType)
         setFieldValue('note', drugs[selected].note)
-
     }
 
     function handleInputChange(value: string) {
-        console.log('handle input change')
         const drg = drugsList.find(drug => drug.commercial_name === value)
         if (drg !== undefined)
             setDrug(drg);
         else setDrug({uuid: '', commercial_name: value, isVerified: false});
-    }
-
-    function handleAutoChange(Event: SyntheticEvent, value: string) {
-        console.log('handle auto change')
-
-        const drg = drugsList.find(drug => drug.commercial_name === value)
-        if (drg !== undefined)
-            setDrug(drg);
     }
 
     if (!ready) return <>loading translations...</>;
@@ -125,20 +119,32 @@ function MedicalPrescriptionDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Typography>{t('seeking_to_name_the_drug')}</Typography>
-
-
                                 {drugsList && <Autocomplete
                                     id="cmo"
                                     value={drug}
-                                    //onInputChange={handleAutoChange}
                                     options={drugsList}
                                     getOptionLabel={(option: DrugModel) => option?.commercial_name}
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                     renderInput={(params) => <TextField {...params}
+                                                                        onChange={(ev) => {
+                                                                            if (ev.target.value.length >= 3) {
+                                                                                trigger({
+                                                                                    method: "GET",
+                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                }, {
+                                                                                    revalidate: true,
+                                                                                    populateCache: true
+                                                                                }).then((cnx) => {
+                                                                                    setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                })
+                                                                            }
+                                                                        }}
                                                                         onBlur={(ev) => handleInputChange(ev.target.value)}
                                                                         placeholder={t('placeholder_drug_name')}/>}
                                 />
-                                }                            </Stack>
+                                }
+                            </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('dosage')}</Typography>
                                 <TextField
@@ -149,27 +155,15 @@ function MedicalPrescriptionDialog({...props}) {
                             <Stack spacing={1}>
                                 <Grid container spacing={3}>
                                     <Grid item xs={12} md={3}>
-                                        <Select
+                                        <TextField
                                             fullWidth
-                                            labelId="demo-simple-select-label"
                                             id={"duration"}
                                             size="small"
+                                            type={"number"}
                                             {...getFieldProps("duration")}
                                             value={values.duration}
-                                            displayEmpty={true}
-                                            sx={{color: "text.secondary"}}
-                                            renderValue={(value) =>
-                                                value?.length
-                                                    ? Array.isArray(value)
-                                                        ? value.join(",")
-                                                        : value
-                                                    : t("duration")
-                                            }
-                                        >
-                                            <MenuItem value="1">1</MenuItem>
-                                            <MenuItem value="2">2</MenuItem>
-                                            <MenuItem value="3">3</MenuItem>
-                                        </Select>
+                                            placeholder={t("duration")}
+                                            sx={{color: "text.secondary"}}/>
                                     </Grid>
                                     <Grid item xs={12} md={9}>
                                         <FormControl component="fieldset">

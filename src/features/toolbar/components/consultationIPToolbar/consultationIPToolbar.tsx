@@ -14,7 +14,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 
-function ConsultationIPToolbar({selected}: any) {
+function ConsultationIPToolbar({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState(tabsData[0].value);
@@ -25,6 +25,7 @@ function ConsultationIPToolbar({selected}: any) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
+    const {selected, appuuid, mutate} = props;
 
 
     const {trigger} = useRequestMutation(null, "/drugs");
@@ -71,31 +72,33 @@ function ConsultationIPToolbar({selected}: any) {
         switch (info) {
             case 'medical_prescription':
                 setPrescription(state)
-                console.log('closed')
+                console.log('closed', state)
+
         }
 
         setOpenDialog(false);
         setInfo(null)
     }
     const handleSaveDialog = () => {
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
-                console.log('save',state)
+                console.log('save', state)
                 const form = new FormData();
                 form.append('globalNote', "");
-                form.append('appointmentUuid', "7dc59951-b54b-41ee-b190-0f8b0508cd3d");
                 form.append('isOtherProfessional', "false");
                 form.append('drugs', JSON.stringify(state));
 
                 trigger({
                     method: "POST",
-                    url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/' + router.locale,
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/prescriptions/' + router.locale,
                     data: form,
                     headers: {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
                 }, {revalidate: true, populateCache: true}).then(() => {
+                    mutate();
                     setPrescription([])
                 })
                 break;
@@ -179,7 +182,7 @@ function ConsultationIPToolbar({selected}: any) {
                 info &&
                 <Dialog action={info}
                         open={openDialog}
-                        data={state}
+                        data={{state, setState}}
                         change={false}
                         size={"lg"}
                         direction={'ltr'}
