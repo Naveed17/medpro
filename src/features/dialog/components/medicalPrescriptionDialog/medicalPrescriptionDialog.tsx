@@ -2,15 +2,13 @@ import {
     Grid,
     Stack,
     Typography,
-    Select,
-    MenuItem,
     TextField,
     FormControl,
     RadioGroup,
     FormControlLabel,
     Radio,
     Button,
-    Divider, Autocomplete, Input
+    Divider, Autocomplete
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
@@ -18,7 +16,7 @@ import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
@@ -36,6 +34,9 @@ function MedicalPrescriptionDialog({...props}) {
         duration: Yup.string().required(),
         durationType: Yup.string().required()
     });
+
+    const {trigger} = useRequestMutation(null, "/drugs");
+
 
     const formik = useFormik({
         initialValues: {
@@ -86,23 +87,18 @@ function MedicalPrescriptionDialog({...props}) {
         drugs.splice(selected, 1);
         setDrugs([...drugs])
         data.setState([...drugs]);
-
-        //console.log(selected);
     }
 
     const edit = (ev: PrespectionDrugModel) => {
-
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
         setFieldValue('dosage', drugs[selected].dosage)
         setFieldValue('duration', drugs[selected].duration)
         setFieldValue('durationType', drugs[selected].durationType)
         setFieldValue('note', drugs[selected].note)
-
     }
 
     function handleInputChange(value: string) {
-        console.log('handle input change')
         const drg = drugsList.find(drug => drug.commercial_name === value)
         if (drg !== undefined)
             setDrug(drg);
@@ -130,6 +126,20 @@ function MedicalPrescriptionDialog({...props}) {
                                     getOptionLabel={(option: DrugModel) => option?.commercial_name}
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                     renderInput={(params) => <TextField {...params}
+                                                                        onChange={(ev) => {
+                                                                            if (ev.target.value.length >= 3) {
+                                                                                trigger({
+                                                                                    method: "GET",
+                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                }, {
+                                                                                    revalidate: true,
+                                                                                    populateCache: true
+                                                                                }).then((cnx) => {
+                                                                                    setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                })
+                                                                            }
+                                                                        }}
                                                                         onBlur={(ev) => handleInputChange(ev.target.value)}
                                                                         placeholder={t('placeholder_drug_name')}/>}
                                 />
