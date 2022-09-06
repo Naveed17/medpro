@@ -7,12 +7,13 @@ const RootStyled = styled(Card)(({theme}) => ({
     borderRadius: 6,
     marginBottom: theme.spacing(1),
     "&:before": {
-/*        content: '""',
-        width: 4,
-        height: "100%",
+        content: '""',
+        height: "108px",
         position: "absolute",
-        left: 0,
-        top: 0,*/
+        left: "1rem",
+        borderTopLeftRadius : 4,
+        borderBottomLeftRadius : 4,
+        width: 4
     },
     "& .card-main": {
         width: "100%",

@@ -1,5 +1,5 @@
 import {AppointmentPatientCard} from "@features/card";
-import {Box, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
@@ -13,6 +13,7 @@ import {Session} from "next-auth";
 import {useIsMountedRef} from "@app/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
+import BoxStyled from "./overrides/boxStyled";
 
 function MoveAppointmentDialog({...props}) {
     const {OnDateChange} = props;
@@ -59,7 +60,7 @@ function MoveAppointmentDialog({...props}) {
     }
 
     return (
-        <Box sx={{minHeight: 150}}>
+        <BoxStyled>
             <AppointmentPatientCard data={data?.extendedProps}/>
             <Typography mt={4} mb={2}
                         sx={{
@@ -76,6 +77,7 @@ function MoveAppointmentDialog({...props}) {
 
             <Grid item md={6} xs={12}>
                 <Typography variant="body1"
+                            className={"header-section"}
                             ml={14}
                             color="text.primary" my={2}>
                     {t("dialogs.move-dialog.time-message")}
@@ -93,7 +95,7 @@ function MoveAppointmentDialog({...props}) {
                     seeMoreText={t("dialogs.move-dialog.see-more")}
                 />
             </Grid>
-        </Box>
+        </BoxStyled>
     )
 }
 

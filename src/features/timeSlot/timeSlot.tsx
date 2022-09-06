@@ -27,6 +27,7 @@ export default function TimeSlot({...props}) {
 
     return (
         <RootStyled
+            className={"time-slot-container"}
             direction="row"
             justifyContent="space-between"
             sx={{flexWrap: "wrap", ...sx}}

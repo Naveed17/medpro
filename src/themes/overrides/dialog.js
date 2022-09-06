@@ -15,7 +15,7 @@ export default function Dialog(theme) {
           },
           "& .MuiPaper-root": {
             [theme.breakpoints.down("sm")]: {
-              margin: "6px",
+              // margin: "6px",
             },
             //maxWidth: "100%",
             "& .modal-actions": {

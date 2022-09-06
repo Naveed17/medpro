@@ -23,7 +23,6 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import Autocomplete from '@mui/material/Autocomplete';
-import {MultiSelect} from "@features/multiSelect";
 
 function MedicalPrescriptionDialog() {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})

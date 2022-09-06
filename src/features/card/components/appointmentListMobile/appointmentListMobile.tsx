@@ -9,7 +9,7 @@ import Icon from "@themes/urlIcon";
 import {CalendarContextMenu} from "@features/calendar";
 
 function AppointmentListMobile({...props}) {
-    const {event, OnSelectEvent} = props;
+    const {event, OnSelectEvent, OnMenuActions} = props;
     const [openTooltip, setOpenTooltip] = useState(false);
 
     const handleEventClick = () => {
@@ -25,20 +25,27 @@ function AppointmentListMobile({...props}) {
         }));
     }
 
+    const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
+        setOpenTooltip(false)
+        OnMenuActions(data.action, Object.assign(event, {
+            extendedProps: {
+                description: event.description,
+                meeting: event.meeting,
+                motif: event.motif,
+                patient: event.patient,
+                status: event.status,
+                time: event.time
+            }
+        }));
+    }
+
     return (
         <RootStyled
             sx={{
                 "&:before": {
-                    content: '""',
-                    height: "108px",
-                    position: "absolute",
                     mt: "-.5rem",
-                    left: "1rem",
-                    borderTopLeftRadius : 4,
-                    borderBottomLeftRadius : 4,
-                    background: event.borderColor,
-                    width: 4
-                },
+                    background: event.borderColor
+                }
             }}>
             <Box sx={{display: "flex"}}>
                 <Box className="card-main" onClick={handleEventClick}>
@@ -79,7 +86,7 @@ function AppointmentListMobile({...props}) {
                         open={openTooltip}
                         handleClose={() => setOpenTooltip(false)}
                         menuList={CalendarContextMenu}
-                        onClickItem={() => setOpenTooltip(false)}
+                        onClickItem={handleMenuClick}
                         button={
                             <IconButton
                                 onClick={() => {
