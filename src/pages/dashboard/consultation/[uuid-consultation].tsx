@@ -16,7 +16,7 @@ import {
     Stack,
     Grid,
     Typography,
-    ListItem, Icon, Button,
+    ListItem, Button,
 } from "@mui/material";
 import {openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
@@ -185,6 +185,7 @@ function ConsultationInProgress() {
     const [mpUuid, setMpUuid] = useState("");
 
     const router = useRouter();
+    const uuind = router.query['uuid-consultation'];
 
     const {examan, fiche, patient: patientInfo} = useAppSelector(consultationSelector);
 
@@ -223,7 +224,7 @@ function ConsultationInProgress() {
 
     const {data: httpAppResponse, error: errorHttpApp, mutate} = useRequest(mpUuid ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + "15d49355-95e3-3dbd-a03d-30c85b50de6f" + "/appointments/" + "7dc59951-b54b-41ee-b190-0f8b0508cd3d/professionals/" + mpUuid + '/' + router.locale,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse).data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
@@ -561,6 +562,7 @@ function ConsultationInProgress() {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
+    console.log(context)
     return ({
         props: {
             fallback: false,
@@ -576,7 +578,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
 
     return {
         paths: [], //indicates that no page needs be created at build time
-        fallback: 'blocking' //indicates the type of fallback
+        fallback: true //indicates the type of fallback
     }
 }
 export default ConsultationInProgress;
