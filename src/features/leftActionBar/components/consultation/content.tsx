@@ -16,9 +16,8 @@ import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from '@mui/icons-material/Circle';
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useState} from "react";
+import React, {useState} from "react";
 import Add from "@mui/icons-material/Add";
-import {data2} from './config'
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
@@ -36,6 +35,7 @@ const Content = ({...props}) => {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>('');
     const [size, setSize] = useState<string>('sm');
+    const bigDialogs = ['add_treatment', 'balance_sheet_pending'];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
     const {mutate} = useAppSelector(consultationSelector);
     const {trigger} = useRequestMutation(null, "/antecedent");
@@ -45,9 +45,9 @@ const Content = ({...props}) => {
         way_of_life: '0',
         allergic: '1',
         treatment: '2',
-        antecedents:'3',
-        family_antecedents:'4',
-        surgical_antecedents:'5',
+        antecedents: '3',
+        family_antecedents: '4',
+        surgical_antecedents: '5',
         medical_antecedents: '6'
     }
     const handleClickDialog = () => {
@@ -62,8 +62,7 @@ const Content = ({...props}) => {
             url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + codes[info] + '/' + router.locale,
             data: form,
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
-
+        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r));
         mutate();
         setOpenDialog(false);
         setInfo('')
@@ -73,10 +72,15 @@ const Content = ({...props}) => {
             dispatch(openDrawer({type: "add", open: true}));
             return
         }
-        setState(patient.antecedents[action])
+
+        if (patient.antecedents[action])
+            setState(patient.antecedents[action])
+        //else if (action ===)
+
         console.log(action)
-        setInfo(action)
-        action === 'add_treatment'? setSize('lg'):setSize('sm');
+        console.log(patient.antecedents[action])
+        setInfo(action);
+        bigDialogs.includes(action) ? setSize('lg') : setSize('sm');
 
         handleClickDialog()
     };
@@ -122,7 +126,7 @@ const Content = ({...props}) => {
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
                                         {
-                                            data2.map((list, index) =>
+                                            patient?.requestedAnalyses.map((list:any, index:number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
                                                         <CircleIcon/>
@@ -142,11 +146,12 @@ const Content = ({...props}) => {
                                                 }>
                                             {t('add_result')}
                                         </Button>
-                                        <Button color="error" size="small" onClick={console.log} startIcon={
-                                            <Icon path="setting/icdelete"/>
-                                        }>
-                                            {t('ignore')}
-                                        </Button>
+                                        {patient?.requestedAnalyses.length > 0 &&
+                                            <Button color="error" size="small" onClick={console.log} startIcon={
+                                                <Icon path="setting/icdelete"/>
+                                            }>
+                                                {t('ignore')}
+                                            </Button>}
                                     </Stack>
                                 </Stack>
                             }
