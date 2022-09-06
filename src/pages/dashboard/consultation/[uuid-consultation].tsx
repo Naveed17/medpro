@@ -262,7 +262,7 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar selected={(v: number) => setValue(v)}/>
+                <ConsultationIPToolbar appuuid={uuind} selected={(v: number) => setValue(v)}/>
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>

@@ -17,19 +17,25 @@ import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDial
 import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
-import React, {SyntheticEvent, useEffect, useRef, useState} from 'react';
-import {useRequest, useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
+import React, {useEffect, useState} from 'react';
+import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import * as Yup from "yup";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data:state} = props
-    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(state);
+    const {data} = props
+    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(data.state);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
+
+    const validationSchema = Yup.object().shape({
+        dosage: Yup.string().required(),
+        duration: Yup.string().required(),
+        durationType: Yup.string().required()
+    });
 
     const formik = useFormik({
         initialValues: {
@@ -40,23 +46,23 @@ function MedicalPrescriptionDialog({...props}) {
             durationType: '',
             note: ''
         },
+        validationSchema,
         onSubmit: async (values) => {
-
             if (drug) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
+
+                drugs.push(values)
+                setDrugs([...drugs])
+                data.setState([...drugs]);
+                setDrug(null)
+                resetForm();
             }
-            drugs.push(values)
-            setDrugs([...drugs])
-
-            setDrug(null)
-            resetForm();
-
         },
     });
     const router = useRouter();
     const {data: session} = useSession();
-    const {data: httpDrugsResponse, error: errorHttpMedicalProfessional} = useRequest({
+    const {data: httpDrugsResponse} = useRequest({
         method: "GET",
         url: "/api/drugs/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -69,8 +75,6 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {
         values,
-        errors,
-        touched,
         handleSubmit,
         getFieldProps,
         setFieldValue,
@@ -81,6 +85,8 @@ function MedicalPrescriptionDialog({...props}) {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         drugs.splice(selected, 1);
         setDrugs([...drugs])
+        data.setState([...drugs]);
+
         //console.log(selected);
     }
 
@@ -103,14 +109,6 @@ function MedicalPrescriptionDialog({...props}) {
         else setDrug({uuid: '', commercial_name: value, isVerified: false});
     }
 
-    function handleAutoChange(Event: SyntheticEvent, value: string) {
-        console.log('handle auto change')
-
-        const drg = drugsList.find(drug => drug.commercial_name === value)
-        if (drg !== undefined)
-            setDrug(drg);
-    }
-
     if (!ready) return <>loading translations...</>;
     return (
         <MedicalPrescriptionDialogStyled>
@@ -125,12 +123,9 @@ function MedicalPrescriptionDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Typography>{t('seeking_to_name_the_drug')}</Typography>
-
-
                                 {drugsList && <Autocomplete
                                     id="cmo"
                                     value={drug}
-                                    //onInputChange={handleAutoChange}
                                     options={drugsList}
                                     getOptionLabel={(option: DrugModel) => option?.commercial_name}
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
@@ -138,7 +133,8 @@ function MedicalPrescriptionDialog({...props}) {
                                                                         onBlur={(ev) => handleInputChange(ev.target.value)}
                                                                         placeholder={t('placeholder_drug_name')}/>}
                                 />
-                                }                            </Stack>
+                                }
+                            </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('dosage')}</Typography>
                                 <TextField
