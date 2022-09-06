@@ -62,6 +62,20 @@ export const TableHead = [
     },
 ];
 
+export const DayOfWeek = (day: string, start = 1) => {
+    const days: { [key: string]: number } = {
+        FRI: 5,
+        MON: 1,
+        SAT: 6,
+        SUN: start === 1 ? 7 : 0,
+        THU: 3,
+        TUE: 2,
+        WED: 4
+    }
+    return days[day];
+}
+
+
 export const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
     title: "table.no-data.event.title",

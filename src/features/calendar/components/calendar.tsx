@@ -18,7 +18,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
-    CalendarContextMenu,
+    CalendarContextMenu, DayOfWeek,
     Event,
     Header, setCurrentDate, setView, SlotFormat,
     TableHead
@@ -27,6 +27,7 @@ import {Otable} from "@features/table";
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
+import {BusinessHoursInput} from "@fullcalendar/common";
 
 function Calendar({...props}) {
     const {
@@ -48,7 +49,7 @@ function Calendar({...props}) {
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
 
-    const {view, currentDate} = useAppSelector(agendaSelector);
+    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
@@ -56,18 +57,37 @@ function Calendar({...props}) {
         useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(moment().toDate());
+    const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
+    const isGridWeek = Boolean(view === "timeGridWeek");
+    const isRTL = theme.direction === "rtl";
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
+    const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
+            let days: BusinessHoursInput[] = [];
+            if (openingHours) {
+                Object.entries(openingHours).map((openingHours: any) => {
+                    if ((openingHours[1].length > 0)) {
+                        console.log(openingHours[0], [DayOfWeek(openingHours[0], 0)]);
+                        days.push({
+                            daysOfWeek: [DayOfWeek(openingHours[0], 0)],
+                            startTime: openingHours[1][0].start_time,
+                            endTime: openingHours[1][0].end_time
+                        });
+                    }
+                });
+                setDaysOfWeek(days);
+            }
         }
-    }, [OnInit, isMounted]);
+    }, [OnInit, isMounted, openingHours]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -166,10 +186,6 @@ function Calendar({...props}) {
         setContextMenu(null);
     };
 
-    const isGridWeek = Boolean(view === "timeGridWeek");
-    const isRTL = theme.direction === "rtl";
-    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
-
     return (
         <Box bgcolor="#F0FAFF">
             <RootStyled>
@@ -261,6 +277,7 @@ function Calendar({...props}) {
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:20:00"}
+                                businessHours={daysOfWeek}
                                 firstDay={1}
                                 initialView={view}
                                 dayMaxEventRows={isLgScreen ? 6 : 3}
@@ -268,6 +285,7 @@ function Calendar({...props}) {
                                 headerToolbar={false}
                                 allDayMaintainDuration
                                 eventResizableFromStart
+                                slotLabelInterval={{minutes: 15}}
                                 slotDuration="00:30:00"
                                 slotLabelFormat={SlotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
