@@ -222,7 +222,7 @@ function Agenda() {
     }
 
     const onConsultationDetail = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${(event as any)?.id}`;
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
         router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 

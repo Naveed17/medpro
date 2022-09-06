@@ -76,7 +76,6 @@ function Calendar({...props}) {
             if (openingHours) {
                 Object.entries(openingHours).map((openingHours: any) => {
                     if ((openingHours[1].length > 0)) {
-                        console.log(openingHours[0], [DayOfWeek(openingHours[0], 0)]);
                         days.push({
                             daysOfWeek: [DayOfWeek(openingHours[0], 0)],
                             startTime: openingHours[1][0].start_time,
