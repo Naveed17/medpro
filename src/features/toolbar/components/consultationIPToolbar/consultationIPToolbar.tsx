@@ -21,6 +21,7 @@ function ConsultationIPToolbar({...props}) {
     const [info, setInfo] = useState<null | string>('');
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
+    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -46,6 +47,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
+                setState(checkUp)
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -73,7 +75,6 @@ function ConsultationIPToolbar({...props}) {
             case 'medical_prescription':
                 setPrescription(state)
                 console.log('closed', state)
-
         }
 
         setOpenDialog(false);
@@ -81,10 +82,10 @@ function ConsultationIPToolbar({...props}) {
     }
     const handleSaveDialog = () => {
         console.log(info)
+        const form = new FormData();
+
         switch (info) {
             case 'medical_prescription':
-                console.log('save', state)
-                const form = new FormData();
                 form.append('globalNote', "");
                 form.append('isOtherProfessional', "false");
                 form.append('drugs', JSON.stringify(state));
@@ -100,6 +101,22 @@ function ConsultationIPToolbar({...props}) {
                 }, {revalidate: true, populateCache: true}).then(() => {
                     mutate();
                     setPrescription([])
+                })
+                break;
+            case 'balance_sheet_request':
+                form.append('analyses', JSON.stringify(state));
+
+                trigger({
+                    method: "POST",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/requested-analysis/' + router.locale,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, {revalidate: true, populateCache: true}).then(() => {
+                    mutate();
+                    setCheckUp([])
                 })
                 break;
         }

@@ -122,6 +122,7 @@ function MedicalPrescriptionDialog({...props}) {
                                 {drugsList && <Autocomplete
                                     id="cmo"
                                     value={drug}
+                                    size='small'
                                     options={drugsList}
                                     getOptionLabel={(option: DrugModel) => option?.commercial_name}
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}

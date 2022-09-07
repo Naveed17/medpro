@@ -62,11 +62,13 @@ const Content = ({...props}) => {
                 url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + codes[info] + '/' + router.locale,
                 data: form,
                 headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+            }, {revalidate: true, populateCache: true}).then(() => {
+                mutate()
+            });
 
-        } else if (info === 'add_treatment'){
+        } else if (info === 'add_treatment') {
             form.append('globalNote', "");
-            form.append('isOtherProfessional', "false");
+            form.append('isOtherProfessional', "true");
             form.append('drugs', JSON.stringify(state));
 
             trigger({
@@ -77,7 +79,9 @@ const Content = ({...props}) => {
                     ContentType: 'application/x-www-form-urlencoded',
                     Authorization: `Bearer ${session?.accessToken}`
                 }
-            }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+            }, {revalidate: true, populateCache: true}).then(() => {
+                mutate()
+            });
         }
 
         setOpenDialog(false);
@@ -123,17 +127,19 @@ const Content = ({...props}) => {
                                                     <Typography variant="body2" color="text.secondary">
                                                         {list.name} / {list.duration} {list.durationType}
                                                     </Typography>
-                                                    <IconButton size="small" onClick={()=>{
+                                                    <IconButton size="small" onClick={() => {
                                                         console.log(list)
 
                                                         trigger({
                                                             method: "PATCH",
-                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/'+list.uuid+'/' + router.locale,
+                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/' + list.uuid + '/' + router.locale,
                                                             headers: {
                                                                 ContentType: 'application/x-www-form-urlencoded',
                                                                 Authorization: `Bearer ${session?.accessToken}`
                                                             }
-                                                        }, {revalidate: true, populateCache: true}).then(()=>{mutate()});
+                                                        }, {revalidate: true, populateCache: true}).then(() => {
+                                                            mutate()
+                                                        });
 
 
                                                     }} sx={{ml: 'auto'}}>
@@ -151,38 +157,42 @@ const Content = ({...props}) => {
                                     </Button>
                                 </Stack>
                             }
-                            {id === 2 &&
-                                <Stack spacing={2} alignItems="flex-start">
-                                    <List dense>
-                                        {
-                                            patient?.requestedAnalyses.map((list: any, index: number) =>
-                                                <ListItem key={index}>
-                                                    <ListItemIcon>
-                                                        <CircleIcon/>
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {list.name}
-                                                    </Typography>
-                                                </ListItem>
-                                            )
-                                        }
+                            {
+                                id === 2 &&
+                                patient?.requestedAnalyses.map((ra:any,index:number) =>
+                                    <Stack key={index} spacing={2} alignItems="flex-start">
+                                        <List dense>
+                                            {
+                                                ra.analyses.map((list: any, index: number) =>
+                                                    <ListItem key={index}>
+                                                        <ListItemIcon>
+                                                            <CircleIcon/>
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {list.name}
+                                                        </Typography>
+                                                    </ListItem>
+                                                )
+                                            }
 
-                                    </List>
-                                    <Stack direction="row" spacing={2}>
-                                        <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
-                                                startIcon={
-                                                    <Add/>
+                                        </List>
+                                        <Stack direction="row" spacing={2}>
+                                            <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
+                                                    startIcon={
+                                                        <Add/>
+                                                    }>
+                                                {t('add_result')}
+                                            </Button>
+                                            {patient?.requestedAnalyses.length > 0 &&
+                                                <Button color="error" size="small" onClick={console.log} startIcon={
+                                                    <Icon path="setting/icdelete"/>
                                                 }>
-                                            {t('add_result')}
-                                        </Button>
-                                        {patient?.requestedAnalyses.length > 0 &&
-                                            <Button color="error" size="small" onClick={console.log} startIcon={
-                                                <Icon path="setting/icdelete"/>
-                                            }>
-                                                {t('ignore')}
-                                            </Button>}
+                                                    {t('ignore')}
+                                                </Button>}
+                                        </Stack>
                                     </Stack>
-                                </Stack>
+
+                                )
                             }
                             {
                                 id === 3 &&
