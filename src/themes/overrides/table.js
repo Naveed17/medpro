@@ -109,9 +109,6 @@ export default function Table(theme) {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              [theme.breakpoints.down("xl")]: {
-                fontSize: 9,
-              },
             },
             div: {
               float: "right",
