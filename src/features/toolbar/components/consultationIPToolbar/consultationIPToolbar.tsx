@@ -102,6 +102,9 @@ function ConsultationIPToolbar({...props}) {
                     setPrescription([])
                 })
                 break;
+            case 'balance_sheet_request':
+                console.log(state)
+                break;
         }
 
         setOpenDialog(false);

@@ -1,26 +1,75 @@
-import { Grid, Stack, Typography, Select, MenuItem, Button, Card, IconButton, Autocomplete, TextField } from '@mui/material'
-import { useFormik, Form, FormikProvider } from "formik";
+import {
+    Grid,
+    Stack,
+    Typography,
+    Button,
+    Card,
+    IconButton,
+    TextField, ListItemButton, ListItemText
+} from '@mui/material'
+import {useFormik, Form, FormikProvider} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
-import { useTranslation } from 'next-i18next'
+import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, { useState } from 'react';
-const data = [
-    { label: 'lable-1', year: 2021 },
-    { label: 'lable-2', year: 2021 },
-    { label: 'lable-3', year: 2021 },
-]
+import React, {useEffect, useState} from 'react';
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {useRequest, useRequestMutation} from "@app/axios";
+
 function MedicalPrescriptionDialog() {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
-            name: '',
+            name: ''
         },
         onSubmit: async (values) => {
+            if (name.length > 0)
+                addAnalysis({uuid:'',name})
         },
     });
-    console.log(formik.values)
-    const { values, handleSubmit, setFieldValue } = formik;
+
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {data: httpAnalysisResponse} = useRequest({
+        method: "GET",
+        url: "/api/private/analysis/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+    const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
+    const [analysis, setAnalysis] = useState<AnalysisModel[]>([]);
+    const {trigger} = useRequestMutation(null, "/balanceSheet");
+    const [name, setName] = useState('');
+
+    const addAnalysis = (value: AnalysisModel) => {
+        analysis.push(value)
+        setAnalysis([...analysis])
+    }
+
+    const handleChange = (ev: any) => {
+        setName(ev.target.value);
+
+        if (ev.target.value.length > 2) {
+            trigger({
+                method: "GET",
+                url: "/api/private/analysis/" + router.locale + '?name=' + ev.target.value,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }).then((r) => {
+                setAnalysisList((r?.data as HttpResponse).data)
+            })
+        } else
+            setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+    }
+
+    useEffect(() => {
+        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+    }, [httpAnalysisResponse])
+
+    const {
+        handleSubmit,
+        getFieldProps
+    } = formik;
+
     if (!ready) return <>loading translations...</>;
     return (
         <BalanceSheetDialogStyled>
@@ -32,43 +81,46 @@ function MedicalPrescriptionDialog() {
                             component={Form}
                             autoComplete="off"
                             noValidate
-                            onSubmit={handleSubmit}
-                        >
+                            onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Typography>{t('please_name_the_balance_sheet')}</Typography>
-                                <Autocomplete
-                                    disablePortal
-                                    id="name_balance_sheet"
-                                    disableClearable
-                                    size='small'
-                                    onChange={(object, value) => setFieldValue('name', value?.label)}
-                                    isOptionEqualToValue={(option, value) => option.label === value.label}
-                                    options={data}
-                                    renderInput={(params) => <TextField {...params} placeholder={
-                                        t('placeholder_balance_sheet_name')
-                                    } />}
-                                />
-                            </Stack>
-                            <Button className='btn-add' size='small'
-                                startIcon={
-                                    <AddIcon />
-                                }
-                            >
 
+                                <TextField
+                                    id="balance_sheet_name"
+                                    value={name}
+                                    placeholder={t('placeholder_balance_sheet_name')}
+                                    onChange={handleChange}/>
+                            </Stack>
+                            <Button className='btn-add' type={"submit"} size='small'
+                                    startIcon={
+                                        <AddIcon/>
+                                    }>
                                 {t('add_balance_sheet')}
                             </Button>
+
+                            {analysisList &&
+                                analysisList.map(anaylis => (
+                                        <ListItemButton key={anaylis.uuid} onClick={() => {
+                                            addAnalysis(anaylis)
+                                        }}>
+                                            <ListItemText primary={anaylis.name}/>
+                                        </ListItemButton>
+                                    )
+                                )
+                            }
+
                         </Stack>
                     </FormikProvider>
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
                     {
-                        [1, 2, 3].map((item, index) => (
+                        analysis.map((item, index) => (
                             <Card key={index}>
                                 <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
-                                    <Typography>Anticorps anti-nucléares</Typography>
+                                    <Typography>{item.name}</Typography>
                                     <IconButton size="small">
-                                        <Icon path="setting/icdelete" />
+                                        <Icon path="setting/icdelete"/>
                                     </IconButton>
                                 </Stack>
                             </Card>
