@@ -4,6 +4,9 @@ import {AppBar} from "@mui/material";
 
 const SubHeaderStyled = styled(AppBar)(({theme}) => ({
     border: "none",
+    "& .MuiToolbar-root":{
+        display: "block"
+    },
     [theme.breakpoints.down('sm')]: {
         ".MuiToolbar-root": {
             borderTop: `1px solid ${theme.palette.grey["A300"]}`,

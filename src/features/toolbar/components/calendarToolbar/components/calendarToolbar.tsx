@@ -79,7 +79,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                         </IconButton>
                     </Tooltip>
 
-                    <Button className="Current-date" variant="text">
+                    <Button className="Current-date" variant="text-transparent">
                         <Typography variant="body2" component={"span"}>
                             {moment(currentDate.date).format(view === 'dayGridMonth' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
                         </Typography>

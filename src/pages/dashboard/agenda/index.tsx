@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, IconButton, LinearProgress, Typography, useTheme} from "@mui/material";
+import {Alert, Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -20,9 +20,9 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
     openDrawer,
-    setConfig, setCurrentDate,
+    setConfig,
     setSelectedEvent,
-    setStepperIndex, setView
+    setStepperIndex
 } from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
@@ -34,7 +34,7 @@ import {
     PatientDetail,
     setMoveDateTime
 } from "@features/dialog";
-import {AppointmentListMobile} from "@features/card";
+import {AppointmentListMobile, setTimer} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
@@ -97,9 +97,9 @@ function Agenda() {
     }]);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [moveAlert, setMoveAlert] = useState<boolean>(false);
-    const [alertCancel, setAlertCancel] = useState<boolean>(false);
-    const [alert, setAlert] = useState<boolean>(false);
+    const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [cancelDialog, setCancelDialog] = useState<boolean>(false);
+    const [moveDialog, setMoveDialog] = useState<boolean>(false);
 
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
@@ -193,15 +193,16 @@ function Agenda() {
             extendedProps: {newDate: startDate, oldDate: oldStartDate}
         };
         setEvent(defEvent);
-        setAlert(true);
+        setMoveDialog(true);
     }
 
     const onMenuActions = (action: string, event: EventDef) => {
         switch (action) {
             case "onCancel":
-                setAlertCancel(true);
+                setCancelDialog(true);
                 break;
             case "onConsultationDetail":
+                dispatch(setTimer({isActive: true, isPaused: false, event}));
                 const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                 router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
@@ -216,7 +217,7 @@ function Agenda() {
                     time: moment(event?.extendedProps.time).format("HH:mm"),
                     selected: false
                 }));
-                setMoveAlert(true);
+                setMoveDialogInfo(true);
                 break;
         }
     }
@@ -239,8 +240,8 @@ function Agenda() {
             }
         } as EventDef;
         setEvent(defEvent);
-        setMoveAlert(false);
-        setAlert(true);
+        setMoveDialogInfo(false);
+        setMoveDialog(true);
     }
 
     const handleMoveAppointment = (event: EventDef) => {
@@ -260,7 +261,7 @@ function Agenda() {
             }
         }, {revalidate: false, populateCache: false}).then(() => {
             refreshData();
-            setAlert(false);
+            setMoveDialog(false);
         });
     }
 
@@ -281,7 +282,7 @@ function Agenda() {
             };
             dispatch(setSelectedEvent(eventUpdated));
             setLoading(false);
-            setAlertCancel(false);
+            setCancelDialog(false);
             refreshData();
         })
     }
@@ -376,6 +377,7 @@ function Agenda() {
         <>
             <SubHeader>
                 <CalendarToolbar onToday={handleOnToday} date={date}/>
+                <Alert sx={{marginBottom: 2}} severity="error">vous avez déjà une consultation en cours </Alert>
             </SubHeader>
             <Box>
                 {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
@@ -453,8 +455,8 @@ function Agenda() {
                             OnConsultation={onConsultationDetail}
                             OnCancelAppointment={() => refreshData()}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
-                            SetMoveDialog={() => setMoveAlert(true)}
-                            SetCancelDialog={() => setAlertCancel(true)}
+                            SetMoveDialog={() => setMoveDialogInfo(true)}
+                            SetCancelDialog={() => setCancelDialog(true)}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
@@ -503,7 +505,7 @@ function Agenda() {
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
-                    dialogClose={() => setAlert(false)}
+                    dialogClose={() => setMoveDialog(false)}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
@@ -518,13 +520,13 @@ function Agenda() {
                                                          margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
-                    open={alert}
+                    open={moveDialog}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setAlert(false)}
+                                onClick={() => setMoveDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
@@ -545,7 +547,7 @@ function Agenda() {
                 <Dialog
                     color={theme.palette.error.main}
                     contrastText={theme.palette.error.contrastText}
-                    dialogClose={() => setAlertCancel(false)}
+                    dialogClose={() => setCancelDialog(false)}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
@@ -555,13 +557,13 @@ function Agenda() {
                                             margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
                             </Box>)
                     }}
-                    open={alertCancel}
+                    open={cancelDialog}
                     title={t("dialogs.cancel-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setAlertCancel(false)}
+                                onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.cancel-dialog.cancel")}
@@ -590,15 +592,15 @@ function Agenda() {
                     }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
-                    dialogClose={() => setMoveAlert(false)}
+                    dialogClose={() => setMoveDialogInfo(false)}
                     action={"move_appointment"}
-                    open={moveAlert}
+                    open={moveDialogInfo}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setMoveAlert(false)}
+                                onClick={() => setMoveDialogInfo(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
