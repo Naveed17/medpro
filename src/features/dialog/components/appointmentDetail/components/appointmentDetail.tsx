@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useRef, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import {
     AppBar,
@@ -81,13 +81,13 @@ const menuList = [
 
 function AppointmentDetail({...props}) {
     const {
-        onConsultation,
-        onEditDetails,
-        onChangeIntro,
-        onEditintro,
-        onWaiting,
-        setMoveDialog,
-        setCancelDialog,
+        OnConsultation,
+        OnEditDetail,
+        OnChangeIntro,
+        OnEditintro,
+        OnWaiting,
+        SetMoveDialog,
+        SetCancelDialog,
     } = props;
 
     const dispatch = useAppDispatch();
@@ -169,7 +169,7 @@ function AppointmentDetail({...props}) {
                             variant="contained"
                             color="warning"
                             startIcon={<PlayCircleIcon/>}
-                            onClick={onConsultation}
+                            onClick={() => OnConsultation(data)}
                         >
                             {t('event.start')}
                         </Button>
@@ -204,13 +204,15 @@ function AppointmentDetail({...props}) {
                         <CardContent>
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
-                                    <Avatar sx={{width: 24, height: 24}}/>
+                                    <Avatar sx={{width: 24, height: 24}}
+                                            src={`/static/icons/${data?.extendedProps.patient.gender !== "O" ?
+                                                "men" : "women"}-avatar.svg`}/>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
                                         {data?.title}
                                     </Typography>
                                 </Stack>
                                 <IconButton size="small"
-                                            onClick={onEditDetails}
+                                            onClick={OnEditDetail}
                                 >
                                     <IconUrl path='Ic-duotone'/>
                                 </IconButton>
@@ -220,7 +222,8 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data?.extendedProps.patient.birthdate} ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        {data?.extendedProps.patient.birthdate}
+                                        ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
                                 {data?.extendedProps.patient.email && <ListItem>
@@ -258,11 +261,11 @@ function AppointmentDetail({...props}) {
                                 rows={4}
                                 value={value}
                                 fullWidth
-                                onChange={(e) => onChangeIntro(() => setValue(e.target.value))}
+                                onChange={(e) => OnChangeIntro(() => setValue(e.target.value))}
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">
                                         <IconButton size="small"
-                                                    onClick={onEditintro}
+                                                    onClick={OnEditintro}
                                         >
                                             <IconUrl path='Ic-duotone'/>
                                         </IconButton>
@@ -275,7 +278,10 @@ function AppointmentDetail({...props}) {
                 </Box>
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={onWaiting} fullWidth variant='contained' startIcon={<Icon path='ic-salle'/>}>
+                        <Button onClick={OnWaiting}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
                         <Button
@@ -286,13 +292,13 @@ function AppointmentDetail({...props}) {
                                     time: moment(data?.extendedProps.time).format("HH:mm"),
                                     selected: false
                                 }));
-                                setMoveDialog(true)
+                                SetMoveDialog(true)
                             }}
                             fullWidth variant='contained'
                             startIcon={<IconUrl path='iconfinder'/>}>
                             {t('event.move')}
                         </Button>
-                        <Button onClick={() => setCancelDialog(true)}
+                        <Button onClick={() => SetCancelDialog(true)}
                                 disabled={data?.extendedProps.status.key === "CANCELED"}
                                 fullWidth
                                 variant='contained-white'

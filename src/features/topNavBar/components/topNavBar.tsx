@@ -80,7 +80,7 @@ function TopNavBar({ ...props }) {
                                 <Icon path="ic-toggle" />
                             </IconButton>
                         </Hidden>
-                        <Hidden smUp>
+  {/*                      <Hidden smUp>
                             <Link href="/" className="nav-logo">
                                 <Box
                                     component="img"
@@ -91,7 +91,7 @@ function TopNavBar({ ...props }) {
                                     mr={1}
                                 />
                             </Link>
-                        </Hidden>
+                        </Hidden>*/}
                         <Hidden mdDown>
                             <IconButton color="primary" edge="start" className="btn">
                                 <Icon path="ic-scan" />

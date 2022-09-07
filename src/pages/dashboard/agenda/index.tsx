@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useCallback, useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {Box, Button, Container, Drawer, IconButton, LinearProgress, Typography, useTheme} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -17,7 +17,13 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {
+    agendaSelector,
+    openDrawer,
+    setConfig, setCurrentDate,
+    setSelectedEvent,
+    setStepperIndex, setView
+} from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
 import {CustomStepper} from "@features/customStepper";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -26,7 +32,6 @@ import {
     Dialog,
     dialogMoveSelector,
     PatientDetail,
-    MoveAppointmentDialog,
     setMoveDateTime
 } from "@features/dialog";
 import {AppointmentListMobile} from "@features/card";
@@ -96,7 +101,7 @@ function Agenda() {
     const [alertCancel, setAlertCancel] = useState<boolean>(false);
     const [alert, setAlert] = useState<boolean>(false);
 
-    const [date, setDate] = useState(currentDate);
+    const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
 
@@ -197,7 +202,7 @@ function Agenda() {
                 setAlertCancel(true);
                 break;
             case "onConsultationDetail":
-                const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                 router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
@@ -205,6 +210,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
                     time: moment(event?.extendedProps.time).format("HH:mm"),
@@ -213,6 +219,11 @@ function Agenda() {
                 setMoveAlert(true);
                 break;
         }
+    }
+
+    const onConsultationDetail = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
     const onMoveAppointment = () => {
@@ -275,11 +286,6 @@ function Agenda() {
         })
     }
 
-    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        dispatch(setMoveDateTime(type === 'date' ?
-            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
-    };
-
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
         dispatch(openDrawer({type: "add", open: true}));
@@ -300,6 +306,15 @@ function Agenda() {
                     stepper.disabled = true;
                 }
             })
+        }
+    }
+
+    const cleanDrawData = () => {
+        dispatch(openDrawer({type: "patient", open: false}));
+        if (!openViewDrawer) {
+            setTimeout(() => {
+                setEvent(undefined);
+            }, 300);
         }
     }
 
@@ -326,6 +341,7 @@ function Agenda() {
             description: "",
             id: appointment.uuid,
             meeting: false,
+            new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
             addRoom: true,
             status: AppointmentTypes[appointment.status]
         });
@@ -407,9 +423,11 @@ function Agenda() {
 
                             {row.events.map((event) => (
                                 <AppointmentListMobile
+                                    OnMenuActions={onMenuActions}
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
                                     event={event}/>
+
                             ))}
                         </Container>
                     ))}
@@ -432,10 +450,12 @@ function Agenda() {
                 >
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
-                            onCancelAppointment={() => refreshData()}
-                            setMoveDialog={() => setMoveAlert(true)}
-                            setCancelDialog={() => setAlertCancel(true)}
-                            onMoveAppointment={onMoveAppointment}
+                            OnConsultation={onConsultationDetail}
+                            OnCancelAppointment={() => refreshData()}
+                            OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
+                            SetMoveDialog={() => setMoveAlert(true)}
+                            SetCancelDialog={() => setAlertCancel(true)}
+                            OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
                 </Drawer>
@@ -467,22 +487,12 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "patient", open: false}));
-                        setTimeout(() => {
-                            setEvent(undefined);
-                        }, 300);
-                    }}
+                    onClose={cleanDrawData}
                 >
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
-                                onCloseDialog={() => {
-                                    dispatch(openDrawer({type: "patient", open: false}));
-                                    setTimeout(() => {
-                                        setEvent(undefined);
-                                    }, 300);
-                                }}
+                                onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 ConsultationId={event?.publicId}
@@ -571,15 +581,17 @@ function Agenda() {
 
                 <Dialog
                     size={"sm"}
+                    sx={{
+                        [theme.breakpoints.down('sm')]: {
+                            "& .MuiDialogContent-root": {
+                                padding: 1
+                            }
+                        }
+                    }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveAlert(false)}
-                    action={() =>
-                        <MoveAppointmentDialog
-                            OnDateChange={handleMoveDataChange}
-                            t={t}
-                            data={selectedEvent}
-                        />}
+                    action={"move_appointment"}
                     open={moveAlert}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={

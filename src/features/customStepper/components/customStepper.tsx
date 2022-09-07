@@ -11,18 +11,20 @@ function a11yProps(index: number) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
+function CustomStepper({...props}) {
+    const {
+        stepperData,
+        currentIndex = 0,
+        minWidth,
+        scroll,
+        t,
+        OnTabsChange = null,
+        OnSubmitStepper = null,
+        onBackButton = null,
+    } = props;
 
-function CustomStepper({ ...props }) {
-  const {
-    stepperData,
-    currentIndex = 0,
-    minWidth,
-    scroll,
-    t,
-    OnTabsChange = null,
-    OnSubmitStepper = null,
-    onBackButton = null,
-  } = props;
+    const [value, setValue] = useState<number>(currentIndex);
+    const [last, setLast] = useState<number>(1);
 
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
@@ -50,72 +52,77 @@ function CustomStepper({ ...props }) {
     [OnSubmitStepper, last, stepperData.length]
   );
 
-  const handleChange = (event: SyntheticEvent, val: number) => {
-    setValue(val);
-  };
-
-  return (
-    <>
-      <RootStyled
-        className={scroll ? "scroll" : ""}
-        sx={{
-          minWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
-          maxWidth: { md: minWidth ? minWidth : "100%", xs: "100%" },
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={OnTabsChange ? tabChange : handleChange}
-          variant="scrollable"
-          scrollButtons={false}
-          aria-label="scrollable auto tabs"
-          className="stepper-tabs"
-        >
-          {stepperData.map(
-            (
-              v: {
-                title: string;
-                children: ReactNode;
-                disabled: boolean;
-              },
-              i: number
-            ) => (
-              <Tab
-                key={Math.random()}
-                disabled={v.disabled}
-                label={
-                  <Box
-                    sx={{
-                      textTransform: "initial",
-                      fontWeight: 400,
-                      fontSize: { md: 14, xs: 10 },
-                    }}
-                  >
-                    <b>{i + 1}.</b> {t(`${v.title}`)}
-                  </Box>
-                }
-                className={value > i ? "submitted" : value < i ? "pending" : ""}
-                {...a11yProps(i)}
-              />
-            )
-          )}
-        </Tabs>
-        {stepperData.map(
-          (
-            v: {
-              title: string;
-              children: ReactNode;
-            },
-            i: number
-          ) => {
-            const Component: any = v.children;
-            return (
-              <TabPanel key={Math.random()} value={Number(value)} index={i}>
-                <Component
-                  onNext={(index: number) => submitStepper(index)}
-                  onBack={() => {
-                    if (currentIndex > 0) {
-                      setValue(currentIndex - 1);
+    return (
+        <>
+            <RootStyled
+                className={scroll ? "scroll" : ""}
+                sx={{
+                    minWidth: {md: minWidth ? minWidth : "100%", xs: "100%"},
+                    maxWidth: {md: minWidth ? minWidth : "100%", xs: "100%"},
+                }}
+            >
+                <Tabs
+                    value={value}
+                    onChange={OnTabsChange ? tabChange : handleChange}
+                    variant="scrollable"
+                    scrollButtons={false}
+                    aria-label="scrollable auto tabs"
+                    className="stepper-tabs"
+                >
+                    {stepperData.map(
+                        (
+                            v: {
+                                title: string;
+                                children: ReactNode;
+                                disabled: boolean;
+                            },
+                            i: number
+                        ) => (
+                            <Tab
+                                key={Math.random()}
+                                disabled={v.disabled}
+                                label={
+                                    <Box
+                                        sx={{
+                                            textTransform: "initial",
+                                            fontWeight: 400,
+                                            fontSize: {md: 14, xs: 10},
+                                        }}
+                                    >
+                                        <b>{i + 1}.</b> {t(`${v.title}`)}
+                                    </Box>
+                                }
+                                className={value > i ? "submitted" : value < i ? "pending" : ""}
+                                {...a11yProps(i)}
+                            />
+                        )
+                    )}
+                </Tabs>
+                {stepperData.map(
+                    (
+                        v: {
+                            title: string;
+                            children: ReactNode;
+                        },
+                        i: number
+                    ) => {
+                        const Component: any = v.children;
+                        return (
+                            <TabPanel key={Math.random()} value={Number(value)} index={i}>
+                                <Component
+                                    onNext={(index: number) => submitStepper(index)}
+                                    onBack={() => {
+                                        if (currentIndex > 0) {
+                                            setValue(currentIndex - 1);
+                                        }
+                                        if (onBackButton) {
+                                            onBackButton(currentIndex);
+                                        }
+                                    }}
+                                    {...props}
+                                />
+                            </TabPanel>
+                        );
                     }
                     onBackButton(currentIndex);
                   }}

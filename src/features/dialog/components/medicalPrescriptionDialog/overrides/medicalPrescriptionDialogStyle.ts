@@ -6,9 +6,6 @@ const MedicalPrescriptionDialogStyled = styled(Stack)(({ theme }) => ({
     '.btn-add': {
         alignSelf: 'flex-start',
     },
-    '.MuiOutlinedInput-root':{
-        padding: '0 9px'
-    },
     '.MuiGrid-item': {
         position: 'relative',
         '.MuiDivider-root': {
