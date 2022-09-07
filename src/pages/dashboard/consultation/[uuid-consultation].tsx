@@ -262,7 +262,7 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar selected={(v: number) => setValue(v)} />
+                <ConsultationIPToolbar appuuid={uuind} mutate={mutate} selected={(v: number) => setValue(v)} />
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -597,7 +597,6 @@ function ConsultationInProgress() {
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
-    console.log(context)
     return ({
         props: {
             fallback: false,
@@ -610,7 +609,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
     })
 };
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
-
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: true //indicates the type of fallback

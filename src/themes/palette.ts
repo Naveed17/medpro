@@ -52,8 +52,8 @@ const ERROR = {
 const BACK = {
   lighter: "#F0F7FA",
   light: "#F0F7FA",
-  main: "#F0F7FA",
-  dark: "#F0F7FA",
+  main: "#EEF2F6",
+  dark: "#666D81",
   darker: "#F0F7FA",
 };
 

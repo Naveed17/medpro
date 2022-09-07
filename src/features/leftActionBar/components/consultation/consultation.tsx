@@ -41,7 +41,7 @@ function Consultation() {
                 <Box className="about">
                     <Avatar
                         sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
-                        src={patient?.gender === 'w' ? "/static/icons/women-avatar.svg" : "/static/icons/men-avatar.svg"}/>
+                        src={patient?.gender === "O" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg"}/>
                     <Box>
                         <Typography variant="body1" color='primary.main'
                                     sx={{fontFamily: 'Poppins'}}>{patient?.firstName + ' ' + patient?.lastName}</Typography>
@@ -96,7 +96,7 @@ function Consultation() {
                                         {upperFirst(t(col.title))}
                                         {
                                             col.id === 2 &&
-                                            <Typography fontWeight={500} ml={1} component="span">12/12/12</Typography>
+                                            <Typography fontWeight={500} ml={1} component="span"></Typography>
                                         }
                                     </Typography>
                                     <IconButton size="small" sx={{ml: 'auto'}}>

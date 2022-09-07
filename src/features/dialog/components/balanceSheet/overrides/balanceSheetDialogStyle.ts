@@ -12,6 +12,32 @@ const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
             marginBottom: theme.spacing(1),
         },
     },
+    ".items-list": {
+        background: theme.palette.back.main,
+        borderRadius: 4,
+        maxHeight: 200,
+        overflowY: 'scroll',
+        ".MuiListItemButton-root": {
+            paddingTop: theme.spacing(.5),
+            paddingBottom: theme.spacing(.5)
+        }
+    },
+    '.loading-card': {
+        border: 'none',
+        background: theme.palette.back.main,
+        p: {
+            paddingTop: theme.spacing(4),
+            paddingBottom: theme.spacing(2),
+            color: theme.palette.back.dark
+        }
+    },
+    ".list-container": {
+        maxHeight: 300,
+        paddingTop: 8,
+        paddingBottom: 8,
+        overflowY: 'scroll'
+    },
+
     "@media (max-width: 1024px)": {
         minWidth: 0,
     },

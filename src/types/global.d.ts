@@ -1,6 +1,5 @@
 import { CustomShadowType } from "@themes/shadows";
 import React from "react";
-
 declare global {
   type LayoutProps = {
     children: React.ReactNode;
@@ -48,6 +47,7 @@ declare module "@mui/material" {
   interface PaletteColor {
     lighter: string;
     light: string;
+    main: string
   }
   interface ThemeOptions {
     customShadows?: CustomShadowType;

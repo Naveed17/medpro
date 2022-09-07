@@ -48,7 +48,6 @@ function BasicPopover({ ...props }) {
                                 )}
                             </div>
                         }
-                        placement="right-start"
                         arrow
                     >
                         {button}

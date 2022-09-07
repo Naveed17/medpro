@@ -16,12 +16,12 @@ function CalendarPickers({...props}) {
     const {currentDate: initData} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
 
-    const [date, setDate] = useState(initData);
+    const [date, setDate] = useState(initData.date);
     const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
 
     const handleDateChange = (date: Date) => {
         setDate(date);
-        dispatch(setCurrentDate(date));
+        dispatch(setCurrentDate({date, fallback: true}));
     }
     const onYearChange = (year: any) => {
         setDefaultView("day");

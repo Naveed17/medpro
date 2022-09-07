@@ -141,7 +141,13 @@
     "you": "vous",
     "documents": "Documents",
     "in_progress": "En cours",
-    "orderly": "Ordonnace"
+    "orderly": "Ordonnace",
+    "list_empty": "La liste est vide",
+    "antibody_assessment": "Bilan Anticorps",
+    "blood_glucose": "Glycémie",
+    "AMH": "AMH",
+    "balance_sheet_model": "Modèle bilan",
+    "save_template": "Enregistrer modèle"
   },
   "table": {
     "acts": "Actes",
