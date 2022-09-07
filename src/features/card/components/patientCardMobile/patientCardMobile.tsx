@@ -13,7 +13,7 @@ const menuList = [
   {
     title: "Patient Details",
     icon: <CheckRoundedIcon />,
-    action: "onOpenDetails",
+    action: "onOpenPatientDrawer",
   },
   {
     title: "Edit Patient",
