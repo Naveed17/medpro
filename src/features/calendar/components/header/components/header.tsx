@@ -11,31 +11,31 @@ function Header({...props}) {
             <Box
                 className="header-day-main-box"
                 sx={{
-                    display: view === "listWeek" ? "grid" : "flex",
-                    justifyContent: view === "listWeek" ? "start" : "space-between",
+                    display: view === "timeGridDay" ? "flex" : "inline-flex",
+                    justifyContent: view === "timeGridDay" ? "flex-start" : "space-between",
                     px: view === "listWeek" ? 0 : 1,
                     width: view === "timeGridDay" ? 200 : "auto",
                 }}
             >
-                <Typography variant="subtitle1" color="text.primary" fontSize={18}>
-                    {(isGridWeek || view === "timeGridDay") &&
-                        moment(event.date).format("DD")}
-                </Typography>
+                {(isGridWeek || view === "timeGridDay") &&
+                    <Typography variant="subtitle1" color="text.primary" fontSize={18} mr={2}>
+                        {moment(event.date).format("DD")}
+                    </Typography>}
 
                 <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                     <div>
                         {moment(event.date).format(
                             isGridWeek || view === "timeGridDay" ? "MMM/dddd" : "dddd"
-                        ).replace('.','')}
+                        ).replace('.', '')}
                     </div>
                 </Typography>
-                {view !== "listWeek" && (
+                {/*                {view !== "listWeek" && (
                     <IconButton
                         sx={{width: {xl: 24, lg: 20}, height: {xl: 24, lg: 20}}}
                     >
                         <MoreVertIcon sx={{fontSize: {xl: 16, lg: 18}}}/>
                     </IconButton>
-                )}
+                )}*/}
             </Box>
         </div>
     )

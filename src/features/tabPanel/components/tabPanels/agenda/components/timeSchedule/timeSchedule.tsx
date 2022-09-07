@@ -12,7 +12,7 @@ import {StaticDatePicker} from "@features/staticDatePicker";
 import {TimeSlot} from "@features/timeSlot";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, setStepperIndex} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
@@ -22,19 +22,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
 import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-
-const getDayOfWeek = (day: string) => {
-    const days: { [key: string]: number } = {
-        FRI: 5,
-        MON: 1,
-        SAT: 6,
-        SUN: 7,
-        THU: 3,
-        TUE: 2,
-        WED: 4
-    }
-    return days[day];
-}
 
 function TimeSchedule({...props}) {
     const dispatch = useAppDispatch();
@@ -122,7 +109,7 @@ function TimeSchedule({...props}) {
     let disabledDay: number[] = [];
     openingHours && Object.entries(openingHours).filter((openingHours: any) => {
         if (!(openingHours[1].length > 0)) {
-            disabledDay.push(getDayOfWeek(openingHours[0]));
+            disabledDay.push(DayOfWeek(openingHours[0]));
         }
     })
 

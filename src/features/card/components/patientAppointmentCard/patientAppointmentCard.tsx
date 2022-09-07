@@ -14,11 +14,12 @@ function PatientAppointmentCard({...props}) {
             {...{styleprops: listing?.toString()}}
         >
             <ListItemIcon key={item.uuid}>
-                <Avatar key={item.uuid} {...(item.img !== null ? {src: item.img, alt: item.name, sx: {bgcolor: 'transparent'}} : {})} />
+                <Avatar key={item.uuid}
+                        src={`/static/icons/${item.gender !== "O" ? "men" : "women"}-avatar.svg`}
+                        alt={item.name}/>
             </ListItemIcon>
             <Box>
                 <Stack spacing={.5} direction="row" alignItems='center'>
-                    <IconUrl path={item.gender !== "O" ? "ic-h" : "ic-f"}/>
                     <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
                         {item.firstName} {item.lastName}
                     </Typography>
