@@ -34,7 +34,7 @@ function AddPatientStep1({ ...props }) {
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const [selected, setslected] = React.useState<any>(null);
-
+  console.log(selectedPatient, "selected");
   const { t, ready } = useTranslation(translationKey, {
     keyPrefix: translationPrefix,
   });
@@ -72,9 +72,9 @@ function AddPatientStep1({ ...props }) {
         : stepsData.step1.last_name,
       birthdate: Boolean(selectedPatient)
         ? {
-            day: selectedPatient.birthdate.slice(0, 2),
-            month: selectedPatient.birthdate.slice(3, 5),
-            year: selectedPatient.birthdate.slice(6, 10),
+            day: selectedPatient.birthdate.split("-")[0] as string,
+            month: selectedPatient.birthdate.split("-")[1] as string,
+            year: selectedPatient.birthdate.split("-")[2] as string,
           }
         : stepsData.step1.birthdate,
       phone: stepsData.step1.phone,
@@ -257,7 +257,7 @@ function AddPatientStep1({ ...props }) {
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.birthdate?.day && errors.birthdate?.day}
+                    {touched.birthdate.day && errors.birthdate.day}
                   </FormHelperText>
                 )}
               </FormControl>

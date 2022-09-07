@@ -78,7 +78,7 @@ function PatientDetail({ ...props }) {
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
   // mutate for patient details
-  const { data: httpPatientDetailsResponse } = useRequest({
+  const { data: httpPatientDetailsResponse, mutate } = useRequest({
     method: "GET",
     url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
     headers: {
@@ -150,7 +150,11 @@ function PatientDetail({ ...props }) {
             </Tabs>
             <Divider />
             <TabPanel padding={1} value={index} index={0}>
-              <PersonalInfoPanel loading={!patient} patient={patient} />
+              <PersonalInfoPanel
+                loading={!patient}
+                patient={patient}
+                mutate={mutate}
+              />
             </TabPanel>
             <TabPanel padding={1} value={index} index={1}>
               <GroupTable

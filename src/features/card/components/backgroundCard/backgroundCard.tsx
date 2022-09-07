@@ -11,21 +11,13 @@ import {
   DialogActions,
 } from "@mui/material";
 // ____________________________________
-import { Dialog, PatientDetailsDialog } from "@features/dialog";
+import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import RootStyled from "./overrides/rootStyled";
-import Content from "src/features/leftActionBar/components/consultation/content";
 // utils
 import Icon from "@themes/urlIcon";
-// import { Dialog } from "@features/dialog";
-// import CloseIcon from "@mui/icons-material/Close";
-// import React, { useState } from "react";
-// import Add from "@mui/icons-material/Add";
-// import { data2 } from "./config";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { useAppDispatch } from "@app/redux/hooks";
 import { openDrawer } from "@features/calendar";
-import { pxToRem } from "@themes/formatFontSize";
-import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
 import { useRequestMutation } from "@app/axios";
 import { useRouter } from "next/router";
 import { Session } from "next-auth";
@@ -50,10 +42,8 @@ const emptyObject = {
 };
 
 function BackgroundCard({ ...props }) {
-  const { loading, patient } = props;
-  const [open, setopen] = useState(false);
+  const { loading, patient, mutate } = props;
   const [data, setdata] = useState([...cardItems]);
-  const [selected, setselected] = useState({});
   const dispatch = useAppDispatch();
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [info, setInfo] = useState<string>("");
@@ -61,8 +51,7 @@ function BackgroundCard({ ...props }) {
   const [state, setState] = useState<
     AntecedentsModel[] | FamilyAntecedentsModel[]
   >([]);
-  const { mutate } = useAppSelector(consultationSelector);
-  console.log(mutate, "mutate");
+
   const { trigger } = useRequestMutation(null, "/antecedent");
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -103,7 +92,7 @@ function BackgroundCard({ ...props }) {
       { revalidate: true, populateCache: true }
     ).then((r) => console.log("edit qualification", r));
 
-    // mutate();
+    mutate();
     setOpenDialog(false);
     setInfo("");
   };
@@ -160,7 +149,7 @@ function BackgroundCard({ ...props }) {
                   className="item"
                   component="span"
                 >
-                  <Icon path={antecedent.icon} />
+                  {/* <Icon path={antecedent.icon} /> */}
                   {loading ? (
                     <Skeleton
                       variant="text"

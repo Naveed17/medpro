@@ -39,7 +39,6 @@ const Content = ({ ...props }) => {
     AntecedentsModel[] | FamilyAntecedentsModel[]
   >([]);
   const { mutate } = useAppSelector(consultationSelector);
-  console.log(mutate, "mutate");
   const { trigger } = useRequestMutation(null, "/antecedent");
   const router = useRouter();
   const { data: session, status } = useSession();
