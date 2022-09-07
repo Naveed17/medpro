@@ -1,14 +1,14 @@
 import React from "react";
-import { Stack, Typography, List, ListItem, ListItemIcon, IconButton} from "@mui/material";
+import {Stack, Typography, List, ListItem, ListItemIcon, IconButton} from "@mui/material";
 import CircleIcon from '@mui/icons-material/Circle';
 import DrugListCardStyled from "./overrides/drugListCardStyle";
 import Icon from '@themes/urlIcon'
 
 function DrugListCard({...props}) {
-    const {data, t, list, remove, edit} = props;
+    const {data, t, list, remove, edit, disabled} = props;
     return (
         <DrugListCardStyled sx={{mb: list && "8px !important"}}>
-            <Stack direction='row' alignItems="center">
+            <Stack direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
                 <Stack spacing={1}>
                     <Typography variant="body2" textTransform="uppercase">{data.name}</Typography>
                     <List
@@ -33,12 +33,12 @@ function DrugListCard({...props}) {
                 </Stack>
                 {!list &&
                     <Stack direction='row' spacing={1} alignItems="center" ml="auto">
-                        <IconButton size="small" onClick={() => {
+                        <IconButton disabled={disabled} size="small" onClick={() => {
                             edit(data)
                         }}>
                             <Icon path="ic-duotone"/>
                         </IconButton>
-                        <IconButton size="small" onClick={() => {
+                        <IconButton disabled={disabled} size="small" onClick={() => {
                             remove(data)
                         }}>
                             <Icon path="setting/icdelete"/>

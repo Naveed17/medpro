@@ -8,18 +8,23 @@ import {
     FormControlLabel,
     Radio,
     Button,
-    Divider, Autocomplete
+    Divider, Autocomplete, DialogActions
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
 import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
+import {Session} from "next-auth";
+import CloseIcon from "@mui/icons-material/Close";
+import Icon from "@themes/urlIcon";
+import {Dialog} from "@features/dialog";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -28,6 +33,12 @@ function MedicalPrescriptionDialog({...props}) {
     const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(data.state);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
+    const [update, setUpdate] = useState<number>(-1);
+    const [model, setModel] = useState<string>('');
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
 
     const validationSchema = Yup.object().shape({
         dosage: Yup.string().required(),
@@ -35,8 +46,33 @@ function MedicalPrescriptionDialog({...props}) {
         durationType: Yup.string().required()
     });
 
-    const {trigger} = useRequestMutation(null, "/drugs");
+    const handleSaveDialog = () => {
 
+        const form = new FormData();
+
+        form.append('globalNote', "");
+        form.append('name', model);
+        form.append('drugs', JSON.stringify(drugs));
+        trigger({
+            method: "POST",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then((cnx) => {
+            setDrugsList((cnx?.data as HttpResponse)?.data)
+        })
+        setOpenDialog(false);
+    }
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    }
+
+
+    const {trigger} = useRequestMutation(null, "/drugs");
 
     const formik = useFormik({
         initialValues: {
@@ -62,10 +98,17 @@ function MedicalPrescriptionDialog({...props}) {
         },
     });
     const router = useRouter();
-    const {data: session} = useSession();
     const {data: httpDrugsResponse} = useRequest({
         method: "GET",
         url: "/api/drugs/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpModelResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -91,6 +134,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const edit = (ev: PrespectionDrugModel) => {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
+        setUpdate(selected)
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
         setFieldValue('dosage', drugs[selected].dosage)
         setFieldValue('duration', drugs[selected].duration)
@@ -118,7 +162,10 @@ function MedicalPrescriptionDialog({...props}) {
                             noValidate
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
-                                <Typography>{t('seeking_to_name_the_drug')}</Typography>
+                                <Stack spacing={1} direction={"row"}>
+                                    <Typography>{t('seeking_to_name_the_drug')}</Typography>
+                                    <Button>Modèle ordonnance</Button>
+                                </Stack>
                                 {drugsList && <Autocomplete
                                     id="cmo"
                                     value={drug}
@@ -137,7 +184,8 @@ function MedicalPrescriptionDialog({...props}) {
                                                                                     revalidate: true,
                                                                                     populateCache: true
                                                                                 }).then((cnx) => {
-                                                                                    setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                    if (cnx?.data as HttpResponse)
+                                                                                        setDrugsList((cnx?.data as HttpResponse).data)
                                                                                 })
                                                                             }
                                                                         }}
@@ -202,25 +250,50 @@ function MedicalPrescriptionDialog({...props}) {
                                     {...getFieldProps("note")}
                                 />
                             </Stack>
-                            <Button className='btn-add' size='small' type={"submit"}
-                                    startIcon={
-                                        <AddIcon/>
-                                    }
-                            >
+                            {
+                                update > -1 ? <Button className='btn-add' size='small'
+                                                      onClick={() => {
+                                                          if (drug) {
+                                                              values.drugUuid = drug.uuid
+                                                              values.name = drug.commercial_name
 
-                                {t('add_a_drug')}
-                            </Button>
+                                                              drugs[update] = values
+                                                              setDrugs([...drugs])
+                                                              data.setState([...drugs])
+                                                              setDrug(null)
+                                                              resetForm()
+                                                              setUpdate(-1)
+                                                          }
+                                                      }
+                                                      }
+                                                      startIcon={<EditIcon/>}>
+                                        {t('updateDrug')}
+                                    </Button> :
+                                    <Button className='btn-add' size='small' type={"submit"} startIcon={<AddIcon/>}>
+                                        {t('add_a_drug')}
+                                    </Button>
+                            }
                         </Stack>
                     </FormikProvider>
                     <Divider orientation="vertical"/>
                 </Grid>
                 <Grid item xs={12} md={5}>
-                    <Typography gutterBottom>{t('drug_list')}</Typography>
+                    <Stack direction={'row'}>
+                        <Typography gutterBottom>{t('drug_list')}</Typography>
+                        {drugs.length > 0 && <Button className='btn-add' size='small' onClick={() => {
+                            setOpenDialog(true)
+                        }}
+                                                     startIcon={<AddIcon/>}>
+                            {t('createAsModel')}
+                        </Button>}
+                    </Stack>
+
                     {
                         drugs.map((item, index) => (
                             <React.Fragment key={index}>
                                 <DrugListCard data={item}
                                               remove={remove}
+                                              disabled={update > -1}
                                               edit={edit}
                                               t={t}/>
                             </React.Fragment>
@@ -229,6 +302,32 @@ function MedicalPrescriptionDialog({...props}) {
 
                 </Grid>
             </Grid>
+
+            <Dialog action={'modelName'}
+                    open={openDialog}
+                    data={{model, setModel}}
+                    change={false}
+                    max
+                    size={"sm"}
+                    direction={'ltr'}
+                    actions={true}
+                    title={t('modelName')}
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                    startIcon={<CloseIcon/>}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                    onClick={handleSaveDialog}
+                                    startIcon={<Icon
+                                        path='ic-dowlaodfile'/>}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+                    }/>
+
         </MedicalPrescriptionDialogStyled>
     )
 }
