@@ -125,7 +125,11 @@
     "father": "Père",
     "mother": "Mère",
     "name_of_the_allergy": "Nom de l’allergie",
-    "current_treatment": "Tapez le nom du traitement en cours"
+    "current_treatment": "Tapez le nom du traitement en cours",
+    "modelName": "Personaliser les modèles de l'ordonnance médicale",
+    "namedModel": "Veuiller nommé le modèle",
+    "createAsModel": "Enregistrer Modèle",
+    "updateDrug": "Modifier un médicament"
   },
   "table": {
     "acts": "Actes",
