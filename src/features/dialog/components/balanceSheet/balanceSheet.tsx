@@ -17,7 +17,9 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
 
-function MedicalPrescriptionDialog() {
+function MedicalPrescriptionDialog({...props}) {
+    console.log(props)
+    const {data} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
@@ -25,7 +27,7 @@ function MedicalPrescriptionDialog() {
         },
         onSubmit: async (values) => {
             if (name.length > 0)
-                addAnalysis({uuid:'',name})
+                addAnalysis({uuid: '', name})
         },
     });
 
@@ -37,13 +39,15 @@ function MedicalPrescriptionDialog() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
-    const [analysis, setAnalysis] = useState<AnalysisModel[]>([]);
+    const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
     const addAnalysis = (value: AnalysisModel) => {
+        setName('')
         analysis.push(value)
         setAnalysis([...analysis])
+        data.setState([...analysis])
     }
 
     const handleChange = (ev: any) => {
