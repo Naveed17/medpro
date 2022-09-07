@@ -20,7 +20,8 @@ const CipCardStyled = styled(Card)(({theme}) => ({
         width: " 100px",
         whiteSpace: "nowrap",
         overflow: "hidden",
-        textOverflow: "ellipsis"
+        textOverflow: "ellipsis",
+        marginLeft: "4px"
     }
 }));
 export default CipCardStyled

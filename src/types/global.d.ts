@@ -7,6 +7,7 @@ declare global {
         fallback?: any;
         pageProps?: any;
         session?: any;
+        sx?: any;
     };
 }
 

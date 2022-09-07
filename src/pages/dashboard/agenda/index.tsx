@@ -25,7 +25,7 @@ import {
     setStepperIndex
 } from "@features/calendar";
 import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
-import {CustomStepper} from "@features/customStepper";
+const CustomStepper = dynamic(() => import('@features/customStepper/components/customStepper'));
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {
     AppointmentDetail,
@@ -34,7 +34,7 @@ import {
     PatientDetail,
     setMoveDateTime
 } from "@features/dialog";
-import {AppointmentListMobile, setTimer} from "@features/card";
+import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
@@ -86,6 +86,7 @@ function Agenda() {
         time: moveDialogTime,
         selected: moveDateChanged
     } = useAppSelector(dialogMoveSelector);
+    const {isActive} = useAppSelector(timerSelector);
 
     const [
         timeRange,
@@ -100,6 +101,7 @@ function Agenda() {
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
@@ -202,9 +204,13 @@ function Agenda() {
                 setCancelDialog(true);
                 break;
             case "onConsultationDetail":
-                dispatch(setTimer({isActive: true, isPaused: false, event}));
-                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                if (!isActive) {
+                    dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                } else {
+                    setError(true);
+                }
                 break;
             case "onPatientDetail":
                 setEvent(event);
@@ -223,8 +229,17 @@ function Agenda() {
     }
 
     const onConsultationDetail = (event: EventDef) => {
-        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale});
+        if (!isActive) {
+            dispatch(setTimer({isActive: true, isPaused: false, event}));
+            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+            router.push(slugConsultation, slugConsultation, {locale: router.locale});
+        } else {
+            dispatch(openDrawer({type: "view", open: false}));
+            setError(true);
+            setInterval(() => {
+                setError(false);
+            }, 8000);
+        }
     }
 
     const onMoveAppointment = () => {
@@ -375,9 +390,26 @@ function Agenda() {
 
     return (
         <>
-            <SubHeader>
+            <SubHeader
+                {...{
+                    sx: {
+                        "& .MuiToolbar-root": {
+                            "display": "block"
+                        }
+                    }
+                }}>
                 <CalendarToolbar onToday={handleOnToday} date={date}/>
-                <Alert sx={{marginBottom: 2}} severity="error">vous avez déjà une consultation en cours </Alert>
+                {error &&
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: 1}}
+                        >
+                            <Alert sx={{marginBottom: 2}}
+                                   severity="error">{t("in-consultation-error")}</Alert>
+                        </motion.div>
+                    </AnimatePresence>}
             </SubHeader>
             <Box>
                 {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&

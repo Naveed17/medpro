@@ -107,7 +107,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
             </Box>
 
             <Hidden smUp>
-                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"}>
+                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"}  sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
                         data={[
                             {icon: <TodayIcon/>, label: "Day"},
