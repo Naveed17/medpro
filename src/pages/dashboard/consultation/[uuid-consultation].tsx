@@ -26,7 +26,7 @@ import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
-import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData } from "@features/card";
+import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -468,6 +468,18 @@ function ConsultationInProgress() {
                                     <Typography fontWeight={600} variant="h6">
                                         -- TND
                                     </Typography>
+                                    <Stack direction='row' alignItems="center" spacing={2}>
+                                        <span>|</span>
+                                        <Button
+                                            variant='text-black'
+                                            startIcon={
+                                                <IconUrl path='ic-imprime' />
+                                            }>
+
+                                            {t("consultationIP.print")}
+                                        </Button>
+                                    </Stack>
+
                                 </Stack>
 
                             </SubFooter>
@@ -478,7 +490,7 @@ function ConsultationInProgress() {
                             <Box display='grid' sx={{
                                 gridGap: 16,
                                 gridTemplateColumns: {
-                                    xs: "repeat(1,minmax(0,1fr))",
+                                    xs: "repeat(2,minmax(0,1fr))",
                                     md: "repeat(4,minmax(0,1fr))",
                                     lg: "repeat(5,minmax(0,1fr))",
                                 }
@@ -493,6 +505,7 @@ function ConsultationInProgress() {
 
 
                             </Box>
+                            <PendingDocumentCard />
                         </TabPanel>
                     }
                     {

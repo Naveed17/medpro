@@ -47,6 +47,8 @@
   "share": "Partager",
   "download": "Télécharger",
   "print": "Imrimer",
+  "video": "video",
+  "photo": "photo",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",

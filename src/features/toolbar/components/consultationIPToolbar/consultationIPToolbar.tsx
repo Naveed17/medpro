@@ -191,7 +191,9 @@ function ConsultationIPToolbar({ selected }: any) {
                     data={dialogData}
                     size={"lg"}
                     direction={'ltr'}
-                    sx={{ p: 0 }}
+                    {...(info === "document_detail" && {
+                        sx: { p: 0 }
+                    })}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {
                     ...(info === "document_detail" && {
