@@ -16,184 +16,280 @@ import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from "@mui/icons-material/Circle";
 import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import Add from "@mui/icons-material/Add";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {openDrawer} from "@features/calendar";
-import {pxToRem} from "@themes/formatFontSize";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequestMutation} from "@app/axios";
-import {useRouter} from "next/router";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { openDrawer } from "@features/calendar";
+import { pxToRem } from "@themes/formatFontSize";
+import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
+import { useRequestMutation } from "@app/axios";
+import { useRouter } from "next/router";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 
-const Content = ({...props}) => {
-    const {id, patient} = props;
-    const {t, ready} = useTranslation('consultation', {keyPrefix: 'filter'});
-    const dispatch = useAppDispatch();
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [info, setInfo] = useState<string>('');
-    const [size, setSize] = useState<string>('sm');
-    const bigDialogs = ['add_treatment', 'balance_sheet_pending'];
-    const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const {mutate} = useAppSelector(consultationSelector);
-    const {trigger} = useRequestMutation(null, "/antecedent");
-    const router = useRouter();
-    const {data: session, status} = useSession();
-    const codes: any = {
-        way_of_life: '0',
-        allergic: '1',
-        treatment: '2',
-        antecedents: '3',
-        family_antecedents: '4',
-        surgical_antecedents: '5',
-        medical_antecedents: '6'
+const Content = ({ ...props }) => {
+  const { id, patient } = props;
+  const { t, ready } = useTranslation("consultation", { keyPrefix: "filter" });
+  const dispatch = useAppDispatch();
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [info, setInfo] = useState<string>("");
+  const [size, setSize] = useState<string>("sm");
+  const bigDialogs = ["add_treatment", "balance_sheet_pending"];
+  const [state, setState] = useState<
+    AntecedentsModel[] | FamilyAntecedentsModel[]
+  >([]);
+  const { mutate } = useAppSelector(consultationSelector);
+  const { trigger } = useRequestMutation(null, "/antecedent");
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const codes: any = {
+    way_of_life: "0",
+    allergic: "1",
+    treatment: "2",
+    antecedents: "3",
+    family_antecedents: "4",
+    surgical_antecedents: "5",
+    medical_antecedents: "6",
+  };
+  const handleClickDialog = () => {
+    setOpenDialog(true);
+  };
+  const handleCloseDialog = () => {
+    const form = new FormData();
+    if (codes[info]) {
+      form.append("antecedents", JSON.stringify(state));
+      form.append("patient_uuid", patient.uuid);
+      trigger(
+        {
+          method: "POST",
+          url:
+            "/api/medical-entity/" +
+            medical_entity.uuid +
+            "/patients/" +
+            patient.uuid +
+            "/antecedents/" +
+            codes[info] +
+            "/" +
+            router.locale,
+          data: form,
+          headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        },
+        { revalidate: true, populateCache: true }
+      ).then(() => {
+        mutate();
+      });
+    } else if (info === "add_treatment") {
+      form.append("globalNote", "");
+      form.append("isOtherProfessional", "true");
+      form.append("drugs", JSON.stringify(state));
+
+      trigger(
+        {
+          method: "POST",
+          url:
+            "/api/medical-entity/" +
+            medical_entity.uuid +
+            "/appointments/" +
+            router.query["uuid-consultation"] +
+            "/prescriptions/" +
+            router.locale,
+          data: form,
+          headers: {
+            ContentType: "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${session?.accessToken}`,
+          },
+        },
+        { revalidate: true, populateCache: true }
+      ).then(() => {
+        mutate();
+      });
     }
-    const handleClickDialog = () => {
-        setOpenDialog(true);
-    };
-    const handleCloseDialog = () => {
-        const form = new FormData();
-        if (codes[info]) {
-            form.append('antecedents', JSON.stringify(state));
-            form.append('patient_uuid', patient.uuid);
-            trigger({
-                method: "POST",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + codes[info] + '/' + router.locale,
-                data: form,
-                headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-            }, {revalidate: true, populateCache: true}).then(() => {
-                mutate()
-            });
 
-        } else if (info === 'add_treatment') {
-            form.append('globalNote', "");
-            form.append('isOtherProfessional', "true");
-            form.append('drugs', JSON.stringify(state));
-
-            trigger({
-                method: "POST",
-                url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescriptions/' + router.locale,
-                data: form,
-                headers: {
-                    ContentType: 'application/x-www-form-urlencoded',
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }, {revalidate: true, populateCache: true}).then(() => {
-                mutate()
-            });
-        }
-
-        setOpenDialog(false);
-        setInfo('');
+    setOpenDialog(false);
+    setInfo("");
+  };
+  const handleOpen = (action: string) => {
+    if (action === "consultation") {
+      dispatch(openDrawer({ type: "add", open: true }));
+      return;
     }
-    const handleOpen = (action: string) => {
-        if (action === "consultation") {
-            dispatch(openDrawer({type: "add", open: true}));
-            return
-        }
 
-        if (patient.antecedents[action])
-            setState(patient.antecedents[action])
-        //else if (action ===)
+    if (patient.antecedents[action]) setState(patient.antecedents[action]);
+    //else if (action ===)
 
-        console.log(action)
-        console.log(patient.antecedents[action])
-        setInfo(action);
-        bigDialogs.includes(action) ? setSize('lg') : setSize('sm');
+    console.log(action);
+    console.log(patient.antecedents[action]);
+    setInfo(action);
+    bigDialogs.includes(action) ? setSize("lg") : setSize("sm");
 
-        handleClickDialog()
-    };
+    handleClickDialog();
+  };
 
   if (!ready || status === "loading") return <>loading translations...</>;
   const { data: user } = session as Session;
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
-    return (
-        <React.Fragment>
-            {
-                id !== 4 ?
-                    <ContentStyled>
-                        <CardContent style={{paddingBottom: pxToRem(15)}}>
-                            {id === 1 &&
-                                <Stack spacing={1} alignItems="flex-start">
-                                    <List dense>
-                                        {
-                                            patient?.treatment.map((list: any, index: number) =>
-                                                <ListItem key={index}>
-                                                    <ListItemIcon>
-                                                        <CircleIcon/>
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {list.name} / {list.duration} {list.durationType}
-                                                    </Typography>
-                                                    <IconButton size="small" onClick={() => {
-                                                        console.log(list)
 
-                                                        trigger({
-                                                            method: "PATCH",
-                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/' + list.uuid + '/' + router.locale,
-                                                            headers: {
-                                                                ContentType: 'application/x-www-form-urlencoded',
-                                                                Authorization: `Bearer ${session?.accessToken}`
-                                                            }
-                                                        }, {revalidate: true, populateCache: true}).then(() => {
-                                                            mutate()
-                                                        });
+  return (
+    <React.Fragment>
+      {id !== 4 ? (
+        <ContentStyled>
+          <CardContent style={{ paddingBottom: pxToRem(15) }}>
+            {id === 1 && (
+              <Stack spacing={1} alignItems="flex-start">
+                <List dense>
+                  {patient?.treatment.map((list: any, index: number) => (
+                    <ListItem key={index}>
+                      <ListItemIcon>
+                        <CircleIcon />
+                      </ListItemIcon>
+                      <Typography variant="body2" color="text.secondary">
+                        {list.name} / {list.duration} {list.durationType}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          console.log(list);
 
-
-                                                    }} sx={{ml: 'auto'}}>
-                                                        <Icon path="setting/icdelete"/>
-                                                    </IconButton>
-                                                </ListItem>
-                                            )
-                                        }
-
-                                    </List>
-                                    <Button onClick={() => handleOpen("add_treatment")} size="small"
-                                            style={{paddingBottom: pxToRem(0)}}
-                                            startIcon={<Add/>}>
-                                        {t('add')}
-                                    </Button>
-                                </Stack>
-                            }
+                          trigger(
                             {
-                                id === 2 &&
-                                patient?.requestedAnalyses.map((ra:any,index:number) =>
-                                    <Stack key={index} spacing={2} alignItems="flex-start">
-                                        <List dense>
-                                            {
-                                                ra.analyses.map((list: any, index: number) =>
-                                                    <ListItem key={index}>
-                                                        <ListItemIcon>
-                                                            <CircleIcon/>
-                                                        </ListItemIcon>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {list.name}
-                                                        </Typography>
-                                                    </ListItem>
-                                                )
-                                            }
+                              method: "PATCH",
+                              url:
+                                "/api/medical-entity/" +
+                                medical_entity.uuid +
+                                "/appointments/" +
+                                router.query["uuid-consultation"] +
+                                "/prescription-has-drugs/" +
+                                list.uuid +
+                                "/" +
+                                router.locale,
+                              headers: {
+                                ContentType:
+                                  "application/x-www-form-urlencoded",
+                                Authorization: `Bearer ${session?.accessToken}`,
+                              },
+                            },
+                            { revalidate: true, populateCache: true }
+                          ).then(() => {
+                            mutate();
+                          });
+                        }}
+                        sx={{ ml: "auto" }}
+                      >
+                        <Icon path="setting/icdelete" />
+                      </IconButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Button
+                  onClick={() => handleOpen("add_treatment")}
+                  size="small"
+                  style={{ paddingBottom: pxToRem(0) }}
+                  startIcon={<Add />}
+                >
+                  {t("add")}
+                </Button>
+              </Stack>
+            )}
+            {id === 2 &&
+              patient?.requestedAnalyses.map((ra: any, index: number) => (
+                <Stack key={index} spacing={2} alignItems="flex-start">
+                  <List dense>
+                    {ra.analyses.map((list: any, index: number) => (
+                      <ListItem key={index}>
+                        <ListItemIcon>
+                          <CircleIcon />
+                        </ListItemIcon>
+                        <Typography variant="body2" color="text.secondary">
+                          {list.name}
+                        </Typography>
+                      </ListItem>
+                    ))}
+                  </List>
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      onClick={() => handleOpen("balance_sheet_pending")}
+                      size="small"
+                      startIcon={<Add />}
+                    >
+                      {t("add_result")}
+                    </Button>
+                    {patient?.requestedAnalyses.length > 0 && (
+                      <Button
+                        color="error"
+                        size="small"
+                        onClick={console.log}
+                        startIcon={<Icon path="setting/icdelete" />}
+                      >
+                        {t("ignore")}
+                      </Button>
+                    )}
+                  </Stack>
+                </Stack>
+              ))}
+            {id === 3 && (
+              <Stack spacing={1} alignItems="flex-start">
+                {
+                  <List dense>
+                    {patient &&
+                      patient?.previousAppointments.map(
+                        (list: { dayDate: string }, index: number) => (
+                          <ListItem key={index}>
+                            <ListItemIcon>
+                              <CircleIcon />
+                            </ListItemIcon>
+                            <Typography variant="body2" color="text.secondary">
+                              {list.dayDate}
+                            </Typography>
+                          </ListItem>
+                        )
+                      )}
+                  </List>
+                }
+                <Stack mt={2}>
+                  <Button
+                    onClick={() => handleOpen("consultation")}
+                    size="small"
+                    startIcon={<Add />}
+                  >
+                    {t("add")}
+                  </Button>
+                </Stack>
+              </Stack>
+            )}
+          </CardContent>
+        </ContentStyled>
+      ) : (
+        patient &&
+        Object.keys(patient.antecedents).map((antecedent, idx: number) => (
+          <ContentStyled
+            key={`card-${idx}`}
+            style={{ paddingBottom: pxToRem(15) }}
+          >
+            <CardContent
+              style={{ paddingBottom: pxToRem(0), paddingTop: "1rem" }}
+            >
+              <Typography fontWeight={600}>{t(antecedent)}</Typography>
 
-                                        </List>
-                                        <Stack direction="row" spacing={2}>
-                                            <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
-                                                    startIcon={
-                                                        <Add/>
-                                                    }>
-                                                {t('add_result')}
-                                            </Button>
-                                            {patient?.requestedAnalyses.length > 0 &&
-                                                <Button color="error" size="small" onClick={console.log} startIcon={
-                                                    <Icon path="setting/icdelete"/>
-                                                }>
-                                                    {t('ignore')}
-                                                </Button>}
-                                        </Stack>
-                                    </Stack>
+              <List dense>
+                {patient.antecedents[antecedent].map(
+                  (item: { uuid: string; name: string }, index: number) => (
+                    <ListItem key={`list-${index}`}>
+                      <ListItemIcon>
+                        <CircleIcon />
+                      </ListItemIcon>
+                      <Typography variant="body2" color="text.secondary">
+                        {item.name}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          console.log(antecedent, item);
 
-                                )
-                            }
+                          trigger(
                             {
                               method: "DELETE",
                               url:

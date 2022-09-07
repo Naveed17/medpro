@@ -22,10 +22,6 @@ function CustomStepper({...props}) {
         OnSubmitStepper = null,
         onBackButton = null,
     } = props;
-
-    const [value, setValue] = useState<number>(currentIndex);
-    const [last, setLast] = useState<number>(1);
-
   const [value, setValue] = useState<number>(currentIndex);
   const [last, setLast] = useState<number>(1);
 
@@ -63,7 +59,7 @@ function CustomStepper({...props}) {
             >
                 <Tabs
                     value={value}
-                    onChange={OnTabsChange ? tabChange : handleChange}
+                    onChange={OnTabsChange ? tabChange : tabChange}
                     variant="scrollable"
                     scrollButtons={false}
                     aria-label="scrollable auto tabs"
@@ -123,15 +119,10 @@ function CustomStepper({...props}) {
                                 />
                             </TabPanel>
                         );
-                    }
-                    onBackButton(currentIndex);
-                  }}
-                  {...props}
-                />
-              </TabPanel>
-            );
-          }
-        )}
+                })}
+                
+           
+        
       </RootStyled>
     </>
   );
