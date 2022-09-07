@@ -27,13 +27,14 @@ function AddPatientStep1({ ...props }) {
     onNext,
     onClose,
     OnSubmit = null,
+    selectedPatient,
     translationKey = "patient",
     translationPrefix = "add-patient",
   } = props;
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const [selected, setslected] = React.useState<any>(null);
-
+  console.log(selectedPatient, "selected");
   const { t, ready } = useTranslation(translationKey, {
     keyPrefix: translationPrefix,
   });
@@ -63,11 +64,23 @@ function AddPatientStep1({ ...props }) {
   const formik = useFormik({
     initialValues: {
       patient_group: stepsData.step1.patient_group,
-      first_name: stepsData.step1.first_name,
-      last_name: stepsData.step1.last_name,
-      birthdate: stepsData.step1.birthdate,
+      first_name: Boolean(selectedPatient)
+        ? selectedPatient.firstName
+        : stepsData.step1.first_name,
+      last_name: Boolean(selectedPatient)
+        ? selectedPatient.lastName
+        : stepsData.step1.last_name,
+      birthdate: Boolean(selectedPatient)
+        ? {
+            day: selectedPatient.birthdate.split("-")[0] as string,
+            month: selectedPatient.birthdate.split("-")[1] as string,
+            year: selectedPatient.birthdate.split("-")[2] as string,
+          }
+        : stepsData.step1.birthdate,
       phone: stepsData.step1.phone,
-      gender: stepsData.step1.gender,
+      gender: Boolean(selectedPatient)
+        ? selectedPatient.gender
+        : stepsData.step1.gender,
     },
     validationSchema: RegisterSchema,
     onSubmit: async (values) => {
@@ -244,7 +257,7 @@ function AddPatientStep1({ ...props }) {
                 </Select>
                 {touched.birthdate && errors.birthdate && (
                   <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.birthdate?.day && errors.birthdate?.day}
+                    {touched.birthdate.day && errors.birthdate.day}
                   </FormHelperText>
                 )}
               </FormControl>

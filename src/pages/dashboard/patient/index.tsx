@@ -1,5 +1,5 @@
 // react
-import { useEffect, useState, ReactElement, SyntheticEvent } from "react";
+import { useEffect, useState, ReactElement } from "react";
 
 // next
 import { GetStaticProps } from "next";
@@ -11,49 +11,27 @@ import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 
 // material components
-import {
-  Box,
-  Tabs,
-  Tab,
-  Drawer,
-  Divider,
-  Button,
-  Paper,
-  Zoom,
-} from "@mui/material";
+import { Box, Drawer, Zoom } from "@mui/material";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
 import { configSelector } from "@features/base";
-import { onOpenDetails } from "@features/table";
+import { onOpenPatientDrawer } from "@features/table";
 
 // ________________________________
-import { PatientdetailsCard, NoDataCard } from "@features/card";
 import { PatientMobileCard } from "@features/patientMobileCard";
 import { Otable } from "@features/table";
 import { SubHeader } from "@features/subHeader";
-import { PatientToolbar, PatientDetailsToolbar } from "@features/toolbar";
+import { PatientToolbar } from "@features/toolbar";
 import { DashLayout } from "@features/base";
-import Icon from "@themes/urlIcon";
-import { GroupTable } from "@features/groupTable";
-import { SpeedDial } from "@features/speedDial";
 import { CustomStepper } from "@features/customStepper";
-import { useRequest, useRequestMutation } from "@app/axios";
+import { useRequest } from "@app/axios";
 
 // icons
-import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {
-  AddRDVStep1,
-  AddRDVStep2,
-  AddRDVStep3,
-  PersonalInfoPanel,
-  TabPanel,
-  DocumentsPanel,
-} from "@features/tabPanel";
+import { AddRDVStep1, AddRDVStep2, AddRDVStep3 } from "@features/tabPanel";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
-import moment from "moment-timezone";
+import { PatientDetail } from "@features/dialog";
 
 const stepperData = [
   {
@@ -79,119 +57,6 @@ interface HeadCell {
   sortable: boolean;
   align: "left" | "right" | "center";
 }
-
-// data for patient details RDV
-const data: PatientDetailsRDV[] = [
-  {
-    title: "pending-appo",
-    pending: true,
-    data: [
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-        meeting: true,
-      },
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-        meeting: true,
-      },
-      {
-        title: "John Doe",
-        start: new Date(2020, 4, 1, 10, 30),
-        end: new Date(2020, 4, 1, 11, 30),
-        allDay: false,
-        time: new Date(),
-        status: "pending",
-        borderColor: "#FBD400",
-        motif: "video-consultation",
-        meeting: true,
-      },
-    ],
-  },
-  {
-    title: "old-appo",
-    pending: false,
-    data: [
-      {
-        title: "2021",
-        data: [
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-        ],
-      },
-      {
-        title: "2020",
-        data: [
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-          {
-            title: "John Doe",
-            start: new Date(2020, 4, 1, 10, 30),
-            end: new Date(2020, 4, 1, 11, 30),
-            allDay: false,
-            time: moment().add(1, "days"),
-            status: "pending",
-            borderColor: "#FBD400",
-            motif: "video-consultation",
-            meeting: true,
-          },
-        ],
-      },
-    ],
-  },
-];
-
-// add patient details RDV for not data
-const AddAppointmentCardData = {
-  mainIcon: "ic-agenda-+",
-  title: "no-data.group-table.title",
-  description: "no-data.group-table.description",
-  buttonText: "no-data.group-table.button-text",
-  buttonIcon: "ic-agenda-+",
-  buttonVariant: "warning",
-};
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -252,14 +117,6 @@ const headCells: readonly HeadCell[] = [
     align: "right",
   },
 ];
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
 function Patient() {
   const dispatch = useAppDispatch();
   const { data: session } = useSession();
@@ -287,63 +144,38 @@ function Patient() {
   );
 
   // selectors
-  const { patientId } = useAppSelector(tableActionSelector);
+  const { patientId, patientAction } = useAppSelector(tableActionSelector);
   const { direction } = useAppSelector(configSelector);
 
   // state hook for details drawer
   const [open, setopen] = useState<boolean>(false);
   const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
 
-  // state hook for tabs
-  const [value, setValue] = useState<number>(0);
-
-  // handle tab change
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-
-  // mutate for patient details
-  const { data: httpPatientDetailsResponse, trigger } = useRequestMutation(
-    null,
-    `patient-details`
-  );
-
-  const [loading, setLoading] = useState<boolean>(true);
-
   // useEffect hook for handling the table action drawer
   useEffect(() => {
-    if (patientId) {
+    if (patientId && patientAction === "PATIENT_DETAILS") {
       setopen(true);
-      trigger(
-        {
-          method: "GET",
-          url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/${router.locale}`,
-          headers: {
-            ContentType: "application/x-www-form-urlencoded",
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-        },
-        { revalidate: true, populateCache: true }
-      ).then((r) => setLoading(false));
     }
-  }, [medical_entity.uuid, patientId, router.locale, session?.accessToken, trigger]);
+  }, [patientId, patientAction]);
+
+  const selectedPatient =
+    patientAction === "EDIT_PATIENT"
+      ? (httpPatientsResponse as HttpResponse)?.data?.list.filter(
+          (val: any) => val.uuid === patientId
+        )[0]
+      : "";
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
   if (!ready) return <>loading translations...</>;
 
-  const actions: {
-    icon: ReactElement;
-    name: string;
-  }[] = [
-    { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
-    { icon: <CloudUploadIcon />, name: t("tabs.import") },
-  ];
-
   return (
     <>
       <SubHeader>
-        <PatientToolbar onAddPatient={() => mutate()} />
+        <PatientToolbar
+          onAddPatient={() => mutate()}
+          selectedPatient={selectedPatient}
+        />
       </SubHeader>
       <Box className="container">
         <Box display={{ xs: "none", md: "block" }}>
@@ -375,112 +207,23 @@ function Patient() {
           open={open}
           dir={direction}
           onClose={() => {
-            dispatch(onOpenDetails({ patientId: "" }));
+            dispatch(onOpenPatientDrawer({ patientId: "" }));
             setopen(false);
           }}
         >
           {!isAddAppointment && (
-            <Box height={!isAddAppointment ? "100%" : 0}>
-              {" "}
-              <PatientDetailsToolbar
-                onClose={() => {
-                  dispatch(onOpenDetails({ patientId: "" }));
-                  setopen(false);
-                }}
-              />
-              <PatientdetailsCard
-                loading={loading}
-                patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-              />
-              <Box
-                sx={{
-                  width: { md: 726, xs: "100%" },
-                  bgcolor: "background.default",
-                  "& div[role='tabpanel']": {
-                    height: { md: "calc(100vh - 312px)", xs: "auto" },
-                    overflowY: "auto",
-                  },
-                }}
-              >
-                <Tabs
-                  value={value}
-                  onChange={handleChange}
-                  variant="scrollable"
-                  aria-label="basic tabs example"
-                  className="tabs-bg-white"
-                >
-                  <Tab label={t("tabs.personal-info")} {...a11yProps(0)} />
-                  <Tab label={t("tabs.appointment")} {...a11yProps(1)} />
-                  <Tab label={t("tabs.documents")} {...a11yProps(2)} />
-                </Tabs>
-                <Divider />
-                <TabPanel padding={1} value={value} index={0}>
-                  <PersonalInfoPanel
-                    loading={loading}
-                    patient={(httpPatientDetailsResponse as HttpResponse)?.data}
-                  />
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={1}>
-                  {data.length > 0 ? (
-                    !loading && (
-                      <GroupTable
-                        from="patient"
-                        data={
-                          (httpPatientDetailsResponse as HttpResponse)?.data
-                        }
-                      />
-                    )
-                  ) : (
-                    <NoDataCard t={t} data={AddAppointmentCardData} />
-                  )}
-                </TabPanel>
-                <TabPanel padding={2} value={value} index={2}>
-                  <DocumentsPanel />
-                </TabPanel>
-                <Paper
-                  sx={{
-                    borderRadius: 0,
-                    borderWidth: "0px",
-                    p: 2,
-                    textAlign: "right",
-                    display: { md: "block", xs: "none" },
-                  }}
-                >
-                  <Button
-                    size="medium"
-                    variant="text-primary"
-                    color="primary"
-                    startIcon={<Icon path="ic-dowlaodfile" />}
-                    sx={{
-                      mr: 1,
-                      width: { md: "auto", sm: "100%", xs: "100%" },
-                    }}
-                  >
-                    {t("tabs.import")}
-                  </Button>
-                  <Button
-                    onClick={() => setAddAppointment(!isAddAppointment)}
-                    size="medium"
-                    variant="contained"
-                    color="primary"
-                    startIcon={<Icon path="ic-agenda-+" />}
-                    sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
-                  >
-                    {t("tabs.add-appo")}
-                  </Button>
-                </Paper>
-                <SpeedDial
-                  sx={{
-                    position: "fixed",
-                    bottom: 16,
-                    right: 16,
-                    display: { md: "none", xs: "flex" },
-                  }}
-                  onClick={() => setAddAppointment(!isAddAppointment)}
-                  actions={actions}
-                />
-              </Box>
-            </Box>
+            <PatientDetail
+              onCloseDialog={() => {
+                dispatch(onOpenPatientDrawer({ patientId: "" }));
+                setopen(false);
+              }}
+              onChangeStepper={(index: number) =>
+                console.log("onChangeStepper", index)
+              }
+              onAddAppointment={() => console.log("onAddAppointment")}
+              ConsultationId=""
+              patientId={patientId}
+            />
           )}
           <Zoom in={isAddAppointment}>
             <Box
