@@ -4,6 +4,7 @@ const { withTM } = require("./next-fullcalendar.config");
 /** @type {{}} */
 const nextConfig = withTM({
   output: 'standalone',
+  reactStrictMode: false,
   i18n,
   images: {
     domains: ["flagcdn.com"]

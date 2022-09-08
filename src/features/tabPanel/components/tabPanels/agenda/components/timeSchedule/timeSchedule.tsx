@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -7,9 +7,6 @@ import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Grid from "@mui/material/Grid";
-import {RadioTextImage} from "@features/radioTextImage";
-import {StaticDatePicker} from "@features/staticDatePicker";
-import {TimeSlot} from "@features/timeSlot";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
@@ -22,22 +19,24 @@ import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
 import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {TimeSlot} from "@features/timeSlot";
+import {StaticDatePicker} from "@features/staticDatePicker";
 
 function TimeSchedule({...props}) {
+    const {onNext, onBack} = props;
+
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const {data: session} = useSession();
 
-    const {onNext, onBack} = props;
-    const {data: session, status} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
 
     const [reason, setReason] = useState(motif);
     const [location, setLocation] = useState("");
-    const [professional, setProfessional] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [date, setDate] = useState<Date | null>(selectedDate);
-
+    const [loading, setLoading] = useState(false);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
 
@@ -47,16 +46,11 @@ function TimeSchedule({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
-    const {data: httpProfessionalResponse, error: errorHttpProfessional} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -65,14 +59,14 @@ function TimeSchedule({...props}) {
         trigger
     } = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = (date: Date) => {
-        trigger(location ? {
+    const getSlots = useCallback((date: Date) => {
+        setLoading(true);
+        trigger(medical_professional ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
-            /locations/${location}/professionals/${professional}?day=${moment(date).format('DD-MM-YYYY')}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null);
-    }
+        } : null).then(() => setLoading(false));
+    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
 
     // handleChange for select
     const onChangeReason = (event: SelectChangeEvent) => {
@@ -102,7 +96,6 @@ function TimeSchedule({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const locations = agendaConfig?.locations;
-    const professionals = (httpProfessionalResponse as HttpResponse)?.data as MedicalProfessionalModel[];
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
     const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
@@ -120,8 +113,11 @@ function TimeSchedule({...props}) {
             if (slots) {
                 setTimeSlots(slots);
             }
+        } else if (date) {
+            getSlots(date);
+            setTime(moment(date).format('HH:mm'));
         }
-    }, [date, weekTimeSlots]);
+    }, [date, getSlots, weekTimeSlots]);
 
     useEffect(() => {
         if (locations && locations.length === 1) {
@@ -129,15 +125,9 @@ function TimeSchedule({...props}) {
         }
     }, [locations]);
 
-    useEffect(() => {
-        if (professionals && professionals.length === 1) {
-            setProfessional(professionals[0].uuid)
-        }
-    }, [professionals]);
-
-
     if (errorHttpConsultReason) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
+
 
     return (
         <div>
@@ -232,7 +222,7 @@ function TimeSchedule({...props}) {
                     </FormControl>
                 </>}
 
-                {(professionals && professionals.length > 1) && (
+                {/*                {medical_professional && (
                     <Box>
                         <Typography
                             variant="body1"
@@ -261,7 +251,7 @@ function TimeSchedule({...props}) {
                             ))}
                         </Grid>
                     </Box>
-                )}
+                )}*/}
 
                 {location && <Typography
                     variant="body1"
@@ -291,7 +281,7 @@ function TimeSchedule({...props}) {
                         </Typography>
                         <TimeSlot
                             sx={{width: 248, margin: "auto"}}
-                            loading={!date}
+                            loading={!date || loading}
                             data={timeSlots}
                             limit={limit}
                             onChange={(newTime: string) => setTime(newTime)}
