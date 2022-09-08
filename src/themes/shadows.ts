@@ -64,6 +64,7 @@ const createCustomShadow = (): CustomShadowType => {
     motifDialog: "5px 14px 26px rgba(0, 150, 214, 0.37)",
     customShadow1: "0px -1px 1px rgba(0, 150, 214, 0.45)",
     speedDial: "0px 2px 20px rgb(156 155 155 / 46%)",
+    documentCard: "0px 0px 20px rgba(76, 87, 125, 0.02);"
   };
 };
 

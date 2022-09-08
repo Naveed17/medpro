@@ -1,15 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import {GetStaticProps, GetStaticPaths} from "next";
-import {useTranslation} from "next-i18next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {Document, Page, pdfjs} from "react-pdf";
+import React, { useState, useEffect } from 'react';
+import { GetStaticProps, GetStaticPaths } from "next";
+import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { Document, Page, pdfjs } from "react-pdf";
 // redux
-import {useAppSelector, useAppDispatch} from "@app/redux/hooks";
-import {configSelector} from "@features/base";
-import {tableActionSelector} from "@features/table";
-import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
+import { useAppSelector, useAppDispatch } from "@app/redux/hooks";
+import { configSelector } from "@features/base";
+import { tableActionSelector } from "@features/table";
+import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
 
-import {ReactElement} from "react";
+import { ReactElement } from "react";
 import {
     Box,
     Drawer,
@@ -18,30 +18,30 @@ import {
     Typography,
     ListItem, Button,
 } from "@mui/material";
-import {openDrawer as DialogOpenDrawer} from "@features/dialog";
-import {CustomStepper} from "@features/customStepper";
-import {TimeSchedule, Patient, Instruction} from "@features/tabPanel";
+import { openDrawer as DialogOpenDrawer } from "@features/dialog";
+import { CustomStepper } from "@features/customStepper";
+import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 
 //components
-import {DashLayout} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {SubFooter} from '@features/subFooter';
-import {CipNextAppointCard, CipMedicProCard} from "@features/card";
-import {Otable} from '@features/table';
-import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
-import {ModalConsultation} from '@features/modalConsultation';
-import {ConsultationIPToolbar} from '@features/toolbar';
-import {motion, AnimatePresence} from 'framer-motion';
-import {useRequest} from "@app/axios";
-import {useSession} from "next-auth/react";
-import {AppointmentDetail, DialogProps} from '@features/dialog';
-import {useRouter} from "next/router";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {SetMutation, SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
-import {DrawerBottom} from "@features/drawerBottom";
-import {ConsultationFilter} from "@features/leftActionBar";
+import { DashLayout } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { SubFooter } from '@features/subFooter';
+import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard } from "@features/card";
+import { Otable } from '@features/table';
+import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
+import { ModalConsultation } from '@features/modalConsultation';
+import { ConsultationIPToolbar } from '@features/toolbar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRequest } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { AppointmentDetail, DialogProps } from '@features/dialog';
+import { useRouter } from "next/router";
+import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
+import { SetMutation, SetPatient } from "@features/toolbar/components/consultationIPToolbar/actions";
+import { DrawerBottom } from "@features/drawerBottom";
+import { ConsultationFilter } from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
@@ -65,7 +65,7 @@ interface HeadCell {
 }
 
 const variants = {
-    initial: {opacity: 0,},
+    initial: { opacity: 0, },
     animate: {
         opacity: 1,
         transition: {
@@ -75,7 +75,7 @@ const variants = {
 };
 
 function TabPanel(props: TabPanelProps) {
-    const {children, index, ...other} = props;
+    const { children, index, ...other } = props;
 
     return (
         <motion.div
@@ -168,11 +168,11 @@ const EventStepper = [
 ];
 
 function ConsultationInProgress() {
-    const {patientId} = useAppSelector(tableActionSelector);
-    const {direction} = useAppSelector(configSelector);
+    const { patientId } = useAppSelector(tableActionSelector);
+    const { direction } = useAppSelector(configSelector);
     const [filterdrawer, setFilterDrawer] = useState(false);
-    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
-    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<number>(0);
     const [collapse, setCollapse] = useState<any>('');
@@ -187,7 +187,7 @@ function ConsultationInProgress() {
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
 
-    const {examan, fiche, patient: patientInfo} = useAppSelector(consultationSelector);
+    const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
 
     useEffect(() => {
         if (examan) console.log(examan);
@@ -196,13 +196,13 @@ function ConsultationInProgress() {
         if (fiche) console.log(fiche);
     }, [fiche]);
 
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const loading = status === 'loading';
     let medical_entity: any;
 
     medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest(medical_entity ? {
+    const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest(medical_entity ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
@@ -210,10 +210,10 @@ function ConsultationInProgress() {
         }
     } : null, SWRNoValidateConfig);
 
-    const {data: httpMPResponse, error: errorHttpMP} = useRequest(medical_entity ? {
+    const { data: httpMPResponse, error: errorHttpMP } = useRequest(medical_entity ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
-        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
     } : null, SWRNoValidateConfig);
 
 
@@ -222,10 +222,10 @@ function ConsultationInProgress() {
         setActs((httpMPResponse as HttpResponse)?.data[0].acts)
     }, [httpMPResponse])
 
-    const {data: httpAppResponse, error: errorHttpApp, mutate} = useRequest(mpUuid ? {
+    const { data: httpAppResponse, error: errorHttpApp, mutate } = useRequest(mpUuid ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse).data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
-        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
     } : null);
 
     useEffect(() => {
@@ -237,7 +237,7 @@ function ConsultationInProgress() {
 
     }, [dispatch, httpAppResponse, mutate])
 
-    function onDocumentLoadSuccess({numPages}: any) {
+    function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     }
 
@@ -256,13 +256,13 @@ function ConsultationInProgress() {
             setopen(true);
         }
     }, [patientId]);
-    const {t, ready} = useTranslation("consultation");
+    const { t, ready } = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
 
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar appuuid={uuind} mutate={mutate} selected={(v: number) => setValue(v)}/>
+                <ConsultationIPToolbar appuuid={uuind} mutate={mutate} selected={(v: number) => setValue(v)} />
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -278,7 +278,7 @@ function ConsultationInProgress() {
                                                 data.title === "reason_for_consultation" &&
 
                                                 <Stack spacing={2}>
-                                                    <MotifCard data={data}/>
+                                                    <MotifCard data={data} />
                                                     {/*<List dense>
                                                         {
                                                             data.collapse?.map((col, idx: number) => (
@@ -369,11 +369,11 @@ function ConsultationInProgress() {
                                                 data.title === "balance_results" &&
                                                 data.list?.map((item, i) => (
                                                     <ListItem key={`balance-list${i}`}
-                                                              sx={{
-                                                                  bgcolor: theme => theme.palette.grey['A100'],
-                                                                  mb: 1,
-                                                                  borderRadius: 0.7
-                                                              }}>
+                                                        sx={{
+                                                            bgcolor: theme => theme.palette.grey['A100'],
+                                                            mb: 1,
+                                                            borderRadius: 0.7
+                                                        }}>
                                                         <Typography variant='body2'>
                                                             {item}
                                                         </Typography>
@@ -406,7 +406,7 @@ function ConsultationInProgress() {
                                 <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
                                     ))}
 
                                 </Document>
@@ -417,10 +417,10 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation modal={appointement?.consultation_sheet.modal}/>
+                                    <ModalConsultation modal={appointement?.consultation_sheet.modal} />
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
+                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam} />
                                 </Grid>
                             </Grid>
                         </TabPanel>
@@ -428,7 +428,7 @@ function ConsultationInProgress() {
                     {
                         value === 3 &&
                         <TabPanel index={3}>
-                            <Box display={{xs: 'none', md: 'block'}}>
+                            <Box display={{ xs: 'none', md: 'block' }}>
                                 <Otable
                                     headers={headCells}
                                     rows={acts}
@@ -441,11 +441,11 @@ function ConsultationInProgress() {
 
                                 />
                             </Box>
-                            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
+                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
                                 {
                                     PatiendData.map((data, index: number) => (
                                         <React.Fragment key={`cip-card-${index}`}>
-                                            <CipMedicProCard row={data} t={t}/>
+                                            <CipMedicProCard row={data} t={t} />
                                         </React.Fragment>
                                     ))
                                 }
@@ -461,21 +461,56 @@ function ConsultationInProgress() {
 */}
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1}
-                                       justifyContent="flex-end">
+                                    justifyContent="flex-end">
                                     <Typography variant="subtitle1">
                                         <span>{t('total')} : </span>
                                     </Typography>
                                     <Typography fontWeight={600} variant="h6">
                                         -- TND
                                     </Typography>
+                                    <Stack direction='row' alignItems="center" spacing={2}>
+                                        <span>|</span>
+                                        <Button
+                                            variant='text-black'
+                                            startIcon={
+                                                <IconUrl path='ic-imprime' />
+                                            }>
+
+                                            {t("consultationIP.print")}
+                                        </Button>
+                                    </Stack>
+
                                 </Stack>
 
                             </SubFooter>
                         </TabPanel>
                     }
-                    {
-                        value === 4 &&
+                    {value === 4 &&
                         <TabPanel index={4}>
+                            <Box display='grid' sx={{
+                                gridGap: 16,
+                                gridTemplateColumns: {
+                                    xs: "repeat(2,minmax(0,1fr))",
+                                    md: "repeat(4,minmax(0,1fr))",
+                                    lg: "repeat(5,minmax(0,1fr))",
+                                }
+                            }}>
+                                {
+                                    documentCardData.map((card, idx) =>
+                                        <React.Fragment key={idx}>
+                                            <DocumentCard data={card} t={t} />
+                                        </React.Fragment>
+                                    )
+                                }
+
+
+                            </Box>
+                            <PendingDocumentCard />
+                        </TabPanel>
+                    }
+                    {
+                        value === 5 &&
+                        <TabPanel index={5}>
                             {/*                            <Box display={{xs: "none", md: 'block'}}>
                                 <Otable
                                     headers={[]}
@@ -492,7 +527,7 @@ function ConsultationInProgress() {
                                 {
                                     patient.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
-                                            <CipNextAppointCard row={data} patient={patient} t={t}/>
+                                            <CipNextAppointCard row={data} patient={patient} t={t} />
                                         </React.Fragment>
                                     ))
                                 }
@@ -506,7 +541,7 @@ function ConsultationInProgress() {
                                     dispatch(DialogOpenDrawer(false))
                                 }}
                             >
-                                <AppointmentDetail/>
+                                <AppointmentDetail />
                             </Drawer>
                         </TabPanel>
                     }
@@ -517,7 +552,7 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({type: "add", open: false}));
+                        dispatch(openDrawer({ type: "add", open: false }));
 
                     }}
                 >
@@ -534,7 +569,7 @@ function ConsultationInProgress() {
                     </Box>
                 </Drawer>
                 <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
+                    startIcon={<IconUrl path="ic-filter" />}
                     onClick={() => setFilterDrawer(!drawer)}
                     sx={{
                         position: 'fixed',
@@ -542,7 +577,7 @@ function ConsultationInProgress() {
                         transform: 'translateX(-50%)',
                         left: '50%',
                         zIndex: 999,
-                        display: {xs: 'flex', md: 'none'}
+                        display: { xs: 'flex', md: 'none' }
                     }}
                     variant="filter"
                 >
@@ -553,7 +588,7 @@ function ConsultationInProgress() {
                     open={filterdrawer}
                     title={null}
                 >
-                    <ConsultationFilter/>
+                    <ConsultationFilter />
                 </DrawerBottom>
 
             </Box>

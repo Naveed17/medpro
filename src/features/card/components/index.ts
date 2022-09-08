@@ -23,4 +23,6 @@ export * from "./uploadFileCard";
 export * from "./motifListMobile"
 export * from './cipCard/components'
 export * from "./appointmentPatientCard";
+export * from './documentCard';
+export * from './pendingDocumentCard';
 export * from "./cipCard";

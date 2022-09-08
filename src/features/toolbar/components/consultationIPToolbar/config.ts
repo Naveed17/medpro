@@ -17,6 +17,10 @@ export const tabsData = [
         value: 'medical procedures',
     },
     {
+        label: "documents",
+        value: 'documents',
+    },
+    {
         label: "next_appointment",
         value: 'next appointment',
     }

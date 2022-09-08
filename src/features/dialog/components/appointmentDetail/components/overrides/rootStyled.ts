@@ -48,7 +48,8 @@ const RootStyled = styled(Paper)(({ theme }) => ({
         '& .MuiInputAdornment-root': {
             marginRight: theme.spacing(-1.5),
         }
-    }
+    },
+
 }))
 
 export default RootStyled;

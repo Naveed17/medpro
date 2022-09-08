@@ -1,6 +1,5 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-
 declare global {
     type LayoutProps = {
         children: React.ReactNode;
@@ -31,31 +30,30 @@ declare module "@mui/material/Chip" {
 }
 
 declare module "@mui/material" {
-    interface Color {
-        0: number | string;
-        "500_32": string;
-        "500_16": string;
-        A0: string;
-        A50: string;
-        A60: string;
-        A200: string;
-        A300: string;
-        A400: string;
-        A500: string;
-        A600: string;
-        A700: string;
-        A800: string;
-        A900: string;
-    }
-
-    interface PaletteColor {
-        lighter: string;
-        light: string;
-    }
-
-    interface ThemeOptions {
-        customShadows?: CustomShadowType;
-    }
+  interface Color {
+    0: number | string;
+    "500_32": string;
+    "500_16": string;
+    A0: string;
+    A50: string;
+    A60: string;
+    A200: string;
+    A300: string;
+    A400: string;
+    A500: string;
+    A600: string;
+    A700: string;
+    A800: string;
+    A900: string;
+  }
+  interface PaletteColor {
+    lighter: string;
+    light: string;
+    main: string
+  }
+  interface ThemeOptions {
+    customShadows?: CustomShadowType;
+  }
 }
 
 declare module "@mui/material/styles" {
