@@ -214,7 +214,7 @@ function AppointmentDetail({ ...props }) {
                                 <IconButton size="small"
                                     onClick={OnEditDetail}
                                 >
-                                    <IconUrl path='Ic-duotone' />
+                                    <IconUrl path='ic-duotone' />
                                 </IconButton>
                             </Stack>
                             <List sx={{ py: 0, pl: 2 }}>
@@ -267,7 +267,7 @@ function AppointmentDetail({ ...props }) {
                                         <IconButton size="small"
                                             onClick={OnEditintro}
                                         >
-                                            <IconUrl path='Ic-duotone' />
+                                            <IconUrl path='ic-duotone' />
                                         </IconButton>
                                     </InputAdornment>,
                                     readOnly: true,

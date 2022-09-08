@@ -3,6 +3,6 @@ interface AgendaLocationModel {
     address: AddressModel;
     contacts: ContactModel[];
     name: string;
-    openingHours: openingHoursModel[];
+    openingHours: OpeningHoursModel[];
     uuid: string;
 }
