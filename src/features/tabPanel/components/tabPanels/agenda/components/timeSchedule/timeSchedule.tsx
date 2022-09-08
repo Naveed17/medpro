@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -8,7 +7,6 @@ import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import Grid from "@mui/material/Grid";
-import {RadioTextImage} from "@features/radioTextImage";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, DayOfWeek, setStepperIndex} from "@features/calendar";
@@ -21,15 +19,8 @@ import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
 import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-
-import dynamic from 'next/dynamic';
-
-const TimeSlot = dynamic(() => import('@features/timeSlot/timeSlot'), {
-    ssr: false
-});
-const StaticDatePicker = dynamic(() => import('@features/staticDatePicker/staticDatePicker'), {
-    ssr: false
-});
+import {TimeSlot} from "@features/timeSlot";
+import {StaticDatePicker} from "@features/staticDatePicker";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -63,12 +54,6 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    /*    const {data: httpProfessionalResponse, error: errorHttpProfessional} = useRequest({
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/professionals/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, SWRNoValidateConfig);*/
-
     const {
         data: httpTimeSlotsResponse,
         trigger
@@ -81,7 +66,7 @@ function TimeSchedule({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then(() => setLoading(false));
-    }, [agendaConfig?.locations, agendaConfig?.uuid, medical_professional?.uuid, medical_entity.uuid, session?.accessToken, trigger])
+    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
 
     // handleChange for select
     const onChangeReason = (event: SelectChangeEvent) => {
@@ -130,8 +115,9 @@ function TimeSchedule({...props}) {
             }
         } else if (date) {
             getSlots(date);
+            setTime(moment(date).format('HH:mm'));
         }
-    }, [date, weekTimeSlots]);
+    }, [date, getSlots, weekTimeSlots]);
 
     useEffect(() => {
         if (locations && locations.length === 1) {
