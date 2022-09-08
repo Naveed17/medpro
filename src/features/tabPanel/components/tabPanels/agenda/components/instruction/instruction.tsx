@@ -38,7 +38,7 @@ function Instruction({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {motif, date, patient, type, instruction, submitted} = useAppSelector(appointmentSelector);
+    const {motif, duration, date, patient, type, instruction, submitted} = useAppSelector(appointmentSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [description, setDescription] = useState(instruction.description);
@@ -84,6 +84,7 @@ function Instruction({...props}) {
         form.append('title', `${patient?.lastName} ${patient?.firstName}`);
         form.append('patient_uuid', patient?.uuid as string);
         form.append('type', type);
+        form.append('duration', duration as string);
         form.append('global_instructions', description);
         form.append('reminder', JSON.stringify([{
             "type": "1: email, 2: sms, 3: push",

@@ -17,7 +17,10 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
-import {appointmentSelector, setAppointmentDate, setAppointmentMotif} from "@features/tabPanel";
+import {
+    appointmentSelector, setAppointmentDate,
+    setAppointmentDuration, setAppointmentMotif
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
@@ -33,6 +36,8 @@ function TimeSchedule({...props}) {
     const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
 
     const [reason, setReason] = useState(motif);
+    const [duration, setDuration] = useState("");
+    const [durations, setDurations] = useState([15, 20, 30, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [date, setDate] = useState<Date | null>(selectedDate);
@@ -65,16 +70,24 @@ function TimeSchedule({...props}) {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null).then(() => setLoading(false));
+        } : null, {revalidate: false, populateCache: false}).then(() => setLoading(false));
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
 
-    // handleChange for select
     const onChangeReason = (event: SelectChangeEvent) => {
         setReason(event.target.value as string);
+        const reason = reasons.find(reason => event.target.value === reason.uuid);
+        if (reason) {
+            setDuration(reason.duration as any);
+        }
+
         if (date) {
             getSlots(date);
             setTime(moment(date).format('HH:mm'));
         }
+    };
+
+    const onChangeDuration = (event: SelectChangeEvent) => {
+        setDuration(event.target.value as string);
     };
 
     const onChangeDatepicker = async (date: Date) => {
@@ -86,8 +99,20 @@ function TimeSchedule({...props}) {
         setLocation(event.target.value as string);
     };
 
+    const getTimeFromMinutes = (minutes: number) => {
+        // do not include the first validation check if you want, for example,
+        if (minutes >= 24 * 60 || minutes < 0) {
+            throw new RangeError("Valid input should be greater than or equal to 0 and less than 1440.");
+        }
+        let h = minutes / 60 | 0,
+            m = minutes % 60 | 0;
+        return (h !== 0 ? `${h} ${t("stepper-1.duration.hours")}, ` : "") +
+            (m !== 0 ? `${m} ${t("stepper-1.duration.minutes")}` : "");
+    }
+
     const onNextStep = () => {
         dispatch(setAppointmentMotif(reason));
+        dispatch(setAppointmentDuration(duration));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
         dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY HH:mm').toDate()));
         dispatch(setStepperIndex(2));
@@ -191,6 +216,33 @@ function TimeSchedule({...props}) {
                                     }}
                                 />
                                 {consultationReason.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                    {t("stepper-1.duration.title")}
+                </Typography>
+                <FormControl fullWidth size="small">
+                    <Select
+                        disabled={!reason}
+                        labelId="select-duration"
+                        id="select-duration"
+                        onChange={onChangeDuration}
+                        value={duration}
+                        displayEmpty
+                        renderValue={selected => {
+                            if (selected.length === 0) {
+                                return <em>{t("stepper-1.duration.placeholder")}</em>;
+                            }
+
+                            return <>{getTimeFromMinutes(parseInt(selected))}</>;
+                        }}
+                    >
+                        {durations?.map((duration) => (
+                            <MenuItem value={duration} key={duration}>
+                                {getTimeFromMinutes(duration)}
                             </MenuItem>
                         ))}
                     </Select>

@@ -34,7 +34,6 @@ function AddPatientStep1({ ...props }) {
   const { stepsData } = useAppSelector(addPatientSelector);
   const dispatch = useAppDispatch();
   const [selected, setslected] = React.useState<any>(null);
-  console.log(selectedPatient, "selected");
   const { t, ready } = useTranslation(translationKey, {
     keyPrefix: translationPrefix,
   });
