@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
-    minWidth: 892,
+    maxWidth: 892,
     width: "100%",
     '.btn-add': {
         alignSelf: 'flex-start',
@@ -13,7 +13,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
         },
     },
     ".items-list": {
-        background: theme.palette.back.main,
+        background: "EEF2F6",
         borderRadius: 4,
         maxHeight: 200,
         overflowY: 'scroll',
@@ -24,11 +24,11 @@ const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
     },
     '.loading-card': {
         border: 'none',
-        background: theme.palette.back.main,
+        background: "EEF2F6",
         p: {
             paddingTop: theme.spacing(4),
             paddingBottom: theme.spacing(2),
-            color: theme.palette.back.dark
+            color: 'EEF2F6'
         }
     },
     ".list-container": {
@@ -38,8 +38,6 @@ const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
         overflowY: 'scroll'
     },
 
-    "@media (max-width: 1024px)": {
-        minWidth: 0,
-    },
+
 }));
 export default BalanceSheetDialogStyled;
