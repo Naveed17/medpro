@@ -2,8 +2,10 @@ import { Card } from '@mui/material'
 import { styled } from '@mui/material/styles'
 const PendingDocumentCardStyled = styled(Card)(({ theme }) => ({
     backgroundColor: theme.palette.text.primary,
+    cursor: 'pointer',
     width: 'fit-content',
-    padding: 2,
+    padding: theme.spacing(.85, .9),
+    transition: theme.transitions.create("all"),
     ".MuiIconButton-root": {
         color: theme.palette.grey[0],
         svg: {
@@ -12,12 +14,25 @@ const PendingDocumentCardStyled = styled(Card)(({ theme }) => ({
             path: {
                 fill: theme.palette.grey[0],
             }
-        }
+        },
+        "&.btn-close": {
+            svg: {
+                path: {
+                    fill: theme.palette.text.primary,
+                }
+            },
+        },
+
     },
-    '.label': {
-        [theme.breakpoints.down("md")]: {
-            display: 'none'
-        }
+    "&:hover": {
+        backgroundColor: theme.palette.primary.main,
+        ".btn-close": {
+            svg: {
+                path: {
+                    fill: theme.palette.grey[0],
+                }
+            },
+        },
     }
 }));
 export default PendingDocumentCardStyled

@@ -46,6 +46,7 @@
   "patients file": "Dossier patient",
   "medical observation": "Observation médicale",
   "documents": "Documents",
+  "in_progress": "En cours",
   "consultationIP": {
     "patient_history": "Historique du patient",
     "mediktor_report": "Rapport Mediktor",
@@ -151,7 +152,12 @@
     "modelName": "Personaliser les modèles de l'ordonnance médicale",
     "namedModel": "Veuiller nommé le modèle",
     "createAsModel": "Enregistrer Modèle",
-    "updateDrug": "Modifier un médicament"
+    "updateDrug": "Modifier un médicament",
+    "model_prescription": "Modèle ordonnance",
+    "joint_pain": "Douleur articulaire",
+    "otitis": "Otite",
+    "rheumatism_PSO": "Rhumatisme PSO",
+    "child_cough": "Toux enfant"
   },
   "table": {
     "acts": "Actes",
