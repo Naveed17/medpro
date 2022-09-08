@@ -32,13 +32,13 @@ import { Accordion } from "@features/accordion/components";
 
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
-import { onOpenDetails } from "@features/table";
+import { onOpenPatientDrawer } from "@features/table";
 
 const menuList = [
   {
     title: "Patient Details",
     icon: <CheckRoundedIcon />,
-    action: "onOpenDetails",
+    action: "onOpenPatientDrawer",
   },
   {
     title: "Edit Patient",
@@ -62,7 +62,7 @@ const CardSection = ({ ...props }) => {
     action: string;
   }) => {
     switch (item.action) {
-      case "onOpenDetails":
+      case "onOpenPatientDrawer":
         onOpenPatientDetails({ patientId: v.uuid });
         break;
 
@@ -226,7 +226,7 @@ function PatientMobileCard({ ...props }) {
           key={Math.random()}
           theme={theme}
           onOpenPatientDetails={(val: { patientId: number | string }) => {
-            dispatch(onOpenDetails(val));
+            dispatch(onOpenPatientDrawer(val));
           }}
           loading={loading}
         />

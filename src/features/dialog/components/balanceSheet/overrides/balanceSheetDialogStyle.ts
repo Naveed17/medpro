@@ -1,8 +1,7 @@
 import { Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
-    maxWidth: 892,
-    width: "100%",
+
     '.btn-add': {
         alignSelf: 'flex-start',
     },

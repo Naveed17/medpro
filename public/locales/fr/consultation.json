@@ -147,7 +147,11 @@
     "blood_glucose": "Glycémie",
     "AMH": "AMH",
     "balance_sheet_model": "Modèle bilan",
-    "save_template": "Enregistrer modèle"
+    "save_template": "Enregistrer modèle",
+    "modelName": "Personaliser les modèles de l'ordonnance médicale",
+    "namedModel": "Veuiller nommé le modèle",
+    "createAsModel": "Enregistrer Modèle",
+    "updateDrug": "Modifier un médicament"
   },
   "table": {
     "acts": "Actes",

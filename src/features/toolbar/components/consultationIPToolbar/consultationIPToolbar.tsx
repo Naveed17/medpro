@@ -103,7 +103,7 @@ function ConsultationIPToolbar({ ...props }) {
                     }
                 }, { revalidate: true, populateCache: true }).then(() => {
                     mutate();
-                    setPrescription([])
+                    //setPrescription([])
                 })
                 break;
             case 'balance_sheet_request':
