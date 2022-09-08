@@ -17,11 +17,13 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
-import {appointmentSelector, setAppointmentDate, setAppointmentDuration, setAppointmentMotif} from "@features/tabPanel";
+import {
+    appointmentSelector, setAppointmentDate,
+    setAppointmentDuration, setAppointmentMotif
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
-import useTimeFromMinutes from "../../../../../../../app/hooks/useTimeFromMinutes";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
