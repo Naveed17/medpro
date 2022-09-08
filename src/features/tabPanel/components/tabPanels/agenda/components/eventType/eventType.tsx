@@ -39,7 +39,6 @@ const types = [
 ]
 
 function EventType({...props}) {
-    console.log("EventType")
     const {onNext} = props;
     const {type} = useAppSelector(appointmentSelector);
     const dispatch = useAppDispatch();
