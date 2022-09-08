@@ -107,6 +107,7 @@ function ConsultationIPToolbar({ ...props }) {
                 })
                 break;
             case 'balance_sheet_request':
+                console.log(state)
                 form.append('analyses', JSON.stringify(state));
 
                 trigger({
@@ -185,6 +186,7 @@ function ConsultationIPToolbar({ ...props }) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
+                        sx={{width: '80%'}}
                         variant="scrollable"
                         textColor="primary"
                         indicatorColor="primary"
@@ -228,7 +230,7 @@ function ConsultationIPToolbar({ ...props }) {
                                 {t('cancel')}
                             </Button>
                             <Button variant="contained"
-                                onClick={handleCloseDialog}
+                                onClick={handleSaveDialog}
 
                                 startIcon={<Icon
                                     path='ic-dowlaodfile' />}>
