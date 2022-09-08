@@ -2,13 +2,9 @@ import {Toolbar} from "@mui/material";
 import {SubHeaderStyled} from "@features/subHeader";
 import React from "react";
 
-type LayoutProps = {
-    children: React.ReactNode,
-};
-
-function SubHeader({children}: LayoutProps) {
+function SubHeader({children, ...pageProps}: LayoutProps) {
     return (
-        <SubHeaderStyled position="static" color="inherit" className="main-subheader">
+        <SubHeaderStyled sx={pageProps.sx} position="static" color="inherit" className="main-subheader">
             <Toolbar>
                 {children}
             </Toolbar>

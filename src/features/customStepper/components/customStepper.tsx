@@ -120,9 +120,6 @@ function CustomStepper({...props}) {
                             </TabPanel>
                         );
                 })}
-                
-           
-        
       </RootStyled>
     </>
   );

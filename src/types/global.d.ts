@@ -1,30 +1,32 @@
-import { CustomShadowType } from "@themes/shadows";
+import {CustomShadowType} from "@themes/shadows";
 import React from "react";
 declare global {
-  type LayoutProps = {
-    children: React.ReactNode;
-    fallback?: any;
-    pageProps?: any;
-    session?: any;
-  };
+    type LayoutProps = {
+        children: React.ReactNode;
+        fallback?: any;
+        pageProps?: any;
+        session?: any;
+        sx?: any;
+    };
 }
 
 declare module "@mui/material/Button" {
-  interface ButtonPropsVariantOverrides {
-    google: true;
-    "text-black": true;
-    'contained-white': true
-    filter: true;
-    "text-primary": true;
-    consultationIP: true;
-  }
+    interface ButtonPropsVariantOverrides {
+        google: true;
+        "text-transparent": true;
+        "text-black": true;
+        "contained-white": true
+        filter: true;
+        "text-primary": true;
+        consultationIP: true;
+    }
 
 }
 
 declare module "@mui/material/Chip" {
-  interface ChipPropsVariantOverrides {
-    contained: true;
-  }
+    interface ChipPropsVariantOverrides {
+        contained: true;
+    }
 }
 
 declare module "@mui/material" {
@@ -55,7 +57,7 @@ declare module "@mui/material" {
 }
 
 declare module "@mui/material/styles" {
-  interface Theme {
-    customShadows: CustomShadowType;
-  }
+    interface Theme {
+        customShadows: CustomShadowType;
+    }
 }

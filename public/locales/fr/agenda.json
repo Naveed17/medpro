@@ -1,6 +1,8 @@
 {
   "pending": "Rdv en attente",
   "add": "Ajouter",
+  "in-consultation-error": "vous avez déjà une consultation en cours",
+  "timer-status": "En consultation",
   "side-bar": {
     "all": "tous",
     "motif": "Motif de consultation",

@@ -261,6 +261,25 @@ export default function Button(theme) {
           },
         },
         {
+          props: { variant: "text-transparent" },
+          style: {
+            color: theme.palette.common.black,
+            backgroundColor: "transparent",
+            "& svg": {
+              "& path": {
+                fill: theme.palette.common.black,
+              },
+            },
+            "&:hover": {
+              boxShadow: "none",
+              backgroundColor: "transparent",
+            },
+            "&:active,&:focus": {
+              backgroundColor: "transparent",
+            },
+          },
+        },
+        {
           props: { variant: "text-warning" },
           style: {
             color: theme.palette.text.secondary,
