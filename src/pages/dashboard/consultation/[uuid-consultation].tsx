@@ -604,6 +604,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
                 "consultation",
                 "menu",
                 "common",
+                "agenda"
             ]))
         }
     })
