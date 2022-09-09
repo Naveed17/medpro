@@ -1,15 +1,16 @@
 import { Grid, Stack, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, TextField, Button } from '@mui/material'
 import { useFormik, Form, FormikProvider } from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
+import { useReactToPrint } from 'react-to-print'
 import { useTranslation } from 'next-i18next'
 import { capitalize } from 'lodash'
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Document, Page, pdfjs } from "react-pdf";
 import { actionButtons, list } from './config'
 import IconUrl from '@themes/urlIcon';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-function DocumentDetailDialog() {
+function DocumentDetailDialog({ ...props }) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const formik = useFormik({
         initialValues: {
@@ -18,11 +19,41 @@ function DocumentDetailDialog() {
         onSubmit: async (values) => {
         },
     });
-    const [file, setFile] = useState('/static/files/sample.pdf');
+    const { data: { state } } = props
+
+    const [file, setFile] = useState(state);
     const [numPages, setNumPages] = useState<number | null>(null);
+    const componentRef = useRef(null)
     const [readonly, setreadonly] = useState<boolean>(true);
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
+    }
+    const handlePrint = useReactToPrint({
+        onPrintError: (error) => console.log(error),
+        content: () => componentRef.current,
+    });
+
+    const handleActions = (action: string) => {
+        switch (action) {
+            case "print":
+                handlePrint();
+                break;
+            case "download":
+                fetch(file).then(response => {
+                    response.blob().then(blob => {
+                        const fileURL = window.URL.createObjectURL(blob);
+                        // Setting various property values
+                        let alink = document.createElement('a');
+                        alink.href = fileURL;
+                        alink.download = file.split(/(\\|\/)/g).pop() as string
+                        alink.click();
+                    })
+                })
+
+                break;
+            default:
+                break;
+        }
     }
     const { values, handleSubmit, getFieldProps } = formik;
     if (!ready) return <>loading translations...</>;
@@ -40,10 +71,11 @@ function DocumentDetailDialog() {
                         >
                             <Box sx={{
                                 '.react-pdf__Page__canvas': {
-                                    mx: 'auto'
+                                    mx: 'auto',
                                 }
                             }}>
-                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
+                                <Document ref={
+                                    componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
                                         <Page key={`page_${index + 1}`} pageNumber={index + 1} />
@@ -58,7 +90,7 @@ function DocumentDetailDialog() {
                     <List>
                         {
                             actionButtons.map((button, idx) =>
-                                <ListItem key={idx}>
+                                <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
                                             <IconUrl path={button.icon} />
