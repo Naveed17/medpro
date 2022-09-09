@@ -33,10 +33,10 @@ function TimeSchedule({...props}) {
     const {data: session} = useSession();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {motif, date: selectedDate} = useAppSelector(appointmentSelector);
+    const {motif, date: selectedDate, duration: initDuration} = useAppSelector(appointmentSelector);
 
     const [reason, setReason] = useState(motif);
-    const [duration, setDuration] = useState("");
+    const [duration, setDuration] = useState(initDuration);
     const [durations, setDurations] = useState([15, 20, 30, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
@@ -231,7 +231,7 @@ function TimeSchedule({...props}) {
                         labelId="select-duration"
                         id="select-duration"
                         onChange={onChangeDuration}
-                        value={duration}
+                        value={duration as string}
                         displayEmpty
                         renderValue={selected => {
                             if (selected.length === 0) {
