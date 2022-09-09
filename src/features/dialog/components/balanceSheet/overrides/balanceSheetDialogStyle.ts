@@ -13,7 +13,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         },
     },
     ".items-list": {
-        background: "EEF2F6",
+        background: "#EEF2F6",
         borderRadius: 4,
         maxHeight: 200,
         backgroundColor: '#e3eaef',
@@ -28,11 +28,11 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
     },
     '.loading-card': {
         border: 'none',
-        background: "EEF2F6",
+        background: "#EEF2F6",
         p: {
             paddingTop: theme.spacing(4),
             paddingBottom: theme.spacing(2),
-            color: 'EEF2F6'
+            color: '#666D81'
         }
     },
     ".list-container": {

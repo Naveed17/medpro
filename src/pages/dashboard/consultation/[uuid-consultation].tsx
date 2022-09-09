@@ -26,7 +26,7 @@ import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
-import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard } from "@features/card";
+import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard, PendingDocumentCardData } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -183,7 +183,7 @@ function ConsultationInProgress() {
     const [appointement, setAppointement] = useState<any>();
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
-
+    const [documentData, setDocumentData] = useState<any>(PendingDocumentCardData)
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
 
@@ -505,7 +505,7 @@ function ConsultationInProgress() {
 
 
                             </Box>
-                            <PendingDocumentCard />
+
                         </TabPanel>
                     }
                     {
@@ -547,6 +547,19 @@ function ConsultationInProgress() {
                     }
 
                 </AnimatePresence>
+                <Stack direction={{ md: 'row', xs: 'column' }} position="fixed" sx={{ right: 10, bottom: 10, zIndex: 999 }} spacing={2}>
+                    {
+                        documentData?.map((item: any) =>
+                            <React.Fragment key={item.id}>
+                                <PendingDocumentCard data={item} t={t} closeDocument={(v: number) =>
+                                    setDocumentData(documentData.filter(((card: any) => card.id !== v)))
+                                } />
+                            </React.Fragment>
+
+                        )
+                    }
+
+                </Stack>
                 <Drawer
                     anchor={"right"}
                     open={openAddDrawer}
