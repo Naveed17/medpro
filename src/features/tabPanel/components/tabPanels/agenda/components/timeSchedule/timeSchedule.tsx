@@ -100,7 +100,6 @@ function TimeSchedule({...props}) {
 
     const onChangeDatepicker = async (date: Date) => {
         setDate(date);
-        getSlots(date);
     };
 
     const onChangeLocation = (event: SelectChangeEvent) => {
@@ -140,7 +139,6 @@ function TimeSchedule({...props}) {
     })
 
     useEffect(() => {
-        console.log(date);
         if (date) {
             getSlots(date);
             setTime(moment(date).format('HH:mm'));
