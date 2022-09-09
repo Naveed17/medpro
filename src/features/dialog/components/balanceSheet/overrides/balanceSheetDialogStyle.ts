@@ -1,6 +1,7 @@
-import { Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
+import {Stack} from "@mui/material";
+import {styled} from "@mui/material/styles";
+
+const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
 
     '.btn-add': {
         alignSelf: 'flex-start',
@@ -15,11 +16,15 @@ const BalanceSheetDialogStyled = styled(Stack)(({ theme }) => ({
         background: "EEF2F6",
         borderRadius: 4,
         maxHeight: 200,
+        backgroundColor: '#e3eaef',
         overflowY: 'scroll',
         ".MuiListItemButton-root": {
             paddingTop: theme.spacing(.5),
             paddingBottom: theme.spacing(.5)
         }
+    },
+    ".items-list::-webkit-scrollbar": {
+        display: 'none'
     },
     '.loading-card': {
         border: 'none',

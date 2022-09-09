@@ -21,13 +21,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
 
-const data = [
-    {label: 'lable-1', year: 2021},
-    {label: 'lable-2', year: 2021},
-    {label: 'lable-3', year: 2021},
-]
-
-function MedicalPrescriptionDialog() {
+function BalanceSheetPendingDialog({...props}) {
+    const {data} = props;
+    const [analyses, setAnalyses] = useState<any[]>(data.state.analyses);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
@@ -54,7 +50,7 @@ function MedicalPrescriptionDialog() {
         <BalanceSheetPendingStyled>
             <Grid container spacing={5}>
                 <Grid item xs={12} md={7}>
-                    <Stack height={1}>
+                   {/* <Stack height={1}>
                         <FormikProvider value={formik}>
                             <Stack
                                 spacing={2}
@@ -92,21 +88,28 @@ function MedicalPrescriptionDialog() {
                             <UploadFileCard onDrop={handleDrop}/>
                         </Box>
                     </Stack>
-                    <Divider orientation="vertical"/>
+                    <Divider orientation="vertical"/>*/}
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
                     {
-                        [1, 2, 3].map((item, index) => (
+                        analyses.map((item, index) => (
                             <Card key={index} sx={{p: 1}}>
                                 <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
-                                    <Typography>Anticorps anti-nucléares</Typography>
+                                    <Typography>{item.name}</Typography>
                                     <IconButton size="small">
                                         <Icon path="setting/icdelete"/>
                                     </IconButton>
                                 </Stack>
                                 <TextField
                                     placeholder={t("enter_the_result")}
+                                    value={item.value}
+                                    onChange={(ev)=>{
+                                        console.log(analyses[index].value)
+                                        /*analyses[index].value = ev.target.value
+                                        setAnalyses([...analyses])*/
+
+                                    }}
                                     fullWidth
                                 />
                             </Card>
@@ -141,4 +144,4 @@ function MedicalPrescriptionDialog() {
     )
 }
 
-export default MedicalPrescriptionDialog
+export default BalanceSheetPendingDialog

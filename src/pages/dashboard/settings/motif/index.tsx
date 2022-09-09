@@ -209,8 +209,7 @@ function Motif() {
                 </Stack>
             </SubHeader>
             <DesktopContainer>
-                <Container>
-                    <Box pt={3.7}>
+                    <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
                         <Otable headers={headCells}
                             rows={rows}
                             state={state}
@@ -223,7 +222,6 @@ function Motif() {
                             handleConfig={handleConfig}
                             handleChange={handleChange} />
                     </Box>
-                </Container>
             </DesktopContainer>
             <MobileContainer>
                 <Container>
