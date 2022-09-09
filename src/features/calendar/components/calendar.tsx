@@ -1,4 +1,5 @@
 import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
+
 import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
@@ -23,7 +24,11 @@ import {
     Header, setCurrentDate, setView, SlotFormat,
     TableHead
 } from "@features/calendar";
-import {Otable} from "@features/table";
+
+import dynamic from "next/dynamic";
+
+const Otable = dynamic(() => import('@features/table/components/table'));
+
 import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
@@ -51,6 +56,7 @@ function Calendar({...props}) {
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const prevView = useRef(view);
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] =
@@ -100,12 +106,13 @@ function Calendar({...props}) {
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
-        if (calendarEl) {
+        if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.changeView(view as string);
         } else {
             OnViewChange(view as string);
         }
+        prevView.current = view;
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -231,7 +238,6 @@ function Calendar({...props}) {
                             </Box>
 
                             <FullCalendar
-                                timeZone={'local'}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}

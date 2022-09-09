@@ -1,9 +1,19 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useCallback, useEffect, useState} from "react";
+import React, {MutableRefObject, ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
-import {Alert, Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    Container,
+    Drawer,
+    LinearProgress, Theme,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -19,21 +29,15 @@ import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
+    AppointmentTypes,
     openDrawer,
     setConfig,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
-const CustomStepper = dynamic(() => import('@features/customStepper/components/customStepper'));
+import {EventType, Instruction, Patient, setAppointmentDate, TimeSchedule} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {
-    AppointmentDetail,
-    Dialog,
-    dialogMoveSelector,
-    PatientDetail,
-    setMoveDateTime
-} from "@features/dialog";
+import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
@@ -41,7 +45,8 @@ import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-import {AppointmentTypes} from "@features/calendar";
+
+const CustomStepper = dynamic(() => import('@features/customStepper/components/customStepper'));
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -106,9 +111,10 @@ function Agenda() {
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
-    let appointments: AppointmentModel[] = [];
-    let events: EventModal[] = [];
+    let events: MutableRefObject<EventModal[]> = useRef([]);
+    let sortedData: MutableRefObject<GroupEventsModel[]> = useRef([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -145,7 +151,7 @@ function Agenda() {
     } = useRequestMutation(null, "/agenda/update/appointment/status",
         {revalidate: false, populateCache: false});
 
-    const getAppointments = useCallback((query: string) => {
+    const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
         trigger({
             method: "GET",
@@ -153,11 +159,60 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(() => setLoading(false));
-    }, [agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+        }, {revalidate: true, populateCache: true}).then((result) => {
+            const eventCond = (result?.data as HttpResponse)?.data;
+            const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
+            const eventsUpdated: EventModal[] = [];
+            appointments?.map((appointment) => {
+                eventsUpdated.push({
+                    start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                    time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                    end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
+                    title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
+                    allDay: false,
+                    borderColor: appointment.consultationReason.color,
+                    patient: appointment.patient,
+                    motif: appointment.consultationReason,
+                    description: "",
+                    id: appointment.uuid,
+                    meeting: false,
+                    new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
+                    addRoom: true,
+                    status: AppointmentTypes[appointment.status]
+                });
+            });
+            events.current = eventsUpdated;
+            // this gives an object with dates as keys
+            const groups: any = eventsUpdated.reduce(
+                (groups: any, data: any) => {
+                    const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
+                        .format('DD-MM-YYYY');
+                    if (!groups[date]) {
+                        groups[date] = [];
+                    }
+                    groups[date].push(data);
+                    return groups;
+                }, {});
 
-    if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready) return (<LoadingScreen/>);
+            // Edit: to add it in the array format instead
+            const groupArrays = Object.keys(groups).map((date) => {
+                return {
+                    date,
+                    events: groups[date]
+                };
+            });
+
+            if (isMobile || view === "listWeek") {
+                // sort grouped data
+                sortedData.current = groupArrays.slice()
+                    .sort((a, b) =>
+                        new Date(a.date).getTime() - new Date(b.date).getTime());
+            }
+
+            setLoading(false);
+        });
+    }, [agenda?.uuid, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger]);
+
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
@@ -177,7 +232,7 @@ function Agenda() {
 
     const onViewChange = (view: string) => {
         if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`);
+            getAppointments(`format=list&page=1&limit=50`, view);
         }
     }
 
@@ -336,57 +391,14 @@ function Agenda() {
 
     const refreshData = () => {
         if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`);
+            getAppointments(`format=list&page=1&limit=50`, view);
         } else {
             getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
         }
     }
 
-    const eventCond = (httpAppointmentResponse as HttpResponse)?.data;
-    appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-    appointments?.map((appointment) => {
-        events.push({
-            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
-            title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
-            allDay: false,
-            borderColor: appointment.consultationReason.color,
-            patient: appointment.patient,
-            motif: appointment.consultationReason,
-            description: "",
-            id: appointment.uuid,
-            meeting: false,
-            new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
-            addRoom: true,
-            status: AppointmentTypes[appointment.status]
-        });
-    });
 
-    // this gives an object with dates as keys
-    const groups: any = events.reduce(
-        (groups: any, data: any) => {
-            const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
-                .format('DD-MM-YYYY');
-            if (!groups[date]) {
-                groups[date] = [];
-            }
-            groups[date].push(data);
-            return groups;
-        }, {});
-
-    // Edit: to add it in the array format instead
-    const groupArrays = Object.keys(groups).map((date) => {
-        return {
-            date,
-            events: groups[date]
-        };
-    });
-
-    const sortedData: GroupEventsModel[] = groupArrays
-        .slice()
-        .sort((a, b) =>
-            new Date(a.date).getTime() - new Date(b.date).getTime());
+    if (!ready) return (<LoadingScreen/>);
 
     return (
         <>
@@ -423,7 +435,13 @@ function Agenda() {
                                     animate={{opacity: 1, y: 0}}
                                     transition={{ease: "easeIn", duration: 1}}
                                 >
-                                    <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
+                                    <Calendar {...{
+                                        events: events.current,
+                                        agenda,
+                                        disabledSlots,
+                                        t,
+                                        sortedData: sortedData.current
+                                    }}
                                               OnInit={onLoadCalendar}
                                               OnSelectEvent={onSelectEvent}
                                               OnEventChange={onEventChange}
@@ -437,7 +455,7 @@ function Agenda() {
                     </>
                 </DesktopContainer>
                 <MobileContainer>
-                    {sortedData?.map((row, index) => (
+                    {sortedData.current?.map((row, index) => (
                         <Container key={index}>
                             <Typography variant={"body1"}
                                         color="text.primary"

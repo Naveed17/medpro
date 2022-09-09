@@ -22,7 +22,7 @@ function AppointmentCard({...props}) {
                         {data.status.value}
                     </Label>
                     <IconButton size="small" {...rest}>
-                        <IconUrl path='Ic-duotone'/>
+                        <IconUrl path='ic-duotone'/>
                     </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
