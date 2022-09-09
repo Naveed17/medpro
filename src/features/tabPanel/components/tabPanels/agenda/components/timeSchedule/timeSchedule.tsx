@@ -70,7 +70,15 @@ function TimeSchedule({...props}) {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null, {revalidate: false, populateCache: false}).then(() => setLoading(false));
+        } : null, {revalidate: false, populateCache: false}).then((result) => {
+            const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
+            const slots = weekTimeSlots.find(slot =>
+                slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
+            if (slots) {
+                setTimeSlots(slots);
+            }
+            setLoading(false)
+        });
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
 
     const onChangeReason = (event: SelectChangeEvent) => {
@@ -122,7 +130,7 @@ function TimeSchedule({...props}) {
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
-    const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
+
 
     let disabledDay: number[] = [];
     openingHours && Object.entries(openingHours).filter((openingHours: any) => {
@@ -132,17 +140,12 @@ function TimeSchedule({...props}) {
     })
 
     useEffect(() => {
-        if (weekTimeSlots) {
-            const slots = weekTimeSlots.find(slot =>
-                slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
-            if (slots) {
-                setTimeSlots(slots);
-            }
-        } else if (date) {
+        console.log(date);
+        if (date) {
             getSlots(date);
             setTime(moment(date).format('HH:mm'));
         }
-    }, [date, getSlots, weekTimeSlots]);
+    }, [date, getSlots]);
 
     useEffect(() => {
         if (locations && locations.length === 1) {
