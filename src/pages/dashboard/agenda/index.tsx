@@ -424,8 +424,9 @@ function Agenda() {
                     </AnimatePresence>}
             </SubHeader>
             <Box>
-                {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
-                    <LinearProgress color="warning"/>}
+                <LinearProgress sx={{
+                    visibility: !httpAgendasResponse || !httpAppointmentResponse || loading ? "visible" : "hidden"
+                }} color="warning"/>
                 <DesktopContainer>
                     <>
                         {httpAgendasResponse &&

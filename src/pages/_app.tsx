@@ -17,6 +17,7 @@ import KeycloakSession from "@app/keycloak/keycloakSession";
 import SwrProvider from "@app/swr/swrProvider";
 import AuthGuard from "@app/keycloak/authGuard";
 import moment from "moment-timezone";
+import Head from "next/head";
 
 interface MyAppProps extends AppProps {
   Component: AppProps["Component"] & NextPageWithLayout;
@@ -36,6 +37,10 @@ function MyApp({ Component, pageProps: { ...pageProps } }: MyAppProps) {
         <GlobleStyles>
           <KeycloakSession session={pageProps.session}>
             <SwrProvider fallback={pageProps.fallback}>
+              <Head>
+                <title>Med Pro</title>
+                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+              </Head>
               <AnimatePresence
                 exitBeforeEnter
                 initial={false}
