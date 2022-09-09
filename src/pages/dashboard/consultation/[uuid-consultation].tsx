@@ -224,7 +224,7 @@ function ConsultationInProgress() {
 
     const { data: httpAppResponse, error: errorHttpApp, mutate } = useRequest(mpUuid ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse).data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
         headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
     } : null);
 
@@ -555,7 +555,6 @@ function ConsultationInProgress() {
                                     setDocumentData(documentData.filter(((card: any) => card.id !== v)))
                                 } />
                             </React.Fragment>
-
                         )
                     }
 

@@ -107,6 +107,9 @@ function ConsultationIPToolbar({...props}) {
                 }, {revalidate: true, populateCache: true}).then(() => {
                     mutate();
                     //setPrescription([])
+                    setInfo('document_detail')
+                    setOpenDialog(true);
+                    setactions(true)
                 })
                 break;
             case 'balance_sheet_request':
