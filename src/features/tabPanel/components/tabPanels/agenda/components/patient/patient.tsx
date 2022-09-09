@@ -14,12 +14,10 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
-import {setAppointmentPatient} from "@features/tabPanel";
-
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
 function Patient({...props}) {
-    const {onNext} = props;
+    const {onNext, onBack} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -129,7 +127,7 @@ function Patient({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={() => dispatch(setStepperIndex(1))}
+                            onClick={onBack}
                         >
                             {t("back")}
                         </Button>

@@ -34,7 +34,7 @@ import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard} from "@features/card";
 
 function Instruction({...props}) {
-    const {onNext} = props;
+    const {onNext, onBack} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -252,6 +252,7 @@ function Instruction({...props}) {
                             sx={{
                                 mr: 1,
                             }}
+                            onClick={onBack}
                         >
                             {t("back")}
                         </Button>

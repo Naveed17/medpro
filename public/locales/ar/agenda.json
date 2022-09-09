@@ -3,17 +3,17 @@
   "add": "أضف موعد",
   "in-consultation-error": "لديك بالفعل استشارة جارية",
   "timer-status": "في الاستشارة الطبية",
-  "side-bar" : {
-    "all" : "الكل",
-    "motif" : "سبب الاستشارة",
-    "status" : "الوضع",
-    "type" : "نوع الموعد"
+  "side-bar": {
+    "all": "الكل",
+    "motif": "سبب الاستشارة",
+    "status": "الوضع",
+    "type": "نوع الموعد"
   },
   "filter": {
     "reasons": "سبب الاستشارة",
-    "status" : "الوضع",
+    "status": "الوضع",
     "meetingType": "نوع الاجتماع",
-    "meeting":{
+    "meeting": {
       "cabinet": "في العيادة",
       "home": "في المنزل",
       "teleconsultation": "الاستشارة عن بعد"
@@ -65,11 +65,15 @@
       "title": "نوع الفترة الزمنية",
       "sub-title": "نوع",
       "types": {
-        "rdv": "موعد في العيادة",
-        "telemed": "الاستشارة عن بعد",
-        "domicile": "موعد في المنزل",
-        "staff": "اجتماع الموظفين",
-        "absence": "غياب"
+        "absence": "غياب",
+        "consultation": "موعد في العيادة",
+        "clinique": "Clinique",
+        "teleconsultation": "الاستشارة عن بعد",
+        "at-home": "موعد في المنزل",
+        "medical-representative": "مندوب طبي",
+        "personal": "شخصي",
+        "staff-meeting": "اجتماع الموظفين",
+        "control": "فحص طبي"
       }
     },
     "stepper-1": {

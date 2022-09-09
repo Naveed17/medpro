@@ -14,17 +14,16 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
     "& .MuiPickersDay-root": {
         borderRadius: "8px",
         "&.MuiPickersDay-today": {
-            border: "1px solid transparent",
+            border: `1px solid ${theme.palette.warning.main}`
         },
         "&.Mui-selected": {
             border: `1px solid ${theme.palette.warning.main}`,
             color: theme.palette.text.primary,
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.warning.main,
             borderRadius: "8px",
             "&:hover, &:focus": {
                 color: theme.palette.text.primary,
                 backgroundColor: theme.palette.warning.main,
-                // border: "1px solid #FFD400"
             },
         },
         "&:hover, &:focus": {

@@ -65,11 +65,15 @@
       "title": "Type du créneau horaire",
       "sub-title": "Type",
       "types": {
-        "rdv": "Rendez-vous au cabinet",
-        "telemed": "Téléconsultation",
-        "domicile": "Rendez-vous à domicile",
-        "staff": "Réunion de staff",
-        "absence": "Absence"
+        "consultation": "Consultation",
+        "clinique": "Clinique",
+        "teleconsultation": "Téléconsultation",
+        "at-home": "À domicile",
+        "medical-representative": "Délégué",
+        "personal": "personnel",
+        "staff-meeting": "Réunion de staff",
+        "absence": "Absence",
+        "control": "Contrôle"
       }
     },
     "stepper-1": {
