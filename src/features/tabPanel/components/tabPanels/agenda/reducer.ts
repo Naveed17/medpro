@@ -1,7 +1,7 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {
     resetAppointment,
-    setAppointmentDate,
+    setAppointmentDate, setAppointmentDuration,
     setAppointmentInstruction,
     setAppointmentMotif,
     setAppointmentPatient, setAppointmentSubmit,
@@ -11,6 +11,7 @@ import {
 export type AppointmentState = {
     type: string;
     motif: string;
+    duration: number | string;
     date: Date | null;
     patient: PatientWithNextAndLatestAppointment | null;
     instruction: AppointmentInstructionModel;
@@ -18,14 +19,15 @@ export type AppointmentState = {
 };
 
 const initialState: AppointmentState = {
-    type: '',
-    motif: '',
+    type: "",
+    motif: "",
+    duration : "",
     date: null,
     patient: null,
     instruction: {
-        smsLang: 'fr',
-        description: '',
-        rappel: '1',
+        smsLang: "fr",
+        description: "",
+        rappel: "1",
         smsRappel: true,
         timeRappel: new Date("2022-01-01T18:00:00.000Z")
     },
@@ -37,6 +39,8 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
         state.type = action.payload;
     }).addCase(setAppointmentMotif, (state, action) => {
         state.motif = action.payload;
+    }).addCase(setAppointmentDuration, (state, action) => {
+        state.duration = action.payload;
     }).addCase(setAppointmentDate, (state, action) => {
         state.date = action.payload;
     }).addCase(setAppointmentPatient, (state, action) => {

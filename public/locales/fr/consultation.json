@@ -36,7 +36,8 @@
     "ignore": "Ignorer",
     "add_history": "Ajouter Antécédents",
     "family_history": "Antécédents familiaux",
-    "surgical_history": "Antécédents chirurgicaux"
+    "surgical_history": "Antécédents chirurgicaux",
+    "emptyBalance": "Aucun bilan en attente"
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",

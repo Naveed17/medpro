@@ -82,6 +82,24 @@ const Content = ({...props}) => {
             }, {revalidate: true, populateCache: true}).then(() => {
                 mutate()
             });
+        } else if (info === 'balance_sheet_pending') {
+            console.log(state);
+            form.append('analysesResult', JSON.stringify([{
+                uuid: "2f8db467-bbe6-4e37-9daa-c0351d5b9656",
+                result: "20"
+            }]));
+
+            trigger({
+                method: "PUT",
+                url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/requested-analysis/' + (state as any).uuid + '/' + router.locale,
+                data: form,
+                headers: {
+                    ContentType: 'application/x-www-form-urlencoded',
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then(() => {
+                mutate()
+            });
         }
 
         setOpenDialog(false);
@@ -95,7 +113,6 @@ const Content = ({...props}) => {
 
         if (patient.antecedents[action])
             setState(patient.antecedents[action])
-        //else if (action ===)
 
         console.log(action)
         console.log(patient.antecedents[action])
@@ -158,42 +175,6 @@ const Content = ({...props}) => {
                                 </Stack>
                             }
                             {
-                                id === 2 &&
-                                patient?.requestedAnalyses.map((ra: any, index: number) =>
-                                    <Stack key={index} spacing={2} alignItems="flex-start">
-                                        <List dense>
-                                            {
-                                                ra.analyses.map((list: any, index: number) =>
-                                                    <ListItem key={index}>
-                                                        <ListItemIcon>
-                                                            <CircleIcon/>
-                                                        </ListItemIcon>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {list.name}
-                                                        </Typography>
-                                                    </ListItem>
-                                                )
-                                            }
-
-                                        </List>
-                                        <Stack direction="row" spacing={2}>
-                                            <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
-                                                    startIcon={
-                                                        <Add/>
-                                                    }>
-                                                {t('add_result')}
-                                            </Button>
-                                            {patient?.requestedAnalyses.length > 0 &&
-                                                <Button color="error" size="small" onClick={console.log} startIcon={
-                                                    <Icon path="setting/icdelete"/>
-                                                }>
-                                                    {t('ignore')}
-                                                </Button>}
-                                        </Stack>
-                                    </Stack>
-                                )
-                            }
-                            {
                                 id === 3 &&
                                 <Stack spacing={1} alignItems="flex-start">
                                     {<List dense>
@@ -227,8 +208,14 @@ const Content = ({...props}) => {
                             {
                                 patient?.requestedAnalyses.length === 0 &&
                                 <ContentStyled>
-                                    <CardContent style={{paddingBottom: 5}}>
-                                        Aucun bilan en attente
+                                    <CardContent style={{
+                                        paddingBottom: '15px',
+                                        fontSize: '0.75rem',
+                                        color: '#7C878E',
+                                        textAlign: 'center',
+                                        paddingTop: '15px'
+                                    }}>
+                                        {t('emptyBalance')}
                                     </CardContent>
                                 </ContentStyled>
                             }
@@ -253,7 +240,10 @@ const Content = ({...props}) => {
 
                                                 </List>
                                                 <Stack direction="row" spacing={2}>
-                                                    <Button onClick={() => handleOpen("balance_sheet_pending")} size="small"
+                                                    <Button onClick={() => {
+                                                        setState(ra)
+                                                        handleOpen("balance_sheet_pending")
+                                                    }} size="small"
                                                             startIcon={
                                                                 <Add/>
                                                             }>
