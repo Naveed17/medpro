@@ -3,21 +3,22 @@ import PendingDocumentCardStyled from './overrides/pendingDocumentCardStyle'
 import { Label } from '@features/label';
 import { IconButton, Stack, Typography, } from '@mui/material';
 import IconUrl from '@themes/urlIcon';
-function CipCard() {
+function CipCard({ ...props }) {
+    const { data, t, closeDocument } = props
     return (
         <PendingDocumentCardStyled>
-            <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center" px={{ xs: 0.7, md: 1.7 }}>
+            <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center">
                 <IconButton size="small">
-                    <IconUrl path="ic-analyse" />
+                    <IconUrl path={data.icon} />
                 </IconButton>
-                <Typography color="common.white" display={{ xs: 'none', md: "block" }}>
-                    Demande bilan
+                <Typography color="common.white">
+                    {data.name}
                 </Typography>
 
                 <Label color='warning' variant='filled' className='label'>
-                    En cours
+                    {t(data.status)}
                 </Label>
-                <IconButton size="small">
+                <IconButton size="small" className='btn-close' onClick={() => closeDocument(data.id)}>
                     <IconUrl path="ic-x" />
                 </IconButton>
             </Stack>
