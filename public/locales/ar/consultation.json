@@ -36,7 +36,8 @@
     "ignore": "Ignorer",
     "add_history": "Ajouter Antécédents",
     "family_history": "Antécédents familiaux",
-    "surgical_history": "Antécédents chirurgicaux"
+    "surgical_history": "Antécédents chirurgicaux",
+    "emptyBalance": "Aucun bilan en attente"
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",
@@ -124,7 +125,10 @@
     "father": "Père",
     "mother": "Mère",
     "name_of_the_allergy": "Nom de l’allergie",
-    "current_treatment": "Tapez le nom du traitement en cours"
+    "current_treatment": "Tapez le nom du traitement en cours",
+    "modelName": "Personaliser les modèles de l'ordonnance médicale",
+    "namedModel": "Veuiller nommé le modèle",
+    "createAsModel": "Enregistrer Modèle"
   },
   "table": {
     "acts": "Actes",

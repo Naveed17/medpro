@@ -43,6 +43,10 @@
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
   "see_patient_form": "Voir fiche Patient",
   "send_a_message": "Envoyer un message",
+  "delete": "Supprimer",
+  "share": "Partager",
+  "download": "Télécharger",
+  "print": "Imrimer",
   "login": {
     "sign_in": "Signed in as",
     "sign_title": "Have you ever used med.tn?",

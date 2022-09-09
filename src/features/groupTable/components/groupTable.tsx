@@ -2,7 +2,7 @@ import { TableContainer, Table, TableBody } from "@mui/material";
 import { rowsActionsData } from "@features/groupTable";
 
 function GroupTable({ ...props }) {
-  const { data, from } = props;
+  const { data, from, loading } = props;
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
@@ -11,7 +11,7 @@ function GroupTable({ ...props }) {
       <TableContainer>
         <Table size="small" aria-label="a dense table">
           <TableBody>
-            <Component isNext data={data} />
+            <Component isNext data={data} loading={loading} />
           </TableBody>
         </Table>
       </TableContainer>

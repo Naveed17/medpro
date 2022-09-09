@@ -1,28 +1,27 @@
 import React from 'react'
-import CipCardStyled from './overrides/cipCardStyle'
-import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
+import PendingDocumentCardStyled from './overrides/pendingDocumentCardStyle'
 import { Label } from '@features/label';
-import { IconButton, Stack, Typography, Box } from '@mui/material';
+import { IconButton, Stack, Typography, } from '@mui/material';
+import IconUrl from '@themes/urlIcon';
 function CipCard() {
     return (
-        <CipCardStyled>
+        <PendingDocumentCardStyled>
             <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center" px={{ xs: 0.7, md: 1.7 }}>
                 <IconButton size="small">
-                    <PlayCircleRoundedIcon />
+                    <IconUrl path="ic-analyse" />
                 </IconButton>
                 <Typography color="common.white" display={{ xs: 'none', md: "block" }}>
-                    Muhammad Ali
+                    Demande bilan
                 </Typography>
-                <Box>
-                    <Typography color="common.white" variant='caption'>
-                        12:12:00
-                    </Typography>
-                </Box>
+
                 <Label color='warning' variant='filled' className='label'>
                     En cours
                 </Label>
+                <IconButton size="small">
+                    <IconUrl path="ic-x" />
+                </IconButton>
             </Stack>
-        </CipCardStyled>
+        </PendingDocumentCardStyled>
     )
 }
 

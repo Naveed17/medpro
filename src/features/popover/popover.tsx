@@ -3,14 +3,14 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Tooltip from "@mui/material/Tooltip";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
-import {useTranslation} from 'next-i18next';
+import { useTranslation } from 'next-i18next';
 // ________________________
-import {uniqueId} from "lodash";
-import {RootStyled} from "@features/popover";
+import { uniqueId } from "lodash";
+import { RootStyled } from "@features/popover";
 
-function BasicPopover({...props}) {
-    const {t, ready} = useTranslation('common');
-    const {button, handleClose, open, menuList, onClickItem, ...rest} = props;
+function BasicPopover({ ...props }) {
+    const { t, ready } = useTranslation('common');
+    const { button, handleClose, open, menuList, onClickItem, ...rest } = props;
     if (!ready) return <>loading translations...</>;
 
     return (
@@ -37,10 +37,10 @@ function BasicPopover({...props}) {
                                                 onClickItem(v);
                                                 handleClose();
                                             }}
-                                            className="popover-item"
+                                            className={`popover-item ${v.title === "delete" ? "list-delete" : ""}`}
                                         >
                                             {v.icon}
-                                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                            <Typography fontSize={15} sx={{ color: "#fff" }}>
                                                 {t(v.title)}
                                             </Typography>
                                         </Box>
@@ -48,7 +48,6 @@ function BasicPopover({...props}) {
                                 )}
                             </div>
                         }
-                        placement="right-start"
                         arrow
                     >
                         {button}

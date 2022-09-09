@@ -39,15 +39,18 @@ const RootStyled = styled("div")(({theme}) => ({
             padding: theme.spacing(0.5, 0),
 
             "& .ic-cabinet, & .ic-video": {
-               // marginLeft: theme.spacing(0.5),
+                // marginLeft: theme.spacing(0.5),
             },
         },
     },
     "& .fc-timegrid-event-harness > .fc-timegrid-event": {
-       width: "101%",
+        width: "101%",
+        //overflowX: "auto",
+        borderBottomRightRadius: "6px",
+        borderTopRightRadius: "6px"
     },
     "& .fc-event-main-box": {
-        overflow: "hidden",
+        overflowX: "inherit",
         color: theme.palette.primary.main,
         alignItems: "center",
         display: "flex",
@@ -65,17 +68,17 @@ const RootStyled = styled("div")(({theme}) => ({
                 fill: theme.palette.error.main,
             },
         },
-        svg: {
-            width: 8,
-            height: 8,
-            margin: theme.spacing(0, 0.5),
-        },
+        /*        svg: {
+                    width: 8,
+                    height: 8,
+                    margin: theme.spacing(0, 0.5),
+                },*/
         "&:before": {
             content: '""',
             position: "absolute",
             top: 0,
             left: -1,
-            width: "4px",
+            width: 3,
             height: "100%",
             zIndex: 100,
         },

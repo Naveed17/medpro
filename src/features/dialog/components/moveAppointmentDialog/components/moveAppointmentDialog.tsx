@@ -1,5 +1,5 @@
 import {AppointmentPatientCard} from "@features/card";
-import {Box, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
@@ -11,17 +11,20 @@ import {agendaSelector} from "@features/calendar";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useIsMountedRef} from "@app/hooks";
-import {dialogMoveSelector, setLimit} from "@features/dialog";
+import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
+import {useTranslation} from "next-i18next";
+import BoxStyled from "./overrides/boxStyled";
 
 function MoveAppointmentDialog({...props}) {
-    const {t, data, OnDateChange} = props;
+    const {OnDateChange} = props;
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {date: moveDialogDate, time: moveDialogTime, limit: initLimit} = useAppSelector(dialogMoveSelector);
+    const {t, ready} = useTranslation(['agenda', 'common']);
 
+    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
+    const {date: moveDialogDate, time: moveDialogTime, limit: initLimit} = useAppSelector(dialogMoveSelector);
     const [loading, setLoading] = useState(true);
 
     const {data: user} = session as Session;
@@ -52,15 +55,12 @@ function MoveAppointmentDialog({...props}) {
     }, [getSlots, isMounted]);
 
     const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
-        if (type === "date") {
-            OnDateChange(type, newDate as Date, moveDialogTime);
-        } else {
-            OnDateChange(type, moveDialogDate as Date, newTime as string);
-        }
+        dispatch(setMoveDateTime(type === 'date' ?
+            {date: newDate, selected: true} : {time: newTime, selected: true}));
     }
 
     return (
-        <Box sx={{minHeight: 150}}>
+        <BoxStyled>
             <AppointmentPatientCard data={data?.extendedProps}/>
             <Typography mt={4} mb={2}
                         sx={{
@@ -77,6 +77,7 @@ function MoveAppointmentDialog({...props}) {
 
             <Grid item md={6} xs={12}>
                 <Typography variant="body1"
+                            className={"header-section"}
                             ml={14}
                             color="text.primary" my={2}>
                     {t("dialogs.move-dialog.time-message")}
@@ -94,7 +95,7 @@ function MoveAppointmentDialog({...props}) {
                     seeMoreText={t("dialogs.move-dialog.see-more")}
                 />
             </Grid>
-        </Box>
+        </BoxStyled>
     )
 }
 

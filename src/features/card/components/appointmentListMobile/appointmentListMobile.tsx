@@ -1,16 +1,33 @@
-import { Typography, IconButton, Stack, Box } from "@mui/material";
+import {Typography, IconButton, Stack, Box} from "@mui/material";
 import RootStyled from './overrides/rootStyled';
-import { Label } from "@features/label";
+import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import React from "react";
+import React, {useState} from "react";
+import {Popover} from "@features/popover";
+import Icon from "@themes/urlIcon";
+import {CalendarContextMenu} from "@features/calendar";
 
-function AppointmentListMobile({ ...props }) {
-    const { event, OnSelectEvent } = props;
+function AppointmentListMobile({...props}) {
+    const {event, OnSelectEvent, OnMenuActions} = props;
+    const [openTooltip, setOpenTooltip] = useState(false);
 
     const handleEventClick = () => {
         OnSelectEvent(Object.assign(event, {
+            extendedProps: {
+                description: event.description,
+                meeting: event.meeting,
+                motif: event.motif,
+                patient: event.patient,
+                status: event.status,
+                time: event.time
+            }
+        }));
+    }
+
+    const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
+        setOpenTooltip(false)
+        OnMenuActions(data.action, Object.assign(event, {
             extendedProps: {
                 description: event.description,
                 meeting: event.meeting,
@@ -26,22 +43,21 @@ function AppointmentListMobile({ ...props }) {
         <RootStyled
             sx={{
                 "&:before": {
-                    bgcolor: event.borderColor,
-                    width: ".4rem"
-                },
-            }}
-        >
-            <Stack direction="row" spacing={2}>
+                    mt: "-.5rem",
+                    background: event.borderColor
+                }
+            }}>
+            <Box sx={{display: "flex"}}>
                 <Box className="card-main" onClick={handleEventClick}>
                     <Typography variant={"subtitle2"} color="primary.main" className="title">
                         <>
-                            {event.meeting ? <IconUrl path="ic-video" /> : null}
+                            {event.meeting ? <IconUrl path="ic-video"/> : null}
                             <span>{event.title}</span>
                         </>
                     </Typography>
                     <Box className="time-badge-main">
                         <Typography variant={"subtitle2"} color="text.secondary">
-                            <AccessTimeOutlinedIcon />
+                            <AccessTimeOutlinedIcon/>
                             <span>
                                 {new Date(event.time).toLocaleTimeString([], {
                                     hour: "2-digit",
@@ -50,14 +66,14 @@ function AppointmentListMobile({ ...props }) {
                             </span>
                         </Typography>
                         <Label variant='filled'
-                            sx={{ ml: 1 }}
-                            color={
-                                event?.status.key === "CONFIRMED"
-                                    ? "success"
-                                    : event?.status.key === "CANCELED"
-                                        ? "error"
-                                        : "primary"
-                            }>
+                               sx={{ml: 1}}
+                               color={
+                                   event?.status.key === "CONFIRMED"
+                                       ? "success"
+                                       : event?.status.key === "CANCELED"
+                                           ? "error"
+                                           : "primary"
+                               }>
                             {event.status.value}
                         </Label>
                     </Box>
@@ -66,11 +82,25 @@ function AppointmentListMobile({ ...props }) {
                     </Typography>
                 </Box>
                 <Box className="action">
-                    <IconButton size="small">
-                        <MoreVertIcon />
-                    </IconButton>
+                    <Popover
+                        open={openTooltip}
+                        handleClose={() => setOpenTooltip(false)}
+                        menuList={CalendarContextMenu}
+                        onClickItem={handleMenuClick}
+                        button={
+                            <IconButton
+                                onClick={() => {
+                                    setOpenTooltip(true);
+                                }}
+                                sx={{display: "block", ml: "auto"}}
+                                size="small"
+                            >
+                                <Icon path="more-vert"/>
+                            </IconButton>
+                        }
+                    />
                 </Box>
-            </Stack>
+            </Box>
         </RootStyled>
     )
 }

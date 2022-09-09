@@ -43,6 +43,10 @@
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
   "see_patient_form": "Voir fiche Patient",
   "send_a_message": "Envoyer un message",
+  "delete": "Supprimer",
+  "share": "Partager",
+  "download": "Télécharger",
+  "print": "Imrimer",
   "login": {
     "sign_in": "تسجيل دخولك",
     "sign_title": "هل سبق لك استخدام med.tn ؟",
@@ -76,5 +80,41 @@
     "secondes": "ثواني",
     "millisecond": "ميلي ثانية",
     "milliseconds": "مللي ثانية"
+  },
+  "event": {
+    "new": "موعد جديد",
+    "title": "تفاصيل الموعد",
+    "start": "ابدأ الاستشارة",
+    "schedule": "فترة زمنية",
+    "motif": "سبب الاستشارة",
+    "date": "تاريخ الاستشارة",
+    "qr": "رمز QR",
+    "link": "إرسال الرابط",
+    "patient": "المريض",
+    "insctruction": "التعليمات",
+    "insctruction-placeholder'": "اكتب تعليماتك هنا",
+    "add-waiting-room": "إضافة المريض إلى غرفة الانتظار",
+    "move": "نقل الموعد",
+    "delete": "إلغاء الموعد"
+  },
+  "dialogs": {
+    "move-dialog": {
+      "title": "نقل الموعد",
+      "sub-title": "هل أنت متأكد أنك تريد نقل الموعد؟",
+      "description": "لا تفقد التاريخ والوثائق المتعلقة بهذا الموعد",
+      "garde-date": "احتفظ بالتاريخ",
+      "time-message": "الرجاء اختيار وقت الاجتماع",
+      "week-day-slot": "اختر فترة زمنية جديدة",
+      "see-more": "مشاهدة المزيد من الجداول الزمنية",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد"
+    },
+    "cancel-dialog": {
+      "title": "إلغاء الموعد",
+      "sub-title": "هل أنت متأكد أنك تريد حذف الموعد؟",
+      "description": "تفقد إلى الأبد التاريخ والوثائق المتعلقة بهذا المريض",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد"
+    }
   }
 }

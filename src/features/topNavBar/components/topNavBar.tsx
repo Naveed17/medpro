@@ -16,32 +16,33 @@ import {
 } from "@mui/material";
 
 // config
-import { siteHeader } from "@features/sideBarMenu";
+import {siteHeader} from "@features/sideBarMenu";
 
 // components
-import { TextFieldSearch } from "@features/textFieldSearch";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { sideBarSelector } from "@features/sideBarMenu/selectors";
-import { toggleMobileBar, toggleSideBar } from "@features/sideBarMenu/actions";
+import {TextFieldSearch} from "@features/textFieldSearch";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {sideBarSelector} from "@features/sideBarMenu/selectors";
+import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
-import { NavbarStepperStyled, NavbarStyled } from "@features/topNavBar";
-import { useRouter } from "next/router";
+import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
+import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
-
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { CipCard } from "@features/card";
+import {CipCard, timerSelector} from "@features/card";
+
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
-
-function TopNavBar({ ...props }) {
-    const { dashboard } = props;
-    const { topBar } = siteHeader;
+function TopNavBar({...props}) {
+    const {dashboard} = props;
+    const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
-    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {isActive, isPaused} = useAppSelector(timerSelector);
     const router = useRouter();
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
     const settingHas = router.pathname.includes('settings/');
+
     return (
         <>
             {dashboard ?
@@ -59,7 +60,7 @@ function TopNavBar({ ...props }) {
                                         edge="start"
                                         className="btn"
                                         onClick={() => router.push('/dashboard/settings')}>
-                                        <ArrowBackIcon />
+                                        <ArrowBackIcon/>
                                     </IconButton>
                                     :
                                     <IconButton
@@ -67,7 +68,7 @@ function TopNavBar({ ...props }) {
                                         edge="start"
                                         className="btn"
                                         onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
-                                        <Icon path="ic-toggle" />
+                                        <Icon path="ic-toggle"/>
                                     </IconButton>
                             }
                         </Hidden>
@@ -77,10 +78,10 @@ function TopNavBar({ ...props }) {
                                 edge="start"
                                 className="btn"
                                 onClick={() => dispatch(toggleSideBar(opened))}>
-                                <Icon path="ic-toggle" />
+                                <Icon path="ic-toggle"/>
                             </IconButton>
                         </Hidden>
-                        <Hidden smUp>
+                        {/*                      <Hidden smUp>
                             <Link href="/" className="nav-logo">
                                 <Box
                                     component="img"
@@ -91,16 +92,16 @@ function TopNavBar({ ...props }) {
                                     mr={1}
                                 />
                             </Link>
-                        </Hidden>
+                        </Hidden>*/}
                         <Hidden mdDown>
                             <IconButton color="primary" edge="start" className="btn">
-                                <Icon path="ic-scan" />
+                                <Icon path="ic-scan"/>
                             </IconButton>
-                            <TextFieldSearch color="primary" className="topbar-search" />
+                            <TextFieldSearch color="primary" className="topbar-search"/>
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            <CipCard />
+                            {isActive && <CipCard/>}
                             {topBar.map((item, index) => (
                                 <Badge
                                     badgeContent={item.notifications && item.notifications}
@@ -110,26 +111,26 @@ function TopNavBar({ ...props }) {
                                 >
                                     <MenuItem disableRipple>
                                         <IconButton color="primary" edge="start">
-                                            <Icon path={item.icon} />
+                                            <Icon path={item.icon}/>
                                         </IconButton>
                                     </MenuItem>
                                 </Badge>
                             ))}
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-plusinfo-quetsion"} />
+                                    <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
                             </Badge>
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-cloc"} />
+                                    <Icon path={"ic-cloc"}/>
                                 </IconButton>
                             </Badge>
                         </MenuList>
-                        <LangButton />
+                        <LangButton/>
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0 }} disableRipple>
-                                <ProfilMenuIcon />
+                            <MenuItem sx={{pr: 0}} disableRipple>
+                                <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>
@@ -153,12 +154,12 @@ function TopNavBar({ ...props }) {
                         </Hidden>
 
                         <MenuList className="topbar-nav">
-                            <LangButton />
+                            <LangButton/>
                         </MenuList>
 
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0 }} disableRipple>
-                                <ProfilMenuIcon />
+                            <MenuItem sx={{pr: 0}} disableRipple>
+                                <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>

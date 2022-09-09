@@ -1,9 +1,19 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useCallback, useEffect, useState} from "react";
+import React, {MutableRefObject, ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
-import {Box, Button, Container, Drawer, LinearProgress, Typography, useTheme} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    Container,
+    Drawer,
+    LinearProgress, Theme,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
@@ -17,26 +27,26 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setConfig, setSelectedEvent, setStepperIndex} from "@features/calendar";
-import {EventType, TimeSchedule, Patient, Instruction, setAppointmentDate} from "@features/tabPanel";
-import {CustomStepper} from "@features/customStepper";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {
-    AppointmentDetail,
-    Dialog,
-    dialogMoveSelector,
-    PatientDetail,
-    MoveAppointmentDialog,
-    setMoveDateTime
-} from "@features/dialog";
-import {AppointmentListMobile} from "@features/card";
+    agendaSelector,
+    AppointmentTypes,
+    openDrawer,
+    setConfig,
+    setSelectedEvent,
+    setStepperIndex
+} from "@features/calendar";
+import {EventType, Instruction, Patient, setAppointmentDate, TimeSchedule} from "@features/tabPanel";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
+import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-import {AppointmentTypes} from "@features/calendar";
+
+const CustomStepper = dynamic(() => import('@features/customStepper/components/customStepper'));
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -81,6 +91,7 @@ function Agenda() {
         time: moveDialogTime,
         selected: moveDateChanged
     } = useAppSelector(dialogMoveSelector);
+    const {isActive} = useAppSelector(timerSelector);
 
     const [
         timeRange,
@@ -92,16 +103,18 @@ function Agenda() {
     }]);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [moveAlert, setMoveAlert] = useState<boolean>(false);
-    const [alertCancel, setAlertCancel] = useState<boolean>(false);
-    const [alert, setAlert] = useState<boolean>(false);
+    const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [cancelDialog, setCancelDialog] = useState<boolean>(false);
+    const [moveDialog, setMoveDialog] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
-    const [date, setDate] = useState(currentDate);
+    const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
-    let appointments: AppointmentModel[] = [];
-    let events: EventModal[] = [];
+    let events: MutableRefObject<EventModal[]> = useRef([]);
+    let sortedData: MutableRefObject<GroupEventsModel[]> = useRef([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -138,7 +151,7 @@ function Agenda() {
     } = useRequestMutation(null, "/agenda/update/appointment/status",
         {revalidate: false, populateCache: false});
 
-    const getAppointments = useCallback((query: string) => {
+    const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
         trigger({
             method: "GET",
@@ -146,11 +159,60 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then(() => setLoading(false));
-    }, [agenda?.uuid, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+        }, {revalidate: true, populateCache: true}).then((result) => {
+            const eventCond = (result?.data as HttpResponse)?.data;
+            const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
+            const eventsUpdated: EventModal[] = [];
+            appointments?.map((appointment) => {
+                eventsUpdated.push({
+                    start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                    time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                    end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
+                    title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
+                    allDay: false,
+                    borderColor: appointment.consultationReason.color,
+                    patient: appointment.patient,
+                    motif: appointment.consultationReason,
+                    description: "",
+                    id: appointment.uuid,
+                    meeting: false,
+                    new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
+                    addRoom: true,
+                    status: AppointmentTypes[appointment.status]
+                });
+            });
+            events.current = eventsUpdated;
+            // this gives an object with dates as keys
+            const groups: any = eventsUpdated.reduce(
+                (groups: any, data: any) => {
+                    const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
+                        .format('DD-MM-YYYY');
+                    if (!groups[date]) {
+                        groups[date] = [];
+                    }
+                    groups[date].push(data);
+                    return groups;
+                }, {});
 
-    if (errorHttpAgendas) return <div>failed to load</div>
-    if (!ready) return (<LoadingScreen/>);
+            // Edit: to add it in the array format instead
+            const groupArrays = Object.keys(groups).map((date) => {
+                return {
+                    date,
+                    events: groups[date]
+                };
+            });
+
+            if (isMobile || view === "listWeek") {
+                // sort grouped data
+                sortedData.current = groupArrays.slice()
+                    .sort((a, b) =>
+                        new Date(a.date).getTime() - new Date(b.date).getTime());
+            }
+
+            setLoading(false);
+        });
+    }, [agenda?.uuid, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger]);
+
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
@@ -170,7 +232,7 @@ function Agenda() {
 
     const onViewChange = (view: string) => {
         if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`);
+            getAppointments(`format=list&page=1&limit=50`, view);
         }
     }
 
@@ -188,30 +250,50 @@ function Agenda() {
             extendedProps: {newDate: startDate, oldDate: oldStartDate}
         };
         setEvent(defEvent);
-        setAlert(true);
+        setMoveDialog(true);
     }
 
     const onMenuActions = (action: string, event: EventDef) => {
         switch (action) {
             case "onCancel":
-                setAlertCancel(true);
+                setCancelDialog(true);
                 break;
             case "onConsultationDetail":
-                const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                if (!isActive) {
+                    dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                } else {
+                    setError(true);
+                }
                 break;
             case "onPatientDetail":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
                     time: moment(event?.extendedProps.time).format("HH:mm"),
                     selected: false
                 }));
-                setMoveAlert(true);
+                setMoveDialogInfo(true);
                 break;
+        }
+    }
+
+    const onConsultationDetail = (event: EventDef) => {
+        if (!isActive) {
+            dispatch(setTimer({isActive: true, isPaused: false, event}));
+            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+            router.push(slugConsultation, slugConsultation, {locale: router.locale});
+        } else {
+            dispatch(openDrawer({type: "view", open: false}));
+            setError(true);
+            setInterval(() => {
+                setError(false);
+            }, 8000);
         }
     }
 
@@ -228,8 +310,8 @@ function Agenda() {
             }
         } as EventDef;
         setEvent(defEvent);
-        setMoveAlert(false);
-        setAlert(true);
+        setMoveDialogInfo(false);
+        setMoveDialog(true);
     }
 
     const handleMoveAppointment = (event: EventDef) => {
@@ -249,7 +331,7 @@ function Agenda() {
             }
         }, {revalidate: false, populateCache: false}).then(() => {
             refreshData();
-            setAlert(false);
+            setMoveDialog(false);
         });
     }
 
@@ -270,15 +352,10 @@ function Agenda() {
             };
             dispatch(setSelectedEvent(eventUpdated));
             setLoading(false);
-            setAlertCancel(false);
+            setCancelDialog(false);
             refreshData();
         })
     }
-
-    const handleMoveDataChange = (type: string, moveDialogDate: Date, moveDialogTime: string) => {
-        dispatch(setMoveDateTime(type === 'date' ?
-            {date: moveDialogDate, selected: true} : {time: moveDialogTime, selected: true}));
-    };
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
@@ -303,67 +380,53 @@ function Agenda() {
         }
     }
 
+    const cleanDrawData = () => {
+        dispatch(openDrawer({type: "patient", open: false}));
+        if (!openViewDrawer) {
+            setTimeout(() => {
+                setEvent(undefined);
+            }, 300);
+        }
+    }
+
     const refreshData = () => {
         if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`);
+            getAppointments(`format=list&page=1&limit=50`, view);
         } else {
             getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
         }
     }
 
-    const eventCond = (httpAppointmentResponse as HttpResponse)?.data;
-    appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-    appointments?.map((appointment) => {
-        events.push({
-            start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-            time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-            end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
-            title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
-            allDay: false,
-            borderColor: appointment.consultationReason.color,
-            patient: appointment.patient,
-            motif: appointment.consultationReason,
-            description: "",
-            id: appointment.uuid,
-            meeting: false,
-            addRoom: true,
-            status: AppointmentTypes[appointment.status]
-        });
-    });
 
-    // this gives an object with dates as keys
-    const groups: any = events.reduce(
-        (groups: any, data: any) => {
-            const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
-                .format('DD-MM-YYYY');
-            if (!groups[date]) {
-                groups[date] = [];
-            }
-            groups[date].push(data);
-            return groups;
-        }, {});
-
-    // Edit: to add it in the array format instead
-    const groupArrays = Object.keys(groups).map((date) => {
-        return {
-            date,
-            events: groups[date]
-        };
-    });
-
-    const sortedData: GroupEventsModel[] = groupArrays
-        .slice()
-        .sort((a, b) =>
-            new Date(a.date).getTime() - new Date(b.date).getTime());
+    if (!ready) return (<LoadingScreen/>);
 
     return (
         <>
-            <SubHeader>
+            <SubHeader
+                {...{
+                    sx: {
+                        "& .MuiToolbar-root": {
+                            "display": "block"
+                        }
+                    }
+                }}>
                 <CalendarToolbar onToday={handleOnToday} date={date}/>
+                {error &&
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: 1}}
+                        >
+                            <Alert sx={{marginBottom: 2}}
+                                   severity="error">{t("in-consultation-error")}</Alert>
+                        </motion.div>
+                    </AnimatePresence>}
             </SubHeader>
             <Box>
-                {(!httpAgendasResponse || !httpAppointmentResponse || loading) &&
-                    <LinearProgress color="warning"/>}
+                <LinearProgress sx={{
+                    visibility: !httpAgendasResponse || !httpAppointmentResponse || loading ? "visible" : "hidden"
+                }} color="warning"/>
                 <DesktopContainer>
                     <>
                         {httpAgendasResponse &&
@@ -373,7 +436,13 @@ function Agenda() {
                                     animate={{opacity: 1, y: 0}}
                                     transition={{ease: "easeIn", duration: 1}}
                                 >
-                                    <Calendar {...{events, agenda, disabledSlots, t, sortedData}}
+                                    <Calendar {...{
+                                        events: events.current,
+                                        agenda,
+                                        disabledSlots,
+                                        t,
+                                        sortedData: sortedData.current
+                                    }}
                                               OnInit={onLoadCalendar}
                                               OnSelectEvent={onSelectEvent}
                                               OnEventChange={onEventChange}
@@ -387,7 +456,7 @@ function Agenda() {
                     </>
                 </DesktopContainer>
                 <MobileContainer>
-                    {sortedData?.map((row, index) => (
+                    {sortedData.current?.map((row, index) => (
                         <Container key={index}>
                             <Typography variant={"body1"}
                                         color="text.primary"
@@ -407,9 +476,11 @@ function Agenda() {
 
                             {row.events.map((event) => (
                                 <AppointmentListMobile
+                                    OnMenuActions={onMenuActions}
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
                                     event={event}/>
+
                             ))}
                         </Container>
                     ))}
@@ -432,10 +503,12 @@ function Agenda() {
                 >
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
-                            onCancelAppointment={() => refreshData()}
-                            setMoveDialog={() => setMoveAlert(true)}
-                            setCancelDialog={() => setAlertCancel(true)}
-                            onMoveAppointment={onMoveAppointment}
+                            OnConsultation={onConsultationDetail}
+                            OnCancelAppointment={() => refreshData()}
+                            OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
+                            SetMoveDialog={() => setMoveDialogInfo(true)}
+                            SetCancelDialog={() => setCancelDialog(true)}
+                            OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
                 </Drawer>
@@ -467,22 +540,12 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={() => {
-                        dispatch(openDrawer({type: "patient", open: false}));
-                        setTimeout(() => {
-                            setEvent(undefined);
-                        }, 300);
-                    }}
+                    onClose={cleanDrawData}
                 >
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
-                                onCloseDialog={() => {
-                                    dispatch(openDrawer({type: "patient", open: false}));
-                                    setTimeout(() => {
-                                        setEvent(undefined);
-                                    }, 300);
-                                }}
+                                onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 ConsultationId={event?.publicId}
@@ -493,7 +556,7 @@ function Agenda() {
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
-                    dialogClose={() => setAlert(false)}
+                    dialogClose={() => setMoveDialog(false)}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
@@ -508,13 +571,13 @@ function Agenda() {
                                                          margin={2}>{t("dialogs.move-dialog.description")}</Typography>
                             </Box>)
                     }}
-                    open={alert}
+                    open={moveDialog}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setAlert(false)}
+                                onClick={() => setMoveDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
@@ -535,7 +598,7 @@ function Agenda() {
                 <Dialog
                     color={theme.palette.error.main}
                     contrastText={theme.palette.error.contrastText}
-                    dialogClose={() => setAlertCancel(false)}
+                    dialogClose={() => setCancelDialog(false)}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
@@ -545,13 +608,13 @@ function Agenda() {
                                             margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
                             </Box>)
                     }}
-                    open={alertCancel}
+                    open={cancelDialog}
                     title={t("dialogs.cancel-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setAlertCancel(false)}
+                                onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.cancel-dialog.cancel")}
@@ -571,22 +634,24 @@ function Agenda() {
 
                 <Dialog
                     size={"sm"}
+                    sx={{
+                        [theme.breakpoints.down('sm')]: {
+                            "& .MuiDialogContent-root": {
+                                padding: 1
+                            }
+                        }
+                    }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
-                    dialogClose={() => setMoveAlert(false)}
-                    action={() =>
-                        <MoveAppointmentDialog
-                            OnDateChange={handleMoveDataChange}
-                            t={t}
-                            data={selectedEvent}
-                        />}
-                    open={moveAlert}
+                    dialogClose={() => setMoveDialogInfo(false)}
+                    action={"move_appointment"}
+                    open={moveDialogInfo}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setMoveAlert(false)}
+                                onClick={() => setMoveDialogInfo(false)}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}

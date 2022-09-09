@@ -3,6 +3,7 @@ import { Button } from "@mui/material";
 const DocumentButtonStyled = styled(Button)(({ theme }) => ({
     color: "unset",
     flexDirection: "column",
+    justifyContent: 'flex-start',
     border: `1px solid ${theme.palette.grey[300]}`,
     width: "100%",
     minHeight: "77px",

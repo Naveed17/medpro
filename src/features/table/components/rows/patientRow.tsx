@@ -10,10 +10,9 @@ import {
 import { TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-import ReactSVG from "@themes/urlIcon";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
-import { onOpenDetails } from "@features/table";
+import { onOpenPatientDrawer } from "@features/table";
 
 function PatientRow({ ...props }) {
   const { row, isItemSelected, handleClick, t, labelId, loading } = props;
@@ -21,7 +20,7 @@ function PatientRow({ ...props }) {
   return (
     <TableRowStyled
       hover
-      onClick={() => !loading && handleClick(row.uuid as any)}
+      onClick={() => !loading && handleClick(row.uuid as string)}
       role="checkbox"
       aria-checked={isItemSelected}
       tabIndex={-1}
@@ -69,7 +68,11 @@ function PatientRow({ ...props }) {
                 <Skeleton variant="text" width={100} />
               ) : (
                 <>
-                  <Icon path={"ic-f"} />
+                  <Icon
+                    path={`ic-${
+                      row.gender === "M" || row.gender === "0" ? "h" : "f"
+                    }`}
+                  />
                   {row.firstName} {row.lastName}
                 </>
               )}
@@ -123,115 +126,118 @@ function PatientRow({ ...props }) {
         ) : (
           <Box display="flex" alignItems="center">
             {loading ? (
-              <Skeleton variant="circular" width={20} height={20} />
+              <Skeleton variant="text" width={140} />
+            ) : row.nextAppointment?.dayDate ? (
+              <>
+                <IconButton size="small">
+                  <Icon path="ic-historique" />
+                </IconButton>
+
+                <Box ml={1}>
+                  <Typography
+                    component="span"
+                    className="next-appointment"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                    <>
+                      <Icon path="ic-agenda" />
+                      {row.nextAppointment?.dayDate}
+                    </>
+                  </Typography>
+                  <Typography
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      "& svg": {
+                        width: 11,
+                        mr: 0.6,
+                      },
+                    }}
+                    component="span"
+                    variant="body2"
+                    color="text.primary"
+                  >
+                    <>
+                      <Icon path="ic-time" /> {row.nextAppointment?.startTime}
+                    </>
+                  </Typography>
+                </Box>
+              </>
             ) : (
-              <IconButton size="small">
-                <Icon path="ic-historique" />
-              </IconButton>
+              <Button
+                variant="text"
+                size="small"
+                color="primary"
+                startIcon={<Icon path="ic-agenda-+" />}
+                sx={{ position: "relative" }}
+              >
+                {t("table.add-appointment")}
+              </Button>
             )}
-            <Box ml={1}>
-              <Typography
-                component="span"
-                className="next-appointment"
-                variant="body2"
-                color="text.primary"
-              >
-                {loading ? (
-                  <Skeleton variant="text" width={100} />
-                ) : (
-                  <>
-                    <Icon path="ic-agenda" />
-                    {row.nextAppointment?.dayDate || "-"}
-                  </>
-                )}
-              </Typography>
-              <Typography
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  "& svg": {
-                    width: 11,
-                    mr: 0.6,
-                  },
-                }}
-                component="span"
-                variant="body2"
-                color="text.primary"
-              >
-                {loading ? (
-                  <Skeleton variant="text" width={100} />
-                ) : (
-                  <>
-                    <Icon path="ic-time" />{" "}
-                    {row.nextAppointment?.startTime || "-"}
-                  </>
-                )}
-              </Typography>
-            </Box>
           </Box>
         )}
       </TableCell>
       <TableCell>
-        {false ? (
-          <Button
-            variant="text"
-            size="small"
-            color="primary"
-            startIcon={<Icon path="ic-agenda-+" />}
-            sx={{ position: "relative" }}
-          >
-            {t("table.add-appointment")}
-          </Button>
-        ) : (
-          <Box display="flex" alignItems="center">
-            {loading ? (
-              <Skeleton variant="circular" width={20} height={20} />
-            ) : (
+        <Box display="flex" alignItems="center">
+          {loading ? (
+            <Skeleton variant="text" width={140} />
+          ) : row.nextAppointment?.dayDate ? (
+            <>
               <IconButton size="small">
                 <Icon path="ic-historique" />
               </IconButton>
-            )}
-            <Box ml={1}>
-              <Typography
-                component="span"
-                className="next-appointment"
-                variant="body2"
-                color="text.primary"
-              >
-                {loading ? (
-                  <Skeleton variant="text" width={100} />
-                ) : (
-                  <>
-                    <Icon path="ic-agenda" />
-                    {row.nextAppointment?.dayDate || "-"}
-                  </>
-                )}
-              </Typography>
-              <Typography
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  "& svg": {
-                    width: 11,
-                    mr: 0.6,
-                  },
-                }}
-                component="span"
-                variant="body2"
-                color="text.primary"
-              >
-                {loading ? (
-                  <Skeleton variant="text" width={100} />
-                ) : (
-                  <>
-                    <Icon path="ic-time" />{" "}
-                    {row.nextAppointment?.startTime || "-"}
-                  </>
-                )}
-              </Typography>
-            </Box>
-          </Box>
-        )}
+              <Box ml={1}>
+                <Typography
+                  component="span"
+                  className="next-appointment"
+                  variant="body2"
+                  color="text.primary"
+                >
+                  {loading ? (
+                    <Skeleton variant="text" width={100} />
+                  ) : (
+                    <>
+                      <Icon path="ic-agenda" />
+                      {row.nextAppointment?.dayDate || "-"}
+                    </>
+                  )}
+                </Typography>
+                <Typography
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    "& svg": {
+                      width: 11,
+                      mr: 0.6,
+                    },
+                  }}
+                  component="span"
+                  variant="body2"
+                  color="text.primary"
+                >
+                  {loading ? (
+                    <Skeleton variant="text" width={100} />
+                  ) : (
+                    <>
+                      <Icon path="ic-time" />{" "}
+                      {row.nextAppointment?.startTime || "-"}
+                    </>
+                  )}
+                </Typography>
+              </Box>
+            </>
+          ) : (
+            <Typography
+              component="span"
+              className="next-appointment"
+              variant="body2"
+              color="text.primary"
+            >
+              --
+            </Typography>
+          )}
+        </Box>
       </TableCell>
 
       <TableCell
@@ -266,23 +272,39 @@ function PatientRow({ ...props }) {
             </IconButton>
             <Box className="lg-down">
               <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "PATIENT_DETAILS",
+                    })
+                  );
+                }}
+                size="small"
+                startIcon={<Icon path="/ic-voir" />}
+              >
+                {t("table.see-card")}
+              </Button>
+              <Button
                 size="small"
                 sx={{
                   ml: 0.6,
                   color: (theme) => theme.palette.common.black,
                   path: { fill: (theme) => theme.palette.common.black },
                 }}
-              >
-                {t("table.edit")}
-              </Button>
-              <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "EDIT_PATIENT",
+                    })
+                  );
                 }}
-                size="small"
+                startIcon={<Icon path="/ic-edit" />}
               >
-                {t("table.see-card")}
+                {t("table.edit")}
               </Button>
             </Box>
             <Box className="lg-up">
@@ -290,13 +312,30 @@ function PatientRow({ ...props }) {
                 size="small"
                 onClick={(e) => {
                   e.stopPropagation();
-                  dispatch(onOpenDetails({ patientId: row.uuid }));
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "PATIENT_DETAILS",
+                    })
+                  );
                 }}
               >
-                <ReactSVG path="/ic-voir" />
+                <Icon path="/ic-voir" />
               </IconButton>
-              <IconButton size="small" className="edit-icon-button">
-                <ReactSVG path="/ic-edit" />
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(
+                    onOpenPatientDrawer({
+                      patientId: row.uuid,
+                      patientAction: "EDIT_PATIENT",
+                    })
+                  );
+                }}
+                size="small"
+                className="edit-icon-button"
+              >
+                <Icon path="/ic-edit" />
               </IconButton>
             </Box>
           </>

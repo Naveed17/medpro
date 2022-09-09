@@ -9,15 +9,20 @@ import {RootStyled} from "./overrides";
 import Icon from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
-import {useAppSelector} from "@app/redux/hooks";
-import {tableActionSelector} from "@features/table";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
+import {setTimer, timerSelector} from "@features/card";
+import {agendaSelector} from "@features/calendar";
 
 function PatientdetailsCard({...props}) {
     const {patient, consultation, loading} = props;
-    const {patientId} = useAppSelector(tableActionSelector);
+    const dispatch = useAppDispatch();
     const router = useRouter();
     const {query} = router;
+
+    const {isActive} = useAppSelector(timerSelector);
+    const {selectedEvent} = useAppSelector(agendaSelector);
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
@@ -141,7 +146,9 @@ function PatientdetailsCard({...props}) {
                 />
             ) : (
                 <Button
+                    disabled={isActive}
                     onClick={() => {
+                        // dispatch(setTimer({isActive: true, isPaused: false, event: selectedEvent}));
                         router.push({query}, `/dashboard/consultation/${consultation}`, {
                             locale: router.locale,
                         });

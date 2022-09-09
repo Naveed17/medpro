@@ -6,7 +6,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/qualificationDialog/qualificationDialog"
-                ).then((mod) => mod)
+            ).then((mod) => mod)
         ),
     },
     {
@@ -14,7 +14,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/assuranceDialog/assuranceDialog"
-                ).then((mod) => mod)
+            ).then((mod) => mod)
         ),
     },
     {
@@ -92,7 +92,7 @@ const dialogData = [
     {
         action: "add_treatment",
         component: dynamic((): any =>
-            import("@features/dialog/components/addTreatmentDialog/addTreatmentDialog").then(
+            import("@features/dialog/components/medicalPrescriptionDialog/medicalPrescriptionDialog").then(
                 (mod) => mod
             )
         ),
@@ -138,6 +138,14 @@ const dialogData = [
         ),
     },
     {
+        action: "document_detail",
+        component: dynamic((): any =>
+            import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "end_consultation",
         component: dynamic((): any =>
             import("@features/dialog/components/endConsultationDialog/endConsultationDialog").then(
@@ -154,14 +162,21 @@ const dialogData = [
         )
     },
     {
-        action: "move_appointment",
+        action: "modelName",
+        component: dynamic((): any =>
+            import("@features/dialog/components/modelName/modelName").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "modelName",
         component: dynamic((): any =>
             import("@features/dialog/components/moveAppointmentDialog/components/moveAppointmentDialog").then(
                 (mod) => mod
             )
         ),
     }
-
 ];
 
 export default dialogData;
