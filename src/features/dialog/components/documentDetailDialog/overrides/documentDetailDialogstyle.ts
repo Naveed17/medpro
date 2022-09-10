@@ -9,8 +9,9 @@ const DocumentDetailDialogStyled = styled(Stack)(({ theme }) => ({
         ".MuiList-root": {
             backgroundColor: theme.palette.background.paper,
             borderLeft: `1px solid ${theme.palette.divider}`,
+            marginTop: theme.spacing(-2),
             position: 'sticky',
-            top: (theme.spacing(-2)),
+            top: 0,
             ".MuiListItem-root": {
                 paddingTop: 0,
                 paddingBottom: 0,
