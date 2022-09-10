@@ -14,6 +14,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
+
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
 function Patient({...props}) {
@@ -67,10 +68,19 @@ function Patient({...props}) {
         const form = new FormData();
         form.append('first_name', patient.firstName)
         form.append('last_name', patient.lastName);
-        form.append('phone', patient.phone);
+        form.append('phone', JSON.stringify({
+            code: patient.countryCode.phone,
+            value: patient.phone,
+            type: "phone",
+            "contact_type": patient.contact.uuid,
+            "is_public": false,
+            "is_support": false
+        }));
         form.append('gender', patient.gender);
         form.append('birthdate', `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
-        form.append('address', patient.address);
+        form.append('address', JSON.stringify({
+            fr: patient.address
+        }));
         form.append('insurance', JSON.stringify(patient.insurance));
         form.append('email', patient.email);
         trigger(

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import moment from "moment-timezone";
 import {CountrySelect} from "@features/countrySelect";
-import React from "react";
+import React, {useState} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -21,17 +21,26 @@ import {
     PhoneRegExp
 } from "./config";
 import Icon from "@themes/urlIcon";
+import {useRequest} from "@app/axios";
+import {useRouter} from "next/router";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function OnStepPatient({...props}) {
     const {
         onNext,
         onClose,
         OnSubmit = null,
-        selectedPatient,
+        selectedPatient = null,
         translationKey = "patient",
         translationPrefix = "add-patient",
     } = props;
+    const router = useRouter();
+
     const {stepsData: patient} = useAppSelector(addPatientSelector);
+    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+        method: "GET",
+        url: "/api/public/contact-type/" + router.locale
+    }, SWRNoValidateConfig);
 
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
@@ -60,7 +69,7 @@ function OnStepPatient({...props}) {
 
     const formik = useFormik({
         initialValues: {
-            patientGroup: patient.step1.patient_group,
+            patientGroup: patient?.step1.patient_group,
             firstName: Boolean(selectedPatient)
                 ? selectedPatient.firstNames
                 : patient.step1.first_name,
@@ -92,13 +101,14 @@ function OnStepPatient({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             if (OnSubmit) {
-                OnSubmit(values);
+                OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
         },
     });
 
     const [selectedCountry, setSelectedCountry] = React.useState<any>(null);
     const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+    const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
 
     const handleAddInsurance = () => {
         const insurance = [...values.insurance, {name: "", number: ""}];
@@ -110,6 +120,9 @@ function OnStepPatient({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
+
+    if (!ready) return (<>loading translations...</>);
+
     return (
         <FormikProvider value={formik}>
             <Stack
