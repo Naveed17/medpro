@@ -2,7 +2,7 @@ import RootStyled from './overrides/RootStyled'
 import {Box, Button, ClickAwayListener} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -18,9 +18,13 @@ function AutoCompleteButton({...props}) {
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
 
     const onSubmitPatient = (data: PatientWithNextAndLatestAppointment) => {
-        setPatient(data);
         dispatch(setAppointmentPatient(data));
     }
+
+    useEffect(() => {
+        console.log("setPatient", initData);
+        setPatient(initData)
+    }, [initData]);
 
     const handleClick = () => {
         setFocus(!focus);

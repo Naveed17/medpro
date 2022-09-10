@@ -39,7 +39,7 @@ export default function CountrySelect({ ...props }) {
             // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
             alt={option.code}
           />
-          {option.label}
+            {" "} {option.label}
         </Box>
       )}
       renderInput={(params) => {

@@ -29,7 +29,7 @@ import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
-    AppointmentTypes,
+    AppointmentStatus,
     openDrawer,
     setConfig,
     setSelectedEvent,
@@ -178,7 +178,7 @@ function Agenda() {
                     meeting: false,
                     new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
                     addRoom: true,
-                    status: AppointmentTypes[appointment.status]
+                    status: AppointmentStatus[appointment.status]
                 });
             });
             events.current = eventsUpdated;
