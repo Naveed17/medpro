@@ -24,11 +24,11 @@ export const list = [
     },
     {
         title: 'patient',
-        value: 'Khadija EHA',
+        value: 'Test',
     },
     {
         title: 'created_by',
-        value: 'you',
+        value: 'Moi',
     },
     {
         title: 'created_on',

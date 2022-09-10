@@ -227,14 +227,12 @@ function MedicalPrescriptionDialog({...props}) {
                                                               const drg = []
 
                                                               console.log(item.prescription_modal_has_drugs)
-                                                              /*setDrugs(item.prescription_modal_has_drugs)
-                                                              data.setState(item.prescription_modal_has_drugs)*/
+                                                              setDrugs(item.prescription_modal_has_drugs)
+                                                              data.setState(item.prescription_modal_has_drugs)
                                                               setAnchorEl(null);
                                                           }}>{item.name}</MenuItem>
                                             )
                                         }
-
-
                                     </Menu>
                                 </Stack>
                                 {drugsList && <Autocomplete
