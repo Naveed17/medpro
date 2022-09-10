@@ -6,7 +6,7 @@ import IconUrl from "@themes/urlIcon";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 function AppointmentCard({...props}) {
-    const {data, t, ...rest} = props
+    const {data, OnEdit, t, ...rest} = props
     return (
         <RootStyled>
             <CardContent>
@@ -21,7 +21,7 @@ function AppointmentCard({...props}) {
                            }>
                         {data.status.value}
                     </Label>
-                    <IconButton size="small" {...rest}>
+                    <IconButton onClick={OnEdit} size="small" {...rest}>
                         <IconUrl path='ic-duotone'/>
                     </IconButton>
                 </Stack>
@@ -54,7 +54,6 @@ function AppointmentCard({...props}) {
                             <ListItem>
                                 <Typography fontWeight={400}>
                                     {t('appintment_date')}
-
                                 </Typography>
                                 <Stack spacing={4} direction="row" alignItems='center'>
                                     <Stack spacing={0.5} direction="row" alignItems='center'>

@@ -8,14 +8,17 @@ import Button from "@mui/material/Button";
 import {setStepperIndex} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {AddPatientStep1} from "@features/tabPanel";
+
+import dynamic from "next/dynamic";
+
+const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
 function Patient({...props}) {
-    const {onNext} = props;
+    const {onNext, onBack} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -38,6 +41,9 @@ function Patient({...props}) {
         }
     });
 
+    const {data: httpAddPatientResponse, trigger} = useRequestMutation(null, "agenda/add-patient",
+        {revalidate: false, populateCache: false}
+    );
 
     if (!ready) return (<LoadingScreen/>);
 
@@ -55,6 +61,47 @@ function Patient({...props}) {
     const onNextStep = () => {
         dispatch(setStepperIndex(3))
         onNext(3)
+    }
+
+    const submitNewPatient = (patient: any) => {
+        console.log(patient);
+        const form = new FormData();
+        form.append('first_name', patient.firstName)
+        form.append('last_name', patient.lastName);
+        form.append('phone', JSON.stringify({
+            code: patient.countryCode.phone,
+            value: patient.phone,
+            type: "phone",
+            "contact_type": patient.contact.uuid,
+            "is_public": false,
+            "is_support": false
+        }));
+        form.append('gender', patient.gender);
+        form.append('birthdate', `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
+        form.append('address', JSON.stringify({
+            fr: patient.address
+        }));
+        form.append('insurance', JSON.stringify(patient.insurance));
+        form.append('email', patient.email);
+        trigger(
+            {
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+                data: form
+            }, {revalidate: false, populateCache: false}
+        ).then((res: any) => {
+            const {data} = res;
+            const {status} = data;
+            if (status === "success") {
+                console.log(data);
+                // dispatch(setAppointmentPatient(patient));
+                // setAddPatient(false);
+            }
+        });
+
     }
 
     return (
@@ -90,7 +137,7 @@ function Patient({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={() => dispatch(setStepperIndex(1))}
+                            onClick={onBack}
                         >
                             {t("back")}
                         </Button>
@@ -105,11 +152,11 @@ function Patient({...props}) {
                     </Paper>
                 </>
                 :
-                <AddPatientStep1
+                <OnStepPatient
                     translationKey={"agenda"}
                     translationPrefix={"steppers.stepper-2.patient"}
                     onClose={() => setAddPatient(false)}
-                    OnSubmit={(event: any) => console.log(event)}/>
+                    OnSubmit={submitNewPatient}/>
             }
         </div>
     )

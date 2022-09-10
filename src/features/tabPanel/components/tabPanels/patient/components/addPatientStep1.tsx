@@ -22,6 +22,7 @@ import { addPatientSelector, onAddPatient } from "@features/tabPanel";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { useTranslation } from "next-i18next";
 import moment from "moment-timezone";
+
 function AddPatientStep1({ ...props }) {
   const {
     onNext,
@@ -50,7 +51,7 @@ function AddPatientStep1({ ...props }) {
       .max(50, t("last-name-error"))
       .required(t("last-name-error")),
     phone: Yup.string()
-      .min(9, t("telephone-error"))
+      .min(8, t("telephone-error"))
       .matches(phoneRegExp, t("telephone-error"))
       .required(t("telephone-error")),
     birthdate: Yup.object().shape({
@@ -111,7 +112,7 @@ function AddPatientStep1({ ...props }) {
           <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 2 }}>
             {t("personal-info")}
           </Typography>
-          <Box>
+{/*          <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom>
               {t("group")}
             </Typography>
@@ -137,9 +138,15 @@ function AddPatientStep1({ ...props }) {
                 <MenuItem value="3">3</MenuItem>
               </Select>
             </FormControl>
-          </Box>
+          </Box>*/}
           <Box>
             <FormControl component="fieldset">
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t("gender")} {" "}
+                <Typography component="span" color="error">
+                  *
+                </Typography>
+              </Typography>
               <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
                 <FormControlLabel
                   value={1}

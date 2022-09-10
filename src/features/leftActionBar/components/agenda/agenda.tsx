@@ -11,8 +11,8 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 
-const CalendarPickers = dynamic(() => import("@features/calendar/components/calendarPickers/components/calendarPickers"));
-
+const CalendarPickers = dynamic(() =>
+    import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Agenda() {
     const {data: session} = useSession();

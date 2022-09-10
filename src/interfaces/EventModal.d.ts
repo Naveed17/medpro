@@ -12,5 +12,5 @@ interface EventModal {
     new: boolean;
     addRoom: boolean;
     patient: PatientModel;
-    status: AppointmentTypeModel;
+    status: AppointmentStatusModel;
 }

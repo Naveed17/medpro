@@ -2,13 +2,10 @@ import {styled} from "@mui/material/styles";
 import {Button} from "@mui/material";
 
 const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
-    const {disabled, selectedvalue, id} = props;
+    const {disabled, selectedvalue, uuid} = props;
 
     return ({
         pl: "8.5px",
-        "& .MuiSvgIcon-root": {
-            width: "24px"
-        },
         ...(!disabled
             ? {
                 background: theme.palette.background.paper,
@@ -55,7 +52,7 @@ const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
                     border: `1px solid ${theme.palette.grey["A200"]}`,
                 },
             }),
-        ...(selectedvalue === id && {
+        ...(selectedvalue === uuid && {
             background: theme.palette.primary.main,
             color: theme.palette.background.paper,
             "& svg path, & .text-inner path, & .MuiSvgIcon-root path": {

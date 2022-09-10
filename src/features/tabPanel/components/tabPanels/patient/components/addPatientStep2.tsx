@@ -45,7 +45,7 @@ function AddPatientStep2({ ...props }) {
   const { data: httpAddPatientResponse, trigger } = useRequestMutation(
     null,
     "add-patient",
-    { revalidate: true, populateCache: false }
+    { revalidate: false, populateCache: false }
   );
 
   const formik = useFormik({
