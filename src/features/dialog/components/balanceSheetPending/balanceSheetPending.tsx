@@ -103,9 +103,6 @@ function BalanceSheetPendingDialog({...props}) {
                                     value={item.result}
                                     fullWidth
                                     onChange={(ev) => {
-                                        console.log(ev.target.value)
-                                        console.log(item.result)
-
                                         let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
                                         items[index].result = ev.target.value;
                                         setAnalyses({uuid: analyses.uuid, hasAnalysis: items})

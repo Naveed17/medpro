@@ -4,9 +4,10 @@ import IconUrl from '@themes/urlIcon';
 import React, { ReactElement, useState } from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import { Popover } from "@features/popover";
+import Icon from "@themes/urlIcon";
 function DocumentCard({ ...props }) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const { data, t } = props;
+    const { data, t , onClick } = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -20,13 +21,34 @@ function DocumentCard({ ...props }) {
     };
     return (
         <DocumentCardStyled>
-            <CardContent>
+            <CardContent onClick={onClick}>
                 <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Label variant='filled' color='warning'>{t("consultationIP." + data.status)}</Label>
+                    <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
                     <Popover
                         open={openTooltip}
                         handleClose={() => setOpenTooltip(false)}
-                        menuList={data.options}
+                        menuList={[
+                            {
+                                title: "print",
+                                icon: <Icon color={"white"} path='ic-imprime' />,
+                                action: "actionPrint",
+                            },
+                            {
+                                title: "share",
+                                icon: <Icon color={"white"} path='ic-send' />,
+                                action: "actionShare",
+                            },
+                            {
+                                title: "download",
+                                icon: <Icon color={"white"} path='ic-dowlaodfile' />,
+                                action: "actionDownload",
+                            },
+                            {
+                                title: "delete",
+                                icon: <Icon color={"white"} path='icdelete' />,
+                                action: "actionDelete",
+                            },
+                        ]}
                         onClickItem={onClickTooltipItem}
                         button={
                             <IconButton
@@ -42,14 +64,13 @@ function DocumentCard({ ...props }) {
                 </Stack>
                 <Stack spacing={2} className="document-detail" alignItems="center">
                     <IconUrl path={
-                        data.documentType === "type-1" && "ic-traitement" ||
-                        data.documentType === "type-2" && "ic-analyse" ||
-                        data.documentType === "type-3" && "ic-pdf" ||
+                        data.documentType === "Ordonnace" && "ic-traitement" ||
+                        data.documentType == "type-2" && "ic-analyse" ||
                         data.documentType === "type-4" && "ic-img" ||
-                        ""
+                        data.documentType !== "Ordonnace" && "ic-pdf" || ""
                     } />
                     <Typography variant='subtitle2' fontWeight={700}>
-                        {data.name}
+                        {data.title}
                     </Typography>
                 </Stack>
             </CardContent>

@@ -102,9 +102,13 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(() => {
+                }, { revalidate: true, populateCache: true }).then((r:any) => {
                     mutate();
-                    //setPrescription([])
+                    console.log(r.data.data[1]);
+                    setInfo('document_detail')
+                    setState(r.data.data[1])
+                    setOpenDialog(true);
+                    setactions(true)
                 })
                 break;
             case 'balance_sheet_request':
@@ -119,9 +123,14 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(() => {
+                }, { revalidate: true, populateCache: true }).then((r:any) => {
                     mutate();
                     setCheckUp([])
+                    console.log(r.data.data[1]);
+                    setInfo('document_detail')
+                    setState(r.data.data[1])
+                    setOpenDialog(true);
+                    setactions(true)
                 })
                 break;
         }
