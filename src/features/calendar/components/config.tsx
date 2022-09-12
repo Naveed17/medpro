@@ -68,9 +68,9 @@ export const DayOfWeek = (day: string, start = 1) => {
         MON: 1,
         SAT: 6,
         SUN: start === 1 ? 7 : 0,
-        THU: 3,
+        THU: 4,
         TUE: 2,
-        WED: 4
+        WED: 3
     }
     return days[day];
 }
