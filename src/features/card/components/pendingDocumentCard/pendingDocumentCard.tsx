@@ -18,7 +18,10 @@ function CipCard({ ...props }) {
                 <Label color='warning' variant='filled' className='label'>
                     {t(data.status)}
                 </Label>
-                <IconButton size="small" className='btn-close' onClick={() => closeDocument(data.id)}>
+                <IconButton size="small" className='btn-close' onClick={(ev) => {
+                    ev.stopPropagation();
+                    closeDocument(data.id)
+                }}>
                     <IconUrl path="ic-x" />
                 </IconButton>
             </Stack>
