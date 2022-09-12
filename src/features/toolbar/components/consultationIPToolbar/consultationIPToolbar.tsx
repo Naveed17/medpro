@@ -21,7 +21,6 @@ function ConsultationIPToolbar({...props}) {
     const [info, setInfo] = useState<null | string>('');
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
-    const [puuid, setPuuid] = useState<string>('');
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
