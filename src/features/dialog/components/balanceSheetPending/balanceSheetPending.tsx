@@ -23,7 +23,7 @@ import React, {useState} from 'react';
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
-    const [analyses, setAnalyses] = useState<any[]>(data.state.analyses);
+    const [analyses, setAnalyses] = useState<any>(data.state);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
         initialValues: {
@@ -93,24 +93,21 @@ function BalanceSheetPendingDialog({...props}) {
                 <Grid item xs={12} md={5}>
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
                     {
-                        analyses.map((item, index) => (
+                        analyses.hasAnalysis.map((item: any, index: number) => (
                             <Card key={index} sx={{p: 1}}>
                                 <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
-                                    <Typography>{item.name}</Typography>
-                                    <IconButton size="small">
-                                        <Icon path="setting/icdelete"/>
-                                    </IconButton>
+                                    <Typography>{item.analysis.name}</Typography>
                                 </Stack>
                                 <TextField
                                     placeholder={t("enter_the_result")}
-                                    value={item.value}
-                                    onChange={(ev)=>{
-                                        console.log(analyses[index].value)
-                                        /*analyses[index].value = ev.target.value
-                                        setAnalyses([...analyses])*/
-
-                                    }}
+                                    value={item.result}
                                     fullWidth
+                                    onChange={(ev) => {
+                                        let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
+                                        items[index].result = ev.target.value;
+                                        setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
+                                        data.setState({uuid: analyses.uuid, hasAnalysis: items})
+                                    }}
                                 />
                             </Card>
                         ))}

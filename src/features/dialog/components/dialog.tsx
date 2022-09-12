@@ -72,7 +72,7 @@ function Dialogs({ ...props }) {
             </IconButton>
           ) : null}
         </DialogTitle>
-        <DialogContent dividers={true} sx={{ ...sx }}>
+        <DialogContent dividers={true} sx={{ ...sx }} >
           <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
           <Component data={data} />
         </DialogContent>

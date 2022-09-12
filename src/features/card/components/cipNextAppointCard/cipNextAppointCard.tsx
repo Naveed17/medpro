@@ -8,13 +8,13 @@ import Icon from "@themes/urlIcon";
 import {useAppDispatch} from "@app/redux/hooks";
 import {openDrawer,} from "@features/dialog";
 import {ModelDot} from "@features/modelDot";
-import {AppointmentTypes, setSelectedEvent} from "@features/calendar";
+import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import moment from "moment";
 
 function CipMedicProCard({...props}) {
     const dispatch = useAppDispatch();
     const {row, patient, t} = props
-    const status = AppointmentTypes[row.status];
+    const status = AppointmentStatus[row.status];
 
     return (
         <CipNextAppointCardStyled>

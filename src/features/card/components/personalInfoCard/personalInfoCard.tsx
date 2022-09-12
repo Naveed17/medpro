@@ -26,7 +26,7 @@ const data = {
     // },
     {
       name: "name",
-      value: "Khadija EHA",
+      value: "Test",
     },
     // {
     //   name: "zip",

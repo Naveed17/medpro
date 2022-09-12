@@ -11,6 +11,7 @@ const CardStyled = styled(Card)(({ theme }) => ({
             '&:not(:first-of-type)': {
                 paddingTop: theme.spacing(2),
                 borderTop: `1px solid ${theme.palette.divider}`,
+                color: theme.palette
             },
             '&:last-of-type': {
                 borderTop: 'none'
