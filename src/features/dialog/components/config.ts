@@ -176,6 +176,14 @@ const dialogData = [
                 (mod) => mod
             )
         ),
+    },
+    {
+        action: "add_act",
+        component: dynamic((): any =>
+            import("@features/dialog/components/addActsDialog/components/addActsDialog").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 

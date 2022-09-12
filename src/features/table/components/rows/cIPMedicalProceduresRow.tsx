@@ -1,16 +1,19 @@
 import TableCell from "@mui/material/TableCell";
-import { Checkbox, Button } from "@mui/material";
+import { Checkbox, Button, InputBase } from "@mui/material";
 import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
+import React from "react";
 function CIPMedicalProceduresRow({ ...props }) {
   const { row, isItemSelected, handleClick, selected } = props;
   const theme = useTheme() as Theme;
+  const [fees, setfees] = React.useState<number>(row.fees)
+  console.log(row)
   return (
     <TableRowStyled
       className={'cip-medical-proce-row'}
       hover
       onClick={() => {
-        return handleClick(row.id as number)
+        return handleClick(row.uuid as string)
       }}
       role="checkbox"
       aria-checked={isItemSelected}
@@ -29,24 +32,32 @@ function CIPMedicalProceduresRow({ ...props }) {
         {row.act.name}
       </TableCell>
       <TableCell>
-        <Button sx={{
-          mr: 1,
-        }} size="small" variant="outlined" color="info">
-          {row.defaultAmount}
-        </Button>
-        TND
-      </TableCell>
-      <TableCell>
-        {row.amount > 0 ? (
+        {isItemSelected ? (
           <>
-            <Button sx={{
+            <InputBase sx={{
               backgroundColor: alpha(theme.palette.success.main, 0.1),
+              border: 1,
+              borderRadius: .5,
+              paddingLeft: .5,
+              paddingRight: .5,
+              maxWidth: 64,
               borderColor: theme.palette.divider,
               color: theme.palette.text.primary,
               mr: 1,
-            }} size="small" variant="outlined" color="success">
-              {row.amount}
-            </Button>
+
+            }}
+              type="number"
+              size="small" value={fees}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e: any) => {
+                setfees(e.target.value)
+
+              }}
+              autoFocus={isItemSelected}
+            />
+
+
+
           </>
         ) : (
           <>

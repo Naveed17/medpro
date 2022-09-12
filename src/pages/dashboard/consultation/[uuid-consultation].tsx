@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GetStaticProps, GetStaticPaths } from "next";
 import { useTranslation } from "next-i18next";
+import CloseIcon from "@mui/icons-material/Close";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Document, Page, pdfjs } from "react-pdf";
 // redux
@@ -17,6 +18,7 @@ import {
     Grid,
     Typography,
     ListItem, Button,
+    DialogActions
 } from "@mui/material";
 import { openDrawer as DialogOpenDrawer } from "@features/dialog";
 import { CustomStepper } from "@features/customStepper";
@@ -42,7 +44,7 @@ import { DrawerBottom } from "@features/drawerBottom";
 import { ConsultationFilter } from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
-
+import { Dialog } from "@features/dialog";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -133,14 +135,6 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
-        id: "defaultAmount",
-        numeric: true,
-        disablePadding: false,
-        label: "default_amount",
-        sortable: true,
-        align: "left",
-    },
-    {
         id: "amount",
         numeric: true,
         disablePadding: false,
@@ -186,7 +180,7 @@ function ConsultationInProgress() {
     const [documentData, setDocumentData] = useState<any>(PendingDocumentCardData)
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
-
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
     const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
 
     useEffect(() => {
@@ -249,7 +243,12 @@ function ConsultationInProgress() {
             EventStepper[index].disabled = false;
         }
     }
-
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    }
+    const handleSaveDialog = () => {
+        setOpenDialog(false);
+    }
 
     useEffect(() => {
         if (patientId) {
@@ -443,7 +442,7 @@ function ConsultationInProgress() {
                             </Box>
                             <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
                                 {
-                                    PatiendData.map((data, index: number) => (
+                                    acts.map((data: any, index: number) => (
                                         <React.Fragment key={`cip-card-${index}`}>
                                             <CipMedicProCard row={data} t={t} />
                                         </React.Fragment>
@@ -451,14 +450,16 @@ function ConsultationInProgress() {
                                 }
 
                             </Stack>
-                            {/*
-                            <Button size='small' sx={{
-                                '& .react-svg svg': {
-                                    width: theme => theme.spacing(1.5),
-                                    path: {fill: theme => theme.palette.primary.main}
-                                }
-                            }} startIcon={<Icon path="ic-plus"/>}>Ajouter un nouveau acte</Button>
-*/}
+
+                            <Button
+                                onClick={() => setOpenDialog(true)}
+                                size='small' sx={{
+                                    '& .react-svg svg': {
+                                        width: theme => theme.spacing(1.5),
+                                        path: { fill: theme => theme.palette.primary.main }
+                                    }
+                                }} startIcon={<IconUrl path="ic-plus" />}>{t("consultationIP.add_a_new_act")}</Button>
+                            <Box pt={8} />
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1}
                                     justifyContent="flex-end">
@@ -603,6 +604,33 @@ function ConsultationInProgress() {
                 >
                     <ConsultationFilter />
                 </DrawerBottom>
+
+
+                <Dialog action={'add_act'}
+                    open={openDialog}
+                    data={{ acts, setActs }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    title="acts"
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                startIcon={<CloseIcon />}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                onClick={handleSaveDialog}
+
+                                startIcon={<IconUrl
+                                    path='ic-dowlaodfile' />}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+
+
+                    } />
+
 
             </Box>
         </>

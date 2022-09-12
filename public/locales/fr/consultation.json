@@ -158,7 +158,8 @@
     "joint_pain": "Douleur articulaire",
     "otitis": "Otite",
     "rheumatism_PSO": "Rhumatisme PSO",
-    "child_cough": "Toux enfant"
+    "child_cough": "Toux enfant",
+    "add_a_new_act": "Ajouter un nouveau acte"
   },
   "table": {
     "acts": "Actes",
@@ -176,7 +177,7 @@
     "check": "Contrôle",
     "send_the_link": "Envoyer le lien du questionnaire",
     "date_of_appointment": "Date du rendez-vous",
-    "see_details": "Voir détails"
+    "see_details": "Voir détails",
   },
   "total": "Total",
   "treatment_medication": "Traitement (médicament)",

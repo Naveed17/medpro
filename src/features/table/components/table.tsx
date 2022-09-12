@@ -67,7 +67,7 @@ function Otable({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: { id: any }) => n.id);
+      const newSelecteds = rows.map((n: { id: any }) => n.uuid);
       setSelected(newSelecteds);
       return;
     }
@@ -91,7 +91,6 @@ function Otable({ ...props }) {
     }
     setSelected(newSelected);
   };
-
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
@@ -138,7 +137,7 @@ function Otable({ ...props }) {
               ? Array.from(new Array(10))
               : stableSort(rows, getComparator(order, orderBy))
             ).map((row, index) => {
-              const isItemSelected = isSelected(row?.id as number);
+              const isItemSelected = isSelected(row?.uuid as string);
               const labelId = `enhanced-table-checkbox-${index}`;
               return (
                 <Component
