@@ -42,7 +42,7 @@ function BalanceSheetDialog({...props}) {
 
     const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
         setAnalysis(item.analyses)
-        data.setState([...analysis])
+        data.setState(item.analyses)
         setAnchorEl(null);
     };
 
