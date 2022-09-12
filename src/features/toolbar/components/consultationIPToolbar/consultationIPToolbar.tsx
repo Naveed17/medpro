@@ -55,7 +55,6 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(true);
         setactions(true)
 
-        console.log(dialog)
     }, [checkUp, dialog, prescription, setDialog])
     const handleClose = (action: string) => {
         switch (action) {
@@ -88,7 +87,6 @@ function ConsultationIPToolbar({...props}) {
         let pdoc = [...pendingDocuments]
         switch (info) {
             case 'medical_prescription':
-                console.log(state)
                 if (state.length > 0) {
                     if (pdoc.findIndex(pdc => pdc.id === 2) === -1)
                         pdoc.push({
@@ -141,7 +139,6 @@ function ConsultationIPToolbar({...props}) {
                     }
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
                     mutate();
-                    console.log(r.data.data[0]);
                     setInfo('document_detail')
                     setState(r.data.data[1])
                     setOpenDialog(true);
@@ -150,7 +147,6 @@ function ConsultationIPToolbar({...props}) {
                 })
                 break;
             case 'balance_sheet_request':
-                console.log(state)
                 form.append('analyses', JSON.stringify(state));
 
                 trigger({
@@ -164,7 +160,6 @@ function ConsultationIPToolbar({...props}) {
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
                     mutate();
                     setCheckUp([])
-                    console.log(r.data.data[1]);
                     setInfo('document_detail')
                     setState(r.data.data[1])
                     setOpenDialog(true);

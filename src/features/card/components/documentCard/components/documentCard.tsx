@@ -26,7 +26,9 @@ function DocumentCard({ ...props }) {
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
                     <Popover
                         open={openTooltip}
-                        handleClose={() => setOpenTooltip(false)}
+                        handleClose={() => {
+                            setOpenTooltip(false)
+                        }}
                         menuList={[
                             {
                                 title: "print",
@@ -52,7 +54,8 @@ function DocumentCard({ ...props }) {
                         onClickItem={onClickTooltipItem}
                         button={
                             <IconButton
-                                onClick={() => {
+                                onClick={(ev) => {
+                                    ev.stopPropagation()
                                     setOpenTooltip(true);
                                 }}
                                 size="small" className="btn-more">

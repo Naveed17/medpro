@@ -136,7 +136,6 @@ function DocumentDetailDialog({ ...props }) {
                                 </ListItem>
                             )
                         }
-
                     </List>
                 </Grid>
             </Grid>
