@@ -35,8 +35,8 @@ function MotifAppointmentDialog({...props}) {
             </Typography>
             <FormControl fullWidth size="small">
                 <Select
-                    labelId="select-reason"
-                    id="select-reason"
+                    labelId="select-reason-dialog"
+                    id="select-reason-dialog"
                     value={reason}
                     displayEmpty
                     onChange={onChangeReason}
@@ -57,7 +57,7 @@ function MotifAppointmentDialog({...props}) {
                             return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
                         }
 
-                        const motif = reasons.find(reason => reason.uuid === selected);
+                        const motif = reasons?.find(reason => reason.uuid === selected);
                         return (
                             <Box sx={{display: "inline-flex"}}>
                                 <FiberManualRecordIcon

@@ -37,6 +37,7 @@ function MoveAppointmentDialog({...props}) {
     } = useRequestMutation(null, "/calendar/slots");
 
     const getSlots = useCallback(() => {
+        setLoading(true);
         trigger(agendaConfig ? {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}

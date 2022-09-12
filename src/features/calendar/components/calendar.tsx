@@ -138,7 +138,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.prev();
-            setDate(calendarApi.getDate());
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
     };
 
@@ -147,7 +147,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.next();
-            setDate(calendarApi.getDate());
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
     };
 

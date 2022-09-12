@@ -22,7 +22,6 @@ function AutoCompleteButton({...props}) {
     }
 
     useEffect(() => {
-        console.log("setPatient", initData);
         setPatient(initData)
     }, [initData]);
 
