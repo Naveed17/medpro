@@ -272,6 +272,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,
