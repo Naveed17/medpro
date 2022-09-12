@@ -83,7 +83,7 @@ function BalanceSheetDialog({...props}) {
         const form = new FormData();
         form.append('globalNote', "");
         form.append('name', model);
-        form.append('requested_analysis_uuid', JSON.stringify(analysis));
+        form.append('analyses', JSON.stringify(analysis));
 
         trigger({
             method: "POST",

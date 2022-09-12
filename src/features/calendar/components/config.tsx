@@ -6,7 +6,7 @@ import SaveAltOutlinedIcon from "@mui/icons-material/SaveAltOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import {FormatterInput} from "@fullcalendar/common";
 
-export const AppointmentTypes: { [key: string]: AppointmentTypeModel } = {
+export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
   0: { key: "PENDING", value: "En attende", color: "#FFD400" },
   1: { key: "CONFIRMED", value: "Confirmé", color: "#1BC47D" },
   2: { key: "REFUSED", value: "Effectué", color: "#E83B68" },

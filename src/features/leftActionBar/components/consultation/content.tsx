@@ -83,11 +83,7 @@ const Content = ({...props}) => {
                 mutate()
             });
         } else if (info === 'balance_sheet_pending') {
-            console.log(state);
-            form.append('analysesResult', JSON.stringify([{
-                uuid: "2f8db467-bbe6-4e37-9daa-c0351d5b9656",
-                result: "20"
-            }]));
+            form.append('analysesResult', JSON.stringify((state as any).hasAnalysis));
 
             trigger({
                 method: "PUT",
@@ -226,13 +222,13 @@ const Content = ({...props}) => {
                                             <Stack spacing={2} alignItems="flex-start">
                                                 <List dense>
                                                     {
-                                                        ra.analyses.map((list: any, index: number) =>
+                                                        ra.hasAnalysis.map((list: any, index: number) =>
                                                             <ListItem key={index}>
                                                                 <ListItemIcon>
                                                                     <CircleIcon/>
                                                                 </ListItemIcon>
                                                                 <Typography variant="body2" color="text.secondary">
-                                                                    {list.name}
+                                                                    {list.analysis.name}
                                                                 </Typography>
                                                             </ListItem>
                                                         )
