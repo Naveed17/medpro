@@ -30,12 +30,11 @@ function CalendarPickers({...props}) {
     return (
         <CalendarPickerStyled>
             <LocalizationProvider
-                {...props}
                 dateAdapter={AdapterDateFns}
                 locale={LocaleFnsProvider(locale)}
             >
                 <StaticDatePicker
-                    disablePast
+                    {...props}
                     disableOpenPicker
                     toolbarTitle={""}
                     value={date}

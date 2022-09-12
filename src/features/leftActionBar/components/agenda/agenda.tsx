@@ -1,9 +1,8 @@
 // components
 import {Accordion} from "@features/accordion";
-import {AppointmentFilter, BoxStyled, FilterRootStyled, PatientFilter, PlaceFilter} from "@features/leftActionBar";
+import { BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
-import {statutData, typeRdv} from "./config";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -11,6 +10,9 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, DayOfWeek} from "@features/calendar";
+import moment from "moment-timezone";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -19,9 +21,12 @@ function Agenda() {
     const {data: session} = useSession();
     const router = useRouter();
 
-    const {data: user} = session as Session;
-    const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
@@ -30,15 +35,26 @@ function Agenda() {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-
     const {t, ready} = useTranslation('agenda', {keyPrefix: 'filter'});
-    if (!ready) return (<>loading translations...</>);
 
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const locations = agendaConfig?.locations;
+    const openingHours = locations && locations[0].openingHours[0].openingHours;
 
+    useEffect(() => {
+        const disabledDay: number[] = []
+        openingHours && Object.entries(openingHours).filter((openingHours: any) => {
+            if (!(openingHours[1].length > 0)) {
+                disabledDay.push(DayOfWeek(openingHours[0]));
+            }
+        });
+        setDisabledDay(disabledDay);
+    }, [openingHours]);
+
+    if (!ready) return (<>loading translations...</>);
     return (
         <BoxStyled>
-            <CalendarPickers/>
+            <CalendarPickers shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
             { <Accordion
                 translate={{
                     t: t,
