@@ -170,7 +170,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.consultationReason.color,
+                    borderColor: appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     description: "",
