@@ -197,6 +197,8 @@ function ConsultationInProgress() {
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [documentData, setDocumentData] = useState<any>(PendingDocumentCardData)
+    const [dialog, setDialog] = useState<string>('')
+    const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
 
@@ -266,6 +268,19 @@ function ConsultationInProgress() {
 
     }, [dispatch, httpAppResponse, mutate])
 
+    const openDialogue = (id: number) => {
+        console.log(id)
+        switch (id) {
+            case 1:
+                setDialog('balance_sheet_request')
+                break;
+            case 2:
+                setDialog('draw_up_an_order')
+                break;
+
+        }
+    }
+
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
@@ -291,7 +306,13 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar appuuid={uuind} mutate={mutate} selected={(v: number) => setValue(v)}/>
+                <ConsultationIPToolbar appuuid={uuind}
+                                       mutate={mutate}
+                                       pendingDocuments={pendingDocuments}
+                                       dialog={dialog}
+                                       setDialog={setDialog}
+                                       setPendingDocuments={setPendingDocuments}
+                                       selected={(v: number) => setValue(v)}/>
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -525,9 +546,9 @@ function ConsultationInProgress() {
                                 }
                             }}>
                                 {
-                                    documents.map((card:{uri:string}, idx) =>
+                                    documents.map((card: { uri: string }, idx) =>
                                         <React.Fragment key={idx}>
-                                            <DocumentCard data={card} onClick={()=>{
+                                            <DocumentCard data={card} onClick={() => {
                                                 setInfo('document_detail')
                                                 setState(card.uri)
                                                 setOpenDialog(true);
@@ -580,21 +601,24 @@ function ConsultationInProgress() {
                     }
 
                 </AnimatePresence>
-                {/*<Stack direction={{md: 'row', xs: 'column'}} position="fixed" sx={{right: 10, bottom: 10, zIndex: 999}}
+                <Stack direction={{md: 'row', xs: 'column'}} position="fixed" sx={{right: 10, bottom: 10, zIndex: 999}}
                        spacing={2}>
                     {
-                        documentData?.map((item: any) =>
+                        pendingDocuments?.map((item: any) =>
                             <React.Fragment key={item.id}>
                                 <PendingDocumentCard data={item}
                                                      t={t}
+                                                     onClick={() => {
+                                                         openDialogue(item.id)
+                                                     }}
                                                      closeDocument={(v: number) =>
-                                    setDocumentData(documentData.filter(((card: any) => card.id !== v)))
-                                }/>
+                                                         setPendingDocuments(pendingDocuments.filter(((card: any) => card.id !== v)))
+                                                     }/>
                             </React.Fragment>
                         )
                     }
 
-                </Stack>*/}
+                </Stack>
                 <Drawer
                     anchor={"right"}
                     open={openAddDrawer}
@@ -646,11 +670,11 @@ function ConsultationInProgress() {
                 info &&
                 <Dialog action={info}
                         open={openDialog}
-                        data={{ state, setState }}
+                        data={{state, setState}}
                         size={"lg"}
                         direction={'ltr'}
                         {...(info === "document_detail" && {
-                            sx: { p: 0 }
+                            sx: {p: 0}
                         })}
                         title={t(info === "document_detail" ? "doc_detail_title" : info)}
                         {
@@ -659,7 +683,7 @@ function ConsultationInProgress() {
                             })
                         }
                         dialogClose={handleCloseDialog}
-                         />
+                />
             }
 
         </>
