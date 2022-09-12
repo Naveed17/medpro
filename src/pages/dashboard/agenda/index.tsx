@@ -170,7 +170,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.consultationReason.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.consultationReason.color,
+                    borderColor: appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     description: "",
@@ -272,6 +272,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onMove":
+                dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
                     date: event?.extendedProps.time,

@@ -1,6 +1,6 @@
 import {TextIconRadio} from "@features/buttons";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import {Box, FormControlLabel, FormLabel, RadioGroup} from "@mui/material";
+import {Box, FormControlLabel, FormLabel, LinearProgress, RadioGroup} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -71,6 +71,9 @@ function EventType({...props}) {
 
     return (
         <>
+            <LinearProgress sx={{
+                visibility: !httpAppointmentTypesResponse ? "visible" : "hidden"
+            }} color="warning"/>
             <Box className="inner-section">
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-0.title")}

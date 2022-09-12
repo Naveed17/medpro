@@ -36,10 +36,10 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {
     Dialog,
     QrCodeDialog,
-    setMoveDateTime
+    setMoveDateTime,
+    MotifAppointmentDialog
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import MotifAppointmentDialog from "../../motifAppointmentDialog/motifAppointmentDialog";
 
 const menuList = [
     {
@@ -325,7 +325,7 @@ function AppointmentDetail({...props}) {
 
             <Dialog action={() =>
                 <MotifAppointmentDialog
-                    reason={data?.extendedProps.motif.uuid}
+                    reason={data ? data.extendedProps.motif.uuid : ""}
                     onChangeReason={(motif: ConsultationReasonModel) => console.log(motif)}
                     t={t}/>}
                     open={dialogMotif}

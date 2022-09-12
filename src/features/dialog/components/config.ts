@@ -170,7 +170,7 @@ const dialogData = [
         ),
     },
     {
-        action: "modelName",
+        action: "move_appointment",
         component: dynamic((): any =>
             import("@features/dialog/components/moveAppointmentDialog/components/moveAppointmentDialog").then(
                 (mod) => mod
