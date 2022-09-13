@@ -38,7 +38,16 @@ function Instruction({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {motif, duration, date, patient, type, instruction, submitted} = useAppSelector(appointmentSelector);
+    const {
+        motif,
+        duration,
+        date,
+        patient,
+        type,
+        instruction,
+        submitted,
+        recurringDates
+    } = useAppSelector(appointmentSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [description, setDescription] = useState(instruction.description);
@@ -76,10 +85,10 @@ function Instruction({...props}) {
         }));
 
         const form = new FormData();
-        form.append('dates', JSON.stringify([{
-            "start_date": moment(date).format('DD-MM-YYYY'),
-            "start_time": moment(date).format('HH:mm')
-        }]));
+        form.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
+            "start_date": recurringDate.date,
+            "start_time": recurringDate.time
+        }))));
         form.append('consultation_reason_uuid', motif);
         form.append('title', `${patient?.lastName} ${patient?.firstName}`);
         form.append('patient_uuid', patient?.uuid as string);

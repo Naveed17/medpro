@@ -573,6 +573,7 @@ function Agenda() {
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
                     dialogClose={() => setMoveDialog(false)}
+                    dir={direction}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
@@ -622,11 +623,14 @@ function Agenda() {
                     color={theme.palette.error.main}
                     contrastText={theme.palette.error.contrastText}
                     dialogClose={() => setCancelDialog(false)}
+                    sx={{
+                        direction: direction
+                    }}
                     action={() => {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")}</Typography>
+                                            variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")} </Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
                             </Box>)
@@ -668,6 +672,7 @@ function Agenda() {
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => setMoveDialogInfo(false)}
                     action={"move_appointment"}
+                    dir={direction}
                     open={moveDialogInfo}
                     title={t("dialogs.move-dialog.title")}
                     actionDialog={
