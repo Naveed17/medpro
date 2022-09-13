@@ -125,7 +125,6 @@ function ConsultationIPToolbar({...props}) {
     }
     const handleSaveDialog = () => {
         const form = new FormData();
-        console.log(info)
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
@@ -143,7 +142,17 @@ function ConsultationIPToolbar({...props}) {
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
                     mutate();
                     setInfo('document_detail')
-                    setState(r.data.data[1])
+                    const res = r.data.data
+                    console.log(res)
+
+                    setState({
+                        uri: res[1],
+                        name: 'ordonnance',
+                        type: 'Ordonnance',
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
                     setOpenDialog(true);
                     setactions(true)
                     setPrescription([])
@@ -164,7 +173,15 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setCheckUp([])
                     setInfo('document_detail')
-                    setState(r.data.data[1])
+                    const res = r.data.data;
+                    setState({
+                        uuid: res[0].uuid,
+                        uri: res[1],
+                        name: 'bilan',
+                        type: 'analysis',
+                        info: res[0].analyses,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
                     setOpenDialog(true);
                     setactions(true)
                 })
