@@ -349,8 +349,8 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {/*
-                <Typography variant="body1" color="text.primary" mt={2} mb={1}>
+
+{/*                <Typography variant="body1" color="text.primary" mt={2} mb={1}>
                     Selected meetings
                 </Typography>
                 {[
