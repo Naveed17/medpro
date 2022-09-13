@@ -25,6 +25,9 @@ const CalendarPickerStyled = styled(Box)(({ theme }) => ({
                 color: theme.palette.text.primary,
                 backgroundColor: theme.palette.warning.main,
             },
+            "&.Mui-disabled": {
+                color: theme.palette.text.primary,
+            },
         },
         "&:hover, &:focus": {
             backgroundColor: theme.palette.grey["A700"],

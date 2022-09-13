@@ -97,7 +97,7 @@ function TopNavBar({...props}) {
                             <IconButton color="primary" edge="start" className="btn">
                                 <Icon path="ic-scan"/>
                             </IconButton>
-                            <TextFieldSearch color="primary" className="topbar-search"/>
+                            {/*<TextFieldSearch color="primary" className="topbar-search"/>*/}
                         </Hidden>
 
                         <MenuList className="topbar-nav">
