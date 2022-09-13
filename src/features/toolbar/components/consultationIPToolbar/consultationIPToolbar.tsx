@@ -66,6 +66,9 @@ function ConsultationIPToolbar({...props}) {
                 setInfo('balance_sheet_request')
                 setState(checkUp)
                 break;
+            case "write_certif":
+                setInfo('write_certif')
+                break;
             case "upload_document":
                 setInfo('add_a_document')
                 break;
@@ -122,7 +125,7 @@ function ConsultationIPToolbar({...props}) {
     }
     const handleSaveDialog = () => {
         const form = new FormData();
-
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
