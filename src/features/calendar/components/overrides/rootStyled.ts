@@ -24,8 +24,8 @@ const RootStyled = styled("div")(({theme}) => ({
         width: "100%",
     },
     "& .fc-timegrid-slot": {
-        minHeight: 58,
-        height: 58,
+        minHeight: 28,
+        height: 28
     },
     "& .fc-timegrid-slot-label.fc-scrollgrid-shrink": {
         verticalAlign: "top",
