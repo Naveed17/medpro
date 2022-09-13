@@ -4,9 +4,9 @@ import { Label } from '@features/label';
 import { IconButton, Stack, Typography, } from '@mui/material';
 import IconUrl from '@themes/urlIcon';
 function CipCard({ ...props }) {
-    const { data, t, closeDocument } = props
+    const { data, t, closeDocument, onClick } = props
     return (
-        <PendingDocumentCardStyled>
+        <PendingDocumentCardStyled onClick={onClick}>
             <Stack spacing={{ xs: 1, md: 2 }} direction='row' alignItems="center">
                 <IconButton size="small">
                     <IconUrl path={data.icon} />
@@ -18,7 +18,10 @@ function CipCard({ ...props }) {
                 <Label color='warning' variant='filled' className='label'>
                     {t(data.status)}
                 </Label>
-                <IconButton size="small" className='btn-close' onClick={() => closeDocument(data.id)}>
+                <IconButton size="small" className='btn-close' onClick={(ev) => {
+                    ev.stopPropagation();
+                    closeDocument(data.id)
+                }}>
                     <IconUrl path="ic-x" />
                 </IconButton>
             </Stack>

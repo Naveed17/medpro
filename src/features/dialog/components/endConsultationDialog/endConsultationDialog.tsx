@@ -15,7 +15,7 @@ function EndConsultationDialog() {
                 </Typography>
                 <Avatar {...(imgUrl ? { src: imgUrl } : { src: '/static/icons/ic-avatar-f.svg' })} />
                 <Typography variant='subtitle1' fontWeight={700} color='white.darker'>
-                    Khadija EHA
+                    Test
                 </Typography>
                 <Typography variant='subtitle2'>
                     {t("table.price_of_the_consultation")} <Label variant='filled' color='success' sx={{ color: theme => theme.palette.text.primary }}>

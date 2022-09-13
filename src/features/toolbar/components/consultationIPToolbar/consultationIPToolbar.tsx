@@ -19,7 +19,6 @@ function ConsultationIPToolbar({ ...props }) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState(tabsData[0].value);
     const [info, setInfo] = useState<null | string>('');
-    const [dialogData, setDialogData] = useState<any>(null)
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
@@ -28,7 +27,7 @@ function ConsultationIPToolbar({ ...props }) {
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const { selected, appuuid, mutate } = props;
+    const { selected, appuuid, mutate, setPendingDocuments, pendingDocuments, dialog, setDialog } = props;
 
 
     const { trigger } = useRequestMutation(null, "/drugs");
@@ -40,6 +39,24 @@ function ConsultationIPToolbar({ ...props }) {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
+    useEffect(() => {
+        switch (dialog) {
+            case "draw_up_an_order":
+                setInfo('medical_prescription')
+                setState(prescription)
+                break;
+            case "balance_sheet_request":
+                setInfo('balance_sheet_request')
+                setState(checkUp)
+                break;
+        }
+        setDialog('')
+        setOpenDialog(true);
+        setactions(true)
+
+        console.log(dialog)
+    }, [checkUp, dialog, prescription, setDialog])
     const handleClose = (action: string) => {
         switch (action) {
             case "draw_up_an_order":
@@ -59,31 +76,51 @@ function ConsultationIPToolbar({ ...props }) {
 
         }
         setAnchorEl(null);
-        handleClickDialog();
+        setOpenDialog(true);
         setactions(true)
 
     };
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
     };
-    const handleClickDialog = () => {
 
-        setOpenDialog(true);
-        console.log(info)
-
-    };
     const handleCloseDialog = () => {
+        let pdoc = [...pendingDocuments]
         switch (info) {
             case 'medical_prescription':
-                setPrescription(state)
+                console.log(state)
+                if (state.length > 0) {
+                    if (pdoc.findIndex(pdc => pdc.id === 2) === -1)
+                        pdoc.push({
+                            id: 2,
+                            name: "Ordonnance médicale",
+                            status: "in_progress",
+                            icon: 'ic-traitement'
+                        })
+                } else {
+                    pdoc = pdoc.filter(obj => obj.id !== 2);
+                }
                 break
             case 'balance_sheet_request':
                 setCheckUp(state)
+                if (state.length > 0) {
+                    if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
+                        pdoc.push({
+                            id: 1,
+                            name: "Demande bilan",
+                            status: "in_progress",
+                            icon: 'ic-analyse'
+                        })
+                } else {
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                }
                 break
         }
 
         setOpenDialog(false);
         setInfo(null)
+        setPendingDocuments(pdoc)
+
     }
     const handleSaveDialog = () => {
         const form = new FormData();
@@ -102,9 +139,14 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(() => {
+                }, { revalidate: true, populateCache: true }).then((r: any) => {
                     mutate();
-                    //setPrescription([])
+                    console.log(r.data.data[0]);
+                    setInfo('document_detail')
+                    setState(r.data.data[1])
+                    setOpenDialog(true);
+                    setactions(true)
+                    setPrescription([])
                 })
                 break;
             case 'balance_sheet_request':
@@ -119,9 +161,14 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(() => {
+                }, { revalidate: true, populateCache: true }).then((r: any) => {
                     mutate();
                     setCheckUp([])
+                    console.log(r.data.data[1]);
+                    setInfo('document_detail')
+                    setState(r.data.data[1])
+                    setOpenDialog(true);
+                    setactions(true)
                 })
                 break;
         }
@@ -141,7 +188,7 @@ function ConsultationIPToolbar({ ...props }) {
                     <Button variant="contained"
                         onClick={() => {
                             setInfo("document_detail");
-                            handleClickDialog();
+                            setOpenDialog(true);
                             setState('/static/files/sample.pdf')
                             setactions(false)
                         }

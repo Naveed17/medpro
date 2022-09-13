@@ -62,7 +62,7 @@ function ModalConsultation({...props}) {
 
         setTimeout(() => {
             setLoadModel(false)
-        }, 3000)
+        }, 1000)
     }, [modal])
 
     useEffect(() => {

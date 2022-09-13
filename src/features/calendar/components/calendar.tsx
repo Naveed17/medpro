@@ -138,7 +138,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.prev();
-            setDate(calendarApi.getDate());
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
     };
 
@@ -147,7 +147,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.next();
-            setDate(calendarApi.getDate());
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
     };
 
@@ -244,7 +244,7 @@ function Calendar({...props}) {
                                 droppable
                                 navLinks
                                 selectable
-                                eventDurationEditable={false}
+                                eventDurationEditable
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
@@ -290,8 +290,8 @@ function Calendar({...props}) {
                                 headerToolbar={false}
                                 allDayMaintainDuration
                                 eventResizableFromStart
-                                slotLabelInterval={{minutes: 15}}
-                                slotDuration="00:30:00"
+                                slotLabelInterval={{minutes: 30}}
+                                slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />

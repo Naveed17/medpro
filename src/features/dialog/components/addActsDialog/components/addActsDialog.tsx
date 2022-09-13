@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import AddActsDialogStyle from './overrides/addActsDialogStyle'
 import { uniqueId } from 'lodash'
 function AddActsDialog({ ...props }) {
-    const { data: { acts, state, setstate, t } } = props;
+    const { data: { stateAct, setstateAct, t } } = props;
     return (
         <AddActsDialogStyle spacing={2} justifyContent="center" height="100%">
             <Box width="100%">
@@ -14,10 +14,10 @@ function AddActsDialog({ ...props }) {
                     placeholder={t('name_of_act')}
                     onChange={
                         (e) => {
-                            setstate({
-                                ...state,
+                            setstateAct({
+                                ...stateAct,
                                 act: {
-                                    ...state.act,
+                                    ...stateAct.act,
                                     name: e.target.value,
                                 }
                             })
@@ -29,8 +29,8 @@ function AddActsDialog({ ...props }) {
                 <Typography gutterBottom>{t('price_of_act')}</Typography>
                 <TextField placeholder={t('price_of_act')} fullWidth type="number" onChange={
                     (e) => {
-                        setstate({
-                            ...state,
+                        setstateAct({
+                            ...stateAct,
                             uuid: `${uniqueId()}`,
                             fees: +e.target.value as number,
                         })

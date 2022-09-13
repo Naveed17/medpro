@@ -65,7 +65,7 @@ export default function EnhancedTable({ ...props }) {
                 <Icon
                   path={
                     (row.type === "orders" && "ic-traitement") ||
-                    (row.type === "analysis" && "ic-analyse") ||
+                    (row.type === "requested-analysis" && "ic-analyse") ||
                     (row.type === "report" && "ic-lettre") ||
                     (row.type === "prescription" && "ic-ordonance") ||
                     ""

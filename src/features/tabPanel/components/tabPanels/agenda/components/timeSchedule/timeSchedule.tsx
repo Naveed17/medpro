@@ -41,6 +41,7 @@ function TimeSchedule({...props}) {
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
     const [date, setDate] = useState<Date | null>(selectedDate);
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
@@ -130,13 +131,15 @@ function TimeSchedule({...props}) {
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
 
-
-    let disabledDay: number[] = [];
-    openingHours && Object.entries(openingHours).filter((openingHours: any) => {
-        if (!(openingHours[1].length > 0)) {
-            disabledDay.push(DayOfWeek(openingHours[0]));
-        }
-    })
+    useEffect(() => {
+        const disabledDay: number[] = []
+        openingHours && Object.entries(openingHours).filter((openingHours: any) => {
+            if (!(openingHours[1].length > 0)) {
+                disabledDay.push(DayOfWeek(openingHours[0]));
+            }
+        });
+        setDisabledDay(disabledDay);
+    }, [openingHours]);
 
     useEffect(() => {
         if (date) {
@@ -346,8 +349,8 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {/*
-                <Typography variant="body1" color="text.primary" mt={2} mb={1}>
+
+{/*                <Typography variant="body1" color="text.primary" mt={2} mb={1}>
                     Selected meetings
                 </Typography>
                 {[

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GetStaticProps, GetStaticPaths } from "next";
 import { useTranslation } from "next-i18next";
-import CloseIcon from "@mui/icons-material/Close";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { Document, Page, pdfjs } from "react-pdf";
 // redux
@@ -23,7 +22,7 @@ import {
     FormControlLabel,
     Checkbox
 } from "@mui/material";
-import { openDrawer as DialogOpenDrawer } from "@features/dialog";
+import { Dialog, openDrawer as DialogOpenDrawer } from "@features/dialog";
 import { CustomStepper } from "@features/customStepper";
 import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 
@@ -31,7 +30,16 @@ import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
-import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard, PendingDocumentCardData, HistoryCard } from "@features/card";
+import {
+    CipNextAppointCard,
+    CipMedicProCard,
+    DocumentCard,
+    documentCardData,
+    PendingDocumentCard,
+    PendingDocumentCardData,
+    HistoryCard,
+} from "@features/card";
+import { Label } from "@features/label";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -47,8 +55,9 @@ import { DrawerBottom } from "@features/drawerBottom";
 import { ConsultationFilter } from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
-import { Dialog } from "@features/dialog";
-import { Label } from '@features/label';
+import CloseIcon from "@mui/icons-material/Close";
+import Icon from "@themes/urlIcon";
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -187,15 +196,20 @@ function ConsultationInProgress() {
     const [acts, setActs] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
+    const [documents, setDocuments] = useState([]);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [state, setState] = useState<any>();
+    const [info, setInfo] = useState<null | string>('');
     const [appointement, setAppointement] = useState<any>();
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [documentData, setDocumentData] = useState<any>(PendingDocumentCardData)
+    const [dialog, setDialog] = useState<string>('')
+    const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
     const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
-    const [state, setstate] = useState({
+    const [stateAct, setstateAct] = useState({
         "uuid": "",
         "isTopAct": true,
         fees: 0,
@@ -234,6 +248,10 @@ function ConsultationInProgress() {
         headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
     } : null, SWRNoValidateConfig);
 
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setInfo(null)
+    }
 
     useEffect(() => {
         setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
@@ -242,9 +260,21 @@ function ConsultationInProgress() {
 
     const { data: httpAppResponse, error: errorHttpApp, mutate } = useRequest(mpUuid ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse).data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
         headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
     } : null);
+
+    const { data: httpDocumentResponse, error: errorHttpDoc } = useRequest(mpUuid ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/documents/" + router.locale,
+        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+    } : null);
+
+    useEffect(() => {
+        console.log((httpDocumentResponse as HttpResponse)?.data)
+        if (httpDocumentResponse)
+            setDocuments((httpDocumentResponse as HttpResponse).data)
+    }, [httpDocumentResponse])
 
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data)
@@ -254,6 +284,19 @@ function ConsultationInProgress() {
         dispatch(SetMutation(mutate))
 
     }, [dispatch, httpAppResponse, mutate])
+
+    const openDialogue = (id: number) => {
+        console.log(id)
+        switch (id) {
+            case 1:
+                setDialog('balance_sheet_request')
+                break;
+            case 2:
+                setDialog('draw_up_an_order')
+                break;
+
+        }
+    }
 
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
@@ -275,7 +318,7 @@ function ConsultationInProgress() {
             EventStepper[index].disabled = false;
         }
     }
-    const handleCloseDialog = () => {
+    const handleCloseDialogAct = () => {
         setOpenDialog(false);
     }
     const handleSaveDialog = () => {
@@ -300,7 +343,13 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar appuuid={uuind} mutate={mutate} selected={(v: number) => setValue(v)} />
+                <ConsultationIPToolbar appuuid={uuind}
+                    mutate={mutate}
+                    pendingDocuments={pendingDocuments}
+                    dialog={dialog}
+                    setDialog={setDialog}
+                    setPendingDocuments={setPendingDocuments}
+                    selected={(v: number) => setValue(v)} />
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -561,9 +610,13 @@ function ConsultationInProgress() {
                                 }
                             }}>
                                 {
-                                    documentCardData.map((card, idx) =>
+                                    documents.map((card: { uri: string }, idx) =>
                                         <React.Fragment key={idx}>
-                                            <DocumentCard data={card} t={t} />
+                                            <DocumentCard data={card} onClick={() => {
+                                                setInfo('document_detail')
+                                                setState(card.uri)
+                                                setOpenDialog(true);
+                                            }} t={t} />
                                         </React.Fragment>
                                     )
                                 }
@@ -612,15 +665,20 @@ function ConsultationInProgress() {
                     }
 
                 </AnimatePresence>
-                <Stack direction={{ md: 'row', xs: 'column' }} position="fixed" sx={{ right: 10, bottom: 10, zIndex: 999 }} spacing={2}>
+                <Stack direction={{ md: 'row', xs: 'column' }} position="fixed" sx={{ right: 10, bottom: 10, zIndex: 999 }}
+                    spacing={2}>
                     {
-                        documentData?.map((item: any) =>
+                        pendingDocuments?.map((item: any) =>
                             <React.Fragment key={item.id}>
-                                <PendingDocumentCard data={item} t={t} closeDocument={(v: number) =>
-                                    setDocumentData(documentData.filter(((card: any) => card.id !== v)))
-                                } />
+                                <PendingDocumentCard data={item}
+                                    t={t}
+                                    onClick={() => {
+                                        openDialogue(item.id)
+                                    }}
+                                    closeDocument={(v: number) =>
+                                        setPendingDocuments(pendingDocuments.filter(((card: any) => card.id !== v)))
+                                    } />
                             </React.Fragment>
-
                         )
                     }
 
@@ -672,14 +730,14 @@ function ConsultationInProgress() {
 
                 <Dialog action={'add_act'}
                     open={openDialog}
-                    data={{ acts, state, setstate, t }}
+                    data={{ stateAct, setstateAct, t }}
                     size={"sm"}
                     direction={'ltr'}
                     title={t('consultationIP.add_a_new_act')}
-                    dialogClose={handleCloseDialog}
+                    dialogClose={handleCloseDialogAct}
                     actionDialog={
                         <DialogActions>
-                            <Button onClick={handleCloseDialog}
+                            <Button onClick={handleCloseDialogAct}
                                 startIcon={<CloseIcon />}>
                                 {t('cancel')}
                             </Button>
@@ -697,6 +755,28 @@ function ConsultationInProgress() {
 
 
             </Box>
+
+
+            {
+                info &&
+                <Dialog action={info}
+                    open={openDialog}
+                    data={{ state, setState }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    {...(info === "document_detail" && {
+                        sx: { p: 0 }
+                    })}
+                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                    {
+                    ...(info === "document_detail" && {
+                        onClose: handleCloseDialog
+                    })
+                    }
+                    dialogClose={handleCloseDialog}
+                />
+            }
+
         </>
     );
 }

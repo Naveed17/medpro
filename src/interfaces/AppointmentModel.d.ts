@@ -1,6 +1,6 @@
 interface AppointmentModel {
   uuid: string;
-  type: number;
+  type: AppointmentTypeModel;
   dayDate: string;
   startTime: string;
   createdAt: string;
