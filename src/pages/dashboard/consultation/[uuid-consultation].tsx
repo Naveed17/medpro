@@ -18,7 +18,10 @@ import {
     Grid,
     Typography,
     ListItem, Button,
-    DialogActions
+    DialogActions,
+    FormGroup,
+    FormControlLabel,
+    Checkbox
 } from "@mui/material";
 import { openDrawer as DialogOpenDrawer } from "@features/dialog";
 import { CustomStepper } from "@features/customStepper";
@@ -28,7 +31,7 @@ import { TimeSchedule, Patient, Instruction } from "@features/tabPanel";
 import { DashLayout } from "@features/base";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
-import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard, PendingDocumentCardData } from "@features/card";
+import { CipNextAppointCard, CipMedicProCard, DocumentCard, documentCardData, PendingDocumentCard, PendingDocumentCardData, HistoryCard } from "@features/card";
 import { Otable } from '@features/table';
 import { CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard } from "@features/card";
 import { ModalConsultation } from '@features/modalConsultation';
@@ -45,6 +48,7 @@ import { ConsultationFilter } from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import { Dialog } from "@features/dialog";
+import { Label } from '@features/label';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -160,7 +164,16 @@ const EventStepper = [
         disabled: true
     }
 ];
-
+const filterData = [
+    "all",
+    "report",
+    "analysis",
+    "prescription_drugs",
+    "medical_imaging",
+    "photo",
+    "video",
+    "audio"
+];
 function ConsultationInProgress() {
     const { patientId } = useAppSelector(tableActionSelector);
     const { direction } = useAppSelector(configSelector);
@@ -182,7 +195,18 @@ function ConsultationInProgress() {
     const uuind = router.query['uuid-consultation'];
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
-
+    const [state, setstate] = useState({
+        "uuid": "",
+        "isTopAct": true,
+        fees: 0,
+        "act": {
+            "uuid": "",
+            "name": "",
+            "description": "",
+            "weight": 0
+        }
+    });
+    const [filter, setfilter] = React.useState<any>({});
     useEffect(() => {
         if (examan) console.log(examan);
     }, [examan]);
@@ -235,6 +259,14 @@ function ConsultationInProgress() {
         setNumPages(numPages);
     }
 
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setfilter({
+            ...filter,
+            [event.target.name]: event.target.checked,
+        });
+    };
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
@@ -248,7 +280,14 @@ function ConsultationInProgress() {
     }
     const handleSaveDialog = () => {
         setOpenDialog(false);
+        setActs([
+            ...acts,
+            state,
+
+        ])
+
     }
+
 
     useEffect(() => {
         if (patientId) {
@@ -268,6 +307,31 @@ function ConsultationInProgress() {
 
                     {value === 0 &&
                         <TabPanel index={0}>
+                            <Stack spacing={2} mb={2} alignItems="flex-start">
+                                <Label variant="filled" color="warning">{t("next_meeting")}</Label>
+                                <HistoryCard />
+                                <HistoryCard />
+                            </Stack>
+                            <Stack spacing={1} mb={1}>
+                                <Typography variant="body2">
+                                    {t("document_type")}
+                                </Typography>
+                                <FormGroup row>
+                                    {
+                                        filterData.map((item: any, idx: number) =>
+                                            <FormControlLabel
+                                                key={idx}
+                                                control={
+                                                    <Checkbox checked={filter[item]} onChange={handleChange} name={filter[item]} />
+                                                }
+                                                label={t(item)}
+                                            />
+                                        )
+                                    }
+
+                                </FormGroup>
+                            </Stack>
+
                             <Stack spacing={2}>
                                 {
                                     CIPPatientHistoryCardData.map((data, index: number) => (
@@ -442,7 +506,7 @@ function ConsultationInProgress() {
                             </Box>
                             <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
                                 {
-                                    acts.map((data: any, index: number) => (
+                                    acts?.map((data: any, index: number) => (
                                         <React.Fragment key={`cip-card-${index}`}>
                                             <CipMedicProCard row={data} t={t} />
                                         </React.Fragment>
@@ -526,7 +590,7 @@ function ConsultationInProgress() {
                             </Box>*/}
                             <Stack spacing={2}>
                                 {
-                                    patient.nextAppointments.map((data: any, index: number) => (
+                                    patient?.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
                                             <CipNextAppointCard row={data} patient={patient} t={t} />
                                         </React.Fragment>
@@ -608,10 +672,10 @@ function ConsultationInProgress() {
 
                 <Dialog action={'add_act'}
                     open={openDialog}
-                    data={{ acts, setActs }}
-                    size={"lg"}
+                    data={{ acts, state, setstate, t }}
+                    size={"sm"}
                     direction={'ltr'}
-                    title="acts"
+                    title={t('consultationIP.add_a_new_act')}
                     dialogClose={handleCloseDialog}
                     actionDialog={
                         <DialogActions>

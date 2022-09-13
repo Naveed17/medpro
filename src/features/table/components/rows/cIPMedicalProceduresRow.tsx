@@ -4,10 +4,9 @@ import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
 import React from "react";
 function CIPMedicalProceduresRow({ ...props }) {
-  const { row, isItemSelected, handleClick, selected } = props;
+  const { row, isItemSelected, handleClick } = props;
   const theme = useTheme() as Theme;
   const [fees, setfees] = React.useState<number>(row.fees)
-  console.log(row)
   return (
     <TableRowStyled
       className={'cip-medical-proce-row'}
@@ -44,7 +43,15 @@ function CIPMedicalProceduresRow({ ...props }) {
               borderColor: theme.palette.divider,
               color: theme.palette.text.primary,
               mr: 1,
+              input: {
+                textAlign: 'center',
+                padding: theme.spacing(.3),
+                "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
+                  "-webkit-appearance": 'none',
+                  margin: 0,
+                }
 
+              }
             }}
               type="number"
               size="small" value={fees}

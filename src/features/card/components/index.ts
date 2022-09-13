@@ -26,3 +26,4 @@ export * from "./appointmentPatientCard";
 export * from './documentCard';
 export * from './pendingDocumentCard';
 export * from "./cipCard";
+export * from './historyCard'
