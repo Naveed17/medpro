@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -19,11 +19,12 @@ import {LoadingScreen} from "@features/loadingScreen";
 import moment from "moment-timezone";
 import {
     appointmentSelector, setAppointmentDate,
-    setAppointmentDuration, setAppointmentMotif
+    setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
+import {PatientCardMobile} from "@features/card";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -33,13 +34,18 @@ function TimeSchedule({...props}) {
     const {data: session} = useSession();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {motif, date: selectedDate, duration: initDuration} = useAppSelector(appointmentSelector);
+    const {
+        motif,
+        date: selectedDate,
+        duration: initDuration, recurringDates: initRecurringDates
+    } = useAppSelector(appointmentSelector);
 
     const [reason, setReason] = useState(motif);
     const [duration, setDuration] = useState(initDuration);
-    const [durations, setDurations] = useState([15, 20, 30, 40, 45, 60, 75, 90, 105, 120]);
+    const [durations, setDurations] = useState([15, 20, 25, 30, 35, 40, 45, 60, 75, 90, 105, 120]);
     const [location, setLocation] = useState("");
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
+    const [recurringDates, setRecurringDates] = useState<RecurringDateModel[]>(initRecurringDates);
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
@@ -84,13 +90,14 @@ function TimeSchedule({...props}) {
 
     const onChangeReason = (event: SelectChangeEvent) => {
         setReason(event.target.value as string);
-        const reason = reasons.find(reason => event.target.value === reason.uuid);
+        const reason = reasons?.find(reason => event.target.value === reason.uuid);
         if (reason) {
             setDuration(reason.duration as any);
         }
 
         if (date) {
             getSlots(date);
+            console.log("onChangeReason", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
         }
     };
@@ -106,6 +113,16 @@ function TimeSchedule({...props}) {
     const onChangeLocation = (event: SelectChangeEvent) => {
         setLocation(event.target.value as string);
     };
+
+    const onMenuActions = (recurringDate: RecurringDateModel, action: string, index: number) => {
+        switch (action) {
+            case "onRemove" :
+                const updatedDates = [...recurringDates];
+                updatedDates.splice(index, 1);
+                setRecurringDates([...updatedDates]);
+                break;
+        }
+    }
 
     const getTimeFromMinutes = (minutes: number) => {
         // do not include the first validation check if you want, for example,
@@ -127,6 +144,22 @@ function TimeSchedule({...props}) {
         onNext(2);
     }
 
+    const onTimeSlotChange = (newTime: string) => {
+        const updatedRecurringDates = [...recurringDates, {
+            id: `${moment(date).format("DD-MM-YYYY")}--${newTime}`,
+            time: newTime,
+            date: moment(date).format("DD-MM-YYYY"),
+            status: "success"
+        }].reduce(
+            (unique: RecurringDateModel[], item) =>
+                (unique.find(recurringDate => recurringDate.id === item.id) ? unique : [...unique, item]),
+            [],
+        );
+        setRecurringDates(updatedRecurringDates);
+        dispatch(setAppointmentRecurringDates(updatedRecurringDates));
+        setTime(newTime);
+    }
+
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
@@ -144,6 +177,7 @@ function TimeSchedule({...props}) {
     useEffect(() => {
         if (date) {
             getSlots(date);
+            console.log("useEffect", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
         }
     }, [date, getSlots]);
@@ -181,9 +215,6 @@ function TimeSchedule({...props}) {
                                 borderColor: 'divider',
                                 borderRadius: '50%',
                                 p: 0.05
-                            },
-                            "& .MuiTypography-root": {
-                                ml: 3.5
                             }
                         }}
                         renderValue={selected => {
@@ -191,15 +222,15 @@ function TimeSchedule({...props}) {
                                 return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
                             }
 
-                            const motif = reasons.find(reason => reason.uuid === selected);
+                            const motif = reasons?.find(reason => reason.uuid === selected);
                             return (
                                 <Box sx={{display: "inline-flex"}}>
-                                    <FiberManualRecordIcon
+                                    {/*<FiberManualRecordIcon
                                         fontSize="small"
                                         sx={{
                                             color: motif?.color
                                         }}
-                                    />
+                                    />*/}
                                     <Typography>{motif?.name}</Typography>
                                 </Box>
 
@@ -208,7 +239,7 @@ function TimeSchedule({...props}) {
                     >
                         {reasons?.map((consultationReason) => (
                             <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
-                                <FiberManualRecordIcon
+                                {/*<FiberManualRecordIcon
                                     fontSize="small"
                                     sx={{
                                         border: .1,
@@ -218,7 +249,7 @@ function TimeSchedule({...props}) {
                                         mr: 1,
                                         color: consultationReason.color
                                     }}
-                                />
+                                />*/}
                                 {consultationReason.name}
                             </MenuItem>
                         ))}
@@ -337,10 +368,10 @@ function TimeSchedule({...props}) {
                         </Typography>
                         <TimeSlot
                             sx={{width: 248, margin: "auto"}}
-                            loading={!date || loading}
+                            loading={!date && !reason || loading}
                             data={timeSlots}
                             limit={limit}
-                            onChange={(newTime: string) => setTime(newTime)}
+                            onChange={onTimeSlotChange}
                             OnShowMore={() => setLimit(limit * 2)}
                             value={time}
                             seeMore
@@ -349,24 +380,24 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-
-{/*                <Typography variant="body1" color="text.primary" mt={2} mb={1}>
-                    Selected meetings
-                </Typography>
-                {[
-                    {
-                        status: "warning",
-                        date: "Fri April 10",
-                        time: "14:20",
-                    },
-                    {
-                        status: "warning",
-                        date: "Fri April 10",
-                        time: "14:20",
-                    },
-                ].map((item) => (
-                    <PatientCardMobile key={Math.random()} item={item} size="small"/>
-                ))}*/}
+                {recurringDates.length > 0 &&
+                    <>
+                        <Typography variant="body1" color="text.primary" mt={2} mb={1}>
+                            {t("stepper-1.selected-appointment")}
+                        </Typography>
+                        {recurringDates.map((recurringDate, index) => (
+                            <PatientCardMobile
+                                onAction={(action: string) => onMenuActions(recurringDate, action, index)}
+                                contextMenuList={[
+                                    {
+                                        title: "remove",
+                                        icon: <DeleteIcon/>,
+                                        action: "onRemove"
+                                    },
+                                ]} key={Math.random()} item={recurringDate} size="small"/>
+                        ))}
+                    </>
+                }
             </Box>
             <Paper
                 sx={{
@@ -391,7 +422,7 @@ function TimeSchedule({...props}) {
                     size="medium"
                     variant="contained"
                     color="primary"
-                    disabled={!time}
+                    disabled={time === ""}
                     onClick={onNextStep}
                 >
                     {t("next")}
