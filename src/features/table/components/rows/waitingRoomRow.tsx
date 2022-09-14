@@ -66,17 +66,6 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
-                            <Typography color="text.primary" sx={{ml: 0.6}}>
-                                {row.id}
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <Skeleton variant="text" width={50}/>
-                    )}
-                </TableCell>
-                <TableCell>
-                    {row ? (
-                        <Box display="flex" alignItems="center">
                             <Typography
                                 component={"span"}
                                 sx={{
@@ -92,7 +81,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 <Icon path="ic-time"/>
-                                {row.arrivaltime}
+                                {row.appointment_time}
                             </Typography>
                         </Box>
                     ) : (
@@ -162,16 +151,17 @@ function WaitingRoomRow({...props}) {
                                alignItems="center"
                                spacing={1}
                         >
-                            <CircleIcon fontSize="small" sx={{
-                                border: 1,
-                                borderColor: 'divider',
-                                borderRadius: '50%',
-                                p: 0.2,
-                            }}
-                                        color='primary'
+                            <CircleIcon fontSize="small"
+                                        sx={{
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            borderRadius: '50%',
+                                            p: 0.2,
+                                        }}
+                                        color={row.consultation_reason.color}
                             />
                             <Typography color="primary">
-                                {row.reson}
+                                {row.consultation_reason.name}
                             </Typography>
                         </Stack>
                     ) : (

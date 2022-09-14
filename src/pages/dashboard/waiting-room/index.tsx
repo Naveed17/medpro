@@ -43,14 +43,6 @@ export const rows = [
 ];
 export const headCells = [
     {
-        id: "id",
-        numeric: false,
-        disablePadding: true,
-        label: "Id",
-        align: "left",
-        sortable: true,
-    },
-    {
         id: "arrivaltime",
         numeric: false,
         disablePadding: true,
@@ -155,7 +147,7 @@ function Room() {
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-{/*                <Label
+                {/*                <Label
                     variant="filled"
                     color="success"
                     sx={{

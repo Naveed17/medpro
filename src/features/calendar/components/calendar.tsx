@@ -82,13 +82,13 @@ function Calendar({...props}) {
             let days: BusinessHoursInput[] = [];
             if (openingHours) {
                 Object.entries(openingHours).map((openingHours: any) => {
-                    if ((openingHours[1].length > 0)) {
+                    openingHours[1].map((openingHour: {start_time: string, end_time: string}) => {
                         days.push({
                             daysOfWeek: [DayOfWeek(openingHours[0], 0)],
-                            startTime: openingHours[1][0].start_time,
-                            endTime: openingHours[1][0].end_time
+                            startTime: openingHour.start_time,
+                            endTime: openingHour.end_time
                         });
-                    }
+                    })
                 });
                 setDaysOfWeek(days);
             }
