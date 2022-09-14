@@ -4,7 +4,7 @@ import {
     setAppointmentDate, setAppointmentDuration,
     setAppointmentInstruction,
     setAppointmentMotif,
-    setAppointmentPatient, setAppointmentSubmit,
+    setAppointmentPatient, setAppointmentRecurringDates, setAppointmentSubmit,
     setAppointmentType
 } from "./actions";
 
@@ -13,6 +13,7 @@ export type AppointmentState = {
     motif: string;
     duration: number | string;
     date: Date | null;
+    recurringDates: RecurringDateModel[];
     patient: PatientWithNextAndLatestAppointment | null;
     instruction: AppointmentInstructionModel;
     submitted: boolean
@@ -23,6 +24,7 @@ const initialState: AppointmentState = {
     motif: "",
     duration : "",
     date: null,
+    recurringDates: [],
     patient: null,
     instruction: {
         smsLang: "fr",
@@ -41,6 +43,8 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
         state.motif = action.payload;
     }).addCase(setAppointmentDuration, (state, action) => {
         state.duration = action.payload;
+    }).addCase(setAppointmentRecurringDates, (state, action) => {
+        state.recurringDates = action.payload;
     }).addCase(setAppointmentDate, (state, action) => {
         state.date = action.payload;
     }).addCase(setAppointmentPatient, (state, action) => {

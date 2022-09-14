@@ -135,7 +135,8 @@
       "remove": "Supprimer",
       "adreq": "Adresse est obligatoire",
       "emsc": "em seance",
-      "firstsc": "1er seance"
+      "firstsc": "1er seance",
+      "timeshedule": "horaire d'ouverture"
     }
   },
   "agenda": {

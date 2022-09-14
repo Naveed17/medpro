@@ -50,8 +50,13 @@ function BalanceSheetPendingDialog({...props}) {
         <BalanceSheetPendingStyled>
             <Grid container spacing={5}>
                 <Grid item xs={12} md={7}>
-                   {/* <Stack height={1}>
-                        <FormikProvider value={formik}>
+                    <Typography marginBottom={2} gutterBottom>{t('importResult')}</Typography>
+
+                    <Box mt="auto">
+                        <UploadFileCard fontSize={16} onDrop={handleDrop}/>
+                    </Box>
+                    <Stack height={1}>
+                        {/*                        <FormikProvider value={formik}>
                             <Stack
                                 spacing={2}
                                 component={Form}
@@ -83,12 +88,9 @@ function BalanceSheetPendingDialog({...props}) {
                                     {t('add_balance_sheet')}
                                 </Button>
                             </Stack>
-                        </FormikProvider>
-                        <Box mt="auto">
-                            <UploadFileCard onDrop={handleDrop}/>
-                        </Box>
+                        </FormikProvider>*/}
                     </Stack>
-                    <Divider orientation="vertical"/>*/}
+                    <Divider orientation="vertical"/>
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>

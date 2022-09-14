@@ -32,6 +32,10 @@ export const documentButtonList = [
     },
     {
         icon: "ic-plus",
+        label: "write_certif",
+    },
+    {
+        icon: "ic-plus",
         label: "write_mail",
     },
     {
