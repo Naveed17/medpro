@@ -36,7 +36,14 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {EventType, Instruction, Patient, setAppointmentDate, TimeSchedule} from "@features/tabPanel";
+import {
+    EventType,
+    Instruction,
+    Patient,
+    setAppointmentDate,
+    setAppointmentRecurringDates,
+    TimeSchedule
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
@@ -376,6 +383,12 @@ function Agenda() {
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
+        dispatch(setAppointmentRecurringDates([{
+            id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
+            time: moment(eventArg.start).format("HH:mm"),
+            date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
+            status: "success"
+        }]));
         dispatch(openDrawer({type: "add", open: true}));
     }
 

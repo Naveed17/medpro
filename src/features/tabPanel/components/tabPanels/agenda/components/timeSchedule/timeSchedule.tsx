@@ -33,7 +33,7 @@ function TimeSchedule({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
         date: selectedDate,
@@ -97,7 +97,6 @@ function TimeSchedule({...props}) {
 
         if (date) {
             getSlots(date);
-            console.log("onChangeReason", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
         }
     };
@@ -177,7 +176,6 @@ function TimeSchedule({...props}) {
     useEffect(() => {
         if (date) {
             getSlots(date);
-            console.log("useEffect", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
         }
     }, [date, getSlots]);
@@ -368,7 +366,7 @@ function TimeSchedule({...props}) {
                         </Typography>
                         <TimeSlot
                             sx={{width: 248, margin: "auto"}}
-                            loading={!date && !reason || loading}
+                            loading={!date || !reason || loading}
                             data={timeSlots}
                             limit={limit}
                             onChange={onTimeSlotChange}
@@ -380,7 +378,7 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {recurringDates.length > 0 &&
+                {(reason && recurringDates.length > 0) &&
                     <>
                         <Typography variant="body1" color="text.primary" mt={2} mb={1}>
                             {t("stepper-1.selected-appointment")}
@@ -422,7 +420,7 @@ function TimeSchedule({...props}) {
                     size="medium"
                     variant="contained"
                     color="primary"
-                    disabled={time === ""}
+                    disabled={!timeSlots.find(timeSlot => timeSlot.start === time) || recurringDates.length === 0}
                     onClick={onNextStep}
                 >
                     {t("next")}
