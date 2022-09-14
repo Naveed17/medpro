@@ -52,7 +52,7 @@ export default function TimeSlot({...props}) {
                         {...rest}
                         key={`time-slot-${index}`}
                         className={value === item.start ? "active" : ""}
-                        onClick={() => onChange(item.start)}
+                        onClick={() => onChange(item.start, index)}
                         disabled={item.disabled}
                         label={item.start}
                         sx={{
