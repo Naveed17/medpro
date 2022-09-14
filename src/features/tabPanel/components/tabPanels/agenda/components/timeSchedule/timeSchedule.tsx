@@ -77,7 +77,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, {revalidate: false, populateCache: false}).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -88,7 +88,7 @@ function TimeSchedule({...props}) {
             }
             setLoading(false)
         });
-    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
+    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, duration, session?.accessToken])
 
     const onChangeReason = (event: SelectChangeEvent) => {
         setReason(event.target.value as string);

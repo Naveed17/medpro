@@ -126,6 +126,7 @@ function CalendarRow({...props}) {
                     </TableCell>
                     <TableCell
                         sx={{
+                            p: "10px 12px",
                             color: "primary.main",
                             display: "flex",
                             svg: {
