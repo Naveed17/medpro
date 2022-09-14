@@ -42,6 +42,7 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         OnInit,
+        OnWaitingRoom,
         OnViewChange = null,
         OnSelectEvent,
         OnSelectDate,
@@ -167,7 +168,7 @@ function Calendar({...props}) {
                 OnSelectEvent(eventData);
                 break;
             case "waitingRoom":
-                console.log("waitingRoom", eventData.id);
+                OnWaitingRoom(eventData.id);
                 break;
         }
     };

@@ -25,6 +25,8 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
+import {IconButton} from "@mui/material";
+import Icon from "@themes/urlIcon";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -386,13 +388,22 @@ function TimeSchedule({...props}) {
                         {recurringDates.map((recurringDate, index) => (
                             <PatientCardMobile
                                 onAction={(action: string) => onMenuActions(recurringDate, action, index)}
-                                contextMenuList={[
-                                    {
-                                        title: "remove",
-                                        icon: <DeleteIcon/>,
-                                        action: "onRemove"
-                                    },
-                                ]} key={Math.random()} item={recurringDate} size="small"/>
+                                button={
+                                    <IconButton
+                                        onClick={() => {
+                                            onMenuActions(recurringDate, "onRemove", index)
+                                        }}
+                                        sx={{
+                                            p: 0, "& svg": {
+                                                p: "2px"
+                                            }
+                                        }}
+                                        size="small"
+                                    >
+                                        <DeleteIcon color={"error"}/>
+                                    </IconButton>
+                                }
+                                key={Math.random()} item={recurringDate} size="small"/>
                         ))}
                     </>
                 }

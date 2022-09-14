@@ -83,7 +83,7 @@ interface cardProps {
 }
 
 export default function MobileTable({...props}) {
-    const {item, size, contextMenuList, onAction} = props;
+    const {item, size, contextMenuList = null, button = null, onAction} = props;
     const theme = useTheme();
     const [openTooltip, setOpenTooltip] = useState(false);
 
@@ -166,22 +166,12 @@ export default function MobileTable({...props}) {
                         </Box>
                     </Box>
                     <Box>
-                        {/* {!size && size !== "small" ? (
-                <>
-                  <IconButton variant="custom">
-                    <TuneRoundedIcon className="settings-icon" />
-                  </IconButton>
-                  <IconButton variant="custom" color="success">
-                    <CheckRoundedIcon className="check-icon" />
-                  </IconButton>
-                </>
-              ) : ( */}
-                        <div>
+                        {contextMenuList ? <div>
                             <Popover
                                 open={openTooltip}
                                 handleClose={() => setOpenTooltip(false)}
                                 menuList={contextMenuList ? contextMenuList : menuList}
-                                onClickItem={(itempopver:  { title: string; icon: string; action: string }) => {
+                                onClickItem={(itempopver: { title: string; icon: string; action: string }) => {
                                     setOpenTooltip(false);
                                     onAction(itempopver.action);
                                 }}
@@ -197,8 +187,7 @@ export default function MobileTable({...props}) {
                                     </IconButton>
                                 }
                             />
-                        </div>
-                        {/* )} */}
+                        </div> : <>{button}</>}
                     </Box>
                 </ListItem>
             </List>
