@@ -8,9 +8,15 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "motif-type",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/motifTypeRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "template",
     component: dynamic((): any =>
-        import("@features/table/components/rows/templateRow").then((mod) => mod)
+      import("@features/table/components/rows/templateRow").then((mod) => mod)
     ),
   },
   {

@@ -12,7 +12,8 @@
     "remplaçants": "Remplaçants",
     "utilisateurs": "Utilisateurs",
     "reseau": "Réseau d'adressage",
-    "instructions": "Instructions"
+    "instructions": "Instructions",
+    "motif_type": "Type de motif"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -34,7 +35,6 @@
     "noQualification": "Aucune qualification sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
     "noActes": "Aucun acte sélectionné"
-
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
@@ -67,7 +67,9 @@
         "agenda": "Agenda",
         "type": "Type",
         "active": "Active",
-        "action": "Action"
+        "action": "Action",
+        "code": "Code",
+        "icon": "Icône"
       }
     },
     "dialog": {
@@ -89,6 +91,18 @@
       "selectCalander": "Veuillez sélectionner les calendriers qui affectent ce motif de consultation",
       "cancel": "Annuler",
       "save": "Enregistrer"
+    }
+  },
+  "motifType": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Motifs de types",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "code": "Code",
+        "icon": "Icône"
+      }
     }
   },
   "lieux": {
