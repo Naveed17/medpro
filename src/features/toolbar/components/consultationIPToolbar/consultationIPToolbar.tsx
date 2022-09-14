@@ -44,7 +44,7 @@ function ConsultationIPToolbar({ ...props }) {
         switch (dialog) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
-                setState(prescription)
+                console.log(prescription)
                 break;
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
@@ -60,6 +60,7 @@ function ConsultationIPToolbar({ ...props }) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
+                console.log(prescription)
                 setState(prescription)
                 break;
             case "balance_sheet_request":

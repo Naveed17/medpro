@@ -15,8 +15,8 @@ function RemoveDialog({ ...props }) {
         <Image
           src={props.data.icon}
           alt={props.data.name1}
-          layout="fill"
-          width="30px"
+          width="20px"
+          height="20px"
         />
       </div>
       <Typography

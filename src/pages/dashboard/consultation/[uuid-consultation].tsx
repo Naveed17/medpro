@@ -619,7 +619,7 @@ function ConsultationInProgress() {
                                                     uri: card.uri,
                                                     name: card.title,
                                                     type: card.documentType,
-                                                    info: card.prescription,
+                                                    info: card.documentType === "prescription" ?card.prescription[0].prescription_has_drugs: card,
                                                     patient: patient.firstName + ' ' +patient.lastName
                                                 })
                                                 setOpenDialog(true);
@@ -737,7 +737,7 @@ function ConsultationInProgress() {
 
                 <Dialog action={'add_act'}
                     open={openDialog}
-                    data={{ stateAct, setstateAct, t }}
+                    data={{ stateAct, setstateAct,setDialog, t }}
                     size={"sm"}
                     direction={'ltr'}
                     title={t('consultationIP.add_a_new_act')}
@@ -768,7 +768,7 @@ function ConsultationInProgress() {
                 info &&
                 <Dialog action={info}
                     open={openDialog}
-                    data={{ state, setState }}
+                    data={{ state, setState, setDialog }}
                     size={"lg"}
                     direction={'ltr'}
                     {...(info === "document_detail" && {
