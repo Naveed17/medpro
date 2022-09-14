@@ -210,7 +210,7 @@ function ConsultationInProgress() {
     const uuind = router.query['uuid-consultation'];
     const { examan, fiche, patient: patientInfo } = useAppSelector(consultationSelector);
     const [stateAct, setstateAct] = useState({
-        "uuid": "",
+        uuid: "",
         "isTopAct": true,
         fees: 0,
         "act": {
@@ -325,7 +325,7 @@ function ConsultationInProgress() {
         setOpenDialog(false);
         setActs([
             ...acts,
-            state,
+            stateAct,
 
         ])
 

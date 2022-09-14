@@ -99,7 +99,7 @@ function Otable({ ...props }) {
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
-  const ids = rows?.map((row: any) => row.id);
+  const ids = rows?.map((row: any) => row.uuid);
   useEffect(() => {
     if (tableHeadData !== null) {
       if (tableHeadData.active) {
@@ -109,7 +109,7 @@ function Otable({ ...props }) {
       }
     }
   }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
-
+  console.log(ids)
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
