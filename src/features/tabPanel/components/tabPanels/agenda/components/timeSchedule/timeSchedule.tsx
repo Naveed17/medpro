@@ -374,7 +374,7 @@ function TimeSchedule({...props}) {
                             onChange={onTimeSlotChange}
                             OnShowMore={() => setLimit(limit * 2)}
                             value={time}
-                            seeMore
+                            seeMore={limit < timeSlots.length}
                             seeMoreText={t("stepper-1.see-more")}
                         />
                     </Grid>
