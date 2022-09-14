@@ -17,30 +17,9 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
 
-export const rows = [
-    {
-        id: 1,
-        reson: "Consultation",
-        arrivaltime: "3:00",
-        appointmentTime: "3:30",
-        waiting: "30",
-        type: "cabinet",
-        status: "completed",
-        patient: "John Doe",
-        agenda: "Agenda cabinet",
-    },
-    {
-        id: 2,
-        reson: "Control",
-        arrivaltime: "3:00",
-        appointmentTime: "3:30",
-        waiting: "30",
-        type: "teleconsultation",
-        status: "canceled",
-        patient: "John Doe",
-    },
-];
 export const headCells = [
     {
         id: "arrivaltime",
@@ -143,45 +122,36 @@ function Room() {
             <SubHeader>
                 <RoomToolbar/>
             </SubHeader>
-            <Box className="container">
+            <Box>
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                {/*                <Label
-                    variant="filled"
-                    color="success"
-                    sx={{
-                        color: (theme) => theme.palette.text.primary,
-                        svg: {
-                            mr: 1,
-                            width: 14,
-                            height: 14,
-                        },
-                    }}
-                >
-                    <Icon path="ic-doc"/>
-                    {t("room")}
-                </Label>*/}
-                <Box display={{xs: "none", md: "block"}} mt={1}>
-                    {waitingRooms &&
-                        <>
-                            <Otable
-                                headers={headCells}
-                                rows={waitingRooms}
-                                from={"waitingRoom"}
-                                t={t}
-                                pagination
-                                minWidth={1080}
-                            />
-                            {waitingRooms.length === 0 && (
-                                <NoDataCard t={t} ns={"waitingRoom"} data={AddWaitingRoomCardData}/>
-                            )}
-                        </>}
-                </Box>
-                <Stack spacing={1} mt={2} display={{xs: "flex", md: "none"}}>
-                    <DetailsCard waitingRoom rows={rows} t={t}/>
-                </Stack>
+                <DesktopContainer>
+
+                    <Box className="container">
+                        <Box display={{xs: "none", md: "block"}} mt={1}>
+                            {waitingRooms &&
+                                <>
+                                    <Otable
+                                        headers={headCells}
+                                        rows={waitingRooms}
+                                        from={"waitingRoom"}
+                                        t={t}
+                                        pagination
+                                        minWidth={1080}
+                                    />
+                                    {waitingRooms.length === 0 && (
+                                        <NoDataCard t={t} ns={"waitingRoom"} data={AddWaitingRoomCardData}/>
+                                    )}
+                                </>}
+                        </Box>
+                    </Box>
+                </DesktopContainer>
+                <MobileContainer>
+                    {/*<DetailsCard waitingRoom rows={waitingRooms} t={t}/>*/}
+                </MobileContainer>
             </Box>
+
         </>
     );
 }

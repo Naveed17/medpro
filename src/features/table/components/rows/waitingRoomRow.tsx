@@ -6,16 +6,38 @@ import {useTheme} from "@mui/material/styles";
 import {Label} from "@features/label";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import {useState} from 'react'
+import {ReactElement, useState} from 'react'
 import CloseIcon from "@mui/icons-material/Close";
 import CircleIcon from '@mui/icons-material/Circle';
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
+import moment from "moment-timezone";
+import {Popover} from "@features/popover";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+
+const menuList = [
+    {
+        title: "Patient Details",
+        icon: <CheckRoundedIcon/>,
+        action: "onOpenPatientDrawer",
+    },
+    {
+        title: "Edit Patient",
+        icon: <CheckRoundedIcon/>,
+        action: "onOpenEditPatient",
+    },
+    {
+        title: "Cancel",
+        icon: <CheckRoundedIcon/>,
+        action: "onCancel",
+    },
+];
 
 function WaitingRoomRow({...props}) {
     const {row, t} = props;
     const theme = useTheme();
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [openTooltip, setOpenTooltip] = useState(false);
     const [actions, setActions] = useState<boolean>(false);
 
     const handleCloseDialog = () => {
@@ -43,7 +65,7 @@ function WaitingRoomRow({...props}) {
 
     };
 
-    function DialogAction() {
+    const DialogAction = () => {
         return (
             <DialogActions>
                 <Button onClick={handleCloseDialog}
@@ -59,6 +81,22 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         )
     }
+    const getDuration = (time: string) => {
+        return moment.duration(moment(
+            `${moment().format("DD-MM-YYYY")} ${time}`, "DD-MM-YYYY HH:mm")
+            .diff(moment())).humanize(true);
+    }
+
+    const onClickTooltipItem = (item: {
+        title: string;
+        icon: ReactElement;
+        action: string;
+    }) => {
+        switch (item.action) {
+            case "onOpenPatientDrawer":
+                break;
+        }
+    };
 
     return (
         <>
@@ -81,7 +119,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 <Icon path="ic-time"/>
-                                {row.appointment_time}
+                                {row.arrive_time}
                             </Typography>
                         </Box>
                     ) : (
@@ -101,7 +139,7 @@ function WaitingRoomRow({...props}) {
                         >
                             <Icon path="ic-time"/>
                             <Typography color="success" sx={{ml: 0.6}}>
-                                {row.appointmentTime}
+                                {row.appointment_time}
                             </Typography>
                         </Box>
                     ) : (
@@ -130,7 +168,7 @@ function WaitingRoomRow({...props}) {
                             >
                                 <Icon path="ic-time"/>
                                 <Typography color="success" sx={{ml: 0.6}}>
-                                    {row.waiting} {t("table.min")}
+                                    {row.arrive_time ? getDuration(row.arrive_time) : " -- "}
                                 </Typography>
                             </Box>
                         </Box>
@@ -157,8 +195,8 @@ function WaitingRoomRow({...props}) {
                                             borderColor: 'divider',
                                             borderRadius: '50%',
                                             p: 0.2,
+                                            color: row.consultation_reason.color
                                         }}
-                                        color={row.consultation_reason.color}
                             />
                             <Typography color="primary">
                                 {row.consultation_reason.name}
@@ -175,7 +213,7 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography color="text.primary" sx={{ml: 0.6}}>
-                                {row.patient}
+                                {/*{row.patient}*/}
                             </Typography>
                         </Box>
                     ) : (
@@ -209,11 +247,23 @@ function WaitingRoomRow({...props}) {
                 <TableCell align="right">
                     {row ? (
                         <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            <IconButton
-                                onClick={() => handleClick(row.id)}
-                                size="small">
-                                <Icon path="more-vert"/>
-                            </IconButton>
+                            <Popover
+                                open={openTooltip}
+                                handleClose={() => setOpenTooltip(false)}
+                                menuList={menuList}
+                                onClickItem={onClickTooltipItem}
+                                button={
+                                    <IconButton
+                                        onClick={() => {
+                                            setOpenTooltip(true);
+                                        }}
+                                        sx={{display: "block", ml: "auto"}}
+                                        size="small"
+                                    >
+                                        <Icon path="more-vert"/>
+                                    </IconButton>
+                                }
+                            />
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={100}/>
