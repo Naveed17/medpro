@@ -1,7 +1,8 @@
 {
   "subheader": {
     "title": "Salle d’attente",
-    "room": "salle"
+    "room": "salle",
+    "add": "Ajouter"
   },
   "filter": {
     "title": "filter",
@@ -47,7 +48,14 @@
       "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
       "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
       "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "no-data": {
+        "event": {
+          "title": "Ajouter votre premier rendez-vous",
+          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+          "button-text": "Ajouter un RDV"
+        }
+      }
     }
   },
   "room": "salle"

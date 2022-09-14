@@ -290,6 +290,11 @@ function Agenda() {
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
+            case "onWaitingRoom":
+                setEvent(event);
+                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
+                router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
+                break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
@@ -359,17 +364,20 @@ function Agenda() {
         });
     }
 
-    const cancelAppointment = (appointmentUUid: string) => {
-        setLoading(true);
+    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
         const form = new FormData();
-        form.append('status', '6');
-        updateStatusTrigger({
+        form.append('status', status);
+        return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}
-            /appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
+        });
+    }
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        updateAppointmentStatus(appointmentUUid, "6").then(() => {
             const eventUpdated: any = {
                 ...event, extendedProps:
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
@@ -378,7 +386,7 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
-        })
+        });
     }
 
     const onSelectDate = (eventArg: DateSelectArg) => {

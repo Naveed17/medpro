@@ -16,16 +16,19 @@ function CalendarRow({...props}) {
     const dispatch = useAppDispatch();
 
     const handleEventClick = (action: string, eventData: EventModal) => {
-        let event = Object.assign(eventData, {
-            extendedProps: {
-                description: eventData.description,
-                meeting: eventData.meeting,
-                motif: eventData.motif,
-                patient: eventData.patient,
-                status: eventData.status,
-                time: eventData.time
-            }
-        });
+        let event = eventData;
+        if (!eventData.hasOwnProperty("extendedProps")) {
+            event = Object.assign(eventData, {
+                extendedProps: {
+                    description: eventData.description,
+                    meeting: eventData.meeting,
+                    motif: eventData.motif,
+                    patient: eventData.patient,
+                    status: eventData.status,
+                    time: eventData.time
+                }
+            });
+        }
         handleEvent(action, event);
     }
 
@@ -38,7 +41,7 @@ function CalendarRow({...props}) {
         <>
             <Typography variant={"inherit"}
                         sx={{
-                            "&:hover":{
+                            "&:hover": {
                                 textDecoration: "underline",
                                 cursor: "pointer"
                             }
