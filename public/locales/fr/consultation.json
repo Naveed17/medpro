@@ -67,7 +67,7 @@
     "upload_document": "Télécharger un document",
     "enter": "Saisie",
     "review": "Examan",
-    "reason_for_consultation": "Motif du consultation",
+    "reason_for_consultation": "Motif de consultation",
     "check": "Contrôle",
     "notes": "Notes",
     "hint_text": "Texte d'indice",
@@ -161,7 +161,10 @@
     "joint_pain": "Douleur articulaire",
     "otitis": "Otite",
     "rheumatism_PSO": "Rhumatisme PSO",
-    "child_cough": "Toux enfant"
+    "child_cough": "Toux enfant",
+    "add_a_new_act": "Ajouter un nouveau acte",
+    "appointment_date": "Date du RDV",
+    "see_details": "Voir détails"
   },
   "table": {
     "acts": "Actes",
@@ -182,8 +185,20 @@
     "see_details": "Voir détails"
   },
   "total": "Total",
+  "next_meeting": "Prochain rdv",
+  "document_type": "Type de document",
   "treatment_medication": "Traitement (médicament)",
   "dosage_unit": "1c / jour",
   "req-sheet": "Demande bilan",
-  "bal_sheet_req": "Demande bilan"
+  "bal_sheet_req": "Demande bilan",
+  "all": "Tous",
+  "report": "Rapport",
+  "analysis": "Analyses",
+  "prescription_drugs": "Ordonnance de médicaments",
+  "medical_imaging": "Imagerie médicale",
+  "photo": "Photo",
+  "video": "video",
+  "audio": "Audio",
+  "name_of_act": "nom de l'acte",
+  "price_of_act": "prix de l'acte"
 }
