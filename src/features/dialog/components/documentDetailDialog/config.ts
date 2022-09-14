@@ -8,6 +8,10 @@ export const actionButtons = [
         icon: "ic-send"
     },
     {
+        title: 'edit',
+        icon: "ic-edit-gray"
+    },
+    {
         title: 'download',
         icon: "ic-dowlaodfile"
     },
@@ -16,22 +20,3 @@ export const actionButtons = [
         icon: "icdelete"
     }
 ];
-export const list = [
-    {
-        title: 'document_type',
-        value: 'biology_order',
-
-    },
-    {
-        title: 'patient',
-        value: 'Test',
-    },
-    {
-        title: 'created_by',
-        value: 'Moi',
-    },
-    {
-        title: 'created_on',
-        value: '12/05/2002',
-    }
-]

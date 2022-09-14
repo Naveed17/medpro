@@ -53,6 +53,7 @@ const Content = ({...props}) => {
         setOpenDialog(true);
     };
     const handleCloseDialog = () => {
+        console.log(info)
         const form = new FormData();
         if (codes[info]) {
             form.append('antecedents', JSON.stringify(state));

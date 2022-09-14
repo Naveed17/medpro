@@ -1,4 +1,4 @@
-import { useDropzone } from 'react-dropzone';
+import {useDropzone} from 'react-dropzone';
 import React from 'react'
 // material
 import UploadFileStyled from './overrides/uploadFileStyled'
@@ -8,7 +8,7 @@ import {
     Stack,
 } from '@mui/material';
 import Icon from '@themes/urlIcon';
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 
 // ----------------------------------------------------------------------
 
@@ -16,20 +16,20 @@ import { useTranslation } from "next-i18next";
 // ----------------------------------------------------------------------
 
 
-export default function UploadFileCard({ ...props }) {
-    const { t, ready } = useTranslation("common");
-    const { error, sx, ...other } = props;
-    const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+export default function UploadFileCard({...props}) {
+    const {t, ready} = useTranslation("common");
+    const {error, sx, fontSize, ...other} = props;
+    const {getRootProps, getInputProps, isDragActive, isDragReject} = useDropzone({
         ...other
     });
     if (!ready) return <>loading translations...</>;
 
     return (
-        <Box sx={{ width: '100%', ...sx }}>
+        <Box sx={{width: '100%', ...sx}}>
             <UploadFileStyled
                 {...getRootProps()}
                 sx={{
-                    ...(isDragActive && { opacity: 0.72 }),
+                    ...(isDragActive && {opacity: 0.72}),
                     ...((isDragReject || error) && {
                         color: 'error.main',
                         borderColor: 'error.light',
@@ -38,10 +38,10 @@ export default function UploadFileCard({ ...props }) {
                 }}
             >
                 <input {...getInputProps()} />
-                <Stack spacing={2} direction='row' alignItems='center' sx={{ p: 1, }}>
-                    <Icon path="ic-upload-3" />
+                <Stack spacing={2} direction='row' alignItems='center' sx={{p: 1,}}>
+                    <Icon path="ic-upload-3"/>
                     <Box>
-                        <Typography variant='subtitle1' fontWeight={500}>
+                        <Typography variant='subtitle1' fontSize={fontSize} fontWeight={600}>
                             {t('drag_3')}
                         </Typography>
                     </Box>

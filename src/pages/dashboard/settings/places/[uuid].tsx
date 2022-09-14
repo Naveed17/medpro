@@ -143,19 +143,6 @@ function PlacesDetail() {
         }
     ])
 
-    const {data} = useRequest(uuind !== 'new' ? {
-        method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + uuind + '/' + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
-
-    const {data: httpStateResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/places/countries/" + medical_entity.country.uuid + "/state/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
-    const {trigger} = useRequestMutation(null, "/settings/place");
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -227,9 +214,27 @@ function PlacesDetail() {
         },
     });
 
+    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
+
+
+    const {data} = useRequest(uuind !== 'new' ? {
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + uuind + '/' + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
+
+    const {data: httpStateResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/places/countries/" + medical_entity.country.uuid + "/state/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const {trigger} = useRequestMutation(null, "/settings/place");
+
+
     useEffect(() => {
         if (data !== undefined) {
-            setRow((data as any).data)
+            setRow((data as HttpResponse).data)
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
@@ -250,7 +255,6 @@ function PlacesDetail() {
                 }
             ])
         }
-
     }, [data]);
 
     const getCities = (state: string) => {
@@ -266,46 +270,97 @@ function PlacesDetail() {
         });
     }
 
-    const initialCites = useCallback(() => {
+
+    const initialCites = useCallback((adr: any) => {
         trigger({
             method: "GET",
-            url: "/api/public/places/state/" + row.address.state.uuid + "/cities/" + router.locale,
+            url: "/api/public/places/state/" + adr.address.state.uuid + "/cities/" + router.locale,
             headers: {
                 ContentType: 'application/x-www-form-urlencoded',
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, {revalidate: true, populateCache: true}).then((r: any) => {
             setCities(r.data.data);
-            formik.setFieldValue('city', row.address.city.uuid);
-            setCheck(false);
+            setFieldValue('city', adr.address.city.uuid);
         });
-    },[formik, router.locale, row?.address.city.uuid, row?.address.state.uuid, session?.accessToken, trigger])
+    }, [router, session, setFieldValue, trigger])
 
     useEffect(() => {
         if (row !== undefined && check) {
-
-            row.openingHours.map((ohours: any, index: number) => {
-                horaires[index].isMain = ohours.isMain;
-                horaires[index].isVisible = ohours.isVisible;
-                Object.keys(horaires[index].openingHours).map(day => {
-                    horaires[index].openingHours[day] = ohours.openingHours[day]
-                });
-            });
-            setHoraires([...horaires]);
             setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
-            initialCites();
-            setCheck(false);
+
+
+            const cnts: any[] = [{
+                countryCode: '',
+                phone: '',
+                hidden: false
+            }];
             row.contacts.map((contact: ContactModel) => {
-                contacts.push({
+                cnts.push({
                     countryCode: '',
                     phone: contact.value,
                     hidden: !contact.isPublic
                 });
             });
-            setContacts([...contacts])
+            setContacts([...cnts])
+            initialCites(row)
+
+            const hours = [
+                {
+                    isMain: false,
+                    isVisible: false,
+                    openingHours: {
+                        MON: [],
+                        THU: [],
+                        WED: [],
+                        TUE: [],
+                        FRI: [],
+                        SUN: [],
+                        SAT: [],
+                    }
+                }
+            ];
+            row.openingHours.map((ohours: any, index: number) => {
+                hours[index].isMain = ohours.isMain;
+                hours[index].isVisible = ohours.isVisible;
+                Object.keys(hours[index].openingHours).map(day => {
+                    // @ts-ignore
+                    hours[index].openingHours[day] = ohours.openingHours[day]
+                });
+            });
+            setHoraires([...hours]);
+            setCheck(false)
         }
-    }, [check, contacts, horaires, initialCites, row])
+    }, [check, initialCites, row])
+
+    // useEffect(() => {
+    //     if (row !== undefined && check) {
+    //         /*row.openingHours.map((ohours: any, index: number) => {
+    //             horaires[index].isMain = ohours.isMain;
+    //             horaires[index].isVisible = ohours.isVisible;
+    //             Object.keys(horaires[index].openingHours).map(day => {
+    //                 horaires[index].openingHours[day] = ohours.openingHours[day]
+    //             });
+    //         });
+    //         setHoraires([...horaires]);*/
+    //         setHoraires(row.openingHours)
+    //         setOuterBounds([row.address.location.point]);
+    //         setCords([{name: "name", points: row.address.location.point}]);
+    //         //initialCites();
+    //         setCheck(false);
+    //         row.contacts.map((contact: ContactModel) => {
+    //             contacts.push({
+    //                 countryCode: '',
+    //                 phone: contact.value,
+    //                 hidden: !contact.isPublic
+    //             });
+    //         });
+    //         setContacts([...contacts])
+    //         console.log('loop')
+    //
+    //     }
+    // }, [check, contacts, row])
 
 
     /*    const [rows, setRows] = useState([
@@ -395,9 +450,8 @@ function PlacesDetail() {
             phone: '',
             hidden: false
         }];
-        formik.setFieldValue('phone', phones);
+        setFieldValue('phone', phones);
     }
-    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
 
     return (
         <>
@@ -583,10 +637,10 @@ function PlacesDetail() {
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
-{/*
+
                                                                         <CountryCodeSelect
                                                                             selected={(v: any) => setFieldValue(`phone[${index}].countryCode`, v?.phone)}/>
-*/}
+
                                                                     </InputAdornment>
                                                                 ),
                                                             }}/>
@@ -637,147 +691,146 @@ function PlacesDetail() {
                         </Card>
 
                         <Typography textTransform='uppercase' fontWeight={600} marginBottom={2} gutterBottom>
-                            {t('lieux.new.timeSchedule')}
+                            {t('lieux.new.timeshedule')}
                         </Typography>
 
                         {
                             horaires.map((value: any, index) =>
-                                (
-                                    <div key={index}>
-                                        {/*<p>{value.uuid}</p>
-                                        <p>Is main {value.isMain ? 'Yes' : 'No'}</p>
-                                        <p>Is visible{value.isVisible ? 'Yes' : 'No'}</p>
-                                        <Button onClick={apply}>Apply for the whole week</Button>
-                                        <Button onClick={cleanData}>cleanData</Button>*/}
-                                        {
-                                            Object.keys(value.openingHours).map((day: any, index) =>
-                                                (
-                                                    <Card key={index}
-                                                          sx={{
-                                                              border: "1px solid #E4E4E4",
-                                                              boxShadow: "none",
-                                                              bgcolor: "#FCFCFC",
-                                                              mt: 2,
-                                                          }}>
-                                                        <Box
-                                                            sx={{
-                                                                display: "flex",
-                                                                justifyContent: "space-between",
-                                                                alignItems: "center",
-                                                                px: 1,
-                                                            }}>
-                                                            <Typography
-                                                                variant="body1"
-                                                                color="text.primary"
-                                                                fontWeight={600}
-                                                                sx={{textTransform: "uppercase", margin: '13px 15px'}}>
-                                                                {t('days.' + day)}
-                                                            </Typography>
-
-                                                            <Switch
-                                                                onChange={(e) => {
-                                                                    if (e.target.checked)
-                                                                        value.openingHours[day].push({
-                                                                            start_time: '08:00',
-                                                                            end_time: '12:00'
-                                                                        });
-                                                                    else
-                                                                        value.openingHours[day] = [];
-                                                                    setHoraires([...horaires]);
-                                                                }
-                                                                }
-                                                                checked={value.openingHours[day].length > 0}
-                                                            />
-                                                        </Box>
-
-                                                        <Collapse
-                                                            in={value.openingHours[day].length > 0} sx={{
-                                                            bgcolor: "common.white",
-                                                            borderTop: "1px solid #C9C8C8"
+                                <div key={index}>
+                                    <p>{value.uuid}</p>
+                                    {
+                                        Object.keys(value.openingHours).map((day: any, index) =>
+                                            (
+                                                <Card key={index}
+                                                      sx={{
+                                                          border: "1px solid #E4E4E4",
+                                                          boxShadow: "none",
+                                                          bgcolor: "#FCFCFC",
+                                                          mt: 2,
+                                                      }}>
+                                                    <Box
+                                                        sx={{
+                                                            display: "flex",
+                                                            justifyContent: "space-between",
+                                                            alignItems: "center",
+                                                            px: 1,
                                                         }}>
-                                                            <Paper sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
-                                                                {value.openingHours[day]?.map((hour: any, i: number) => (
-                                                                    <Grid container spacing={1} alignItems="center"
-                                                                          sx={{mt: 1}} key={i}>
-                                                                        {hour &&
-                                                                            <Grid item lg={3} md={3} sm={12} xs={4}>
-                                                                                <Box
-                                                                                    sx={{
-                                                                                        display: "flex",
-                                                                                        alignItems: "center",
-                                                                                        svg: {mr: 1},
-                                                                                        justifyContent: "end",
-                                                                                    }}>
-                                                                                    <IconUrl path="ic-time"/>
-                                                                                    <Typography variant="body2"
-                                                                                                color="text.primary">
-                                                                                        {i + 1 > 1 ? (router.locale !== 'ar' ? i + 1 : '') + t('lieux.new.emsc') + (router.locale == 'ar' ? ' ' + (i + 1) : '') : t('lieux.new.firstsc')}
-                                                                                    </Typography>
-                                                                                </Box>
-                                                                            </Grid>}
-                                                                        {hour &&
-                                                                            <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                                                <TimePicker
-                                                                                    defaultValue={[hour.start_time ? new Date("2013/1/16 " + hour.start_time) : '', hour.end_time ? new Date("2013/1/16 " + hour.end_time) : '']}
-                                                                                    onChange={(start: DateTime, end: DateTime) => {
+                                                        <Typography
+                                                            variant="body1"
+                                                            color="text.primary"
+                                                            fontWeight={600}
+                                                            sx={{textTransform: "uppercase", margin: '13px 15px'}}>
+                                                            {t('days.' + day)}
+                                                        </Typography>
+
+                                                        <Switch
+                                                            onChange={(e) => {
+                                                                if (e.target.checked)
+                                                                    value.openingHours[day].push({
+                                                                        start_time: '08:00',
+                                                                        end_time: '12:00'
+                                                                    });
+                                                                else
+                                                                    value.openingHours[day] = [];
+                                                                setHoraires([...horaires]);
+                                                            }
+                                                            }
+                                                            checked={value.openingHours[day].length > 0}
+                                                        />
+                                                    </Box>
+
+                                                    <Collapse
+                                                        in={value.openingHours[day].length > 0} sx={{
+                                                        bgcolor: "common.white",
+                                                        borderTop: "1px solid #C9C8C8"
+                                                    }}>
+                                                        <Paper sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
+                                                            {value.openingHours[day]?.map((hour: any, i: number) => (
+                                                                <Grid container spacing={1} alignItems="center"
+                                                                      sx={{mt: 1}} key={i}>
+                                                                    {hour &&
+                                                                        <Grid item lg={3} md={3} sm={12} xs={4}>
+                                                                            <Box
+                                                                                sx={{
+                                                                                    display: "flex",
+                                                                                    alignItems: "center",
+                                                                                    svg: {mr: 1},
+                                                                                    justifyContent: "end",
+                                                                                }}>
+                                                                                <IconUrl path="ic-time"/>
+                                                                                <Typography variant="body2"
+                                                                                            color="text.primary">
+                                                                                    {i + 1 > 1 ? (router.locale !== 'ar' ? i + 1 : '') + t('lieux.new.emsc') + (router.locale == 'ar' ? ' ' + (i + 1) : '') : t('lieux.new.firstsc')}
+                                                                                </Typography>
+                                                                            </Box>
+                                                                        </Grid>}
+                                                                    {hour &&
+                                                                        <Grid item lg={4} md={6} sm={12} xs={12}>
+                                                                            <TimePicker
+                                                                                defaultValue={[hour.start_time ? new Date("2013/1/16 " + hour.start_time) : '', hour.end_time ? new Date("2013/1/16 " + hour.end_time) : '']}
+                                                                                onChange={(start: DateTime, end: DateTime) => {
+                                                                                    if (hour.start_time !== moment(start).format('HH:mm') || hour.end_time !== moment(end).format('HH:mm')) {
                                                                                         hour.start_time = moment(start).format('HH:mm');
                                                                                         hour.end_time = moment(end).format('HH:mm');
+                                                                                        console.log(hour)
                                                                                         setHoraires([...horaires]);
-                                                                                    }}/>
-                                                                            </Grid>}
-                                                                        {i > 0 && hour && (
-                                                                            <Grid item lg={3} md={3} sm={12} xs={12}>
-                                                                                <Button
-                                                                                    variant="text"
-                                                                                    color="error"
-                                                                                    size="small"
-                                                                                    sx={{
-                                                                                        svg: {width: 15},
-                                                                                        path: {fill: (theme) => theme.palette.error.main},
-                                                                                    }}
-                                                                                    startIcon={<IconUrl
-                                                                                        path="icdelete"/>}
-                                                                                    onClick={() => {
-                                                                                        value.openingHours[day].splice(i, 1);
-                                                                                        setHoraires([...horaires])
-                                                                                    }}>
-                                                                                    {t('lieux.new.remove')}
-                                                                                </Button>
-                                                                            </Grid>
-                                                                        )}
-                                                                    </Grid>
-                                                                ))}
+                                                                                    }
 
-                                                                <Grid container justifyContent="center">
-                                                                    <Grid item lg={6} md={6} sm={12} xs={12}>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                value.openingHours[day].push({
-                                                                                    start_time: '',
-                                                                                    end_time: ''
-                                                                                });
-                                                                                setHoraires([...horaires]);
-                                                                            }}
-                                                                            variant="contained"
-                                                                            color="success"
-                                                                            sx={{mt: 1}}>
-                                                                            {t('lieux.new.add')}
-                                                                        </Button>
-                                                                    </Grid>
+                                                                                }}/>
+                                                                        </Grid>}
+                                                                    {i > 0 && hour && (
+                                                                        <Grid item lg={3} md={3} sm={12} xs={12}>
+                                                                            <Button
+                                                                                variant="text"
+                                                                                color="error"
+                                                                                size="small"
+                                                                                sx={{
+                                                                                    svg: {width: 15},
+                                                                                    path: {fill: (theme) => theme.palette.error.main},
+                                                                                }}
+                                                                                startIcon={<IconUrl
+                                                                                    path="icdelete"/>}
+                                                                                onClick={() => {
+                                                                                    value.openingHours[day].splice(i, 1);
+                                                                                    setHoraires([...horaires])
+                                                                                }}>
+                                                                                {t('lieux.new.remove')}
+                                                                            </Button>
+                                                                        </Grid>
+                                                                    )}
                                                                 </Grid>
+                                                            ))}
 
-                                                                {day == "MON" &&
-                                                                    <Button onClick={apply}>Apply for the whole
-                                                                        week</Button>}
 
-                                                            </Paper>
-                                                        </Collapse>
-                                                    </Card>
-                                                )
+                                                            <Grid container justifyContent="center">
+                                                                <Grid item lg={6} md={6} sm={12} xs={12}>
+                                                                    <Button
+                                                                        onClick={() => {
+                                                                            value.openingHours[day].push({
+                                                                                start_time: '',
+                                                                                end_time: ''
+                                                                            });
+                                                                            setHoraires([...horaires]);
+                                                                        }}
+                                                                        variant="contained"
+                                                                        color="success"
+                                                                        sx={{mt: 1}}>
+                                                                        {t('lieux.new.add')}
+                                                                    </Button>
+                                                                </Grid>
+                                                            </Grid>
+
+                                                            {day == "MON" &&
+                                                                <Button onClick={apply}>Apply for the whole
+                                                                    week</Button>}
+
+                                                        </Paper>
+                                                    </Collapse>
+                                                </Card>
                                             )
-                                        }
-                                    </div>
-                                )
+                                        )
+                                    }
+                                </div>
                             )
                         }
 

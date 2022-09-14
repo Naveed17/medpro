@@ -55,7 +55,6 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(true);
         setactions(true)
 
-        console.log(dialog)
     }, [checkUp, dialog, prescription, setDialog])
     const handleClose = (action: string) => {
         switch (action) {
@@ -66,6 +65,9 @@ function ConsultationIPToolbar({...props}) {
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
                 setState(checkUp)
+                break;
+            case "write_certif":
+                setInfo('write_certif')
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -88,7 +90,6 @@ function ConsultationIPToolbar({...props}) {
         let pdoc = [...pendingDocuments]
         switch (info) {
             case 'medical_prescription':
-                console.log(state)
                 if (state.length > 0) {
                     if (pdoc.findIndex(pdc => pdc.id === 2) === -1)
                         pdoc.push({
@@ -124,7 +125,6 @@ function ConsultationIPToolbar({...props}) {
     }
     const handleSaveDialog = () => {
         const form = new FormData();
-
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
@@ -141,16 +141,24 @@ function ConsultationIPToolbar({...props}) {
                     }
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
                     mutate();
-                    console.log(r.data.data[0]);
                     setInfo('document_detail')
-                    setState(r.data.data[1])
+                    const res = r.data.data
+                    console.log(res)
+
+                    setState({
+                        uri: res[1],
+                        name: 'ordonnance',
+                        type: 'Ordonnance',
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
                     setOpenDialog(true);
                     setactions(true)
                     setPrescription([])
                 })
                 break;
             case 'balance_sheet_request':
-                console.log(state)
                 form.append('analyses', JSON.stringify(state));
 
                 trigger({
@@ -164,9 +172,16 @@ function ConsultationIPToolbar({...props}) {
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
                     mutate();
                     setCheckUp([])
-                    console.log(r.data.data[1]);
                     setInfo('document_detail')
-                    setState(r.data.data[1])
+                    const res = r.data.data;
+                    setState({
+                        uuid: res[0].uuid,
+                        uri: res[1],
+                        name: 'bilan',
+                        type: 'analysis',
+                        info: res[0].analyses,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
                     setOpenDialog(true);
                     setactions(true)
                 })

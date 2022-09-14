@@ -32,13 +32,10 @@ function CountryCodeSelect({ ...props }) {
           key={option.code}
         >
           <Image
-            // loading="lazy"
-
             src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-            // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
             alt={option.code}
-            width="20px"
-            // layout="fill"
+            width="2px"
+            height="1px"
           />
           {option?.phone}
         </Box>
@@ -51,12 +48,9 @@ function CountryCodeSelect({ ...props }) {
               src={`https://flagcdn.com/w20/${
                 state && state.code.toLowerCase()
               }.png`}
-              //   srcSet={`https://flagcdn.com/w40/${
-              //     state && state.code.toLowerCase()
-              //   }.png 2x`}
               alt=""
               width="27px"
-              // layout="fill"
+              height="15px"
             />
           </InputAdornment>
         );

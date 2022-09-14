@@ -546,11 +546,18 @@ function ConsultationInProgress() {
                                 }
                             }}>
                                 {
-                                    documents.map((card: { uri: string }, idx) =>
+                                    documents.map((card: any, idx) =>
                                         <React.Fragment key={idx}>
                                             <DocumentCard data={card} onClick={() => {
                                                 setInfo('document_detail')
-                                                setState(card.uri)
+                                                setState({
+                                                    uuid: card.uuid,
+                                                    uri: card.uri,
+                                                    name: card.title,
+                                                    type: card.documentType,
+                                                    info: card.prescription,
+                                                    patient: patient.firstName + ' ' +patient.lastName
+                                                })
                                                 setOpenDialog(true);
                                             }} t={t}/>
                                         </React.Fragment>
