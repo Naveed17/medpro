@@ -96,4 +96,6 @@ jobs:
             ${{ inputs.operation == 'delete' && '-auto-approve' || '-prune-retain=2' }} \
             -var-file=<(printenv WP_VARS_HCL)
 
-            echo "::set-output name=ingress_host::$(<ingress_host.wpoutput)"
+            for file in *.wpoutput; do
+              echo "::set-output name=${file%.wpoutput}::$(<${file})"
+            done

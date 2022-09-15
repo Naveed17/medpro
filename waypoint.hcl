@@ -126,5 +126,14 @@ app "med-pro" {
         host      = var.ingress.host
       }
     }
+
+    hook {
+      when = "after"
+      command = ["bash", "-c",
+        <<-EOF
+          echo 'https://${var.ingress.host}' > ${path.project}/ingress_host.wpoutput
+          EOF
+      ]
+    }
   }
 }
