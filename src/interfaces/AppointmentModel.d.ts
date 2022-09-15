@@ -5,7 +5,7 @@ interface AppointmentModel {
   startTime: string;
   createdAt: string;
   endTime: string;
-  status: string;
+  status: number;
   duration: number;
   isVip: boolean;
   new: boolean;

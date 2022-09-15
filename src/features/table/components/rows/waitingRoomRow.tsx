@@ -9,31 +9,10 @@ import Icon from "@themes/urlIcon";
 import {ReactElement, useState} from 'react'
 import CloseIcon from "@mui/icons-material/Close";
 import CircleIcon from '@mui/icons-material/Circle';
-import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 import moment from "moment-timezone";
-import {Popover} from "@features/popover";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-
-const menuList = [
-    {
-        title: "Patient Details",
-        icon: <CheckRoundedIcon/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "Edit Patient",
-        icon: <CheckRoundedIcon/>,
-        action: "onOpenEditPatient",
-    },
-    {
-        title: "Cancel",
-        icon: <CheckRoundedIcon/>,
-        action: "onCancel",
-    },
-];
 
 function WaitingRoomRow({...props}) {
-    const {row, t} = props;
+    const {row, t, handleEvent} = props;
     const theme = useTheme();
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -84,7 +63,7 @@ function WaitingRoomRow({...props}) {
     const getDuration = (time: string) => {
         return moment.duration(moment(
             `${moment().format("DD-MM-YYYY")} ${time}`, "DD-MM-YYYY HH:mm")
-            .diff(moment())).humanize(true);
+            .diff(moment(), "minutes")).humanize(true);
     }
 
     const onClickTooltipItem = (item: {
@@ -189,18 +168,15 @@ function WaitingRoomRow({...props}) {
                                alignItems="center"
                                spacing={1}
                         >
-                            <CircleIcon fontSize="small"
-                                        sx={{
-                                            border: 1,
-                                            borderColor: 'divider',
-                                            borderRadius: '50%',
-                                            p: 0.2,
-                                            color: row.consultation_reason.color
-                                        }}
-                            />
-                            <Typography color="primary">
+                            <Label
+                                variant="filled"
+                                sx={{
+                                    bgcolor: row.consultation_reason.color,
+                                    color: "#fff"
+                                }}
+                            >
                                 {row.consultation_reason.name}
-                            </Typography>
+                            </Label>
                         </Stack>
                     ) : (
                         <Stack direction="row" justifyContent="space-between">
@@ -213,7 +189,7 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography color="text.primary" sx={{ml: 0.6}}>
-                                {/*{row.patient}*/}
+                                {row.patient.lastName} {row.patient.firstName}
                             </Typography>
                         </Box>
                     ) : (
@@ -223,51 +199,37 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
-                            <Label
-                                variant="filled"
-                                color={
-                                    row?.status === "completed"
-                                        ? "success"
-                                        : row?.status === "canceled"
-                                            ? "error"
-                                            : "primary"
-                                }
-                            >
-                                {t(`table.${row.status}`)}
-                            </Label>
-                            <PlayCircleRoundedIcon color="success"/>
-                            <Typography variant="body2">
-                                120 TND
+                            <CircleIcon fontSize="small"
+                                        sx={{
+                                            border: 1,
+                                            borderColor: 'divider',
+                                            borderRadius: '50%',
+                                            p: 0.2,
+                                            color: row.appointment_type?.color
+                                        }}
+                            />
+                            <Typography color="primary">
+                                {row.appointment_type?.name}
                             </Typography>
+                            {/*<PlayCircleRoundedIcon color="success"/>*/}
+                            {/*<Typography variant="body2">*/}
+                            {/*    120 TND*/}
+                            {/*</Typography>*/}
                         </Stack>
                     ) : (
                         <Skeleton variant="text" width={100}/>
                     )}
                 </TableCell>
                 <TableCell align="right">
-                    {row ? (
-                        <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            <Popover
-                                open={openTooltip}
-                                handleClose={() => setOpenTooltip(false)}
-                                menuList={menuList}
-                                onClickItem={onClickTooltipItem}
-                                button={
-                                    <IconButton
-                                        onClick={() => {
-                                            setOpenTooltip(true);
-                                        }}
-                                        sx={{display: "block", ml: "auto"}}
-                                        size="small"
-                                    >
-                                        <Icon path="more-vert"/>
-                                    </IconButton>
-                                }
-                            />
-                        </Box>
-                    ) : (
-                        <Skeleton variant="text" width={100}/>
-                    )}
+                    <IconButton
+                        onClick={(event) => {
+                            handleEvent({action: "open-popover", row, event});
+                        }}
+                        sx={{display: "block", ml: "auto"}}
+                        size="small"
+                    >
+                        <Icon path="more-vert"/>
+                    </IconButton>
                 </TableCell>
             </TableRow>
             {info &&

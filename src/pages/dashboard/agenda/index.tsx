@@ -180,7 +180,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.type?.color,
+                    borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     description: "",
@@ -294,6 +294,11 @@ function Agenda() {
                 setEvent(event);
                 updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
                 router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
+                break;
+            case "onLeaveWaitingRoom":
+                setEvent(event);
+                updateAppointmentStatus(event?.publicId ? event?.publicId :
+                    (event as any)?.id, "6").then(() => refreshData());
                 break;
             case "onMove":
                 dispatch(setSelectedEvent(event));

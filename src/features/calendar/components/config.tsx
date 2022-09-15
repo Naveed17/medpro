@@ -104,6 +104,11 @@ export const CalendarContextMenu = [
     action: "onWaitingRoom",
   },
   {
+    title: "leave_waiting_room",
+    icon: <Icon color={"white"} path="ic-salle" />,
+    action: "onLeaveWaitingRoom",
+  },
+  {
     title: "see_patient_form",
     icon: <InsertDriveFileOutlinedIcon />,
     action: "onPatientDetail",

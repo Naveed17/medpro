@@ -26,7 +26,6 @@ import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {IconButton} from "@mui/material";
-import Icon from "@themes/urlIcon";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -68,12 +67,9 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {
-        data: httpTimeSlotsResponse,
-        trigger
-    } = useRequestMutation(null, "/calendar/slots");
+    const {trigger} = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = useCallback((date: Date) => {
+    const getSlots = useCallback((date: Date, duration: string) => {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
@@ -88,7 +84,7 @@ function TimeSchedule({...props}) {
             }
             setLoading(false)
         });
-    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, duration, session?.accessToken])
+    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
 
     const onChangeReason = (event: SelectChangeEvent) => {
         setReason(event.target.value as string);
@@ -98,8 +94,8 @@ function TimeSchedule({...props}) {
         }
 
         if (date) {
-            getSlots(date);
             setTime(moment(date).format('HH:mm'));
+            getSlots(date, reason?.duration as any);
         }
     };
 
@@ -177,10 +173,12 @@ function TimeSchedule({...props}) {
 
     useEffect(() => {
         if (date) {
-            getSlots(date);
             setTime(moment(date).format('HH:mm'));
+            if (duration !== "") {
+                getSlots(date, duration as string);
+            }
         }
-    }, [date, getSlots]);
+    }, [date, duration, getSlots]);
 
     useEffect(() => {
         if (locations && locations.length === 1) {
