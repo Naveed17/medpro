@@ -25,6 +25,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
+import {IconButton} from "@mui/material";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -33,7 +34,7 @@ function TimeSchedule({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
         date: selectedDate,
@@ -66,16 +67,13 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {
-        data: httpTimeSlotsResponse,
-        trigger
-    } = useRequestMutation(null, "/calendar/slots");
+    const {trigger} = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = useCallback((date: Date) => {
+    const getSlots = useCallback((date: Date, duration: string) => {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, {revalidate: false, populateCache: false}).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -96,9 +94,8 @@ function TimeSchedule({...props}) {
         }
 
         if (date) {
-            getSlots(date);
-            console.log("onChangeReason", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
+            getSlots(date, reason?.duration as any);
         }
     };
 
@@ -176,11 +173,12 @@ function TimeSchedule({...props}) {
 
     useEffect(() => {
         if (date) {
-            getSlots(date);
-            console.log("useEffect", moment(date).format('HH:mm'))
             setTime(moment(date).format('HH:mm'));
+            if (duration !== "") {
+                getSlots(date, duration as string);
+            }
         }
-    }, [date, getSlots]);
+    }, [date, duration, getSlots]);
 
     useEffect(() => {
         if (locations && locations.length === 1) {
@@ -368,19 +366,19 @@ function TimeSchedule({...props}) {
                         </Typography>
                         <TimeSlot
                             sx={{width: 248, margin: "auto"}}
-                            loading={!date && !reason || loading}
+                            loading={!date || !reason || loading}
                             data={timeSlots}
                             limit={limit}
                             onChange={onTimeSlotChange}
                             OnShowMore={() => setLimit(limit * 2)}
                             value={time}
-                            seeMore
+                            seeMore={limit < timeSlots.length}
                             seeMoreText={t("stepper-1.see-more")}
                         />
                     </Grid>
                 </Grid>
 
-                {recurringDates.length > 0 &&
+                {(reason && recurringDates.length > 0) &&
                     <>
                         <Typography variant="body1" color="text.primary" mt={2} mb={1}>
                             {t("stepper-1.selected-appointment")}
@@ -388,13 +386,22 @@ function TimeSchedule({...props}) {
                         {recurringDates.map((recurringDate, index) => (
                             <PatientCardMobile
                                 onAction={(action: string) => onMenuActions(recurringDate, action, index)}
-                                contextMenuList={[
-                                    {
-                                        title: "remove",
-                                        icon: <DeleteIcon/>,
-                                        action: "onRemove"
-                                    },
-                                ]} key={Math.random()} item={recurringDate} size="small"/>
+                                button={
+                                    <IconButton
+                                        onClick={() => {
+                                            onMenuActions(recurringDate, "onRemove", index)
+                                        }}
+                                        sx={{
+                                            p: 0, "& svg": {
+                                                p: "2px"
+                                            }
+                                        }}
+                                        size="small"
+                                    >
+                                        <DeleteIcon color={"error"}/>
+                                    </IconButton>
+                                }
+                                key={Math.random()} item={recurringDate} size="small"/>
                         ))}
                     </>
                 }
@@ -422,7 +429,7 @@ function TimeSchedule({...props}) {
                     size="medium"
                     variant="contained"
                     color="primary"
-                    disabled={time === ""}
+                    disabled={!timeSlots.find(timeSlot => timeSlot.start === time) || recurringDates.length === 0}
                     onClick={onNextStep}
                 >
                     {t("next")}

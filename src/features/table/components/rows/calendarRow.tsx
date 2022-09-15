@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Button} from "@mui/material";
+import {Typography, Box, Button, Badge} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
@@ -16,16 +16,19 @@ function CalendarRow({...props}) {
     const dispatch = useAppDispatch();
 
     const handleEventClick = (action: string, eventData: EventModal) => {
-        let event = Object.assign(eventData, {
-            extendedProps: {
-                description: eventData.description,
-                meeting: eventData.meeting,
-                motif: eventData.motif,
-                patient: eventData.patient,
-                status: eventData.status,
-                time: eventData.time
-            }
-        });
+        let event = eventData;
+        if (!eventData.hasOwnProperty("extendedProps")) {
+            event = Object.assign(eventData, {
+                extendedProps: {
+                    description: eventData.description,
+                    meeting: eventData.meeting,
+                    motif: eventData.motif,
+                    patient: eventData.patient,
+                    status: eventData.status,
+                    time: eventData.time
+                }
+            });
+        }
         handleEvent(action, event);
     }
 
@@ -38,7 +41,7 @@ function CalendarRow({...props}) {
         <>
             <Typography variant={"inherit"}
                         sx={{
-                            "&:hover":{
+                            "&:hover": {
                                 textDecoration: "underline",
                                 cursor: "pointer"
                             }
@@ -58,6 +61,7 @@ function CalendarRow({...props}) {
             </Typography>
 
             {row.events.map((data: EventModal) => (
+
                 <TableRowStyled
                     key={data.id}
                     sx={{
@@ -74,6 +78,7 @@ function CalendarRow({...props}) {
                         },
                     }}
                 >
+
                     <TableCell
                         sx={{
                             borderStyle: "solid",
@@ -101,17 +106,27 @@ function CalendarRow({...props}) {
                         className="first-child"
                     >
                         <Box sx={{display: "flex"}}>
-                            <TimeIcon/>
-                            <Typography variant="body2" color="text.secondary">
-                                {new Date(data.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </Typography>
+                            {data.new && <Label
+                                sx={{mr: 1}}
+                                variant="filled"
+                                color={"primary"}
+                            >
+                                {"New"}
+                            </Label>}
+                            <Box sx={{display: "flex", mt: .3}}>
+                                <TimeIcon/>
+                                <Typography variant="body2" color="text.secondary">
+                                    {new Date(data.time).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </Typography>
+                            </Box>
                         </Box>
                     </TableCell>
                     <TableCell
                         sx={{
+                            p: "10px 12px",
                             color: "primary.main",
                             display: "flex",
                             svg: {
@@ -192,6 +207,7 @@ function CalendarRow({...props}) {
                         </Button>
                     </TableCell>
                 </TableRowStyled>
+
             ))}
         </>
     );

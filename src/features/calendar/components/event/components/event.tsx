@@ -6,6 +6,8 @@ import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Zoom from '@mui/material/Zoom';
 import {LightTooltip} from "@features/tooltip";
 import {useRouter} from "next/router";
+import SalleIcon from "@themes/overrides/icons/salleIcon";
+import Icon from "@themes/urlIcon";
 
 function Event({...props}) {
     const {event, t} = props;
@@ -42,6 +44,14 @@ function Event({...props}) {
                                 ml: ".5rem"
                             }
                         }
+                    ),...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
+                            backgroundColor: "secondary.lighter",
+                            "& .MuiSvgIcon-root": {
+                                width: 18,
+                                height: 18,
+                                ml: ".5rem"
+                            }
+                        }
                     ),
                     "&:before": {
                         background: event.borderColor,
@@ -51,7 +61,9 @@ function Event({...props}) {
                 <Typography variant="body2" component={"span"} color="text.primary">
                     {event.event._def.extendedProps.status.key === "CANCELED" ?
                         <DangerIcon/> :
-                        <AccessTimeIcon color={"disabled"} className="ic-time"/>}
+                        event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
+                            <SalleIcon />:
+                            <AccessTimeIcon color={"disabled"} className="ic-time"/>}
                     <span>
                     {event.event._def.extendedProps.time.toLocaleTimeString([], {
                         hour: "2-digit",

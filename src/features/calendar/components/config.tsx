@@ -101,7 +101,12 @@ export const CalendarContextMenu = [
   {
     title: "add_patient_to_waiting_room",
     icon: <Icon color={"white"} path="ic-salle" />,
-    action: "onOpenDetails",
+    action: "onWaitingRoom",
+  },
+  {
+    title: "leave_waiting_room",
+    icon: <Icon color={"white"} path="ic-salle" />,
+    action: "onLeaveWaitingRoom",
   },
   {
     title: "see_patient_form",

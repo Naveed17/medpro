@@ -36,7 +36,14 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {EventType, Instruction, Patient, setAppointmentDate, TimeSchedule} from "@features/tabPanel";
+import {
+    EventType,
+    Instruction,
+    Patient,
+    setAppointmentDate,
+    setAppointmentRecurringDates,
+    TimeSchedule
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
@@ -173,7 +180,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.type?.color,
+                    borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     description: "",
@@ -283,6 +290,16 @@ function Agenda() {
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
+            case "onWaitingRoom":
+                setEvent(event);
+                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
+                router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
+                break;
+            case "onLeaveWaitingRoom":
+                setEvent(event);
+                updateAppointmentStatus(event?.publicId ? event?.publicId :
+                    (event as any)?.id, "6").then(() => refreshData());
+                break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
@@ -352,17 +369,20 @@ function Agenda() {
         });
     }
 
-    const cancelAppointment = (appointmentUUid: string) => {
-        setLoading(true);
+    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
         const form = new FormData();
-        form.append('status', '6');
-        updateStatusTrigger({
+        form.append('status', status);
+        return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}
-            /appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
+        });
+    }
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        updateAppointmentStatus(appointmentUUid, "6").then(() => {
             const eventUpdated: any = {
                 ...event, extendedProps:
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
@@ -371,11 +391,17 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
-        })
+        });
     }
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
+        dispatch(setAppointmentRecurringDates([{
+            id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
+            time: moment(eventArg.start).format("HH:mm"),
+            date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
+            status: "success"
+        }]));
         dispatch(openDrawer({type: "add", open: true}));
     }
 

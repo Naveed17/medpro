@@ -187,6 +187,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
 })
 
 export default Agenda;
+
 Agenda.auth = true;
 
 Agenda.getLayout = function getLayout(page: ReactElement) {

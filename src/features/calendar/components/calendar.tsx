@@ -42,6 +42,7 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         OnInit,
+        OnWaitingRoom,
         OnViewChange = null,
         OnSelectEvent,
         OnSelectDate,
@@ -81,13 +82,13 @@ function Calendar({...props}) {
             let days: BusinessHoursInput[] = [];
             if (openingHours) {
                 Object.entries(openingHours).map((openingHours: any) => {
-                    if ((openingHours[1].length > 0)) {
+                    openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
                         days.push({
                             daysOfWeek: [DayOfWeek(openingHours[0], 0)],
-                            startTime: openingHours[1][0].start_time,
-                            endTime: openingHours[1][0].end_time
+                            startTime: openingHour.start_time,
+                            endTime: openingHour.end_time
                         });
-                    }
+                    })
                 });
                 setDaysOfWeek(days);
             }
@@ -167,7 +168,7 @@ function Calendar({...props}) {
                 OnSelectEvent(eventData);
                 break;
             case "waitingRoom":
-                console.log("waitingRoom", eventData.id);
+                OnWaitingRoom(eventData.id);
                 break;
         }
     };
@@ -327,26 +328,29 @@ function Calendar({...props}) {
                                     horizontal: 'left',
                                 }}
                             >
-                                {CalendarContextMenu.map(
-                                    (v: any) => (
-                                        <MenuItem
-                                            key={uniqueId()}
-                                            disabled={
-                                                v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
-                                                v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
-                                            onClick={() => {
-                                                OnMenuActions(v.action, eventMenu);
-                                                handleClose();
-                                            }}
-                                            className="popover-item"
-                                        >
-                                            {v.icon}
-                                            <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                {translation(`${v.title}`, {ns: 'common'})}
-                                            </Typography>
-                                        </MenuItem>
-                                    )
-                                )}
+                                {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
+                                    moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY")  ||
+                                    data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
+                                    data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM"))
+                                    .map((v: any) => (
+                                            <MenuItem
+                                                key={uniqueId()}
+                                                disabled={
+                                                    v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                                    v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
+                                                onClick={() => {
+                                                    OnMenuActions(v.action, eventMenu);
+                                                    handleClose();
+                                                }}
+                                                className="popover-item"
+                                            >
+                                                {v.icon}
+                                                <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                    {translation(`${v.title}`, {ns: 'common'})}
+                                                </Typography>
+                                            </MenuItem>
+                                        )
+                                    )}
                             </Menu>
                         </Box>
                     )}

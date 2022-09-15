@@ -109,7 +109,7 @@ function Otable({ ...props }) {
       }
     }
   }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
-  console.log(ids)
+
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
