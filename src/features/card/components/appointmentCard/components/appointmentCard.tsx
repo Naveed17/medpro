@@ -65,8 +65,8 @@ function AppointmentCard({...props}) {
                                 </Typography>
                                 <FormControl fullWidth size="small">
                                     <Select
-                                        labelId="select-reason"
-                                        id="select-reason"
+                                        labelId="select-type"
+                                        id="select-type"
                                         value={typeEvent}
                                         displayEmpty
                                         onChange={event => setTypeEvent(event.target.value as string)}
@@ -84,7 +84,7 @@ function AppointmentCard({...props}) {
                                         }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
-                                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                                                return <em>{t("stepper-1.type-placeholder")}</em>;
                                             }
 
                                             const type = types?.find(type => type.uuid === selected);
@@ -120,7 +120,7 @@ function AppointmentCard({...props}) {
                                     </Select>
                                 </FormControl>
                             </ListItem>}
-                            <ListItem>
+                            {reasons && <ListItem>
                                 <Typography fontWeight={400}>
                                     {t('consultation_reson')}
                                 </Typography>
@@ -131,20 +131,10 @@ function AppointmentCard({...props}) {
                                         value={reason}
                                         displayEmpty
                                         onChange={event => setReason(event.target.value as string)}
-                                        sx={{
-                                            "& .MuiSelect-select svg": {
-                                                position: "absolute",
-                                                border: .1,
-                                                borderColor: 'divider',
-                                                borderRadius: '50%',
-                                                p: 0.05
-                                            }
-                                        }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
                                                 return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
                                             }
-
                                             const motif = reasons?.find(reason => reason.uuid === selected);
                                             return (
                                                 <Box sx={{display: "inline-flex"}}>
@@ -160,7 +150,7 @@ function AppointmentCard({...props}) {
                                         ))}
                                     </Select>
                                 </FormControl>
-                            </ListItem>
+                            </ListItem>}
                             <ListItem>
                                 <Typography fontWeight={400}>
                                     {t('appintment_date')}

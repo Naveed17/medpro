@@ -38,6 +38,7 @@
   "cancel_appointment": "Annuler RDV",
   "on_hold": "En attente",
   "consultation_reson": "Motif de consultation",
+  "consultation_type": "Type de consultation",
   "appintment_date": "Date de RDV",
   "start_the_consultation": "Commencer la consultation",
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
