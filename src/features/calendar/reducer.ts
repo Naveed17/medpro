@@ -23,7 +23,7 @@ const initialState: CalendarProps = {
     openPatientDrawer: false,
     currentStepper: 0,
     config: null,
-    currentDate: {date: new Date(), fallback: true},
+    currentDate: {date: new Date(), fallback: false},
     selectedEvent: null
 };
 
