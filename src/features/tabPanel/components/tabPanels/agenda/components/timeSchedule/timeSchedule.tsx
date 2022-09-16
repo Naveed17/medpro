@@ -360,6 +360,7 @@ function TimeSchedule({...props}) {
                 <Grid container spacing={2}>
                     <Grid item md={6} xs={12}>
                         <StaticDatePicker
+                            views={['day']}
                             onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
                             onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                             value={(location || reason) ? date : null}

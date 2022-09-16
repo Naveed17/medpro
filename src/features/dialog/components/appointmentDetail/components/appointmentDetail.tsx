@@ -282,6 +282,7 @@ function AppointmentDetail({...props}) {
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
                         <Button onClick={OnWaiting}
+                                disabled={moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY")}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>

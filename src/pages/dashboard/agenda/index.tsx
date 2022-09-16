@@ -293,9 +293,7 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onWaitingRoom":
-                setEvent(event);
-                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
-                router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
+                onOpenWaitingRoom();
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
@@ -313,6 +311,12 @@ function Agenda() {
                 setMoveDialogInfo(true);
                 break;
         }
+    }
+
+    const onOpenWaitingRoom = () => {
+        setEvent(event);
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
+        router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -552,6 +556,7 @@ function Agenda() {
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
                             OnCancelAppointment={() => refreshData()}
+                            OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
                             SetCancelDialog={() => setCancelDialog(true)}
