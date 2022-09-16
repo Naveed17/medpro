@@ -76,7 +76,6 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
-        console.log("isMounted", isMounted)
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
@@ -97,8 +96,6 @@ function Calendar({...props}) {
     }, [OnInit, isMounted, openingHours]);
 
     useEffect(() => {
-        console.log("currentDate", currentDate)
-
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -109,12 +106,12 @@ function Calendar({...props}) {
     }, [currentDate]);
 
     useEffect(() => {
-        console.log("view", view)
-
         const calendarEl = calendarRef.current;
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.changeView(view as string);
+            if (calendarApi.view.type !== view) {
+                calendarApi.changeView(view as string);
+            }
         } else {
             OnViewChange(view as string);
         }
@@ -122,8 +119,6 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log("appointments", appointments)
-
         setEvents(appointments);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -133,8 +128,6 @@ function Calendar({...props}) {
     }, [appointments]);
 
     useEffect(() => {
-        console.log("sortedData", sortedData)
-
         setEventGroupByDay(sortedData);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -337,7 +330,7 @@ function Calendar({...props}) {
                                 }}
                             >
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
-                                    moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY")  ||
+                                    moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM"))
                                     .map((v: any) => (

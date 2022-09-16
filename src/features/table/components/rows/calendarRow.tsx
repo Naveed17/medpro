@@ -20,7 +20,7 @@ function CalendarRow({...props}) {
         if (!eventData.hasOwnProperty("extendedProps")) {
             event = Object.assign(eventData, {
                 extendedProps: {
-                    description: eventData.description,
+                    instruction: eventData.instruction,
                     meeting: eventData.meeting,
                     motif: eventData.motif,
                     patient: eventData.patient,

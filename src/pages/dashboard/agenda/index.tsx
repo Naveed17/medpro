@@ -183,9 +183,10 @@ function Agenda() {
                     borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
-                    description: "",
+                    instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
                     dur: appointment.duration,
+                    type: appointment.type,
                     meeting: false,
                     new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
                     addRoom: true,
@@ -247,7 +248,6 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
-        console.log(event);
         setEvent(event);
         dispatch(setSelectedEvent(event));
         dispatch(openDrawer({type: "view", open: true}));
