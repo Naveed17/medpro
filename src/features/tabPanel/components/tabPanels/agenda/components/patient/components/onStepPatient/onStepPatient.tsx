@@ -547,19 +547,19 @@ function OnStepPatient({...props}) {
                             {...getFieldProps("cin")}
                         />
                     </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("from")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("from-placeholder")}
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("from")}
-                        />
-                    </Box>
+                    {/*<Box>*/}
+                    {/*    <Typography variant="body2" color="text.secondary" gutterBottom>*/}
+                    {/*        {t("from")}*/}
+                    {/*    </Typography>*/}
+                    {/*    <TextField*/}
+                    {/*        placeholder={t("from-placeholder")}*/}
+                    {/*        type="text"*/}
+                    {/*        variant="outlined"*/}
+                    {/*        size="small"*/}
+                    {/*        fullWidth*/}
+                    {/*        {...getFieldProps("from")}*/}
+                    {/*    />*/}
+                    {/*</Box>*/}
                 </Stack>
 
                 <Stack

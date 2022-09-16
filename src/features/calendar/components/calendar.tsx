@@ -76,6 +76,7 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
+        console.log("isMounted", isMounted)
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
@@ -96,6 +97,8 @@ function Calendar({...props}) {
     }, [OnInit, isMounted, openingHours]);
 
     useEffect(() => {
+        console.log("currentDate", currentDate)
+
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -106,6 +109,8 @@ function Calendar({...props}) {
     }, [currentDate]);
 
     useEffect(() => {
+        console.log("view", view)
+
         const calendarEl = calendarRef.current;
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -117,6 +122,8 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        console.log("appointments", appointments)
+
         setEvents(appointments);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -126,6 +133,8 @@ function Calendar({...props}) {
     }, [appointments]);
 
     useEffect(() => {
+        console.log("sortedData", sortedData)
+
         setEventGroupByDay(sortedData);
         const calendarEl = calendarRef.current;
         if (calendarEl) {
@@ -262,8 +271,7 @@ function Calendar({...props}) {
                                 dayHeaderContent={(event) =>
                                     Header({
                                         isGridWeek,
-                                        view,
-                                        event,
+                                        event
                                     })
                                 }
                                 slotLabelClassNames={(day) => {
@@ -278,7 +286,7 @@ function Calendar({...props}) {
                                 eventChange={(info) => OnEventChange(info)}
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
-                                rerenderDelay={10}
+                                rerenderDelay={8}
                                 height={"100vh"}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}

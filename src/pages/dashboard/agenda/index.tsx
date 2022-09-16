@@ -185,6 +185,7 @@ function Agenda() {
                     motif: appointment.consultationReason,
                     description: "",
                     id: appointment.uuid,
+                    dur: appointment.duration,
                     meeting: false,
                     new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
                     addRoom: true,
@@ -246,6 +247,7 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
+        console.log(event);
         setEvent(event);
         dispatch(setSelectedEvent(event));
         dispatch(openDrawer({type: "view", open: true}));
@@ -265,7 +267,7 @@ function Agenda() {
                 oldDate: oldStartDate,
                 duration,
                 oldDuration,
-                onDurationChanged: oldDuration === duration
+                onDurationChanged: oldDuration !== duration
             }
         };
         setEvent(defEvent);
@@ -304,8 +306,8 @@ function Agenda() {
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
-                    date: event?.extendedProps.time,
-                    time: moment(event?.extendedProps.time).format("HH:mm"),
+                    date: new Date(event?.extendedProps.time),
+                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
                     selected: false
                 }));
                 setMoveDialogInfo(true);
@@ -333,12 +335,15 @@ function Agenda() {
         const defEvent = {
             ...event,
             extendedProps: {
-                ...event?.extendedProps,
+                // ...event?.extendedProps,
                 newDate: date,
                 from: 'modal',
+                duration: event?.extendedProps.dur,
+                onDurationChanged: false,
                 oldDate: moment(event?.extendedProps.time)
             }
         } as EventDef;
+        console.log(defEvent);
         setEvent(defEvent);
         setMoveDialogInfo(false);
         setMoveDialog(true);
@@ -361,7 +366,7 @@ function Agenda() {
             }
         }, {revalidate: false, populateCache: false}).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.move-dialog.${event.extendedProps.onDurationChanged ?
+                enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
                     "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
             }
             refreshData();
@@ -604,10 +609,10 @@ function Agenda() {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t(`dialogs.move-dialog.${event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
+                                            variant="subtitle1">{t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
-                                    {event?.extendedProps.onDurationChanged ? <>
+                                    {!event?.extendedProps.onDurationChanged ? <>
                                         {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
                                         {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                     </> : <>
@@ -622,7 +627,7 @@ function Agenda() {
                             </Box>)
                     }}
                     open={moveDialog}
-                    title={t(`dialogs.move-dialog.${event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
+                    title={t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
                             <Button
