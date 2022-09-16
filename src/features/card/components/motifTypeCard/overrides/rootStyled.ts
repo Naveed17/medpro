@@ -16,43 +16,13 @@ const RootStyled = styled(Card)(({ theme }) => ({
     },
     "& .card-main": {
         width: "100%",
-        "& .title": {
-            display: "flex",
-            alignItems: "center",
+        '.MuiListItemIcon-root': {
+            minWidth: 30,
             svg: {
-                width: 10,
-                height: 10,
-                marginRight: 8,
-                path: {
-                    fill: theme.palette.error.main,
-                },
-            },
+                width: 20,
+                height: 20,
+            }
         },
-        "& .time-badge-main": {
-            display: "flex",
-            marginTop: theme.spacing(1),
-            alignItems: "center",
-            "& .MuiTypography-root": {
-                display: "flex",
-                alignItems: "center",
-                svg: {
-                    fontSize: 20,
-                    marginRight: 5,
-                    path: {
-                        fill: theme.palette.text.secondary,
-                    },
-                },
-            },
-            "& .label": {
-                marginLeft: 10,
-                padding: theme.spacing(0, 1.5),
-            },
-        },
-    },
-    "& .action": {
-        width: 31,
-        display: "flex",
-        alignItems: "center",
     },
 }));
 

@@ -13,7 +13,7 @@
     "utilisateurs": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "motif_type": "Type de motif"
+    "type": "Types de consultation"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -96,13 +96,24 @@
   "motifType": {
     "config": {
       "add": "Ajouter",
-      "path": "Paramètres > Motifs de types",
+      "path": "Paramètres > Types de consultation",
       "table": {
         "name": "Nom",
         "action": "Action",
         "code": "Code",
         "icon": "Icône"
       }
+    },
+    "dialog": {
+      "add": "Ajouter type de consultation",
+      "update": "Modifier type de consultation",
+      "info": "Information du type",
+      "nom": "Nom type de consultation",
+      "selectIcon": "sélectionnez l'icône",
+      "tapez": "Tapez le nom du type",
+      "cancel": "Annuler",
+      "color": "couleur",
+      "save": "Enregistrer"
     }
   },
   "lieux": {

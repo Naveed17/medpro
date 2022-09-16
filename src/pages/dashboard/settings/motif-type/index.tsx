@@ -4,31 +4,27 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { DashLayout } from "@features/base";
 import { Box, Button, Container, Drawer, Stack, Typography } from "@mui/material";
 import { useTranslation } from "next-i18next";
-import { EditMotifDialog } from "@features/editMotifDialog";
+import { MotifTypeDialog } from "@features/motifTypeDialog";
 import { SubHeader } from "@features/subHeader";
 import { configSelector } from "@features/base";
 import { useAppSelector } from "@app/redux/hooks";
 import { Otable } from "@features/table";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import { useRequest, useRequestMutation } from "@app/axios";
+import { useRequest } from "@app/axios";
 import { useRouter } from "next/router";
-import { useDateConverture } from "@app/hooks";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
 import { MotifTypeCard } from '@features/card'
 function MotifType() {
-
     const { data: session } = useSession();
     const { data: user } = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [edit, setEdit] = useState(false);
+    const [selected, setSelected] = useState<any>();
     const { direction } = useAppSelector(configSelector);
-
-
     const { data, error, mutate } = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
@@ -60,35 +56,22 @@ function MotifType() {
             align: 'left',
             sortable: true,
         },
-        {
-            id: 'icon',
-            numeric: false,
-            disablePadding: true,
-            label: "icon",
-            align: 'center',
-            sortable: true,
-        },
-        {
-            id: 'code',
-            numeric: false,
-            disablePadding: true,
-            label: "code",
-            align: 'center',
-            sortable: true,
-        },
+
         {
             id: 'action',
             numeric: false,
             disablePadding: false,
             label: 'action',
-            align: 'center',
+            align: 'right',
             sortable: false
         },
     ];
 
     const editMotif = (props: any) => {
         setEdit(true)
-    }
+        setSelected(props);
+    };
+    console.log(rows)
     return (
         <>
             <SubHeader>
@@ -103,9 +86,9 @@ function MotifType() {
                     <Button
                         variant="contained"
                         color="success"
-                        onClick={() => {
+                        onClick={() =>
                             editMotif(null)
-                        }}
+                        }
                         sx={{ ml: "auto" }}
                     >
                         {t("add")}
@@ -113,7 +96,7 @@ function MotifType() {
                 </Stack>
             </SubHeader>
             <DesktopContainer>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 }, '& table': { tableLayout: 'fixed' } }}>
                     <Otable headers={headCells}
                         rows={rows}
                         from={'motif-type'}
@@ -129,7 +112,7 @@ function MotifType() {
                         {
                             rows.map((row, idx) =>
                                 <React.Fragment key={idx}>
-                                    <MotifTypeCard t={t} data={row} />
+                                    <MotifTypeCard t={t} data={row} handleDrawer={editMotif} />
                                 </React.Fragment>
                             )
                         }
@@ -142,7 +125,11 @@ function MotifType() {
                 open={edit}
                 dir={direction}
                 onClose={closeDraw}>
-                fasdfsa
+                <MotifTypeDialog
+                    data={selected}
+                    mutateEvent={mutate}
+                    closeDraw={closeDraw}
+                />
             </Drawer>
         </>
     )

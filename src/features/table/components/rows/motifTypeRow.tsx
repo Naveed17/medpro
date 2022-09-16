@@ -1,6 +1,6 @@
 import React from 'react'
 import TableCell from '@mui/material/TableCell';
-import { IconButton, Typography, Skeleton, Box } from '@mui/material';
+import { IconButton, Typography, Skeleton, Box, Stack } from '@mui/material';
 import Lable from '@themes/overrides/Lable'
 import IconUrl from "@themes/urlIcon";
 import { TableRowStyled } from "@features/table"
@@ -31,31 +31,18 @@ function MotifRow({ ...props }) {
                             margin: '0 7px',
                             backgroundColor: row.color
                         }}></Box>
-                        <Typography variant="body1" color="text.primary">
-                            {row.name}
-                        </Typography>
+                        <Stack direction="row" spacing={.7} alignItems="center" sx={{ svg: { width: 18, height: 18 } }}>
+                            <IconUrl path={row.icon} />
+                            <Typography variant="body1" color="text.primary">
+                                {row.name}
+                            </Typography>
+                        </Stack>
+
                     </Box>
 
                     : <Skeleton variant="text" width={100} />}
             </TableCell>
-            <TableCell align="center">
-                {row ?
-                    <IconUrl path={row.icon} />
-                    : <Skeleton variant="circular" width={30} height={30} sx={{ m: 'auto' }} />}
-            </TableCell>
-            <TableCell align="center">
-                {row ?
-                    <Lable
-                        variant="filled"
-                        sx={{
-                            backgroundColor: (theme: { palette: { grey: any[]; }; }) => theme.palette.grey[300],
-                            px: 1.5
-                        }}>
-                        {row.code}
-                    </Lable>
-                    : <Skeleton variant="circular" width={30} height={30} sx={{ m: 'auto' }} />}
-            </TableCell>
-            <TableCell align="center">
+            <TableCell align="right">
                 {row ?
                     <IconButton size="small" sx={{ mr: { md: 1 } }} onClick={() => editMotif(row)}>
                         <IconUrl path="setting/edit" />

@@ -1,10 +1,9 @@
 import React from 'react'
-import { Typography, IconButton, Stack, Box, List, ListItem } from "@mui/material";
+import { Typography, IconButton, Stack, Box, List, ListItem, ListItemIcon } from "@mui/material";
 import RootStyled from './overrides/rootStyled';
 import IconUrl from "@themes/urlIcon";
-import Lable from '@themes/overrides/Lable'
 function MotifTypeCard({ ...props }) {
-    const { data, t } = props;
+    const { data, t, handleDrawer } = props;
     return (
         <RootStyled
             sx={{
@@ -16,26 +15,20 @@ function MotifTypeCard({ ...props }) {
         >
 
             <Box className="card-main">
-                <Typography variant={"subtitle2"} color="primary.main" className="title">
-                    {data?.name}
-                </Typography>
-                <Stack direction='row' alignItems="center">
-                    <List>
-                        <ListItem sx={{ py: 0 }}>
-                            {t('table.code')} : <Lable sx={{ ml: 1 }}>{data?.code}</Lable>
-                        </ListItem>
-                        <ListItem>
-                            {t('table.icon')} : <IconUrl path={data.icon} />
-                        </ListItem>
-                    </List>
-                    <Stack ml={'auto'} direction="row" spacing={1} justifyContent="flex-start" alignItems="center">
-                        <IconButton size="small" sx={{ mr: { md: 1 } }}>
+                <List>
+                    <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon>
+                            <IconUrl path={data.icon} />
+                        </ListItemIcon>
+                        <Typography variant={"subtitle2"} color="primary.main" className="title">
+                            {data?.name}
+                        </Typography>
+                        <IconButton size="small" sx={{ ml: 'auto' }} onClick={() => handleDrawer(data)}>
                             <IconUrl path="setting/edit" />
                         </IconButton>
-                    </Stack>
-                </Stack>
+                    </ListItem>
+                </List>
             </Box>
-
         </RootStyled>
     )
 }

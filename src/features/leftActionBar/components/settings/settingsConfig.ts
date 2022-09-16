@@ -32,7 +32,7 @@ const settingsData = {
             disable: false
         },
         {
-            name: "motif_type",
+            name: "type",
             icon: "setting/ic-edit-file",
             href: "/dashboard/settings/motif-type",
             disable: false
