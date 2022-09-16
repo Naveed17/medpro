@@ -4,6 +4,7 @@ interface AppointmentModel {
   dayDate: string;
   startTime: string;
   createdAt: string;
+  instruction: string;
   endTime: string;
   status: number;
   duration: number;

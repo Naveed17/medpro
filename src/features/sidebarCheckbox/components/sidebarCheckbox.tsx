@@ -1,8 +1,6 @@
 import React from 'react'
 import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
-import CircleIcon from '@mui/icons-material/Circle';
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
-import Icon from '@themes/urlIcon';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 interface Props {

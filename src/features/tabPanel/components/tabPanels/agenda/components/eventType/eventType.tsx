@@ -1,6 +1,6 @@
 import {TextIconRadio} from "@features/buttons";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import {Box, FormControlLabel, FormLabel, LinearProgress, RadioGroup} from "@mui/material";
+import {Box, FormControlLabel, LinearProgress, RadioGroup} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -10,7 +10,7 @@ import TelemedicineIcon from "@themes/overrides/icons/telemedicineIcon";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {appointmentSelector, resetAppointment, setAppointmentType} from "@features/tabPanel";
+import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {openDrawer, setStepperIndex} from "@features/calendar";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";

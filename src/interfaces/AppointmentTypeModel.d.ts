@@ -2,6 +2,6 @@ interface AppointmentTypeModel {
     code: string,
     uuid: string,
     icon: string,
-    value: string,
+    name: string,
     color: string
 }

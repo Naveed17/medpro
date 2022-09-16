@@ -6,7 +6,8 @@ interface EventModal {
     allDay: boolean;
     borderColor: string;
     motif: ConsultationReasonModel;
-    description: string;
+    type: AppointmentTypeModel;
+    instruction: string;
     id: string;
     dur: number;
     meeting: boolean;

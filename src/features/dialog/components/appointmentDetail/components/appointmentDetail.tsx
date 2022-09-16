@@ -40,6 +40,11 @@ import {
     MotifAppointmentDialog
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
+import {useRequest} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
 
 const menuList = [
     {
@@ -93,14 +98,16 @@ function AppointmentDetail({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+
     const {t, ready} = useTranslation("common")
     const {selectedEvent: data} = useAppSelector(agendaSelector);
 
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [dialogMotif, setDialogMotif] = React.useState<boolean>(false);
-    const [value, setValue] = useState(data?.extendedProps.insctruction);
+    const [value, setValue] = useState(data?.extendedProps.instruction);
     const [openTooltip, setOpenTooltip] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
+
 
     const onClickTooltipItem = (item: {
         title: string;
@@ -187,7 +194,8 @@ function AppointmentDetail({...props}) {
                                 date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
                                 time: moment(data?.extendedProps.time).format("HH:mm"),
                                 motif: data?.extendedProps.motif,
-                                status: data?.extendedProps.status
+                                status: data?.extendedProps.status,
+                                type: data?.extendedProps.type
                             }
                         }
                     />

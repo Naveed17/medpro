@@ -209,15 +209,6 @@ function TimeSchedule({...props}) {
                                 value={reason}
                                 displayEmpty
                                 onChange={onChangeReason}
-                                sx={{
-                                    "& .MuiSelect-select svg": {
-                                        position: "absolute",
-                                        border: .1,
-                                        borderColor: 'divider',
-                                        borderRadius: '50%',
-                                        p: 0.05
-                                    }
-                                }}
                                 renderValue={selected => {
                                     if (selected.length === 0) {
                                         return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
