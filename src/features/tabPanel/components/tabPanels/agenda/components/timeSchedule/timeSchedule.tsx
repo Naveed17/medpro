@@ -196,48 +196,51 @@ function TimeSchedule({...props}) {
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-1.title")}
                 </Typography>
-                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                    {t("stepper-1.reason-consultation")}
-                </Typography>
-                <FormControl fullWidth size="small">
-                    <Select
-                        labelId="select-reason"
-                        id="select-reason"
-                        value={reason}
-                        displayEmpty
-                        onChange={onChangeReason}
-                        sx={{
-                            "& .MuiSelect-select svg": {
-                                position: "absolute",
-                                border: .1,
-                                borderColor: 'divider',
-                                borderRadius: '50%',
-                                p: 0.05
-                            }
-                        }}
-                        renderValue={selected => {
-                            if (selected.length === 0) {
-                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
-                            }
 
-                            const motif = reasons?.find(reason => reason.uuid === selected);
-                            return (
-                                <Box sx={{display: "inline-flex"}}>
-                                    {/*<FiberManualRecordIcon
+                <Grid container spacing={2}>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                            {t("stepper-1.reason-consultation")}
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                labelId="select-reason"
+                                id="select-reason"
+                                value={reason}
+                                displayEmpty
+                                onChange={onChangeReason}
+                                sx={{
+                                    "& .MuiSelect-select svg": {
+                                        position: "absolute",
+                                        border: .1,
+                                        borderColor: 'divider',
+                                        borderRadius: '50%',
+                                        p: 0.05
+                                    }
+                                }}
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                                    }
+
+                                    const motif = reasons?.find(reason => reason.uuid === selected);
+                                    return (
+                                        <Box sx={{display: "inline-flex"}}>
+                                            {/*<FiberManualRecordIcon
                                         fontSize="small"
                                         sx={{
                                             color: motif?.color
                                         }}
                                     />*/}
-                                    <Typography>{motif?.name}</Typography>
-                                </Box>
+                                            <Typography>{motif?.name}</Typography>
+                                        </Box>
 
-                            )
-                        }}
-                    >
-                        {reasons?.map((consultationReason) => (
-                            <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
-                                {/*<FiberManualRecordIcon
+                                    )
+                                }}
+                            >
+                                {reasons?.map((consultationReason) => (
+                                    <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
+                                        {/*<FiberManualRecordIcon
                                     fontSize="small"
                                     sx={{
                                         border: .1,
@@ -248,38 +251,41 @@ function TimeSchedule({...props}) {
                                         color: consultationReason.color
                                     }}
                                 />*/}
-                                {consultationReason.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                                        {consultationReason.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                            {t("stepper-1.duration.title")}
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                disabled={!reason}
+                                labelId="select-duration"
+                                id="select-duration"
+                                onChange={onChangeDuration}
+                                value={duration as string}
+                                displayEmpty
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("stepper-1.duration.placeholder")}</em>;
+                                    }
 
-                <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                    {t("stepper-1.duration.title")}
-                </Typography>
-                <FormControl fullWidth size="small">
-                    <Select
-                        disabled={!reason}
-                        labelId="select-duration"
-                        id="select-duration"
-                        onChange={onChangeDuration}
-                        value={duration as string}
-                        displayEmpty
-                        renderValue={selected => {
-                            if (selected.length === 0) {
-                                return <em>{t("stepper-1.duration.placeholder")}</em>;
-                            }
-
-                            return <>{getTimeFromMinutes(parseInt(selected))}</>;
-                        }}
-                    >
-                        {durations?.map((duration) => (
-                            <MenuItem value={duration} key={duration}>
-                                {getTimeFromMinutes(duration)}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                                    return <>{getTimeFromMinutes(parseInt(selected))}</>;
+                                }}
+                            >
+                                {durations?.map((duration) => (
+                                    <MenuItem value={duration} key={duration}>
+                                        {getTimeFromMinutes(duration)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
 
                 {(locations && locations.length > 1) && <>
                     <Typography variant="body1" color="text.primary" mt={3} mb={1}>
@@ -338,22 +344,23 @@ function TimeSchedule({...props}) {
                     </Box>
                 )}*/}
 
-                {location && <Typography
-                    variant="body1"
-                    color="text.primary"
-                    fontWeight={500}
-                    mt={5}
-                    mb={0.5}
-                    sx={{textTransform: "uppercase", fontWeight: 500}}
-                >
-                    {t("stepper-1.time-slot")}
-                </Typography>}
-                <Typography variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
+                {/*{location && <Typography*/}
+                {/*    variant="body1"*/}
+                {/*    color="text.primary"*/}
+                {/*    fontWeight={500}*/}
+                {/*    mt={5}*/}
+                {/*    mb={0.5}*/}
+                {/*    sx={{textTransform: "uppercase", fontWeight: 500}}*/}
+                {/*>*/}
+                {/*    {t("stepper-1.time-slot")}*/}
+                {/*</Typography>}*/}
+                <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                     {t("stepper-1.date-message")}
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item md={6} xs={12}>
                         <StaticDatePicker
+                            views={['day']}
                             onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
                             onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                             value={(location || reason) ? date : null}
@@ -380,7 +387,7 @@ function TimeSchedule({...props}) {
 
                 {(reason && recurringDates.length > 0) &&
                     <>
-                        <Typography variant="body1" color="text.primary" mt={2} mb={1}>
+                        <Typography variant="body1" color="text.primary" mb={1}>
                             {t("stepper-1.selected-appointment")}
                         </Typography>
                         {recurringDates.map((recurringDate, index) => (
