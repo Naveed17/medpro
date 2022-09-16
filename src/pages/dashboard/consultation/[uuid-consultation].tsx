@@ -57,7 +57,7 @@ import IconUrl from "@themes/urlIcon";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-
+import { uniqueId } from 'lodash'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -325,7 +325,10 @@ function ConsultationInProgress() {
         setOpenDialog(false);
         setActs([
             ...acts,
-            stateAct,
+            {
+                ...stateAct,
+                uuid: uniqueId()
+            },
 
         ])
 
@@ -620,7 +623,7 @@ function ConsultationInProgress() {
                                                     name: card.title,
                                                     type: card.documentType,
                                                     info: card.prescription,
-                                                    patient: patient.firstName + ' ' +patient.lastName
+                                                    patient: patient.firstName + ' ' + patient.lastName
                                                 })
                                                 setOpenDialog(true);
                                             }} t={t} />

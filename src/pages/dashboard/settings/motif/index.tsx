@@ -209,19 +209,19 @@ function Motif() {
                 </Stack>
             </SubHeader>
             <DesktopContainer>
-                    <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
-                        <Otable headers={headCells}
-                            rows={rows}
-                            state={state}
-                            from={'motif'}
-                            pagination={true}
-                            t={t}
-                            edit={editMotif}
-                            durations={durations}
-                            delay={delay}
-                            handleConfig={handleConfig}
-                            handleChange={handleChange} />
-                    </Box>
+                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 } }}>
+                    <Otable headers={headCells}
+                        rows={rows}
+                        state={state}
+                        from={'motif'}
+                        pagination={true}
+                        t={t}
+                        edit={editMotif}
+                        durations={durations}
+                        delay={delay}
+                        handleConfig={handleConfig}
+                        handleChange={handleChange} />
+                </Box>
             </DesktopContainer>
             <MobileContainer>
                 <Container>
