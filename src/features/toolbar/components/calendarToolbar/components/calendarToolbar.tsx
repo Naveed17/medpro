@@ -56,7 +56,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
         {value: "timeGridWeek", label: "Week", icon: DayIcon},
         {value: "dayGridMonth", label: "Month", icon: WeekIcon},
         {value: "listWeek", label: "Agenda", icon: GridIcon},
-        {value: "export", label: "Export", icon: ExportEventIcon},
+        // {value: "export", label: "Export", icon: ExportEventIcon},
     ];
 
     const handleViewChagne = (view: string) => {

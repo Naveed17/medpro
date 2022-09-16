@@ -36,7 +36,14 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import {EventType, Instruction, Patient, setAppointmentDate, TimeSchedule} from "@features/tabPanel";
+import {
+    EventType,
+    Instruction,
+    Patient,
+    setAppointmentDate,
+    setAppointmentRecurringDates,
+    TimeSchedule
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
@@ -173,11 +180,12 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.type?.color,
+                    borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     description: "",
                     id: appointment.uuid,
+                    dur: appointment.duration,
                     meeting: false,
                     new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
                     addRoom: true,
@@ -239,6 +247,7 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
+        console.log(event);
         setEvent(event);
         dispatch(setSelectedEvent(event));
         dispatch(openDrawer({type: "view", open: true}));
@@ -258,7 +267,7 @@ function Agenda() {
                 oldDate: oldStartDate,
                 duration,
                 oldDuration,
-                onDurationChanged: oldDuration === duration
+                onDurationChanged: oldDuration !== duration
             }
         };
         setEvent(defEvent);
@@ -283,17 +292,31 @@ function Agenda() {
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
+            case "onWaitingRoom":
+                onOpenWaitingRoom();
+                break;
+            case "onLeaveWaitingRoom":
+                setEvent(event);
+                updateAppointmentStatus(event?.publicId ? event?.publicId :
+                    (event as any)?.id, "6").then(() => refreshData());
+                break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
-                    date: event?.extendedProps.time,
-                    time: moment(event?.extendedProps.time).format("HH:mm"),
+                    date: new Date(event?.extendedProps.time),
+                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
                     selected: false
                 }));
                 setMoveDialogInfo(true);
                 break;
         }
+    }
+
+    const onOpenWaitingRoom = () => {
+        setEvent(event);
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
+        router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -316,12 +339,15 @@ function Agenda() {
         const defEvent = {
             ...event,
             extendedProps: {
-                ...event?.extendedProps,
+                // ...event?.extendedProps,
                 newDate: date,
                 from: 'modal',
+                duration: event?.extendedProps.dur,
+                onDurationChanged: false,
                 oldDate: moment(event?.extendedProps.time)
             }
         } as EventDef;
+        console.log(defEvent);
         setEvent(defEvent);
         setMoveDialogInfo(false);
         setMoveDialog(true);
@@ -344,7 +370,7 @@ function Agenda() {
             }
         }, {revalidate: false, populateCache: false}).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.move-dialog.${event.extendedProps.onDurationChanged ?
+                enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
                     "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
             }
             refreshData();
@@ -352,17 +378,20 @@ function Agenda() {
         });
     }
 
-    const cancelAppointment = (appointmentUUid: string) => {
-        setLoading(true);
+    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
         const form = new FormData();
-        form.append('status', '6');
-        updateStatusTrigger({
+        form.append('status', status);
+        return updateStatusTrigger({
             method: "PATCH",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}
-            /appointments/${appointmentUUid}/status/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
+        });
+    }
+
+    const cancelAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        updateAppointmentStatus(appointmentUUid, "6").then(() => {
             const eventUpdated: any = {
                 ...event, extendedProps:
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
@@ -371,11 +400,17 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
-        })
+        });
     }
 
     const onSelectDate = (eventArg: DateSelectArg) => {
         dispatch(setAppointmentDate(eventArg.start));
+        dispatch(setAppointmentRecurringDates([{
+            id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
+            time: moment(eventArg.start).format("HH:mm"),
+            date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
+            status: "success"
+        }]));
         dispatch(openDrawer({type: "add", open: true}));
     }
 
@@ -521,6 +556,7 @@ function Agenda() {
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
                             OnCancelAppointment={() => refreshData()}
+                            OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
                             SetCancelDialog={() => setCancelDialog(true)}
@@ -578,10 +614,10 @@ function Agenda() {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t(`dialogs.move-dialog.${event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
+                                            variant="subtitle1">{t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "sub-title" : "sub-title-duration"}`)}</Typography>
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
-                                    {event?.extendedProps.onDurationChanged ? <>
+                                    {!event?.extendedProps.onDurationChanged ? <>
                                         {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
                                         {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                     </> : <>
@@ -596,7 +632,7 @@ function Agenda() {
                             </Box>)
                     }}
                     open={moveDialog}
-                    title={t(`dialogs.move-dialog.${event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
+                    title={t(`dialogs.move-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
                             <Button

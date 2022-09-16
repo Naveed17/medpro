@@ -282,6 +282,7 @@ function AppointmentDetail({...props}) {
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
                         <Button onClick={OnWaiting}
+                                disabled={moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY")}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
@@ -291,8 +292,8 @@ function AppointmentDetail({...props}) {
                             disabled={moment().isAfter(data?.extendedProps.time)}
                             onClick={() => {
                                 dispatch(setMoveDateTime({
-                                    date: data?.extendedProps.time,
-                                    time: moment(data?.extendedProps.time).format("HH:mm"),
+                                    date: new Date(data?.extendedProps.time),
+                                    time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
                                     selected: false
                                 }));
                                 SetMoveDialog(true)

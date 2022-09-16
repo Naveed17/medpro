@@ -76,7 +76,6 @@ const PaperStyled = styled(Form)(({ theme }) => ({
 }));
 
 function EditMotifDialog({ ...props }) {
-
     const { mutateEvent } = props
     const { data: session } = useSession();
     const { data: user } = session as Session;
@@ -136,7 +135,7 @@ function EditMotifDialog({ ...props }) {
     });
 
     if (!ready) return (<>loading translations...</>);
-
+    console.log(medical_entity.uuid, 'data')
     const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
     return (
         <FormikProvider value={formik}>
@@ -199,7 +198,7 @@ function EditMotifDialog({ ...props }) {
 
                                     {
                                         icons.map((icon, idx) =>
-                                        (<MenuItem selected={(!props.data && idx === 0)} key={idx} value={icon}>
+                                        (<MenuItem key={idx} value={icon}>
                                             <IconUrl path={icon} />
                                             {icon}
                                         </MenuItem>))

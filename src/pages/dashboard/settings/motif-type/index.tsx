@@ -71,7 +71,6 @@ function MotifType() {
         setEdit(true)
         setSelected(props);
     };
-    console.log(rows)
     return (
         <>
             <SubHeader>

@@ -41,6 +41,7 @@
   "appintment_date": "Date de RDV",
   "start_the_consultation": "Commencer la consultation",
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
+  "leave_waiting_room": "Quitter la salle d'attente",
   "see_patient_form": "Voir fiche Patient",
   "send_a_message": "Envoyer un message",
   "delete": "Supprimer",

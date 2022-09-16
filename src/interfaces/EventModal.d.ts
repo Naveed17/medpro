@@ -8,6 +8,7 @@ interface EventModal {
     motif: ConsultationReasonModel;
     description: string;
     id: string;
+    dur: number;
     meeting: boolean;
     new: boolean;
     addRoom: boolean;
