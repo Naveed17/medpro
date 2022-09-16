@@ -67,7 +67,10 @@ function Otable({ ...props }) {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n: { id: any }) => n.id);
+      const newSelecteds = rows.map((n: {
+        uuid: string;
+        id: any
+      }) => n.uuid);
       setSelected(newSelecteds);
       return;
     }
@@ -91,13 +94,12 @@ function Otable({ ...props }) {
     }
     setSelected(newSelected);
   };
-
   const selectted = rowsActionsData.find((item) => from === item.action);
 
   const Component: any = selectted?.component;
   const isSelected = (id: any) => selected.indexOf(id) !== -1;
   // Avoid a layout jump when reaching the last page with empty rows.
-  const ids = rows?.map((row: any) => row.id);
+  const ids = rows?.map((row: any) => row.uuid);
   useEffect(() => {
     if (tableHeadData !== null) {
       if (tableHeadData.active) {
@@ -107,7 +109,6 @@ function Otable({ ...props }) {
       }
     }
   }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
-
   return (
     <Box>
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
@@ -138,7 +139,7 @@ function Otable({ ...props }) {
               ? Array.from(new Array(10))
               : stableSort(rows, getComparator(order, orderBy))
             ).map((row, index) => {
-              const isItemSelected = isSelected(row?.id as number);
+              const isItemSelected = isSelected(row?.uuid as string);
               const labelId = `enhanced-table-checkbox-${index}`;
               return (
                 <Component

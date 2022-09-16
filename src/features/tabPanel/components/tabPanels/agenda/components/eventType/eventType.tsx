@@ -1,6 +1,6 @@
 import {TextIconRadio} from "@features/buttons";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import {Box, FormControlLabel, FormLabel, RadioGroup} from "@mui/material";
+import {Box, FormControlLabel, LinearProgress, RadioGroup} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -10,7 +10,7 @@ import TelemedicineIcon from "@themes/overrides/icons/telemedicineIcon";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {appointmentSelector, resetAppointment, setAppointmentType} from "@features/tabPanel";
+import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {openDrawer, setStepperIndex} from "@features/calendar";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -71,6 +71,9 @@ function EventType({...props}) {
 
     return (
         <>
+            <LinearProgress sx={{
+                visibility: !httpAppointmentTypesResponse ? "visible" : "hidden"
+            }} color="warning"/>
             <Box className="inner-section">
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-0.title")}
@@ -92,7 +95,7 @@ function EventType({...props}) {
                                         color={type.color}
                                         selectedValue={typeEvent}
                                         onChangeValue={(event: string) => handleTypeChange(event)}
-                                        title={t(`stepper-0.types.${type.icon.replace("ic-", "")}`)}
+                                        title={type.name}
                                         icon={IconsTypes[type.icon]}
                                     />}
                                 label=""/>)

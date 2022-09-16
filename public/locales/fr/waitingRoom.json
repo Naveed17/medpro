@@ -1,31 +1,47 @@
 {
   "subheader": {
     "title": "Salle d’attente",
-    "room": "salle"
+    "room": "salle",
+    "add": "Ajouter"
   },
   "filter": {
-    "title": "filter",
-    "reson": "Motif de consultation",
+    "title": "Filtre",
+    "patient": "Patient",
+    "date-of-birth": "Date de naissance",
+    "gender": "Genre",
+    "male": "Homme",
+    "female": "Femme",
+    "name": "Nom & prénom",
+    "telephone": "Numéro de téléphone",
+    "place": "Lieu",
+    "city": "Ville",
+    "search": "Recherche",
+    "appointment": "Rendez-vous",
+    "type": "Type",
+    "next-appointment": "Prochain rendez-vous",
+    "last-appointment": "Dernier rendez-vous",
+    "reasons": "Motif de consultation",
     "status": "Statut",
     "meetingType": "Type RDV",
-    "all": "tous",
-    "1st consultation": "1ère consultation",
-    "control": "contrôle",
-    "in expectation": "en attente",
-    "in office": "au bureau",
-    "video consultation": "consultation vidéo",
-    "consultation performed": "consultation effectuée",
-    "confirme": "confirmé",
-    "expires": "expirant à",
-    "cancel": "annuler",
-    "patient did not show up": "le patient n’a pas venu",
-    "cabinet": "cabinet",
-    "at home": "à domicile",
-    "teleconsultation": "téléconsultation",
-    "meeting": "RDV"
+    "meeting": {
+      "cabinet": "Cabinet",
+      "home": "Domicile",
+      "teleconsultation": "Téléconsultation"
+    },
+    "all": "Tous",
+    "done": "Effectué",
+    "confirm": "Confirmé",
+    "pending": "En attente",
+    "cancel": "Annulé",
+    "expired": "Expiré",
+    "no_show": "Patient ne s'est pas présenté",
+    "cancel_patient": "Annulé par le patient",
+    "note": "Notes"
   },
   "config": {
     "room": "salle",
+    "start_the_consultation": "Commencer la consultation",
+    "leave_waiting_room": "Quitter la salle d'attente",
     "table": {
       "Id": "Id",
       "arrival time": "heure d'arrivée",
@@ -47,7 +63,14 @@
       "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
       "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
       "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "no-data": {
+        "event": {
+          "title": "Ajouter votre premier rendez-vous",
+          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+          "button-text": "Ajouter un RDV"
+        }
+      }
     }
   },
   "room": "salle"

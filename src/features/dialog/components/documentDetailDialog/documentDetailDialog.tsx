@@ -1,42 +1,88 @@
-import { Grid, Stack, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, TextField, Button } from '@mui/material'
-import { useFormik, Form, FormikProvider } from "formik";
+import {
+    Grid,
+    Stack,
+    Box,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Typography,
+    TextField,
+    Button
+} from '@mui/material'
+import {useFormik, Form, FormikProvider} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
-import { useReactToPrint } from 'react-to-print'
-import { useTranslation } from 'next-i18next'
-import { capitalize } from 'lodash'
-import React, { useState, useRef } from 'react';
-import { Document, Page, pdfjs } from "react-pdf";
-import { actionButtons, list } from './config'
+import {useReactToPrint} from 'react-to-print'
+import {useTranslation} from 'next-i18next'
+import {capitalize} from 'lodash'
+import React, {useState, useRef} from 'react';
+import {Document, Page, pdfjs} from "react-pdf";
+import {actionButtons} from './config'
 import IconUrl from '@themes/urlIcon';
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-function DocumentDetailDialog({ ...props }) {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+function DocumentDetailDialog({...props}) {
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
+    const {data: {state}} = props
+
     const formik = useFormik({
         initialValues: {
-            name: "xyz",
+            name: state.name,
         },
         onSubmit: async (values) => {
         },
     });
-    const { data: { state } } = props
 
-    const [file, setFile] = useState(state);
+    const list = [
+        {
+            title: 'document_type',
+            value: state.type,
+
+        },
+        {
+            title: 'patient',
+            value: state.patient,
+        },
+        {
+            title: 'created_by',
+            value: 'Moi',
+        },
+        {
+            title: 'created_on',
+            value: '12/05/2002',
+        }
+    ]
+
+    console.log(state)
+
+    const [file, setFile] = useState(state.uri);
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef(null)
     const [readonly, setreadonly] = useState<boolean>(true);
-    function onDocumentLoadSuccess({ numPages }: any) {
+
+    function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
+
     const handlePrint = useReactToPrint({
         onPrintError: (error) => console.log(error),
         content: () => componentRef.current,
     });
 
     const handleActions = (action: string) => {
+        console.log(action)
         switch (action) {
             case "print":
                 handlePrint();
+                break;
+            case "delete":
+                console.log(state.uuid)
+                break;
+            case "edit":
+                console.log(state.info[0].prescription_has_drugs)
                 break;
             case "download":
                 fetch(file).then(response => {
@@ -55,7 +101,7 @@ function DocumentDetailDialog({ ...props }) {
                 break;
         }
     }
-    const { values, handleSubmit, getFieldProps } = formik;
+    const {values, handleSubmit, getFieldProps} = formik;
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
@@ -78,7 +124,7 @@ function DocumentDetailDialog({ ...props }) {
                                     componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                     ))}
 
                                 </Document>
@@ -93,15 +139,15 @@ function DocumentDetailDialog({ ...props }) {
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
-                                            <IconUrl path={button.icon} />
+                                            <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary={t(button.title)} />
+                                        <ListItemText primary={t(button.title)}/>
                                     </ListItemButton>
                                 </ListItem>
                             )
                         }
                         <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
+                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                 <Typography color='text.secondary'>
                                     {t('document_name')}
                                 </Typography>
@@ -117,7 +163,7 @@ function DocumentDetailDialog({ ...props }) {
                                     () => setreadonly(!readonly)
 
                                 }>
-                                    <IconUrl path="ic-edit" />
+                                    <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>
                             </ListItemButton>
@@ -125,7 +171,8 @@ function DocumentDetailDialog({ ...props }) {
                         {
                             list.map((item, idx) =>
                                 <ListItem className='secound-list' key={idx}>
-                                    <ListItemButton disableRipple sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
+                                    <ListItemButton disableRipple
+                                                    sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                         <Typography color='text.secondary'>
                                             {capitalize(t(item.title))}
                                         </Typography>
@@ -136,7 +183,6 @@ function DocumentDetailDialog({ ...props }) {
                                 </ListItem>
                             )
                         }
-
                     </List>
                 </Grid>
             </Grid>

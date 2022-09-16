@@ -1,15 +1,18 @@
 // components
 import {Accordion} from "@features/accordion";
-import {BoxStyled} from "@features/leftActionBar";
+import { BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
-import {statutData, typeRdv} from "./config";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, DayOfWeek} from "@features/calendar";
+import moment from "moment-timezone";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -18,63 +21,107 @@ function Agenda() {
     const {data: session} = useSession();
     const router = useRouter();
 
-    const {data: user} = session as Session;
-    const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpReasonsResponse, error: errorHttpReasons} = useRequest({
+    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
+    }, SWRNoValidateConfig);
 
     const {t, ready} = useTranslation('agenda', {keyPrefix: 'filter'});
+
+    const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+    const locations = agendaConfig?.locations;
+    const openingHours = locations && locations[0].openingHours[0].openingHours;
+
+    useEffect(() => {
+        const disabledDay: number[] = []
+        openingHours && Object.entries(openingHours).filter((openingHours: any) => {
+            if (!(openingHours[1].length > 0)) {
+                disabledDay.push(DayOfWeek(openingHours[0]));
+            }
+        });
+        setDisabledDay(disabledDay);
+    }, [openingHours]);
+
     if (!ready) return (<>loading translations...</>);
-
-    const reasons = (httpReasonsResponse as HttpResponse)?.data as ConsultationReasonTypeModel[];
-
     return (
         <BoxStyled>
-            <CalendarPickers/>
-            {reasons && <Accordion
+            <CalendarPickers shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+            { <Accordion
                 translate={{
                     t: t,
                     ready: ready,
                 }}
                 data={[
-                    {
+/*                    {
                         heading: {
                             id: "reasons",
                             icon: "ic-edit-file2",
                             title: "reasons",
                         },
-                        children: <>
-                            <React.Fragment key="all">
-                                <SidebarCheckbox
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={{name: 'all', text: 'all'}}
-                                    onChange={(v) => console.log(v)}/>
-                            </React.Fragment>
-                            {reasons.map((item, index) => (
-                                <React.Fragment key={index}>
+                        children: (
+                            <>
+                                <React.Fragment key="all">
                                     <SidebarCheckbox
                                         translate={{
                                             t: t,
                                             ready: ready,
                                         }}
-                                        data={item}
-                                        label={"name"}
+                                        data={{name: 'all', text: 'all'}}
                                         onChange={(v) => console.log(v)}/>
                                 </React.Fragment>
-                            ))}
-                        </>
-                    },
+                                {reasons.map((item, index) => (
+                                    <React.Fragment key={index}>
+                                        <SidebarCheckbox
+                                            translate={{
+                                                t: t,
+                                                ready: ready,
+                                            }}
+                                            data={item}
+                                            label={"name"}
+                                            onChange={(v) => console.log(v)}/>
+                                    </React.Fragment>
+                                ))}
+                            </>)
+                    },*/
                     {
+                        heading: {
+                            id: "patient",
+                            icon: "ic-patient",
+                            title:"patient",
+                        },
+                        children: (
+                            <FilterRootStyled>
+                                <PatientFilter item={{
+                                    heading: {
+                                        icon: "ic-patient",
+                                        title: "patient",
+                                    },
+
+                                    gender: {
+                                        heading: "gender",
+                                        genders: ["male", "female"],
+                                    },
+                                    textField: {
+                                        labels: [
+                                            { label: "name", placeholder: "name" },
+                                            { label: "date-of-birth", placeholder: "--/--/----" },
+                                            { label: "telephone", placeholder: "telephone" },
+                                        ],
+                                    },
+                                }} t={t} />
+                            </FilterRootStyled>
+                        ),
+                    },
+/*                    {
                         heading: {
                             id: "status",
                             icon: "ic-edit-file2",
@@ -90,16 +137,17 @@ function Agenda() {
                                     data={item} onChange={(v) => console.log(v)}/>
                             </React.Fragment>
                         ))
-                    },
+                    },*/
                     {
                         heading: {
                             id: "meetingType",
                             icon: "ic-agenda-jour-color",
                             title: "meetingType",
                         },
-                        children: typeRdv.map((item, index) => (
+                        children: types?.map((item, index) => (
                             <React.Fragment key={index}>
                                 <SidebarCheckbox
+                                    label={"name"}
                                     translate={{
                                         t: t,
                                         ready: ready,

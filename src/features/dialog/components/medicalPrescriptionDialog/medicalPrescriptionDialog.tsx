@@ -56,7 +56,6 @@ function MedicalPrescriptionDialog({...props}) {
         durationType: Yup.string().required()
     });
 
-    console.log(data.state)
     const handleSaveDialog = () => {
 
         const form = new FormData();
@@ -105,7 +104,6 @@ function MedicalPrescriptionDialog({...props}) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
 
-                console.log(values)
                 drugs.push(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
@@ -130,7 +128,6 @@ function MedicalPrescriptionDialog({...props}) {
     });
 
     useEffect(() => {
-        console.log(httpModelResponse)
         if (httpModelResponse)
             setModels((httpModelResponse as HttpResponse).data)
     }, [httpModelResponse])
@@ -224,9 +221,6 @@ function MedicalPrescriptionDialog({...props}) {
                                             models.map((item, idx) =>
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
                                                           onClick={() => {
-                                                              const drg = []
-
-                                                              console.log(item.prescription_modal_has_drugs)
                                                               setDrugs(item.prescription_modal_has_drugs)
                                                               data.setState(item.prescription_modal_has_drugs)
                                                               setAnchorEl(null);

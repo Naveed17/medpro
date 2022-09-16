@@ -1,11 +1,12 @@
 interface AppointmentModel {
   uuid: string;
-  type: number;
+  type: AppointmentTypeModel;
   dayDate: string;
   startTime: string;
   createdAt: string;
+  instruction: string;
   endTime: string;
-  status: string;
+  status: number;
   duration: number;
   isVip: boolean;
   new: boolean;

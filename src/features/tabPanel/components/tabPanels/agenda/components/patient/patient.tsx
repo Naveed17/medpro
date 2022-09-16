@@ -14,6 +14,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
+import {setAppointmentPatient} from "@features/tabPanel";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -64,7 +65,6 @@ function Patient({...props}) {
     }
 
     const submitNewPatient = (patient: any) => {
-        console.log(patient);
         const form = new FormData();
         form.append('first_name', patient.firstName)
         form.append('last_name', patient.lastName);
@@ -96,9 +96,8 @@ function Patient({...props}) {
             const {data} = res;
             const {status} = data;
             if (status === "success") {
-                console.log(data);
-                // dispatch(setAppointmentPatient(patient));
-                // setAddPatient(false);
+                dispatch(setAppointmentPatient(data.data));
+                setAddPatient(false);
             }
         });
 
@@ -120,7 +119,6 @@ function Patient({...props}) {
                             translation={t}
                             loading={isValidating}
                             data={(httpPatientResponse as HttpResponse)?.data}/>
-
                     </Box>
                     <Paper
                         sx={{

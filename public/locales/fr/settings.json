@@ -12,7 +12,8 @@
     "remplaçants": "Remplaçants",
     "utilisateurs": "Utilisateurs",
     "reseau": "Réseau d'adressage",
-    "instructions": "Instructions"
+    "instructions": "Instructions",
+    "type": "Types de consultation"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -34,7 +35,6 @@
     "noQualification": "Aucune qualification sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
     "noActes": "Aucun acte sélectionné"
-
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
@@ -67,7 +67,9 @@
         "agenda": "Agenda",
         "type": "Type",
         "active": "Active",
-        "action": "Action"
+        "action": "Action",
+        "code": "Code",
+        "icon": "Icône"
       }
     },
     "dialog": {
@@ -88,6 +90,29 @@
       "agenda": "Agenda",
       "selectCalander": "Veuillez sélectionner les calendriers qui affectent ce motif de consultation",
       "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
+  },
+  "motifType": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Types de consultation",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "code": "Code",
+        "icon": "Icône"
+      }
+    },
+    "dialog": {
+      "add": "Ajouter type de consultation",
+      "update": "Modifier type de consultation",
+      "info": "Information du type",
+      "nom": "Nom type de consultation",
+      "selectIcon": "sélectionnez l'icône",
+      "tapez": "Tapez le nom du type",
+      "cancel": "Annuler",
+      "color": "couleur",
       "save": "Enregistrer"
     }
   },
@@ -135,7 +160,8 @@
       "remove": "Supprimer",
       "adreq": "Adresse est obligatoire",
       "emsc": "em seance",
-      "firstsc": "1er seance"
+      "firstsc": "1er seance",
+      "timeshedule": "horaire d'ouverture"
     }
   },
   "agenda": {

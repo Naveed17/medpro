@@ -5,61 +5,80 @@ import {Accordion} from '@features/accordion'
 import {SidebarCheckbox} from '@features/sidebarCheckbox'
 import {motifData, statutData, typeRdv} from './config'
 import {useTranslation} from "next-i18next"
+import {useRequest} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {FilterRootStyled, PatientFilter} from "@features/leftActionBar";
 
 function WaitingRoom() {
+    const {data: session} = useSession();
+    const router = useRouter();
+
     const [motifstate, setmotifstate] = useState({});
     const [statutstate, setstatutstate] = useState({});
     const [typeRdvstate, settypeRdvstate] = useState({});
+
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     if (!ready) return (<>loading translations...</>);
 
     return (
         <WaitingRoomStyled>
-            <Typography px={1.1} pt={5} mb={8} textTransform="capitalize" variant="subtitle2"
-                        display={{xs: 'none', sm: 'block'}}>
-                {t("title")}
+            <Typography
+                variant="h6"
+                color="text.primary"
+                sx={{ py: 5, pl: "10px", mb: "0.21em" }}
+                gutterBottom
+            >
+                {t(`title`)}
             </Typography>
             <Accordion
                 translate={{
                     t: t,
                     ready: ready,
                 }}
-                badge={null}
                 defaultValue={"reson"}
                 data={[
                     {
                         heading: {
-                            id: "reson",
-                            icon: "ic-edit-file2",
-                            title: "reson",
+                            id: "patient",
+                            icon: "ic-patient",
+                            title:"patient",
                         },
-                        children: motifData.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item} onChange={(v) => setmotifstate({...motifstate, [item.name]: v})}/>
-                            </React.Fragment>
-                        ))
-                    },
-                    {
-                        heading: {
-                            id: "status",
-                            icon: "ic-edit-file2",
-                            title: "status",
-                        },
-                        children: statutData.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item} onChange={(v) => setstatutstate({...statutstate, [item.name]: v})}/>
-                            </React.Fragment>
-                        ))
+                        children: (
+                            <FilterRootStyled>
+                                <PatientFilter item={{
+                                    heading: {
+                                        icon: "ic-patient",
+                                        title: "patient",
+                                    },
+
+                                    gender: {
+                                        heading: "gender",
+                                        genders: ["male", "female"],
+                                    },
+                                    textField: {
+                                        labels: [
+                                            { label: "name", placeholder: "name" },
+                                            { label: "date-of-birth", placeholder: "--/--/----" },
+                                            { label: "telephone", placeholder: "telephone" },
+                                        ],
+                                    },
+                                }} t={t} />
+                            </FilterRootStyled>
+                        ),
                     },
                     {
                         heading: {
@@ -67,14 +86,15 @@ function WaitingRoom() {
                             icon: "ic-agenda-jour-color",
                             title: "meetingType",
                         },
-                        children: typeRdv.map((item, index) => (
+                        children: types?.map((item, index) => (
                             <React.Fragment key={index}>
                                 <SidebarCheckbox
+                                    label={"name"}
                                     translate={{
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => settypeRdvstate({...typeRdvstate, [item.name]: v})}/>
+                                    data={item} onChange={(v) => console.log(v)}/>
                             </React.Fragment>
                         ))
                     },
