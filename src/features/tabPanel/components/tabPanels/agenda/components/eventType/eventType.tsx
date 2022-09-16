@@ -95,7 +95,7 @@ function EventType({...props}) {
                                         color={type.color}
                                         selectedValue={typeEvent}
                                         onChangeValue={(event: string) => handleTypeChange(event)}
-                                        title={t(`stepper-0.types.${type.icon.replace("ic-", "")}`)}
+                                        title={type.name}
                                         icon={IconsTypes[type.icon]}
                                     />}
                                 label=""/>)

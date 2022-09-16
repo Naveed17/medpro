@@ -32,7 +32,6 @@ function AppointmentCard({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    console.log(data);
     const [reason, setReason] = useState(data.motif.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
 
@@ -80,7 +79,7 @@ function AppointmentCard({...props}) {
                                                 p: 0.05
                                             },
                                             "& .MuiTypography-root": {
-                                                ml: 5
+                                                ml: 4
                                             }
                                         }}
                                         renderValue={selected => {
