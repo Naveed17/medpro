@@ -38,7 +38,6 @@ function Calendar({...props}) {
     const {
         events: appointments,
         OnRangeChange,
-        disabledSlots,
         t: translation,
         sortedData,
         OnInit,
@@ -253,7 +252,8 @@ function Calendar({...props}) {
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
-                                eventContent={(event) => <Event event={event} t={translation}/>}
+                                eventContent={(event) =>
+                                    <Event event={event} openingHours={openingHours} t={translation}/>}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         ev.preventDefault();
@@ -267,14 +267,6 @@ function Calendar({...props}) {
                                         event
                                     })
                                 }
-                                slotLabelClassNames={(day) => {
-                                    return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(
-                                        disabledSlots[0].start,
-                                        disabledSlots[0].end
-                                    )
-                                        ? "normal"
-                                        : "disabled";
-                                }}
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => OnEventChange(info)}
                                 select={OnSelectDate}

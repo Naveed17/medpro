@@ -11,7 +11,6 @@ import SalleIcon from "@themes/overrides/icons/salleIcon";
 function Event({...props}) {
     const {event, t} = props;
     const router = useRouter();
-
     return (
         <LightTooltip TransitionComponent={Zoom}
                       title={t("event.new", {ns: 'common'})}
@@ -38,8 +37,7 @@ function Event({...props}) {
                     ...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
-                    ), ...(event.event._def.extendedProps.status.key === "CANCELED" && {
-                            backgroundColor: "error.light",
+                    ), ...(event.event._def.extendedProps.hasError && {
                             "& .MuiSvgIcon-root": {
                                 width: 10,
                                 height: 10,
@@ -61,7 +59,7 @@ function Event({...props}) {
                 }}
             >
                 <Typography variant="body2" component={"span"} color="text.primary">
-                    {event.event._def.extendedProps.status.key === "CANCELED" ?
+                    {event.event._def.extendedProps.hasError ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
                             <SalleIcon/> :

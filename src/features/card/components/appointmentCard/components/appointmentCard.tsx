@@ -42,15 +42,11 @@ function AppointmentCard({...props}) {
 
     const [reason, setReason] = useState(data.motif?.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
-    const [edited, setEdited] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
     const updateDetails = (input: { reason?: string, type?: string }) => {
-        setEdited(false);
-        setLoading(true);
         const form = new FormData();
         form.append('attribute', input.reason ? "consultation_reason" : "type");
         form.append('value', (input.reason ? input.reason : input.type) as string);
@@ -60,7 +56,6 @@ function AppointmentCard({...props}) {
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
-            setLoading(false);
             onDataUpdated();
         });
     }

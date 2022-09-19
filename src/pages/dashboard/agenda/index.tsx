@@ -9,7 +9,8 @@ import {
     Button,
     Container,
     Drawer,
-    LinearProgress, Theme,
+    LinearProgress,
+    Theme,
     Typography,
     useMediaQuery,
     useTheme
@@ -31,6 +32,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
     AppointmentStatus,
+    DayOfWeek,
     openDrawer,
     setConfig,
     setSelectedEvent,
@@ -106,11 +108,7 @@ function Agenda() {
     const [
         timeRange,
         setTimeRange
-    ] = useState({start: "", end: ""})
-    const [disabledSlots, setDisabledSlots] = useState([{
-        start: moment("27-07-2022 13:00", "DD-MM-YYYY HH:mm").toDate(),
-        end: moment("27-07-2022 13:30", "DD-MM-YYYY HH:mm").toDate()
-    }]);
+    ] = useState({start: "", end: ""});
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
@@ -162,8 +160,25 @@ function Agenda() {
     } = useRequestMutation(null, "/agenda/update/appointment/status",
         TriggerWithoutValidation);
 
+    const getAppointmentBugs = (openingHours: OpeningHoursModel[], date: Date) => {
+        const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
+            DayOfWeek(openingHours[0], 0) === moment(date).isoWeekday());
+        if (hasDayWorkHours) {
+            let hasError: boolean[] = [];
+            hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
+                    hasError.push(!moment(date).isBetween(
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.start_time}`, "DD-MM-YYYY HH:mm"),
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.end_time}`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
+                }
+            );
+            return hasError.every(error => error);
+        }
+        return true;
+    }
+
     const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
+        const openingHours = agenda?.locations[0].openingHours[0].openingHours;
         trigger({
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
@@ -181,11 +196,12 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor:  [3, 0].includes(appointment.status) ? AppointmentStatus[appointment.status].color : appointment.type?.color,
+                    borderColor: [3, 0].includes(appointment.status) ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
+                    hasError: getAppointmentBugs(openingHours, moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
@@ -489,7 +505,6 @@ function Agenda() {
                                     <Calendar {...{
                                         events: events.current,
                                         agenda,
-                                        disabledSlots,
                                         t,
                                         sortedData: sortedData.current
                                     }}
