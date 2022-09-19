@@ -30,7 +30,7 @@ jobs:
 
   CD:
     if: github.ref == 'refs/heads/develop'
-    uses: ./.github/workflows/waypoint.yml
+    uses: SmartMedSA/github-workflows/.github/workflows/waypoint.yml@master
     needs: CI
     with:
       environment: develop
