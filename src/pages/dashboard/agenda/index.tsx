@@ -138,6 +138,7 @@ function Agenda() {
     const agenda = (httpAgendasResponse as HttpResponse)?.data
         .find((item: AgendaConfigurationModel) =>
             item.isDefault) as AgendaConfigurationModel;
+    const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
         if (agenda) {
@@ -160,7 +161,7 @@ function Agenda() {
     } = useRequestMutation(null, "/agenda/update/appointment/status",
         TriggerWithoutValidation);
 
-    const getAppointmentBugs = (openingHours: OpeningHoursModel[], date: Date) => {
+    const getAppointmentBugs = useCallback((date: Date) => {
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
             DayOfWeek(openingHours[0], 0) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
@@ -174,11 +175,10 @@ function Agenda() {
             return hasError.every(error => error);
         }
         return true;
-    }
+    },[openingHours]);
 
     const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
-        const openingHours = agenda?.locations[0].openingHours[0].openingHours;
         trigger({
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
@@ -201,7 +201,7 @@ function Agenda() {
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
-                    hasError: getAppointmentBugs(openingHours, moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
+                    hasError: getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
@@ -240,7 +240,7 @@ function Agenda() {
 
             setLoading(false);
         });
-    }, [agenda?.uuid, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
