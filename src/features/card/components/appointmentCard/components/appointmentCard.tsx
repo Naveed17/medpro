@@ -4,18 +4,23 @@ import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import SaveIcon from '@mui/icons-material/Save';
+import CircularProgress from '@mui/material/CircularProgress';
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function AppointmentCard({...props}) {
     const {data, OnEdit, t, ...rest} = props;
     const router = useRouter();
     const {data: session} = useSession();
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -32,11 +37,33 @@ function AppointmentCard({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
+    const {
+        trigger: updateAppointmentTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/detail",
+        {revalidate: false, populateCache: false});
+
     const [reason, setReason] = useState(data.motif.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
+    const [edited, setEdited] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+
+    const updateDetails = () => {
+        const form = new FormData();
+        form.append('reason', reason);
+        form.append('typeEvent', typeEvent);
+        updateAppointmentTrigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            setEdited(false);
+        });
+    }
 
     return (
         <RootStyled>
@@ -52,8 +79,10 @@ function AppointmentCard({...props}) {
                            }>
                         {data.status.value}
                     </Label>
-                    <IconButton onClick={OnEdit} size="small" {...rest}>
-                        <IconUrl path='ic-duotone'/>
+                    <IconButton onClick={() => edited ? updateDetails() : setEdited(true)}
+                                size="small" {...rest}>
+                        {edited ? (loading ? <CircularProgress size={20}/> : <SaveIcon fontSize={"small"}/>) :
+                            <IconUrl path='ic-duotone'/>}
                     </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
@@ -70,6 +99,7 @@ function AppointmentCard({...props}) {
                                         value={typeEvent}
                                         displayEmpty
                                         onChange={event => setTypeEvent(event.target.value as string)}
+                                        disabled={!edited}
                                         sx={{
                                             "& .MuiSelect-select svg": {
                                                 position: "absolute",
@@ -130,6 +160,7 @@ function AppointmentCard({...props}) {
                                         id="select-reason"
                                         value={reason}
                                         displayEmpty
+                                        disabled={!edited}
                                         onChange={event => setReason(event.target.value as string)}
                                         renderValue={selected => {
                                             if (selected.length === 0) {

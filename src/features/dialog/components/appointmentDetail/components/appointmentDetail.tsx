@@ -16,7 +16,7 @@ import {
     Link,
     TextField,
     List,
-    ListItem, useTheme, DialogActions
+    ListItem, useTheme
 } from '@mui/material'
 
 import {Popover} from "@features/popover";
@@ -37,14 +37,8 @@ import {
     Dialog,
     QrCodeDialog,
     setMoveDateTime,
-    MotifAppointmentDialog
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 
 const menuList = [
     {
@@ -188,7 +182,6 @@ function AppointmentDetail({...props}) {
                     </Typography>
                     <AppointmentCard
                         t={t}
-                        OnEdit={() => setDialogMotif(true)}
                         data={
                             {
                                 date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
@@ -331,28 +324,6 @@ function AppointmentDetail({...props}) {
                     direction={'ltr'}
                     title={t("qr_title")}
                     dialogClose={handleCloseDialog}/>
-
-            <Dialog action={() =>
-                <MotifAppointmentDialog
-                    reason={data ? data.extendedProps.motif.uuid : ""}
-                    onChangeReason={(motif: ConsultationReasonModel) => console.log(motif)}
-                    t={t}/>}
-                    open={dialogMotif}
-                    onClose={() => setDialogMotif(false)}
-                    direction={'ltr'}
-                    title={t('consultation_reson')}
-                    dialogClose={() => setDialogMotif(false)}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => setDialogMotif(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                    startIcon={<IconUrl
-                                        path='ic-dowlaodfile'></IconUrl>}>{t('save')}</Button>
-                        </DialogActions>
-                    }/>
         </RootStyled>
     )
 }
