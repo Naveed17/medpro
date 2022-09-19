@@ -93,7 +93,7 @@ jobs:
           waypoint init -plain
           waypoint ${{ inputs.operation }} -plain \
             -w ${{ inputs.workspace }} \
-            ${{ inputs.operation == 'delete' && '-auto-approve' || '-prune-retain=2' }} \
+            ${{ inputs.operation == 'delete' && '-auto-approve' }} \
             -var-file=<(printenv WP_VARS_HCL)
 
             for file in .wpoutputs/*; do
