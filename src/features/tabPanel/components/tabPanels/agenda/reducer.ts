@@ -22,7 +22,7 @@ export type AppointmentState = {
 const initialState: AppointmentState = {
     type: "",
     motif: "",
-    duration : "",
+    duration : "15",
     date: null,
     recurringDates: [],
     patient: null,

@@ -12,10 +12,9 @@ export default function TextField(theme) {
               padding: "7.5px 14px",
             },
             button: {
-              minHeight: 32,
-              height: 32,
-              minWidth: 32,
-              width: 32,
+              minHeight: 26,
+              height: 26,
+              minWidth: 26,
               svg: {
                 fontSize: 20,
                 color: theme.palette.text.secondary,

@@ -38,6 +38,7 @@
   "cancel_appointment": "Annuler RDV",
   "on_hold": "En attente",
   "consultation_reson": "Motif de consultation",
+  "reason-consultation-placeholder": "Choisissez votre motif de consultation",
   "consultation_type": "Type de consultation",
   "appintment_date": "Date de RDV",
   "start_the_consultation": "Commencer la consultation",
@@ -87,7 +88,9 @@
   },
   "event": {
     "new": "nouveau rendez-vous",
+    "reschedule": "Replanifier",
     "title": "Détail RDV",
+    "save": "Enregistrer",
     "start": "Commencer la consultation",
     "schedule": "Créneau horaire",
     "motif": "Motif de consultation",

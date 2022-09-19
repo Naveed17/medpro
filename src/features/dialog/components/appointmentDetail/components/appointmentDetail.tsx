@@ -45,7 +45,6 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
-import SaveIcon from "@mui/icons-material/Save";
 
 const menuList = [
     {
@@ -303,13 +302,16 @@ function AppointmentDetail({...props}) {
                                 fullWidth
                                 onChange={(e) => setInstruction(e.target.value)}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">
-                                        <IconButton size="small"
-                                                    onClick={() => edited ? updateInstruction() : setEdited(true)}>
-                                            {edited ? (loading ? <CircularProgress size={20}/> :
-                                                    <SaveIcon fontSize={"small"}/>) :
-                                                <IconUrl path='ic-duotone'/>}
-                                        </IconButton>
+                                    endAdornment: <InputAdornment
+                                        onClick={() => edited ? updateInstruction() : setEdited(true)}
+                                        position="end">
+                                        {edited ? (loading ?
+                                                <IconButton size="small"><CircularProgress size={20}/> </IconButton> :
+                                                <Button disabled={edited && instruction.length === 0} variant="outlined"
+                                                        size="small">
+                                                    {t('save')}
+                                                </Button>) :
+                                            <IconButton size="small"><IconUrl path='ic-duotone'/> </IconButton>}
                                     </InputAdornment>
                                 }}
                             />

@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {CardContent, Stack, IconButton, Box, List, ListItem, Typography, FormControl} from '@mui/material'
+import {CardContent, Stack, Box, List, ListItem, Typography, FormControl} from '@mui/material'
 import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
@@ -11,8 +11,6 @@ import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import SaveIcon from '@mui/icons-material/Save';
-import CircularProgress from '@mui/material/CircularProgress';
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
@@ -42,7 +40,7 @@ function AppointmentCard({...props}) {
     } = useRequestMutation(null, "/agenda/update/appointment/detail",
         TriggerWithoutValidation);
 
-    const [reason, setReason] = useState(data.motif.uuid);
+    const [reason, setReason] = useState(data.motif?.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
     const [edited, setEdited] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -157,7 +155,7 @@ function AppointmentCard({...props}) {
                                     <Select
                                         labelId="select-reason"
                                         id="select-reason"
-                                        value={reason}
+                                        value={reason !== undefined ? reason : ""}
                                         displayEmpty
                                         onChange={event => {
                                             updateDetails({reason: event.target.value as string});
@@ -165,7 +163,7 @@ function AppointmentCard({...props}) {
                                         }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
-                                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                                                return <em>{t("reason-consultation-placeholder")}</em>;
                                             }
                                             const motif = reasons?.find(reason => reason.uuid === selected);
                                             return (
