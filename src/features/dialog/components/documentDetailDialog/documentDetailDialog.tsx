@@ -23,6 +23,9 @@ import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import moment from "moment";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -31,6 +34,8 @@ function DocumentDetailDialog({...props}) {
 
     const {data: {state, setDialog}} = props
     console.log(props)
+    const router = useRouter();
+    const {data: session, status} = useSession();
 
 
     const formik = useFormik({
@@ -103,6 +108,9 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
     });
 
+    const {trigger} = useRequestMutation(null, "/documents");
+
+
     const handleActions = (action: string) => {
         switch (action) {
             case "print":
@@ -110,6 +118,14 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "delete":
                 console.log(state.uuid)
+                trigger({
+                    method: "DELETE",
+                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid +'/'+ router.locale,
+                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+                }, {revalidate: true, populateCache: true}).then(() => {
+                   // mutate()
+                });
+
                 break;
             case "edit":
                 console.log(state.info[0])
