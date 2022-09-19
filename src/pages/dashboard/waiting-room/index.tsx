@@ -162,7 +162,6 @@ function Room() {
     };
 
     const OnMenuActions = (action: string) => {
-        console.log(action, row);
         switch (action) {
             case "onConsultationStart":
                 break;

@@ -181,7 +181,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
+                    borderColor:  [3, 0].includes(appointment.status) ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
@@ -294,7 +294,8 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onWaitingRoom":
-                onOpenWaitingRoom();
+                setEvent(event);
+                onOpenWaitingRoom(event);
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
@@ -314,8 +315,7 @@ function Agenda() {
         }
     }
 
-    const onOpenWaitingRoom = () => {
-        setEvent(event);
+    const onOpenWaitingRoom = (event: EventDef) => {
         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
         router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
     }
@@ -340,7 +340,6 @@ function Agenda() {
         const defEvent = {
             ...event,
             extendedProps: {
-                // ...event?.extendedProps,
                 newDate: date,
                 from: 'modal',
                 duration: event?.extendedProps.dur,
@@ -348,7 +347,6 @@ function Agenda() {
                 oldDate: moment(event?.extendedProps.time)
             }
         } as EventDef;
-        console.log(defEvent);
         setEvent(defEvent);
         setMoveDialogInfo(false);
         setMoveDialog(true);

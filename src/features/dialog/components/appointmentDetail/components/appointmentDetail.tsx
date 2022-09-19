@@ -318,21 +318,28 @@ function AppointmentDetail({...props}) {
                 </Box>
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={OnWaiting}
-                                disabled={moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY")}
+                        <Button onClick={() => OnWaiting(data)}
+                                sx={{
+                                    display: moment().format("DD-MM-YYYY") !==
+                                    moment(data?.extendedProps.time).format("DD-MM-YYYY") ? "none" : "flex"
+                                }}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
                         <Button
-                            disabled={moment().isBefore(data?.extendedProps.time)}
+                            sx={{
+                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                            }}
                             fullWidth variant='contained'
                             startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
                             {t('event.reschedule')}
                         </Button>
                         <Button
-                            disabled={moment().isAfter(data?.extendedProps.time)}
+                            sx={{
+                                display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
+                            }}
                             onClick={() => {
                                 dispatch(setMoveDateTime({
                                     date: new Date(data?.extendedProps.time),
@@ -346,11 +353,16 @@ function AppointmentDetail({...props}) {
                             {t('event.move')}
                         </Button>
                         <Button onClick={() => SetCancelDialog(true)}
-                                disabled={data?.extendedProps.status.key === "CANCELED"}
                                 fullWidth
                                 variant='contained-white'
                                 color="error"
-                                sx={{'& svg': {width: 14, height: 14}}}
+                                sx={{
+                                    display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
+                                    '& svg': {
+                                        width: 14,
+                                        height: 14
+                                    }
+                                }}
                                 startIcon={<IconUrl path='icdelete'
                                                     color={data?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>

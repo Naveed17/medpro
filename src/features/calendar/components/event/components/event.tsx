@@ -7,7 +7,6 @@ import Zoom from '@mui/material/Zoom';
 import {LightTooltip} from "@features/tooltip";
 import {useRouter} from "next/router";
 import SalleIcon from "@themes/overrides/icons/salleIcon";
-import Icon from "@themes/urlIcon";
 
 function Event({...props}) {
     const {event, t} = props;
@@ -36,7 +35,10 @@ function Event({...props}) {
                     '& .MuiBadge-badge': {
                         zIndex: 9
                     },
-                    ...(event.event._def.extendedProps.status.key === "CANCELED" && {
+                    ...(event.event._def.extendedProps.status.key === "PENDING" && {
+                            backgroundColor: "warning.light",
+                        }
+                    ), ...(event.event._def.extendedProps.status.key === "CANCELED" && {
                             backgroundColor: "error.light",
                             "& .MuiSvgIcon-root": {
                                 width: 10,
@@ -44,7 +46,7 @@ function Event({...props}) {
                                 ml: ".5rem"
                             }
                         }
-                    ),...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
+                    ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
                             backgroundColor: "secondary.lighter",
                             "& .MuiSvgIcon-root": {
                                 width: 18,
@@ -62,7 +64,7 @@ function Event({...props}) {
                     {event.event._def.extendedProps.status.key === "CANCELED" ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
-                            <SalleIcon />:
+                            <SalleIcon/> :
                             <AccessTimeIcon color={"disabled"} className="ic-time"/>}
                     <span>
                     {event.event._def.extendedProps.time.toLocaleTimeString([], {

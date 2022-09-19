@@ -50,14 +50,14 @@ function AppointmentCard({...props}) {
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
-    const updateDetails = () => {
+    const updateDetails = (input: { reason?: string, type?: string }) => {
         setEdited(false);
         setLoading(true);
         const form = new FormData();
-        form.append('consultation_reason', reason);
-        form.append('type', typeEvent);
+        form.append('attribute', input.reason ? "consultation_reason" : "type");
+        form.append('value', (input.reason ? input.reason : input.type) as string);
         updateAppointmentTrigger({
-            method: "PUT",
+            method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -81,11 +81,6 @@ function AppointmentCard({...props}) {
                            }>
                         {data.status.value}
                     </Label>
-                    <IconButton onClick={() => edited ? updateDetails() : setEdited(true)}
-                                size="small" {...rest}>
-                        {edited ? (loading ? <CircularProgress size={20}/> : <SaveIcon fontSize={"small"}/>) :
-                            <IconUrl path='ic-duotone'/>}
-                    </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Box sx={{width: "100%"}}>
@@ -100,8 +95,10 @@ function AppointmentCard({...props}) {
                                         id="select-type"
                                         value={typeEvent}
                                         displayEmpty
-                                        onChange={event => setTypeEvent(event.target.value as string)}
-                                        disabled={!edited}
+                                        onChange={event => {
+                                            updateDetails({type: event.target.value as string});
+                                            setTypeEvent(event.target.value as string)
+                                        }}
                                         sx={{
                                             "& .MuiSelect-select svg": {
                                                 position: "absolute",
@@ -162,8 +159,10 @@ function AppointmentCard({...props}) {
                                         id="select-reason"
                                         value={reason}
                                         displayEmpty
-                                        disabled={!edited}
-                                        onChange={event => setReason(event.target.value as string)}
+                                        onChange={event => {
+                                            updateDetails({reason: event.target.value as string});
+                                            setReason(event.target.value as string)
+                                        }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
                                                 return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
