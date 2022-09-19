@@ -113,12 +113,14 @@ app "med-pro" {
 
       ingress "http" {
         annotations = {
-          # this is important, sets correct CNAME to the Cloudflare Tunnel record
+          # this is important, sets correct CNAME to the Cloudflare Tunnel
+          # record.
           "external-dns.alpha.kubernetes.io/target"             = var.ingress.target
           "external-dns.alpha.kubernetes.io/cloudflare-proxied" = true
           ## Resolve HTTP 502 error using ingress-nginx:
           ## See https://www.ibm.com/support/pages/502-error-ingress-keycloak-response
           "nginx.ingress.kubernetes.io/proxy-buffer-size" = "128k"
+          "ingress.kubernetes.io/force-ssl-redirect"= "true"
         }
 
         path_type = "Prefix"
@@ -131,6 +133,7 @@ app "med-pro" {
       when = "after"
       command = ["bash", "-c",
         <<-EOF
+          mkdir -p ${path.project}/.wpoutputs/
           echo 'https://${var.ingress.host}' > ${path.project}/.wpoutputs/ingress_host
           EOF
       ]
