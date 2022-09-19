@@ -5,6 +5,10 @@ export const SWRNoValidateConfig = {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
 }
+export const TriggerWithoutValidation = {
+    revalidate: false,
+    populateCache: false
+}
 
 function SwrProvider({children, fallback}: LayoutProps) {
     return (

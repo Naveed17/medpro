@@ -89,7 +89,7 @@ function Instruction({...props}) {
             "start_date": recurringDate.date,
             "start_time": recurringDate.time
         }))));
-        form.append('consultation_reason_uuid', motif);
+        motif && form.append('consultation_reason_uuid', motif);
         form.append('title', `${patient?.lastName} ${patient?.firstName}`);
         form.append('patient_uuid', patient?.uuid as string);
         form.append('type', type);
