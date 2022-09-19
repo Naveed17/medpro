@@ -201,7 +201,6 @@ function AppointmentCard({...props}) {
                                             {data?.time}
                                         </Typography>
                                     </Stack>
-
                                 </Stack>
                             </ListItem>
                         </List>

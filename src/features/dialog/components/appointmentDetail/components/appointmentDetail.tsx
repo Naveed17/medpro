@@ -44,6 +44,8 @@ import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import CircularProgress from "@mui/material/CircularProgress";
+import SaveIcon from "@mui/icons-material/Save";
 
 const menuList = [
     {
@@ -88,7 +90,6 @@ function AppointmentDetail({...props}) {
     const {
         OnConsultation,
         OnEditDetail,
-        OnChangeIntro,
         OnDataUpdated,
         OnWaiting,
         SetMoveDialog,
@@ -113,7 +114,6 @@ function AppointmentDetail({...props}) {
         TriggerWithoutValidation);
 
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const [dialogMotif, setDialogMotif] = React.useState<boolean>(false);
     const [instruction, setInstruction] = useState(data?.extendedProps.instruction);
     const [openTooltip, setOpenTooltip] = useState(false);
     const [edited, setEdited] = useState(false);
@@ -132,6 +132,7 @@ function AppointmentDetail({...props}) {
         }).then(() => {
             setLoading(false);
             setEdited(false);
+            OnDataUpdated();
         });
     }
 
@@ -297,19 +298,19 @@ function AppointmentDetail({...props}) {
                                 placeholder={t('insctruction')}
                                 multiline
                                 rows={4}
-                                disabled
+                                disabled={!edited}
                                 value={instruction}
                                 fullWidth
-                                onChange={(e) => OnChangeIntro(() => setInstruction(e.target.value))}
+                                onChange={(e) => setInstruction(e.target.value)}
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">
                                         <IconButton size="small"
-
-                                        >
-                                            <IconUrl path='ic-duotone'/>
+                                                    onClick={() => edited ? updateInstruction() : setEdited(true)}>
+                                            {edited ? (loading ? <CircularProgress size={20}/> :
+                                                    <SaveIcon fontSize={"small"}/>) :
+                                                <IconUrl path='ic-duotone'/>}
                                         </IconButton>
-                                    </InputAdornment>,
-                                    readOnly: true,
+                                    </InputAdornment>
                                 }}
                             />
                         </CardContent>
@@ -323,6 +324,12 @@ function AppointmentDetail({...props}) {
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
+                        </Button>
+                        <Button
+                            disabled={moment().isBefore(data?.extendedProps.time)}
+                            fullWidth variant='contained'
+                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
+                            {t('event.reschedule')}
                         </Button>
                         <Button
                             disabled={moment().isAfter(data?.extendedProps.time)}
