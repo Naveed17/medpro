@@ -93,9 +93,8 @@ jobs:
           waypoint init -plain
           waypoint ${{ inputs.operation }} -plain \
             -w ${{ inputs.workspace }} \
-            ${{ inputs.operation == 'delete' && '-auto-approve' || '-prune-retain=2' }} \
             -var-file=<(printenv WP_VARS_HCL)
 
-            for file in *.wpoutput; do
-              echo "::set-output name=${file%.wpoutput}::$(<${file})"
+            for file in .wpoutputs/*; do
+              echo "::set-output name=${file}::$(<${file})"
             done

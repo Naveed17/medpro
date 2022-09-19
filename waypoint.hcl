@@ -131,7 +131,7 @@ app "med-pro" {
       when = "after"
       command = ["bash", "-c",
         <<-EOF
-          echo 'https://${var.ingress.host}' > ${path.project}/ingress_host.wpoutput
+          echo 'https://${var.ingress.host}' > ${path.project}/.wpoutputs/ingress_host
           EOF
       ]
     }
