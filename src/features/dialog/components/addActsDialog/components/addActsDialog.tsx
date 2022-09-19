@@ -1,7 +1,6 @@
 import { Box, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import AddActsDialogStyle from './overrides/addActsDialogStyle'
-import { uniqueId } from 'lodash'
 function AddActsDialog({ ...props }) {
     const { data: { stateAct, setstateAct, t } } = props;
     return (
@@ -31,7 +30,6 @@ function AddActsDialog({ ...props }) {
                     (e) => {
                         setstateAct({
                             ...stateAct,
-                            uuid: `${uniqueId()}`,
                             fees: +e.target.value as number,
                         })
                     }

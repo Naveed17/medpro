@@ -25,7 +25,9 @@ function MoveAppointmentDialog({...props}) {
 
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
     const {date: moveDialogDate, time: moveDialogTime, limit: initLimit} = useAppSelector(dialogMoveSelector);
+
     const [loading, setLoading] = useState(true);
+    const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -44,7 +46,15 @@ function MoveAppointmentDialog({...props}) {
             /locations/${agendaConfig?.locations[0].uuid}/professionals/
             ${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null).then(() => setLoading(false));
+        } : null).then((result) => {
+            const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
+            const slots = weekTimeSlots.find(slot =>
+                slot.date === moment(moveDialogDate).format("DD-MM-YYYY"))?.slots;
+            if (slots) {
+                setTimeSlots(slots);
+            }
+            setLoading(false)
+        });
     }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
 
     const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -85,14 +95,13 @@ function MoveAppointmentDialog({...props}) {
                 </Typography>
                 <TimeSlot
                     loading={loading}
-                    data={weekTimeSlots?.find(slot =>
-                        slot.date === moment(moveDialogDate).format("DD-MM-YYYY"))?.slots}
+                    data={timeSlots}
                     limit={initLimit}
                     sx={{width: "60%", margin: "auto"}}
                     onChange={(time: string) => handleDateChange("time", undefined, time)}
                     OnShowMore={() => dispatch(setLimit(initLimit * 2))}
                     value={moveDialogTime}
-                    seeMore
+                    seeMore={initLimit < timeSlots.length}
                     seeMoreText={t("dialogs.move-dialog.see-more")}
                 />
             </Grid>

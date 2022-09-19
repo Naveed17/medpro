@@ -278,7 +278,10 @@ function ConsultationIPToolbar({ ...props }) {
                     data={{ state, setState }}
                     size={"lg"}
                     direction={'ltr'}
-                    sx={{ p: 0, height: 400 }}
+                    sx={{ height: 400 }}
+                    {...(info === "document_detail") && {
+                        sx: { height: 400, p: 0 }
+                    }}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {
                     ...(info === "document_detail" && {

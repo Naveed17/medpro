@@ -19,7 +19,7 @@ export default function DetailsCard({ ...props }) {
     const theme = useTheme();
     return (
         <>
-            {rows.map((item: any) => (
+            {rows?.map((item: any) => (
                 <DetailCardStyled
                     key={Math.random()}
                     sx={{

@@ -4,8 +4,9 @@ interface AppointmentModel {
   dayDate: string;
   startTime: string;
   createdAt: string;
+  instruction: string;
   endTime: string;
-  status: string;
+  status: number;
   duration: number;
   isVip: boolean;
   new: boolean;

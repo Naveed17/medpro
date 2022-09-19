@@ -57,7 +57,7 @@ import IconUrl from "@themes/urlIcon";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-
+import { uniqueId } from 'lodash'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const options = {
     cMapUrl: 'cmaps/',
@@ -329,7 +329,10 @@ function ConsultationInProgress() {
         setOpenDialog(false);
         setActs([
             ...acts,
-            state,
+            {
+                ...stateAct,
+                uuid: uniqueId()
+            },
 
         ])
 

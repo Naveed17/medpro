@@ -32,6 +32,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "type",
+            icon: "setting/ic-edit-file",
+            href: "/dashboard/settings/motif-type",
+            disable: false
+        },
+        {
             name: "agenda",
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",
