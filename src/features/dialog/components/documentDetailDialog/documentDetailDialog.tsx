@@ -16,17 +16,27 @@ import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useReactToPrint} from 'react-to-print'
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Document, Page, pdfjs} from "react-pdf";
 import {actionButtons} from './config'
 import IconUrl from '@themes/urlIcon';
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
+import moment from "moment";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data: {state}} = props
+    const {data: {state, setDialog}} = props
+    console.log(props)
+    const router = useRouter();
+    const {data: session, status} = useSession();
+
 
     const formik = useFormik({
         initialValues: {
@@ -56,12 +66,38 @@ function DocumentDetailDialog({...props}) {
         }
     ]
 
-    console.log(state)
-
-    const [file, setFile] = useState(state.uri);
+    const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef(null)
     const [readonly, setreadonly] = useState<boolean>(true);
+
+    useEffect(() => {
+        console.log(state)
+        if (state.type === 'prescription') {
+            const doc = new jsPDF({})
+            doc.text('Tunis, le '+moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth()-90, 60 )
+            doc.text("Nom & Prénom: " + state.patient, 20, 90);
+
+            let position = 110
+            state.info.map((drug: any) => {
+                doc.text(drug.standard_drug.commercial_name, 20, position).setTextColor('#7C878E').setFontSize(12);
+                doc.text("• " + drug.dosage, 24, position + 8);
+                doc.text("• Durée: " + drug.duration + ' ' + drug.duration_type, 24, position + 15).setTextColor('black').setFontSize(15);
+                position += 30
+            })
+
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        } else if (state.name === 'requested-analysis'){
+            console.log(state.info)
+            const doc = new jsPDF()
+            doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
+            doc.text("Les analyses suivantes:" , 20, 70);
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        }
+        else setFile(state.uri)
+    }, [state])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -72,17 +108,28 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
     });
 
+    const {trigger} = useRequestMutation(null, "/documents");
+
+
     const handleActions = (action: string) => {
-        console.log(action)
         switch (action) {
             case "print":
                 handlePrint();
                 break;
             case "delete":
                 console.log(state.uuid)
+                trigger({
+                    method: "DELETE",
+                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid +'/'+ router.locale,
+                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+                }, {revalidate: true, populateCache: true}).then(() => {
+                   // mutate()
+                });
+
                 break;
             case "edit":
-                console.log(state.info[0].prescription_has_drugs)
+                console.log(state.info[0])
+                //setDialog('draw_up_an_order')
                 break;
             case "download":
                 fetch(file).then(response => {
@@ -95,7 +142,6 @@ function DocumentDetailDialog({...props}) {
                         alink.click();
                     })
                 })
-
                 break;
             default:
                 break;

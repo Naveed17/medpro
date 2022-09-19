@@ -22,8 +22,10 @@ function DocumentCard({ ...props }) {
     return (
         <DocumentCardStyled>
             <CardContent onClick={onClick}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="center" justifyContent="end">
+{/*
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
+*/}
                     <Popover
                         open={openTooltip}
                         handleClose={() => {
@@ -67,10 +69,10 @@ function DocumentCard({ ...props }) {
                 </Stack>
                 <Stack spacing={2} className="document-detail" alignItems="center">
                     <IconUrl path={
-                        data.documentType === "Ordonnace" && "ic-traitement" ||
+                        data.documentType === "prescription" && "ic-traitement" ||
                         data.documentType == "type-2" && "ic-analyse" ||
                         data.documentType === "type-4" && "ic-img" ||
-                        data.documentType !== "Ordonnace" && "ic-pdf" || ""
+                        data.documentType !== "prescription" && "ic-pdf" || ""
                     } />
                     <Typography variant='subtitle2' fontWeight={700}>
                         {data.title}
