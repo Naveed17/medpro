@@ -1,5 +1,4 @@
 import axios, {AxiosRequestConfig} from "axios";
-import { useSnackbar } from 'notistack';
 
 const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 

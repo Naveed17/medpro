@@ -39,6 +39,11 @@ import {
     setMoveDateTime,
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
+import {useRequestMutation} from "@app/axios";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 const menuList = [
     {
@@ -84,7 +89,7 @@ function AppointmentDetail({...props}) {
         OnConsultation,
         OnEditDetail,
         OnChangeIntro,
-        OnEditintro,
+        OnDataUpdated,
         OnWaiting,
         SetMoveDialog,
         SetCancelDialog,
@@ -92,16 +97,43 @@ function AppointmentDetail({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const rootRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {t, ready} = useTranslation("common")
     const {selectedEvent: data} = useAppSelector(agendaSelector);
 
+    const {
+        trigger: updateInstructionTrigger
+    } = useRequestMutation(null, "/agenda/update/instruction",
+        TriggerWithoutValidation);
+
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [dialogMotif, setDialogMotif] = React.useState<boolean>(false);
-    const [value, setValue] = useState(data?.extendedProps.instruction);
+    const [instruction, setInstruction] = useState(data?.extendedProps.instruction);
     const [openTooltip, setOpenTooltip] = useState(false);
-    const rootRef = useRef<HTMLDivElement>(null);
+    const [edited, setEdited] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    const updateInstruction = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('attribute', "instruction");
+        form.append('value', instruction);
+        updateInstructionTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.publicId ? data?.publicId : (data as any)?.id}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            setEdited(false);
+        });
+    }
 
     const onClickTooltipItem = (item: {
         title: string;
@@ -182,8 +214,10 @@ function AppointmentDetail({...props}) {
                     </Typography>
                     <AppointmentCard
                         t={t}
+                        onDataUpdated={OnDataUpdated}
                         data={
                             {
+                                uuid: data?.publicId ? data?.publicId : (data as any)?.id,
                                 date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
                                 time: moment(data?.extendedProps.time).format("HH:mm"),
                                 motif: data?.extendedProps.motif,
@@ -263,13 +297,14 @@ function AppointmentDetail({...props}) {
                                 placeholder={t('insctruction')}
                                 multiline
                                 rows={4}
-                                value={value}
+                                disabled
+                                value={instruction}
                                 fullWidth
-                                onChange={(e) => OnChangeIntro(() => setValue(e.target.value))}
+                                onChange={(e) => OnChangeIntro(() => setInstruction(e.target.value))}
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">
                                         <IconButton size="small"
-                                                    onClick={OnEditintro}
+
                                         >
                                             <IconUrl path='ic-duotone'/>
                                         </IconButton>

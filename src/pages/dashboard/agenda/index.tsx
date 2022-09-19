@@ -44,7 +44,7 @@ import {
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -154,12 +154,13 @@ function Agenda() {
 
     const {
         trigger: updateAppointmentTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment", {revalidate: false, populateCache: false});
+    } = useRequestMutation(null, "/agenda/update/appointment",
+        TriggerWithoutValidation);
 
     const {
         trigger: updateStatusTrigger
     } = useRequestMutation(null, "/agenda/update/appointment/status",
-        {revalidate: false, populateCache: false});
+        TriggerWithoutValidation);
 
     const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
@@ -368,7 +369,7 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: false, populateCache: false}).then((result) => {
+        }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
                     "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
@@ -555,6 +556,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
                             OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}

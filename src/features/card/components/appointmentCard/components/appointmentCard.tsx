@@ -5,7 +5,7 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
@@ -17,7 +17,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
 function AppointmentCard({...props}) {
-    const {data, OnEdit, t, ...rest} = props;
+    const {data, onDataUpdated, t, ...rest} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -40,7 +40,7 @@ function AppointmentCard({...props}) {
     const {
         trigger: updateAppointmentTrigger
     } = useRequestMutation(null, "/agenda/update/appointment/detail",
-        {revalidate: false, populateCache: false});
+        TriggerWithoutValidation);
 
     const [reason, setReason] = useState(data.motif.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
@@ -51,17 +51,19 @@ function AppointmentCard({...props}) {
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
 
     const updateDetails = () => {
+        setEdited(false);
+        setLoading(true);
         const form = new FormData();
-        form.append('reason', reason);
-        form.append('typeEvent', typeEvent);
+        form.append('consultation_reason', reason);
+        form.append('type', typeEvent);
         updateAppointmentTrigger({
-            method: "POST",
+            method: "PUT",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then(() => {
             setLoading(false);
-            setEdited(false);
+            onDataUpdated();
         });
     }
 

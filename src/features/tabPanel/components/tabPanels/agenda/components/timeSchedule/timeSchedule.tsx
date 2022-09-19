@@ -21,7 +21,7 @@ import {
     appointmentSelector, setAppointmentDate,
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
@@ -75,7 +75,7 @@ function TimeSchedule({...props}) {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null, {revalidate: false, populateCache: false}).then((result) => {
+        } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
             const slots = weekTimeSlots.find(slot =>
                 slot.date === moment(date).format("DD-MM-YYYY"))?.slots;

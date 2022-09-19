@@ -13,7 +13,7 @@ import {RoomToolbar} from "@features/toolbar";
 import {Otable} from "@features/table";
 import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -128,7 +128,7 @@ function Room() {
     const {
         trigger: updateStatusTrigger
     } = useRequestMutation(null, "/agenda/update/appointment/status",
-        {revalidate: false, populateCache: false});
+        TriggerWithoutValidation);
 
     const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
         const form = new FormData();
