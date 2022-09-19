@@ -10,7 +10,7 @@ on:
   pull_request:
     branches:
       - 'develop'
-    types: [ opened ,closed ,synchronize ,reopened ]
+    types: [ opened ,synchronize ,reopened ]
   
 jobs:
   CI:
@@ -30,9 +30,10 @@ jobs:
 
   CD:
     if: github.ref == 'refs/heads/develop'
-    uses: SmartMedSA/github-workflows/.github/workflows/waypoint.yml@master
+    uses: SmartMedSA/github-workflows/.github/workflows/waypoint.yml@develop
     needs: CI
     with:
+      cmd: up -prune=false
       environment: develop
       workspace: develop
       tag: develop
