@@ -23,8 +23,8 @@ function MotifRow({...props}) {
                             flexDirection: 'row',
                             alignItems: 'center'
                         }}>
-                        <ModelDot color={row.color} selected={false}></ModelDot>
-                        <Box sx={{backgroundColor: row.color, width: 4, height: 37, margin: '0 7px'}}></Box>
+                        <ModelDot color={row.color} selected={false} marginRight={15}></ModelDot>
+
                         <Typography variant="body1" color="text.primary">
                             {row.label}
                         </Typography>

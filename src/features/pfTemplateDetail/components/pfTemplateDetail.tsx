@@ -19,8 +19,9 @@ import dynamic from "next/dynamic";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {useRouter} from "next/router";
+import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
+
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -352,10 +353,10 @@ function PfTemplateDetail({...props}) {
                                                             <CardContent>
                                                                 {
                                                                     section.jsonWidgets.map((jw: JsonWidgetModel) => (
-                                                                        <ItemCheckbox key={jw.uuid}
+                                                                        <ItemCheckboxPF key={jw.uuid}
                                                                                       checked={widget.find((i: { uuid: string; }) => i.uuid == section.uuid)?.jsonWidgets.find((j: { uuid: string; }) => j.uuid == jw.uuid) !== undefined}
                                                                                       onChange={(v: any) => handleWidgetCheck(v, section, jw)}
-                                                                                      data={jw}></ItemCheckbox>
+                                                                                      data={jw}></ItemCheckboxPF>
                                                                     ))
                                                                 }
                                                             </CardContent>

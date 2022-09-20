@@ -19,10 +19,6 @@ export const tabsData = [
     {
         label: "documents",
         value: 'documents',
-    },
-    {
-        label: "next_appointment",
-        value: 'next appointment',
     }
 ];
 export const documentButtonList = [

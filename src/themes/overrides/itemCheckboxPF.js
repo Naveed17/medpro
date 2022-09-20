@@ -28,7 +28,7 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
         },
     }
 })
-function ItemCheckbox({...props}) {
+function ItemCheckboxPF({...props}) {
 
     const [checked, setChecked] = React.useState(props.checked);
     const label = props.data.label ? 'label' : 'name';
@@ -41,7 +41,7 @@ function ItemCheckbox({...props}) {
         <RootStyled key={props.id} component='label' htmlFor={props.data[label]}>
             <Checkbox
                 size="small"
-                checked={checked}
+                checked={props.checked}
                 onChange={handleChange}
                 id={props.data[label]}
                 name={props.data[label]}
@@ -57,4 +57,4 @@ function ItemCheckbox({...props}) {
         </RootStyled >
     )
 }
-export default ItemCheckbox;
+export default ItemCheckboxPF;
