@@ -6,6 +6,7 @@ import IconUrl from "@themes/urlIcon";
 import { TableRowStyled } from "@features/table"
 import { uniqueId } from 'lodash'
 import { useTranslation } from "next-i18next";
+import {ModelDot} from "@features/modelDot";
 function MotifRow({ ...props }) {
     const { row, editMotif, data } = props;
     const { t, ready } = useTranslation('common');
@@ -19,18 +20,8 @@ function MotifRow({ ...props }) {
                             flexDirection: 'row',
                             alignItems: 'center'
                         }}>
-                        <div style={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 30,
-                            backgroundColor: row.color
-                        }}></div>
-                        <Box sx={{
-                            width: 4,
-                            height: 37,
-                            margin: '0 7px',
-                            backgroundColor: row.color
-                        }}></Box>
+                        <ModelDot color={row.color} selected={false} marginRight={15}></ModelDot>
+
                         <Stack direction="row" spacing={.7} alignItems="center" sx={{ svg: { width: 18, height: 18 } }}>
                             <IconUrl path={row.icon} />
                             <Typography variant="body1" color="text.primary">
