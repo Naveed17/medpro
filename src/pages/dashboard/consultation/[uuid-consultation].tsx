@@ -199,6 +199,8 @@ function ConsultationInProgress() {
         }
     });
     const [filter, setfilter] = React.useState<any>({});
+    const [selectedModel, setSelectedModel] = React.useState<any>(null);
+    const [lastTabs, setLastTabs] = useState(0);
 
     useEffect(() => {
         if (examan) console.log(examan);
@@ -249,6 +251,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data)
+        console.log(httpDocumentResponse)
     }, [httpDocumentResponse])
 
     useEffect(() => {
@@ -563,7 +566,7 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation modal={appointement?.consultation_sheet.modal}/>
+                                    <ModalConsultation modal={selectedModel ?selectedModel : appointement?.consultation_sheet.modal} setSM={setSelectedModel}/>
                                 </Grid>
                                 <Grid item xs={12} md={7}>
                                     <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>

@@ -32,7 +32,7 @@ const variants = {
 };
 
 function ModalConsultation({...props}) {
-    const {modal} = props;
+    const {modal, setSM} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
@@ -56,6 +56,7 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
+        console.log(modal)
         if (modal)
             setValue(modal.default_modal);
         setTimeout(() => {
@@ -84,6 +85,12 @@ function ModalConsultation({...props}) {
     const handleClick = (prop: ModalModel) => {
         setLoadModel(true)
         setValue(prop);
+        //console.log(prop)
+        let data = {};
+        prop.structure[0].components.map((cmp:any) => {
+            data ={...data, ...{ [cmp.key]:''}}
+        })
+        setSM({default_modal: prop, data: data})
         setOpen(false);
         setTimeout(() => {
             setLoadModel(false)
@@ -131,7 +138,8 @@ function ModalConsultation({...props}) {
                                     dispatch(SetFiche(ev.data))
                                 }}
                                 onError={console.log}
-                                //submission={{data: modal.data}}
+                                onEditComponent={console.log}
+                                submission={{data: modal.data}}
                                 form={
                                     {
                                         display: "form",
