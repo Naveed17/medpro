@@ -113,7 +113,7 @@ export const CalendarContextMenu = [
     icon: <InsertDriveFileOutlinedIcon />,
     action: "onPatientDetail",
   },
-  {
+/*  {
     title: "send_a_message",
     icon: <SmsOutlinedIcon />,
     action: "onSend",
@@ -122,6 +122,11 @@ export const CalendarContextMenu = [
     title: "import_document",
     icon: <SaveAltOutlinedIcon />,
     action: "onImport",
+  },*/
+  {
+    title: "reschedule_appointment",
+    icon: <Icon color={"white"} width={"16"} height={"16"} path="ic-agenda" />,
+    action: "onReschedule",
   },
   {
     title: "move_appointment",

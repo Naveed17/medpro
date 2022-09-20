@@ -16,7 +16,7 @@ import {
     Link,
     TextField,
     List,
-    ListItem, useTheme, DialogActions
+    ListItem, useTheme
 } from '@mui/material'
 
 import {Popover} from "@features/popover";
@@ -37,14 +37,14 @@ import {
     Dialog,
     QrCodeDialog,
     setMoveDateTime,
-    MotifAppointmentDialog
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {Session} from "next-auth";
+import {useRequestMutation} from "@app/axios";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const menuList = [
     {
@@ -89,8 +89,7 @@ function AppointmentDetail({...props}) {
     const {
         OnConsultation,
         OnEditDetail,
-        OnChangeIntro,
-        OnEditintro,
+        OnDataUpdated,
         OnWaiting,
         SetMoveDialog,
         SetCancelDialog,
@@ -98,16 +97,43 @@ function AppointmentDetail({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const rootRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const {t, ready} = useTranslation("common")
     const {selectedEvent: data} = useAppSelector(agendaSelector);
 
-    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const [dialogMotif, setDialogMotif] = React.useState<boolean>(false);
-    const [value, setValue] = useState(data?.extendedProps.instruction);
-    const [openTooltip, setOpenTooltip] = useState(false);
-    const rootRef = useRef<HTMLDivElement>(null);
+    const {
+        trigger: updateInstructionTrigger
+    } = useRequestMutation(null, "/agenda/update/instruction",
+        TriggerWithoutValidation);
 
+    const [openDialog, setOpenDialog] = React.useState<boolean>(false);
+    const [instruction, setInstruction] = useState(data?.extendedProps.instruction);
+    const [openTooltip, setOpenTooltip] = useState(false);
+    const [edited, setEdited] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const updateInstruction = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('attribute', "instruction");
+        form.append('value', instruction);
+        updateInstructionTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.publicId ? data?.publicId : (data as any)?.id}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            setLoading(false);
+            setEdited(false);
+            OnDataUpdated();
+        });
+    }
 
     const onClickTooltipItem = (item: {
         title: string;
@@ -188,9 +214,10 @@ function AppointmentDetail({...props}) {
                     </Typography>
                     <AppointmentCard
                         t={t}
-                        OnEdit={() => setDialogMotif(true)}
+                        onDataUpdated={OnDataUpdated}
                         data={
                             {
+                                uuid: data?.publicId ? data?.publicId : (data as any)?.id,
                                 date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
                                 time: moment(data?.extendedProps.time).format("HH:mm"),
                                 motif: data?.extendedProps.motif,
@@ -270,18 +297,22 @@ function AppointmentDetail({...props}) {
                                 placeholder={t('insctruction')}
                                 multiline
                                 rows={4}
-                                value={value}
+                                disabled={!edited}
+                                value={instruction}
                                 fullWidth
-                                onChange={(e) => OnChangeIntro(() => setValue(e.target.value))}
+                                onChange={(e) => setInstruction(e.target.value)}
                                 InputProps={{
-                                    endAdornment: <InputAdornment position="end">
-                                        <IconButton size="small"
-                                                    onClick={OnEditintro}
-                                        >
-                                            <IconUrl path='ic-duotone'/>
-                                        </IconButton>
-                                    </InputAdornment>,
-                                    readOnly: true,
+                                    endAdornment: <InputAdornment
+                                        onClick={() => edited ? updateInstruction() : setEdited(true)}
+                                        position="end">
+                                        {edited ? (loading ?
+                                                <IconButton size="small"><CircularProgress size={20}/> </IconButton> :
+                                                <Button disabled={edited && instruction.length === 0} variant="outlined"
+                                                        size="small">
+                                                    {t('save')}
+                                                </Button>) :
+                                            <IconButton size="small"><IconUrl path='ic-duotone'/> </IconButton>}
+                                    </InputAdornment>
                                 }}
                             />
                         </CardContent>
@@ -289,19 +320,42 @@ function AppointmentDetail({...props}) {
                 </Box>
                 <CardActions sx={{pb: 4}}>
                     <Stack spacing={1} width={1}>
-                        <Button onClick={OnWaiting}
-                                disabled={moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY")}
+                        <Button onClick={() => OnWaiting(data)}
+                                sx={{
+                                    display: moment().format("DD-MM-YYYY") !==
+                                    moment(data?.extendedProps.time).format("DD-MM-YYYY") ? "none" : "flex"
+                                }}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
                         </Button>
                         <Button
-                            disabled={moment().isAfter(data?.extendedProps.time)}
+                            sx={{
+                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                            }}
                             onClick={() => {
                                 dispatch(setMoveDateTime({
                                     date: new Date(data?.extendedProps.time),
                                     time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                    action: "reschedule",
+                                    selected: false
+                                }));
+                                SetMoveDialog(true)
+                            }}
+                            fullWidth variant='contained'
+                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
+                            {t('event.reschedule')}
+                        </Button>
+                        <Button
+                            sx={{
+                                display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
+                            }}
+                            onClick={() => {
+                                dispatch(setMoveDateTime({
+                                    date: new Date(data?.extendedProps.time),
+                                    time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                    action: "move",
                                     selected: false
                                 }));
                                 SetMoveDialog(true)
@@ -311,11 +365,16 @@ function AppointmentDetail({...props}) {
                             {t('event.move')}
                         </Button>
                         <Button onClick={() => SetCancelDialog(true)}
-                                disabled={data?.extendedProps.status.key === "CANCELED"}
                                 fullWidth
                                 variant='contained-white'
                                 color="error"
-                                sx={{'& svg': {width: 14, height: 14}}}
+                                sx={{
+                                    display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
+                                    '& svg': {
+                                        width: 14,
+                                        height: 14
+                                    }
+                                }}
                                 startIcon={<IconUrl path='icdelete'
                                                     color={data?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>
@@ -331,28 +390,6 @@ function AppointmentDetail({...props}) {
                     direction={'ltr'}
                     title={t("qr_title")}
                     dialogClose={handleCloseDialog}/>
-
-            <Dialog action={() =>
-                <MotifAppointmentDialog
-                    reason={data ? data.extendedProps.motif.uuid : ""}
-                    onChangeReason={(motif: ConsultationReasonModel) => console.log(motif)}
-                    t={t}/>}
-                    open={dialogMotif}
-                    onClose={() => setDialogMotif(false)}
-                    direction={'ltr'}
-                    title={t('consultation_reson')}
-                    dialogClose={() => setDialogMotif(false)}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => setDialogMotif(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                    startIcon={<IconUrl
-                                        path='ic-dowlaodfile'></IconUrl>}>{t('save')}</Button>
-                        </DialogActions>
-                    }/>
         </RootStyled>
     )
 }

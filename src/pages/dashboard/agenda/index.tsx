@@ -9,7 +9,8 @@ import {
     Button,
     Container,
     Drawer,
-    LinearProgress, Theme,
+    LinearProgress,
+    Theme,
     Typography,
     useMediaQuery,
     useTheme
@@ -31,6 +32,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
     agendaSelector,
     AppointmentStatus,
+    DayOfWeek,
     openDrawer,
     setConfig,
     setSelectedEvent,
@@ -44,7 +46,7 @@ import {
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -85,7 +87,7 @@ function Agenda() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
 
@@ -99,18 +101,15 @@ function Agenda() {
     const {
         date: moveDialogDate,
         time: moveDialogTime,
-        selected: moveDateChanged
+        selected: moveDateChanged,
+        action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive} = useAppSelector(timerSelector);
 
     const [
         timeRange,
         setTimeRange
-    ] = useState({start: "", end: ""})
-    const [disabledSlots, setDisabledSlots] = useState([{
-        start: moment("27-07-2022 13:00", "DD-MM-YYYY HH:mm").toDate(),
-        end: moment("27-07-2022 13:30", "DD-MM-YYYY HH:mm").toDate()
-    }]);
+    ] = useState({start: "", end: ""});
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
@@ -140,6 +139,7 @@ function Agenda() {
     const agenda = (httpAgendasResponse as HttpResponse)?.data
         .find((item: AgendaConfigurationModel) =>
             item.isDefault) as AgendaConfigurationModel;
+    const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
         if (agenda) {
@@ -154,12 +154,29 @@ function Agenda() {
 
     const {
         trigger: updateAppointmentTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment", {revalidate: false, populateCache: false});
+    } = useRequestMutation(null, "/agenda/update/appointment",
+        TriggerWithoutValidation);
 
     const {
         trigger: updateStatusTrigger
     } = useRequestMutation(null, "/agenda/update/appointment/status",
-        {revalidate: false, populateCache: false});
+        TriggerWithoutValidation);
+
+    const getAppointmentBugs = useCallback((date: Date) => {
+        const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
+            DayOfWeek(openingHours[0], 0) === moment(date).isoWeekday());
+        if (hasDayWorkHours) {
+            let hasError: boolean[] = [];
+            hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
+                    hasError.push(!moment(date).isBetween(
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.start_time}`, "DD-MM-YYYY HH:mm"),
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.end_time}`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
+                }
+            );
+            return hasError.every(error => error);
+        }
+        return true;
+    }, [openingHours]);
 
     const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
@@ -180,11 +197,12 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: appointment.status === 3 ? AppointmentStatus[appointment.status].color : appointment.type?.color,
+                    borderColor: [3, 0].includes(appointment.status) ? AppointmentStatus[appointment.status].color : appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
+                    hasError: getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
@@ -223,7 +241,7 @@ function Agenda() {
 
             setLoading(false);
         });
-    }, [agenda?.uuid, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
@@ -293,7 +311,8 @@ function Agenda() {
                 dispatch(openDrawer({type: "patient", open: true}));
                 break;
             case "onWaitingRoom":
-                onOpenWaitingRoom();
+                setEvent(event);
+                onOpenWaitingRoom(event);
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
@@ -306,6 +325,18 @@ function Agenda() {
                 dispatch(setMoveDateTime({
                     date: new Date(event?.extendedProps.time),
                     time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                    action: "move",
+                    selected: false
+                }));
+                setMoveDialogInfo(true);
+                break;
+            case "onReschedule":
+                dispatch(setSelectedEvent(event));
+                setEvent(event);
+                dispatch(setMoveDateTime({
+                    date: new Date(event?.extendedProps.time),
+                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                    action: "reschedule",
                     selected: false
                 }));
                 setMoveDialogInfo(true);
@@ -313,8 +344,7 @@ function Agenda() {
         }
     }
 
-    const onOpenWaitingRoom = () => {
-        setEvent(event);
+    const onOpenWaitingRoom = (event: EventDef) => {
         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
         router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
     }
@@ -333,13 +363,12 @@ function Agenda() {
         }
     }
 
-    const onMoveAppointment = () => {
+    const onUpdateDefEvent = () => {
         const timeSplit = moveDialogTime.split(':');
         const date = moment(moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
         const defEvent = {
             ...event,
             extendedProps: {
-                // ...event?.extendedProps,
                 newDate: date,
                 from: 'modal',
                 duration: event?.extendedProps.dur,
@@ -347,8 +376,16 @@ function Agenda() {
                 oldDate: moment(event?.extendedProps.time)
             }
         } as EventDef;
-        console.log(defEvent);
         setEvent(defEvent);
+        return defEvent;
+    }
+
+    const onRescheduleAppointment = () => {
+        handleRescheduleAppointment(onUpdateDefEvent() as EventDef)
+    }
+
+    const onMoveAppointment = () => {
+        onUpdateDefEvent();
         setMoveDialogInfo(false);
         setMoveDialog(true);
     }
@@ -368,13 +405,36 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: false, populateCache: false}).then((result) => {
+        }, TriggerWithoutValidation).then((result) => {
             if ((result?.data as HttpResponse).status === "success") {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
                     "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
             }
             refreshData();
             setMoveDialog(false);
+        });
+    }
+
+    const handleRescheduleAppointment = (event: EventDef) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
+        form.append('start_time',
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        const eventId = event.publicId ? event.publicId : (event as any).id;
+        updateAppointmentTrigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then((result) => {
+            if ((result?.data as HttpResponse).status === "success") {
+                enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
+            }
+            refreshData();
+            setMoveDialogInfo(false);
         });
     }
 
@@ -490,7 +550,6 @@ function Agenda() {
                                     <Calendar {...{
                                         events: events.current,
                                         agenda,
-                                        disabledSlots,
                                         t,
                                         sortedData: sortedData.current
                                     }}
@@ -555,6 +614,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
                             OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
@@ -710,7 +770,7 @@ function Agenda() {
                     action={"move_appointment"}
                     dir={direction}
                     open={moveDialogInfo}
-                    title={t("dialogs.move-dialog.title")}
+                    title={t(`dialogs.${moveDialogAction}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
@@ -718,16 +778,16 @@ function Agenda() {
                                 onClick={() => setMoveDialogInfo(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.move-dialog.garde-date")}
+                                {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <Button
                                 variant="contained"
                                 disabled={!moveDateChanged}
-                                onClick={onMoveAppointment}
+                                onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
-                                {t("dialogs.move-dialog.confirm")}
+                                {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </Button>
                         </>
                     }

@@ -7,12 +7,14 @@ import {
 export type DialogMoveProps = {
     date: Date | null;
     time: string;
+    action: string;
     limit: number;
     selected: boolean;
 };
 
 const initialState: DialogMoveProps = {
     date: null,
+    action: "move",
     time: "",
     limit: 10,
     selected: false

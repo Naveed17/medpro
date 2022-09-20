@@ -15,16 +15,15 @@ import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
 
-function MoveAppointmentDialog({...props}) {
-    const {OnDateChange} = props;
+function MoveAppointmentDialog() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
 
-    const {t, ready} = useTranslation(['agenda', 'common']);
+    const {t} = useTranslation(['agenda', 'common']);
 
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
-    const {date: moveDialogDate, time: moveDialogTime, limit: initLimit} = useAppSelector(dialogMoveSelector);
+    const {date: moveDialogDate, time: moveDialogTime, limit: initLimit, action} = useAppSelector(dialogMoveSelector);
 
     const [loading, setLoading] = useState(true);
     const [timeSlots, setTimeSlots] = useState<TimeSlotModel[]>([]);
@@ -34,7 +33,6 @@ function MoveAppointmentDialog({...props}) {
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {
-        data: httpTimeSlotsResponse,
         trigger
     } = useRequestMutation(null, "/calendar/slots");
 
@@ -42,9 +40,7 @@ function MoveAppointmentDialog({...props}) {
         setLoading(true);
         trigger(agendaConfig ? {
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
-            /locations/${agendaConfig?.locations[0].uuid}/professionals/
-            ${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(moveDialogDate).format('DD-MM-YYYY')}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -56,8 +52,6 @@ function MoveAppointmentDialog({...props}) {
             setLoading(false)
         });
     }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
-
-    const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
     useEffect(() => {
         if (isMounted.current) {
@@ -81,9 +75,10 @@ function MoveAppointmentDialog({...props}) {
                             lineHeight: "24px"
                         }}
                         variant="subtitle1">
-                {t("dialogs.move-dialog.week-day-slot")}</Typography>
+                {t(`dialogs.${action}-dialog.week-day-slot`)}</Typography>
             <WeekDayPicker
                 onChange={(v: any) => handleDateChange("date", v)}
+                action={action}
                 date={moveDialogDate}/>
 
             <Grid item md={6} xs={12}>
@@ -91,7 +86,7 @@ function MoveAppointmentDialog({...props}) {
                             className={"header-section"}
                             ml={14}
                             color="text.primary" my={2}>
-                    {t("dialogs.move-dialog.time-message")}
+                    {t(`dialogs.${action}-dialog.time-message`)}
                 </Typography>
                 <TimeSlot
                     loading={loading}
@@ -102,7 +97,7 @@ function MoveAppointmentDialog({...props}) {
                     OnShowMore={() => dispatch(setLimit(initLimit * 2))}
                     value={moveDialogTime}
                     seeMore={initLimit < timeSlots.length}
-                    seeMoreText={t("dialogs.move-dialog.see-more")}
+                    seeMoreText={t(`dialogs.${action}-dialog.see-more`)}
                 />
             </Grid>
         </BoxStyled>

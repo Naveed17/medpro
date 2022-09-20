@@ -15,6 +15,7 @@ import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
 import {setAppointmentPatient} from "@features/tabPanel";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
@@ -42,9 +43,7 @@ function Patient({...props}) {
         }
     });
 
-    const {data: httpAddPatientResponse, trigger} = useRequestMutation(null, "agenda/add-patient",
-        {revalidate: false, populateCache: false}
-    );
+    const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
 
     if (!ready) return (<LoadingScreen/>);
 
@@ -91,7 +90,7 @@ function Patient({...props}) {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
                 data: form
-            }, {revalidate: false, populateCache: false}
+            }, TriggerWithoutValidation
         ).then((res: any) => {
             const {data} = res;
             const {status} = data;

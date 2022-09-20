@@ -8,22 +8,14 @@ import moment from "moment-timezone";
 const months: String[] = [];
 
 function WeekDayPicker({...props}) {
-    const {date: initDate, onChange} = props;
-    const offsetYearWeekStart = moment(initDate).week() - moment().week();
-    const offsetYearWeekEnd = offsetYearWeekStart + 1;
+    const {date: initDate, action, onChange} = props;
+
+    const [offsetYearWeekStart, setOffsetYearWeekStart] = useState(action === "reschedule" ? 0 : moment(initDate).week() - moment().week());
+    const [offsetYearWeekEnd, setOffsetYearWeekEnd] = useState(offsetYearWeekStart + 1);
     const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
     const clonedDate = new Date(initDate?.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
-
-    const now = moment().startOf('week').toDate();
-    let daysOfYear = [];
-    for (
-        let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        d <= new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-        d.setDate(d.getDate() + 1)
-    ) {
-        daysOfYear.push(new Date(d));
-    }
+    const [daysOfYear, setDaysOfYear] = useState<Date[]>([]);
 
     const getMonths = () => {
         Array.from(Array(12).keys()).map(index =>
@@ -41,15 +33,25 @@ function WeekDayPicker({...props}) {
 
     useEffect(() => {
         getMonths();
-    }, [])
+        const now = (action === "reschedule" ? moment(initDate) : moment()).startOf('week').toDate();
+        let daysOfYear = [];
+        for (
+            let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            d <= new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+            d.setDate(d.getDate() + 1)
+        ) {
+            daysOfYear.push(new Date(d));
+        }
+        setDaysOfYear(daysOfYear);
+    }, [action]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <WeekDayPickerStyled>
             <Container>
                 <Box className="header">
                     <Typography variant="h6" color="primary.main">
-                        {months[daysOfYear[currentWeek[1] - 1].getMonth()]}{" "}
-                        {daysOfYear[currentWeek[1] - 1].getFullYear()}
+                        {months[daysOfYear[currentWeek[1] - 1]?.getMonth()]}{" "}
+                        {daysOfYear[currentWeek[1] - 1]?.getFullYear()}
                     </Typography>
                     <div>
                         <IconButton

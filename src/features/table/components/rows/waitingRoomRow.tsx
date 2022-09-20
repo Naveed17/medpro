@@ -6,7 +6,7 @@ import {useTheme} from "@mui/material/styles";
 import {Label} from "@features/label";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import {ReactElement, useState} from 'react'
+import {ReactElement, useState} from 'react';
 import CloseIcon from "@mui/icons-material/Close";
 import CircleIcon from '@mui/icons-material/Circle';
 import moment from "moment-timezone";
@@ -168,7 +168,7 @@ function WaitingRoomRow({...props}) {
                                alignItems="center"
                                spacing={1}
                         >
-                            <Label
+                            {row.consultation_reason ? <Label
                                 variant="filled"
                                 sx={{
                                     bgcolor: row.consultation_reason.color,
@@ -176,7 +176,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 {row.consultation_reason.name}
-                            </Label>
+                            </Label> : " -- "}
                         </Stack>
                     ) : (
                         <Stack direction="row" justifyContent="space-between">
@@ -199,18 +199,21 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
-                            <CircleIcon fontSize="small"
-                                        sx={{
-                                            border: 1,
-                                            borderColor: 'divider',
-                                            borderRadius: '50%',
-                                            p: 0.2,
-                                            color: row.appointment_type?.color
-                                        }}
-                            />
-                            <Typography color="primary">
-                                {row.appointment_type?.name}
-                            </Typography>
+                            {row.appointment_type ?
+                                <>
+                                    <CircleIcon fontSize="small"
+                                                sx={{
+                                                    border: 1,
+                                                    borderColor: 'divider',
+                                                    borderRadius: '50%',
+                                                    p: 0.2,
+                                                    color: row.appointment_type?.color
+                                                }}
+                                    />
+                                    <Typography color="primary">
+                                        {row.appointment_type?.name}
+                                    </Typography>
+                                </> : " -- "}
                             {/*<PlayCircleRoundedIcon color="success"/>*/}
                             {/*<Typography variant="body2">*/}
                             {/*    120 TND*/}
