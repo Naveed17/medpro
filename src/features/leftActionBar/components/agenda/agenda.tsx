@@ -115,20 +115,21 @@ function Agenda() {
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(selected: any) => {
-                                    if (selected && !query?.type?.includes(item.uuid)) {
-                                        dispatch(setFilter({
-                                            type:
-                                                item.uuid + (query?.type ? `,${query.type}` : "")
-                                        }));
-                                    } else {
-                                        const sp = query?.type?.split(",") as string[];
-                                        dispatch(setFilter({
-                                            type:
-                                                sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
-                                        }))
-                                    }
-                                }}/>
+                                    data={item}
+                                    onChange={(selected: boolean) => {
+                                        if (selected && !query?.type?.includes(item.uuid)) {
+                                            dispatch(setFilter({
+                                                type:
+                                                    item.uuid + (query?.type ? `,${query.type}` : "")
+                                            }));
+                                        } else {
+                                            const sp = query?.type?.split(",") as string[];
+                                            dispatch(setFilter({
+                                                type:
+                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                            }))
+                                        }
+                                    }}/>
                             </React.Fragment>
                         ))
                     }
