@@ -15,13 +15,12 @@ import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
 
-function MoveAppointmentDialog({...props}) {
-    const {OnDateChange} = props;
+function MoveAppointmentDialog() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
 
-    const {t, ready} = useTranslation(['agenda', 'common']);
+    const {t} = useTranslation(['agenda', 'common']);
 
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
     const {date: moveDialogDate, time: moveDialogTime, limit: initLimit, action} = useAppSelector(dialogMoveSelector);
@@ -34,7 +33,6 @@ function MoveAppointmentDialog({...props}) {
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {
-        data: httpTimeSlotsResponse,
         trigger
     } = useRequestMutation(null, "/calendar/slots");
 
@@ -54,8 +52,6 @@ function MoveAppointmentDialog({...props}) {
             setLoading(false)
         });
     }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
-
-    const weekTimeSlots = (httpTimeSlotsResponse as HttpResponse)?.data as WeekTimeSlotsModel[];
 
     useEffect(() => {
         if (isMounted.current) {
