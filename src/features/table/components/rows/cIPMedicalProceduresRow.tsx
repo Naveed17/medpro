@@ -1,8 +1,8 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Button, InputBase} from "@mui/material";
+import {Checkbox, Button, InputBase, TextField} from "@mui/material";
 import {useTheme, alpha, Theme} from "@mui/material/styles";
 import {TableRowStyled} from "@features/table";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -10,7 +10,7 @@ import {useRouter} from "next/router";
 
 function CIPMedicalProceduresRow({...props}) {
 
-    const {row, isItemSelected, handleClick, editMotif, handleChange} = props;
+    const {row, isItemSelected, handleClick, editMotif, selected: s, handleChange,tableHeadData} = props;
 
     const {trigger} = useRequestMutation(null, "/actFees");
     const router = useRouter();
@@ -18,15 +18,16 @@ function CIPMedicalProceduresRow({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
+    const form = new FormData();
     const theme = useTheme() as Theme;
-    const [fees, setfees] = React.useState<number>(row.fees)
+    const [fees, setFees] = useState<number>(row.fees)
+    const [selected, setSelected] = useState<string>('')
     return (
         <TableRowStyled
             className={'cip-medical-proce-row'}
             hover
             onClick={() => {
-                editMotif(row, 'clicked')
+                editMotif(row, isItemSelected)
                 return handleClick(row.uuid as string)
             }}
             role="checkbox"
@@ -39,7 +40,7 @@ function CIPMedicalProceduresRow({...props}) {
                 <Checkbox
                     color="primary"
                     onChange={(e) => {
-                        editMotif(row, e, 'checked')
+                        editMotif(row, 'checked')
                     }}
                     checked={isItemSelected}/>
             </TableCell>
@@ -51,28 +52,38 @@ function CIPMedicalProceduresRow({...props}) {
                     <>
                         <InputBase
                             type="number"
-                            size="small" value={fees}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e: any) => {
-                                setfees(e.target.value)
-                                row.fees = e.target.value !== '' ? Number(e.target.value) : 0
-                                editMotif(row, 'changed')
+                            size="small"
+                            id={row.uuid}
+                            value={fees}
+                            placeholder={'--'}
+                            onFocus={() => {
+                                setSelected(row.uuid)
                             }}
-                            /*onBlur={(ev) => () => {
-                                console.log('blur')
+                            onBlur={(ev) => {
+                                setSelected('')
+
+                                form.append("attribute", "price");
+                                form.append("value", ev.target.value);
+
                                 trigger({
                                     method: "PATCH",
-                                    url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "acts/" + row.uuid + '/' + router.locale,
+                                    url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + row.act.uuid + '/' + router.locale,
+                                    data: form,
                                     headers: {
                                         ContentType: 'multipart/form-data',
                                         Authorization: `Bearer ${session?.accessToken}`
                                     }
                                 }, {revalidate: true, populateCache: true}).then((e) => {
-                                    // mutate()
-                                    console.log("res",e)
+                                    console.log("res", e)
                                 });
-                                }}*/
-                            autoFocus={isItemSelected}
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e: any) => {
+                                setFees(Number(e.currentTarget.value))
+                                row.fees = Number(e.currentTarget.value)
+                                editMotif(row,'change',e.currentTarget.value)
+                            }}
+                            autoFocus={selected === row.uuid}
                             sx={{
                                 backgroundColor: alpha(theme.palette.success.main, 0.1),
                                 border: 1,
@@ -108,8 +119,6 @@ function CIPMedicalProceduresRow({...props}) {
                             --
                         </Button>
                     </>
-
-
                 )}
                 TND
             </TableCell>

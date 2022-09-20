@@ -40,6 +40,7 @@ function Otable({ ...props }) {
     handleChange,
     t,
     from,
+      select = [],
     edit,
     handleConfig,
     minWidth,
@@ -58,7 +59,7 @@ function Otable({ ...props }) {
   const [orderBy, setOrderBy] = useState("calories");
   const [tableHeadData, setTableHeadData] = useState<any>(null);
   const [active, setActive] = useState([]);
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
+  const [selected, setSelected] = React.useState<readonly string[]>(select);
   const handleRequestSort = (event: any, property: SetStateAction<string>) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
