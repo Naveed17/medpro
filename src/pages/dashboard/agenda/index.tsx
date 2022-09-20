@@ -87,7 +87,7 @@ function Agenda() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation(['agenda', 'common']);
 
@@ -113,7 +113,6 @@ function Agenda() {
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
-    const [dialogAction, setDialogAction] = useState("");
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
