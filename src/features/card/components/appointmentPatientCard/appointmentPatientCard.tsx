@@ -35,7 +35,7 @@ function AppointmentPatientCard({...props}) {
                         sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
                         component="span"
                     >
-                        <CallIcon/> {data?.patient.contact[0].code ? data?.patient.contact[0].code : "+216"} {data?.patient.contact[0].value}
+                        <CallIcon/> {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"} {data?.patient.contact[0]?.value}
                     </Typography>
                 </Box>
             </Stack>
