@@ -1,6 +1,6 @@
 // components
 import {Accordion} from "@features/accordion";
-import { BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
+import {BoxStyled, FilterRootStyled, leftActionBarSelector, PatientFilter, setFilter} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
@@ -10,7 +10,7 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, DayOfWeek} from "@features/calendar";
 import moment from "moment-timezone";
 
@@ -20,8 +20,10 @@ const CalendarPickers = dynamic(() =>
 function Agenda() {
     const {data: session} = useSession();
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {query} = useAppSelector(leftActionBarSelector);
 
     const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
@@ -51,52 +53,30 @@ function Agenda() {
         setDisabledDay(disabledDay);
     }, [openingHours]);
 
+    useEffect(() => {
+        types?.map(type => {
+            Object.assign(type, {
+                checked: query?.type?.split(',').find(typeObject => type.uuid === typeObject) !== undefined
+            })
+        })
+    });
+
     if (!ready) return (<>loading translations...</>);
     return (
         <BoxStyled>
             <CalendarPickers shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
-            { <Accordion
+            {<Accordion
                 translate={{
                     t: t,
                     ready: ready,
                 }}
+                defaultValue={query?.type !== undefined ? "meetingType" : ""}
                 data={[
-/*                    {
-                        heading: {
-                            id: "reasons",
-                            icon: "ic-edit-file2",
-                            title: "reasons",
-                        },
-                        children: (
-                            <>
-                                <React.Fragment key="all">
-                                    <SidebarCheckbox
-                                        translate={{
-                                            t: t,
-                                            ready: ready,
-                                        }}
-                                        data={{name: 'all', text: 'all'}}
-                                        onChange={(v) => console.log(v)}/>
-                                </React.Fragment>
-                                {reasons.map((item, index) => (
-                                    <React.Fragment key={index}>
-                                        <SidebarCheckbox
-                                            translate={{
-                                                t: t,
-                                                ready: ready,
-                                            }}
-                                            data={item}
-                                            label={"name"}
-                                            onChange={(v) => console.log(v)}/>
-                                    </React.Fragment>
-                                ))}
-                            </>)
-                    },*/
                     {
                         heading: {
                             id: "patient",
                             icon: "ic-patient",
-                            title:"patient",
+                            title: "patient",
                         },
                         children: (
                             <FilterRootStyled>
@@ -105,39 +85,21 @@ function Agenda() {
                                         icon: "ic-patient",
                                         title: "patient",
                                     },
-
                                     gender: {
                                         heading: "gender",
                                         genders: ["male", "female"],
                                     },
                                     textField: {
                                         labels: [
-                                            { label: "name", placeholder: "name" },
-                                            { label: "date-of-birth", placeholder: "--/--/----" },
-                                            { label: "telephone", placeholder: "telephone" },
+                                            {label: "name", placeholder: "name"},
+                                            {label: "date-of-birth", placeholder: "--/--/----"},
+                                            {label: "telephone", placeholder: "telephone"},
                                         ],
                                     },
-                                }} t={t} />
+                                }} t={t}/>
                             </FilterRootStyled>
                         ),
                     },
-/*                    {
-                        heading: {
-                            id: "status",
-                            icon: "ic-edit-file2",
-                            title: "status",
-                        },
-                        children: statutData.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item} onChange={(v) => console.log(v)}/>
-                            </React.Fragment>
-                        ))
-                    },*/
                     {
                         heading: {
                             id: "meetingType",
@@ -148,11 +110,26 @@ function Agenda() {
                             <React.Fragment key={index}>
                                 <SidebarCheckbox
                                     label={"name"}
+                                    checkState={item.checked}
                                     translate={{
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => console.log(v)}/>
+                                    data={item}
+                                    onChange={(selected: boolean) => {
+                                        if (selected && !query?.type?.includes(item.uuid)) {
+                                            dispatch(setFilter({
+                                                type:
+                                                    item.uuid + (query?.type ? `,${query.type}` : "")
+                                            }));
+                                        } else {
+                                            const sp = query?.type?.split(",") as string[];
+                                            dispatch(setFilter({
+                                                type:
+                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                            }))
+                                        }
+                                    }}/>
                             </React.Fragment>
                         ))
                     }

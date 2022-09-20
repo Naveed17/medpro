@@ -39,15 +39,19 @@ function CalendarRow({...props}) {
 
     return (
         <>
-            <Typography variant={"inherit"}
-                        sx={{
-                            "&:hover": {
-                                textDecoration: "underline",
-                                cursor: "pointer"
-                            }
-                        }}
-                        onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
-                        component="tr" color="text.primary" pt={2}>
+            <Typography
+                variant={"inherit"}
+                sx={{
+                    "&:hover": {
+                        textDecoration: "underline",
+                        cursor: "pointer"
+                    }
+                }}
+                onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
+                component="tr"
+                color="text.primary"
+                pt={2}
+            >
                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                     "Today"
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
@@ -61,7 +65,6 @@ function CalendarRow({...props}) {
             </Typography>
 
             {row.events.map((data: EventModal) => (
-
                 <TableRowStyled
                     key={data.id}
                     sx={{
@@ -78,7 +81,6 @@ function CalendarRow({...props}) {
                         },
                     }}
                 >
-
                     <TableCell
                         sx={{
                             borderStyle: "solid",
@@ -143,7 +145,7 @@ function CalendarRow({...props}) {
 
                         <Typography variant="body2" color="primary.main">
                             {" "}
-                            {data.motif.name}
+                            {data.motif?.name}
                         </Typography>
                     </TableCell>
                     <TableCell
@@ -188,7 +190,7 @@ function CalendarRow({...props}) {
                     <TableCell align="center">{data.title}</TableCell>
                     <TableCell align="center">Agenda hôpital</TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
-                        {data.addRoom && (
+                        {data?.status.key !== "WAITING_ROOM" ?
                             <Button
                                 variant="text"
                                 color="primary"
@@ -196,9 +198,19 @@ function CalendarRow({...props}) {
                                 sx={{mr: 1}}
                                 onClick={() => handleEventClick("waitingRoom", data)}
                             >
-                                Ajouter Salle d’attente
+                                Ajouter à la salle d’attente
                             </Button>
-                        )}
+                            :
+                            <Button
+                                variant="text"
+                                color="primary"
+                                size="small"
+                                sx={{mr: 1}}
+                                onClick={() => handleEventClick("leaveWaitingRoom", data)}
+                            >
+                                Quitter la salle d’attente
+                            </Button>
+                        }
 
                         <Button onClick={() => handleEventClick("showEvent", data)} variant="text"
                                 color="primary"

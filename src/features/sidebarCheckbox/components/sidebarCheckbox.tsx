@@ -14,10 +14,10 @@ interface Props {
 
 }
 
-export default function SidebarCheckbox(props: Props) {
-    const {data, label = "text", onChange, translate} = props
+export default function SidebarCheckbox({...props}) {
+    const {data, label = "text", onChange, translate, checkState = false} = props
     const {t, ready} = translate;
-    const [checked, setChecked] = React.useState(false);
+    const [checked, setChecked] = React.useState(checkState);
 
     const handleChange = (event: any) => {
         setChecked(event.target.checked);
