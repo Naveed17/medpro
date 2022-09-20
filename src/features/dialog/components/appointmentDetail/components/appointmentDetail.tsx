@@ -334,6 +334,15 @@ function AppointmentDetail({...props}) {
                             sx={{
                                 display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
                             }}
+                            onClick={() => {
+                                dispatch(setMoveDateTime({
+                                    date: new Date(data?.extendedProps.time),
+                                    time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                    action: "reschedule",
+                                    selected: false
+                                }));
+                                SetMoveDialog(true)
+                            }}
                             fullWidth variant='contained'
                             startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
                             {t('event.reschedule')}
@@ -346,6 +355,7 @@ function AppointmentDetail({...props}) {
                                 dispatch(setMoveDateTime({
                                     date: new Date(data?.extendedProps.time),
                                     time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                    action: "move",
                                     selected: false
                                 }));
                                 SetMoveDialog(true)

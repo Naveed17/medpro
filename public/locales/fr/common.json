@@ -36,6 +36,7 @@
   "waiting": "Ajouter patient à la salle d'attente",
   "move_appointment": "Déplacer RDV",
   "cancel_appointment": "Annuler RDV",
+  "reschedule_appointment": "Replanifier RDV",
   "on_hold": "En attente",
   "consultation_reson": "Motif de consultation",
   "reason-consultation-placeholder": "Choisissez votre motif de consultation",
@@ -119,6 +120,18 @@
       "alert-msg-duration": "le rendez-vous a été modifieé avec succès",
       "cancel": "Annuler",
       "confirm": "Confirmer"
+    },
+    "reschedule-dialog": {
+      "title": "Replanifier RDV",
+      "sub-title": "Voulez-vous vraiment replanifier le RDV?",
+      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "garde-date": "Annuler",
+      "time-message": "Veuillez choisir l’heure du RDV",
+      "week-day-slot": "Choisir un nouveau créneau",
+      "see-more": "Voir plus d’horaires",
+      "alert-msg": "le rendez-vous a été replanifieé avec succès",
+      "cancel": "Annuler",
+      "confirm": "Replanifier"
     },
     "cancel-dialog": {
       "title": "Annuler RDV",

@@ -101,7 +101,8 @@ function Agenda() {
     const {
         date: moveDialogDate,
         time: moveDialogTime,
-        selected: moveDateChanged
+        selected: moveDateChanged,
+        action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive} = useAppSelector(timerSelector);
 
@@ -112,6 +113,7 @@ function Agenda() {
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [dialogAction, setDialogAction] = useState("");
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
@@ -175,7 +177,7 @@ function Agenda() {
             return hasError.every(error => error);
         }
         return true;
-    },[openingHours]);
+    }, [openingHours]);
 
     const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
         setLoading(true);
@@ -324,6 +326,18 @@ function Agenda() {
                 dispatch(setMoveDateTime({
                     date: new Date(event?.extendedProps.time),
                     time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                    action: "move",
+                    selected: false
+                }));
+                setMoveDialogInfo(true);
+                break;
+            case "onReschedule":
+                dispatch(setSelectedEvent(event));
+                setEvent(event);
+                dispatch(setMoveDateTime({
+                    date: new Date(event?.extendedProps.time),
+                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
+                    action: "reschedule",
                     selected: false
                 }));
                 setMoveDialogInfo(true);
@@ -350,7 +364,7 @@ function Agenda() {
         }
     }
 
-    const onMoveAppointment = () => {
+    const onUpdateDefEvent = () => {
         const timeSplit = moveDialogTime.split(':');
         const date = moment(moveDialogDate?.setHours(parseInt(timeSplit[0]), parseInt(timeSplit[1])));
         const defEvent = {
@@ -364,6 +378,15 @@ function Agenda() {
             }
         } as EventDef;
         setEvent(defEvent);
+        return defEvent;
+    }
+
+    const onRescheduleAppointment = () => {
+        handleRescheduleAppointment(onUpdateDefEvent() as EventDef)
+    }
+
+    const onMoveAppointment = () => {
+        onUpdateDefEvent();
         setMoveDialogInfo(false);
         setMoveDialog(true);
     }
@@ -390,6 +413,29 @@ function Agenda() {
             }
             refreshData();
             setMoveDialog(false);
+        });
+    }
+
+    const handleRescheduleAppointment = (event: EventDef) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
+        form.append('start_time',
+            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        const eventId = event.publicId ? event.publicId : (event as any).id;
+        updateAppointmentTrigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then((result) => {
+            if ((result?.data as HttpResponse).status === "success") {
+                enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
+            }
+            refreshData();
+            setMoveDialogInfo(false);
         });
     }
 
@@ -725,7 +771,7 @@ function Agenda() {
                     action={"move_appointment"}
                     dir={direction}
                     open={moveDialogInfo}
-                    title={t("dialogs.move-dialog.title")}
+                    title={t(`dialogs.${moveDialogAction}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
@@ -733,16 +779,16 @@ function Agenda() {
                                 onClick={() => setMoveDialogInfo(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.move-dialog.garde-date")}
+                                {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <Button
                                 variant="contained"
                                 disabled={!moveDateChanged}
-                                onClick={onMoveAppointment}
+                                onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
-                                {t("dialogs.move-dialog.confirm")}
+                                {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </Button>
                         </>
                     }

@@ -200,6 +200,18 @@
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
+    "reschedule-dialog": {
+      "title": "Replanifier RDV",
+      "sub-title": "Voulez-vous vraiment replanifier le RDV?",
+      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "garde-date": "Annuler",
+      "time-message": "Veuillez choisir l’heure du RDV",
+      "week-day-slot": "Choisir un nouveau créneau",
+      "see-more": "Voir plus d’horaires",
+      "alert-msg": "le rendez-vous a été replanifieé avec succès",
+      "cancel": "Annuler",
+      "confirm": "Replanifier"
+    },
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
