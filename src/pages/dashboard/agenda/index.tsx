@@ -117,6 +117,7 @@ function Agenda() {
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
+    const [localFilter, setLocalFilter] = useState("");
 
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
@@ -250,9 +251,15 @@ function Agenda() {
             Object.entries(filter).map(param => {
                 query = `${param[0]}=${param[1]}`;
             });
-            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week&${query}`);
+            setLocalFilter(query);
+            const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
+                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}&${query}`
+            getAppointments(queryPath);
+        } else if (localFilter) {
+            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
         }
-    }, [filter, getAppointments, timeRange.end, timeRange.start])
+    }, [filter, getAppointments, timeRange.end, timeRange.start]) // eslint-disable-line react-hooks/exhaustive-deps
+
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
