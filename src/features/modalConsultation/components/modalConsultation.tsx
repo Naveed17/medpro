@@ -56,10 +56,8 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
-        //setTimeout(() => {
         if (modal)
             setValue(modal.default_modal);
-
         setTimeout(() => {
             setLoadModel(false)
         }, 1000)
@@ -84,9 +82,12 @@ function ModalConsultation({...props}) {
         setOpen(false);
     };
     const handleClick = (prop: ModalModel) => {
+        setLoadModel(true)
         setValue(prop);
-        console.log(prop)
         setOpen(false);
+        setTimeout(() => {
+            setLoadModel(false)
+        }, 1000)
     };
     const handleClickDialog = () => {
         setOpenDialog(true);
@@ -117,9 +118,9 @@ function ModalConsultation({...props}) {
                             </Typography>
                             <Icon path="ic-flesh-bas-y"/>
                         </Stack>
-                        <Button onClick={handleClickDialog} className='btn-filter' variant='text-black'>
+                        {/*<Button onClick={handleClickDialog} disabled className='btn-filter' variant='text-black'>
                             <Icon path="ic-setting"/>
-                        </Button>
+                        </Button>*/}
                     </Stack>
                     <CardContent sx={{
                         bgcolor: alpha(value.color, 0.1)
