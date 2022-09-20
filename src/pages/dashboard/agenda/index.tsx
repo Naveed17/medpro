@@ -246,7 +246,6 @@ function Agenda() {
 
     useEffect(() => {
         if (filter?.type && timeRange.start !== "") {
-            console.log("filter getAppointments")
             let query = "";
             Object.entries(filter).map(param => {
                 query = `${param[0]}=${param[1]}`;
@@ -260,7 +259,6 @@ function Agenda() {
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
         if (filter?.type === undefined) {
-            console.log("handleOnRangeChange getAppointments")
             getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
         }
     }
@@ -275,8 +273,6 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        console.log("onViewChange getAppointments")
-
         if (view === 'listWeek') {
             getAppointments(`format=list&page=1&limit=50`, view);
         }
@@ -519,8 +515,6 @@ function Agenda() {
     }
 
     const refreshData = () => {
-        console.log("refreshData getAppointments")
-
         if (view === 'listWeek') {
             getAppointments(`format=list&page=1&limit=50`, view);
         } else {
