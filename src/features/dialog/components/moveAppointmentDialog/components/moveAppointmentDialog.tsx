@@ -78,6 +78,7 @@ function MoveAppointmentDialog() {
                 {t(`dialogs.${action}-dialog.week-day-slot`)}</Typography>
             <WeekDayPicker
                 onChange={(v: any) => handleDateChange("date", v)}
+                action={action}
                 date={moveDialogDate}/>
 
             <Grid item md={6} xs={12}>
