@@ -1,15 +1,11 @@
 import React, {useEffect, useState} from 'react'
-import {Grid, Stack, Typography, TextField, Button} from '@mui/material'
+import {Grid, Stack, Typography, TextField} from '@mui/material'
 import AddDocumentDialogStyled from './overrides/addDocumentDialogStyle'
 import {DocumentButton} from '@features/buttons';
 import {UploadFile} from '@features/uploadFile';
 import {useTranslation} from 'next-i18next'
 import FileuploadProgress from '@features/fileUploadProgress/components/fileUploadProgress';
 import {buttonsData} from './config';
-import {useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 
 function AddDocumentDialog({...props}) {
     const [files, setFile] = useState([]);
@@ -17,12 +13,6 @@ function AddDocumentDialog({...props}) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const {data} = props
-
-    const {trigger} = useRequestMutation(null, "/upload/", {revalidate: true, populateCache: false});
-    const router = useRouter();
-    const {data: session, status} = useSession();
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleDrop = React.useCallback(
         (acceptedFiles: React.SetStateAction<never[]>) => {
@@ -37,6 +27,7 @@ function AddDocumentDialog({...props}) {
     useEffect(()=>{
         data.state.files = files
         data.setState(data.state)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[files])
     const {t, ready} = useTranslation("common");
     if (!ready) return <>loading translations...</>;

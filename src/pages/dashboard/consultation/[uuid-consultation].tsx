@@ -220,6 +220,7 @@ function ConsultationInProgress() {
             selectedModel.data = fiche
             setSelectedModel(selectedModel)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fiche]);
 
     const {data: session, status} = useSession();
