@@ -181,7 +181,9 @@
     "next": "Suivant",
     "back": "Retour",
     "added": "RDV ajouté",
+    "waiting": "Ajouter le patient à la salle d'attente",
     "added-description": "rendez-vous ajouté avec succès",
+    "show-patient": "Voir fiche Patient",
     "finish": "Fermer"
   },
   "dialogs": {

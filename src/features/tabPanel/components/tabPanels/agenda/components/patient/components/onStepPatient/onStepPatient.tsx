@@ -11,7 +11,6 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import {CountrySelect} from "@features/countrySelect";
 import React from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector} from "@features/tabPanel";
@@ -24,6 +23,9 @@ import Icon from "@themes/urlIcon";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import dynamic from "next/dynamic";
+
+const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function OnStepPatient({...props}) {
     const {
@@ -88,8 +90,8 @@ function OnStepPatient({...props}) {
             cin: "",
             from: "",
             insurance: [] as {
-                name: string;
-                id: string | number;
+                insurance_number: string;
+                insurance_uuid: string;
             }[],
         },
         validationSchema: RegisterPatientSchema,
@@ -109,18 +111,17 @@ function OnStepPatient({...props}) {
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
         url: "/api/public/places/countries/" + router.locale
-    });
+    }, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",
         url: "/api/public/insurances/" + router.locale
-    });
+    }, SWRNoValidateConfig);
 
     const {data: httpStatesResponse} = useRequest(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null);
-
+    } : null, SWRNoValidateConfig);
 
     const [selectedCountry, setSelectedCountry] = React.useState<any>(null);
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
@@ -129,7 +130,7 @@ function OnStepPatient({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleAddInsurance = () => {
-        const insurance = [...values.insurance, {name: "", number: ""}];
+        const insurance = [...values.insurance, {insurance_uuid: "", insurance_number: ""}];
         formik.setFieldValue("insurance", insurance);
     };
 
@@ -144,7 +145,13 @@ function OnStepPatient({...props}) {
     return (
         <FormikProvider value={formik}>
             <Stack
-                sx={{height: "100%"}}
+                sx={{
+                    height: "100%",
+                    "& .MuiTypography-root,& .MuiOutlinedInput-input": {
+                        textOverflow: "ellipsis",
+                        overflow: "hidden"
+                    }
+                }}
                 component={Form}
                 autoComplete="off"
                 noValidate
@@ -368,15 +375,19 @@ function OnStepPatient({...props}) {
                         </Typography>
                         <Grid container spacing={2}>
                             <Grid item md={6} lg={4} xs={12}>
-                                {countries &&
-                                    <CountrySelect
-                                        sx={{"& .MuiTypography-root": {mr: 1.5}}}
-                                        countries={countries}
-                                        onSelect={(state: StateModel) => {
-                                            console.log(state)
-                                            formik.setFieldValue("country", state.uuid);
-                                            setSelectedCountry(state)
-                                        }}/>}
+                                <CountrySelect
+                                    initCountry={{
+                                        code: "TN",
+                                        label: "Tunisia",
+                                        phone: "216"
+                                    }}
+                                    onSelect={(state: StateModel) => {
+                                        setSelectedCountry(state);
+                                        const country = countries?.find(country => country.code === state.code);
+                                        if (country) {
+                                            formik.setFieldValue("country", country.uuid);
+                                        }
+                                    }}/>
                             </Grid>
                             <Grid item md={6} lg={8} xs={12}>
                                 <TextField
@@ -404,7 +415,45 @@ function OnStepPatient({...props}) {
 
                     <Box>
                         <Grid container spacing={2}>
-                            <Grid item md={6} xs={12}>
+                            <Grid item md={4} xs={12}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                >
+                                    {t("country")}
+                                </Typography>
+                                <FormControl fullWidth>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id={"country"}
+                                        size="small"
+                                        {...getFieldProps("country")}
+                                        value={values.country}
+                                        displayEmpty={true}
+                                        sx={{color: "text.secondary"}}
+                                        renderValue={selected => {
+                                            if (selected.length === 0) {
+                                                return <em>{t("stepper-1.type-placeholder")}</em>;
+                                            }
+
+                                            const country = countries?.find(country => country.uuid === selected);
+                                            return <Typography>{country?.name}</Typography>
+                                        }}
+                                    >
+                                        {countries?.map((country) => (
+                                            <MenuItem
+                                                key={country.uuid}
+                                                value={country.uuid}>
+                                                <Box component="img"
+                                                     src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
+                                                <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                            </MenuItem>)
+                                        )}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item md={4} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -441,7 +490,7 @@ function OnStepPatient({...props}) {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={6} xs={12}>
+                            <Grid item md={4} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -503,8 +552,8 @@ function OnStepPatient({...props}) {
                                             <Select
                                                 id={"assurance"}
                                                 size="small"
-                                                {...getFieldProps(`insurance[${index}].name`)}
-                                                value={values.insurance[index]?.name}
+                                                {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                value={values.insurance[index]?.insurance_uuid}
                                                 displayEmpty={true}
                                                 sx={{color: "text.secondary"}}
                                                 renderValue={(selected) => {
@@ -536,7 +585,7 @@ function OnStepPatient({...props}) {
                                                 placeholder={t("assurance-phone-error")}
                                                 size="small"
                                                 fullWidth
-                                                {...getFieldProps(`insurance[${index}].number`)}
+                                                {...getFieldProps(`insurance[${index}].insurance_number`)}
                                             />
                                             <IconButton
                                                 onClick={() => handleRemoveInsurance(index)}

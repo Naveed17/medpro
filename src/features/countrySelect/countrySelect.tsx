@@ -1,19 +1,16 @@
+import React, {useCallback, useEffect} from "react";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
-import React, {useCallback, useState} from "react";
+import {countries} from "./countries";
 import {MenuItem, Typography} from "@mui/material";
 
-export default function CountrySelect({...props}) {
-    const {onSelect, countries} = props;
-    const [state, setstate] = useState({
-        code: "TN",
-        name: "Tunisia",
-        phone: "216",
-        uuid: "eede-dededed"
-    });
+function CountrySelect({...props}) {
+    const {onSelect, initCountry} = props;
+
+    const [state, setstate] = React.useState(initCountry);
 
     const onSelectState = useCallback(
         (state: any) => {
@@ -35,27 +32,24 @@ export default function CountrySelect({...props}) {
             options={countries}
             autoHighlight
             disableClearable
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
+            isOptionEqualToValue={(option, value) => option.label === value.label}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
-                    <Box key={option.uuid}
-                         component="img"
+                    <Box component="img"
                          src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}/>
-                    <Typography sx={{ml: 1}}>{option.name}</Typography>
+                    <Typography sx={{ml: 1}}>{option.label}</Typography>
                 </MenuItem>
             )}
             renderInput={(params) => {
                 params.InputProps.startAdornment = (
                     <InputAdornment position="start">
                         <Image
+                            loading="lazy"
                             width="27px"
                             height={18}
                             style={{marginLeft: 3}}
-                            src={`https://flagcdn.com/w20/${
-                                state && state.code.toLowerCase()
-                            }.png`}
-                            alt=""
+                            src={`https://flagcdn.com/w20/${state && state.code.toLowerCase()}.png`}
+                            alt={state && state.label}
                         />
                     </InputAdornment>
                 );
@@ -64,3 +58,5 @@ export default function CountrySelect({...props}) {
         />
     );
 }
+
+export default CountrySelect;

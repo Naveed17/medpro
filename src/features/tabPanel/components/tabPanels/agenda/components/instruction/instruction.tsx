@@ -10,7 +10,7 @@ import {
     Paper,
     Stack,
     TextField,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -37,6 +37,7 @@ function Instruction({...props}) {
     const {onNext, onBack} = props;
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const {
         motif,
@@ -129,13 +130,34 @@ function Instruction({...props}) {
     return (
         <div>
             <Box className="inner-section">
-                {submitted ?
-                    <SuccessCard
-                        data={{
-                            title: t("added"),
-                            description: t("added-description"),
-                        }}
-                    />
+                {!submitted ?
+                    <>
+                        <SuccessCard
+                            onClickTextButton={(event: string) => console.log(event)}
+                            data={{
+                                title: t("added"),
+                                description: t("added-description"),
+                                buttons: [
+                                    {
+                                        variant: "text-primary",
+                                        action: "onDetailPatient",
+                                        title: t("show-patient")
+                                    },{
+                                        icon: "ic-salle",
+                                        action: "onWaitingRoom",
+                                        variant: "contained",
+                                        sx: {
+                                            "& svg": {
+                                                "& path": {fill: theme.palette.text.primary}
+                                            },
+                                        },
+                                        title: t("waiting"),
+                                        color: "warning"
+                                    }
+                                ]
+                            }}
+                        />
+                    </>
                     :
                     <>
                         <Typography variant="h6" color="text.primary">
