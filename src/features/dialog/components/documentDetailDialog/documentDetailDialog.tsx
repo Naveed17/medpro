@@ -33,7 +33,6 @@ function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const {data: {state, setDialog}} = props
-    console.log(props)
     const router = useRouter();
     const {data: session, status} = useSession();
 
@@ -75,7 +74,7 @@ function DocumentDetailDialog({...props}) {
         console.log(state)
         if (state.type === 'prescription') {
             const doc = new jsPDF({})
-            doc.text('Tunis, le '+moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth()-90, 60 )
+            doc.text('Tunis, le ' + moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth() - 90, 60)
             doc.text("Nom & Prénom: " + state.patient, 20, 90);
 
             let position = 110
@@ -88,15 +87,14 @@ function DocumentDetailDialog({...props}) {
 
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        } else if (state.name === 'requested-analysis'){
+        } else if (state.name === 'requested-analysis') {
             console.log(state.info)
             const doc = new jsPDF()
             doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
-            doc.text("Les analyses suivantes:" , 20, 70);
+            doc.text("Les analyses suivantes:", 20, 70);
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        }
-        else setFile(state.uri)
+        } else setFile(state.uri)
     }, [state])
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -120,10 +118,10 @@ function DocumentDetailDialog({...props}) {
                 console.log(state.uuid)
                 trigger({
                     method: "DELETE",
-                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid +'/'+ router.locale,
+                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
-                   // mutate()
+                    // mutate()
                 });
 
                 break;

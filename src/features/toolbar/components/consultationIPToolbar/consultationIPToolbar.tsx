@@ -28,7 +28,7 @@ function ConsultationIPToolbar({...props}) {
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const {selected, appuuid, mutate, setPendingDocuments, pendingDocuments, dialog, setDialog} = props;
+    const {selected, appuuid, mutate, mutateDoc, setPendingDocuments, pendingDocuments, dialog, setDialog} = props;
 
 
     const {trigger} = useRequestMutation(null, "/drugs");
@@ -73,6 +73,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo('add_a_document')
+                setState({name: '', description: '', files: []})
                 break;
             default:
                 setInfo(null)
@@ -142,6 +143,7 @@ function ConsultationIPToolbar({...props}) {
                         Authorization: `Bearer ${session?.accessToken}`
                     }
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
+                    mutateDoc();
                     mutate();
                     setInfo('document_detail')
                     const res = r.data.data
@@ -155,7 +157,7 @@ function ConsultationIPToolbar({...props}) {
                         uuid: res[0].uuid,
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
                     })
-                    setOpenDialog(true);
+                    setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
                 })
@@ -172,6 +174,7 @@ function ConsultationIPToolbar({...props}) {
                         Authorization: `Bearer ${session?.accessToken}`
                     }
                 }, {revalidate: true, populateCache: true}).then((r: any) => {
+                    mutateDoc();
                     mutate();
                     setCheckUp([])
                     setInfo('document_detail')
@@ -188,6 +191,27 @@ function ConsultationIPToolbar({...props}) {
                     setactions(true)
                 })
                 break;
+            case 'add_a_document':
+                form.append('title', state.name);
+                form.append('description', state.description);
+                form.append('type', '01dd685c-3443-11ed-a261-0242ac120002');
+                state.files.map((file: File) => {
+                    form.append('files[]', file, file.name)
+                })
+
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/7f2d1cc0-f73a-4e8f-aaaf-b6d8d88a9d7c/appointments/${appuuid}/documents/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, {revalidate: true, populateCache: true}).then(() => {
+                    mutateDoc()
+                });
+                setOpenDialog(true);
+                setactions(true)
+                break;
         }
 
         setOpenDialog(false);
@@ -195,8 +219,11 @@ function ConsultationIPToolbar({...props}) {
     }
     useEffect(() => {
         selected(tabs);
-        if (lastTabs === 2)
-            console.log('plz save model')
+        if (lastTabs === 2) {
+            const btn = document.getElementsByClassName('sub-btn')[1];
+            (btn as HTMLElement)?.click();
+            dispatch(SetEnd(true))
+        }
         setLastTabs(tabs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
@@ -206,12 +233,13 @@ function ConsultationIPToolbar({...props}) {
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
                 <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
                     <Button disabled variant="contained"
-                            onClick={() => {
-                                setInfo("document_detail");
-                                setOpenDialog(true);
-                                setState('/static/files/sample.pdf')
-                                setactions(false)
-                            }
+                            onClick={
+                                () => {
+                                    setInfo("document_detail");
+                                    setOpenDialog(true);
+                                    setState('/static/files/sample.pdf')
+                                    setactions(false)
+                                }
                             }
                     >
                         {t("RDV")}

@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from 'react'
-import { Stack, Typography, Box, CardContent, Select, MenuItem, FormHelperText, TextField } from "@mui/material";
+import React, {useEffect, useState} from 'react'
+import {Stack, Typography, Box, CardContent, Select, MenuItem, FormHelperText, TextField} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
-import { useTranslation } from 'next-i18next'
+import {useTranslation} from 'next-i18next'
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
-import { useRequestMutation } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { ModelDot } from "@features/modelDot";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { consultationSelector } from "@features/toolbar/components/consultationIPToolbar/selectors";
-import { SetEnd, SetExaman } from "@features/toolbar/components/consultationIPToolbar/actions";
+import {useFormik, Form, FormikProvider} from "formik";
+import {ModelDot} from "@features/modelDot";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
+import {SetEnd, SetExaman} from "@features/toolbar/components/consultationIPToolbar/actions";
 
-function CIPPatientHistoryCard({ ...props }) {
-    const { data: session, status } = useSession();
-    const { exam } = props
-    const loading = status === 'loading';
+function CIPPatientHistoryCard({...props}) {
+    const {exam, selectedExam} = props
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
-    const { trigger } = useRequestMutation(null, "/consultation/", { revalidate: true, populateCache: false });
     const dispatch = useAppDispatch();
-    let medical_entity: MedicalEntityModel | null = null;
-    const { end } = useAppSelector(consultationSelector);
+    const {end} = useAppSelector(consultationSelector);
     const RegisterSchema = Yup.object().shape({
         motif: Yup.string().required("Motif is required"),
     });
     const formik = useFormik({
         initialValues: {
-            motif: "",
-            notes: "",
-            diagnosis: "",
-            treatment: "",
+            motif: selectedExam ? (selectedExam.motif as string) : "",
+            notes: selectedExam ? (selectedExam.notes as string) : "",
+            diagnosis: selectedExam ? selectedExam.diagnosis : "",
+            treatment: selectedExam ? selectedExam.treatment : "",
         },
         validationSchema: RegisterSchema,
         onSubmit: async (values) => {
@@ -42,7 +35,7 @@ function CIPPatientHistoryCard({ ...props }) {
         setCReason(exam?.consultation_reasons)
     }, [exam]);
 
-    const { handleSubmit, values, getFieldProps, errors, touched } = formik;
+    const {handleSubmit, values, getFieldProps, errors, touched} = formik;
 
     useEffect(() => {
         if (end)
@@ -50,22 +43,20 @@ function CIPPatientHistoryCard({ ...props }) {
         dispatch(SetEnd(false))
     }, [dispatch, end, values]);
 
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    if (!ready || loading) return <>loading translations...</>;
-    const { data: user } = session as Session;
-    medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    if (!ready) return <>loading translations...</>;
     return (
         <ConsultationDetailCardStyled>
             <Stack className="card-header" p={2} direction="row" alignItems="center" borderBottom={1}
-                borderColor="divider">
+                   borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body2" component="div" color="secondary"
-                    fontWeight={500}>
-                    <Icon path='ic-edit-file-pen' />
+                            fontWeight={500}>
+                    <Icon path='ic-edit-file-pen'/>
                     {t("review")}
                 </Typography>
             </Stack>
-            <CardContent style={{ padding: 20 }}>
+            <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
                     <Stack
                         spacing={2}
@@ -85,8 +76,11 @@ function CIPPatientHistoryCard({ ...props }) {
                                 size="small"
                                 {...getFieldProps("motif")}
                                 value={values.motif}
+                                onChange={(ev) => {
+                                    console.log(ev.target.value)
+                                }}
                                 displayEmpty={true}
-                                sx={{ color: "text.secondary" }}
+                                sx={{color: "text.secondary"}}
                                 renderValue={(value) =>
                                     value?.length
                                         ? Array.isArray(value)
@@ -96,9 +90,9 @@ function CIPPatientHistoryCard({ ...props }) {
                                 }>
                                 {
                                     cReason?.map(cr => (
-                                        <MenuItem key={cr.uuid} value={cr.name}>
+                                        <MenuItem key={cr.uuid} value={cr.uuid}>
                                             <ModelDot color={cr.color} selected={false} size={21} sizedot={13}
-                                                padding={3} marginRight={15}></ModelDot>
+                                                      padding={3} marginRight={15}></ModelDot>
                                             {cr.name}
                                         </MenuItem>
                                     ))
@@ -106,7 +100,7 @@ function CIPPatientHistoryCard({ ...props }) {
 
                             </Select>
                             {touched.motif && errors.motif && (
-                                <FormHelperText error sx={{ px: 2 }}>
+                                <FormHelperText error sx={{px: 2}}>
                                     {touched.motif && errors.motif}
                                 </FormHelperText>
                             )}
@@ -134,7 +128,7 @@ function CIPPatientHistoryCard({ ...props }) {
                                 size="small"
                                 {...getFieldProps("diagnosis")}
                                 value={values.diagnosis}
-                                sx={{ color: "text.secondary" }}>
+                                sx={{color: "text.secondary"}}>
 
                             </TextField>
                         </Box>

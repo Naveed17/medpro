@@ -56,7 +56,7 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
-        console.log(modal)
+        //console.log(modal)
         if (modal)
             setValue(modal.default_modal);
         setTimeout(() => {

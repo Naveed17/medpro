@@ -1,13 +1,29 @@
-import React, { useState } from 'react'
-import { Grid, Stack, Typography, TextField } from '@mui/material'
+import React, {useEffect, useState} from 'react'
+import {Grid, Stack, Typography, TextField, Button} from '@mui/material'
 import AddDocumentDialogStyled from './overrides/addDocumentDialogStyle'
-import { DocumentButton } from '@features/buttons';
-import { UploadFile } from '@features/uploadFile';
-import { useTranslation } from 'next-i18next'
+import {DocumentButton} from '@features/buttons';
+import {UploadFile} from '@features/uploadFile';
+import {useTranslation} from 'next-i18next'
 import FileuploadProgress from '@features/fileUploadProgress/components/fileUploadProgress';
-import { buttonsData } from './config';
-function AddDocumentDialog({ data }: any) {
-    const [files, setFile] = useState(data);
+import {buttonsData} from './config';
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+
+function AddDocumentDialog({...props}) {
+    const [files, setFile] = useState([]);
+    const [type, setType] = useState('');
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const {data} = props
+
+    const {trigger} = useRequestMutation(null, "/upload/", {revalidate: true, populateCache: false});
+    const router = useRouter();
+    const {data: session, status} = useSession();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const handleDrop = React.useCallback(
         (acceptedFiles: React.SetStateAction<never[]>) => {
             setFile(acceptedFiles);
@@ -17,7 +33,12 @@ function AddDocumentDialog({ data }: any) {
     const handleRemove = (file: any) => {
         setFile(files.filter((_file: any) => _file !== file));
     };
-    const { t, ready } = useTranslation("common");
+
+    useEffect(()=>{
+        data.state.files = files
+        data.setState(data.state)
+    },[files])
+    const {t, ready} = useTranslation("common");
     if (!ready) return <>loading translations...</>;
     return (
         <AddDocumentDialogStyled>
@@ -28,28 +49,39 @@ function AddDocumentDialog({ data }: any) {
                 <Grid container spacing={2} mt={2}>
                     {buttonsData.map((item, index) =>
                         <Grid key={index} item xs={6} md={2}>
-                            <DocumentButton icon={item.icon} t={t} lable={item.label} handleOnClick={(v: string) => console.log(v)} />
+                            <DocumentButton icon={item.icon} t={t} lable={item.label}
+                                            handleOnClick={(v: string) => setType(v)}/>
                         </Grid>
                     )}
 
                 </Grid>
             </Stack>
             <Stack spacing={2} maxWidth="90%" width={1} mx='auto' mt={3}>
-                <Grid container spacing={{ lg: 2, xs: 1 }} alignItems="flex-start">
+                <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
                     <Grid item xs={12} lg={3}>
-                        <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                        <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary" variant='body2'
+                                    fontWeight={400}>
                             {t("name_of_the_document")}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
                         <TextField
                             variant="outlined"
+                            value={name}
+                            onChange={
+                                (ev) => {
+                                    setName(ev.target.value)
+                                    data.state.name = ev.target.value
+                                    data.setState(data.state)
+                                }
+                            }
                             placeholder={t('type_the_name_of_the_document')}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
-                        <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                        <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary" variant='body2'
+                                    fontWeight={400}>
                             {t("description")}
                         </Typography>
                     </Grid>
@@ -57,21 +89,28 @@ function AddDocumentDialog({ data }: any) {
                         <TextField
                             variant="outlined"
                             placeholder={t('type_a_description')}
+                            value={description}
+                            onChange={(ev) => {
+                                setDescription(ev.target.value)
+                                data.state.description = ev.target.value
+                            }}
                             fullWidth
                             multiline
                             rows={4}
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
-                        <Typography textAlign={{ lg: 'right', xs: 'left' }} color="text.secondary" variant='body2' fontWeight={400}>
+                        <Typography textAlign={{lg: 'right', xs: 'left'}} color="text.secondary" variant='body2'
+                                    fontWeight={400}>
                             {t("import_document")}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={9}>
                         {files?.length > 0 ?
-                            <Stack spacing={2} maxWidth={{ xs: '100%', md: '50%' }}>
+                            <Stack spacing={2} maxWidth={{xs: '100%', md: '50%'}}>
                                 {files?.map((file: any, index: number) => (
-                                    <FileuploadProgress key={index} file={file} progress={100} handleRemove={handleRemove} />
+                                    <FileuploadProgress key={index} file={file} progress={100}
+                                                        handleRemove={handleRemove}/>
 
                                 ))}
                             </Stack>
