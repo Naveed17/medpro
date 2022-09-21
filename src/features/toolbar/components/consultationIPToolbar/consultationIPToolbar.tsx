@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import { Tabs, Tab, Stack, Button, MenuItem, DialogActions } from '@mui/material'
+import React, {useEffect, useState} from 'react'
+import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
-import { useTranslation } from 'next-i18next'
-import { tabsData, documentButtonList } from './config'
-import { Dialog } from '@features/dialog';
+import {useTranslation} from 'next-i18next'
+import {tabsData, documentButtonList} from './config'
+import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import { useAppDispatch } from "@app/redux/hooks";
-import { SetEnd } from "@features/toolbar/components/consultationIPToolbar/actions";
-import { useRequestMutation } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
+import {useAppDispatch} from "@app/redux/hooks";
+import {SetEnd} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
 
-function ConsultationIPToolbar({ ...props }) {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+function ConsultationIPToolbar({...props}) {
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState(tabsData[0].value);
     const [info, setInfo] = useState<null | string>('');
@@ -23,17 +23,18 @@ function ConsultationIPToolbar({ ...props }) {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
+    const [lastTabs, setLastTabs] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const { selected, appuuid, mutate, setPendingDocuments, pendingDocuments, dialog, setDialog } = props;
+    const {selected, appuuid, mutate, mutateDoc, setPendingDocuments, pendingDocuments, dialog, setDialog} = props;
 
 
-    const { trigger } = useRequestMutation(null, "/drugs");
+    const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -72,6 +73,7 @@ function ConsultationIPToolbar({ ...props }) {
                 break;
             case "upload_document":
                 setInfo('add_a_document')
+                setState({name: '', description: '', files: []})
                 break;
             default:
                 setInfo(null)
@@ -140,7 +142,8 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then((r: any) => {
+                }, {revalidate: true, populateCache: true}).then((r: any) => {
+                    mutateDoc();
                     mutate();
                     setInfo('document_detail')
                     const res = r.data.data
@@ -154,7 +157,7 @@ function ConsultationIPToolbar({ ...props }) {
                         uuid: res[0].uuid,
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
                     })
-                    setOpenDialog(true);
+                    setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
                 })
@@ -170,7 +173,8 @@ function ConsultationIPToolbar({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then((r: any) => {
+                }, {revalidate: true, populateCache: true}).then((r: any) => {
+                    mutateDoc();
                     mutate();
                     setCheckUp([])
                     setInfo('document_detail')
@@ -187,6 +191,27 @@ function ConsultationIPToolbar({ ...props }) {
                     setactions(true)
                 })
                 break;
+            case 'add_a_document':
+                form.append('title', state.name);
+                form.append('description', state.description);
+                form.append('type', '01dd685c-3443-11ed-a261-0242ac120002');
+                state.files.map((file: File) => {
+                    form.append('files[]', file, file.name)
+                })
+
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/7f2d1cc0-f73a-4e8f-aaaf-b6d8d88a9d7c/appointments/${appuuid}/documents/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, {revalidate: true, populateCache: true}).then(() => {
+                    mutateDoc()
+                });
+                setOpenDialog(true);
+                setactions(true)
+                break;
         }
 
         setOpenDialog(false);
@@ -194,6 +219,12 @@ function ConsultationIPToolbar({ ...props }) {
     }
     useEffect(() => {
         selected(tabs);
+        if (lastTabs === 2) {
+            const btn = document.getElementsByClassName('sub-btn')[1];
+            (btn as HTMLElement)?.click();
+            dispatch(SetEnd(true))
+        }
+        setLastTabs(tabs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
     if (!ready) return <>loading translations...</>;
@@ -201,21 +232,22 @@ function ConsultationIPToolbar({ ...props }) {
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
                 <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-                    <Button variant="contained"
-                        onClick={() => {
-                            setInfo("document_detail");
-                            setOpenDialog(true);
-                            setState('/static/files/sample.pdf')
-                            setactions(false)
-                        }
-                        }
+                    <Button disabled variant="contained"
+                            onClick={
+                                () => {
+                                    setInfo("document_detail");
+                                    setOpenDialog(true);
+                                    setState('/static/files/sample.pdf')
+                                    setactions(false)
+                                }
+                            }
                     >
                         {t("RDV")}
                     </Button>
-                    <Button variant="contained">
+                    <Button disabled variant="contained">
                         {t("vaccine")}
                     </Button>
-                    <Button variant="contained">
+                    <Button disabled={true} variant="contained">
                         {t("report")}
                     </Button>
                     <Button onClick={handleClick} variant="contained" color="warning">
@@ -241,7 +273,7 @@ function ConsultationIPToolbar({ ...props }) {
                     >
                         {documentButtonList.map((item, index) => (
                             <MenuItem key={`document-button-list-${index}`} onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon} />
+                                <Icon path={item.icon}/>
                                 {t(item.label)}
                             </MenuItem>
                         ))}
@@ -251,14 +283,14 @@ function ConsultationIPToolbar({ ...props }) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{ width: '80%' }}
+                        sx={{width: '80%'}}
                         variant="scrollable"
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({ label, value }, index) => (
+                        {tabsData.map(({label, value}, index) => (
                             <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value}
-                                label={t(label)} />
+                                 label={t(label)}/>
                         ))}
                     </Tabs>
                     <Button variant="outlined" color="primary" onClick={() => {
@@ -266,7 +298,7 @@ function ConsultationIPToolbar({ ...props }) {
                         (btn as HTMLElement)?.click();
                         dispatch(SetEnd(true))
                     }} className="action-button">
-                        <Icon path="ic-check" />
+                        <Icon path="ic-check"/>
                         {t("end_of_consultation")}
                     </Button>
                 </Stack>
@@ -274,38 +306,38 @@ function ConsultationIPToolbar({ ...props }) {
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={{ state, setState }}
-                    size={"lg"}
-                    direction={'ltr'}
-                    sx={{ height: 400 }}
-                    {...(info === "document_detail") && {
-                        sx: { height: 400, p: 0 }
-                    }}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {
-                    ...(info === "document_detail" && {
-                        onClose: handleCloseDialog
-                    })
-                    }
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        action ? <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleSaveDialog}
+                        open={openDialog}
+                        data={{state, setState}}
+                        size={"lg"}
+                        direction={'ltr'}
+                        sx={{height: 400}}
+                        {...(info === "document_detail") && {
+                            sx: {height: 400, p: 0}
+                        }}
+                        title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                        {
+                            ...(info === "document_detail" && {
+                                onClose: handleCloseDialog
+                            })
+                        }
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            action ? <DialogActions>
+                                    <Button onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                        {t('cancel')}
+                                    </Button>
+                                    <Button variant="contained"
+                                            onClick={handleSaveDialog}
 
-                                startIcon={<Icon
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                            : null
+                                            startIcon={<Icon
+                                                path='ic-dowlaodfile'/>}>
+                                        {t('save')}
+                                    </Button>
+                                </DialogActions>
+                                : null
 
-                    } />
+                        }/>
             }
 
         </>

@@ -1,117 +1,117 @@
 // components
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
-  Box,
-  Typography,
-  Avatar,
-  Stack,
-  List,
-  ListItem,
-  ListItemIcon,
-  IconButton,
-  Collapse,
+    Box,
+    Typography,
+    Avatar,
+    Stack,
+    List,
+    ListItem,
+    ListItemIcon,
+    IconButton,
+    Collapse,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import Content from "./content";
-import { collapse as collapseData } from "./config";
-import { upperFirst } from "lodash";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { consultationSelector } from "@features/toolbar";
+import {collapse as collapseData} from "./config";
+import {upperFirst} from "lodash";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
-import { toggleSideBar } from "@features/sideBarMenu";
+import {toggleSideBar} from "@features/sideBarMenu";
 
 function Consultation() {
-  const [collapse, setCollapse] = useState<any>(4);
-  const { t, ready } = useTranslation("consultation", { keyPrefix: "filter" });
-  const { patient } = useAppSelector(consultationSelector);
-  const dispatch = useAppDispatch();
+    const [collapse, setCollapse] = useState<any>(4);
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {patient} = useAppSelector(consultationSelector);
+    const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (patient) dispatch(toggleSideBar(false));
-    console.log(patient);
-  }, [dispatch, patient]);
+    useEffect(() => {
+        if (patient) dispatch(toggleSideBar(false));
+        console.log(patient);
+    }, [dispatch, patient]);
 
-  if (!ready) return <>loading translations...</>;
-  return (
-    <ConsultationStyled>
-      <Box className="header">
-        <Box className="about">
-          <Avatar
-            sx={{ width: 59, height: 59, marginLeft: 2, marginRight: 2 }}
-            src={
-              patient?.gender === "O"
-                ? "/static/icons/men-avatar.svg"
-                : "/static/icons/women-avatar.svg"
-            }
-          />
-          <Box>
-            <Typography
-              variant="body1"
-              color="primary.main"
-              sx={{ fontFamily: "Poppins" }}
-            >
-              {patient?.firstName + " " + patient?.lastName}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {patient?.birthdate} (
-              {patient?.birthdate
-                ? moment().diff(new Date(patient?.birthdate), "years")
-                : "--"}{" "}
-              {t("year")})
-            </Typography>
-          </Box>
-        </Box>
-        <Box className="contact" ml={2}>
-          <Typography
-            component="div"
-            textTransform="capitalize"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              "& .react-svg": { mr: 1 },
-              mb: 1.5,
-            }}
-            variant="body1"
-            color="text.primary"
-          >
-            <Icon path="ic-doc" />
-            {upperFirst(t("contact details"))}
-          </Typography>
-          <Box sx={{ pl: 1 }}>
-            <Typography
-              component="div"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                "& .react-svg": { mr: 0.8 },
-                mb: 0.3,
-              }}
-              variant="body2"
-              color="text.secondary"
-            >
-              <Icon path="ic-phone" />
-              +33 6 78 78 78 78
-            </Typography>
-            <Typography
-              component="div"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                "& .react-svg": { mr: 0.8 },
-              }}
-              variant="body2"
-              color="text.secondary"
-            >
-              <Icon path="ic-message-contour" />
-              {patient?.email}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+    if (!ready) return <>loading translations...</>;
+    return (
+        <ConsultationStyled>
+            <Box className="header">
+                <Box className="about">
+                    <Avatar
+                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
+                        src={
+                            patient?.gender === "O"
+                                ? "/static/icons/men-avatar.svg"
+                                : "/static/icons/women-avatar.svg"
+                        }
+                    />
+                    <Box>
+                        <Typography
+                            variant="body1"
+                            color="primary.main"
+                            sx={{fontFamily: "Poppins"}}
+                        >
+                            {patient?.firstName + " " + patient?.lastName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {patient?.birthdate} (
+                            {patient?.birthdate
+                                ? moment().diff(new Date(patient?.birthdate), "years")
+                                : "--"}{" "}
+                            {t("year")})
+                        </Typography>
+                    </Box>
+                </Box>
+                <Box className="contact" ml={2}>
+                    <Typography
+                        component="div"
+                        textTransform="capitalize"
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            "& .react-svg": {mr: 1},
+                            mb: 1.5,
+                        }}
+                        variant="body1"
+                        color="text.primary"
+                    >
+                        <Icon path="ic-doc"/>
+                        {upperFirst(t("contact details"))}
+                    </Typography>
+                    <Box sx={{pl: 1}}>
+                        <Typography
+                            component="div"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                "& .react-svg": {mr: 0.8},
+                                mb: 0.3,
+                            }}
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            {patient?.contact && <Icon path="ic-phone"/>}
+                            {patient?.contact[0].code} {patient?.contact[0].value}
+                        </Typography>
+                        <Typography
+                            component="div"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                "& .react-svg": {mr: 0.8},
+                            }}
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            {patient?.email && <Icon path="ic-message-contour"/>}
+                            {patient?.email}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Box>
 
-      {/* <Stack spacing={1} mb={1}>
+            {/* <Stack spacing={1} mb={1}>
                 <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
                     <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
                 </Alert>
@@ -120,48 +120,48 @@ function Consultation() {
                     {upperFirst(t('consultation in progress'))}
                 </Button>
             </Stack>*/}
-      <Stack ml={-1.25}>
-        <List dense>
-          {collapseData?.map((col, idx: number) => (
-            <React.Fragment key={`list-item-${idx}`}>
-              <ListItem
-                className="list-parent"
-                onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
-              >
-                <ListItemIcon>
-                  <Icon path={col.icon} />
-                </ListItemIcon>
-                <Typography fontWeight={700}>
-                  {upperFirst(t(col.title))}
-                  {col.id === 2 && (
-                    <Typography
-                      fontWeight={500}
-                      ml={1}
-                      component="span"
-                    ></Typography>
-                  )}
-                </Typography>
-                <IconButton size="small" sx={{ ml: "auto" }}>
-                  <Icon path="ic-expand-more" />
-                </IconButton>
-              </ListItem>
-              <ListItem sx={{ p: 0 }}>
-                <Collapse in={collapse === col.id} sx={{ width: 1 }}>
-                  <Box px={1.5}>
-                    <Content id={col.id} patient={patient} />
-                  </Box>
-                </Collapse>
-              </ListItem>
-            </React.Fragment>
-          ))}
-        </List>
-      </Stack>
-      {/*  <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color"/>}
+            <Stack ml={-1.25}>
+                <List dense>
+                    {collapseData?.map((col, idx: number) => (
+                        <React.Fragment key={`list-item-${idx}`}>
+                            <ListItem
+                                className="list-parent"
+                                onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
+                            >
+                                <ListItemIcon>
+                                    <Icon path={col.icon}/>
+                                </ListItemIcon>
+                                <Typography fontWeight={700}>
+                                    {upperFirst(t(col.title))}
+                                    {col.id === 2 && (
+                                        <Typography
+                                            fontWeight={500}
+                                            ml={1}
+                                            component="span"
+                                        ></Typography>
+                                    )}
+                                </Typography>
+                                <IconButton size="small" sx={{ml: "auto"}}>
+                                    <Icon path="ic-expand-more"/>
+                                </IconButton>
+                            </ListItem>
+                            <ListItem sx={{p: 0}}>
+                                <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                    <Box px={1.5}>
+                                        <Content id={col.id} patient={patient}/>
+                                    </Box>
+                                </Collapse>
+                            </ListItem>
+                        </React.Fragment>
+                    ))}
+                </List>
+            </Stack>
+            {/*  <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color"/>}
                     sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0,}}>
                 {upperFirst(t('patient record'))}
             </Button>*/}
-    </ConsultationStyled>
-  );
+        </ConsultationStyled>
+    );
 }
 
 export default Consultation;

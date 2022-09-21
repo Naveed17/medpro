@@ -198,14 +198,29 @@ function ConsultationInProgress() {
             "weight": 0
         }
     });
-    const [filter, setfilter] = React.useState<any>({});
+    const [filter, setfilter] = useState<any>({});
+    const [selectedModel, setSelectedModel] = useState<any>(null);
+    const [selectedExam, setSelectedExam] = useState({
+        motif: "",
+        notes: "",
+        diagnosis: "",
+        treatment: "",
+    });
 
     useEffect(() => {
-        if (examan) console.log(examan);
+        if (examan) {
+            console.log(examan);
+            setSelectedExam(examan)
+        }
     }, [examan]);
 
     useEffect(() => {
-        if (fiche) console.log(fiche);
+        if (fiche) {
+            console.log(fiche);
+            selectedModel.data = fiche
+            setSelectedModel(selectedModel)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fiche]);
 
     const {data: session, status} = useSession();
@@ -240,7 +255,7 @@ function ConsultationInProgress() {
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const {data: httpDocumentResponse, error: errorHttpDoc} = useRequest(mpUuid ? {
+    const {data: httpDocumentResponse, error: errorHttpDoc, mutate: mutateDoc} = useRequest(mpUuid ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/documents/" + router.locale,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
@@ -249,12 +264,13 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data)
+        console.log(httpDocumentResponse)
     }, [httpDocumentResponse])
 
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data)
         setPatient((httpAppResponse as HttpResponse)?.data.patient);
-
+        setSelectedModel((httpAppResponse as HttpResponse)?.data?.consultation_sheet.modal)
         dispatch(SetPatient((httpAppResponse as HttpResponse)?.data.patient))
         dispatch(SetMutation(mutate))
 
@@ -317,7 +333,8 @@ function ConsultationInProgress() {
     }
 
     useEffect(() => {
-        let fees = 0 ;let uuids:string[] = [];
+        let fees = 0;
+        let uuids: string[] = [];
         selectedAct.map(act => {
             uuids.push(act.uuid)
             fees += act.fees
@@ -327,7 +344,6 @@ function ConsultationInProgress() {
     }, [selectedAct])
 
     const editAct = (row: any, from: any, value?: number) => {
-        console.log(row)
         if (from === 'change') {
 
             const index = selectedAct.findIndex(act => act.uuid === row.uuid)
@@ -360,10 +376,12 @@ function ConsultationInProgress() {
             <SubHeader>
                 <ConsultationIPToolbar appuuid={uuind}
                                        mutate={mutate}
+                                       mutateDoc={mutateDoc}
                                        pendingDocuments={pendingDocuments}
                                        dialog={dialog}
                                        setDialog={setDialog}
                                        setPendingDocuments={setPendingDocuments}
+                                       setSelectedExam={setSelectedExam}
                                        selected={(v: number) => setValue(v)}/>
             </SubHeader>
             <Box className="container">
@@ -563,10 +581,13 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation modal={appointement?.consultation_sheet.modal}/>
+                                    <ModalConsultation
+                                        modal={selectedModel}
+                                        setSM={setSelectedModel}/>
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
+                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}
+                                                            selectedExam={selectedExam}/>
                                 </Grid>
                             </Grid>
                         </TabPanel>

@@ -70,7 +70,7 @@ function DocumentCard({ ...props }) {
                 <Stack spacing={2} className="document-detail" alignItems="center">
                     <IconUrl path={
                         data.documentType === "prescription" && "ic-traitement" ||
-                        data.documentType == "type-2" && "ic-analyse" ||
+                        data.documentType == "requested-analysis" && "ic-analyse" ||
                         data.documentType === "type-4" && "ic-img" ||
                         data.documentType !== "prescription" && "ic-pdf" || ""
                     } />
