@@ -7,4 +7,5 @@ interface ContactModel {
   isSupport: boolean;
   isVerified: boolean;
   description: string;
+  code:string;
 }
