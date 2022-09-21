@@ -39,6 +39,7 @@ function Instruction({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+
     const {
         motif,
         duration,
@@ -130,7 +131,7 @@ function Instruction({...props}) {
     return (
         <div>
             <Box className="inner-section">
-                {!submitted ?
+                {submitted ?
                     <>
                         <SuccessCard
                             onClickTextButton={(event: string) => console.log(event)}
