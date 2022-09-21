@@ -50,7 +50,7 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -92,6 +92,7 @@ function Agenda() {
     const {t, ready} = useTranslation(['agenda', 'common']);
 
     const {direction} = useAppSelector(configSelector);
+    const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
         openViewDrawer,
         selectedEvent,
@@ -140,12 +141,6 @@ function Agenda() {
         .find((item: AgendaConfigurationModel) =>
             item.isDefault) as AgendaConfigurationModel;
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
-
-    useEffect(() => {
-        if (agenda) {
-            dispatch(setConfig(agenda));
-        }
-    }, [agenda, dispatch])
 
     const {
         data: httpAppointmentResponse,
@@ -243,11 +238,29 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
+    useEffect(() => {
+        if (agenda) {
+            dispatch(setConfig(agenda));
+        }
+    }, [agenda, dispatch])
+
+    useEffect(() => {
+        if (filter?.type && timeRange.start !== "") {
+            let query = "";
+            Object.entries(filter).map(param => {
+                query = `${param[0]}=${param[1]}`;
+            });
+            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week&${query}`);
+        }
+    }, [filter, getAppointments, timeRange.end, timeRange.start])
+
     const handleOnRangeChange = (event: DatesSetArg) => {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
-        getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
+        if (filter?.type === undefined) {
+            getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
+        }
     }
 
     const handleOnToday = (event: React.MouseEventHandler) => {
@@ -547,19 +560,22 @@ function Agenda() {
                                     animate={{opacity: 1, y: 0}}
                                     transition={{ease: "easeIn", duration: 1}}
                                 >
-                                    <Calendar {...{
-                                        events: events.current,
-                                        agenda,
-                                        t,
-                                        sortedData: sortedData.current
-                                    }}
-                                              OnInit={onLoadCalendar}
-                                              OnSelectEvent={onSelectEvent}
-                                              OnEventChange={onEventChange}
-                                              OnMenuActions={onMenuActions}
-                                              OnSelectDate={onSelectDate}
-                                              OnViewChange={onViewChange}
-                                              OnRangeChange={handleOnRangeChange}/>
+                                    <Calendar
+                                        {...{
+                                            events: events.current,
+                                            agenda,
+                                            t,
+                                            sortedData: sortedData.current
+                                        }}
+                                        OnInit={onLoadCalendar}
+                                        OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                                        OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                                        OnSelectEvent={onSelectEvent}
+                                        OnEventChange={onEventChange}
+                                        OnMenuActions={onMenuActions}
+                                        OnSelectDate={onSelectDate}
+                                        OnViewChange={onViewChange}
+                                        OnRangeChange={handleOnRangeChange}/>
                                 </motion.div>
                             </AnimatePresence>
                         }

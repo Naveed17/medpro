@@ -41,6 +41,7 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         OnInit,
+        OnLeaveWaitingRoom,
         OnWaitingRoom,
         OnViewChange = null,
         OnSelectEvent,
@@ -169,7 +170,10 @@ function Calendar({...props}) {
                 OnSelectEvent(eventData);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData.id);
+                OnWaitingRoom(eventData);
+                break;
+            case "leaveWaitingRoom":
+                OnLeaveWaitingRoom(eventData);
                 break;
         }
     };
