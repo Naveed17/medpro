@@ -254,9 +254,11 @@ function Agenda() {
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}&${query}`
-            getAppointments(queryPath);
+            getAppointments(queryPath, view);
         } else if (localFilter) {
-            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
+            const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
+                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
+            getAppointments(queryPath, view);
         }
     }, [filter, getAppointments, timeRange.end, timeRange.start]) // eslint-disable-line react-hooks/exhaustive-deps
 
