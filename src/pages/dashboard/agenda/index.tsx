@@ -321,7 +321,7 @@ function Agenda() {
                 break;
             case "onConsultationDetail":
                 if (!isActive) {
-                    dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    // dispatch(setTimer({isActive: true, isPaused: false, event}));
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 } else {

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import moment from "moment-timezone";
 import {CountrySelect} from "@features/countrySelect";
-import React, {useState} from "react";
+import React from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -35,17 +35,11 @@ function OnStepPatient({...props}) {
         translationPrefix = "add-patient",
     } = props;
     const router = useRouter();
-
-    const {stepsData: patient} = useAppSelector(addPatientSelector);
-    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
-        method: "GET",
-        url: "/api/public/contact-type/" + router.locale
-    }, SWRNoValidateConfig);
-
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
 
+    const {stepsData: patient} = useAppSelector(addPatientSelector);
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
@@ -66,7 +60,6 @@ function OnStepPatient({...props}) {
         }),
 //        email: Yup.string().email("Invalid email").required("Email Required")
     });
-
     const formik = useFormik({
         initialValues: {
             patientGroup: patient?.step1.patient_group,
@@ -87,6 +80,7 @@ function OnStepPatient({...props}) {
             gender: Boolean(selectedPatient)
                 ? selectedPatient.gender
                 : patient.step1.gender,
+            country: "",
             region: "",
             zip_code: "",
             address: "",
@@ -105,10 +99,34 @@ function OnStepPatient({...props}) {
             }
         },
     });
+    const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+
+    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+        method: "GET",
+        url: "/api/public/contact-type/" + router.locale
+    }, SWRNoValidateConfig);
+
+    const {data: httpCountriesResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/places/countries/" + router.locale
+    });
+
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/insurances/" + router.locale
+    });
+
+    const {data: httpStatesResponse} = useRequest(values.country ? {
+        method: "GET",
+        url: `/api/public/places/countries/${values.country}/state/${router.locale}`
+    } : null);
+
 
     const [selectedCountry, setSelectedCountry] = React.useState<any>(null);
-    const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
+    const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
+    const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleAddInsurance = () => {
         const insurance = [...values.insurance, {name: "", number: ""}];
@@ -160,56 +178,60 @@ function OnStepPatient({...props}) {
                         </FormControl>
                     </Box>
                     <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("first-name")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <TextField
-                            variant="outlined"
-                            placeholder={t("first-name-placeholder")}
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("firstName")}
-                            error={Boolean(touched.firstName && errors.firstName)}
-                            helperText={
-                                Boolean(touched.firstName && errors.firstName)
-                                    ? String(errors.firstName)
-                                    : undefined
-                            }
-                        />
-                    </Box>
-                    <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("last-name")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <TextField
-                            variant="outlined"
-                            placeholder={t("last-name-placeholder")}
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("lastName")}
-                            error={Boolean(touched.lastName && errors.lastName)}
-                            helperText={
-                                Boolean(touched.lastName && errors.lastName)
-                                    ? String(errors.lastName)
-                                    : undefined
-                            }
-                        />
+                        <Grid container spacing={2}>
+                            <Grid item md={6} xs={12}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span"
+                                >
+                                    {t("first-name")}{" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("first-name-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("firstName")}
+                                    error={Boolean(touched.firstName && errors.firstName)}
+                                    helperText={
+                                        Boolean(touched.firstName && errors.firstName)
+                                            ? String(errors.firstName)
+                                            : undefined
+                                    }
+                                />
+                            </Grid>
+                            <Grid item md={6} xs={12}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span"
+                                >
+                                    {t("last-name")}{" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("last-name-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("lastName")}
+                                    error={Boolean(touched.lastName && errors.lastName)}
+                                    helperText={
+                                        Boolean(touched.lastName && errors.lastName)
+                                            ? String(errors.lastName)
+                                            : undefined
+                                    }
+                                />
+                            </Grid>
+                        </Grid>
                     </Box>
                     <Box>
                         <Typography
@@ -346,7 +368,15 @@ function OnStepPatient({...props}) {
                         </Typography>
                         <Grid container spacing={2}>
                             <Grid item md={6} lg={4} xs={12}>
-                                <CountrySelect selected={(v: any) => setSelectedCountry(v)}/>
+                                {countries &&
+                                    <CountrySelect
+                                        sx={{"& .MuiTypography-root": {mr: 1.5}}}
+                                        countries={countries}
+                                        onSelect={(state: StateModel) => {
+                                            console.log(state)
+                                            formik.setFieldValue("country", state.uuid);
+                                            setSelectedCountry(state)
+                                        }}/>}
                             </Grid>
                             <Grid item md={6} lg={8} xs={12}>
                                 <TextField
@@ -386,22 +416,28 @@ function OnStepPatient({...props}) {
                                     <Select
                                         labelId="demo-simple-select-label"
                                         id={"region"}
+                                        disabled={!values.country}
                                         size="small"
                                         {...getFieldProps("region")}
                                         value={values.region}
                                         displayEmpty={true}
                                         sx={{color: "text.secondary"}}
-                                        renderValue={(value) =>
-                                            value?.length
-                                                ? Array.isArray(value)
-                                                    ? value.join(", ")
-                                                    : value
-                                                : t("region-placeholder")
-                                        }
+                                        renderValue={selected => {
+                                            if (selected.length === 0) {
+                                                return <em>{t("stepper-1.type-placeholder")}</em>;
+                                            }
+
+                                            const state = states?.find(state => state.uuid === selected);
+                                            return <Typography>{state?.name}</Typography>
+                                        }}
                                     >
-                                        <MenuItem value="1">1</MenuItem>
-                                        <MenuItem value="2">2</MenuItem>
-                                        <MenuItem value="3">3</MenuItem>
+                                        {states?.map((state) => (
+                                            <MenuItem
+                                                key={state.uuid}
+                                                value={state.uuid}>
+                                                {state.name}
+                                            </MenuItem>)
+                                        )}
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -438,7 +474,7 @@ function OnStepPatient({...props}) {
                         />
                     </Box>
                     <Box>
-                        <Typography sx={{mb: 1.5, textTransform: "capitalize"}}>
+                        <Typography sx={{mt: 1.5, textTransform: "capitalize"}}>
                             <IconButton
                                 onClick={handleAddInsurance}
                                 className="success-light"
@@ -454,13 +490,13 @@ function OnStepPatient({...props}) {
                             </IconButton>
                             {t("assurance")}
                         </Typography>
-                        <Box>
+                        <Box sx={{mb: 1.5}}>
                             {values.insurance.map((val, index: number) => (
                                 <Grid
                                     key={Math.random()}
                                     container
                                     spacing={2}
-                                    sx={{mt: index > 0 ? 1 : 0}}
+                                    sx={{mt: index > 0 ? 0.5 : 0}}
                                 >
                                     <Grid item xs={12} md={4}>
                                         <FormControl fullWidth>
@@ -471,17 +507,25 @@ function OnStepPatient({...props}) {
                                                 value={values.insurance[index]?.name}
                                                 displayEmpty={true}
                                                 sx={{color: "text.secondary"}}
-                                                renderValue={(value) =>
-                                                    value?.length
-                                                        ? Array.isArray(value)
-                                                            ? value.join(", ")
-                                                            : value
-                                                        : t("assurance")
-                                                }
+                                                renderValue={(selected) => {
+                                                    if (selected.length === 0) {
+                                                        return <em>{t("stepper-1.type-placeholder")}</em>;
+                                                    }
+
+                                                    const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                    return <Typography>{insurance?.name}</Typography>
+                                                }}
                                             >
-                                                <MenuItem value="1">1</MenuItem>
-                                                <MenuItem value="2">2</MenuItem>
-                                                <MenuItem value="3">3</MenuItem>
+                                                {insurances.map(insurance => (
+                                                    <MenuItem
+                                                        key={insurance.uuid}
+                                                        value={insurance.uuid}>
+                                                        <Box key={insurance.uuid}
+                                                             component="img" width={30} height={30}
+                                                             src={insurance.logoUrl}/>
+                                                        <Typography sx={{ml: 1}}>{insurance.name}</Typography>
+                                                    </MenuItem>)
+                                                )}
                                             </Select>
                                         </FormControl>
                                     </Grid>
