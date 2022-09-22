@@ -321,7 +321,7 @@ function Agenda() {
                 break;
             case "onConsultationDetail":
                 if (!isActive) {
-                    // dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    dispatch(setTimer({isActive: true, isPaused: false, event}));
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 } else {
@@ -565,9 +565,9 @@ function Agenda() {
                         {httpAgendasResponse &&
                             <AnimatePresence exitBeforeEnter>
                                 <motion.div
-                                    initial={{opacity: 0, y: -100}}
-                                    animate={{opacity: 1, y: 0}}
-                                    transition={{ease: "easeIn", duration: 1}}
+                                    initial={{opacity: 0}}
+                                    animate={{opacity: 1}}
+                                    transition={{ease: "easeIn", duration: .5}}
                                 >
                                     <Calendar
                                         {...{
