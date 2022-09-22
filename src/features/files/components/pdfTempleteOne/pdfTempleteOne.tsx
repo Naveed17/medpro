@@ -47,7 +47,7 @@ function PdfTempleteOne({ ...props }) {
         <Box width={1}
           className="multi-line">
           {
-            Array.from({ length: 20 }).map((_, idx) =>
+            Array.from({ length: 90 }).map((_, idx) =>
               <Stack direction="row" alignItems="flex-end" key={idx}>
                 <Typography lineHeight={1} mr={.5} fontWeight={600}>:</Typography>
                 <Box className='line' width={1}>
