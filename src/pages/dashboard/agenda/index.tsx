@@ -321,9 +321,10 @@ function Agenda() {
                 break;
             case "onConsultationDetail":
                 if (!isActive) {
-                    dispatch(setTimer({isActive: true, isPaused: false, event}));
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() =>
+                        dispatch(setTimer({isActive: true, isPaused: false, event}))
+                    )
                 } else {
                     setError(true);
                 }
@@ -373,9 +374,10 @@ function Agenda() {
 
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
-            dispatch(setTimer({isActive: true, isPaused: false, event}));
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale});
+            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() =>
+                dispatch(setTimer({isActive: true, isPaused: false, event}))
+            )
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
