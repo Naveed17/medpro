@@ -11,31 +11,33 @@ import {
     TextField,
     Button
 } from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import { useFormik, Form, FormikProvider } from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
-import {useReactToPrint} from 'react-to-print'
-import {useTranslation} from 'next-i18next'
-import {capitalize} from 'lodash'
-import React, {useState, useRef, useEffect} from 'react';
-import {Document, Page, pdfjs} from "react-pdf";
-import {actionButtons} from './config'
+import { useReactToPrint } from 'react-to-print'
+import { useTranslation } from 'next-i18next'
+import { capitalize } from 'lodash'
+import React, { useState, useRef, useEffect } from 'react';
+import { Document, Page, pdfjs } from "react-pdf";
+import { actionButtons } from './config'
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import moment from "moment";
-import {useRequestMutation} from "@app/axios";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-
+import { useRequestMutation } from "@app/axios";
+import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import { PdfTempleteOne, PdfTempleteTwo } from '@features/files'
+import dynamic from "next/dynamic";
+import html2pdf from "html2pdf.js";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-function DocumentDetailDialog({...props}) {
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+function DocumentDetailDialog({ ...props }) {
+    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
 
-    const {data: {state, setDialog}} = props
-    console.log(props)
+    const { data: { state, setDialog } } = props
+    console.log(props);
     const router = useRouter();
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
 
 
     const formik = useFormik({
@@ -68,47 +70,22 @@ function DocumentDetailDialog({...props}) {
 
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
-    const componentRef = useRef(null)
+    const componentRef = useRef<any>(null)
     const [readonly, setreadonly] = useState<boolean>(true);
-
+    const [hide, sethide] = useState<boolean>(false);
     useEffect(() => {
-        console.log(state)
-        if (state.type === 'prescription') {
-            const doc = new jsPDF({})
-            doc.text('Tunis, le '+moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth()-90, 60 )
-            doc.text("Nom & Prénom: " + state.patient, 20, 90);
 
-            let position = 110
-            state.info.map((drug: any) => {
-                doc.text(drug.standard_drug.commercial_name, 20, position).setTextColor('#7C878E').setFontSize(12);
-                doc.text("• " + drug.dosage, 24, position + 8);
-                doc.text("• Durée: " + drug.duration + ' ' + drug.duration_type, 24, position + 15).setTextColor('black').setFontSize(15);
-                position += 30
-            })
-
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else if (state.name === 'requested-analysis'){
-            console.log(state.info)
-            const doc = new jsPDF()
-            doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
-            doc.text("Les analyses suivantes:" , 20, 70);
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        }
-        else setFile(state.uri)
     }, [state])
 
-    function onDocumentLoadSuccess({numPages}: any) {
+    function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
     }
 
     const handlePrint = useReactToPrint({
-        onPrintError: (error) => console.log(error),
         content: () => componentRef.current,
     });
 
-    const {trigger} = useRequestMutation(null, "/documents");
+    const { trigger } = useRequestMutation(null, "/documents");
 
 
     const handleActions = (action: string) => {
@@ -117,13 +94,12 @@ function DocumentDetailDialog({...props}) {
                 handlePrint();
                 break;
             case "delete":
-                console.log(state.uuid)
                 trigger({
                     method: "DELETE",
-                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid +'/'+ router.locale,
-                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-                }, {revalidate: true, populateCache: true}).then(() => {
-                   // mutate()
+                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
+                    headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+                }, { revalidate: true, populateCache: true }).then(() => {
+                    // mutate()
                 });
 
                 break;
@@ -131,23 +107,37 @@ function DocumentDetailDialog({...props}) {
                 console.log(state.info[0])
                 //setDialog('draw_up_an_order')
                 break;
+            case "hide":
+                sethide(!hide)
+                break;
             case "download":
-                fetch(file).then(response => {
-                    response.blob().then(blob => {
-                        const fileURL = window.URL.createObjectURL(blob);
-                        // Setting various property values
-                        let alink = document.createElement('a');
-                        alink.href = fileURL;
-                        alink.download = file.split(/(\\|\/)/g).pop() as string
-                        alink.click();
-                    })
+                html2pdf(componentRef.current, {
+                    margin: 1,
+                    filename: 'document.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { dpi: 192, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' }
                 })
+                // if (file) {
+                //     fetch(file).then(response => {
+                //         response.blob().then(blob => {
+                //             const fileURL = window.URL.createObjectURL(blob);
+                //             // Setting various property values
+                //             let alink = document.createElement('a');
+                //             alink.href = fileURL;
+                //             alink.download = file.split(/(\\|\/)/g).pop() as string
+                //             alink.click();
+                //         })
+                //     })
+                // } else {
+                //     alert('no file to download')
+                // }
                 break;
             default:
                 break;
         }
     }
-    const {values, handleSubmit, getFieldProps} = formik;
+    const { values, handleSubmit, getFieldProps } = formik;
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
@@ -161,20 +151,27 @@ function DocumentDetailDialog({...props}) {
                             noValidate
                             onSubmit={handleSubmit}
                         >
-                            <Box sx={{
-                                '.react-pdf__Page__canvas': {
-                                    mx: 'auto',
+                            {/* <Box sx={{
+                                '.react-pdf__Page': {
+                                    marginBottom: 1,
+                                    '.react-pdf__Page__canvas': {
+                                        mx: 'auto',
+                                    }
                                 }
                             }}>
                                 <Document ref={
                                     componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
                                     ))}
 
                                 </Document>
+                            </Box> */}
+                            <Box ref={componentRef} width="90%" mx="auto">
+                                <PdfTempleteTwo hide={hide} />
                             </Box>
+
                         </Stack>
                     </FormikProvider>
                 </Grid>
@@ -185,15 +182,15 @@ function DocumentDetailDialog({...props}) {
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
-                                            <IconUrl path={button.icon}/>
+                                            <IconUrl path={button.icon} />
                                         </ListItemIcon>
-                                        <ListItemText primary={t(button.title)}/>
+                                        <ListItemText primary={t(button.title)} />
                                     </ListItemButton>
                                 </ListItem>
                             )
                         }
                         <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                            <ListItemButton disableRipple sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
                                 <Typography color='text.secondary'>
                                     {t('document_name')}
                                 </Typography>
@@ -209,7 +206,7 @@ function DocumentDetailDialog({...props}) {
                                     () => setreadonly(!readonly)
 
                                 }>
-                                    <IconUrl path="ic-edit"/>
+                                    <IconUrl path="ic-edit" />
                                     {t('modifier')}
                                 </Button>
                             </ListItemButton>
@@ -218,7 +215,7 @@ function DocumentDetailDialog({...props}) {
                             list.map((item, idx) =>
                                 <ListItem className='secound-list' key={idx}>
                                     <ListItemButton disableRipple
-                                                    sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                        sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
                                         <Typography color='text.secondary'>
                                             {capitalize(t(item.title))}
                                         </Typography>
