@@ -58,7 +58,6 @@ function ConsultationIPToolbar({...props}) {
         switch (dialog) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
-                console.log(prescription)
                 break;
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
@@ -74,7 +73,6 @@ function ConsultationIPToolbar({...props}) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
-                console.log(prescription)
                 setState(prescription)
                 break;
             case "balance_sheet_request":
@@ -164,10 +162,6 @@ function ConsultationIPToolbar({...props}) {
         }
     ];
 
-    useEffect(() => {
-        console.log(documents)
-    }, [documents])
-
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
@@ -189,7 +183,6 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo('document_detail')
                     const res = r.data.data
-                    console.log(res)
 
                     setState({
                         uri: res[1],
