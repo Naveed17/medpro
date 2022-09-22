@@ -5,14 +5,31 @@ import {DocumentButton} from '@features/buttons';
 import {UploadFile} from '@features/uploadFile';
 import {useTranslation} from 'next-i18next'
 import FileuploadProgress from '@features/fileUploadProgress/components/fileUploadProgress';
-import {buttonsData} from './config';
+import {useRequest} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
 function AddDocumentDialog({...props}) {
     const [files, setFile] = useState([]);
     const [type, setType] = useState('');
+    const [types, setTypes] = useState([]);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const {data} = props
+
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: httpTypeResponse, error: errorHttpType} = useRequest({
+        method: "GET",
+        url: `/api/private/document/types/${router.locale}`,
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+    })
+
+    useEffect(() => {
+        if (httpTypeResponse)
+            setTypes((httpTypeResponse as HttpResponse).data)
+    }, [httpTypeResponse])
 
     const handleDrop = React.useCallback(
         (acceptedFiles: React.SetStateAction<never[]>) => {
@@ -24,11 +41,11 @@ function AddDocumentDialog({...props}) {
         setFile(files.filter((_file: any) => _file !== file));
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         data.state.files = files
         data.setState(data.state)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[files])
+    }, [files])
     const {t, ready} = useTranslation("common");
     if (!ready) return <>loading translations...</>;
     return (
@@ -36,12 +53,16 @@ function AddDocumentDialog({...props}) {
             <Typography fontWeight={600} variant="subtitle2">
                 {t('type_of_document')}
             </Typography>
-            <Stack maxWidth="90%" m="auto" width="100%">
-                <Grid container spacing={2} mt={2}>
-                    {buttonsData.map((item, index) =>
+            <Stack maxWidth="90%" m="auto" width="100%" >
+                <Grid container spacing={2} mt={2} margin={"auto"}>
+                    {types.map((item: { logo: string, name: string, uuid: string }, index) =>
                         <Grid key={index} item xs={6} md={2}>
-                            <DocumentButton icon={item.icon} t={t} lable={item.label}
-                                            handleOnClick={(v: string) => setType(v)}/>
+                            <DocumentButton icon={item.logo} t={t} lable={item.name} uuid={item.uuid} selected={type}
+                                            handleOnClick={(v: string) => {
+                                                setType(v)
+                                                data.state.type = v
+                                                data.setState(data.state)
+                                            }}/>
                         </Grid>
                     )}
 
