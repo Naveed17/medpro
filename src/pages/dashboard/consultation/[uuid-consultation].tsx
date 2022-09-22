@@ -175,6 +175,7 @@ function ConsultationInProgress() {
     const [open, setopen] = useState(false);
     const [documents, setDocuments] = useState([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [openActDialog, setOpenActDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>('');
     const [appointement, setAppointement] = useState<any>();
@@ -214,14 +215,14 @@ function ConsultationInProgress() {
         }
     }, [examan]);
 
-    useEffect(() => {
-        if (fiche) {
-            console.log(fiche);
-            selectedModel.data = fiche
-            setSelectedModel(selectedModel)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fiche]);
+    /* useEffect(() => {
+         if (fiche) {
+             console.log(fiche);
+             selectedModel.data = fiche
+             setSelectedModel(selectedModel)
+         }
+         // eslint-disable-next-line react-hooks/exhaustive-deps
+     }, [fiche]);*/
 
     const {data: session, status} = useSession();
     const loading = status === 'loading';
@@ -317,7 +318,7 @@ function ConsultationInProgress() {
     }
 
     const handleCloseDialogAct = () => {
-        setOpenDialog(false);
+        setOpenActDialog(false);
     }
 
     const handleSaveDialog = () => {
@@ -379,6 +380,11 @@ function ConsultationInProgress() {
                                        mutateDoc={mutateDoc}
                                        pendingDocuments={pendingDocuments}
                                        dialog={dialog}
+                                       selectedAct={selectedAct}
+                                       selectedModel={selectedModel}
+                                       selectedExam={selectedExam}
+                                       documents={documents}
+                                       agenda={(httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid}
                                        setDialog={setDialog}
                                        setPendingDocuments={setPendingDocuments}
                                        setSelectedExam={setSelectedExam}
@@ -390,7 +396,8 @@ function ConsultationInProgress() {
                         value === 0 &&
                         <TabPanel index={0}>
                             <Stack spacing={2} mb={2} alignItems="flex-start">
-                                <Label variant="filled" color="warning">{t("next_meeting")}</Label>
+                                {patient?.nextAppointments.length > 0 &&
+                                    <Label variant="filled" color="warning">{t("next_meeting")}</Label>}
                                 {
                                     patient?.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
@@ -566,12 +573,10 @@ function ConsultationInProgress() {
                                     mx: 'auto'
                                 }
                             }}>
-                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}
-                                >
+                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
                                     {Array.from(new Array(numPages), (el, index) => (
                                         <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                     ))}
-
                                 </Document>
                             </Box>
                         </TabPanel>
@@ -587,6 +592,7 @@ function ConsultationInProgress() {
                                 </Grid>
                                 <Grid item xs={12} md={7}>
                                     <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}
+                                                            setSelectedExam={setSelectedExam}
                                                             selectedExam={selectedExam}/>
                                 </Grid>
                             </Grid>
@@ -618,7 +624,7 @@ function ConsultationInProgress() {
                             </Stack>
 
                             <Button
-                                onClick={() => setOpenDialog(true)}
+                                onClick={() => setOpenActDialog(true)}
                                 size='small' sx={{
                                 '& .react-svg svg': {
                                     width: theme => theme.spacing(1.5),
@@ -650,9 +656,7 @@ function ConsultationInProgress() {
                                             {t("consultationIP.print")}
                                         </Button>
                                     </Stack>
-
                                 </Stack>
-
                             </SubFooter>
                         </TabPanel>
                     }
@@ -755,7 +759,7 @@ function ConsultationInProgress() {
                 </DrawerBottom>
 
                 <Dialog action={'add_act'}
-                        open={openDialog}
+                        open={openActDialog}
                         data={{stateAct, setstateAct, setDialog, t}}
                         size={"sm"}
                         direction={'ltr'}

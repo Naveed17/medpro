@@ -3,21 +3,20 @@ import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
 import {useTranslation} from 'next-i18next'
-import {tabsData, documentButtonList} from './config'
+import {documentButtonList} from './config'
 import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import {useAppDispatch} from "@app/redux/hooks";
-import {SetEnd} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
 
 function ConsultationIPToolbar({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState(tabsData[0].value);
+    const [value, setValue] = useState('patient history');
     const [info, setInfo] = useState<null | string>('');
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
@@ -26,9 +25,23 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const open = Boolean(anchorEl);
-    const dispatch = useAppDispatch();
-    const {selected, appuuid, mutate, mutateDoc, setPendingDocuments, pendingDocuments, dialog, setDialog} = props;
+    const {
+        selected,
+        appuuid,
+        mutate,
+        agenda,
+        mutateDoc,
+        setPendingDocuments,
+        pendingDocuments,
+        dialog,
+        documents,
+        setDialog,
+        selectedAct,
+        selectedModel,
+        selectedExam
+    } = props;
 
 
     const {trigger} = useRequestMutation(null, "/drugs");
@@ -45,7 +58,6 @@ function ConsultationIPToolbar({...props}) {
         switch (dialog) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
-                console.log(prescription)
                 break;
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
@@ -61,7 +73,6 @@ function ConsultationIPToolbar({...props}) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo('medical_prescription')
-                console.log(prescription)
                 setState(prescription)
                 break;
             case "balance_sheet_request":
@@ -73,7 +84,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo('add_a_document')
-                setState({name: '', description: '', files: []})
+                setState({name: '', description: '', type: '', files: []})
                 break;
             default:
                 setInfo(null)
@@ -126,6 +137,31 @@ function ConsultationIPToolbar({...props}) {
         setPendingDocuments(pdoc)
 
     }
+
+    const tabsData = [
+        {
+            label: "patient_history",
+            value: 'patient history',
+
+        },
+        {
+            label: "mediktor_report",
+            value: 'mediktor report',
+        },
+        {
+            label: "consultation_form",
+            value: 'consultation form',
+        },
+        {
+            label: "medical_procedures",
+            value: 'medical procedures',
+        },
+        {
+            label: "documents",
+            value: 'documents',
+        }
+    ];
+
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
@@ -147,12 +183,11 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo('document_detail')
                     const res = r.data.data
-                    console.log(res)
 
                     setState({
                         uri: res[1],
-                        name: 'ordonnance',
-                        type: 'Ordonnance',
+                        name: 'prescription',
+                        type: 'prescription',
                         info: res[0].prescription_has_drugs,
                         uuid: res[0].uuid,
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
@@ -194,14 +229,14 @@ function ConsultationIPToolbar({...props}) {
             case 'add_a_document':
                 form.append('title', state.name);
                 form.append('description', state.description);
-                form.append('type', '01dd685c-3443-11ed-a261-0242ac120002');
+                form.append('type', state.type);
                 state.files.map((file: File) => {
                     form.append('files[]', file, file.name)
                 })
 
                 trigger({
                     method: "POST",
-                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/7f2d1cc0-f73a-4e8f-aaaf-b6d8d88a9d7c/appointments/${appuuid}/documents/${router.locale}`,
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
                     data: form,
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`
@@ -217,17 +252,19 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(false);
         setInfo(null)
     }
+
     useEffect(() => {
         selected(tabs);
         if (lastTabs === 2) {
             const btn = document.getElementsByClassName('sub-btn')[1];
             (btn as HTMLElement)?.click();
-            dispatch(SetEnd(true))
         }
         setLastTabs(tabs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
+
     if (!ready) return <>loading translations...</>;
+
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
@@ -293,14 +330,20 @@ function ConsultationIPToolbar({...props}) {
                                  label={t(label)}/>
                         ))}
                     </Tabs>
-                    <Button variant="outlined" color="primary" onClick={() => {
+                    <LoadingButton loading={loading} variant="outlined" color="primary" onClick={() => {
                         const btn = document.getElementsByClassName('sub-btn')[1];
                         (btn as HTMLElement)?.click();
-                        dispatch(SetEnd(true))
+                        setLoading(true)
+                        setTimeout(() => {
+                            console.log(selectedAct)
+                            console.log(selectedModel)
+                            console.log(selectedExam)
+                            setLoading(false)
+                        }, 3000)
                     }} className="action-button">
-                        <Icon path="ic-check"/>
+                        {!loading && <Icon path="ic-check"/>}
                         {t("end_of_consultation")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>
             {

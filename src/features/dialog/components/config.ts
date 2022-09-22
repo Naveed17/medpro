@@ -142,7 +142,10 @@ const dialogData = [
         component: dynamic((): any =>
             import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
                 (mod) => mod
-            )
+            ),
+            {
+                ssr: false
+            }
         ),
     },
     {

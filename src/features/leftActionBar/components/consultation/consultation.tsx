@@ -80,7 +80,7 @@ function Consultation() {
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        <Typography
+                        {patient?.contact && patient?.contact.length > 0 && <Typography
                             component="div"
                             sx={{
                                 display: "flex",
@@ -91,9 +91,9 @@ function Consultation() {
                             variant="body2"
                             color="text.secondary"
                         >
-                            {patient?.contact && <Icon path="ic-phone"/>}
+                            <Icon path="ic-phone"/>
                             {patient?.contact[0].code} {patient?.contact[0].value}
-                        </Typography>
+                        </Typography>}
                         <Typography
                             component="div"
                             sx={{
