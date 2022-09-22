@@ -26,11 +26,11 @@ function CipMedicProCard({...props}) {
                     <Typography fontWeight={400}>
                         {t("table.reason_for_consultation")}
                     </Typography>
-                    <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                    { row.consultationReason && <Typography component={Stack} spacing={1} alignItems="center" direction="row">
                         <ModelDot color={row.consultationReason.color} selected={false} size={21} sizedot={13}
                                   padding={3} marginRight={5}/>
                         {row.consultationReason.name}
-                    </Typography>
+                    </Typography>}
                     <NextLink href="/">
                         <Link underline='none' sx={{cursor: 'pointer'}}>
                             {t("table.send_the_link")}

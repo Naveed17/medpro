@@ -5,7 +5,6 @@ import Lable from '@themes/overrides/Lable'
 import { useState } from 'react'
 function MotifListMobile({ ...props }) {
     const { data, t, durations, delay } = props;
-    console.log(data)
     const [state, setstate] = useState<any>({
         duration: `${data?.duration}`,
         min: `${data?.minimumDelay}`,

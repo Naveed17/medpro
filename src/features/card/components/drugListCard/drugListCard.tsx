@@ -8,7 +8,7 @@ function DrugListCard({...props}) {
     const {data, t, list, remove, edit, disabled} = props;
     return (
         <DrugListCardStyled sx={{mb: list && "8px !important"}}>
-            <Stack direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
+            <Stack onClick={(ev)=>{edit(data)}} direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
                 <Stack spacing={1}>
                     <Typography variant="body2" textTransform="uppercase">{data.name}</Typography>
                     <List
@@ -38,8 +38,9 @@ function DrugListCard({...props}) {
                         }}>
                             <Icon path="ic-duotone"/>
                         </IconButton>
-                        <IconButton disabled={disabled} size="small" onClick={() => {
+                        <IconButton disabled={disabled} size="small" onClick={(e) => {
                             remove(data)
+                            e.stopPropagation()
                         }}>
                             <Icon path="setting/icdelete"/>
                         </IconButton>

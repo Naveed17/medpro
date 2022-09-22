@@ -21,7 +21,7 @@ import {
     appointmentSelector, setAppointmentDate,
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
@@ -75,7 +75,7 @@ function TimeSchedule({...props}) {
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null, {revalidate: false, populateCache: false}).then((result) => {
+        } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
             const slots = weekTimeSlots.find(slot =>
                 slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
@@ -200,6 +200,33 @@ function TimeSchedule({...props}) {
                 <Grid container spacing={2}>
                     <Grid item md={6} xs={12}>
                         <Typography variant="body1" color="text.primary" mt={3} mb={1}>
+                            {t("stepper-1.duration.title")}
+                        </Typography>
+                        <FormControl fullWidth size="small">
+                            <Select
+                                labelId="select-duration"
+                                id="select-duration"
+                                onChange={onChangeDuration}
+                                value={duration as string}
+                                displayEmpty
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("stepper-1.duration.placeholder")}</em>;
+                                    }
+
+                                    return <>{getTimeFromMinutes(parseInt(selected))}</>;
+                                }}
+                            >
+                                {durations?.map((duration) => (
+                                    <MenuItem value={duration} key={duration}>
+                                        {getTimeFromMinutes(duration)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item md={6} xs={12}>
+                        <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                             {t("stepper-1.reason-consultation")}
                         </Typography>
                         <FormControl fullWidth size="small">
@@ -243,34 +270,6 @@ function TimeSchedule({...props}) {
                                     }}
                                 />*/}
                                         {consultationReason.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item md={6} xs={12}>
-                        <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                            {t("stepper-1.duration.title")}
-                        </Typography>
-                        <FormControl fullWidth size="small">
-                            <Select
-                                disabled={!reason}
-                                labelId="select-duration"
-                                id="select-duration"
-                                onChange={onChangeDuration}
-                                value={duration as string}
-                                displayEmpty
-                                renderValue={selected => {
-                                    if (selected.length === 0) {
-                                        return <em>{t("stepper-1.duration.placeholder")}</em>;
-                                    }
-
-                                    return <>{getTimeFromMinutes(parseInt(selected))}</>;
-                                }}
-                            >
-                                {durations?.map((duration) => (
-                                    <MenuItem value={duration} key={duration}>
-                                        {getTimeFromMinutes(duration)}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -354,8 +353,8 @@ function TimeSchedule({...props}) {
                             views={['day']}
                             onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
                             onChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                            value={(location || reason) ? date : null}
-                            loading={!location || !reason}
+                            value={(location) ? date : null}
+                            loading={!location}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>
@@ -364,7 +363,7 @@ function TimeSchedule({...props}) {
                         </Typography>
                         <TimeSlot
                             sx={{width: 248, margin: "auto"}}
-                            loading={!date || !reason || loading}
+                            loading={!date || loading}
                             data={timeSlots}
                             limit={limit}
                             onChange={onTimeSlotChange}
@@ -376,7 +375,7 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {(reason && recurringDates.length > 0) &&
+                {(recurringDates.length > 0) &&
                     <>
                         <Typography variant="body1" color="text.primary" mb={1}>
                             {t("stepper-1.selected-appointment")}

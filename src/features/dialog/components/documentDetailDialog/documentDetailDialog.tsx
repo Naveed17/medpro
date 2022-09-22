@@ -35,7 +35,6 @@ function DocumentDetailDialog({ ...props }) {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
 
     const { data: { state, setDialog } } = props
-    console.log(props);
     const router = useRouter();
     const { data: session, status } = useSession();
 
@@ -74,8 +73,53 @@ function DocumentDetailDialog({ ...props }) {
     const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
     useEffect(() => {
+        const doc = new jsPDF({
+            format: 'a5'
+        });
 
-    }, [state])
+        if (!hide) {
+            doc.setFontSize(18);
+            doc.setTextColor('#0696D6');
+            doc.text("Doctor Jones", 10, 20);
+            doc.text("specilalist", 10, 30);
+            doc.setFontSize(14);
+            doc.text("Some dummy data", 10, 40);
+            doc.text("Some where", doc.internal.pageSize.getWidth() - 40, 20);
+            doc.text("Some where", doc.internal.pageSize.getWidth() - 40, 30);
+            doc.setFontSize(12);
+            doc.text("Tel: 00000000", doc.internal.pageSize.getWidth() - 40, 40);
+        };
+
+        if (state.type === 'prescription') {
+            doc.setTextColor('#1B2746');
+            doc.setFontSize(16);
+            doc.text('Tunis, le ' + moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth() - 85, 70)
+            doc.text("Nom & Prénom: " + state.patient, 10, 90);
+            doc.setFontSize(14);
+            let position = 110;
+            state.info.map((drug: any, i: number) => {
+                if (i > 1) {
+                    doc.addPage();
+                }
+                doc.text(drug.standard_drug.commercial_name, 10, position).setTextColor('#7C878E').setFontSize(12);
+                doc.text("• " + drug.dosage, 24, position + 8);
+                doc.text("• Durée: " + drug.duration + ' ' + drug.duration_type, 24, position + 15).setTextColor('black').setFontSize(15);
+                position += 30
+            })
+
+
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        } else if (state.name === 'requested-analysis') {
+            console.log(state.info)
+            const doc = new jsPDF()
+            doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
+            doc.text("Les analyses suivantes:", 20, 70);
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        }
+        else setFile(state.uri)
+    }, [state, hide])
 
     function onDocumentLoadSuccess({ numPages }: any) {
         setNumPages(numPages);
