@@ -15,16 +15,14 @@ function Header({...props}) {
                     width: event.view.type === "timeGridDay" ? 200 : "auto",
                 }}
             >
-                {(isGridWeek || event.view.type === "timeGridDay") &&
+                {(isGridWeek) &&
                     <Typography variant="subtitle1" color="text.primary" fontSize={18} mr={2}>
                         {moment(event.date).format("DD")}
                     </Typography>}
 
                 <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                     <div>
-                        {moment(event.date).format(
-                            isGridWeek || event.view.type === "timeGridDay" ? "MMM/dddd" : "dddd"
-                        ).replace('.', '')}
+                        {moment(event.date).format( "dddd")}
                     </div>
                 </Typography>
                 {/*                {view !== "listWeek" && (

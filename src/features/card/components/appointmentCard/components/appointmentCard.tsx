@@ -120,7 +120,6 @@ function AppointmentCard({...props}) {
                                                     />
                                                     <Typography>{type?.name}</Typography>
                                                 </Box>
-
                                             )
                                         }}>
                                         {types?.map((type) => (

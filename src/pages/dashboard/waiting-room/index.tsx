@@ -20,6 +20,8 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import Typography from "@mui/material/Typography";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import {useAppSelector} from "@app/redux/hooks";
+import {leftActionBarSelector} from "@features/leftActionBar";
 
 export const headCells = [
     {
@@ -88,11 +90,13 @@ const AddWaitingRoomCardData = {
     buttonVariant: "warning",
 };
 
-function Room() {
+function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {t, ready} = useTranslation("waitingRoom", {keyPrefix: "config"});
+
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [contextMenu, setContextMenu] = useState<{
@@ -117,9 +121,13 @@ function Room() {
         .find((item: AgendaConfigurationModel) =>
             item.isDefault) as AgendaConfigurationModel;
 
-    const {data: httpWaitingRoomsResponse, error: errorHttpWaitingRooms, mutate: mutateWaitingRoom} = useRequest({
+    const {
+        data: httpWaitingRoomsResponse,
+        error: errorHttpWaitingRooms,
+        mutate: mutateWaitingRoom
+    } = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity.uuid}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -290,10 +298,10 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
     },
 });
 
-export default Room;
+export default WaitingRoom;
 
-Room.auth = true
+WaitingRoom.auth = true
 
-Room.getLayout = function getLayout(page: ReactElement) {
+WaitingRoom.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

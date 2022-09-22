@@ -33,22 +33,21 @@ function Event({...props}) {
                     },
                     '& .MuiBadge-badge': {
                         zIndex: 9
-                    },
-                    ...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    },...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
-                        }
-                    ), ...(event.event._def.extendedProps.hasError && {
-                            "& .MuiSvgIcon-root": {
-                                width: 10,
-                                height: 10,
-                                ml: ".5rem"
-                            }
                         }
                     ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
                             backgroundColor: "secondary.lighter",
                             "& .MuiSvgIcon-root": {
                                 width: 18,
                                 height: 18,
+                                ml: ".5rem"
+                            }
+                        }
+                    ), ...(event.event._def.extendedProps.hasError && {
+                            "& .MuiSvgIcon-root": {
+                                width: 10,
+                                height: 10,
                                 ml: ".5rem"
                             }
                         }
