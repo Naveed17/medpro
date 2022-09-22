@@ -30,7 +30,7 @@ function PdfTempleteOne({ ...props }) {
           <Typography lineHeight={1}></Typography>
         </Box>
       </Stack>
-      <Typography variant='h6' my={7} textAlign='center'>Note d' honoraires</Typography>
+      <Typography variant='h6' my={7} textAlign='center'>{`Note d' honoraires`}</Typography>
       <Stack spacing={5}>
         <Stack direction="row" alignItems="flex-end">
           <Typography lineHeight={1} mr={.5}>Nom et Prenom du patient:</Typography>
