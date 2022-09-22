@@ -8,6 +8,10 @@ export const actionButtons = [
         icon: "ic-send"
     },
     {
+        title: 'hide',
+        icon: "ic-edit-gray"
+    },
+    {
         title: 'edit',
         icon: "ic-edit-gray"
     },

@@ -81,7 +81,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
 
                     <Button className="Current-date" variant="text-transparent">
                         <Typography variant="body2" component={"span"}>
-                            {moment(currentDate.date).format(view === 'dayGridMonth' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                            {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
                         </Typography>
                     </Button>
                     {/*                    <Button
@@ -107,7 +107,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
             </Box>
 
             <Hidden smUp>
-                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"}  sx={{margin: "0.5rem 0"}}>
+                <Stack direction="row" spacing={1.5} justifyContent={"flex-end"} sx={{margin: "0.5rem 0"}}>
                     <CalendarViewButton
                         data={[
                             {icon: <TodayIcon/>, label: "Day"},

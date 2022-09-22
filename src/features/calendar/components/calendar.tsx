@@ -257,7 +257,8 @@ function Calendar({...props}) {
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 eventContent={(event) =>
-                                    <Event event={event} openingHours={openingHours} t={translation}/>}
+                                    <Event event={event} openingHours={openingHours} t={translation}/>
+                                }
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         ev.preventDefault();
