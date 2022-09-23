@@ -209,7 +209,15 @@ function AppointmentDetail({...props}) {
                             {t('event.start')}
                         </Button>
                     </Stack>
-                    <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
+                    {data?.extendedProps.hasError &&
+                        <Stack sx={{mt: 2}} spacing={2} direction="row" justifyContent='space-between'
+                               alignItems='center'>
+                            <Typography variant="body2" component="span" className="alert">
+                                <Icon path="danger"/>
+                                <span>{t("event.hors-opening-hours")}</span>
+                            </Typography>
+                        </Stack>}
+                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasError ? 0 : 2}} variant="body1" fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
                     <AppointmentCard

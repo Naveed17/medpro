@@ -90,6 +90,7 @@
   "event": {
     "new": "nouveau rendez-vous",
     "reschedule": "Replanifier",
+    "hors-opening-hours": "rendez-vous pris en dehors des heures d'ouverture",
     "title": "Détail RDV",
     "save": "Enregistrer",
     "start": "Commencer la consultation",
