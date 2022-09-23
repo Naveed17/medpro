@@ -4,25 +4,23 @@ function PdfTempleteTwo({ ...props }) {
     const { hide } = props
     return (
         <RootStyled>
-            <Collapse in={!hide as boolean}>
-                <Stack direction="row" justifyContent="space-between" mb={5}>
-                    <Stack maxWidth={200} width={1}>
-                        <Typography color="primary" variant='subtitle1' lineHeight={1.2}>Doctor Name</Typography>
-                        <Typography color="primary" variant='subtitle1'>Specilalist</Typography>
-                        <Divider sx={{ width: 1 }} />
-                        <Typography color="primary" variant='subtitle2' my={.3}>Some Doctor Data </Typography>
-                        <Divider sx={{ width: 1 }} />
-                    </Stack>
-
-                    <Stack maxWidth={150} width={1} alignItems="flex-end">
-                        <Typography color="primary" variant='subtitle2' lineHeight={1.2}>Doctor Name</Typography>
-                        <Typography color="primary" variant='subtitle2'>Specilalist</Typography>
-                        <Divider sx={{ width: 1 }} />
-                        <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
-                        <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
-                    </Stack>
+            <Stack direction="row" justifyContent="space-between" mb={5} sx={{ opacity: hide ? 0 : 1 }}>
+                <Stack maxWidth={200} width={1}>
+                    <Typography color="primary" variant='subtitle1' lineHeight={1.2}>Doctor Name</Typography>
+                    <Typography color="primary" variant='subtitle1'>Specilalist</Typography>
+                    <Divider sx={{ width: 1 }} />
+                    <Typography color="primary" variant='subtitle2' my={.3}>Some Doctor Data </Typography>
+                    <Divider sx={{ width: 1 }} />
                 </Stack>
-            </Collapse>
+
+                <Stack maxWidth={150} width={1} alignItems="flex-end">
+                    <Typography color="primary" variant='subtitle2' lineHeight={1.2}>Doctor Name</Typography>
+                    <Typography color="primary" variant='subtitle2'>Specilalist</Typography>
+                    <Divider sx={{ width: 1 }} />
+                    <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
+                    <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
+                </Stack>
+            </Stack>
             <Typography textAlign="center" variant='h6'>Certificat Medical</Typography>
             <Stack direction='row' alignItems="flex-end" justifyContent="flex-end" mt={5}>
                 <Typography>Tunis le:</Typography>

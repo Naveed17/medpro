@@ -294,6 +294,14 @@
       }
     }
   },
+  "actfees": {
+    "path": "Paramètres > Actes Fees",
+    "table": {
+      "actions": "Actions",
+      "acts": "Actes",
+      "amount": "Amount"
+    }
+  },
   "days": {
     "MON": "Lundi",
     "THU": "Mardi",

@@ -1,21 +1,21 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Button, InputBase, TextField} from "@mui/material";
-import {useTheme, alpha, Theme} from "@mui/material/styles";
-import {TableRowStyled} from "@features/table";
-import React, {useEffect, useState} from "react";
-import {useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
+import { Checkbox, Button, InputBase, TextField } from "@mui/material";
+import { useTheme, alpha, Theme } from "@mui/material/styles";
+import { TableRowStyled } from "@features/table";
+import React, { useEffect, useState } from "react";
+import { useRequestMutation } from "@app/axios";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
-function CIPMedicalProceduresRow({...props}) {
+function CIPMedicalProceduresRow({ ...props }) {
 
-    const {row, isItemSelected, handleClick, editMotif, selected: s, handleChange,tableHeadData} = props;
+    const { row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData } = props;
 
-    const {trigger} = useRequestMutation(null, "/actFees");
+    const { trigger } = useRequestMutation(null, "/actFees");
     const router = useRouter();
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
+    const { data: session } = useSession();
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const form = new FormData();
@@ -42,7 +42,7 @@ function CIPMedicalProceduresRow({...props}) {
                     onChange={(e) => {
                         editMotif(row, 'checked')
                     }}
-                    checked={isItemSelected}/>
+                    checked={isItemSelected} />
             </TableCell>
             <TableCell>
                 {row.act.name}
@@ -73,7 +73,7 @@ function CIPMedicalProceduresRow({...props}) {
                                         ContentType: 'multipart/form-data',
                                         Authorization: `Bearer ${session?.accessToken}`
                                     }
-                                }, {revalidate: true, populateCache: true}).then((e) => {
+                                }, { revalidate: true, populateCache: true }).then((e) => {
                                     console.log("res", e)
                                 });
                             }}
@@ -81,7 +81,7 @@ function CIPMedicalProceduresRow({...props}) {
                             onChange={(e: any) => {
                                 setFees(Number(e.currentTarget.value))
                                 row.fees = Number(e.currentTarget.value)
-                                editMotif(row,'change',e.currentTarget.value)
+                                editMotif(row, 'change', e.currentTarget.value)
                             }}
                             autoFocus={selected === row.uuid}
                             sx={{
