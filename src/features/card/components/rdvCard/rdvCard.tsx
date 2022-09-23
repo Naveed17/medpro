@@ -20,7 +20,7 @@ function RdvCard({ ...props }) {
         className="first-child"
         sx={{
           "&:after": {
-            bgcolor: loading ? "green" : inner.consultationReason.color,
+            bgcolor: loading ? "green" : inner.consultationReason?.color,
           },
         }}
       >
@@ -48,7 +48,7 @@ function RdvCard({ ...props }) {
 
             <Typography variant="body2" color="primary.main">
               {" "}
-              {inner.consultationReason.name}
+              {inner.consultationReason?.name}
             </Typography>
           </>
         )}

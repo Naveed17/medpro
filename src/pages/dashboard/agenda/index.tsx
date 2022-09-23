@@ -39,9 +39,10 @@ import {
     setStepperIndex
 } from "@features/calendar";
 import {
+    appointmentSelector,
     EventType,
     Instruction,
-    Patient,
+    Patient, resetSubmitAppointment,
     setAppointmentDate,
     setAppointmentRecurringDates,
     TimeSchedule
@@ -55,8 +56,7 @@ import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-
-const CustomStepper = dynamic(() => import('@features/customStepper/components/customStepper'));
+import {CustomStepper} from "@features/customStepper";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -93,11 +93,10 @@ function Agenda() {
 
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
+    const {submitted} = useAppSelector(appointmentSelector);
     const {
         openViewDrawer,
-        selectedEvent,
-        openAddDrawer, openPatientDrawer,
-        currentStepper, currentDate, view
+        openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
         date: moveDialogDate,
@@ -182,7 +181,7 @@ function Agenda() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, {revalidate: true, populateCache: true}).then((result) => {
+        }, TriggerWithoutValidation).then((result) => {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
@@ -317,6 +316,7 @@ function Agenda() {
     const onMenuActions = (action: string, event: EventDef) => {
         switch (action) {
             case "onCancel":
+                setEvent(event);
                 setCancelDialog(true);
                 break;
             case "onConsultationDetail":
@@ -502,17 +502,21 @@ function Agenda() {
         dispatch(setStepperIndex(index));
     }
 
+    const handleStepperActions = (action: string, event: EventDef) => {
+        switch (action) {
+            case "onDetailPatient":
+                setEvent(event);
+                dispatch(openDrawer({type: "patient", open: true}));
+                break;
+        }
+    }
+
     const submitStepper = (index: number) => {
         if (EventStepper.length !== index) {
             EventStepper[index].disabled = false;
         } else {
+            EventStepper.map((stepper, index) => stepper.disabled = true);
             refreshData();
-            dispatch(setStepperIndex(0));
-            EventStepper.map((stepper, index) => {
-                if (index > 0) {
-                    stepper.disabled = true;
-                }
-            })
         }
     }
 
@@ -651,11 +655,17 @@ function Agenda() {
                             translate={t}
                         />}
                 </Drawer>
+
                 <Drawer
                     anchor={"right"}
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
+                        dispatch(setStepperIndex(0));
+                        if (submitted) {
+                            dispatch(resetSubmitAppointment());
+                        }
+                        EventStepper[0].disabled = false;
                         dispatch(openDrawer({type: "add", open: false}));
                         setTimeout(() => {
                             setEvent(undefined);
@@ -664,10 +674,10 @@ function Agenda() {
                 >
                     <Box height={"100%"}>
                         <CustomStepper
-                            currentIndex={currentStepper}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             stepperData={EventStepper}
+                            OnCustomAction={handleStepperActions}
                             scroll
                             t={t}
                             minWidth={726}
@@ -773,7 +783,7 @@ function Agenda() {
                                 {...(loading && loading)}
                                 variant="contained"
                                 color={"error"}
-                                onClick={() => cancelAppointment(selectedEvent?.publicId ? selectedEvent?.publicId as string : (selectedEvent as any)?.id)}
+                                onClick={() => cancelAppointment(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                             >
                                 {t("dialogs.cancel-dialog.confirm")}

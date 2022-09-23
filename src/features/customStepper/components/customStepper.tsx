@@ -1,16 +1,19 @@
-import { useState, ReactNode, SyntheticEvent, useCallback } from "react";
+import React, {useState, ReactNode, SyntheticEvent, useCallback, useEffect} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { RootStyled } from "@features/customStepper";
-import { TabPanel } from "@features/tabPanel";
+import {RootStyled} from "@features/customStepper";
+import {useIsMountedRef} from "@app/hooks";
+import _ from "lodash";
+import {TabPanel} from "@features/tabPanel";
 
 function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
+    return {
+        id: `simple-tab-${index}`,
+        "aria-controls": `simple-tabpanel-${index}`,
+    };
 }
+
 function CustomStepper({...props}) {
     const {
         stepperData,
@@ -19,34 +22,64 @@ function CustomStepper({...props}) {
         scroll,
         t,
         OnTabsChange = null,
+        OnCustomAction = null,
         OnSubmitStepper = null,
         onBackButton = null,
     } = props;
-  const [value, setValue] = useState<number>(currentIndex);
-  const [last, setLast] = useState<number>(1);
+    const [value, setValue] = useState<number>(currentIndex);
+    const [last, setLast] = useState<number>(1);
+    const [submited, setSubmited] = useState(false);
+    const [steppers, setSteppers] = useState();
 
-  const tabChange = useCallback(
-    (event: SyntheticEvent, currentIndex: number) => {
-      setValue(currentIndex);
-      if (OnTabsChange) {
-        OnTabsChange(currentIndex);
-      }
-    },
-    [OnTabsChange]
-  );
+    useEffect(() => {
+        console.log(last, submited)
+        if (last !== value) {
+            const listItems = stepperData.map((v: { key: string; title: string; children: ReactNode; }, i: number) => {
+                const Component: any = v.children;
+                return (
+                    <TabPanel key={i.toString()} value={Number(value)} index={i}>
+                        <Component
+                            OnAction={OnCustomAction}
+                            onNext={(index: number) => submitStepper(index)}
+                            onBack={() => {
+                                if (value > 0) {
+                                    setValue(value - 1);
+                                }
+                                if (onBackButton) {
+                                    onBackButton(value);
+                                }
+                            }}
+                            {...props}
+                        />
+                    </TabPanel>
+                );
+            });
+            setSteppers(listItems);
+        }
+    }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const submitStepper = useCallback(
-    (currentIndex: number) => {
-      if (currentIndex < stepperData.length) {
-        setValue(currentIndex);
-        setLast(last < stepperData.length ? last + 1 : last);
-      }
-      if (OnSubmitStepper) {
-        OnSubmitStepper(currentIndex);
-      }
-    },
-    [OnSubmitStepper, last, stepperData.length]
-  );
+    const tabChange = useCallback(
+        (event: SyntheticEvent, currentIndex: number) => {
+            setValue(currentIndex);
+            if (OnTabsChange) {
+                OnTabsChange(currentIndex);
+            }
+        },
+        [OnTabsChange]
+    );
+
+    const submitStepper = useCallback(
+        (currentIndex: number) => {
+            if (currentIndex < stepperData.length) {
+                setValue(currentIndex);
+                setLast(last < stepperData.length ? last + 1 : last);
+            }
+            if (OnSubmitStepper) {
+                OnSubmitStepper(currentIndex);
+            }
+        },
+        [OnSubmitStepper, last, stepperData.length]
+    );
 
     return (
         <>
@@ -94,35 +127,10 @@ function CustomStepper({...props}) {
                         )
                     )}
                 </Tabs>
-                {stepperData.map(
-                    (
-                        v: {
-                            title: string;
-                            children: ReactNode;
-                        },
-                        i: number
-                    ) => {
-                        const Component: any = v.children;
-                        return (
-                            <TabPanel key={Math.random()} value={Number(value)} index={i}>
-                                <Component
-                                    onNext={(index: number) => submitStepper(index)}
-                                    onBack={() => {
-                                        if (currentIndex > 0) {
-                                            setValue(currentIndex - 1);
-                                        }
-                                        if (onBackButton) {
-                                            onBackButton(currentIndex);
-                                        }
-                                    }}
-                                    {...props}
-                                />
-                            </TabPanel>
-                        );
-                })}
-      </RootStyled>
-    </>
-  );
+                {steppers}
+            </RootStyled>
+        </>
+    );
 }
 
 export default CustomStepper;
