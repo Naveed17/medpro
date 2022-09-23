@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { DashLayout } from "@features/base";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import { Box } from "@mui/system";
+import { Box, Drawer } from "@mui/material";
 import { Button, DialogActions } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
@@ -15,7 +15,10 @@ import { SubHeader } from "@features/subHeader";
 import { Otable } from '@features/table'
 import { Dialog } from '@features/dialog'
 import CloseIcon from "@mui/icons-material/Close";
+import { useAppSelector } from "@app/redux/hooks";
+import { configSelector } from "@features/base";
 import { uniqueId } from 'lodash'
+import { ActFeesDialog } from "@features/actFeesDialog";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -60,6 +63,8 @@ function ActFees() {
     const router = useRouter();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selected, setselected] = useState();
+    const [edit, setEdit] = useState(false);
+    const { direction } = useAppSelector(configSelector);
     const [stateAct, setstateAct] = useState({
         "uuid": "",
         "isTopAct": true,
@@ -80,7 +85,7 @@ function ActFees() {
 
     const { trigger } = useRequestMutation(null, "/settings/acts");
 
-    const { data: httpProfessionalsActs, error: errorActs } = useRequest({
+    const { data: httpProfessionalsActs, error: errorActs, mutate } = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
         headers: { Authorization: `Bearer ${session?.accessToken}` }
@@ -94,23 +99,31 @@ function ActFees() {
     const handleCloseDialogAct = () => {
         setOpenDialog(false);
     }
-
+    const closeDraw = () => {
+        setEdit(false);
+    }
     const handleSaveDialog = () => {
-        setMainActes(
-            [
-                ...mainActes,
-                {
-                    ...stateAct,
-                    uuid: uniqueId()
-                }
-
-            ]
-        )
+        const form = new FormData();
+        form.append('name', JSON.stringify({
+            "fr": stateAct.act.name,
+        }));
+        form.append('price', stateAct.fees)
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+            data: form,
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, { revalidate: true, populateCache: true }).then(r => mutate())
         setOpenDialog(false);
 
     }
-    const handleEdit = (v: any) => setselected(v);
-    console.log(selected)
+    const handleEdit = (v: any) => {
+        setselected(v)
+        setEdit(true)
+    };
     const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
     if (!ready) return <>loading translations...</>;
 
@@ -145,6 +158,7 @@ function ActFees() {
                 size={"sm"}
                 direction={'ltr'}
                 title={t('add_a_new_act')}
+                sx={{ height: 200 }}
                 dialogClose={handleCloseDialogAct}
                 actionDialog={
                     <DialogActions>
@@ -154,13 +168,23 @@ function ActFees() {
                         </Button>
                         <Button disabled={!(stateAct.fees && stateAct.act.name)} variant="contained"
                             onClick={handleSaveDialog}
-
                             startIcon={<IconUrl
                                 path='ic-dowlaodfile' />}>
                             {t('save')}
                         </Button>
                     </DialogActions>
                 } />
+            <Drawer
+                anchor={'right'}
+                open={edit}
+                dir={direction}
+                onClose={closeDraw}>
+                <ActFeesDialog
+                    data={selected}
+                    mutateEvent={mutate}
+                    closeDraw={closeDraw}
+                />
+            </Drawer>
         </>
     );
 }

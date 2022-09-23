@@ -133,9 +133,8 @@ function Patient() {
   } = useRequest(
     {
       method: "GET",
-      url: `/api/medical-entity/${medical_entity.uuid}/patients/${
-        router.locale
-      }?page=${router.query.page || 1}&limit=10&withPagination=true`,
+      url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale
+        }?page=${router.query.page || 1}&limit=10&withPagination=true`,
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
@@ -161,8 +160,8 @@ function Patient() {
   const selectedPatient =
     patientAction === "EDIT_PATIENT"
       ? (httpPatientsResponse as HttpResponse)?.data?.list.filter(
-          (val: any) => val.uuid === patientId
-        )[0]
+        (val: any) => val.uuid === patientId
+      )[0]
       : "";
 
   const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
@@ -200,7 +199,6 @@ function Patient() {
         <PatientMobileCard
           ready={ready}
           PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
-          loading={!Boolean(httpPatientsResponse)}
         />
         <Drawer
           anchor={"right"}
