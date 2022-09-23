@@ -141,5 +141,8 @@
       "cancel": "Annuler",
       "confirm": "Confirmer"
     }
-  }
+  },
+  "medical-imaging": "Imagerie médicale",
+  "analyse": "Analyse",
+  "rapport": "Rapport"
 }
