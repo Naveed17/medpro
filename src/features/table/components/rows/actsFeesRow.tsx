@@ -12,7 +12,6 @@ import IconUrl from '@themes/urlIcon'
 function ActFeesRow({ ...props }) {
     const theme = useTheme() as Theme;
     const { row, editMotif } = props;
-    const [value, setvalue] = useState<number>(row?.fees);
     return (
         <TableRowStyled
             className={'cip-medical-proce-row'}
@@ -23,13 +22,10 @@ function ActFeesRow({ ...props }) {
             </TableCell>
             <TableCell align="center">
                 <InputBase
-                    onChange={
-                        (e: React.ChangeEvent<HTMLInputElement>) => setvalue(+e.target.value)
-                    }
                     type="number"
                     size="small"
                     id={''}
-                    value={value}
+                    value={row.fees}
                     readOnly
                     placeholder={'--'}
                     sx={{
@@ -60,10 +56,7 @@ function ActFeesRow({ ...props }) {
                 {row ? (
                     <Box display="flex" alignItems="center" justifyContent="flex-end">
                         <IconButton size="small" sx={{ mr: { md: 1 } }}
-                            onClick={() => editMotif({
-                                ...row,
-                                fees: value
-                            })}
+                            onClick={() => editMotif(row)}
                         >
                             <IconUrl path="setting/edit" />
                         </IconButton>

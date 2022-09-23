@@ -30,7 +30,7 @@ interface HeadCell {
 const headCells: readonly HeadCell[] = [
 
     {
-        id: "acts",
+        id: "name",
         numeric: false,
         disablePadding: true,
         label: "acts",
@@ -38,7 +38,7 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
-        id: "amount",
+        id: "fees",
         numeric: true,
         disablePadding: false,
         label: "amount",
