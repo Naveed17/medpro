@@ -116,12 +116,12 @@ function ModalConsultation({...props}) {
             <ClickAwayListener onClickAway={handleClickAway}>
                 <ConsultationModalStyled>
                     <Stack spacing={1} p={2} direction="row" alignItems="center" className="card-header"
-                           bgcolor={alpha(value.color, 0.3)}>
+                           bgcolor={alpha(value?.color, 0.3)}>
                         <Stack onClick={() => setOpen(prev => !prev)} spacing={1} direction="row" alignItems="center"
                                width={1} sx={{cursor: 'pointer'}}>
-                            <ModelDot color={value.color} selected={false}/>
+                            <ModelDot color={value?.color} selected={false}/>
                             <Typography fontWeight={500}>
-                                Données de suivi : {value.label}
+                                Données de suivi : {value?.label}
                             </Typography>
                             <Icon path="ic-flesh-bas-y"/>
                         </Stack>
@@ -130,12 +130,15 @@ function ModalConsultation({...props}) {
                         </Button>*/}
                     </Stack>
                     <CardContent sx={{
-                        bgcolor: alpha(value.color, 0.1)
+                        bgcolor: alpha(value?.color, 0.1)
                     }}>
                         <Box>
                             {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
-                                    dispatch(SetFiche(ev.data))
+                                    //dispatch(SetFiche(ev.data))
+                                    console.log(ev.data)
+                                    modal.data = ev.data
+                                    setSM(modal)
                                 }}
                                 onError={console.log}
                                 onEditComponent={console.log}

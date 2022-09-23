@@ -11,32 +11,32 @@ import {
     TextField,
     Button
 } from '@mui/material'
-import { useFormik, Form, FormikProvider } from "formik";
+import {useFormik, Form, FormikProvider} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
-import { useReactToPrint } from 'react-to-print'
-import { useTranslation } from 'next-i18next'
-import { capitalize } from 'lodash'
-import React, { useState, useRef, useEffect } from 'react';
-import { Document, Page, pdfjs } from "react-pdf";
-import { actionButtons } from './config'
+import {useReactToPrint} from 'react-to-print'
+import {useTranslation} from 'next-i18next'
+import {capitalize} from 'lodash'
+import React, {useState, useRef, useEffect} from 'react';
+import {Document, Page, pdfjs} from "react-pdf";
+import {actionButtons} from './config'
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import moment from "moment";
-import { useRequestMutation } from "@app/axios";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { PdfTempleteOne, PdfTempleteTwo } from '@features/files'
-import dynamic from "next/dynamic";
-import html2pdf from "html2pdf.js";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {PdfTempleteOne, PdfTempleteTwo} from '@features/files'
+
+const html2pdf = require("html2pdf.js")
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-function DocumentDetailDialog({ ...props }) {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+function DocumentDetailDialog({...props}) {
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const { data: { state, setDialog } } = props
+    const {data: {state, setDialog}} = props
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const {data: session, status} = useSession();
 
 
     const formik = useFormik({
@@ -88,7 +88,8 @@ function DocumentDetailDialog({ ...props }) {
             doc.text("Some where", doc.internal.pageSize.getWidth() - 40, 30);
             doc.setFontSize(12);
             doc.text("Tel: 00000000", doc.internal.pageSize.getWidth() - 40, 40);
-        };
+        }
+
 
         if (state.type === 'prescription') {
             doc.setTextColor('#1B2746');
@@ -117,11 +118,10 @@ function DocumentDetailDialog({ ...props }) {
             doc.text("Les analyses suivantes:", 20, 70);
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        }
-        else setFile(state.uri)
+        } else setFile(state.uri)
     }, [state, hide])
 
-    function onDocumentLoadSuccess({ numPages }: any) {
+    function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
 
@@ -129,7 +129,7 @@ function DocumentDetailDialog({ ...props }) {
         content: () => componentRef.current,
     });
 
-    const { trigger } = useRequestMutation(null, "/documents");
+    const {trigger} = useRequestMutation(null, "/documents");
 
 
     const handleActions = (action: string) => {
@@ -141,8 +141,8 @@ function DocumentDetailDialog({ ...props }) {
                 trigger({
                     method: "DELETE",
                     url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
-                    headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
-                }, { revalidate: true, populateCache: true }).then(() => {
+                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+                }, {revalidate: true, populateCache: true}).then(() => {
                     // mutate()
                 });
 
@@ -158,9 +158,9 @@ function DocumentDetailDialog({ ...props }) {
                 html2pdf(componentRef.current, {
                     margin: 1,
                     filename: 'document.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { dpi: 192, letterRendering: true },
-                    jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' }
+                    image: {type: 'jpeg', quality: 0.98},
+                    html2canvas: {dpi: 192, letterRendering: true},
+                    jsPDF: {unit: 'in', format: 'a5', orientation: 'portrait'}
                 })
                 // if (file) {
                 //     fetch(file).then(response => {
@@ -181,7 +181,7 @@ function DocumentDetailDialog({ ...props }) {
                 break;
         }
     }
-    const { values, handleSubmit, getFieldProps } = formik;
+    const {values, handleSubmit, getFieldProps} = formik;
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
@@ -213,7 +213,7 @@ function DocumentDetailDialog({ ...props }) {
                                 </Document>
                             </Box> */}
                             <Box ref={componentRef} width="90%" mx="auto">
-                                <PdfTempleteTwo hide={hide} />
+                                <PdfTempleteTwo hide={hide}/>
                             </Box>
 
                         </Stack>
@@ -226,15 +226,15 @@ function DocumentDetailDialog({ ...props }) {
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
-                                            <IconUrl path={button.icon} />
+                                            <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        <ListItemText primary={t(button.title)} />
+                                        <ListItemText primary={t(button.title)}/>
                                     </ListItemButton>
                                 </ListItem>
                             )
                         }
                         <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
+                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                 <Typography color='text.secondary'>
                                     {t('document_name')}
                                 </Typography>
@@ -250,7 +250,7 @@ function DocumentDetailDialog({ ...props }) {
                                     () => setreadonly(!readonly)
 
                                 }>
-                                    <IconUrl path="ic-edit" />
+                                    <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>
                             </ListItemButton>
@@ -259,7 +259,7 @@ function DocumentDetailDialog({ ...props }) {
                             list.map((item, idx) =>
                                 <ListItem className='secound-list' key={idx}>
                                     <ListItemButton disableRipple
-                                        sx={{ flexDirection: "column", alignItems: 'flex-start' }}>
+                                                    sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                         <Typography color='text.secondary'>
                                             {capitalize(t(item.title))}
                                         </Typography>
