@@ -13,7 +13,8 @@
     "utilisateurs": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
-    "type": "Types de consultation"
+    "type": "Types de consultation",
+    "actfees": "Actes Fees"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -296,6 +297,11 @@
   },
   "actfees": {
     "path": "Paramètres > Actes Fees",
+    "add_a_new_act": "Ajouter un nouveau acte",
+    "name_of_act": "nom de l'acte",
+    "price_of_act": "prix de l'acte",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
     "table": {
       "actions": "Actions",
       "acts": "Actes",
