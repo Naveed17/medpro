@@ -12,7 +12,11 @@ import {
     ListItemText,
     Button,
     DialogActions,
+    List,
+    ListItem,
+    Card,
     Box,
+    Skeleton
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -43,6 +47,7 @@ function ModalConsultation({ ...props }) {
     const { modal, setSM } = props;
     const { data: session, status } = useSession();
     const loading = status === 'loading';
+    const [pageLoading, setPageLoading] = useState(false);
     let medical_entity: MedicalEntityModel | null = null;
     const [open, setOpen] = useState(false);
     const [change, setChange] = useState(false);
@@ -64,10 +69,12 @@ function ModalConsultation({ ...props }) {
 
     useEffect(() => {
         //console.log(modal)
+        setPageLoading(true)
         if (modal)
             setValue(modal.default_modal);
         setTimeout(() => {
-            setLoadModel(false)
+            setLoadModel(false);
+            setPageLoading(false)
         }, 1000)
     }, [modal])
 
@@ -151,6 +158,29 @@ function ModalConsultation({ ...props }) {
                                     }
                                 }
                             />}
+                            {
+                                pageLoading &&
+                                <Card className='loading-card'>
+                                    <Stack spacing={2}>
+                                        <Typography alignSelf="center">
+                                            <Skeleton width={130} height={8}
+                                                variant="rectangular" />
+                                        </Typography>
+                                        <List>
+                                            {
+                                                Array.from({ length: 4 }).map((_, idx) =>
+                                                    <ListItem key={idx} sx={{ py: .5 }}>
+                                                        <Skeleton width={10} height={8} variant="rectangular" />
+                                                        <Skeleton sx={{ ml: 1 }} width={130} height={8}
+                                                            variant="rectangular" />
+                                                    </ListItem>
+                                                )
+                                            }
+
+                                        </List>
+                                    </Stack>
+                                </Card>
+                            }
 
 
                         </Box>

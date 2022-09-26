@@ -157,7 +157,7 @@ const filterData = [
     "video",
     "audio"
 ];
-const AddWaitingRoomCardData = {
+const noCardData = {
     mainIcon: "ic-agenda-+",
     title: "no-data.event.title",
     description: "no-data.event.description",
@@ -173,7 +173,7 @@ function ConsultationInProgress() {
     const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
-    const [value, setValue] = useState<number>(0);
+    const [value, setValue] = useState<string>('consultation_form');
     const [collapse, setCollapse] = useState<any>('');
     const [file, setFile] = useState('/static/files/sample.pdf');
     const [acts, setActs] = useState<any>('');
@@ -399,12 +399,12 @@ function ConsultationInProgress() {
                     agenda={agenda}
                     setDialog={setDialog}
                     endingDocuments={setPendingDocuments}
-                    selected={(v: number) => setValue(v)} />
+                    selected={(v: string) => setValue(v)} />
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
                     {
-                        value === 0 &&
+                        value === 'patient_history' &&
                         <TabPanel index={0}>
                             <Stack spacing={2} mb={2} alignItems="flex-start">
                                 {patient?.nextAppointments.length > 0 &&
@@ -577,14 +577,16 @@ function ConsultationInProgress() {
                         </TabPanel>
                     }
                     {
-                        value === 1 &&
+                        value === 'mediktor_report' &&
                         <TabPanel index={1}>
                             <Box sx={{
                                 '.react-pdf__Page__canvas': {
                                     mx: 'auto'
                                 }
                             }}>
-                                <Document file={file} onLoadSuccess={onDocumentLoadSuccess}>
+                                <Document
+                                    loading={<>loading...</>}
+                                    file={file} onLoadSuccess={onDocumentLoadSuccess}>
                                     {Array.from(new Array(numPages), (el, index) => (
                                         <Page key={`page_${index + 1}`} pageNumber={index + 1} />
                                     ))}
@@ -593,7 +595,7 @@ function ConsultationInProgress() {
                         </TabPanel>
                     }
                     {
-                        value === 2 &&
+                        value === "consultation_form" &&
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
@@ -608,7 +610,7 @@ function ConsultationInProgress() {
                         </TabPanel>
                     }
                     {
-                        value === 3 &&
+                        value === 'medical_procedures' &&
                         <TabPanel index={3}>
                             <Box display={{ xs: 'none', md: 'block' }}>
                                 <Otable
@@ -670,7 +672,7 @@ function ConsultationInProgress() {
                         </TabPanel>
                     }
                     {
-                        value === 4 &&
+                        value === 'documents' &&
                         <TabPanel index={4}>
                             <Box display='grid' sx={{
                                 gridGap: 16,
@@ -702,7 +704,7 @@ function ConsultationInProgress() {
 
                             </Box>
                             {documents.length === 0 && (
-                                <NoDataCard t={t} ns={"consultation"} data={AddWaitingRoomCardData} />
+                                <NoDataCard t={t} ns={"consultation"} data={noCardData} />
                             )}
                         </TabPanel>
                     }

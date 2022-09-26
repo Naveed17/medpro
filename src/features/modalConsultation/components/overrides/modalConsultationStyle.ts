@@ -49,7 +49,16 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
                     }
                 }
             }
-        }
+        },
+        '.loading-card': {
+            background: theme.palette.common.white,
+            paddingBottom: theme.spacing(3),
+            p: {
+                paddingTop: theme.spacing(4),
+                paddingBottom: theme.spacing(2),
+
+            }
+        },
     }
 }));
 export default ConsultationModalStyled;
