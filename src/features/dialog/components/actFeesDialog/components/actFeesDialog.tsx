@@ -1,40 +1,23 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
+import {useFormik, Form, FormikProvider} from "formik";
 import {
     Typography,
     Card,
     CardContent,
-    FormHelperText,
     Stack,
     Box,
     TextField,
-    FormControl,
-    Select,
-    MenuItem,
-    Button, Skeleton
+    Button
 } from '@mui/material'
-import { styled } from '@mui/material/styles';
-import ThemeColorPicker from "@themes/overrides/ThemeColorPicker"
-import React, { useState } from "react";
-import { useTranslation } from "next-i18next";
-import { useRequestMutation } from "@app/axios";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import IconUrl from "@themes/urlIcon";
-const icons = [
-    'ic-consultation',
-    'ic-teleconsultation',
-    'ic-control',
-    'ic-clinique',
-    'ic-at-home',
-    'ic-at-home',
-    'ic-medical-representative',
-    'ic-staff-meeting',
-    'ic-absence',
-    'ic-personal'
-]
-const PaperStyled = styled(Form)(({ theme }) => ({
+import {styled} from '@mui/material/styles';
+import React from "react";
+import {useTranslation} from "next-i18next";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+
+const PaperStyled = styled(Form)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     height: '100%',
@@ -75,17 +58,15 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function EditMotifDialog({ ...props }) {
-    const { mutateEvent } = props
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+function EditMotifDialog({...props}) {
+    const {mutateEvent} = props
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const initalData = Array.from(new Array(20));
-    const [submit, setSubmit] = useState(false);
-    const { trigger } = useRequestMutation(null, "/settings/type");
-    const { t, ready } = useTranslation('settings');
+    const {trigger} = useRequestMutation(null, "/settings/type");
+    const {t, ready} = useTranslation('settings');
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t('users.new.ntc'))
@@ -101,38 +82,38 @@ function EditMotifDialog({ ...props }) {
         },
         validationSchema,
 
-        onSubmit: async (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             const form = new FormData();
             form.append("attribute", "price");
             form.append("value", `${values.fees}`);
 
             trigger({
                 method: "PATCH",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + props.data.uuid + '/' + router.locale,
+                url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + props.data.act.uuid + '/' + router.locale,
                 data: form,
                 headers: {
                     ContentType: 'multipart/form-data',
                     Authorization: `Bearer ${session?.accessToken}`
                 }
-            }, { revalidate: true, populateCache: true }).then((r) => mutateEvent());
+            }, {revalidate: true, populateCache: true}).then((r) => mutateEvent());
             props.closeDraw()
         },
     });
 
     if (!ready) return (<>loading translations...</>);
-    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
+    const {errors, touched, handleSubmit, getFieldProps} = formik;
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                noValidate
-                className='root'
-                onSubmit={handleSubmit}>
+                         noValidate
+                         className='root'
+                         onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
-                    {t('motifType.dialog.update')}
+                    {t('actfees.dialog.editAct')}
                 </Typography>
                 <Typography variant="body1" fontWeight={400} margin={'16px 0'} gutterBottom>
-                    {t('motifType.dialog.info')}
+                    {t('actfees.dialog.info')}
                 </Typography>
                 <Card>
                     <CardContent>
@@ -146,7 +127,7 @@ function EditMotifDialog({ ...props }) {
                                 </Typography>
                                 <TextField
                                     variant="outlined"
-                                    placeholder={t('motifType.dialog.tapez')}
+                                    placeholder={t('actfees.dialog.name')}
                                     required
                                     fullWidth
                                     helperText={touched.name && errors.name}
@@ -157,7 +138,7 @@ function EditMotifDialog({ ...props }) {
                             </Box>
                             <Box width={1}>
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                                    {t('motifType.dialog.nom')}{" "}
+                                    {t('actfees.dialog.price')}{" "}
                                     <Typography component="span" color="error">
                                         *
                                     </Typography>
@@ -167,6 +148,7 @@ function EditMotifDialog({ ...props }) {
                                     placeholder={t('motifType.dialog.tapez')}
                                     required
                                     fullWidth
+                                    InputProps={{inputProps: {min: 0}}}
                                     helperText={touched.fees && errors.fees}
                                     {...getFieldProps("fees")}
                                     type="number"

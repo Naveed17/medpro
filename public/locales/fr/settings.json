@@ -14,7 +14,7 @@
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
     "type": "Types de consultation",
-    "actfees": "Actes Fees"
+    "actfees": "Honoraires"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -296,16 +296,22 @@
     }
   },
   "actfees": {
-    "path": "Paramètres > Actes Fees",
+    "path": "Paramètres > Honoraires",
     "add_a_new_act": "Ajouter un nouveau acte",
-    "name_of_act": "nom de l'acte",
-    "price_of_act": "prix de l'acte",
+    "name_of_act": "Nom ",
+    "price_of_act": "Prix",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "table": {
       "actions": "Actions",
       "acts": "Actes",
       "amount": "Amount"
+    },
+    "dialog": {
+      "editAct": "Modifier acte",
+      "info": "Information d'acte",
+      "name": "Nom d'acte",
+      "price": "Prix"
     }
   },
   "days": {
