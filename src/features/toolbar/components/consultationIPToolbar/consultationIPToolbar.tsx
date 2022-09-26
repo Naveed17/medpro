@@ -96,7 +96,7 @@ function ConsultationIPToolbar({...props}) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, {revalidate: true, populateCache: true}).then((r: any) => {
+                }).then((r: any) => {
                     mutateDoc();
                     mutate();
                     setInfo('document_detail')
@@ -126,7 +126,7 @@ function ConsultationIPToolbar({...props}) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, {revalidate: true, populateCache: true}).then((r: any) => {
+                }).then((r: any) => {
                     mutateDoc();
                     mutate();
                     setCheckUp([])
@@ -159,7 +159,7 @@ function ConsultationIPToolbar({...props}) {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, {revalidate: true, populateCache: true}).then(() => {
+                }).then(() => {
                     mutateDoc()
                 });
                 setOpenDialog(true);
@@ -279,7 +279,7 @@ function ConsultationIPToolbar({...props}) {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`
                 }
-            }, {revalidate: true, populateCache: true}).then(r => {
+            }).then(r => {
                 console.log('end consultation',r)
                 router.push('/dashboard/agenda').then(r => {
                     console.log(r)

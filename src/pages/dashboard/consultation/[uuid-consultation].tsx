@@ -40,27 +40,25 @@ import {Label} from "@features/label";
 import {Otable} from '@features/table';
 import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
 import {ModalConsultation} from '@features/modalConsultation';
-import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
-import {SetMutation, SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetMutation, SetPatient,SetExam,ConsultationIPToolbar} from "@features/toolbar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import {uniqueId} from 'lodash'
-import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-const options = {
+/*const options = {
     cMapUrl: 'cmaps/',
     cMapPacked: true,
     standardFontDataUrl: 'standard_fonts/',
-};
+};*/
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -238,7 +236,7 @@ function ConsultationInProgress() {
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpDocumentResponse, error: errorHttpDoc, mutate: mutateDoc} = useRequest(mpUuid ? {
+    const {data: httpDocumentResponse, error: erorHttpDoc, mutate: mutateDoc} = useRequest(mpUuid ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/documents/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
