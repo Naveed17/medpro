@@ -18,7 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import { uniqueId } from 'lodash'
-import { ActFeesDialog } from "@features/actFeesDialog";
+import { ActFeesDialog } from "@features/dialog";
 interface HeadCell {
     disablePadding: boolean;
     id: string;
