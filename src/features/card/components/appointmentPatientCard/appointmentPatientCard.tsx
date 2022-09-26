@@ -4,6 +4,7 @@ import CallIcon from '@mui/icons-material/Call';
 import moment from "moment-timezone";
 import PaperStyled from "./overrides/paperStyled";
 import React from "react";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 function AppointmentPatientCard({...props}) {
     const {data, style} = props;
@@ -29,15 +30,32 @@ function AppointmentPatientCard({...props}) {
                     >
                         {data?.patient.firstName} {data?.patient.lastName}
                     </Typography>
-                    <Typography
+                    {data?.patient.contact.length > 0 && <Typography
                         variant="body2"
                         color="text.primary"
                         sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
                         component="span"
                     >
-                        <CallIcon/> {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"} {data?.patient.contact[0]?.value}
-                    </Typography>
+                        <CallIcon/>
+                        {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
+                        {data?.patient.contact[0]?.value}
+                    </Typography>}
                 </Box>
+            </Stack>
+            <Stack
+                direction="row"
+                spacing={1}
+                sx={{p: .5}}
+            >
+                {data?.type && <Box sx={{display: "inline-flex"}}>
+                    <FiberManualRecordIcon
+                        fontSize="small"
+                        sx={{
+                            color: data?.type.color,
+                        }}
+                    />
+                    <Typography>{data?.type.name}</Typography>
+                </Box>}
             </Stack>
             <Stack sx={{p: 2, background: "rgba(255, 212, 0, 0.4)",}}>
                 <Box>

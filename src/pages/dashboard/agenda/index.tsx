@@ -322,9 +322,10 @@ function Agenda() {
             case "onConsultationDetail":
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() =>
-                        dispatch(setTimer({isActive: true, isPaused: false, event}))
-                    )
+                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                        dispatch(setTimer({isActive: true, isPaused: false, event}));
+                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4");
+                    });
                 } else {
                     setError(true);
                 }
