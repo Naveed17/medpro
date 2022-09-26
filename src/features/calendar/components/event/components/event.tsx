@@ -7,6 +7,7 @@ import Zoom from '@mui/material/Zoom';
 import {LightTooltip} from "@features/tooltip";
 import {useRouter} from "next/router";
 import SalleIcon from "@themes/overrides/icons/salleIcon";
+import CabinetIcon from "@themes/overrides/icons/cabinetIcon";
 
 function Event({...props}) {
     const {event, t} = props;
@@ -33,14 +34,14 @@ function Event({...props}) {
                     },
                     '& .MuiBadge-badge': {
                         zIndex: 9
-                    },...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    }, ...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
                     ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
                             backgroundColor: "secondary.lighter",
-                            "& .MuiSvgIcon-root": {
-                                width: 18,
-                                height: 18,
+                            "& .ic-waiting .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16,
                                 ml: ".5rem"
                             }
                         }
@@ -57,7 +58,12 @@ function Event({...props}) {
                     },
                 }}
             >
-                <Typography variant="body2" component={"span"} color="text.primary">
+                <Typography variant="body2"
+                            {...((event.event._def.extendedProps.status.key === "WAITING_ROOM" &&
+                                    !event.event._def.extendedProps.hasError) &&
+                                {className: "ic-waiting"})}
+                            component={"span"}
+                            color="text.primary">
                     {event.event._def.extendedProps.hasError ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
@@ -81,7 +87,7 @@ function Event({...props}) {
                     {event.event._def.extendedProps.meeting ? (
                         <IconUrl path="ic-video" className="ic-video"/>
                     ) : (
-                        <IconUrl path="ic-cabinet" className="ic-cabinet"/>
+                        <CabinetIcon/>
                     )}
                     <span>{event.event._def.title}</span>
                 </Typography>
