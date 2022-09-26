@@ -276,6 +276,7 @@ function ConsultationInProgress() {
                 setSelectedAct(sAct)
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, dispatch, mutate])
 
     useEffect(() => {
