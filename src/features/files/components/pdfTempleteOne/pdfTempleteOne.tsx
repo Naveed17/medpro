@@ -2,28 +2,26 @@ import { Box, Divider, Stack, Typography, Collapse } from '@mui/material'
 import RootStyled from './overrides/rootStyle'
 function PdfTempleteOne({ ...props }) {
   const { hide } = props
-  console.log(hide)
   return (
     <RootStyled>
-      <Collapse in={hide as boolean}>
-        <Stack direction="row" justifyContent="space-between" mb={5}>
-          <Stack maxWidth={200} width={1}>
-            <Typography color="primary" variant='subtitle1' lineHeight={1.2}>Doctor Name</Typography>
-            <Typography color="primary" variant='subtitle1'>Specilalist</Typography>
-            <Divider sx={{ width: 1 }} />
-            <Typography color="primary" variant='subtitle2' my={.3}>Some Doctor Data </Typography>
-            <Divider sx={{ width: 1 }} />
-          </Stack>
-
-          <Stack maxWidth={150} width={1} alignItems="flex-end">
-            <Typography color="primary" variant='subtitle2' lineHeight={1.2}>Doctor Name</Typography>
-            <Typography color="primary" variant='subtitle2'>Specilalist</Typography>
-            <Divider sx={{ width: 1 }} />
-            <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
-            <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
-          </Stack>
+      <Stack direction="row" justifyContent="space-between" mb={5} sx={{ opacity: hide ? 0 : 1 }}>
+        <Stack maxWidth={200} width={1}>
+          <Typography color="primary" variant='subtitle1' lineHeight={1.2}>Doctor Name</Typography>
+          <Typography color="primary" variant='subtitle1'>Specilalist</Typography>
+          <Divider sx={{ width: 1 }} />
+          <Typography color="primary" variant='subtitle2' my={.3}>Some Doctor Data </Typography>
+          <Divider sx={{ width: 1 }} />
         </Stack>
-      </Collapse>
+
+        <Stack maxWidth={150} width={1} alignItems="flex-end">
+          <Typography color="primary" variant='subtitle2' lineHeight={1.2}>Doctor Name</Typography>
+          <Typography color="primary" variant='subtitle2'>Specilalist</Typography>
+          <Divider sx={{ width: 1 }} />
+          <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
+          <Typography color="primary" my={.3}>Tel:0000000000000</Typography>
+        </Stack>
+      </Stack>
+
       <Stack direction='row' alignItems="flex-end" justifyContent="flex-end">
         <Typography>Tunis le:</Typography>
         <Box className='line' maxWidth={100} width={1}>
