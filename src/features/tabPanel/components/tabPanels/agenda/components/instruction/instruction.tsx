@@ -51,6 +51,7 @@ function Instruction({...props}) {
     } = useAppSelector(appointmentSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
+    const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
     const [smsLang, setLang] = useState(instruction.smsLang);
     const [smsRappel, setSmsRappel] = useState(instruction.smsRappel);
@@ -77,6 +78,7 @@ function Instruction({...props}) {
     });
 
     const onNextStep = () => {
+        setLoading(true);
         dispatch(setAppointmentInstruction({
             rappel,
             timeRappel,
@@ -313,6 +315,7 @@ function Instruction({...props}) {
                         </Button>
                         <Button
                             size="medium"
+                            disabled={loading}
                             variant="contained"
                             color="primary"
                             onClick={onNextStep}

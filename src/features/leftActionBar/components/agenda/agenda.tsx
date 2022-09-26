@@ -1,6 +1,13 @@
 // components
 import {Accordion} from "@features/accordion";
-import {BoxStyled, FilterRootStyled, leftActionBarSelector, PatientFilter, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    BoxStyled,
+    FilterRootStyled,
+    leftActionBarSelector,
+    PatientFilter,
+    setFilter
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
@@ -80,23 +87,25 @@ function Agenda() {
                         },
                         children: (
                             <FilterRootStyled>
-                                <PatientFilter item={{
-                                    heading: {
-                                        icon: "ic-patient",
-                                        title: "patient",
-                                    },
-                                    gender: {
-                                        heading: "gender",
-                                        genders: ["male", "female"],
-                                    },
-                                    textField: {
-                                        labels: [
-                                            {label: "name", placeholder: "name"},
-                                            {label: "date-of-birth", placeholder: "--/--/----"},
-                                            {label: "telephone", placeholder: "telephone"},
-                                        ],
-                                    },
-                                }} t={t}/>
+                                <PatientFilter
+                                    OnSearch={(data: { query: ActionBarState }) => dispatch(setFilter(data.query))}
+                                    item={{
+                                        heading: {
+                                            icon: "ic-patient",
+                                            title: "patient",
+                                        },
+                                        gender: {
+                                            heading: "gender",
+                                            genders: ["male", "female"],
+                                        },
+                                        textField: {
+                                            labels: [
+                                                {label: "name", placeholder: "name"},
+                                                {label: "birthdate", placeholder: "--/--/----"},
+                                                {label: "phone", placeholder: "telephone"},
+                                            ],
+                                        },
+                                    }} t={t}/>
                             </FilterRootStyled>
                         ),
                     },

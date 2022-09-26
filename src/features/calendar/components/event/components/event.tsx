@@ -27,7 +27,10 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    ...(event.event._def.extendedProps.status.key === "ON_GOING" && {
+                            backgroundColor: "success.light",
+                        }
+                    ),...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
                     ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {

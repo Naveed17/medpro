@@ -1,145 +1,156 @@
-import { Fragment, useRef, KeyboardEvent, useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import {Fragment, KeyboardEvent, useState} from "react";
 import {
-  Typography,
-  Box,
-  FormControl,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  TextField,
-  InputLabel,
+    Typography,
+    Box,
+    FormControl,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+    TextField,
+    InputLabel, IconButton,
 } from "@mui/material";
-import { DatePicker } from "@features/datepicker";
+import {DatePicker} from "@features/datepicker";
 import _ from "lodash";
-import { useIsMountedRef } from "@app/hooks";
+import moment from "moment-timezone";
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+
 interface StateProps {
-  name: string;
-  telephone: number | string;
-  dob: Date | null;
-  gender: string | null;
+    name: string;
+    phone: number | string;
+    birthdate: Date | null;
+    gender: string | null;
 }
-function PatientFilter({ ...props }) {
-  const { item, t } = props;
-  const router = useRouter();
-  const { query } = router;
-  const [state, setstate] = useState<StateProps>({
-    name: "",
-    telephone: "",
-    dob: null,
-    gender: null,
-  });
 
-  const isMounted = useIsMountedRef();
+function PatientFilter({...props}) {
+    const {item, t, OnSearch} = props;
+    const [queryState, setQueryState] = useState<StateProps>({
+        name: "",
+        phone: "",
+        birthdate: null,
+        gender: null
+    });
 
-  useEffect(() => {
-    if (isMounted.current) {
-      setstate({ ...state, ...query });
-    }
-  }, [query, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <Box component="figure" sx={{ m: 0 }}>
-      <Typography variant="body2" color="text.secondary">
-        {t(`${item.gender?.heading}`)}
-      </Typography>
-      <FormControl component="fieldset">
-        <RadioGroup
-          row
-          aria-label="gender"
-          onChange={(e) => {
-            setstate({ ...state, gender: e.target.value });
-            router.push({
-              query: { ...router.query, gender: e.target.value },
-            });
-          }}
-          value={state.gender}
-          name="row-radio-buttons-group"
-        >
-          {item.gender?.genders.map((g: string, i: number) => (
-            <FormControlLabel
-              sx={{ ml: i === 1 ? "5px" : 0 }}
-              key={`gender-${i}`}
-              value={g}
-              control={<Radio />}
-              label={t(`${g}`)}
-            />
-          ))}
-        </RadioGroup>
-      </FormControl>
-      {item.textField?.labels.map(
-        (
-          lab: {
-            label: string;
-            placeholder: string;
-          },
-          i: number
-        ) => (
-          <Fragment key={`patient-filter-label-${i}`}>
-            {lab.label === "name" || lab.label === "telephone" ? (
-              <>
-                <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                  {t(`${lab.label}`)}
-                </InputLabel>
-                <TextField
-                  onChange={(e) =>
-                    setstate({ ...state, [lab.label]: e.target.value })
-                  }
-                  value={state[lab.label]}
-                  onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-                    if (e.key === "Enter") {
-                      if ((e.target as HTMLInputElement).value) {
-                        router.push({
-                          query: {
-                            ...router.query,
-                            [lab.label]: (e.target as HTMLInputElement).value,
-                          },
+    return (
+        <Box component="figure" sx={{m: 0}}>
+            <Typography variant="body2" color="text.secondary">
+                {t(`${item.gender?.heading}`)}
+            </Typography>
+            <FormControl component="fieldset">
+                <RadioGroup
+                    row
+                    aria-label="gender"
+                    onChange={(e) => {
+                        setQueryState({...queryState, gender: e.target.value});
+                        OnSearch({
+                            query: {...queryState, gender: e.target.value},
                         });
-                      } else {
-                        const query = _.omit(router.query, [lab.label]);
-                        router.push({
-                          query,
-                        });
-                      }
-                    }
-                  }}
-                  type={lab.label === "name" ? "text" : "number"}
-                  fullWidth
-                  placeholder={t(`${lab.placeholder}`)}
-                />
-              </>
-            ) : (
-              <>
-                <InputLabel shrink htmlFor={lab.label} sx={{ mt: 2 }}>
-                  {t(`${lab.label}`)}
-                </InputLabel>
-                <DatePicker
-                  value={state.dob}
-                  onChange={(date: Date) => {
-                    setstate({ ...state, dob: date });
+                    }}
+                    value={queryState.gender}
+                    name="row-radio-buttons-group"
+                >
+                    {item.gender?.genders.map((g: string, i: number) => (
+                        <FormControlLabel
+                            sx={{ml: i === 1 ? "5px" : 0}}
+                            key={`gender-${i}`}
+                            value={++i}
+                            control={<Radio/>}
+                            label={t(`${g}`)}
+                        />
+                    ))}
+                    {queryState.gender &&
+                        <IconButton size="small" onClick={() => {
+                            const query = _.omit(queryState, "gender");
+                            console.log(query)
+                            setQueryState({...queryState, gender: null});
+                            OnSearch({
+                                query: {...query},
+                            });
+                        }}>
+                            <HighlightOffRoundedIcon color={"error"}/>
+                        </IconButton>}
+                </RadioGroup>
+            </FormControl>
+            {item.textField?.labels.map(
+                (
+                    lab: {
+                        label: string;
+                        placeholder: string;
+                    },
+                    i: number
+                ) => (
+                    <Fragment key={`patient-filter-label-${i}`}>
+                        {lab.label === "name" || lab.label === "phone" ? (
+                            <>
+                                <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
+                                    {t(`${lab.label}`)}
+                                </InputLabel>
+                                <TextField
+                                    onChange={(e) =>
+                                        setQueryState({...queryState, [lab.label]: e.target.value})
+                                    }
+                                    value={queryState[lab.label]}
+                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
+                                        if (e.key === "Enter") {
+                                            if ((e.target as HTMLInputElement).value) {
+                                                OnSearch({
+                                                    query: {
+                                                        ...queryState,
+                                                        [lab.label]: (e.target as HTMLInputElement).value,
+                                                    },
+                                                });
+                                            } else {
+                                                const query = _.omit(queryState, [lab.label]);
+                                                OnSearch({
+                                                    query,
+                                                });
+                                            }
+                                        }
+                                    }}
+                                    type={lab.label === "name" ? "text" : "number"}
+                                    fullWidth
+                                    placeholder={t(`${lab.placeholder}`)}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
+                                    {t(`${lab.label}`)}
+                                </InputLabel>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DatePicker
+                                        value={queryState.birthdate}
+                                        inputFormat="dd/MM/yyyy"
+                                        onChange={(date: Date) => {
+                                            setQueryState({
+                                                ...queryState,
+                                                birthdate: date
+                                            });
 
-                    if (date && date.toString() !== "Invalid Date") {
-                      router.push({
-                        query: {
-                          ...router.query,
-                          dob: new Date(date).toISOString().split("T")[0],
-                        },
-                      });
-                    } else {
-                      const query = _.omit(router.query, "dob");
-                      router.push({
-                        query,
-                      });
-                    }
-                  }}
-                />
-              </>
+                                            if (date && date.toString() !== "Invalid Date") {
+                                                OnSearch({
+                                                    query: {
+                                                        ...queryState,
+                                                        birthdate: moment(date).format("DD-MM-YYYY"),
+                                                    },
+                                                });
+                                            } else {
+                                                const query = _.omit(queryState, "birthdate");
+                                                OnSearch({
+                                                    query,
+                                                });
+                                            }
+                                        }}
+                                    />
+                                </LocalizationProvider>
+                            </>
+                        )}
+                    </Fragment>
+                )
             )}
-          </Fragment>
-        )
-      )}
-    </Box>
-  );
+        </Box>
+    );
 }
 
 export default PatientFilter;
