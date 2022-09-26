@@ -8,7 +8,7 @@ const RootStyled = styled(Card)(({theme}) => ({
     marginBottom: theme.spacing(1.4),
     "&:before": {
         content: '""',
-        height: "108px",
+        height: "82px",
         position: "absolute",
         left: "1rem",
         borderTopLeftRadius : 4,
