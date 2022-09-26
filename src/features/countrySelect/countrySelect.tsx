@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback} from "react";
 import Image from "next/image";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";

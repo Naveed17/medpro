@@ -40,14 +40,12 @@ import {Label} from "@features/label";
 import {Otable} from '@features/table';
 import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
 import {ModalConsultation} from '@features/modalConsultation';
-import {ConsultationIPToolbar} from '@features/toolbar';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {SetMutation, SetPatient} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetMutation, SetPatient,SetExam,ConsultationIPToolbar} from "@features/toolbar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
@@ -56,11 +54,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import {uniqueId} from 'lodash'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-const options = {
+/*const options = {
     cMapUrl: 'cmaps/',
     cMapPacked: true,
     standardFontDataUrl: 'standard_fonts/',
-};
+};*/
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -178,6 +176,7 @@ function ConsultationInProgress() {
     const [openActDialog, setOpenActDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>('');
+    const [agenda, setAgenda] = useState<string>('');
     const [appointement, setAppointement] = useState<any>();
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
@@ -187,7 +186,6 @@ function ConsultationInProgress() {
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
-    const {examan, fiche, patient: patientInfo} = useAppSelector(consultationSelector);
     const [stateAct, setstateAct] = useState({
         "uuid": "",
         "isTopAct": true,
@@ -201,28 +199,6 @@ function ConsultationInProgress() {
     });
     const [filter, setfilter] = useState<any>({});
     const [selectedModel, setSelectedModel] = useState<any>(null);
-    const [selectedExam, setSelectedExam] = useState({
-        motif: "",
-        notes: "",
-        diagnosis: "",
-        treatment: "",
-    });
-
-    useEffect(() => {
-        if (examan) {
-            console.log(examan);
-            setSelectedExam(examan)
-        }
-    }, [examan]);
-
-    /* useEffect(() => {
-         if (fiche) {
-             console.log(fiche);
-             selectedModel.data = fiche
-             setSelectedModel(selectedModel)
-         }
-         // eslint-disable-next-line react-hooks/exhaustive-deps
-     }, [fiche]);*/
 
     const {data: session, status} = useSession();
     const loading = status === 'loading';
@@ -238,9 +214,14 @@ function ConsultationInProgress() {
         }
     } : null, SWRNoValidateConfig);
 
+    useEffect(() => {
+        if (httpAgendasResponse)
+            setAgenda((httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid)
+    }, [httpAgendasResponse])
+
     const {data: httpMPResponse, error: errorHttpMP} = useRequest(medical_entity ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
+        url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -249,33 +230,52 @@ function ConsultationInProgress() {
         setInfo(null)
     }
 
-
     const {data: httpAppResponse, error: errorHttpApp, mutate} = useRequest(mpUuid ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/professionals/" + mpUuid + '/' + router.locale,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
-    const {data: httpDocumentResponse, error: errorHttpDoc, mutate: mutateDoc} = useRequest(mpUuid ? {
+    const {data: httpDocumentResponse, error: erorHttpDoc, mutate: mutateDoc} = useRequest(mpUuid ? {
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity?.uuid + "/agendas/" + (httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid + "/appointments/" + uuind + "/documents/" + router.locale,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/documents/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data)
-        console.log(httpDocumentResponse)
     }, [httpDocumentResponse])
 
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data)
-        setPatient((httpAppResponse as HttpResponse)?.data.patient);
-        setSelectedModel((httpAppResponse as HttpResponse)?.data?.consultation_sheet.modal)
-        dispatch(SetPatient((httpAppResponse as HttpResponse)?.data.patient))
-        dispatch(SetMutation(mutate))
+    }, [httpAppResponse])
 
-    }, [dispatch, httpAppResponse, mutate])
+    useEffect(() => {
+        console.log(appointement)
+        if (appointement) {
+            setPatient(appointement.patient);
+            setSelectedModel(appointement?.consultation_sheet.modal)
+            dispatch(SetPatient(appointement.patient))
+            dispatch(SetMutation(mutate))
+            const app_data = appointement.consultation_sheet.exam.appointment_data;
+            dispatch(SetExam({
+                motif: '',
+                notes: app_data?.notes ? app_data.notes.value : '',
+                diagnosis: app_data?.diagnostic ? app_data.diagnostic.value : '',
+                treatment: app_data?.treatment ? app_data.treatment.value : '',
+            }))
+
+            if (appointement.acts) {
+                let sAct: any[] = []
+                appointement.acts.map((act: { act_uuid: string, price: number }) => {
+                    sAct.push(acts.find((a: { uuid: string }) => a.uuid === act.act_uuid))
+                })
+                setSelectedAct(sAct)
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appointement, dispatch, mutate])
 
     useEffect(() => {
         setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
@@ -334,6 +334,8 @@ function ConsultationInProgress() {
     }
 
     useEffect(() => {
+        console.log('useEffect', selectedAct)
+
         let fees = 0;
         let uuids: string[] = [];
         selectedAct.map(act => {
@@ -342,11 +344,11 @@ function ConsultationInProgress() {
         })
         setTotal(fees)
         setSelectedUuid(uuids)
-    }, [selectedAct])
 
-    const editAct = (row: any, from: any, value?: number) => {
+    }, [selectedAct, appointement])
+
+    const editAct = (row: any, from: any) => {
         if (from === 'change') {
-
             const index = selectedAct.findIndex(act => act.uuid === row.uuid)
             selectedAct[index] = row
             setSelectedAct([...selectedAct])
@@ -369,6 +371,7 @@ function ConsultationInProgress() {
         }
     }, [patientId]);
 
+
     const {t, ready} = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
 
@@ -379,15 +382,14 @@ function ConsultationInProgress() {
                                        mutate={mutate}
                                        mutateDoc={mutateDoc}
                                        pendingDocuments={pendingDocuments}
+                                       setPendingDocuments={setPendingDocuments}
                                        dialog={dialog}
                                        selectedAct={selectedAct}
                                        selectedModel={selectedModel}
-                                       selectedExam={selectedExam}
                                        documents={documents}
-                                       agenda={(httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid}
+                                       agenda={agenda}
                                        setDialog={setDialog}
-                                       setPendingDocuments={setPendingDocuments}
-                                       setSelectedExam={setSelectedExam}
+                                       endingDocuments={setPendingDocuments}
                                        selected={(v: number) => setValue(v)}/>
             </SubHeader>
             <Box className="container">
@@ -591,9 +593,7 @@ function ConsultationInProgress() {
                                         setSM={setSelectedModel}/>
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}
-                                                            setSelectedExam={setSelectedExam}
-                                                            selectedExam={selectedExam}/>
+                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
                                 </Grid>
                             </Grid>
                         </TabPanel>

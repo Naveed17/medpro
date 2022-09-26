@@ -34,7 +34,7 @@ function TimeSchedule({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
 
-    const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {
         motif,
         date: selectedDate,
@@ -347,7 +347,7 @@ function TimeSchedule({...props}) {
                 <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                     {t("stepper-1.date-message")}
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={2} sx={{height: "330px"}}>
                     <Grid item md={6} xs={12}>
                         <StaticDatePicker
                             views={['day']}

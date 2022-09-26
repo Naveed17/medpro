@@ -1,4 +1,4 @@
-import {Form, FormikProvider, useFormik} from "formik";
+import {FastField, FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
     Box, Button,
     FormControl,
@@ -123,7 +123,11 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const [selectedCountry, setSelectedCountry] = React.useState<any>(null);
+    const [selectedCountry, setSelectedCountry] = React.useState<any>({
+        code: "TN",
+        label: "Tunisia",
+        phone: "+216"
+    });
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -258,8 +262,7 @@ function OnStepPatient({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.day")}
-                                    value={values.birthdate.day}
-                                    displayEmpty={true}
+                                    displayEmpty
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value: string) =>
                                         value?.length
@@ -298,8 +301,7 @@ function OnStepPatient({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.month")}
-                                    value={values.birthdate.month}
-                                    displayEmpty={true}
+                                    displayEmpty
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value) =>
                                         value?.length
@@ -331,8 +333,7 @@ function OnStepPatient({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.year")}
-                                    value={values.birthdate.year}
-                                    displayEmpty={true}
+                                    displayEmpty
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value) =>
                                         value?.length
@@ -379,7 +380,7 @@ function OnStepPatient({...props}) {
                                     initCountry={{
                                         code: "TN",
                                         label: "Tunisia",
-                                        phone: "216"
+                                        phone: "+216"
                                     }}
                                     onSelect={(state: StateModel) => {
                                         setSelectedCountry(state);
@@ -429,12 +430,11 @@ function OnStepPatient({...props}) {
                                         id={"country"}
                                         size="small"
                                         {...getFieldProps("country")}
-                                        value={values.country}
-                                        displayEmpty={true}
+                                        displayEmpty
                                         sx={{color: "text.secondary"}}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
-                                                return <em>{t("stepper-1.type-placeholder")}</em>;
+                                                return <em>{t("country-placeholder")}</em>;
                                             }
 
                                             const country = countries?.find(country => country.uuid === selected);
@@ -468,12 +468,11 @@ function OnStepPatient({...props}) {
                                         disabled={!values.country}
                                         size="small"
                                         {...getFieldProps("region")}
-                                        value={values.region}
                                         displayEmpty={true}
                                         sx={{color: "text.secondary"}}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
-                                                return <em>{t("stepper-1.type-placeholder")}</em>;
+                                                return <em>{t("region-placeholder")}</em>;
                                             }
 
                                             const state = states?.find(state => state.uuid === selected);
@@ -540,119 +539,110 @@ function OnStepPatient({...props}) {
                             {t("assurance")}
                         </Typography>
                         <Box sx={{mb: 1.5}}>
-                            {values.insurance.map((val, index: number) => (
-                                <Grid
-                                    key={Math.random()}
-                                    container
-                                    spacing={2}
-                                    sx={{mt: index > 0 ? 0.5 : 0}}
-                                >
-                                    <Grid item xs={12} md={4}>
-                                        <FormControl fullWidth>
-                                            <Select
-                                                id={"assurance"}
-                                                size="small"
-                                                {...getFieldProps(`insurance[${index}].insurance_uuid`)}
-                                                value={values.insurance[index]?.insurance_uuid}
-                                                displayEmpty={true}
-                                                sx={{color: "text.secondary"}}
-                                                renderValue={(selected) => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("stepper-1.type-placeholder")}</em>;
-                                                    }
+                            <FieldArray
+                                name={"insurance"}
+                                render={arrayHelpers => (
+                                    values.insurance.map((val, index: number) => (
+                                        <Grid
+                                            key={Math.random()}
+                                            container
+                                            spacing={2}
+                                            sx={{mt: index > 0 ? 0.5 : 0}}
+                                        >
+                                            <Grid item xs={12} md={4}>
+                                                <FormControl fullWidth>
+                                                    <Select
+                                                        id={"assurance"}
+                                                        size="small"
+                                                        {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                        displayEmpty
+                                                        sx={{color: "text.secondary"}}
+                                                        renderValue={(selected) => {
+                                                            if (selected.length === 0) {
+                                                                return <em>{t("assurance-placeholder")}</em>;
+                                                            }
 
-                                                    const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                    return <Typography>{insurance?.name}</Typography>
-                                                }}
-                                            >
-                                                {insurances.map(insurance => (
-                                                    <MenuItem
-                                                        key={insurance.uuid}
-                                                        value={insurance.uuid}>
-                                                        <Box key={insurance.uuid}
-                                                             component="img" width={30} height={30}
-                                                             src={insurance.logoUrl}/>
-                                                        <Typography sx={{ml: 1}}>{insurance.name}</Typography>
-                                                    </MenuItem>)
-                                                )}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={12} md={8}>
-                                        <Stack direction="row" spacing={2}>
-                                            <TextField
-                                                variant="outlined"
-                                                placeholder={t("assurance-phone-error")}
-                                                size="small"
-                                                fullWidth
-                                                {...getFieldProps(`insurance[${index}].insurance_number`)}
-                                            />
-                                            <IconButton
-                                                onClick={() => handleRemoveInsurance(index)}
-                                                className="error-light"
-                                                sx={{
-                                                    mr: 1.5,
-                                                    "& svg": {
-                                                        width: 20,
-                                                        height: 20,
-                                                        "& path": {
-                                                            fill: (theme) => theme.palette.text.primary,
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                <Icon path="ic-moin"/>
-                                            </IconButton>
-                                        </Stack>
-                                    </Grid>
-                                </Grid>
-                            ))}
+                                                            const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                            return <Typography>{insurance?.name}</Typography>
+                                                        }}
+                                                    >
+                                                        {insurances.map(insurance => (
+                                                            <MenuItem
+                                                                key={insurance.uuid}
+                                                                value={insurance.uuid}>
+                                                                <Box key={insurance.uuid}
+                                                                     component="img" width={30} height={30}
+                                                                     src={insurance.logoUrl}/>
+                                                                <Typography
+                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
+                                                            </MenuItem>)
+                                                        )}
+                                                    </Select>
+                                                </FormControl>
+                                            </Grid>
+                                            <Grid item xs={12} md={8}>
+                                                <Stack direction="row" spacing={2} key={`stack-${index}`}>
+                                                    <TextField
+                                                        variant="outlined"
+                                                        placeholder={t("assurance-phone-error")}
+                                                        size="small"
+                                                        fullWidth
+                                                        {...getFieldProps(`insurance[${index}].insurance_number`)}
+                                                    />
+                                                    <IconButton
+                                                        onClick={() => handleRemoveInsurance(index)}
+                                                        className="error-light"
+                                                        sx={{
+                                                            mr: 1.5,
+                                                            "& svg": {
+                                                                width: 20,
+                                                                height: 20,
+                                                                "& path": {
+                                                                    fill: (theme) => theme.palette.text.primary,
+                                                                },
+                                                            },
+                                                        }}
+                                                    >
+                                                        <Icon path="ic-moin"/>
+                                                    </IconButton>
+                                                </Stack>
+                                            </Grid>
+                                        </Grid>
+                                    )))}
+                            />
                         </Box>
                     </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("email")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("email-placeholder")}
-                            type="email"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("email")}
-                            error={Boolean(touched.email && errors.email)}
-                            helperText={
-                                Boolean(touched.email && errors.email)
-                                    ? String(errors.email)
-                                    : undefined
-                            }
-                        />
-                    </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("cin")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("cin-placeholder")}
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("cin")}
-                        />
-                    </Box>
-                    {/*<Box>*/}
-                    {/*    <Typography variant="body2" color="text.secondary" gutterBottom>*/}
-                    {/*        {t("from")}*/}
-                    {/*    </Typography>*/}
-                    {/*    <TextField*/}
-                    {/*        placeholder={t("from-placeholder")}*/}
-                    {/*        type="text"*/}
-                    {/*        variant="outlined"*/}
-                    {/*        size="small"*/}
-                    {/*        fullWidth*/}
-                    {/*        {...getFieldProps("from")}*/}
-                    {/*    />*/}
-                    {/*</Box>*/}
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("email")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("email-placeholder")}
+                                type="email"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("email")}
+                                error={Boolean(touched.email && errors.email)}
+                                helperText={
+                                    Boolean(touched.email && errors.email)
+                                        ? String(errors.email)
+                                        : undefined
+                                }
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("cin")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("cin-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("cin")}
+                            />
+                        </Box>
                 </Stack>
 
                 <Stack
@@ -674,7 +664,7 @@ function OnStepPatient({...props}) {
                 </Stack>
             </Stack>
         </FormikProvider>
-    )
+)
 }
 
 export default OnStepPatient;

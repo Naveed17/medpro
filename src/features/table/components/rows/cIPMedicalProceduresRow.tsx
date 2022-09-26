@@ -1,24 +1,21 @@
 import TableCell from "@mui/material/TableCell";
-import { Checkbox, Button, InputBase, TextField } from "@mui/material";
+import { Checkbox, Button, InputBase } from "@mui/material";
 import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
-import React, { useEffect, useState } from "react";
-import { useRequestMutation } from "@app/axios";
-import { Session } from "next-auth";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 
 function CIPMedicalProceduresRow({ ...props }) {
 
     const { row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData } = props;
 
-    const { trigger } = useRequestMutation(null, "/actFees");
-    const router = useRouter();
+    /*const {trigger} = useRequestMutation(null, "/actFees");
+    const router = useRouter();*/
     const { data: session } = useSession();
-    const { data: user } = session as Session;
+    /*const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const form = new FormData();
+    const form = new FormData();*/
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
     const [selected, setSelected] = useState<string>('')
@@ -62,7 +59,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                             onBlur={(ev) => {
                                 setSelected('')
 
-                                form.append("attribute", "price");
+                                /*form.append("attribute", "price");
                                 form.append("value", ev.target.value);
 
                                 trigger({
@@ -75,7 +72,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                                     }
                                 }, { revalidate: true, populateCache: true }).then((e) => {
                                     console.log("res", e)
-                                });
+                                });*/
                             }}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e: any) => {

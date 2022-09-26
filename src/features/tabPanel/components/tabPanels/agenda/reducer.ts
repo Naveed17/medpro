@@ -1,6 +1,6 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {
-    resetAppointment,
+    resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentDuration,
     setAppointmentInstruction,
     setAppointmentMotif,
@@ -16,7 +16,10 @@ export type AppointmentState = {
     recurringDates: RecurringDateModel[];
     patient: PatientWithNextAndLatestAppointment | null;
     instruction: AppointmentInstructionModel;
-    submitted: boolean
+    submitted: {
+        uuids: Array<string>;
+        patient: PatientWithNextAndLatestAppointment | null;
+    } | null
 };
 
 const initialState: AppointmentState = {
@@ -33,7 +36,7 @@ const initialState: AppointmentState = {
         smsRappel: true,
         timeRappel: new Date("2022-01-01T18:00:00.000Z")
     },
-    submitted: false
+    submitted: null
 };
 
 export const appointmentReducer = createReducer(initialState, (builder) => {
@@ -52,8 +55,10 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
     }).addCase(setAppointmentInstruction, (state, action) => {
         state.instruction = action.payload;
     }).addCase(setAppointmentSubmit, (state, action) => {
-        return {...initialState, submitted: true};
+        return {...initialState, submitted: {...action.payload, patient: state.patient}};
     }).addCase(resetAppointment, (state, action) => {
         return {...state, ...initialState};
+    }).addCase(resetSubmitAppointment, (state, action) => {
+        return {...state, submitted: null};
     });
 });

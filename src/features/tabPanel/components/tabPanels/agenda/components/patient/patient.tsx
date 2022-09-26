@@ -6,7 +6,7 @@ import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {setStepperIndex} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
@@ -14,7 +14,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 
 import dynamic from "next/dynamic";
-import {setAppointmentPatient} from "@features/tabPanel";
+import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
@@ -24,6 +24,8 @@ function Patient({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    const {patient} = useAppSelector(appointmentSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
@@ -143,6 +145,7 @@ function Patient({...props}) {
                             variant="contained"
                             color="primary"
                             onClick={onNextStep}
+                            disabled={!patient}
                         >
                             {t("next")}
                         </Button>
