@@ -79,7 +79,7 @@ function Motif() {
             align: 'left',
             sortable: false
         },
-        {
+        /*{
             id: 'delay_min',
             numeric: false,
             disablePadding: false,
@@ -94,7 +94,7 @@ function Motif() {
             label: 'delay_max',
             align: 'left',
             sortable: false
-        },
+        },*/
         {
             id: 'agenda',
             numeric: true,

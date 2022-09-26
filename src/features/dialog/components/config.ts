@@ -132,7 +132,7 @@ const dialogData = [
     {
         action: "surgical_antecedents",
         component: dynamic((): any =>
-            import("@features/dialog/components/surgicalHistoryDialog/surgicalHistoryDialog").then(
+            import("@features/dialog/components/lifeStyleDialog/lifeStyleDialog").then(
                 (mod) => mod
             )
         ),
@@ -142,7 +142,10 @@ const dialogData = [
         component: dynamic((): any =>
             import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
                 (mod) => mod
-            )
+            ),
+            {
+                ssr: false
+            }
         ),
     },
     {

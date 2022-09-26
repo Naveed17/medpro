@@ -7,7 +7,7 @@ interface PatientModel {
   gender: string;
   insurances: PatientInsuranceModel[];
   contact: ContactModel[];
-  address: AddressModel[];
+  address?: AddressModel[];
   account: AccountModel;
   isParent: boolean;
   medicalEntityPatientBase: MedicalEntityPatientBaseModel[];

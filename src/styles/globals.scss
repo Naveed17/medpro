@@ -2,6 +2,9 @@
 
 body {
   overflow: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 * {

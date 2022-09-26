@@ -1,54 +1,47 @@
-import {Badge, Typography} from "@mui/material";
+import {Box, Chip, Popover, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import Zoom from '@mui/material/Zoom';
-import {LightTooltip} from "@features/tooltip";
 import {useRouter} from "next/router";
 import SalleIcon from "@themes/overrides/icons/salleIcon";
-import Icon from "@themes/urlIcon";
+import CabinetIcon from "@themes/overrides/icons/cabinetIcon";
+import {AppointmentPatientCard} from "@features/card";
+import EventStyled from './overrides/eventStyled';
 
 function Event({...props}) {
     const {event, t} = props;
-    const router = useRouter();
+
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const open = Boolean(anchorEl);
+
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
-        <LightTooltip TransitionComponent={Zoom}
-                      title={t("event.new", {ns: 'common'})}
-                      placement={router.locale === "fr" ? "right-end" : "left-end"}>
-            <Badge
-                color="primary" variant="dot" invisible={!event.event._def.extendedProps.new}
-                className="fc-event-main-box"
-                badgeContent={
-                    <React.Fragment>
-                        <Typography color="inherit">Tooltip with HTML</Typography>
-                        <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
-                        {"It's very engaging. Right?"}
-                    </React.Fragment>
-                }
+        <>
+            <EventStyled
                 sx={{
-                    svg: {
-                        width: 8,
-                        height: 8,
-                        margin: (theme) => theme.spacing(0, 0.5),
-                    },
-                    '& .MuiBadge-badge': {
-                        zIndex: 9
-                    },
-                    ...(event.event._def.extendedProps.status.key === "CANCELED" && {
-                            backgroundColor: "error.light",
-                            "& .MuiSvgIcon-root": {
-                                width: 10,
-                                height: 10,
+                    ...(event.event._def.extendedProps.status.key === "PENDING" && {
+                            backgroundColor: "warning.light",
+                        }
+                    ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
+                            backgroundColor: "secondary.lighter",
+                            "& .ic-waiting .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16,
                                 ml: ".5rem"
                             }
                         }
-                    ),...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
-                            backgroundColor: "secondary.lighter",
+                    ), ...(event.event._def.extendedProps.hasError && {
                             "& .MuiSvgIcon-root": {
-                                width: 18,
-                                height: 18,
+                                width: 10,
+                                height: 10,
                                 ml: ".5rem"
                             }
                         }
@@ -57,12 +50,22 @@ function Event({...props}) {
                         background: event.borderColor,
                     },
                 }}
-            >
-                <Typography variant="body2" component={"span"} color="text.primary">
-                    {event.event._def.extendedProps.status.key === "CANCELED" ?
+                aria-owns={open ? 'mouse-over-popover' : undefined}
+                aria-haspopup="true"
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+                className="fc-event-main-box">
+                {event.event._def.extendedProps.new && <Box className="badge"/>}
+                <Typography variant="body2"
+                            {...((event.event._def.extendedProps.status.key === "WAITING_ROOM" &&
+                                    !event.event._def.extendedProps.hasError) &&
+                                {className: "ic-waiting"})}
+                            component={"span"}
+                            color="text.primary">
+                    {event.event._def.extendedProps.hasError ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
-                            <SalleIcon />:
+                            <SalleIcon/> :
                             <AccessTimeIcon color={"disabled"} className="ic-time"/>}
                     <span>
                     {event.event._def.extendedProps.time.toLocaleTimeString([], {
@@ -82,12 +85,45 @@ function Event({...props}) {
                     {event.event._def.extendedProps.meeting ? (
                         <IconUrl path="ic-video" className="ic-video"/>
                     ) : (
-                        <IconUrl path="ic-cabinet" className="ic-cabinet"/>
+                        <CabinetIcon/>
                     )}
                     <span>{event.event._def.title}</span>
                 </Typography>
-            </Badge>
-        </LightTooltip>
+            </EventStyled>
+            <Popover
+                id="mouse-over-popover"
+                sx={{
+                    pointerEvents: 'none',
+                }}
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                onClose={handlePopoverClose}
+                disableRestoreFocus
+            >
+                <>
+                    {event.event._def.extendedProps.new &&
+                        <Chip label={t("event.new", {ns: 'common'})}
+                              sx={{
+                                  position: "absolute",
+                                  right: 2,
+                                  top: 4
+                              }}
+                              size="small"
+                              color={"primary"}/>}
+                    <AppointmentPatientCard
+                        style={{width: "300px", border: "none"}}
+                        data={event.event._def.extendedProps}/>
+                </>
+            </Popover>
+        </>
     )
 }
 

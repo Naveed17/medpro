@@ -108,6 +108,14 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "actfees",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/actsFeesRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;

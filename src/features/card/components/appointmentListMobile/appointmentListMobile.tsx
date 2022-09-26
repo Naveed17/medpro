@@ -78,7 +78,7 @@ function AppointmentListMobile({...props}) {
                         </Label>
                     </Box>
                     <Typography variant={"subtitle2"} color="text.primary" mt={1}>
-                        {event.motif.name}
+                        {event.motif?.name}
                     </Typography>
                 </Box>
                 <Box className="action">

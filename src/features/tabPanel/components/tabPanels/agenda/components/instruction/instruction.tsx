@@ -10,7 +10,7 @@ import {
     Paper,
     Stack,
     TextField,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -34,14 +34,15 @@ import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard} from "@features/card";
 
 function Instruction({...props}) {
-    const {onNext, onBack} = props;
+    const {onNext, onBack, OnAction} = props;
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
+
     const {
         motif,
         duration,
-        date,
         patient,
         type,
         instruction,
@@ -89,7 +90,7 @@ function Instruction({...props}) {
             "start_date": recurringDate.date,
             "start_time": recurringDate.time
         }))));
-        form.append('consultation_reason_uuid', motif);
+        motif && form.append('consultation_reason_uuid', motif);
         form.append('title', `${patient?.lastName} ${patient?.firstName}`);
         form.append('patient_uuid', patient?.uuid as string);
         form.append('type', type);
@@ -98,23 +99,34 @@ function Instruction({...props}) {
         form.append('reminder', JSON.stringify([{
             "type": "1: email, 2: sms, 3: push",
             "time": moment(timeRappel).format('HH:mm'),
-            "number_of_day": moment(timeRappel).format('YYYY-MM-DD'),
+            "number_of_day": rappel,
             "reminder_language": smsLang,
             "reminder_message": smsLang
         }]));
 
         trigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}
-            /appointments/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             if (value?.data.status === 'success') {
+                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setStepperIndex(0));
                 onNext(4);
-                dispatch(setAppointmentSubmit(true));
             }
         });
+    }
+
+    const isTodayAppointment = () => {
+        let hasAppointmentToday = false
+        recurringDates.map(recurring => {
+            hasAppointmentToday = moment(recurring.date, "DD-MM-YYYY").isSame(moment(), "day");
+            if (hasAppointmentToday) {
+                return false
+            }
+        });
+        return hasAppointmentToday;
     }
 
     const close = () => {
@@ -123,19 +135,53 @@ function Instruction({...props}) {
         dispatch(openDrawer({type: "add", open: false}));
     }
 
-    if (!ready) return <>loading translations...</>;
+    const handleActionClick = (action: string) => {
+        switch (action) {
+            case "onDetailPatient" :
+                const defEvent = {
+                    extendedProps: {
+                        patient: submitted?.patient
+                    }
+                };
+                OnAction(action, defEvent);
+                break;
+        }
+    }
 
+    if (!ready) return <>loading translations...</>;
 
     return (
         <div>
             <Box className="inner-section">
                 {submitted ?
-                    <SuccessCard
-                        data={{
-                            title: t("added"),
-                            description: t("added-description"),
-                        }}
-                    />
+                    <>
+                        <SuccessCard
+                            onClickTextButton={handleActionClick}
+                            data={{
+                                title: t("added"),
+                                description: t("added-description"),
+                                buttons: [
+                                    {
+                                        variant: "text-primary",
+                                        action: "onDetailPatient",
+                                        title: t("show-patient")
+                                    }, {
+                                        icon: "ic-salle",
+                                        action: "onWaitingRoom",
+                                        variant: "contained",
+                                        sx: {
+                                            "& svg": {
+                                                "& path": {fill: theme.palette.text.primary}
+                                            },
+                                        },
+                                        title: t("waiting"),
+                                        color: "warning",
+                                        disabled: !isTodayAppointment()
+                                    }
+                                ]
+                            }}
+                        />
+                    </>
                     :
                     <>
                         <Typography variant="h6" color="text.primary">
@@ -276,7 +322,7 @@ function Instruction({...props}) {
                     </> :
                     <Button
                         size="medium"
-                        variant="contained"
+                        variant={"contained"}
                         color="primary"
                         onClick={close}
                     >

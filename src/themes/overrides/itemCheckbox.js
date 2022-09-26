@@ -41,7 +41,7 @@ function ItemCheckbox({...props}) {
         <RootStyled key={props.id} component='label' htmlFor={props.data[label]}>
             <Checkbox
                 size="small"
-                checked={props.checked}
+                checked={checked}
                 onChange={handleChange}
                 id={props.data[label]}
                 name={props.data[label]}

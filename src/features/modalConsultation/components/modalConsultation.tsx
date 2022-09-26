@@ -2,7 +2,17 @@ import React, {useEffect, useState} from 'react';
 import ConsultationModalStyled from './overrides/modalConsultationStyle'
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
-    Stack, Typography, CardContent, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Button, DialogActions, Box
+    Stack,
+    Typography,
+    CardContent,
+    Paper,
+    MenuList,
+    MenuItem,
+    ListItemIcon,
+    ListItemText,
+    Button,
+    DialogActions,
+    Box,
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -17,8 +27,6 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
-import {useAppDispatch} from "@app/redux/hooks";
-import {SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -32,7 +40,7 @@ const variants = {
 };
 
 function ModalConsultation({...props}) {
-    const {modal} = props;
+    const {modal, setSM} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
     let medical_entity: MedicalEntityModel | null = null;
@@ -42,7 +50,6 @@ function ModalConsultation({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
     const [loadModel, setLoadModel] = useState(true);
-    const dispatch = useAppDispatch();
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
@@ -56,10 +63,9 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
-        //setTimeout(() => {
+        //console.log(modal)
         if (modal)
             setValue(modal.default_modal);
-
         setTimeout(() => {
             setLoadModel(false)
         }, 1000)
@@ -84,13 +90,20 @@ function ModalConsultation({...props}) {
         setOpen(false);
     };
     const handleClick = (prop: ModalModel) => {
+        setLoadModel(true)
         setValue(prop);
-        console.log(prop)
+        //console.log(prop)
+        let data = {};
+        prop.structure[0].components.map((cmp: any) => {
+            data = {...data, ...{[cmp.key]: ''}}
+        })
+        setSM({default_modal: prop, data: data})
         setOpen(false);
+        setTimeout(() => {
+            setLoadModel(false)
+        }, 1000)
     };
-    const handleClickDialog = () => {
-        setOpenDialog(true);
-    };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setChange(false)
@@ -108,29 +121,28 @@ function ModalConsultation({...props}) {
             <ClickAwayListener onClickAway={handleClickAway}>
                 <ConsultationModalStyled>
                     <Stack spacing={1} p={2} direction="row" alignItems="center" className="card-header"
-                           bgcolor={alpha(value.color, 0.3)}>
+                           bgcolor={alpha(value?.color, 0.3)}>
                         <Stack onClick={() => setOpen(prev => !prev)} spacing={1} direction="row" alignItems="center"
                                width={1} sx={{cursor: 'pointer'}}>
-                            <ModelDot color={value.color} selected={false}/>
+                            <ModelDot color={value?.color} selected={false}/>
                             <Typography fontWeight={500}>
-                                Données de suivi : {value.label}
+                                Données de suivi : {value?.label}
                             </Typography>
                             <Icon path="ic-flesh-bas-y"/>
                         </Stack>
-                        <Button onClick={handleClickDialog} className='btn-filter' variant='text-black'>
-                            <Icon path="ic-setting"/>
-                        </Button>
                     </Stack>
                     <CardContent sx={{
-                        bgcolor: alpha(value.color, 0.1)
+                        bgcolor: alpha(value?.color, 0.1)
                     }}>
                         <Box>
                             {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
-                                    dispatch(SetFiche(ev.data))
+                                    modal.data = ev.data
+                                    setSM(modal)
                                 }}
                                 onError={console.log}
-                                //submission={{data: modal.data}}
+                                onEditComponent={console.log}
+                                submission={{data: modal.data}}
                                 form={
                                     {
                                         display: "form",

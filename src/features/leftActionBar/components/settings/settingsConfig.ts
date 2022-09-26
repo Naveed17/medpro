@@ -38,6 +38,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "actfees",
+            icon: "setting/ic-edit-file",
+            href: "/dashboard/settings/actfees",
+            disable: false
+        },
+        {
             name: "agenda",
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",

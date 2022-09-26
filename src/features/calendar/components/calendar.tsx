@@ -38,10 +38,10 @@ function Calendar({...props}) {
     const {
         events: appointments,
         OnRangeChange,
-        disabledSlots,
         t: translation,
         sortedData,
         OnInit,
+        OnLeaveWaitingRoom,
         OnWaitingRoom,
         OnViewChange = null,
         OnSelectEvent,
@@ -170,7 +170,10 @@ function Calendar({...props}) {
                 OnSelectEvent(eventData);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData.id);
+                OnWaitingRoom(eventData);
+                break;
+            case "leaveWaitingRoom":
+                OnLeaveWaitingRoom(eventData);
                 break;
         }
     };
@@ -253,7 +256,9 @@ function Calendar({...props}) {
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
-                                eventContent={(event) => <Event event={event} t={translation}/>}
+                                eventContent={(event) =>
+                                    <Event event={event} openingHours={openingHours} t={translation}/>
+                                }
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         ev.preventDefault();
@@ -267,14 +272,6 @@ function Calendar({...props}) {
                                         event
                                     })
                                 }
-                                slotLabelClassNames={(day) => {
-                                    return moment(day.date, "ddd MMM DD YYYY HH:mm:ss").isBetween(
-                                        disabledSlots[0].start,
-                                        disabledSlots[0].end
-                                    )
-                                        ? "normal"
-                                        : "disabled";
-                                }}
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => OnEventChange(info)}
                                 select={OnSelectDate}
@@ -332,26 +329,26 @@ function Calendar({...props}) {
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
                                     moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
-                                    data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM"))
-                                    .map((v: any) => (
-                                            <MenuItem
-                                                key={uniqueId()}
-                                                disabled={
-                                                    v.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
-                                                    v.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time)}
-                                                onClick={() => {
-                                                    OnMenuActions(v.action, eventMenu);
-                                                    handleClose();
-                                                }}
-                                                className="popover-item"
-                                            >
-                                                {v.icon}
-                                                <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                    {translation(`${v.title}`, {ns: 'common'})}
-                                                </Typography>
-                                            </MenuItem>
-                                        )
-                                    )}
+                                    data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
+                                    data.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                    data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
+                                    data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
+                                )).map((v: any) => (
+                                        <MenuItem
+                                            key={uniqueId()}
+                                            onClick={() => {
+                                                OnMenuActions(v.action, eventMenu);
+                                                handleClose();
+                                            }}
+                                            className="popover-item"
+                                        >
+                                            {v.icon}
+                                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                {translation(`${v.title}`, {ns: 'common'})}
+                                            </Typography>
+                                        </MenuItem>
+                                    )
+                                )}
                             </Menu>
                         </Box>
                     )}

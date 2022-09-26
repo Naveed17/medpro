@@ -1,4 +1,3 @@
-import { Label } from '@features/label';
 import { CardContent, IconButton, Stack, Typography } from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React, { ReactElement, useState } from 'react'
@@ -7,7 +6,7 @@ import { Popover } from "@features/popover";
 import Icon from "@themes/urlIcon";
 function DocumentCard({ ...props }) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const { data, t , onClick } = props;
+    const { data , onClick } = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -22,8 +21,10 @@ function DocumentCard({ ...props }) {
     return (
         <DocumentCardStyled>
             <CardContent onClick={onClick}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="center" justifyContent="end">
+{/*
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
+*/}
                     <Popover
                         open={openTooltip}
                         handleClose={() => {
@@ -67,10 +68,14 @@ function DocumentCard({ ...props }) {
                 </Stack>
                 <Stack spacing={2} className="document-detail" alignItems="center">
                     <IconUrl path={
-                        data.documentType === "Ordonnace" && "ic-traitement" ||
-                        data.documentType == "type-2" && "ic-analyse" ||
-                        data.documentType === "type-4" && "ic-img" ||
-                        data.documentType !== "Ordonnace" && "ic-pdf" || ""
+                        data.documentType === "prescription" && "ic-traitement" ||
+                        data.documentType == "requested-analysis" && "ic-analyse" ||
+                        data.documentType == "analyse" && "ic-analyse" ||
+                        data.documentType == "medical-imaging" && "ic-soura" ||
+                        data.documentType === "photo" && "ic-img" ||
+                        data.documentType === "Rapport" && "ic-text" ||
+                        data.documentType === "video" && "ic-video-outline" ||
+                        data.documentType !== "prescription" && "ic-pdf" || ""
                     } />
                     <Typography variant='subtitle2' fontWeight={700}>
                         {data.title}

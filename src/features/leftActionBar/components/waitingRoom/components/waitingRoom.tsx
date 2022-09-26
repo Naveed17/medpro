@@ -1,25 +1,23 @@
-import React, {useState} from "react"
-import {Typography} from "@mui/material"
-import WaitingRoomStyled from "./overrides/waitingRoomStyle"
-import {Accordion} from '@features/accordion'
-import {SidebarCheckbox} from '@features/sidebarCheckbox'
-import {motifData, statutData, typeRdv} from './config'
-import {useTranslation} from "next-i18next"
+import React, {useEffect} from "react";
+import {Typography} from "@mui/material";
+import WaitingRoomStyled from "./overrides/waitingRoomStyle";
+import {Accordion} from '@features/accordion';
+import {SidebarCheckbox} from '@features/sidebarCheckbox';
+import {useTranslation} from "next-i18next";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {FilterRootStyled, PatientFilter} from "@features/leftActionBar";
+import {FilterRootStyled, leftActionBarSelector, PatientFilter, setFilter} from "@features/leftActionBar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 function WaitingRoom() {
     const {data: session} = useSession();
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
-    const [motifstate, setmotifstate] = useState({});
-    const [statutstate, setstatutstate] = useState({});
-    const [typeRdvstate, settypeRdvstate] = useState({});
-
+    const {query} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
 
     const {data: user} = session as Session;
@@ -32,6 +30,15 @@ function WaitingRoom() {
     }, SWRNoValidateConfig);
 
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+
+    useEffect(() => {
+        types?.map(type => {
+            Object.assign(type, {
+                checked: query?.type?.split(',').find(typeObject => type.uuid === typeObject) !== undefined
+            })
+        })
+    });
+
     if (!ready) return (<>loading translations...</>);
 
     return (
@@ -39,7 +46,7 @@ function WaitingRoom() {
             <Typography
                 variant="h6"
                 color="text.primary"
-                sx={{ py: 5, pl: "10px", mb: "0.21em" }}
+                sx={{py: 5, pl: "10px", mb: "0.21em"}}
                 gutterBottom
             >
                 {t(`title`)}
@@ -55,7 +62,7 @@ function WaitingRoom() {
                         heading: {
                             id: "patient",
                             icon: "ic-patient",
-                            title:"patient",
+                            title: "patient",
                         },
                         children: (
                             <FilterRootStyled>
@@ -71,12 +78,12 @@ function WaitingRoom() {
                                     },
                                     textField: {
                                         labels: [
-                                            { label: "name", placeholder: "name" },
-                                            { label: "date-of-birth", placeholder: "--/--/----" },
-                                            { label: "telephone", placeholder: "telephone" },
+                                            {label: "name", placeholder: "name"},
+                                            {label: "date-of-birth", placeholder: "--/--/----"},
+                                            {label: "telephone", placeholder: "telephone"},
                                         ],
                                     },
-                                }} t={t} />
+                                }} t={t}/>
                             </FilterRootStyled>
                         ),
                     },
@@ -94,7 +101,21 @@ function WaitingRoom() {
                                         t: t,
                                         ready: ready,
                                     }}
-                                    data={item} onChange={(v) => console.log(v)}/>
+                                    data={item}
+                                    onChange={(selected: boolean) => {
+                                        if (selected && !query?.type?.includes(item.uuid)) {
+                                            dispatch(setFilter({
+                                                type:
+                                                    item.uuid + (query?.type ? `,${query.type}` : "")
+                                            }));
+                                        } else {
+                                            const sp = query?.type?.split(",") as string[];
+                                            dispatch(setFilter({
+                                                type:
+                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                            }))
+                                        }
+                                    }}/>
                             </React.Fragment>
                         ))
                     },

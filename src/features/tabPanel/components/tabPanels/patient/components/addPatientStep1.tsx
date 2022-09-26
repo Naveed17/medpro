@@ -349,7 +349,7 @@ function AddPatientStep1({ ...props }) {
             </Typography>
             <Grid container spacing={2}>
               <Grid item md={6} lg={4} xs={12}>
-                <CountrySelect selected={(v: any) => setslected(v)} />
+                <CountrySelect onSelect={(v: any) => setslected(v)} />
               </Grid>
               <Grid item md={6} lg={8} xs={12}>
                 <TextField

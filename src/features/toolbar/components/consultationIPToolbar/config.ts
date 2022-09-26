@@ -1,30 +1,3 @@
-export const tabsData = [
-    {
-        label: "patient_history",
-        value: 'patient history',
-
-    },
-    {
-        label: "mediktor_report",
-        value: 'mediktor report',
-    },
-    {
-        label: "consultation_form",
-        value: 'consultation form',
-    },
-    {
-        label: "medical_procedures",
-        value: 'medical procedures',
-    },
-    {
-        label: "documents",
-        value: 'documents',
-    },
-    {
-        label: "next_appointment",
-        value: 'next appointment',
-    }
-];
 export const documentButtonList = [
     {
         icon: "ic-plus",
@@ -34,10 +7,10 @@ export const documentButtonList = [
         icon: "ic-plus",
         label: "write_certif",
     },
-    {
+   /* {
         icon: "ic-plus",
         label: "write_mail",
-    },
+    },*/
     {
         icon: "ic-messanger-lite",
         label: "balance_sheet_request",
@@ -45,9 +18,9 @@ export const documentButtonList = [
     {
         icon: "ic-dowlaodfile",
         label: "upload_document",
-    },
-    {
+    }
+   /* {
         icon: "ic-export",
         label: "print_documents",
-    }
+    }*/
 ]

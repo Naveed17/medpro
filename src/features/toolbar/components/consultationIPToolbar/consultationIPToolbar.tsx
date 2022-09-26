@@ -1,90 +1,175 @@
-import React, { useEffect, useState } from 'react'
-import { Tabs, Tab, Stack, Button, MenuItem, DialogActions } from '@mui/material'
+import React, {useEffect, useState} from 'react'
+import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
-import { useTranslation } from 'next-i18next'
-import { tabsData, documentButtonList } from './config'
-import { Dialog } from '@features/dialog';
+import {useTranslation} from 'next-i18next'
+import {documentButtonList} from './config'
+import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import { useAppDispatch } from "@app/redux/hooks";
-import { SetEnd } from "@features/toolbar/components/consultationIPToolbar/actions";
-import { useRequestMutation } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
+import {setTimer} from "@features/card";
 
-function ConsultationIPToolbar({ ...props }) {
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+function ConsultationIPToolbar({...props}) {
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState(tabsData[0].value);
+    const [value, setValue] = useState('patient history');
     const [info, setInfo] = useState<null | string>('');
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
+    const [lastTabs, setLastTabs] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [end, setEnd] = useState(false);
+    const {exam} = useAppSelector(consultationSelector);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const { selected, appuuid, mutate, setPendingDocuments, pendingDocuments, dialog, setDialog } = props;
 
+    const tabsData = [
+        {
+            label: "patient_history",
+            value: 'patient history',
 
-    const { trigger } = useRequestMutation(null, "/drugs");
+        },
+        {
+            label: "mediktor_report",
+            value: 'mediktor report',
+        },
+        {
+            label: "consultation_form",
+            value: 'consultation form',
+        },
+        {
+            label: "medical_procedures",
+            value: 'medical procedures',
+        },
+        {
+            label: "documents",
+            value: 'documents',
+        }
+    ];
+    const {
+        selected,
+        appuuid,
+        mutate,
+        agenda,
+        mutateDoc,
+        setPendingDocuments,
+        pendingDocuments,
+        dialog,
+        setDialog,
+        selectedAct,
+        selectedModel
+    } = props;
+    const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    useEffect(() => {
-        switch (dialog) {
-            case "draw_up_an_order":
-                setInfo('medical_prescription')
-                setState(prescription)
+    const handleSaveDialog = () => {
+        const form = new FormData();
+        switch (info) {
+            case 'medical_prescription':
+                form.append('globalNote', "");
+                form.append('isOtherProfessional', "false");
+                form.append('drugs', JSON.stringify(state));
+
+                trigger({
+                    method: "POST",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/prescriptions/' + router.locale,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then((r: any) => {
+                    mutateDoc();
+                    mutate();
+                    setInfo('document_detail')
+                    const res = r.data.data
+
+                    setState({
+                        uri: res[1],
+                        name: 'prescription',
+                        type: 'prescription',
+                        info: res[0].prescription_has_drugs,
+                        uuid: res[0].uuid,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
+                    setOpenDialog(true)
+                    setactions(true)
+                    setPrescription([])
+                })
                 break;
-            case "balance_sheet_request":
-                setInfo('balance_sheet_request')
-                setState(checkUp)
+            case 'balance_sheet_request':
+                form.append('analyses', JSON.stringify(state));
+
+                trigger({
+                    method: "POST",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/requested-analysis/' + router.locale,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then((r: any) => {
+                    mutateDoc();
+                    mutate();
+                    setCheckUp([])
+                    setInfo('document_detail')
+                    const res = r.data.data;
+                    setState({
+                        uuid: res[0].uuid,
+                        uri: res[1],
+                        name: 'bilan',
+                        type: 'analysis',
+                        info: res[0].analyses,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
+                    setOpenDialog(true);
+                    setactions(true)
+                })
+                break;
+            case 'add_a_document':
+                form.append('title', state.name);
+                form.append('description', state.description);
+                form.append('type', state.type);
+                state.files.map((file: File) => {
+                    form.append('files[]', file, file.name)
+                })
+
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then(() => {
+                    mutateDoc()
+                });
+                setOpenDialog(true);
+                setactions(true)
                 break;
         }
-        setDialog('')
-        setOpenDialog(true);
-        setactions(true)
 
-    }, [checkUp, dialog, prescription, setDialog])
-    const handleClose = (action: string) => {
-        switch (action) {
-            case "draw_up_an_order":
-                setInfo('medical_prescription')
-                setState(prescription)
-                break;
-            case "balance_sheet_request":
-                setInfo('balance_sheet_request')
-                setState(checkUp)
-                break;
-            case "write_certif":
-                setInfo('write_certif')
-                break;
-            case "upload_document":
-                setInfo('add_a_document')
-                break;
-            default:
-                setInfo(null)
-                break;
-
-        }
-        setAnchorEl(null);
-        setOpenDialog(true);
-        setactions(true)
-
-    };
-    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setValue(newValue);
-    };
+        setOpenDialog(false);
+        setInfo(null)
+    }
 
     const handleCloseDialog = () => {
         let pdoc = [...pendingDocuments]
@@ -123,100 +208,126 @@ function ConsultationIPToolbar({ ...props }) {
         setPendingDocuments(pdoc)
 
     }
-    const handleSaveDialog = () => {
-        const form = new FormData();
-        switch (info) {
-            case 'medical_prescription':
-                form.append('globalNote', "");
-                form.append('isOtherProfessional', "false");
-                form.append('drugs', JSON.stringify(state));
 
-                trigger({
-                    method: "POST",
-                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/prescriptions/' + router.locale,
-                    data: form,
-                    headers: {
-                        ContentType: 'application/x-www-form-urlencoded',
-                        Authorization: `Bearer ${session?.accessToken}`
-                    }
-                }, { revalidate: true, populateCache: true }).then((r: any) => {
-                    mutate();
-                    setInfo('document_detail')
-                    const res = r.data.data
-                    console.log(res)
-
-                    setState({
-                        uri: res[1],
-                        name: 'ordonnance',
-                        type: 'Ordonnance',
-                        info: res[0].prescription_has_drugs,
-                        uuid: res[0].uuid,
-                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
-                    })
-                    setOpenDialog(true);
-                    setactions(true)
-                    setPrescription([])
-                })
+    const handleClose = (action: string) => {
+        switch (action) {
+            case "draw_up_an_order":
+                setInfo('medical_prescription')
+                setState(prescription)
                 break;
-            case 'balance_sheet_request':
-                form.append('analyses', JSON.stringify(state));
+            case "balance_sheet_request":
+                setInfo('balance_sheet_request')
+                setState(checkUp)
+                break;
+            case "write_certif":
+                setInfo('write_certif')
+                break;
+            case "upload_document":
+                setInfo('add_a_document')
+                setState({name: '', description: '', type: '', files: []})
+                break;
+            default:
+                setInfo(null)
+                break;
 
-                trigger({
-                    method: "POST",
-                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + appuuid + '/requested-analysis/' + router.locale,
-                    data: form,
-                    headers: {
-                        ContentType: 'application/x-www-form-urlencoded',
-                        Authorization: `Bearer ${session?.accessToken}`
-                    }
-                }, { revalidate: true, populateCache: true }).then((r: any) => {
-                    mutate();
-                    setCheckUp([])
-                    setInfo('document_detail')
-                    const res = r.data.data;
-                    setState({
-                        uuid: res[0].uuid,
-                        uri: res[1],
-                        name: 'bilan',
-                        type: 'analysis',
-                        info: res[0].analyses,
-                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
-                    })
-                    setOpenDialog(true);
-                    setactions(true)
-                })
+        }
+        setAnchorEl(null);
+        setOpenDialog(true);
+        setactions(true)
+
+    };
+
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+        setValue(newValue);
+    };
+
+    useEffect(() => {
+        switch (dialog) {
+            case "draw_up_an_order":
+                setInfo('medical_prescription')
+                break;
+            case "balance_sheet_request":
+                setInfo('balance_sheet_request')
+                setState(checkUp)
                 break;
         }
+        setDialog('')
+        setOpenDialog(true);
+        setactions(true)
 
-        setOpenDialog(false);
-        setInfo(null)
-    }
+    }, [checkUp, dialog, prescription, setDialog])
+
+    useEffect(() => {
+        const acts: { act_uuid: string, price: string }[] = []
+        if (end) {
+            selectedAct.map((act: { uuid: string, fees: string }) => {
+                acts.push({act_uuid: act.uuid, price: act.fees})
+            })
+            const form = new FormData();
+            form.append("acts", JSON.stringify(acts))
+            form.append("modal_uuid", selectedModel.default_modal.uuid)
+            form.append("modal_data", JSON.stringify(selectedModel.data))
+            form.append("notes", exam.notes)
+            form.append("diagnostic", exam.diagnosis)
+            form.append("treatment", exam.treatment)
+            form.append("status", "5")
+            form.append("consultation_reason", "")
+            trigger({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/data/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }).then(r => {
+                console.log('end consultation',r)
+                router.push('/dashboard/agenda').then(r => {
+                    console.log(r)
+                    dispatch(setTimer({isActive: false}))
+                })
+            });
+        }
+        setEnd(false)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [end])
+
     useEffect(() => {
         selected(tabs);
+        if (lastTabs === 2) {
+            const btn = document.getElementsByClassName('sub-btn')[1];
+            const examBtn = document.getElementsByClassName('sub-exam')[0];
+
+            (btn as HTMLElement)?.click();
+            (examBtn as HTMLElement)?.click();
+        }
+        setLastTabs(tabs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
+
     if (!ready) return <>loading translations...</>;
+
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
                 <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-                    <Button variant="contained"
-                        onClick={() => {
-                            setInfo("document_detail");
-                            setOpenDialog(true);
-                            setState('/static/files/sample.pdf')
-                            setactions(false)
-                        }
-                        }
+                    {/*<Button disabled variant="contained"
+                            onClick={
+                                () => {
+                                    setInfo("document_detail");
+                                    setOpenDialog(true);
+                                    setState('/static/files/sample.pdf')
+                                    setactions(false)
+                                }
+                            }
                     >
                         {t("RDV")}
                     </Button>
                     <Button variant="contained">
                         {t("vaccine")}
                     </Button>
-                    <Button variant="contained">
+                    <Button disabled={true} variant="contained">
                         {t("report")}
-                    </Button>
+                    </Button>*/}
                     <Button onClick={handleClick} variant="contained" color="warning">
                         {t('document')}
                     </Button>
@@ -240,7 +351,7 @@ function ConsultationIPToolbar({ ...props }) {
                     >
                         {documentButtonList.map((item, index) => (
                             <MenuItem key={`document-button-list-${index}`} onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon} />
+                                <Icon path={item.icon}/>
                                 {t(item.label)}
                             </MenuItem>
                         ))}
@@ -250,61 +361,75 @@ function ConsultationIPToolbar({ ...props }) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{ width: '80%' }}
+                        sx={{width: '80%'}}
                         variant="scrollable"
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({ label, value }, index) => (
+                        {tabsData.map(({label, value}, index) => (
                             <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value}
-                                label={t(label)} />
+                                 label={t(label)}/>
                         ))}
                     </Tabs>
-                    <Button variant="outlined" color="primary" onClick={() => {
+                    <LoadingButton loading={loading} variant="outlined" color="primary" onClick={() => {
                         const btn = document.getElementsByClassName('sub-btn')[1];
+                        const examBtn = document.getElementsByClassName('sub-exam')[0];
+
+
                         (btn as HTMLElement)?.click();
-                        dispatch(SetEnd(true))
+                        (examBtn as HTMLElement)?.click();
+
+                        setLoading(true)
+
+
+                        setTimeout(() => {
+                            console.log(selectedModel)
+                            setEnd(true)
+                            setLoading(false)
+                        }, 3000)
+
+
                     }} className="action-button">
-                        <Icon path="ic-check" />
+                        {!loading && <Icon path="ic-check"/>}
                         {t("end_of_consultation")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={{ state, setState }}
-                    size={"lg"}
-                    direction={'ltr'}
-                    sx={{ height: 400 }}
-                    {...(info === "document_detail") && {
-                        sx: { height: 400, p: 0 }
-                    }}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {
-                    ...(info === "document_detail" && {
-                        onClose: handleCloseDialog
-                    })
-                    }
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        action ? <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleSaveDialog}
+                        open={openDialog}
+                        data={{state, setState}}
+                        size={"lg"}
+                        direction={'ltr'}
+                        sx={{height: 400}}
+                        {...(info === "document_detail") && {
+                            sx: {height: 400, p: 0}
+                        }}
+                        title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                        {
+                            ...(info === "document_detail" && {
+                                onClose: handleCloseDialog
+                            })
+                        }
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            action ? <DialogActions>
+                                    <Button onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                        {t('cancel')}
+                                    </Button>
+                                    <Button variant="contained"
+                                            onClick={handleSaveDialog}
 
-                                startIcon={<Icon
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                            : null
+                                            startIcon={<Icon
+                                                path='ic-dowlaodfile'/>}>
+                                        {t('save')}
+                                    </Button>
+                                </DialogActions>
+                                : null
 
-                    } />
+                        }/>
             }
 
         </>

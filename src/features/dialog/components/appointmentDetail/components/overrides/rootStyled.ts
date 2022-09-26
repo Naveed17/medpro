@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import {alpha, styled} from '@mui/material/styles';
 import { Paper } from "@mui/material";
 
 const RootStyled = styled(Paper)(({ theme }) => ({
@@ -49,7 +49,31 @@ const RootStyled = styled(Paper)(({ theme }) => ({
             marginRight: theme.spacing(-1.5),
         }
     },
-
+    "& .alert": {
+        fontSize: "12px",
+        padding: theme.spacing(0.8, 0.4),
+        marginTop: theme.spacing(0.2),
+        borderRadius: "6px",
+        marginBottom: theme.spacing(0.9),
+        textAlign: "left",
+        justifyContent: "flex-start",
+        color: theme.palette.text.secondary,
+        display: "flex",
+        alignItems: "center",
+        backgroundColor: alpha(theme.palette.error.main, 0.15),
+        height: 22,
+        "& svg": {
+            width: 14,
+            height: 14,
+            mr: 1,
+            path: {
+                fill: theme.palette.error.main,
+            },
+        },
+        "& span":{
+            padding: "0 .2rem"
+        }
+    }
 }))
 
 export default RootStyled;

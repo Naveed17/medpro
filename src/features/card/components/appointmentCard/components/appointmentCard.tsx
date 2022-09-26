@@ -1,21 +1,24 @@
 import React, {useState} from 'react'
-import {CardContent, Stack, IconButton, Box, List, ListItem, Typography, FormControl} from '@mui/material'
+import {CardContent, Stack, Box, List, ListItem, Typography, FormControl} from '@mui/material'
 import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function AppointmentCard({...props}) {
-    const {data, OnEdit, t, ...rest} = props;
+    const {data, onDataUpdated, t, ...rest} = props;
     const router = useRouter();
     const {data: session} = useSession();
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -32,11 +35,30 @@ function AppointmentCard({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const [reason, setReason] = useState(data.motif.uuid);
+    const {
+        trigger: updateAppointmentTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/detail",
+        TriggerWithoutValidation);
+
+    const [reason, setReason] = useState(data.motif?.uuid);
     const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+
+    const updateDetails = (input: { reason?: string, type?: string }) => {
+        const form = new FormData();
+        form.append('attribute', input.reason ? "consultation_reason" : "type");
+        form.append('value', (input.reason ? input.reason : input.type) as string);
+        updateAppointmentTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then(() => {
+            onDataUpdated();
+        });
+    }
 
     return (
         <RootStyled>
@@ -52,9 +74,6 @@ function AppointmentCard({...props}) {
                            }>
                         {data.status.value}
                     </Label>
-                    <IconButton onClick={OnEdit} size="small" {...rest}>
-                        <IconUrl path='ic-duotone'/>
-                    </IconButton>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Box sx={{width: "100%"}}>
@@ -69,7 +88,10 @@ function AppointmentCard({...props}) {
                                         id="select-type"
                                         value={typeEvent}
                                         displayEmpty
-                                        onChange={event => setTypeEvent(event.target.value as string)}
+                                        onChange={event => {
+                                            updateDetails({type: event.target.value as string});
+                                            setTypeEvent(event.target.value as string)
+                                        }}
                                         sx={{
                                             "& .MuiSelect-select svg": {
                                                 position: "absolute",
@@ -98,7 +120,6 @@ function AppointmentCard({...props}) {
                                                     />
                                                     <Typography>{type?.name}</Typography>
                                                 </Box>
-
                                             )
                                         }}>
                                         {types?.map((type) => (
@@ -128,12 +149,15 @@ function AppointmentCard({...props}) {
                                     <Select
                                         labelId="select-reason"
                                         id="select-reason"
-                                        value={reason}
+                                        value={reason !== undefined ? reason : ""}
                                         displayEmpty
-                                        onChange={event => setReason(event.target.value as string)}
+                                        onChange={event => {
+                                            updateDetails({reason: event.target.value as string});
+                                            setReason(event.target.value as string)
+                                        }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
-                                                return <em>{t("stepper-1.reason-consultation-placeholder")}</em>;
+                                                return <em>{t("reason-consultation-placeholder")}</em>;
                                             }
                                             const motif = reasons?.find(reason => reason.uuid === selected);
                                             return (
@@ -168,7 +192,6 @@ function AppointmentCard({...props}) {
                                             {data?.time}
                                         </Typography>
                                     </Stack>
-
                                 </Stack>
                             </ListItem>
                         </List>
