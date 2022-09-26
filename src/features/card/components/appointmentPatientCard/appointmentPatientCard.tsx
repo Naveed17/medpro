@@ -14,7 +14,8 @@ function AppointmentPatientCard({...props}) {
             <Stack
                 direction="row"
                 spacing={1}
-                sx={{p: 2}}
+                mt={1}
+                sx={{p: "0 1rem"}}
             >
                 <Box mt={.5}>
                     <Avatar sx={{width: 24, height: 24}}
@@ -33,7 +34,14 @@ function AppointmentPatientCard({...props}) {
                     {data?.patient.contact.length > 0 && <Typography
                         variant="body2"
                         color="text.primary"
-                        sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            svg: {
+                                width: 9,
+                                marginRight: 1
+                            }
+                        }}
                         component="span"
                     >
                         <CallIcon/>
@@ -42,21 +50,33 @@ function AppointmentPatientCard({...props}) {
                     </Typography>}
                 </Box>
             </Stack>
-            <Stack
+            {data?.type && <Stack
                 direction="row"
                 spacing={1}
-                sx={{p: .5}}
+                sx={{p: "0  .2rem .6rem .8rem"}}
             >
-                {data?.type && <Box sx={{display: "inline-flex"}}>
+                <Box sx={{display: "inline-flex"}}>
                     <FiberManualRecordIcon
                         fontSize="small"
                         sx={{
-                            color: data?.type.color,
+                            border: .1,
+                            borderColor: 'divider',
+                            borderRadius: '50%',
+                            p: 0.05,
+                            mr: 1,
+                            color: data?.type.color
                         }}
                     />
                     <Typography>{data?.type.name}</Typography>
-                </Box>}
-            </Stack>
+                </Box>
+            </Stack>}
+            {data?.motif && <Stack
+                direction="row"
+                spacing={1}
+                sx={{p: "0  .2rem .6rem .8rem"}}
+            >
+                Motif: <Typography ml={1}>{data?.motif.name}</Typography>
+            </Stack>}
             <Stack sx={{p: 2, background: "rgba(255, 212, 0, 0.4)",}}>
                 <Box>
                     <Typography
