@@ -2,7 +2,17 @@ import React, {useEffect, useState} from 'react';
 import ConsultationModalStyled from './overrides/modalConsultationStyle'
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
-    Stack, Typography, CardContent, Paper, MenuList, MenuItem, ListItemIcon, ListItemText, Button, DialogActions, Box
+    Stack,
+    Typography,
+    CardContent,
+    Paper,
+    MenuList,
+    MenuItem,
+    ListItemIcon,
+    ListItemText,
+    Button,
+    DialogActions,
+    Box,
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -17,8 +27,6 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
-import {useAppDispatch} from "@app/redux/hooks";
-import {SetFiche} from "@features/toolbar/components/consultationIPToolbar/actions";
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -42,7 +50,6 @@ function ModalConsultation({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
     const [loadModel, setLoadModel] = useState(true);
-    const dispatch = useAppDispatch();
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
@@ -87,8 +94,8 @@ function ModalConsultation({...props}) {
         setValue(prop);
         //console.log(prop)
         let data = {};
-        prop.structure[0].components.map((cmp:any) => {
-            data ={...data, ...{ [cmp.key]:''}}
+        prop.structure[0].components.map((cmp: any) => {
+            data = {...data, ...{[cmp.key]: ''}}
         })
         setSM({default_modal: prop, data: data})
         setOpen(false);
@@ -96,9 +103,7 @@ function ModalConsultation({...props}) {
             setLoadModel(false)
         }, 1000)
     };
-    const handleClickDialog = () => {
-        setOpenDialog(true);
-    };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setChange(false)
@@ -125,9 +130,6 @@ function ModalConsultation({...props}) {
                             </Typography>
                             <Icon path="ic-flesh-bas-y"/>
                         </Stack>
-                        {/*<Button onClick={handleClickDialog} disabled className='btn-filter' variant='text-black'>
-                            <Icon path="ic-setting"/>
-                        </Button>*/}
                     </Stack>
                     <CardContent sx={{
                         bgcolor: alpha(value?.color, 0.1)
@@ -135,8 +137,6 @@ function ModalConsultation({...props}) {
                         <Box>
                             {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
-                                    //dispatch(SetFiche(ev.data))
-                                    console.log(ev.data)
                                     modal.data = ev.data
                                     setSM(modal)
                                 }}
