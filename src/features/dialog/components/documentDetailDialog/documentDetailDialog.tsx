@@ -119,7 +119,7 @@ function DocumentDetailDialog({...props}) {
         } else if(state.name ==='write_certif'){
                 const doc = new jsPDF('p', 'pt', 'letter')
                 //doc.html("Aaaaaa")
-                doc.text("Cours en developpement...",20,60)
+                doc.text("In development...",20,60)
                 const uri = doc.output('bloburi').toString()
                 setFile(uri)
             }
