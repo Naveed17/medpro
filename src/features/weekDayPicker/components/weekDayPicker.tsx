@@ -13,7 +13,7 @@ function WeekDayPicker({...props}) {
     const [offsetYearWeekStart, setOffsetYearWeekStart] = useState(action === "reschedule" ? 0 : moment(initDate).week() - moment().week());
     const [offsetYearWeekEnd, setOffsetYearWeekEnd] = useState(offsetYearWeekStart + 1);
     const [currentWeek, setWeek] = useState([offsetYearWeekStart * 7, offsetYearWeekEnd * 7]);
-    const clonedDate = new Date(initDate?.getTime());
+    const clonedDate = action === "reschedule" ? new Date() : new Date(initDate?.getTime());
     const [date, setDate] = useState<Date>(new Date(clonedDate.setHours(0, 0, 0, 0)));
     const [daysOfYear, setDaysOfYear] = useState<Date[]>([]);
 
@@ -33,7 +33,7 @@ function WeekDayPicker({...props}) {
 
     useEffect(() => {
         getMonths();
-        const now = (action === "reschedule" ? moment(initDate) : moment()).startOf('week').toDate();
+        const now = (action === "reschedule" ? moment() : moment()).startOf('week').toDate();
         let daysOfYear = [];
         for (
             let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());

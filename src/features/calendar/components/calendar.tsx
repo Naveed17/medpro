@@ -60,10 +60,9 @@ function Calendar({...props}) {
     const prevView = useRef(view);
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
-    const [eventGroupByDay, setEventGroupByDay] =
-        useState<GroupEventsModel[]>(sortedData);
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
-    const [date, setDate] = useState(moment().toDate());
+    const [date, setDate] = useState(currentDate.date);
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;

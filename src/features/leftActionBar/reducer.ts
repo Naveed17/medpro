@@ -3,9 +3,11 @@ import {setFilter} from "./actions";
 
 export type ActionBarState = {
     query: {
-        type?: string,
-        consultationReason?: string,
-        status?: string
+        type?: string;
+        gender?: string;
+        birthdate?: string;
+        phone?: string;
+        name?: string;
     } | undefined;
 };
 
