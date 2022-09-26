@@ -45,7 +45,7 @@ import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {AppointmentDetail, DialogProps} from '@features/dialog';
 import {useRouter} from "next/router";
-import {SetMutation, SetPatient,SetExam,ConsultationIPToolbar} from "@features/toolbar";
+import {SetMutation, SetPatient, SetExam, ConsultationIPToolbar} from "@features/toolbar";
 import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
@@ -269,7 +269,9 @@ function ConsultationInProgress() {
             if (appointement.acts) {
                 let sAct: any[] = []
                 appointement.acts.map((act: { act_uuid: string, price: number }) => {
-                    sAct.push(acts.find((a: { uuid: string }) => a.uuid === act.act_uuid))
+                    const actDetect = acts.find((a: { uuid: string }) => a.uuid === act.act_uuid)
+                    if (actDetect)
+                        sAct.push(actDetect)
                 })
                 setSelectedAct(sAct)
             }

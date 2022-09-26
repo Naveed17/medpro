@@ -1,17 +1,17 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Button, InputBase} from "@mui/material";
-import {useTheme, alpha, Theme} from "@mui/material/styles";
-import {TableRowStyled} from "@features/table";
-import React, { useState} from "react";
-import {useSession} from "next-auth/react";
+import { Checkbox, Button, InputBase } from "@mui/material";
+import { useTheme, alpha, Theme } from "@mui/material/styles";
+import { TableRowStyled } from "@features/table";
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
 
-function CIPMedicalProceduresRow({...props}) {
+function CIPMedicalProceduresRow({ ...props }) {
 
-    const {row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData} = props;
+    const { row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData } = props;
 
     /*const {trigger} = useRequestMutation(null, "/actFees");
     const router = useRouter();*/
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     /*const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
@@ -39,7 +39,7 @@ function CIPMedicalProceduresRow({...props}) {
                     onChange={(e) => {
                         editMotif(row, 'checked')
                     }}
-                    checked={isItemSelected}/>
+                    checked={isItemSelected} />
             </TableCell>
             <TableCell>
                 {row.act.name}
@@ -70,7 +70,7 @@ function CIPMedicalProceduresRow({...props}) {
                                         ContentType: 'multipart/form-data',
                                         Authorization: `Bearer ${session?.accessToken}`
                                     }
-                                }, {revalidate: true, populateCache: true}).then((e) => {
+                                }, { revalidate: true, populateCache: true }).then((e) => {
                                     console.log("res", e)
                                 });*/
                             }}
