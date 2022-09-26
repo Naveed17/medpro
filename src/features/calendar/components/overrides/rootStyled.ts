@@ -58,6 +58,7 @@ const RootStyled = styled("div")(({theme}) => ({
         fontSize: 9,
         padding: theme.spacing(0.5, 0),
         position: "relative",
+        zIndex: 8,
         "& .ic-time": {
             marginLeft: theme.spacing(1),
             width: 11,

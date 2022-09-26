@@ -6,10 +6,10 @@ import PaperStyled from "./overrides/paperStyled";
 import React from "react";
 
 function AppointmentPatientCard({...props}) {
-    const {data} = props;
+    const {data, style} = props;
 
     return (
-        <PaperStyled>
+        <PaperStyled sx={style}>
             <Stack
                 direction="row"
                 spacing={1}

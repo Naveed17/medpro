@@ -88,7 +88,7 @@
     "milliseconds": "millisecondes"
   },
   "event": {
-    "new": "nouveau rendez-vous",
+    "new": "nouveau",
     "reschedule": "Replanifier",
     "hors-opening-hours": "rendez-vous pris en dehors des heures d'ouverture",
     "title": "Détail RDV",
