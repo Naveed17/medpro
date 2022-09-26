@@ -81,6 +81,7 @@ function EditMotifDialog({ ...props }) {
     const { data: user } = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const initalData = Array.from(new Array(20));
     const [submit, setSubmit] = useState(false);
     const { trigger } = useRequestMutation(null, "/settings/type");
@@ -91,7 +92,6 @@ function EditMotifDialog({ ...props }) {
             .max(50, t('users.new.ntl'))
             .required(t('users.new.nameReq'))
     });
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -103,20 +103,19 @@ function EditMotifDialog({ ...props }) {
 
         onSubmit: async (values, { setErrors, setSubmitting }) => {
             const form = new FormData();
-            form.append('name', JSON.stringify({
-                "fr": values.name,
-            }));
+            form.append("attribute", "price");
+            form.append("value", `${values.fees}`);
+
             trigger({
-                method: "PUT",
-                url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/types/' + props.data.uuid + '/' + router.locale,
+                method: "PATCH",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + props.data.uuid + '/' + router.locale,
                 data: form,
                 headers: {
-                    ContentType: 'application/x-www-form-urlencoded',
+                    ContentType: 'multipart/form-data',
                     Authorization: `Bearer ${session?.accessToken}`
                 }
-            }, { revalidate: true, populateCache: true }).then(r => mutateEvent())
-
-
+            }, { revalidate: true, populateCache: true }).then((r) => mutateEvent());
+            props.closeDraw()
         },
     });
 

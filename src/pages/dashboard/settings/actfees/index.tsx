@@ -107,7 +107,7 @@ function ActFees() {
         form.append('name', JSON.stringify({
             "fr": stateAct.act.name,
         }));
-        form.append('price', stateAct.fees)
+        form.append('price', `${stateAct.fees}`)
         trigger({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
