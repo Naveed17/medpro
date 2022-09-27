@@ -41,7 +41,7 @@ function Consultation() {
                     <Avatar
                         sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
                         src={
-                            patient?.gender === "O"
+                            patient?.gender === "M"
                                 ? "/static/icons/men-avatar.svg"
                                 : "/static/icons/women-avatar.svg"
                         }

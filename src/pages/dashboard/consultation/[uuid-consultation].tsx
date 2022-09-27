@@ -266,7 +266,7 @@ function ConsultationInProgress() {
             dispatch(SetMutation(mutate))
             const app_data = appointement.consultation_sheet.exam.appointment_data;
             dispatch(SetExam({
-                motif: '',
+                motif: app_data?.consultation_reason ?app_data?.consultation_reason.uuid: '',
                 notes: app_data?.notes ? app_data.notes.value : '',
                 diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : '',
                 treatment: app_data?.treatments ? app_data.treatments.value : '',

@@ -271,8 +271,9 @@ function ConsultationIPToolbar({...props}) {
             form.append("notes", exam.notes)
             form.append("diagnostic", exam.diagnosis)
             form.append("treatment", exam.treatment)
+            form.append("consultation_reason", exam.motif)
             form.append("status", "5")
-            form.append("consultation_reason", "")
+
             trigger({
                 method: "PUT",
                 url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/data/${router.locale}`,

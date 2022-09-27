@@ -70,23 +70,28 @@ function CIPPatientHistoryCard({...props}) {
                                 value={values.motif}
                                 displayEmpty={true}
                                 sx={{color: "text.secondary"}}
-                                renderValue={(value) =>
-                                    value?.length
-                                        ? Array.isArray(value)
-                                            ? value.join(", ")
-                                            : value
-                                        : '--'
-                                }>
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>--</em>;
+                                    }
+
+                                    const creason = cReason?.find(cr => cr.uuid === selected);
+                                    return (
+                                        <Box sx={{display: "inline-flex"}}>
+
+                                            <Typography>{creason?.name}</Typography>
+                                        </Box>
+                                    )
+                                }}>
                                 {
                                     cReason?.map(cr => (
-                                        <MenuItem key={cr.uuid} value={cr.name}>
+                                        <MenuItem key={cr.uuid} value={cr.uuid}>
                                             <ModelDot color={cr.color} selected={false} size={21} sizedot={13}
                                                       padding={3} marginRight={15}></ModelDot>
                                             {cr.name}
                                         </MenuItem>
                                     ))
                                 }
-
                             </Select>
 
                         </Box>
