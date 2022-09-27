@@ -78,13 +78,13 @@ function PatientDetail({...props}) {
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest({
+    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null);
 
     // handle tab change
     const handleStepperIndexChange = (

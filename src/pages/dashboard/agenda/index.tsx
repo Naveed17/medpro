@@ -197,6 +197,7 @@ function Agenda() {
                     allDay: false,
                     borderColor: appointment.type?.color,
                     patient: appointment.patient,
+                    overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
