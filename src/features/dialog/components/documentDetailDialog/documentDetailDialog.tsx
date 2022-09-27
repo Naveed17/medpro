@@ -21,14 +21,12 @@ import {Document, Page, pdfjs} from "react-pdf";
 import {actionButtons} from './config'
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
-import autoTable from 'jspdf-autotable';
 import moment from "moment";
 import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {PdfTempleteOne, PdfTempleteTwo} from '@features/files'
+import {PdfTempleteOne} from "@features/files";
 
-const html2pdf = require("html2pdf.js")
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
@@ -37,7 +35,6 @@ function DocumentDetailDialog({...props}) {
     const {data: {state, setDialog}} = props
     const router = useRouter();
     const {data: session, status} = useSession();
-
 
     const formik = useFormik({
         initialValues: {
@@ -72,6 +69,7 @@ function DocumentDetailDialog({...props}) {
     const componentRef = useRef<any>(null)
     const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
+    console.log(state)
     useEffect(() => {
         const doc = new jsPDF({
             format: 'a5'
@@ -89,7 +87,6 @@ function DocumentDetailDialog({...props}) {
             doc.setFontSize(12);
             doc.text("Tel: 00000000", doc.internal.pageSize.getWidth() - 40, 40);
         }
-
 
         if (state.type === 'prescription') {
             doc.setTextColor('#1B2746');
@@ -111,14 +108,22 @@ function DocumentDetailDialog({...props}) {
 
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        } else if (state.name === 'requested-analysis') {
+        } else
+            if (state.name === 'requested-analysis') {
             console.log(state.info)
             const doc = new jsPDF()
             doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
             doc.text("Les analyses suivantes:", 20, 70);
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        } else setFile(state.uri)
+        } else if(state.name ==='write_certif'){
+                const doc = new jsPDF('p', 'pt', 'letter')
+                //doc.html("Aaaaaa")
+                doc.text("In development...",20,60)
+                const uri = doc.output('bloburi').toString()
+                setFile(uri)
+            }
+            else setFile(state.uri)
     }, [state, hide])
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -155,27 +160,27 @@ function DocumentDetailDialog({...props}) {
                 sethide(!hide)
                 break;
             case "download":
-                html2pdf(componentRef.current, {
+                /*html2pdf(componentRef.current, {
                     margin: 1,
                     filename: 'document.pdf',
                     image: {type: 'jpeg', quality: 0.98},
                     html2canvas: {dpi: 192, letterRendering: true},
                     jsPDF: {unit: 'in', format: 'a5', orientation: 'portrait'}
-                })
-                // if (file) {
-                //     fetch(file).then(response => {
-                //         response.blob().then(blob => {
-                //             const fileURL = window.URL.createObjectURL(blob);
-                //             // Setting various property values
-                //             let alink = document.createElement('a');
-                //             alink.href = fileURL;
-                //             alink.download = file.split(/(\\|\/)/g).pop() as string
-                //             alink.click();
-                //         })
-                //     })
-                // } else {
-                //     alert('no file to download')
-                // }
+                })*/
+                if (file) {
+                    fetch(file).then(response => {
+                        response.blob().then(blob => {
+                            const fileURL = window.URL.createObjectURL(blob);
+                            // Setting various property values
+                            let alink = document.createElement('a');
+                            alink.href = fileURL;
+                            alink.download = file.split(/(\\|\/)/g).pop() as string
+                            alink.click();
+                        })
+                    })
+                } else {
+                    alert('no file to download')
+                }
                 break;
             default:
                 break;
@@ -195,7 +200,7 @@ function DocumentDetailDialog({...props}) {
                             noValidate
                             onSubmit={handleSubmit}
                         >
-                            {/* <Box sx={{
+                            <Box sx={{
                                 '.react-pdf__Page': {
                                     marginBottom: 1,
                                     '.react-pdf__Page__canvas': {
@@ -207,15 +212,11 @@ function DocumentDetailDialog({...props}) {
                                     componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
                                 >
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                     ))}
 
                                 </Document>
-                            </Box> */}
-                            <Box ref={componentRef} width="90%" mx="auto">
-                                <PdfTempleteTwo hide={hide}/>
                             </Box>
-
                         </Stack>
                     </FormikProvider>
                 </Grid>

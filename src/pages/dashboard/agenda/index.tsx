@@ -192,7 +192,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
-                    borderColor: [3, 0].includes(appointment.status) ? AppointmentStatus[appointment.status].color : appointment.type?.color,
+                    borderColor: appointment.type?.color,
                     patient: appointment.patient,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
@@ -201,7 +201,7 @@ function Agenda() {
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
-                    new: appointment.createdAt.split(" ")[0] === moment().format("DD-MM-YYYY"),
+                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").utcOffset(0).isBetween(moment().utcOffset(0).subtract(30, "minutes"), moment().utcOffset(0)),
                     addRoom: true,
                     status: AppointmentStatus[appointment.status]
                 });
@@ -245,14 +245,17 @@ function Agenda() {
     }, [agenda, dispatch])
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "") {
+        if (filter?.type && timeRange.start !== "" ||
+            filter?.gender || filter?.name || filter?.birthdate || filter?.phone) {
             let query = "";
-            Object.entries(filter).map(param => {
-                query = `${param[0]}=${param[1]}`;
+            Object.entries(filter).map((param, index) => {
+                if (param[1]) {
+                    query += `&${param[0]}=${param[1]}`;
+                }
             });
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
-                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}&${query}`
+                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`
             getAppointments(queryPath, view);
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -266,7 +269,11 @@ function Agenda() {
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
-        if (filter?.type === undefined) {
+        if (filter?.type === undefined &&
+            filter?.gender === undefined &&
+            filter?.name === undefined &&
+            filter?.phone === undefined &&
+            filter?.birthdate === undefined) {
             getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
         }
     }
@@ -369,8 +376,9 @@ function Agenda() {
     }
 
     const onOpenWaitingRoom = (event: EventDef) => {
-        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "3");
-        router.push('/dashboard/waiting-room', '/dashboard/waiting-room', {locale: router.locale});
+        updateAppointmentStatus(
+            event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
+            () => refreshData());
     }
 
     const onConsultationDetail = (event: EventDef) => {
