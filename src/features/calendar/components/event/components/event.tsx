@@ -41,7 +41,7 @@ function Event({...props}) {
                                 ml: ".5rem"
                             }
                         }
-                    ), ...(event.event._def.extendedProps.hasError && {
+                    ), ...(event.event._def.extendedProps.hasErrors.length > 0 && {
                             "& .MuiSvgIcon-root": {
                                 width: 10,
                                 height: 10,
@@ -61,11 +61,11 @@ function Event({...props}) {
                 {event.event._def.extendedProps.new && <Box className="badge"/>}
                 <Typography variant="body2"
                             {...((event.event._def.extendedProps.status.key === "WAITING_ROOM" &&
-                                    !event.event._def.extendedProps.hasError) &&
+                                    event.event._def.extendedProps.hasErrors.length === 0) &&
                                 {className: "ic-waiting"})}
                             component={"span"}
                             color="text.primary">
-                    {event.event._def.extendedProps.hasError ?
+                    {event.event._def.extendedProps.hasErrors.length > 0 ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
                             <SalleIcon/> :
@@ -112,8 +112,9 @@ function Event({...props}) {
                         <Chip label={t("event.new", {ns: 'common'})}
                               sx={{
                                   position: "absolute",
-                                  right: 2,
-                                  top: 4
+                                  right: 4,
+                                  top: 4,
+                                  fontSize: 10
                               }}
                               size="small"
                               color={"primary"}/>}

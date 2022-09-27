@@ -15,6 +15,9 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
   5: { key: "FINISHED", value: "en attende", color: "#0096d6" },
   6: { key: "CANCELED", value: "Annulé", color: "#c92a2a" },
   7: { key: "EXPIRED", value: "Expiré", color: "#ff6600" },
+  8: { key: "PAUSED", value: "Pausé", color: "#ff6660" },
+  9: { key: "DELETED", value: "Supprimé", color: "#E83B99" },
+  10: { key: "NOSHOW", value: "Patient ne s'est pas présenté", color: "#0563A8" },
 };
 
 export const TableHead = [
