@@ -90,6 +90,7 @@ function AppointmentDetail({...props}) {
         OnConsultation,
         OnEditDetail,
         OnDataUpdated,
+        OnPatientNoShow,
         OnWaiting,
         SetMoveDialog,
         SetCancelDialog,
@@ -209,15 +210,19 @@ function AppointmentDetail({...props}) {
                             {t('event.start')}
                         </Button>
                     </Stack>
-                    {data?.extendedProps.hasError &&
-                        <Stack sx={{mt: 2}} spacing={2} direction="row" justifyContent='space-between'
+                    {data?.extendedProps.hasErrors.map((error: string, index: number) => (
+                        <Stack key={`error${index}`}
+                               sx={{mt: 2}} spacing={2}
+                               direction="row" justifyContent='space-between'
                                alignItems='center'>
                             <Typography variant="body2" component="span" className="alert">
                                 <Icon path="danger"/>
-                                <span>{t("event.hors-opening-hours")}</span>
+                                <span>{t(error)}</span>
                             </Typography>
-                        </Stack>}
-                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasError ? 0 : 2}} variant="body1" fontWeight={600}>
+                        </Stack>
+                    ))}
+                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors.length > 1 ? 0 : 2}} variant="body1"
+                                fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
                     <AppointmentCard
@@ -337,6 +342,15 @@ function AppointmentDetail({...props}) {
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
+                        </Button>
+                        <Button
+                            sx={{
+                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                            }}
+                            onClick={() => OnPatientNoShow(data)}
+                            fullWidth variant='contained'
+                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
+                            {t('event.missPatient')}
                         </Button>
                         <Button
                             sx={{

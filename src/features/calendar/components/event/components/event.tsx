@@ -10,7 +10,7 @@ import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 
 function Event({...props}) {
-    const {event, t} = props;
+    const {event, view, t} = props;
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
@@ -30,7 +30,7 @@ function Event({...props}) {
                     ...(event.event._def.extendedProps.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }
-                    ),...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    ), ...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
                     ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
@@ -41,7 +41,7 @@ function Event({...props}) {
                                 ml: ".5rem"
                             }
                         }
-                    ), ...(event.event._def.extendedProps.hasError && {
+                    ), ...(event.event._def.extendedProps.hasErrors.length > 0 && {
                             "& .MuiSvgIcon-root": {
                                 width: 10,
                                 height: 10,
@@ -61,11 +61,11 @@ function Event({...props}) {
                 {event.event._def.extendedProps.new && <Box className="badge"/>}
                 <Typography variant="body2"
                             {...((event.event._def.extendedProps.status.key === "WAITING_ROOM" &&
-                                    !event.event._def.extendedProps.hasError) &&
+                                    event.event._def.extendedProps.hasErrors.length === 0) &&
                                 {className: "ic-waiting"})}
                             component={"span"}
                             color="text.primary">
-                    {event.event._def.extendedProps.hasError ?
+                    {event.event._def.extendedProps.hasErrors.length > 0 ?
                         <DangerIcon/> :
                         event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
                             <SalleIcon/> :
@@ -102,11 +102,7 @@ function Event({...props}) {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'top',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    horizontal: view !== 'timeGridWeek' ? 'left' : 'right'
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus
@@ -116,8 +112,9 @@ function Event({...props}) {
                         <Chip label={t("event.new", {ns: 'common'})}
                               sx={{
                                   position: "absolute",
-                                  right: 2,
-                                  top: 4
+                                  right: 4,
+                                  top: 4,
+                                  fontSize: 10
                               }}
                               size="small"
                               color={"primary"}/>}

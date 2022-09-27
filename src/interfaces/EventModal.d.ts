@@ -12,7 +12,7 @@ interface EventModal {
     dur: number;
     meeting: boolean;
     new: boolean;
-    hasError: boolean;
+    hasErrors: Array<string>;
     addRoom: boolean;
     patient: PatientModel;
     status: AppointmentStatusModel;

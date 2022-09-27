@@ -9,6 +9,7 @@ interface AppointmentModel {
   status: number;
   duration: number;
   isVip: boolean;
+  PatientHasAgendaAppointment: boolean | null;
   new: boolean;
   consultationReason: ConsultationReasonLessModel;
   patient: PatientLessModel;

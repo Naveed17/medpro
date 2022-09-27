@@ -186,6 +186,9 @@ function Agenda() {
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
             appointments?.map((appointment) => {
+                const hasErrors = [
+                    ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
                 eventsUpdated.push({
                     start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                     time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
@@ -197,11 +200,11 @@ function Agenda() {
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
-                    hasError: getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
+                    hasErrors,
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
-                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").utcOffset(0).isBetween(moment().utcOffset(0).subtract(30, "minutes"), moment().utcOffset(0)),
+                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
                     addRoom: true,
                     status: AppointmentStatus[appointment.status]
                 });
@@ -331,7 +334,10 @@ function Agenda() {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
                         dispatch(setTimer({isActive: true, isPaused: false, event}));
-                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4");
+                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                            start_date: moment().format("DD-MM-YYYY"),
+                            start_time: moment().format("HH:mm")
+                        });
                     });
                 } else {
                     setError(true);
@@ -348,7 +354,10 @@ function Agenda() {
             case "onLeaveWaitingRoom":
                 setEvent(event);
                 updateAppointmentStatus(event?.publicId ? event?.publicId :
-                    (event as any)?.id, "6").then(() => refreshData());
+                    (event as any)?.id, "6").then(() => {
+                    refreshData();
+                    enqueueSnackbar(t(`msg.leave-waiting-room}`), {variant: "success"});
+                });
                 break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
@@ -378,7 +387,20 @@ function Agenda() {
     const onOpenWaitingRoom = (event: EventDef) => {
         updateAppointmentStatus(
             event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
-            () => refreshData());
+            () => {
+                refreshData();
+                enqueueSnackbar(t(`msg.on-waiting-room}`), {variant: "success"});
+            });
+    }
+
+    const onPatientNoShow = (event: EventDef) => {
+        updateAppointmentStatus(
+            event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
+            () => {
+                refreshData();
+                enqueueSnackbar(t(`msg.patient-no-show}`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+            });
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -471,9 +493,14 @@ function Agenda() {
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
         const form = new FormData();
         form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
         return updateStatusTrigger({
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
@@ -493,6 +520,7 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
+            enqueueSnackbar(t(`msg.cancel-appointment}`), {variant: "success"});
         });
     }
 
@@ -656,6 +684,7 @@ function Agenda() {
                             OnConsultation={onConsultationDetail}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
+                            OnPatientNoShow={onPatientNoShow}
                             OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
