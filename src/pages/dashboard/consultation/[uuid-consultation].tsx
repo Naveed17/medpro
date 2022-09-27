@@ -647,6 +647,7 @@ function ConsultationInProgress() {
                                         <span>|</span>
                                         <Button
                                             variant='text-black'
+                                            disabled={selectedAct.length == 0}
                                             onClick={() => {
                                                 setInfo('document_detail')
                                                 setState({type:'fees',name:'note_fees',info:selectedAct,patient:patient.firstName+ ' ' + patient.lastName})
