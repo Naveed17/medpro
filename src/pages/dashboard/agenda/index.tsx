@@ -186,6 +186,7 @@ function Agenda() {
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
             appointments?.map((appointment) => {
+                console.log(moment.utc(appointment.createdAt));
                 eventsUpdated.push({
                     start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                     time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
@@ -201,7 +202,7 @@ function Agenda() {
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
-                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").utcOffset(0).isBetween(moment().utcOffset(0).subtract(30, "minutes"), moment().utcOffset(0)),
+                    new: moment.utc(appointment.createdAt).isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
                     addRoom: true,
                     status: AppointmentStatus[appointment.status]
                 });
@@ -378,6 +379,12 @@ function Agenda() {
     const onOpenWaitingRoom = (event: EventDef) => {
         updateAppointmentStatus(
             event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
+            () => refreshData());
+    }
+
+    const onPatientNoShow = (event: EventDef) => {
+        updateAppointmentStatus(
+            event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
             () => refreshData());
     }
 
@@ -656,6 +663,7 @@ function Agenda() {
                             OnConsultation={onConsultationDetail}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
+                            OnPatientNoShow={onPatientNoShow}
                             OnWaiting={onOpenWaitingRoom}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}

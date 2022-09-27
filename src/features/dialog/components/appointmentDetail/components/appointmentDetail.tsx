@@ -90,6 +90,7 @@ function AppointmentDetail({...props}) {
         OnConsultation,
         OnEditDetail,
         OnDataUpdated,
+        OnPatientNoShow,
         OnWaiting,
         SetMoveDialog,
         SetCancelDialog,
@@ -337,6 +338,15 @@ function AppointmentDetail({...props}) {
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
+                        </Button>
+                        <Button
+                            sx={{
+                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                            }}
+                            onClick={() => OnPatientNoShow(data)}
+                            fullWidth variant='contained'
+                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
+                            {t('event.missPatient')}
                         </Button>
                         <Button
                             sx={{

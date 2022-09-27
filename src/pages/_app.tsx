@@ -32,6 +32,7 @@ type NextPageWithLayout = NextPage & {
 function MyApp({Component, pageProps: {...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
+
     const getLayout = Component.getLayout ?? ((page) => page);
     return (
         <Provider store={store}>

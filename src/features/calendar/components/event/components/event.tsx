@@ -10,7 +10,7 @@ import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 
 function Event({...props}) {
-    const {event, t} = props;
+    const {event, view, t} = props;
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
@@ -30,7 +30,7 @@ function Event({...props}) {
                     ...(event.event._def.extendedProps.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }
-                    ),...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    ), ...(event.event._def.extendedProps.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
                     ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
@@ -102,11 +102,7 @@ function Event({...props}) {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'top',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    horizontal: view !== 'timeGridWeek' ? 'left' : 'right'
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus

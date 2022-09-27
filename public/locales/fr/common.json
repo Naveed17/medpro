@@ -90,6 +90,7 @@
   "event": {
     "new": "nouveau",
     "reschedule": "Replanifier",
+    "missPatient": "le patient ne s'est pas présenté",
     "hors-opening-hours": "rendez-vous pris en dehors des heures d'ouverture",
     "title": "Détail RDV",
     "save": "Enregistrer",
