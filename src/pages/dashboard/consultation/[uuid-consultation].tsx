@@ -278,7 +278,9 @@ function ConsultationInProgress() {
             if (appointement.acts) {
                 let sAct: any[] = []
                 appointement.acts.map((act: { act_uuid: string, price: number }) => {
-                    sAct.push(acts.find((a: { uuid: string }) => a.uuid === act.act_uuid))
+                    const actDetect = acts.find((a: { uuid: string }) => a.uuid === act.act_uuid)
+                    if (actDetect)
+                        sAct.push(actDetect)
                 })
                 setSelectedAct(sAct)
             }

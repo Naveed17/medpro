@@ -14,6 +14,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "actfees",
+            icon: "setting/ic-edit-file",
+            href: "/dashboard/settings/actfees",
+            disable: false
+        },
+        {
             name: "motif",
             icon: "setting/ic-edit-file",
             href: "/dashboard/settings/motif",
@@ -37,6 +43,7 @@ const settingsData = {
             href: "/dashboard/settings/motif-type",
             disable: false
         },
+
         {
             name: "agenda",
             icon: "setting/ic-agenda",

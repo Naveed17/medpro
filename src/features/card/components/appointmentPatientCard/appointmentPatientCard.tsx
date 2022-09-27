@@ -4,16 +4,18 @@ import CallIcon from '@mui/icons-material/Call';
 import moment from "moment-timezone";
 import PaperStyled from "./overrides/paperStyled";
 import React from "react";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 function AppointmentPatientCard({...props}) {
-    const {data} = props;
+    const {data, style} = props;
 
     return (
-        <PaperStyled>
+        <PaperStyled sx={style}>
             <Stack
                 direction="row"
                 spacing={1}
-                sx={{p: 2}}
+                mt={1}
+                sx={{p: "0 1rem"}}
             >
                 <Box mt={.5}>
                     <Avatar sx={{width: 24, height: 24}}
@@ -29,16 +31,52 @@ function AppointmentPatientCard({...props}) {
                     >
                         {data?.patient.firstName} {data?.patient.lastName}
                     </Typography>
-                    <Typography
+                    {data?.patient.contact.length > 0 && <Typography
                         variant="body2"
                         color="text.primary"
-                        sx={{display: "flex", alignItems: "center", svg: {width: 9}}}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            svg: {
+                                width: 9,
+                                marginRight: 1
+                            }
+                        }}
                         component="span"
                     >
-                        <CallIcon/> {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"} {data?.patient.contact[0]?.value}
-                    </Typography>
+                        <CallIcon/>
+                        {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
+                        {data?.patient.contact[0]?.value}
+                    </Typography>}
                 </Box>
             </Stack>
+            {data?.type && <Stack
+                direction="row"
+                spacing={1}
+                sx={{p: "0  .2rem .6rem .8rem"}}
+            >
+                <Box sx={{display: "inline-flex"}}>
+                    <FiberManualRecordIcon
+                        fontSize="small"
+                        sx={{
+                            border: .1,
+                            borderColor: 'divider',
+                            borderRadius: '50%',
+                            p: 0.05,
+                            mr: 1,
+                            color: data?.type.color
+                        }}
+                    />
+                    <Typography>{data?.type.name}</Typography>
+                </Box>
+            </Stack>}
+            {data?.motif && <Stack
+                direction="row"
+                spacing={1}
+                sx={{p: "0  .2rem .6rem .8rem"}}
+            >
+                Motif: <Typography ml={1}>{data?.motif.name}</Typography>
+            </Stack>}
             <Stack sx={{p: 2, background: "rgba(255, 212, 0, 0.4)",}}>
                 <Box>
                     <Typography

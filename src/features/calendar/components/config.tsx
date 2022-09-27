@@ -11,7 +11,7 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
   1: { key: "CONFIRMED", value: "Confirmé", color: "#1BC47D" },
   2: { key: "REFUSED", value: "Effectué", color: "#E83B68" },
   3: { key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B" },
-  4: { key: "ON_GOING", value: "en attende", color: "#1939B7" },
+  4: { key: "ON_GOING", value: "En consultation", color: "#1939B7" },
   5: { key: "FINISHED", value: "en attende", color: "#0096d6" },
   6: { key: "CANCELED", value: "Annulé", color: "#c92a2a" },
   7: { key: "EXPIRED", value: "Expiré", color: "#ff6600" },

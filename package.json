@@ -61,6 +61,7 @@
     "react-dom": "18.1.0",
     "react-dropzone": "^14.2.1",
     "react-easy-crop": "^4.4.0",
+    "react-html2pdf": "^1.0.1",
     "react-leaflet": "^4.0.0",
     "react-moment": "^1.1.2",
     "react-pdf": "^5.7.2",
