@@ -274,7 +274,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             type={"number"}
                                             {...getFieldProps("duration")}
                                             value={values.duration}
-                                            InputProps={{inputProps: {min: 0}}}
+                                            InputProps={{inputProps: {min: 1}}}
                                             placeholder={t("duration")}
                                             sx={{color: "text.secondary"}}/>
                                     </Grid>

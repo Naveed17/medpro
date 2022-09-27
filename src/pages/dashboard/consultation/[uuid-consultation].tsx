@@ -52,8 +52,10 @@ import IconUrl from "@themes/urlIcon";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import {uniqueId} from 'lodash'
+import ImageViewer from 'react-simple-image-viewer';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 /*const options = {
     cMapUrl: 'cmaps/',
     cMapPacked: true,
@@ -172,6 +174,8 @@ function ConsultationInProgress() {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
     const [documents, setDocuments] = useState([]);
+    const [currentImage, setCurrentImage] = useState(0);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openActDialog, setOpenActDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
@@ -184,6 +188,8 @@ function ConsultationInProgress() {
     const [selectedAct, setSelectedAct] = useState<any[]>([])
     const [selectedUuid, setSelectedUuid] = useState<string[]>([])
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
+    const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
     const [stateAct, setstateAct] = useState({
@@ -373,6 +379,10 @@ function ConsultationInProgress() {
         }
     }, [patientId]);
 
+    const closeImageViewer = () => {
+        setCurrentImage(0);
+        setIsViewerOpen('');
+    };
 
     const {t, ready} = useTranslation("consultation");
     if (!ready || loading) return <>loading translations...</>;
@@ -524,8 +534,6 @@ function ConsultationInProgress() {
                                                         }
                                                     </List>*/}
                                                 </Stack>
-
-
                                             }
                                             {
                                                 data.title === "balance_results" &&
@@ -650,7 +658,12 @@ function ConsultationInProgress() {
                                             disabled={selectedAct.length == 0}
                                             onClick={() => {
                                                 setInfo('document_detail')
-                                                setState({type:'fees',name:'note_fees',info:selectedAct,patient:patient.firstName+ ' ' + patient.lastName})
+                                                setState({
+                                                    type: 'fees',
+                                                    name: 'note_fees',
+                                                    info: selectedAct,
+                                                    patient: patient.firstName + ' ' + patient.lastName
+                                                })
                                                 setOpenDialog(true);
                                             }
                                             }
@@ -680,16 +693,22 @@ function ConsultationInProgress() {
                                     documents.map((card: any, idx) =>
                                         <React.Fragment key={idx}>
                                             <DocumentCard data={card} onClick={() => {
-                                                setInfo('document_detail')
-                                                setState({
-                                                    uuid: card.uuid,
-                                                    uri: card.uri,
-                                                    name: card.title,
-                                                    type: card.documentType,
-                                                    info: card.documentType === "prescription" ? card.prescription[0].prescription_has_drugs : card,
-                                                    patient: patient.firstName + ' ' + patient.lastName
-                                                })
-                                                setOpenDialog(true);
+                                                console.log(card.documentType)
+                                                if (card.documentType === 'photo') {
+                                                    console.log(card.uri)
+                                                    setIsViewerOpen(card.uri)
+                                                } else {
+                                                    setInfo('document_detail')
+                                                    setState({
+                                                        uuid: card.uuid,
+                                                        uri: card.uri,
+                                                        name: card.title,
+                                                        type: card.documentType,
+                                                        info: card.documentType === "prescription" ? card.prescription[0].prescription_has_drugs : card,
+                                                        patient: patient.firstName + ' ' + patient.lastName
+                                                    })
+                                                    setOpenDialog(true);
+                                                }
                                             }} t={t}/>
                                         </React.Fragment>
                                     )
@@ -805,6 +824,19 @@ function ConsultationInProgress() {
                         dialogClose={handleCloseDialog}
                 />
             }
+
+            {isViewerOpen.length > 0 && (
+                <ImageViewer
+                    src={[isViewerOpen, isViewerOpen]}
+                    currentIndex={0}
+                    disableScroll={false}
+                    backgroundStyle={{
+                        backgroundColor: "rgba(6, 150, 214,0.5)"
+                    }}
+                    closeOnClickOutside={true}
+                    onClose={closeImageViewer}
+                />
+            )}
         </>
     );
 }
