@@ -250,13 +250,14 @@ function Calendar({...props}) {
                                 navLinks
                                 selectable
                                 eventDurationEditable
+                                slotEventOverlap={false}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 eventContent={(event) =>
-                                    <Event event={event} openingHours={openingHours} t={translation}/>
+                                    <Event {...{event, openingHours, view}} t={translation}/>
                                 }
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {

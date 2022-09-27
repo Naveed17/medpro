@@ -31,12 +31,13 @@ function AppointmentPatientCard({...props}) {
                     >
                         {data?.patient.firstName} {data?.patient.lastName}
                     </Typography>
-                    {data?.patient.contact.length > 0 && <Typography
+                    <Typography
                         variant="body2"
                         color="text.primary"
                         sx={{
                             display: "flex",
                             alignItems: "center",
+                            opacity: data?.patient.contact.length > 0 ? 1 : 0,
                             svg: {
                                 width: 9,
                                 marginRight: 1
@@ -47,7 +48,7 @@ function AppointmentPatientCard({...props}) {
                         <CallIcon/>
                         {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
                         {data?.patient.contact[0]?.value}
-                    </Typography>}
+                    </Typography>
                 </Box>
             </Stack>
             {data?.type && <Stack
