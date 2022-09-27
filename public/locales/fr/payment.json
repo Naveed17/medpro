@@ -1,0 +1,18 @@
+{
+    "table": {
+        "date": "Date",
+        "time": "Heure",
+        "name": "Nom",
+        "insurance": "Assurance",
+        "type": "Type",
+        "payment_type": "Type de Paiement",
+        "billing_status": "Etat de Facturation",
+        "amount": "Montant",
+        "consultation": "Consultation",
+        "check": "Control",
+        "yes": "Oui",
+        "no": "Non",
+        "credit_card": "Carte bancaire",
+        "cheque": "Chéque"
+    }
+}

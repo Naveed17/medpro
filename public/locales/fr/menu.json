@@ -10,9 +10,10 @@
     "wallet": "My Wallet",
     "stats": "Statistiques",
     "settings": "Mon profil",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "payment": "Caisse"
   },
-  "doctor-dropdown":{
+  "doctor-dropdown": {
     "news": "Fil d'actualité",
     "messages": "Mes messages",
     "questions": "Questions médicales",

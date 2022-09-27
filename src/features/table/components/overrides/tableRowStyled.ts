@@ -123,5 +123,14 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
       },
     },
   },
+  '&.payment-row': {
+    '.MuiTableCell-root': {
+      backgroundColor: 'transparent',
+      '.label': {
+        color: theme.palette.text.primary,
+        fontWeight: 700,
+      }
+    }
+  }
 }));
 export default TableRowStyled;

@@ -116,6 +116,14 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "payment",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/paymentRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;
