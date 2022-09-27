@@ -210,7 +210,6 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
 
     const { data: session, status } = useSession();
-    const loading = status === 'loading';
     let medical_entity: any;
 
     medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
@@ -384,7 +383,7 @@ function ConsultationInProgress() {
 
 
     const { t, ready } = useTranslation("consultation");
-    if (!ready || loading) return <>loading translations...</>;
+    if (!ready) return <>consulation translations...</>;
 
     return (
         <>
@@ -839,7 +838,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     }
 }
 export default ConsultationInProgress;
-
+ConsultationInProgress.auth = true;
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Tabs, Tab, Stack, Button, MenuItem, DialogActions } from '@mui/material'
+import { Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery } from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
 import { useTranslation } from 'next-i18next'
@@ -15,8 +15,10 @@ import { LoadingButton } from "@mui/lab";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { consultationSelector } from "@features/toolbar";
 import { setTimer } from "@features/card";
+import { Theme } from '@mui/material/styles'
 
 function ConsultationIPToolbar({ ...props }) {
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState('patient history');
@@ -222,7 +224,7 @@ function ConsultationIPToolbar({ ...props }) {
                 break;
             case "write_certif":
                 setInfo('document_detail')
-                setState({name:'write_certif'})
+                setState({ name: 'write_certif' })
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -306,7 +308,7 @@ function ConsultationIPToolbar({ ...props }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return <>toolbar loading..</>;
 
     return (
         <>
@@ -363,8 +365,9 @@ function ConsultationIPToolbar({ ...props }) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{ width: '80%' }}
-                        variant="scrollable"
+                        sx={{ width: { xs: '100%', md: '80%' } }}
+                        variant={isMobile ? "scrollable" : 'standard'}
+                        allowScrollButtonsMobile={isMobile ? true : false}
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">

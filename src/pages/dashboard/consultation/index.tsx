@@ -166,7 +166,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   },
 });
 export default Consultation;
-
+Consultation.auth = true;
 Consultation.getLayout = function getLayout(page: ReactElement) {
   return <DashLayout>{page}</DashLayout>;
 };
