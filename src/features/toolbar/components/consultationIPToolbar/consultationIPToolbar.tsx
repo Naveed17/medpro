@@ -221,7 +221,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 setInfo('document_detail')
-                setState({name:'write_certif'})
+                setState({type:'write_certif'})
                 break;
             case "upload_document":
                 setInfo('add_a_document')

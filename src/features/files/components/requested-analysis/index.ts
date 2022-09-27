@@ -1,0 +1,1 @@
+export { default as RequestedAnalysis } from './requested-analysis'

@@ -262,8 +262,8 @@ function ConsultationInProgress() {
             dispatch(SetExam({
                 motif: '',
                 notes: app_data?.notes ? app_data.notes.value : '',
-                diagnosis: app_data?.diagnostic ? app_data.diagnostic.value : '',
-                treatment: app_data?.treatment ? app_data.treatment.value : '',
+                diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : '',
+                treatment: app_data?.treatments ? app_data.treatments.value : '',
             }))
 
             if (appointement.acts) {
@@ -648,7 +648,9 @@ function ConsultationInProgress() {
                                         <Button
                                             variant='text-black'
                                             onClick={() => {
-                                                console.log(selectedAct)
+                                                setInfo('document_detail')
+                                                setState({type:'fees',name:'note_fees',info:selectedAct,patient:patient.firstName+ ' ' + patient.lastName})
+                                                setOpenDialog(true);
                                             }
                                             }
                                             startIcon={

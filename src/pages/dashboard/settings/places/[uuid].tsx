@@ -137,8 +137,8 @@ function PlacesDetail() {
                 WED: [],
                 TUE: [],
                 FRI: [],
-                SUN: [],
                 SAT: [],
+                SUN: []
             }
         }
     ])
@@ -249,8 +249,8 @@ function PlacesDetail() {
                         WED: [],
                         TUE: [],
                         FRI: [],
-                        SUN: [],
                         SAT: [],
+                        SUN: [],
                     }
                 }
             ])

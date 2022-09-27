@@ -133,6 +133,8 @@
     "current_treatment": "Tapez le nom du traitement en cours",
     "doc_detail_title": "Nom du document Certificat medicale",
     "print": "Imprimer",
+    "show": "Afficher en-tête",
+    "hide": "Masquer en-tête",
     "share": "Partager",
     "download": "Télécharger",
     "delete": "Supprimer",
