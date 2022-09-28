@@ -35,12 +35,14 @@ import React, {useEffect, useRef} from "react";
 import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
+import {dashLayoutSelector} from "@features/base/components/dashLayout/selectors";
 
 function SideBarMenu({children}: LayoutProps) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {waiting_room} = useAppSelector(dashLayoutSelector);
     let container: any = useRef<HTMLDivElement>(null);
     const path = router.asPath.split("/");
 
@@ -91,7 +93,7 @@ function SideBarMenu({children}: LayoutProps) {
                                         horizontal: 'right',
                                     }}
                                     invisible={item.name !== "room"}
-                                    color="warning" badgeContent="2">
+                                    color="warning" {...(waiting_room > 0 && {badgeContent: waiting_room})}>
                                     <ListItemIcon>
                                         <Icon path={item.icon}/>
                                     </ListItemIcon>

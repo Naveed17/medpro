@@ -13,12 +13,13 @@ interface Qualifications {
         gender: string;
     };
     step2: {
+        country: string;
         region: string;
         zip_code: string;
         address: string;
         email: string;
         cin: string;
-        from: string;
+        family_doctor: string;
         insurance: {
             insurance_number: string;
             insurance_uuid: string;

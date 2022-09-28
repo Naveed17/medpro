@@ -171,6 +171,8 @@ const noCardData = {
 function ConsultationInProgress() {
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     const [filterdrawer, setFilterDrawer] = useState(false);
     const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -188,7 +190,6 @@ function ConsultationInProgress() {
     const [openActDialog, setOpenActDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>('');
-    const [agenda, setAgenda] = useState<string>('');
     const [appointement, setAppointement] = useState<any>();
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
@@ -220,19 +221,6 @@ function ConsultationInProgress() {
 
     medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse} = useRequest(medical_entity ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    } : null, SWRNoValidateConfig);
-
-    useEffect(() => {
-        if (httpAgendasResponse)
-            setAgenda((httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid)
-    }, [httpAgendasResponse])
-
     const {data: httpMPResponse} = useRequest(medical_entity ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
@@ -244,15 +232,15 @@ function ConsultationInProgress() {
         setInfo(null)
     }
 
-    const {data: httpAppResponse, mutate} = useRequest(mpUuid ? {
+    const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid ? {
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/documents/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
@@ -403,7 +391,7 @@ function ConsultationInProgress() {
                                        selectedAct={selectedAct}
                                        selectedModel={selectedModel}
                                        documents={documents}
-                                       agenda={agenda}
+                                       agenda={agenda?.uuid}
                                        setDialog={setDialog}
                                        endingDocuments={setPendingDocuments}
                                        selected={(v: string) => setValue(v)}/>
@@ -1025,7 +1013,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
-        fallback: true //indicates the type of fallback
+        fallback: 'blocking' //indicates the type of fallback
     }
 }
 export default ConsultationInProgress;

@@ -94,7 +94,7 @@ function OnStepPatient({...props}) {
             address: "",
             email: "",
             cin: "",
-            from: "",
+            family_doctor: "",
             insurance: [] as {
                 insurance_number: string;
                 insurance_uuid: string;
@@ -647,6 +647,19 @@ function OnStepPatient({...props}) {
                             size="small"
                             fullWidth
                             {...getFieldProps("cin")}
+                        />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("family_doctor")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("family_doctor-placeholder")}
+                            type="text"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("family_doctor")}
                         />
                     </Box>
                 </Stack>

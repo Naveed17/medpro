@@ -226,6 +226,7 @@ function WaitingRoomRow({...props}) {
                 <TableCell align="right">
                     <IconButton
                         onClick={(event) => {
+                            event.stopPropagation();
                             handleEvent({action: "open-popover", row, event});
                         }}
                         sx={{display: "block", ml: "auto"}}

@@ -10,7 +10,8 @@ import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
 import {DialogReducer, dialogMoveAppointmentReducer} from "@features/dialog";
-import {timerReducer} from "@features/card/components/cipCard";
+import {timerReducer} from "@features/card";
+import {DashLayoutReducer} from "@features/base";
 
 
 export const store = configureStore({
@@ -30,7 +31,8 @@ export const store = configureStore({
         dialog: DialogReducer,
         dialogMove: dialogMoveAppointmentReducer,
         timer: timerReducer,
-        leftActionBar: leftActionBarReducer
+        leftActionBar: leftActionBarReducer,
+        dashLayout: DashLayoutReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
