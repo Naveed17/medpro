@@ -138,6 +138,7 @@ function Questions() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
+        fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'questions']))
     }
 })
