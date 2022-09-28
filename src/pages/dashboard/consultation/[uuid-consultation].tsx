@@ -56,6 +56,7 @@ import {uniqueId} from 'lodash'
 import ImageViewer from 'react-simple-image-viewer';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 /*const options = {
     cMapUrl: 'cmaps/',
     cMapPacked: true,
@@ -159,20 +160,20 @@ const filterData = [
     "audio"
 ];
 const noCardData = {
-    mainIcon: "ic-agenda-+",
+    mainIcon: "ic-doc",
     title: "no-data.event.title",
     description: "no-data.event.description",
     buttonText: "no-data.event.button-text",
-    buttonIcon: "ic-agenda-+",
+    buttonIcon: "ic-doc",
     buttonVariant: "warning",
 };
 
 function ConsultationInProgress() {
-    const { patientId } = useAppSelector(tableActionSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {patientId} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
     const [filterdrawer, setFilterDrawer] = useState(false);
-    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
-    const { openAddDrawer, currentStepper } = useAppSelector(agendaSelector);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [value, setValue] = useState<string>('consultation_form');
     const [collapse, setCollapse] = useState<any>('');
@@ -182,7 +183,6 @@ function ConsultationInProgress() {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [open, setopen] = useState(false);
     const [documents, setDocuments] = useState([]);
-    const [currentImage, setCurrentImage] = useState(0);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openActDialog, setOpenActDialog] = useState<boolean>(false);
@@ -214,12 +214,12 @@ function ConsultationInProgress() {
     const [filter, setfilter] = useState<any>({});
     const [selectedModel, setSelectedModel] = useState<any>(null);
 
-    const { data: session, status } = useSession();
+    const {data: session} = useSession();
     let medical_entity: any;
 
     medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
 
-    const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest(medical_entity ? {
+    const {data: httpAgendasResponse} = useRequest(medical_entity ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
@@ -232,10 +232,10 @@ function ConsultationInProgress() {
             setAgenda((httpAgendasResponse as HttpResponse)?.data.find((agenda: AgendaConfigurationModel) => agenda.isDefault).uuid)
     }, [httpAgendasResponse])
 
-    const { data: httpMPResponse, error: errorHttpMP } = useRequest(medical_entity ? {
+    const {data: httpMPResponse} = useRequest(medical_entity ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
-        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const handleCloseDialog = () => {
@@ -243,16 +243,16 @@ function ConsultationInProgress() {
         setInfo(null)
     }
 
-    const { data: httpAppResponse, error: errorHttpApp, mutate } = useRequest(mpUuid ? {
+    const {data: httpAppResponse, mutate} = useRequest(mpUuid ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
-        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
-    const { data: httpDocumentResponse, error: erorHttpDoc, mutate: mutateDoc } = useRequest(mpUuid ? {
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda}/appointments/${uuind}/documents/${router.locale}`,
-        headers: { ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}` }
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     useEffect(() => {
@@ -273,7 +273,7 @@ function ConsultationInProgress() {
             dispatch(SetMutation(mutate))
             const app_data = appointement.consultation_sheet.exam.appointment_data;
             dispatch(SetExam({
-                motif: app_data?.consultation_reason ?app_data?.consultation_reason.uuid: '',
+                motif: app_data?.consultation_reason ? app_data?.consultation_reason.uuid : '',
                 notes: app_data?.notes ? app_data.notes.value : '',
                 diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : '',
                 treatment: app_data?.treatments ? app_data.treatments.value : '',
@@ -310,7 +310,7 @@ function ConsultationInProgress() {
         }
     }
 
-    const onDocumentLoadSuccess = ({ numPages }: any) => {
+    const onDocumentLoadSuccess = ({numPages}: any) => {
         setNumPages(numPages);
     }
 
@@ -349,8 +349,6 @@ function ConsultationInProgress() {
     }
 
     useEffect(() => {
-        console.log('useEffect', selectedAct)
-
         let fees = 0;
         let uuids: string[] = [];
         selectedAct.map(act => {
@@ -359,7 +357,6 @@ function ConsultationInProgress() {
         })
         setTotal(fees)
         setSelectedUuid(uuids)
-
     }, [selectedAct, appointement])
 
     const editAct = (row: any, from: any) => {
@@ -387,29 +384,28 @@ function ConsultationInProgress() {
     }, [patientId]);
 
     const closeImageViewer = () => {
-        setCurrentImage(0);
         setIsViewerOpen('');
     };
 
-    const { t, ready } = useTranslation("consultation");
+    const {t, ready} = useTranslation("consultation");
     if (!ready) return <>consulation translations...</>;
 
     return (
         <>
             <SubHeader>
                 <ConsultationIPToolbar appuuid={uuind}
-                    mutate={mutate}
-                    mutateDoc={mutateDoc}
-                    pendingDocuments={pendingDocuments}
-                    setPendingDocuments={setPendingDocuments}
-                    dialog={dialog}
-                    selectedAct={selectedAct}
-                    selectedModel={selectedModel}
-                    documents={documents}
-                    agenda={agenda}
-                    setDialog={setDialog}
-                    endingDocuments={setPendingDocuments}
-                    selected={(v: string) => setValue(v)} />
+                                       mutate={mutate}
+                                       mutateDoc={mutateDoc}
+                                       pendingDocuments={pendingDocuments}
+                                       setPendingDocuments={setPendingDocuments}
+                                       dialog={dialog}
+                                       selectedAct={selectedAct}
+                                       selectedModel={selectedModel}
+                                       documents={documents}
+                                       agenda={agenda}
+                                       setDialog={setDialog}
+                                       endingDocuments={setPendingDocuments}
+                                       selected={(v: string) => setValue(v)}/>
             </SubHeader>
             <Box className="container">
                 <AnimatePresence exitBeforeEnter>
@@ -422,7 +418,7 @@ function ConsultationInProgress() {
                                 {
                                     patient?.nextAppointments.map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
-                                            <HistoryCard row={data} patient={patient} t={t} />
+                                            <HistoryCard row={data} patient={patient} t={t}/>
                                         </React.Fragment>
                                     ))
                                 }
@@ -438,7 +434,7 @@ function ConsultationInProgress() {
                                                 key={idx}
                                                 control={
                                                     <Checkbox checked={filter[item]} onChange={handleChange}
-                                                        name={filter[item]} />
+                                                              name={filter[item]}/>
                                                 }
                                                 label={t(item)}
                                             />
@@ -457,7 +453,7 @@ function ConsultationInProgress() {
                                                 data.title === "reason_for_consultation" &&
 
                                                 <Stack spacing={2}>
-                                                    <MotifCard data={data} />
+                                                    <MotifCard data={data}/>
                                                     {/*<List dense>
                                                         {
                                                             data.collapse?.map((col, idx: number) => (
@@ -546,11 +542,11 @@ function ConsultationInProgress() {
                                                 data.title === "balance_results" &&
                                                 data.list?.map((item, i) => (
                                                     <ListItem key={`balance-list${i}`}
-                                                        sx={{
-                                                            bgcolor: theme => theme.palette.grey['A100'],
-                                                            mb: 1,
-                                                            borderRadius: 0.7
-                                                        }}>
+                                                              sx={{
+                                                                  bgcolor: theme => theme.palette.grey['A100'],
+                                                                  mb: 1,
+                                                                  borderRadius: 0.7
+                                                              }}>
                                                         <Typography variant='body2'>
                                                             {item}
                                                         </Typography>
@@ -580,7 +576,7 @@ function ConsultationInProgress() {
                                     dispatch(DialogOpenDrawer(false))
                                 }}
                             >
-                                <AppointmentDetail />
+                                <AppointmentDetail/>
                             </Drawer>
                         </TabPanel>
                     }
@@ -596,7 +592,7 @@ function ConsultationInProgress() {
                                     loading={<>loading...</>}
                                     file={file} onLoadSuccess={onDocumentLoadSuccess}>
                                     {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                     ))}
                                 </Document>
                             </Box>
@@ -609,10 +605,10 @@ function ConsultationInProgress() {
                                 <Grid item xs={12} md={5}>
                                     <ModalConsultation
                                         modal={selectedModel}
-                                        setSM={setSelectedModel} />
+                                        setSM={setSelectedModel}/>
                                 </Grid>
                                 <Grid item xs={12} md={7}>
-                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam} />
+                                    <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
                                 </Grid>
                             </Grid>
                         </TabPanel>
@@ -620,7 +616,7 @@ function ConsultationInProgress() {
                     {
                         value === 'medical_procedures' &&
                         <TabPanel index={3}>
-                            <Box display={{ xs: 'none', md: 'block' }}>
+                            <Box display={{xs: 'none', md: 'block'}}>
                                 <Otable
                                     headers={headCells}
                                     rows={acts}
@@ -629,13 +625,13 @@ function ConsultationInProgress() {
                                     t={t}
                                     edit={editAct}
                                     handleConfig={null}
-                                    handleChange={setTotal} />
+                                    handleChange={setTotal}/>
                             </Box>
-                            <Stack spacing={2} display={{ xs: "block", md: 'none' }}>
+                            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
                                 {
                                     acts?.map((data: any, index: number) => (
                                         <React.Fragment key={`cip-card-${index}`}>
-                                            <CipMedicProCard row={data} t={t} />
+                                            <CipMedicProCard row={data} t={t}/>
                                         </React.Fragment>
                                     ))
                                 }
@@ -645,15 +641,15 @@ function ConsultationInProgress() {
                             <Button
                                 onClick={() => setOpenActDialog(true)}
                                 size='small' sx={{
-                                    '& .react-svg svg': {
-                                        width: theme => theme.spacing(1.5),
-                                        path: { fill: theme => theme.palette.primary.main }
-                                    }
-                                }} startIcon={<IconUrl path="ic-plus" />}>{t("consultationIP.add_a_new_act")}</Button>
-                            <Box pt={8} />
+                                '& .react-svg svg': {
+                                    width: theme => theme.spacing(1.5),
+                                    path: {fill: theme => theme.palette.primary.main}
+                                }
+                            }} startIcon={<IconUrl path="ic-plus"/>}>{t("consultationIP.add_a_new_act")}</Button>
+                            <Box pt={8}/>
                             <SubFooter>
                                 <Stack spacing={2} direction="row" alignItems="center" width={1}
-                                    justifyContent="flex-end">
+                                       justifyContent="flex-end">
                                     <Typography variant="subtitle1">
                                         <span>{t('total')} : </span>
                                     </Typography>
@@ -702,19 +698,27 @@ function ConsultationInProgress() {
                                     documents.map((card: any, idx) =>
                                         <React.Fragment key={idx}>
                                             <DocumentCard data={card} onClick={() => {
-                                                console.log(card.documentType)
                                                 if (card.documentType === 'photo') {
-                                                    console.log(card.uri)
                                                     setIsViewerOpen(card.uri)
                                                 } else {
                                                     setInfo('document_detail')
+                                                    let info = card
+                                                    switch (card.documentType) {
+                                                        case "prescription":
+                                                            info = card.prescription[0].prescription_has_drugs;
+                                                            break;
+                                                        case "requested-analysis":
+                                                            info = card.requested_Analyses[0].analyses;
+                                                            break;
+                                                    }
                                                     setState({
                                                         uuid: card.uuid,
                                                         uri: card.uri,
                                                         name: card.title,
                                                         type: card.documentType,
-                                                        info: card.documentType === "prescription" ? card.prescription[0].prescription_has_drugs : card,
-                                                        patient: patient.firstName + ' ' + patient.lastName
+                                                        info: info,
+                                                        patient: patient.firstName + ' ' + patient.lastName,
+                                                        mutate: mutateDoc
                                                     })
                                                     setOpenDialog(true);
                                                 }
@@ -726,24 +730,24 @@ function ConsultationInProgress() {
 
                             </Box>
                             {documents.length === 0 && (
-                                <NoDataCard t={t} ns={"consultation"} data={noCardData} />
+                                <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
                             )}
                         </TabPanel>
                     }
                 </AnimatePresence>
-                <Stack direction={{ md: 'row', xs: 'column' }} position="fixed" sx={{ right: 10, bottom: 10, zIndex: 999 }}
-                    spacing={2}>
+                <Stack direction={{md: 'row', xs: 'column'}} position="fixed" sx={{right: 10, bottom: 10, zIndex: 999}}
+                       spacing={2}>
                     {
                         pendingDocuments?.map((item: any) =>
                             <React.Fragment key={item.id}>
                                 <PendingDocumentCard data={item}
-                                    t={t}
-                                    onClick={() => {
-                                        openDialogue(item.id)
-                                    }}
-                                    closeDocument={(v: number) =>
-                                        setPendingDocuments(pendingDocuments.filter(((card: any) => card.id !== v)))
-                                    } />
+                                                     t={t}
+                                                     onClick={() => {
+                                                         openDialogue(item.id)
+                                                     }}
+                                                     closeDocument={(v: number) =>
+                                                         setPendingDocuments(pendingDocuments.filter(((card: any) => card.id !== v)))
+                                                     }/>
                             </React.Fragment>
                         )
                     }
@@ -754,7 +758,7 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({ type: "add", open: false }));
+                        dispatch(openDrawer({type: "add", open: false}));
 
                     }}
                 >
@@ -771,7 +775,7 @@ function ConsultationInProgress() {
                     </Box>
                 </Drawer>
                 <Button
-                    startIcon={<IconUrl path="ic-filter" />}
+                    startIcon={<IconUrl path="ic-filter"/>}
                     onClick={() => setFilterDrawer(!drawer)}
                     sx={{
                         position: 'fixed',
@@ -779,7 +783,7 @@ function ConsultationInProgress() {
                         transform: 'translateX(-50%)',
                         left: '50%',
                         zIndex: 999,
-                        display: { xs: 'flex', md: 'none' }
+                        display: {xs: 'flex', md: 'none'}
                     }}
                     variant="filter"
                 >
@@ -790,49 +794,49 @@ function ConsultationInProgress() {
                     open={filterdrawer}
                     title={null}
                 >
-                    <ConsultationFilter />
+                    <ConsultationFilter/>
                 </DrawerBottom>
 
                 <Dialog action={'add_act'}
-                    open={openActDialog}
-                    data={{ stateAct, setstateAct, setDialog, t }}
-                    size={"sm"}
-                    direction={'ltr'}
-                    title={t('consultationIP.add_a_new_act')}
-                    dialogClose={handleCloseDialogAct}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialogAct}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleSaveDialog}
+                        open={openActDialog}
+                        data={{stateAct, setstateAct, setDialog, t}}
+                        size={"sm"}
+                        direction={'ltr'}
+                        title={t('consultationIP.add_a_new_act')}
+                        dialogClose={handleCloseDialogAct}
+                        actionDialog={
+                            <DialogActions>
+                                <Button onClick={handleCloseDialogAct}
+                                        startIcon={<CloseIcon/>}>
+                                    {t('cancel')}
+                                </Button>
+                                <Button variant="contained"
+                                        onClick={handleSaveDialog}
 
-                                startIcon={<IconUrl
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                    } />
+                                        startIcon={<IconUrl
+                                            path='ic-dowlaodfile'/>}>
+                                    {t('save')}
+                                </Button>
+                            </DialogActions>
+                        }/>
             </Box>
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={{ state, setState, setDialog }}
-                    size={"lg"}
-                    direction={'ltr'}
-                    {...(info === "document_detail" && {
-                        sx: { p: 0 }
-                    })}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {
-                    ...(info === "document_detail" && {
-                        onClose: handleCloseDialog
-                    })
-                    }
-                    dialogClose={handleCloseDialog}
+                        open={openDialog}
+                        data={{state, setState, setDialog, setOpenDialog}}
+                        size={"lg"}
+                        direction={'ltr'}
+                        {...(info === "document_detail" && {
+                            sx: {p: 0}
+                        })}
+                        title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                        {
+                            ...(info === "document_detail" && {
+                                onClose: handleCloseDialog
+                            })
+                        }
+                        dialogClose={handleCloseDialog}
                 />
             }
 

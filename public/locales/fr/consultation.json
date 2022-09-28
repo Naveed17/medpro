@@ -205,9 +205,9 @@
   "price_of_act": "prix de l'acte",
   "no-data": {
     "event": {
-      "title": "Ajouter votre premier carte",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
-      "button-text": "Ajouter un Carte"
+      "title": "Aucun document ",
+      "description": "Ajouter des analyses,rapports, imageries médicales, photos, vidéos.... ",
+      "button-text": "Télécharger document"
     }
   }
 }

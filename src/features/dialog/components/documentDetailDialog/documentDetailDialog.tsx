@@ -31,7 +31,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data: {state}} = props
+    const {data: {state,setOpenDialog}} = props
     const router = useRouter();
     const {data: session} = useSession();
 
@@ -43,6 +43,7 @@ function DocumentDetailDialog({...props}) {
             name: state.name,
         },
         onSubmit: async (values) => {
+            console.log(values)
         },
     });
 
@@ -98,8 +99,6 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
-
-    console.log(state)
     useEffect(() => {
         const doc = new jsPDF({
             format: 'a5'
@@ -143,7 +142,6 @@ function DocumentDetailDialog({...props}) {
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'fees') {
-            console.log(state)
             autoTable(doc, {
                 html: '#fees',
                 useCss: true,
@@ -179,7 +177,8 @@ function DocumentDetailDialog({...props}) {
                     url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
-                    // mutate()
+                     state.mutate()
+                    setOpenDialog(false)
                 });
 
                 break;
@@ -213,7 +212,7 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-    const {values, handleSubmit, getFieldProps} = formik;
+    const {handleSubmit, getFieldProps} = formik;
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>

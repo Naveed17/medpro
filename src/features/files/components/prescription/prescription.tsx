@@ -15,7 +15,7 @@ function Prescription({...props}) {
             </tr>
             <tr>
                 <td style={{fontSize: 20, textAlign: "right", color: "grey"}}>
-                    <p>Tunis le: {moment().format('DD MMMM YYYY')}</p>
+                    <p>Tunis le: {moment(data.createdAt).format('DD MMMM YYYY')}</p>
                 </td>
             </tr>
             <tr>

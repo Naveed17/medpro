@@ -3,7 +3,7 @@ import moment from "moment/moment";
 
 function RequestedAnalysis({...props}) {
     const {data} = props;
-    console.log(data)
+
     return (
         <table hidden={true} id="requested-analysis" style={{backgroundColor: "white"}}>
             <tr>
@@ -16,7 +16,7 @@ function RequestedAnalysis({...props}) {
             </tr>
             <tr>
                 <td style={{fontSize: 20, textAlign: "right", color: "grey"}}>
-                    <p>Tunis le: {moment().format('DD MMMM YYYY')}</p>
+                    <p>Tunis le: {moment(data.createdAt).format('DD MMMM YYYY')}</p>
                 </td>
             </tr>
             <tr>
@@ -29,6 +29,17 @@ function RequestedAnalysis({...props}) {
                     <p>les analyses suivantes:</p>
                 </td>
             </tr>
+
+            {
+                data.info.map((line: any) => (
+                    <tr key={line.uuid}>
+                        <td style={{color: "black", fontSize: 20}}>
+                            <p>• {line.name}</p>
+                        </td>
+                    </tr>
+
+                ))
+            }
 
         </table>
 

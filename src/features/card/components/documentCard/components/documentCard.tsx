@@ -1,12 +1,13 @@
-import { CardContent, IconButton, Stack, Typography } from '@mui/material'
+import {CardContent, IconButton, Stack, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
-import React, { ReactElement, useState } from 'react'
+import React, {ReactElement, useState} from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
-import { Popover } from "@features/popover";
+import {Popover} from "@features/popover";
 import Icon from "@themes/urlIcon";
-function DocumentCard({ ...props }) {
+
+function DocumentCard({...props}) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const { data , onClick } = props;
+    const {data, onClick} = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -21,10 +22,10 @@ function DocumentCard({ ...props }) {
     return (
         <DocumentCardStyled>
             <CardContent onClick={onClick}>
-                <Stack direction="row" alignItems="center" justifyContent="end">
-{/*
+                {/*  <Stack direction="row" alignItems="center" justifyContent="end">
+
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
-*/}
+
                     <Popover
                         open={openTooltip}
                         handleClose={() => {
@@ -66,6 +67,7 @@ function DocumentCard({ ...props }) {
                     />
 
                 </Stack>
+                */}
                 <Stack spacing={2} className="document-detail" alignItems="center">
                     <IconUrl path={
                         data.documentType === "prescription" && "ic-traitement" ||
@@ -76,7 +78,7 @@ function DocumentCard({ ...props }) {
                         data.documentType === "Rapport" && "ic-text" ||
                         data.documentType === "video" && "ic-video-outline" ||
                         data.documentType !== "prescription" && "ic-pdf" || ""
-                    } />
+                    }/>
                     <Typography variant='subtitle2' fontWeight={700}>
                         {data.title}
                     </Typography>
