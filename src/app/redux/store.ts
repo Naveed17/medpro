@@ -10,8 +10,8 @@ import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
 import {DialogReducer, dialogMoveAppointmentReducer} from "@features/dialog";
-import {timerReducer} from "@features/card/components/cipCard";
-import {DashLayoutReducer} from "@features/base/components/dashLayout/reducer";
+import {timerReducer} from "@features/card";
+import {DashLayoutReducer} from "@features/base";
 
 
 export const store = configureStore({
