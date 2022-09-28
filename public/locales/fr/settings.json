@@ -320,8 +320,8 @@
     "WED": "Mercredi",
     "TUE": "Jeudi",
     "FRI": "Vendredi",
-    "SUN": "Samedi",
-    "SAT": "Dimanche"
+    "SUN": "Dimanche",
+    "SAT": "Samedi"
   },
   "templates": {
     "config": {
