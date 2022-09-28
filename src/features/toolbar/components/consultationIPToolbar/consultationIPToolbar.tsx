@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Tabs, Tab, Stack, Button, MenuItem, DialogActions} from '@mui/material'
+import {Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
 import {useTranslation} from 'next-i18next'
@@ -15,8 +15,10 @@ import {LoadingButton} from "@mui/lab";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {setTimer} from "@features/card";
+import {Theme} from '@mui/material/styles'
 
 function ConsultationIPToolbar({...props}) {
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState('patient history');
@@ -25,7 +27,8 @@ function ConsultationIPToolbar({...props}) {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
-    const [lastTabs, setLastTabs] = useState(0);
+    const [label, setlabel] = useState<string>('patient_history')
+    const [lastTabs, setLastTabs] = useState<string>('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -132,11 +135,12 @@ function ConsultationIPToolbar({...props}) {
                     setCheckUp([])
                     setInfo('document_detail')
                     const res = r.data.data;
+                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
-                        name: 'bilan',
-                        type: 'analysis',
+                        name: 'requested-analysis',
+                        type: 'requested-analysis',
                         info: res[0].analyses,
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
                     })
@@ -221,7 +225,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 setInfo('document_detail')
-                setState({name:'write_certif'})
+                setState({type: 'write_certif'})
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -271,8 +275,9 @@ function ConsultationIPToolbar({...props}) {
             form.append("notes", exam.notes)
             form.append("diagnostic", exam.diagnosis)
             form.append("treatment", exam.treatment)
+            form.append("consultation_reason", exam.motif)
             form.append("status", "5")
-            form.append("consultation_reason", "")
+
             trigger({
                 method: "PUT",
                 url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/data/${router.locale}`,
@@ -281,7 +286,7 @@ function ConsultationIPToolbar({...props}) {
                     Authorization: `Bearer ${session?.accessToken}`
                 }
             }).then(r => {
-                console.log('end consultation',r)
+                console.log('end consultation', r)
                 router.push('/dashboard/agenda').then(r => {
                     console.log(r)
                     dispatch(setTimer({isActive: false}))
@@ -293,19 +298,19 @@ function ConsultationIPToolbar({...props}) {
     }, [end])
 
     useEffect(() => {
-        selected(tabs);
-        if (lastTabs === 2) {
+        selected(label);
+        if (lastTabs === 'consultation_form') {
             const btn = document.getElementsByClassName('sub-btn')[1];
             const examBtn = document.getElementsByClassName('sub-exam')[0];
 
             (btn as HTMLElement)?.click();
             (examBtn as HTMLElement)?.click();
         }
-        setLastTabs(tabs)
+        setLastTabs(label)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return <>toolbar loading..</>;
 
     return (
         <>
@@ -362,13 +367,17 @@ function ConsultationIPToolbar({...props}) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{width: '80%'}}
-                        variant="scrollable"
+                        sx={{width: {xs: '100%', md: '80%'}}}
+                        variant={isMobile ? "scrollable" : 'standard'}
+                        allowScrollButtonsMobile={isMobile}
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
                         {tabsData.map(({label, value}, index) => (
-                            <Tab onFocus={() => setTabs(index)} className='custom-tab' key={label} value={value}
+                            <Tab onFocus={() => {
+                                setTabs(index);
+                                setlabel(label)
+                            }} className='custom-tab' key={label} value={value}
                                  label={t(label)}/>
                         ))}
                     </Tabs>
@@ -384,7 +393,6 @@ function ConsultationIPToolbar({...props}) {
 
 
                         setTimeout(() => {
-                            console.log(selectedModel)
                             setEnd(true)
                             setLoading(false)
                         }, 3000)

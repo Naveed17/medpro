@@ -41,6 +41,7 @@
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",
+  "showAll": "Afficher tout...",
   "notes": "Notes",
   "hint text": "Texte d'indice",
   "honclusion": "Conclusion",
@@ -48,6 +49,7 @@
   "medical observation": "Observation médicale",
   "documents": "Documents",
   "in_progress": "En cours",
+  "doc_detail_title": "Document",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "patient_history": "Fiche d'historique",
@@ -131,8 +133,10 @@
     "mother": "Mère",
     "name_of_the_allergy": "Nom de l’allergie",
     "current_treatment": "Tapez le nom du traitement en cours",
-    "doc_detail_title": "Nom du document Certificat medicale",
+    "doc_detail_title": "Document",
     "print": "Imprimer",
+    "show": "Afficher en-tête",
+    "hide": "Masquer en-tête",
     "share": "Partager",
     "download": "Télécharger",
     "delete": "Supprimer",
@@ -164,7 +168,10 @@
     "child_cough": "Toux enfant",
     "add_a_new_act": "Ajouter un nouveau acte",
     "appointment_date": "Date du RDV",
-    "see_details": "Voir détails"
+    "see_details": "Voir détails",
+    "prescription": "Ordonnance",
+    "requested-analysis": "Demande analyse"
+
   },
   "table": {
     "acts": "Actes",
@@ -200,5 +207,14 @@
   "video": "video",
   "audio": "Audio",
   "name_of_act": "nom de l'acte",
-  "price_of_act": "prix de l'acte"
+  "price_of_act": "prix de l'acte",
+  "no-data": {
+    "event": {
+      "title": "Aucun document ",
+      "description": "Ajouter des analyses,rapports, imageries médicales, photos, vidéos.... ",
+      "button-text": "Télécharger document"
+    }
+  },
+  "prescription": "Ordonnance",
+  "requested-analysis": "Demande analyse"
 }
