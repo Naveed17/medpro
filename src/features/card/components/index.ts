@@ -20,12 +20,13 @@ export * from "./questionCard";
 export * from "./patientdetailsCard";
 export * from "./appointmentListMobile";
 export * from "./uploadFileCard";
-export * from "./motifListMobile"
-export * from './cipCard/components'
+export * from "./motifListMobile";
+export * from './cipCard/components';
 export * from "./appointmentPatientCard";
 export * from './documentCard';
 export * from './pendingDocumentCard';
 export * from "./cipCard";
-export * from './historyCard'
+export * from './historyCard';
 export * from "./patientCardMobile";
-export * from './motifTypeCard'
+export * from './motifTypeCard';
+export * from './patientMobileCard';

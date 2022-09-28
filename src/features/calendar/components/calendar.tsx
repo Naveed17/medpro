@@ -329,9 +329,12 @@ function Calendar({...props}) {
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
                                     moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
+                                    data.action === "onConsultationView" && eventMenu?.extendedProps.status.key !== "FINISHED" ||
+                                    data.action === "onConsultationDetail" && eventMenu?.extendedProps.status.key === "FINISHED" ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
                                     data.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
                                     data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
+                                    data.action === "onPatientNoShow" && moment().isBefore(eventMenu?.extendedProps.time) ||
                                     data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
                                 )).map((v: any) => (
                                         <MenuItem

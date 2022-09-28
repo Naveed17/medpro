@@ -197,6 +197,7 @@ function Agenda() {
                     allDay: false,
                     borderColor: appointment.type?.color,
                     patient: appointment.patient,
+                    overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
@@ -356,8 +357,12 @@ function Agenda() {
                 updateAppointmentStatus(event?.publicId ? event?.publicId :
                     (event as any)?.id, "6").then(() => {
                     refreshData();
-                    enqueueSnackbar(t(`msg.leave-waiting-room}`), {variant: "success"});
+                    enqueueSnackbar(t(`msg.leave-waiting-room`), {variant: "success"});
                 });
+                break;
+            case "onPatientNoShow":
+                setEvent(event);
+                onPatientNoShow(event);
                 break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
@@ -389,7 +394,7 @@ function Agenda() {
             event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
             () => {
                 refreshData();
-                enqueueSnackbar(t(`msg.on-waiting-room}`), {variant: "success"});
+                enqueueSnackbar(t(`msg.on-waiting-room`), {variant: "success"});
             });
     }
 
@@ -398,7 +403,7 @@ function Agenda() {
             event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
             () => {
                 refreshData();
-                enqueueSnackbar(t(`msg.patient-no-show}`), {variant: "success"});
+                enqueueSnackbar(t(`msg.patient-no-show`), {variant: "success"});
                 dispatch(openDrawer({type: "view", open: false}));
             });
     }
@@ -520,7 +525,7 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
-            enqueueSnackbar(t(`msg.cancel-appointment}`), {variant: "success"});
+            enqueueSnackbar(t(`msg.cancel-appointment`), {variant: "success"});
         });
     }
 

@@ -27,6 +27,7 @@ import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -393,13 +394,20 @@ function AppointmentDetail({...props}) {
                                 sx={{
                                     display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
                                     '& svg': {
-                                        width: 14,
-                                        height: 14
+                                        width: 16,
+                                        height: 16
                                     }
                                 }}
                                 startIcon={<IconUrl path='icdelete'
                                                     color={data?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>
+                            {t('event.cancel')}
+                        </Button>
+                        <Button onClick={() => SetCancelDialog(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
+                                startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
                             {t('event.delete')}
                         </Button>
                     </Stack>
