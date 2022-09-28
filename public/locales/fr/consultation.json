@@ -202,5 +202,12 @@
   "video": "video",
   "audio": "Audio",
   "name_of_act": "nom de l'acte",
-  "price_of_act": "prix de l'acte"
+  "price_of_act": "prix de l'acte",
+  "no-data": {
+    "event": {
+      "title": "Ajouter votre premier carte",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+      "button-text": "Ajouter un Carte"
+    }
+  }
 }

@@ -1,5 +1,5 @@
 // components
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Box,
@@ -13,19 +13,19 @@ import {
     Collapse,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import Content from "./content";
-import {collapse as collapseData} from "./config";
-import {upperFirst} from "lodash";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
+import { collapse as collapseData } from "./config";
+import { upperFirst } from "lodash";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { consultationSelector } from "@features/toolbar";
 import moment from "moment-timezone";
-import {toggleSideBar} from "@features/sideBarMenu";
+import { toggleSideBar } from "@features/sideBarMenu";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient} = useAppSelector(consultationSelector);
+    const { t, ready } = useTranslation("consultation", { keyPrefix: "filter" });
+    const { patient } = useAppSelector(consultationSelector);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -39,7 +39,7 @@ function Consultation() {
             <Box className="header">
                 <Box className="about">
                     <Avatar
-                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
+                        sx={{ width: 59, height: 59, marginLeft: 2, marginRight: 2 }}
                         src={
                             patient?.gender === "M"
                                 ? "/static/icons/men-avatar.svg"
@@ -50,7 +50,7 @@ function Consultation() {
                         <Typography
                             variant="body1"
                             color="primary.main"
-                            sx={{fontFamily: "Poppins"}}
+                            sx={{ fontFamily: "Poppins" }}
                         >
                             {patient?.firstName + " " + patient?.lastName}
                         </Typography>
@@ -70,28 +70,28 @@ function Consultation() {
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            "& .react-svg": {mr: 1},
+                            "& .react-svg": { mr: 1 },
                             mb: 1.5,
                         }}
                         variant="body1"
                         color="text.primary"
                     >
-                        <Icon path="ic-doc"/>
+                        <Icon path="ic-doc" />
                         {upperFirst(t("contact details"))}
                     </Typography>
-                    <Box sx={{pl: 1}}>
+                    <Box sx={{ pl: 1 }}>
                         {patient?.contact && patient?.contact.length > 0 && <Typography
                             component="div"
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
+                                "& .react-svg": { mr: 0.8 },
                                 mb: 0.3,
                             }}
                             variant="body2"
                             color="text.secondary"
                         >
-                            <Icon path="ic-phone"/>
+                            <Icon path="ic-phone" />
                             {patient?.contact[0].code} {patient?.contact[0].value}
                         </Typography>}
                         <Typography
@@ -99,12 +99,12 @@ function Consultation() {
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
+                                "& .react-svg": { mr: 0.8 },
                             }}
                             variant="body2"
                             color="text.secondary"
                         >
-                            {patient?.email && <Icon path="ic-message-contour"/>}
+                            {patient?.email && <Icon path="ic-message-contour" />}
                             {patient?.email}
                         </Typography>
                     </Box>
@@ -129,7 +129,7 @@ function Consultation() {
                                 onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
                             >
                                 <ListItemIcon>
-                                    <Icon path={col.icon}/>
+                                    <Icon path={col.icon} />
                                 </ListItemIcon>
                                 <Typography fontWeight={700}>
                                     {upperFirst(t(col.title))}
@@ -141,14 +141,14 @@ function Consultation() {
                                         ></Typography>
                                     )}
                                 </Typography>
-                                <IconButton size="small" sx={{ml: "auto"}}>
-                                    <Icon path="ic-expand-more"/>
+                                <IconButton size="small" sx={{ ml: "auto" }}>
+                                    <Icon path="ic-expand-more" />
                                 </IconButton>
                             </ListItem>
-                            <ListItem sx={{p: 0}}>
-                                <Collapse in={collapse === col.id} sx={{width: 1}}>
+                            <ListItem sx={{ p: 0 }}>
+                                <Collapse in={collapse === col.id} sx={{ width: 1 }}>
                                     <Box px={1.5}>
-                                        <Content id={col.id} patient={patient}/>
+                                        <Content id={col.id} patient={patient} />
                                     </Box>
                                 </Collapse>
                             </ListItem>

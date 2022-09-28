@@ -27,6 +27,7 @@ import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -90,6 +91,7 @@ function AppointmentDetail({...props}) {
         OnConsultation,
         OnEditDetail,
         OnDataUpdated,
+        OnPatientNoShow,
         OnWaiting,
         SetMoveDialog,
         SetCancelDialog,
@@ -209,15 +211,19 @@ function AppointmentDetail({...props}) {
                             {t('event.start')}
                         </Button>
                     </Stack>
-                    {data?.extendedProps.hasError &&
-                        <Stack sx={{mt: 2}} spacing={2} direction="row" justifyContent='space-between'
+                    {data?.extendedProps.hasErrors.map((error: string, index: number) => (
+                        <Stack key={`error${index}`}
+                               sx={{mt: 2}} spacing={2}
+                               direction="row" justifyContent='space-between'
                                alignItems='center'>
                             <Typography variant="body2" component="span" className="alert">
                                 <Icon path="danger"/>
-                                <span>{t("event.hors-opening-hours")}</span>
+                                <span>{t(error)}</span>
                             </Typography>
-                        </Stack>}
-                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasError ? 0 : 2}} variant="body1" fontWeight={600}>
+                        </Stack>
+                    ))}
+                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors.length > 1 ? 0 : 2}} variant="body1"
+                                fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
                     <AppointmentCard
@@ -342,6 +348,15 @@ function AppointmentDetail({...props}) {
                             sx={{
                                 display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
                             }}
+                            onClick={() => OnPatientNoShow(data)}
+                            fullWidth variant='contained'
+                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
+                            {t('event.missPatient')}
+                        </Button>
+                        <Button
+                            sx={{
+                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                            }}
                             onClick={() => {
                                 dispatch(setMoveDateTime({
                                     date: new Date(data?.extendedProps.time),
@@ -379,13 +394,20 @@ function AppointmentDetail({...props}) {
                                 sx={{
                                     display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
                                     '& svg': {
-                                        width: 14,
-                                        height: 14
+                                        width: 16,
+                                        height: 16
                                     }
                                 }}
                                 startIcon={<IconUrl path='icdelete'
                                                     color={data?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>
+                            {t('event.cancel')}
+                        </Button>
+                        <Button onClick={() => SetCancelDialog(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
+                                startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
                             {t('event.delete')}
                         </Button>
                     </Stack>

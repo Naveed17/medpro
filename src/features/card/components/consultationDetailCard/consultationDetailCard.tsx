@@ -1,17 +1,17 @@
-import React, {useEffect, useState} from 'react'
-import {Stack, Typography, Box, CardContent, Select, MenuItem, TextField} from "@mui/material";
+import React, { useEffect, useState } from 'react'
+import { Stack, Typography, Box, CardContent, Select, MenuItem, TextField } from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
-import {useTranslation} from 'next-i18next'
-import {useFormik, Form, FormikProvider} from "formik";
-import {ModelDot} from "@features/modelDot";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
-import {consultationSelector} from "@features/toolbar";
+import { useTranslation } from 'next-i18next'
+import { useFormik, Form, FormikProvider } from "formik";
+import { ModelDot } from "@features/modelDot";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { SetExam } from "@features/toolbar/components/consultationIPToolbar/actions";
+import { consultationSelector } from "@features/toolbar";
 
-function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam} = props
-    const {exam} = useAppSelector(consultationSelector);
+function CIPPatientHistoryCard({ ...props }) {
+    const { exam: defaultExam } = props
+    const { exam } = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const dispatch = useAppDispatch();
 
@@ -31,22 +31,22 @@ function CIPPatientHistoryCard({...props}) {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
 
-    const {handleSubmit, values, getFieldProps} = formik;
+    const { handleSubmit, values, getFieldProps } = formik;
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
 
     if (!ready) return <>loading translations...</>;
     return (
         <ConsultationDetailCardStyled>
             <Stack className="card-header" p={2} direction="row" alignItems="center" borderBottom={1}
-                   borderColor="divider">
+                borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body2" component="div" color="secondary"
-                            fontWeight={500}>
-                    <Icon path='ic-edit-file-pen'/>
+                    fontWeight={500}>
+                    <Icon path='ic-edit-file-pen' />
                     {t("review")}
                 </Typography>
             </Stack>
-            <CardContent style={{padding: 20}}>
+            <CardContent style={{ padding: 20 }}>
                 <button hidden={true} className={'sub-exam'} onClick={() => {
                     dispatch(SetExam(values))
                 }}></button>

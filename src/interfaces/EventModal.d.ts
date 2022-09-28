@@ -4,6 +4,7 @@ interface EventModal {
     end: Date;
     title: string;
     allDay: boolean;
+    overlapEvent: boolean;
     borderColor: string;
     motif: ConsultationReasonModel;
     type: AppointmentTypeModel;
@@ -12,7 +13,7 @@ interface EventModal {
     dur: number;
     meeting: boolean;
     new: boolean;
-    hasError: boolean;
+    hasErrors: Array<string>;
     addRoom: boolean;
     patient: PatientModel;
     status: AppointmentStatusModel;

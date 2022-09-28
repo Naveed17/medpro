@@ -10,10 +10,11 @@ import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 
 function Event({...props}) {
-    const {event, t} = props;
+    const {event, view, t} = props;
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
+    const appointment = event.event._def.extendedProps;
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -27,10 +28,13 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(event.event._def.extendedProps.status.key === "PENDING" && {
+                    ...(appointment.status.key === "ON_GOING" && {
+                            backgroundColor: "success.light",
+                        }
+                    ), ...(appointment.status.key === "PENDING" && {
                             backgroundColor: "warning.light",
                         }
-                    ), ...(event.event._def.extendedProps.status.key === "WAITING_ROOM" && {
+                    ), ...(appointment.status.key === "WAITING_ROOM" && {
                             backgroundColor: "secondary.lighter",
                             "& .ic-waiting .MuiSvgIcon-root": {
                                 width: 16,
@@ -38,7 +42,7 @@ function Event({...props}) {
                                 ml: ".5rem"
                             }
                         }
-                    ), ...(event.event._def.extendedProps.hasError && {
+                    ), ...(appointment.hasErrors.length > 0 && {
                             "& .MuiSvgIcon-root": {
                                 width: 10,
                                 height: 10,
@@ -55,20 +59,20 @@ function Event({...props}) {
                 onMouseEnter={handlePopoverOpen}
                 onMouseLeave={handlePopoverClose}
                 className="fc-event-main-box">
-                {event.event._def.extendedProps.new && <Box className="badge"/>}
+                {appointment.new && <Box className="badge"/>}
                 <Typography variant="body2"
-                            {...((event.event._def.extendedProps.status.key === "WAITING_ROOM" &&
-                                    !event.event._def.extendedProps.hasError) &&
+                            {...((appointment.status.key === "WAITING_ROOM" &&
+                                    appointment.hasErrors.length === 0) &&
                                 {className: "ic-waiting"})}
                             component={"span"}
                             color="text.primary">
-                    {event.event._def.extendedProps.hasError ?
+                    {appointment.hasErrors.length > 0 ?
                         <DangerIcon/> :
-                        event.event._def.extendedProps.status.key === "WAITING_ROOM" ?
+                        appointment.status.key === "WAITING_ROOM" ?
                             <SalleIcon/> :
                             <AccessTimeIcon color={"disabled"} className="ic-time"/>}
                     <span>
-                    {event.event._def.extendedProps.time.toLocaleTimeString([], {
+                    {!appointment.overlapEvent && appointment.time.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                     })}
@@ -82,7 +86,7 @@ function Event({...props}) {
                         textOverflow: "ellipsis"
                     }
                 }} color="primary" noWrap>
-                    {event.event._def.extendedProps.meeting ? (
+                    {appointment.meeting ? (
                         <IconUrl path="ic-video" className="ic-video"/>
                     ) : (
                         <CabinetIcon/>
@@ -99,28 +103,25 @@ function Event({...props}) {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'top',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
+                    horizontal: view !== 'timeGridWeek' ? 'left' : 'right'
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus
             >
                 <>
-                    {event.event._def.extendedProps.new &&
+                    {appointment.new &&
                         <Chip label={t("event.new", {ns: 'common'})}
                               sx={{
                                   position: "absolute",
-                                  right: 2,
-                                  top: 4
+                                  right: 4,
+                                  top: 4,
+                                  fontSize: 10
                               }}
                               size="small"
                               color={"primary"}/>}
                     <AppointmentPatientCard
                         style={{width: "300px", border: "none"}}
-                        data={event.event._def.extendedProps}/>
+                        data={appointment}/>
                 </>
             </Popover>
         </>

@@ -110,6 +110,8 @@
     "civility": "Civilité",
     "mr": "M.",
     "mrs": "Mme",
+    "date-of-birth": "Date de naissance",
+    "gender": "Genre",
     "name": "Nom",
     "name-placeholder": "Tapez le nom du patient",
     "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",

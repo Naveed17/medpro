@@ -60,10 +60,9 @@ function Calendar({...props}) {
     const prevView = useRef(view);
     const [events, setEvents] =
         useState<ConsultationReasonTypeModel[]>(appointments);
-    const [eventGroupByDay, setEventGroupByDay] =
-        useState<GroupEventsModel[]>(sortedData);
+    const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
-    const [date, setDate] = useState(moment().toDate());
+    const [date, setDate] = useState(currentDate.date);
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -251,13 +250,14 @@ function Calendar({...props}) {
                                 navLinks
                                 selectable
                                 eventDurationEditable
+                                slotEventOverlap={false}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 eventContent={(event) =>
-                                    <Event event={event} openingHours={openingHours} t={translation}/>
+                                    <Event {...{event, openingHours, view}} t={translation}/>
                                 }
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
@@ -329,9 +329,12 @@ function Calendar({...props}) {
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
                                     moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
+                                    data.action === "onConsultationView" && eventMenu?.extendedProps.status.key !== "FINISHED" ||
+                                    data.action === "onConsultationDetail" && eventMenu?.extendedProps.status.key === "FINISHED" ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
                                     data.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
                                     data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
+                                    data.action === "onPatientNoShow" && moment().isBefore(eventMenu?.extendedProps.time) ||
                                     data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
                                 )).map((v: any) => (
                                         <MenuItem
