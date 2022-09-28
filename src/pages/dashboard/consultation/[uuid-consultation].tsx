@@ -20,7 +20,7 @@ import {
     DialogActions,
     FormGroup,
     FormControlLabel,
-    Checkbox
+    Checkbox, IconButton, List, Icon, Collapse, ListItemIcon
 } from "@mui/material";
 import {Dialog, openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
@@ -35,7 +35,7 @@ import {
     DocumentCard,
     PendingDocumentCard,
     HistoryCard,
-    NoDataCard
+    NoDataCard, DrugListCard
 } from "@features/card";
 import {Label} from "@features/label";
 import {Otable} from '@features/table';
@@ -197,6 +197,7 @@ function ConsultationInProgress() {
     const [selectedUuid, setSelectedUuid] = useState<string[]>([])
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+    const [size, setSize] = useState<number>(3);
 
     const router = useRouter();
     const uuind = router.query['uuid-consultation'];
@@ -416,13 +417,17 @@ function ConsultationInProgress() {
                                 {patient?.nextAppointments.length > 0 &&
                                     <Label variant="filled" color="warning">{t("next_meeting")}</Label>}
                                 {
-                                    patient?.nextAppointments.map((data: any, index: number) => (
+                                    patient?.nextAppointments.slice(0, size).map((data: any, index: number) => (
                                         <React.Fragment key={`patient-${index}`}>
                                             <HistoryCard row={data} patient={patient} t={t}/>
                                         </React.Fragment>
                                     ))
                                 }
                             </Stack>
+                            {size < patient?.nextAppointments.length &&
+                                <Button style={{marginBottom: 10, marginTop: -10, fontSize: 12}} onClick={() => {
+                                    setSize(patient?.nextAppointments.length)
+                                }}>{t('showAll')}</Button>}
                             <Stack spacing={1} mb={1}>
                                 <Typography variant="body2">
                                     {t("document_type")}
@@ -446,15 +451,137 @@ function ConsultationInProgress() {
 
                             <Stack spacing={2}>
                                 {
-                                    CIPPatientHistoryCardData.map((data, index: number) => (
 
-                                        <CIPPatientHistoryCard data={data} key={`card-${index}`}>
-                                            {
-                                                data.title === "reason_for_consultation" &&
 
-                                                <Stack spacing={2}>
-                                                    <MotifCard data={data}/>
-                                                    {/*<List dense>
+                                    <CIPPatientHistoryCard data={appointement?.latestAppointment}>
+                                        <Stack spacing={2}>
+                                            {appointement &&
+                                                <MotifCard data={appointement?.latestAppointment}/>}
+                                            <List dense>
+                                                {
+                                                    [
+                                                        {
+                                                            id: 1,
+                                                            title: 'treatment_medication',
+                                                            icon: 'ic-traitement',
+                                                            type: 'treatment',
+                                                            drugs: [
+                                                                {
+                                                                    id: 1,
+                                                                    name: "Doliprane 1000",
+                                                                    dosage: "dosage_unit",
+                                                                    duration: 10,
+                                                                },
+                                                                {
+                                                                    id: 2,
+                                                                    name: "Doliprane 1000",
+                                                                    dosage: "dosage_unit",
+                                                                    duration: 10,
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            id: 2,
+                                                            title: 'documents',
+                                                            icon: 'ic-document',
+                                                            type: 'document',
+                                                            documents: [
+                                                                'document_1',
+                                                                'document_2',
+                                                            ]
+                                                        },
+                                                        {
+                                                            id: 3,
+                                                            title: 'bal_sheet_req',
+                                                            icon: 'ic-document',
+                                                            type: 'req-sheet',
+
+                                                        }
+                                                    ].map((col, idx) => (
+                                                        <React.Fragment key={`list-item-${idx}`}>
+                                                            <>
+                                                                <ListItem
+                                                                    onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
+                                                                    sx={{
+                                                                        cursor: "pointer",
+                                                                        borderTop: 1,
+                                                                        borderColor: 'divider',
+                                                                        px: 0,
+                                                                        '& .MuiListItemIcon-root': {
+                                                                            minWidth: 20,
+                                                                            svg: {
+                                                                                width: 14,
+                                                                                height: 14,
+                                                                            }
+                                                                        }
+                                                                    }}>
+                                                                    <ListItemIcon>
+                                                                        <IconUrl path={col.icon}/>
+                                                                    </ListItemIcon>
+                                                                    <Typography variant='body2' fontWeight={700}>
+                                                                        {t(col.title)}
+                                                                    </Typography>
+                                                                    <IconButton size="small" sx={{ml: 'auto'}}>
+                                                                        <IconUrl path="ic-expand-more"/>
+                                                                    </IconButton>
+                                                                </ListItem>
+
+                                                                <ListItem
+                                                                    sx={{p: 0}}
+                                                                >
+                                                                    <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                                                        {col.type}
+                                                                        {/*{
+                                                                                    col.type === "treatment" &&
+                                                                                    col.drugs?.map((item, i) => (
+                                                                                        <React.Fragment
+                                                                                            key={`durg-list-${i}`}>
+                                                                                            <DrugListCard data={item} t={t}
+                                                                                                          list/>
+                                                                                        </React.Fragment>
+                                                                                    ))
+                                                                                }
+                                                                                {
+                                                                                    col.type === "document" &&
+                                                                                    <List sx={{py: 0}}>
+                                                                                        {
+                                                                                            col.documents?.map((item, i) => (
+                                                                                                <ListItem
+                                                                                                    key={`doc-list${i}`}
+                                                                                                    sx={{
+                                                                                                        bgcolor: theme => theme.palette.grey['A100'],
+                                                                                                        mb: 1,
+                                                                                                        borderRadius: 0.7
+                                                                                                    }}>
+                                                                                                    <Typography
+                                                                                                        variant='body2'
+                                                                                                        display='flex'
+                                                                                                        alignItems="center">
+                                                                                                        <CircleIcon sx={{
+                                                                                                        fontSize: 5,
+                                                                                                        mr: 1
+                                                                                                    }}/> {item}
+                                                                                                    </Typography>
+                                                                                                    <IconButton size="small"
+                                                                                                                sx={{ml: 'auto'}}>
+                                                                                                        <IconUrl
+                                                                                                            path="ic-document"/>
+                                                                                                    </IconButton>
+                                                                                                </ListItem>
+                                                                                            ))
+                                                                                        }
+                                                                                    </List>
+                                                                                }*/}
+                                                                    </Collapse>
+                                                                </ListItem>
+                                                            </>
+
+
+                                                        </React.Fragment>
+                                                    ))
+                                                }
+                                            </List>
+                                            {/*<List dense>
                                                         {
                                                             data.collapse?.map((col, idx: number) => (
                                                                 <React.Fragment key={`list-item-${idx}`}>
@@ -475,13 +602,13 @@ function ConsultationInProgress() {
                                                                         }}>
 
                                                                         <ListItemIcon>
-                                                                            <Icon path={col.icon}/>
+                                                                            <IconUrl path={col.icon}/>
                                                                         </ListItemIcon>
                                                                         <Typography variant='body2' fontWeight={700}>
                                                                             {t(col.title)}
                                                                         </Typography>
                                                                         <IconButton size="small" sx={{ml: 'auto'}}>
-                                                                            <Icon path="ic-expand-more"/>
+                                                                            <IconUrl path="ic-expand-more"/>
                                                                         </IconButton>
                                                                     </ListItem>
                                                                     <ListItem
@@ -522,7 +649,7 @@ function ConsultationInProgress() {
                                                                                                 </Typography>
                                                                                                 <IconButton size="small"
                                                                                                             sx={{ml: 'auto'}}>
-                                                                                                    <Icon
+                                                                                                    <IconUrl
                                                                                                         path="ic-document"/>
                                                                                                 </IconButton>
                                                                                             </ListItem>
@@ -536,9 +663,8 @@ function ConsultationInProgress() {
                                                             ))
                                                         }
                                                     </List>*/}
-                                                </Stack>
-                                            }
-                                            {
+                                        </Stack>
+                                        {/*                                         {
                                                 data.title === "balance_results" &&
                                                 data.list?.map((item, i) => (
                                                     <ListItem key={`balance-list${i}`}
@@ -562,10 +688,10 @@ function ConsultationInProgress() {
                                                         </Typography>
                                                     </ListItem>
                                                 ))
-                                            }
-                                        </CIPPatientHistoryCard>
+                                            }*/}
+                                    </CIPPatientHistoryCard>
 
-                                    ))}
+                                }
                             </Stack>
 
                             <Drawer
@@ -697,7 +823,7 @@ function ConsultationInProgress() {
                                 {
                                     documents.map((card: any, idx) =>
                                         <React.Fragment key={idx}>
-                                            <DocumentCard data={card} onClick={() => {
+                                            <DocumentCard data={card}  onClick={() => {
                                                 if (card.documentType === 'photo') {
                                                     setIsViewerOpen(card.uri)
                                                 } else {
@@ -759,7 +885,6 @@ function ConsultationInProgress() {
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "add", open: false}));
-
                     }}
                 >
                     <Box height={"100%"}>
@@ -770,8 +895,7 @@ function ConsultationInProgress() {
                             stepperData={EventStepper}
                             scroll
                             t={t}
-                            minWidth={726}
-                        />
+                            minWidth={726}/>
                     </Box>
                 </Drawer>
                 <Button

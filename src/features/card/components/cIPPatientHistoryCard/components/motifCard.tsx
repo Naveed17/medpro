@@ -1,47 +1,52 @@
-import { Card, CardContent, Grid, Typography, List, ListItem, ListItemIcon, Button, Stack } from '@mui/material'
+import {Card, CardContent, Grid, Typography, List, ListItem, ListItemIcon, Button, Stack} from '@mui/material'
 import React from 'react'
-import { useTranslation } from 'next-i18next'
+import {useTranslation} from 'next-i18next'
 import RootStled from './overrides/rootStyle';
 import CircleIcon from '@mui/icons-material/Circle';
-function MotifCard({ data }: any) {
-    const { t, ready } = useTranslation('consultation', { keyPrefix: 'consultationIP' })
+
+function MotifCard({data}: any) {
+    console.log('motif card', data)
+    const {t, ready} = useTranslation('consultation', {keyPrefix: 'consultationIP'})
     if (!ready) return <>loading translations...</>
     return (
         <RootStled>
+
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
                             <Stack direction="row" alignItems="center" justifyContent="space-between">
-                                <Typography variant="body2" fontWeight={700}>
+                                <Typography variant="body2" fontWeight={700} marginBottom={1}>
                                     {t('tracking_data')}
                                 </Typography>
-                                <Button size="small" sx={{ ml: 'auto' }}>{t('see_the_curve')}</Button>
+                                {/*
+                                <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
+*/}
                             </Stack>
-                            <List dense>
+                            <List dense style={{marginLeft: 20}}>
                                 <ListItem>
                                     <ListItemIcon>
-                                        <CircleIcon />
+                                        <CircleIcon/>
                                     </ListItemIcon>
-                                    {t('weight')} : {data.weight} KG
+                                    {t('weight')} : -- KG
                                 </ListItem>
                                 <ListItem>
                                     <ListItemIcon>
-                                        <CircleIcon />
+                                        <CircleIcon/>
                                     </ListItemIcon>
-                                    {t('height')} : {data.height} CM
+                                    {t('height')} : -- CM
                                 </ListItem>
                                 <ListItem>
                                     <ListItemIcon>
-                                        <CircleIcon />
+                                        <CircleIcon/>
                                     </ListItemIcon>
                                     IMC:
                                 </ListItem>
                                 <ListItem>
                                     <ListItemIcon>
-                                        <CircleIcon />
+                                        <CircleIcon/>
                                     </ListItemIcon>
-                                    {t('temperature')} : {data.temperature}
+                                    {t('temperature')} : --
                                 </ListItem>
                             </List>
                         </CardContent>
@@ -54,22 +59,23 @@ function MotifCard({ data }: any) {
                                 {t('diagonistic')}
                             </Typography>
                             <List dense>
-                                {
+                                {/*{
                                     data.diseases.map((disease: any) => (
                                         <ListItem key={`list-${disease}`}>
                                             <ListItemIcon>
-                                                <CircleIcon />
+                                                <CircleIcon/>
                                             </ListItemIcon>
                                             {t(disease)}
                                         </ListItem>
                                     ))
-                                }
+                                }*/}
                             </List>
                         </CardContent>
                     </Card>
                 </Grid>
 
             </Grid>
+
         </RootStled>
 
     )

@@ -7,7 +7,7 @@ import Icon from "@themes/urlIcon";
 
 function DocumentCard({...props}) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick} = props;
+    const {data, onClick,t} = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -80,7 +80,7 @@ function DocumentCard({...props}) {
                         data.documentType !== "prescription" && "ic-pdf" || ""
                     }/>
                     <Typography variant='subtitle2' fontWeight={700}>
-                        {data.title}
+                        {t(data.title)}
                     </Typography>
                 </Stack>
             </CardContent>
