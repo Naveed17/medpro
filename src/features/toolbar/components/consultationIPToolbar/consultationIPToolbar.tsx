@@ -116,6 +116,10 @@ function ConsultationIPToolbar({...props}) {
                     setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 2);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'balance_sheet_request':
@@ -146,6 +150,10 @@ function ConsultationIPToolbar({...props}) {
                     })
                     setOpenDialog(true);
                     setactions(true)
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'add_a_document':
@@ -207,6 +215,7 @@ function ConsultationIPToolbar({...props}) {
                 break
         }
 
+        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)

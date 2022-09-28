@@ -428,26 +428,6 @@ function ConsultationInProgress() {
                                 <Button style={{marginBottom: 10, marginTop: -10, fontSize: 12}} onClick={() => {
                                     setSize(patient?.nextAppointments.length)
                                 }}>{t('showAll')}</Button>}
-                            <Stack spacing={1} mb={1}>
-                                <Typography variant="body2">
-                                    {t("document_type")}
-                                </Typography>
-                                <FormGroup row>
-                                    {
-                                        filterData.map((item: any, idx: number) =>
-                                            <FormControlLabel
-                                                key={idx}
-                                                control={
-                                                    <Checkbox checked={filter[item]} onChange={handleChange}
-                                                              name={filter[item]}/>
-                                                }
-                                                label={t(item)}
-                                            />
-                                        )
-                                    }
-
-                                </FormGroup>
-                            </Stack>
 
                             <Stack spacing={2}>
                                 {
@@ -530,7 +510,34 @@ function ConsultationInProgress() {
                                                                     sx={{p: 0}}
                                                                 >
                                                                     <Collapse in={collapse === col.id} sx={{width: 1}}>
-                                                                        {col.type}
+                                                                        {col.type === "treatment" && appointement?.latestAppointment && appointement?.latestAppointment.treatments.map((treatment: any, idx: number) => (
+                                                                            <Box key={idx} sx={{
+                                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                                mb: 1,
+                                                                                padding: 2,
+                                                                                borderRadius: 0.7
+                                                                            }}>
+                                                                                <p style={{margin: 0}}>{treatment.name}</p>
+                                                                                <p style={{
+                                                                                    margin: 0,
+                                                                                    color: 'gray',
+                                                                                    fontSize: 12,
+                                                                                    marginLeft: 15
+                                                                                }}>• {treatment.dosage}</p>
+                                                                                <p style={{
+                                                                                    margin: 0,
+                                                                                    color: 'gray',
+                                                                                    fontSize: 12,
+                                                                                    marginLeft: 15
+                                                                                }}>• {treatment.duration} {t(treatment.durationType)}</p>
+                                                                            </Box>
+                                                                        ))}
+                                                                        {col.type === "treatment" && appointement?.latestAppointment == null &&
+                                                                            <p style={{
+                                                                                fontSize: 12,
+                                                                                color: "gray",
+                                                                                textAlign:"center"
+                                                                            }}>Aucun traitement</p>}
                                                                         {/*{
                                                                                     col.type === "treatment" &&
                                                                                     col.drugs?.map((item, i) => (
@@ -694,6 +701,27 @@ function ConsultationInProgress() {
                                 }
                             </Stack>
 
+                            <Stack spacing={1} mb={1} marginTop={3}>
+                                <Typography variant="body2">
+                                    {t("document_type")}
+                                </Typography>
+                                <FormGroup row>
+                                    {
+                                        filterData.map((item: any, idx: number) =>
+                                            <FormControlLabel
+                                                key={idx}
+                                                control={
+                                                    <Checkbox checked={filter[item]} onChange={handleChange}
+                                                              name={filter[item]}/>
+                                                }
+                                                label={t(item)}
+                                            />
+                                        )
+                                    }
+
+                                </FormGroup>
+                            </Stack>
+
                             <Drawer
                                 anchor={"right"}
                                 open={drawer}
@@ -823,8 +851,9 @@ function ConsultationInProgress() {
                                 {
                                     documents.map((card: any, idx) =>
                                         <React.Fragment key={idx}>
-                                            <DocumentCard data={card}  onClick={() => {
+                                            <DocumentCard data={card} onClick={() => {
                                                 if (card.documentType === 'photo') {
+                                                    console.log(card)
                                                     setIsViewerOpen(card.uri)
                                                 } else {
                                                     setInfo('document_detail')

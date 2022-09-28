@@ -92,7 +92,7 @@
     "enter_your_dosage": "Saisir sa posologie",
     "duration": "Durée",
     "day": "Jour",
-    "days": "Jours",
+    "days": "jours",
     "month": "Mois",
     "year": "An",
     "cautionary_note": "Mise en garde",
@@ -170,7 +170,9 @@
     "appointment_date": "Date du RDV",
     "see_details": "Voir détails",
     "prescription": "Ordonnance",
-    "requested-analysis": "Demande analyse"
+    "requested-analysis": "Demande analyse",
+    "years": "Ans",
+    "months": "mois"
 
   },
   "table": {

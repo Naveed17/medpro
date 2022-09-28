@@ -47,7 +47,6 @@ function DocumentDetailDialog({...props}) {
         },
     });
 
-    console.log(state)
     const list = [
         {
             title: 'document_type',
