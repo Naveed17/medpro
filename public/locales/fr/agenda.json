@@ -131,6 +131,8 @@
         "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
+        "family_doctor": "Médecin traitant",
+        "family_doctor-placeholder": "Tapez le nom du médecin traitant",
         "day": "Jour",
         "month": "Mois",
         "year": "Année",

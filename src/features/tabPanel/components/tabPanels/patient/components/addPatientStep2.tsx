@@ -23,7 +23,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 
-export const MyTextInput: any = memo(({...props}) => {
+const MyTextInput: any = memo(({...props}) => {
     return (
         <TextField {...props}/>
     );
@@ -31,7 +31,7 @@ export const MyTextInput: any = memo(({...props}) => {
 MyTextInput.displayName = "TextField";
 
 function AddPatientStep2({...props}) {
-    const {onNext, t, onAddPatient} = props;
+    const {onNext, selectedPatient, t} = props;
     const router = useRouter();
     const {data: session, status} = useSession();
     const [loading, setLoading] = useState<boolean>(status === "loading");
@@ -40,16 +40,20 @@ function AddPatientStep2({...props}) {
         email: Yup.string().email("Invalid email")
     });
 
+    const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
         initialValues: {
-            country: "",
-            region: "",
-            zip_code: "",
-            address: "",
-            email: "",
-            cin: "",
-            from: "",
-            insurance: [] as {
+            country: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.country,
+            region: address.length > 0 ? address[0]?.state?.uuid : stepsData.step2.region,
+            zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
+            address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
+            email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
+            cin: selectedPatient ? selectedPatient?.cin : stepsData.step2.cin,
+            family_doctor: selectedPatient ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
+            insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => ({
+                insurance_number: insurance.insuranceNumber,
+                insurance_uuid: insurance.insurance.uuid
+            })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
             }[]
@@ -86,11 +90,7 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: httpAddPatientResponse, trigger} = useRequestMutation(
-        null,
-        "add-patient",
-        {revalidate: false, populateCache: false}
-    );
+    const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
 
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
@@ -119,25 +119,26 @@ function AddPatientStep2({...props}) {
         }));
         form.append('insurance', JSON.stringify(values.insurance));
         form.append('email', values.email);
+        form.append('family_doctor', values.family_doctor);
+        form.append('region', values.region);
+        form.append('zip_code', values.zip_code);
         setLoading(true);
-        trigger(
-            {
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-                data: form
-            }, TriggerWithoutValidation
-        ).then((res: any) => {
-            const {data} = res;
-            const {status} = data;
-            setLoading(false);
-            if (status === "success") {
-                onNext(2);
-                onAddPatient();
-            }
-        });
+        triggerAddPatient({
+            method: selectedPatient ? "PUT" : "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+            data: form
+        }, TriggerWithoutValidation).then(
+            (res: any) => {
+                const {data} = res;
+                const {status} = data;
+                setLoading(false);
+                if (status === "success") {
+                    onNext(2);
+                }
+            });
     };
 
     const handleAddInsurance = () => {
@@ -290,7 +291,9 @@ function AddPatientStep2({...props}) {
                                 {t("add-patient.assurance")}
                             </Typography>
                             <Box>
-                                {values.insurance.map((val, index: number) => (
+                                {values.insurance.map((
+                                    val: { insurance_number: string; insurance_uuid: string; },
+                                    index: number) => (
                                     <Grid
                                         key={index}
                                         container
@@ -307,14 +310,13 @@ function AddPatientStep2({...props}) {
                                                     sx={{color: "text.secondary"}}
                                                     renderValue={(selected) => {
                                                         if (selected.length === 0) {
-                                                            return <em>{t("assurance-placeholder")}</em>;
+                                                            return <em>{t("add-patient.assurance-placeholder")}</em>;
                                                         }
-
                                                         const insurance = insurances?.find(insurance => insurance.uuid === selected);
                                                         return <Typography>{insurance?.name}</Typography>
                                                     }}
                                                 >
-                                                    {insurances.map(insurance => (
+                                                    {insurances?.map(insurance => (
                                                         <MenuItem
                                                             key={insurance.uuid}
                                                             value={insurance.uuid}>
@@ -392,15 +394,15 @@ function AddPatientStep2({...props}) {
                         </Box>
                         <Box>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("add-patient.from")}
+                                {t("add-patient.family_doctor")}
                             </Typography>
                             <TextField
-                                placeholder={t("add-patient.from-placeholder")}
+                                placeholder={t("add-patient.family_doctor-placeholder")}
                                 type="text"
                                 variant="outlined"
                                 size="small"
                                 fullWidth
-                                {...getFieldProps("from")}
+                                {...getFieldProps("family_doctor")}
                             />
                         </Box>
                     </Stack>

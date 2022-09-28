@@ -31,7 +31,7 @@ function AddPatientStep1({...props}) {
         OnSubmit = null,
         selectedPatient,
         translationKey = "patient",
-        translationPrefix = "add-patient",
+        translationPrefix = "config.add-patient",
     } = props;
     const {stepsData} = useAppSelector(addPatientSelector);
     const dispatch = useAppDispatch();
@@ -70,28 +70,28 @@ function AddPatientStep1({...props}) {
     const formik = useFormik({
         initialValues: {
             patient_group: stepsData.step1.patient_group,
-            first_name: Boolean(selectedPatient)
+            first_name: selectedPatient
                 ? selectedPatient.firstName
                 : stepsData.step1.first_name,
-            last_name: Boolean(selectedPatient)
+            last_name: selectedPatient
                 ? selectedPatient.lastName
                 : stepsData.step1.last_name,
-            birthdate: Boolean(selectedPatient)
+            birthdate: selectedPatient
                 ? {
                     day: selectedPatient.birthdate.split("-")[0] as string,
                     month: selectedPatient.birthdate.split("-")[1] as string,
                     year: selectedPatient.birthdate.split("-")[2] as string,
                 }
                 : stepsData.step1.birthdate,
-            phone: stepsData.step1.phone,
-            gender: Boolean(selectedPatient)
-                ? selectedPatient.gender
+            phone: selectedPatient?.contact.find((contact: ContactModel) => contact.type === "phone") ?
+                selectedPatient?.contact.find((contact: ContactModel) => contact.type === "phone").value : "",
+            gender: selectedPatient
+                ? selectedPatient.gender === "M" ? "1" : "2"
                 : stepsData.step1.gender,
         },
         validationSchema: RegisterSchema,
         onSubmit: async (values) => {
             handleChange(null, values);
-
             if (OnSubmit) {
                 OnSubmit(values);
             }
@@ -356,7 +356,7 @@ function AddPatientStep1({...props}) {
                         </Grid>
                         {touched.phone && errors.phone && (
                             <FormHelperText error sx={{px: 2, mx: 0}}>
-                                {touched.phone && errors.phone}
+                                {touched.phone as any && errors.phone as any}
                             </FormHelperText>
                         )}
                     </Box>

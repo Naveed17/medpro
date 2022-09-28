@@ -1,7 +1,7 @@
 import {Box, Button, Divider, Paper, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {PatientdetailsCard} from "@features/card";
+import {PatientDetailsCard} from "@features/card";
 import {
     DocumentsPanel,
     Instruction,
@@ -49,6 +49,7 @@ function PatientDetail({...props}) {
         onCloseDialog,
         onChangeStepper,
         onAddAppointment,
+        onConsultation = null
     } = props;
 
     const stepperData = [
@@ -110,10 +111,10 @@ function PatientDetail({...props}) {
                             onCloseDialog(false);
                         }}
                     />
-                    <PatientdetailsCard
+                    <PatientDetailsCard
                         loading={!patient}
                         patient={patient}
-                        Onconsultation={ConsultationId}
+                        onConsultation={onConsultation}
                     />
                     <Box
                         sx={{

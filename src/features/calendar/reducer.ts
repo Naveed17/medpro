@@ -13,7 +13,7 @@ export type CalendarProps = {
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     currentDate: { date: Date, fallback: boolean };
-    selectedEvent: EventDef | null
+    selectedEvent: EventDef | null;
 };
 
 const initialState: CalendarProps = {

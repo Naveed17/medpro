@@ -23,7 +23,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment from "moment-timezone";
@@ -34,7 +34,6 @@ import {
     AppointmentStatus,
     DayOfWeek,
     openDrawer,
-    setConfig,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -47,7 +46,7 @@ import {
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -105,6 +104,7 @@ function Agenda() {
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive} = useAppSelector(timerSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [
         timeRange,
@@ -129,17 +129,7 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    }, SWRNoValidateConfig);
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data
-        .find((item: AgendaConfigurationModel) =>
-            item.isDefault) as AgendaConfigurationModel;
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
     const {
@@ -177,7 +167,7 @@ function Agenda() {
         setLoading(true);
         trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -241,12 +231,6 @@ function Agenda() {
             setLoading(false);
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
-
-    useEffect(() => {
-        if (agenda) {
-            dispatch(setConfig(agenda));
-        }
-    }, [agenda, dispatch])
 
     useEffect(() => {
         if (filter?.type && timeRange.start !== "" ||
@@ -343,6 +327,10 @@ function Agenda() {
                 } else {
                     setError(true);
                 }
+                break;
+            case "onConsultationView":
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
                 setEvent(event);
@@ -460,7 +448,7 @@ function Agenda() {
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -484,7 +472,7 @@ function Agenda() {
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -606,11 +594,11 @@ function Agenda() {
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
-                    visibility: !httpAgendasResponse || !httpAppointmentResponse || loading ? "visible" : "hidden"
+                    visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
                 <DesktopContainer>
                     <>
-                        {httpAgendasResponse &&
+                        {agenda &&
                             <AnimatePresence exitBeforeEnter>
                                 <motion.div
                                     initial={{opacity: 0}}
@@ -740,7 +728,7 @@ function Agenda() {
                                 onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
-                                ConsultationId={event?.publicId}
+                                onConsultation={() => onMenuActions('onConsultationDetail', event)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>

@@ -5,7 +5,7 @@ import {onAddPatient} from "@features/tabPanel";
 import {useTheme} from "@mui/material";
 
 function AddPatientStep3({...props}) {
-    const {onNext} = props;
+    const {onNext, selectedPatient} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
 
@@ -22,12 +22,12 @@ function AddPatientStep3({...props}) {
         gender: "1",
     };
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "add-patient"});
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
     if (!ready) return <>loading translations...</>;
     return (
         <SuccessCard
             data={{
-                title: t("added"),
+                title: t(!selectedPatient ? "added" : "updated"),
                 description: t("description"),
                 buttons: [
                     {

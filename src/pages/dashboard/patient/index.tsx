@@ -28,23 +28,29 @@ import {DashLayout} from "@features/base";
 import {CustomStepper} from "@features/customStepper";
 import {useRequest} from "@app/axios";
 
-// icons
-import {AddRDVStep1, AddRDVStep2, AddRDVStep3} from "@features/tabPanel";
+import {
+    AddPatientStep1,
+    AddPatientStep2,
+    AddPatientStep3, onResetPatient,
+} from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {PatientDetail} from "@features/dialog";
 
 const stepperData = [
     {
-        title: "tabs.time-slot",
-        children: AddRDVStep1,
+        title: "tabs.personal-info",
+        children: AddPatientStep1,
+        disabled: false,
     },
     {
-        title: "tabs.advice",
-        children: AddRDVStep2,
+        title: "tabs.additional-information",
+        children: AddPatientStep2,
+        disabled: true,
     },
     {
-        title: "tabs.end",
-        children: AddRDVStep3,
+        title: "tabs.fin",
+        children: AddPatientStep3,
+        disabled: true,
     },
 ];
 
@@ -124,8 +130,7 @@ function Patient() {
     const router = useRouter();
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {
         data: httpPatientsResponse,
@@ -145,23 +150,30 @@ function Patient() {
 
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
-
-    // useEffect hook for handling the table action drawer
-    useEffect(() => {
-        if (patientId && patientAction === "PATIENT_DETAILS") {
-            setPatientDetailDrawer(true);
-        }
-    }, [patientId, patientAction]);
-
-    const selectedPatient =
-        patientAction === "EDIT_PATIENT"
-            ? (httpPatientsResponse as HttpResponse)?.data?.list.filter(
-                (val: any) => val.uuid === patientId
-            )[0]
-            : "";
+    const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+
+    const submitStepper = (index: number) => {
+        if (index === 2) {
+            dispatch(onResetPatient())
+            mutate();
+        }
+    }
+
+    const handleTableActions = (action: string, event: PatientModel) => {
+        switch (action) {
+            case "PATIENT_DETAILS":
+                setPatientDetailDrawer(true);
+                break;
+            case "EDIT_PATIENT":
+                setSelectedPatient(event);
+                setPatientDrawer(true);
+                break;
+        }
+    }
 
     if (!ready) return <>loading translations...</>;
 
@@ -169,14 +181,17 @@ function Patient() {
         <>
             <SubHeader>
                 <PatientToolbar
-                    onAddPatient={() => mutate()}
-                    selectedPatient={selectedPatient}
+                    onAddPatient={() => {
+                        setSelectedPatient(null);
+                        setPatientDrawer(true);
+                    }}
                 />
             </SubHeader>
             <Box className="container">
                 <Box display={{xs: "none", md: "block"}}>
                     <Otable
                         headers={headCells}
+                        handleEvent={handleTableActions}
                         rows={(httpPatientsResponse as HttpResponse)?.data?.list}
                         from={"patient"}
                         t={t}
@@ -193,30 +208,31 @@ function Patient() {
                     ready={ready}
                     PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
                 />
-                <Drawer
-                    anchor={"right"}
-                    open={patientDetailDrawer}
-                    dir={direction}
-                    onClose={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
-                        setPatientDetailDrawer(false);
-                    }}
-                >
-                    {!isAddAppointment && (
-                        <PatientDetail
-                            onCloseDialog={() => {
-                                dispatch(onOpenPatientDrawer({patientId: ""}));
-                                setPatientDetailDrawer(false);
-                            }}
-                            onChangeStepper={(index: number) =>
-                                console.log("onChangeStepper", index)
-                            }
-                            onAddAppointment={() => console.log("onAddAppointment")}
-                            ConsultationId=""
-                            patientId={patientId}
-                        />
-                    )}
-{/*                    <Zoom in={isAddAppointment}>
+            </Box>
+            <Drawer
+                anchor={"right"}
+                open={patientDetailDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    setPatientDetailDrawer(false);
+                }}
+            >
+                {!isAddAppointment && (
+                    <PatientDetail
+                        onCloseDialog={() => {
+                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            setPatientDetailDrawer(false);
+                        }}
+                        onChangeStepper={(index: number) =>
+                            console.log("onChangeStepper", index)
+                        }
+                        onAddAppointment={() => console.log("onAddAppointment")}
+                        ConsultationId=""
+                        patientId={patientId}
+                    />
+                )}
+                {/*                    <Zoom in={isAddAppointment}>
                         <Box
                             height={isAddAppointment ? "100%" : 0}
                             sx={{
@@ -238,8 +254,43 @@ function Patient() {
                             />
                         </Box>
                     </Zoom>*/}
-                </Drawer>
-            </Box>
+            </Drawer>
+            <Drawer
+                anchor={"right"}
+                open={patientDrawer}
+                dir={direction}
+                onClose={() => {
+                    setPatientDrawer(false);
+                    dispatch(
+                        onOpenPatientDrawer({
+                            patientId: "",
+                            patientAction: "",
+                        })
+                    );
+                }}
+                sx={{
+                    "& .MuiTabs-root": {
+                        position: "sticky",
+                        top: 0,
+                        bgcolor: (theme) => theme.palette.background.paper,
+                        zIndex: 11,
+                    },
+                }}
+            >
+                <CustomStepper
+                    translationKey="patient"
+                    prefixKey="add-patient"
+                    stepperData={stepperData}
+                    OnSubmitStepper={submitStepper}
+                    scroll
+                    t={t}
+                    minWidth={648}
+                    selectedPatient={selectedPatient}
+                    onClose={() => {
+                        setPatientDrawer(false);
+                    }}
+                />
+            </Drawer>
         </>
     );
 }
