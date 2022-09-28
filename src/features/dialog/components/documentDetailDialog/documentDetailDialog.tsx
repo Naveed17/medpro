@@ -24,11 +24,7 @@ import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
-import Header from "@features/files/components/header/header";
-import {Certificat} from "@features/files/components/certificat";
-import {Prescription} from "@features/files/components/prescription";
-import {RequestedAnalysis} from "@features/files/components/requested-analysis";
-import {Fees} from "@features/files/components/fees";
+import {Certificat, Prescription, RequestedAnalysis, Fees, Header} from "@features/files";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
