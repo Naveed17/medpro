@@ -131,6 +131,22 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
         fontWeight: 700,
       }
     }
+  },
+  '&.payment-dialog-row': {
+    svg: {
+      width: 10,
+      height: 10,
+      path: {
+        fill: theme.palette.text.primary
+      }
+    },
+    '.ic-card': {
+      svg: {
+        width: 20,
+        height: 20,
+
+      },
+    }
   }
 }));
 export default TableRowStyled;

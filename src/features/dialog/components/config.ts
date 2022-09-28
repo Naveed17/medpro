@@ -187,6 +187,14 @@ const dialogData = [
                 (mod) => mod
             )
         ),
+    },
+    {
+        action: "payment_dialog",
+        component: dynamic((): any =>
+            import("@features/dialog/components/paymentDialog/paymentDialog").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 

@@ -1,4 +1,12 @@
 {
+    "path": "Caisse",
+    "total": "Total",
+    "btn_header_1": "Dépense",
+    "btn_header_2": "Alimenter",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "dialog_title": "Ajouter un paiement",
+    "btn_remain": "Reste a payé",
     "table": {
         "date": "Date",
         "time": "Heure",
@@ -13,6 +21,7 @@
         "yes": "Oui",
         "no": "Non",
         "credit_card": "Carte bancaire",
-        "cheque": "Chéque"
+        "cheque": "Chéque",
+        "method": "Méthode"
     }
 }

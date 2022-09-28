@@ -8,7 +8,7 @@ import editProfile from '../../public/locales/fr/editProfile.json'
 import settings from '../../public/locales/fr/settings.json'
 import patient from "../../public/locales/fr/patient.json";
 import consultation from "../../public/locales/fr/consultation.json";
-import caisse from "../../public/locales/fr/caisse.json";
+import payment from "../../public/locales/fr/payment.json";
 
 export interface Resources {
     common: typeof common
@@ -19,6 +19,6 @@ export interface Resources {
     settings: typeof settings
     patient: typeof patient;
     consultation: typeof consultation;
-    caisse: typeof caisse
+    payment: typeof payment
     // as many as files you have
 }

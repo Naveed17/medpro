@@ -40,7 +40,7 @@ function Otable({ ...props }) {
     handleChange,
     t,
     from,
-      select = [],
+    select = [],
     edit,
     handleConfig,
     minWidth,
@@ -51,6 +51,7 @@ function Otable({ ...props }) {
     loading,
     totalPages,
     total,
+    sx,
     ...rest
   } = props;
   // const router = useRouter();
@@ -115,7 +116,8 @@ function Otable({ ...props }) {
       <TableContainer sx={{ maxHeight: `calc(100vh - 220px)` }}>
         <Table
           stickyHeader
-          sx={{ minWidth: minWidth }}
+          sx={{ minWidth: minWidth, ...sx }}
+
           aria-labelledby="tableTitle"
           size={"medium"}
         >
