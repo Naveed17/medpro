@@ -1,5 +1,5 @@
 import {createReducer} from "@reduxjs/toolkit";
-import {onAddPatient} from "./actions";
+import {onAddPatient, onResetPatient} from "./actions";
 import AddPatient from "@interfaces/AddPatient";
 
 export type MenuState = {
@@ -22,12 +22,13 @@ const initialState: MenuState = {
             gender: "1"
         },
         step2: {
+            country: "",
             region: "",
-            zip_code: "12345",
+            zip_code: "",
             address: "",
             email: "",
             cin: "",
-            from: "",
+            family_doctor: "",
             insurance: [],
         },
         step3: {},
@@ -37,5 +38,7 @@ const initialState: MenuState = {
 export const addPatientReducer = createReducer(initialState, (builder) => {
     builder.addCase(onAddPatient, (state, action) => {
         state.stepsData = action.payload;
+    }).addCase(onResetPatient, (state, action) => {
+        return {...state, ...initialState}
     });
 });
