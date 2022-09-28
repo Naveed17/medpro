@@ -144,6 +144,8 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
 })
 export default Questions
 
+Questions.auth = true;
+
 Questions.getLayout = function getLayout(page: ReactElement) {
     return (
         <DashLayout>
