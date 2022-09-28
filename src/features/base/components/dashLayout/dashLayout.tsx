@@ -9,9 +9,7 @@ import {useEffect} from "react";
 import {setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 
-const SideBarMenu = dynamic(
-    () => import("@features/sideBarMenu/components/sideBarMenu")
-);
+const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 const variants = {
     hidden: {opacity: 0},
     enter: {opacity: 1},
@@ -25,9 +23,10 @@ function DashLayout({children}: LayoutProps) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+
+    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest( {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }

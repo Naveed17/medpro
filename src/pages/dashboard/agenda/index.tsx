@@ -23,7 +23,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment from "moment-timezone";
@@ -34,7 +34,6 @@ import {
     AppointmentStatus,
     DayOfWeek,
     openDrawer,
-    setConfig,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -47,7 +46,7 @@ import {
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -129,7 +128,6 @@ function Agenda() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
 
 
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
@@ -329,6 +327,10 @@ function Agenda() {
                 } else {
                     setError(true);
                 }
+                break;
+            case "onConsultationView":
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
                 setEvent(event);
