@@ -228,7 +228,6 @@ function Patient() {
                             console.log("onChangeStepper", index)
                         }
                         onAddAppointment={() => console.log("onAddAppointment")}
-                        ConsultationId=""
                         patientId={patientId}
                     />
                 )}
