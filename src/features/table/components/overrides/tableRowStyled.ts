@@ -142,8 +142,8 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
     },
     '.ic-card': {
       svg: {
-        width: 20,
-        height: 20,
+        width: 14,
+        height: 14,
 
       },
     }
