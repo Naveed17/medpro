@@ -57,6 +57,7 @@
     "consultation_form": "Consultation en cours",
     "medical_procedures": "Note d'honoraires",
     "end_of_consultation": "Fin de consultation",
+    "edit_of_consultation": "Modifier consultation",
     "consultation": "Consultation",
     "reason": "Motif",
     "edit": "Modifier",
@@ -92,7 +93,7 @@
     "enter_your_dosage": "Saisir sa posologie",
     "duration": "Durée",
     "day": "Jour",
-    "days": "Jours",
+    "days": "jours",
     "month": "Mois",
     "year": "An",
     "cautionary_note": "Mise en garde",
@@ -170,7 +171,9 @@
     "appointment_date": "Date du RDV",
     "see_details": "Voir détails",
     "prescription": "Ordonnance",
-    "requested-analysis": "Demande analyse"
+    "requested-analysis": "Demande analyse",
+    "years": "Ans",
+    "months": "mois"
 
   },
   "table": {

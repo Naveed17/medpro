@@ -70,6 +70,7 @@ function ConsultationIPToolbar({...props}) {
         pendingDocuments,
         dialog,
         setDialog,
+        appointement,
         selectedAct,
         selectedModel
     } = props;
@@ -116,6 +117,10 @@ function ConsultationIPToolbar({...props}) {
                     setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 2);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'balance_sheet_request':
@@ -146,6 +151,10 @@ function ConsultationIPToolbar({...props}) {
                     })
                     setOpenDialog(true);
                     setactions(true)
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'add_a_document':
@@ -207,6 +216,7 @@ function ConsultationIPToolbar({...props}) {
                 break
         }
 
+        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)
@@ -367,7 +377,7 @@ function ConsultationIPToolbar({...props}) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{width: {xs: '100%', md: '80%'}}}
+                        sx={{width: {xs: '70%', md: '70%'}}}
                         variant={isMobile ? "scrollable" : 'standard'}
                         allowScrollButtonsMobile={isMobile}
                         textColor="primary"
@@ -399,8 +409,8 @@ function ConsultationIPToolbar({...props}) {
 
 
                     }} className="action-button">
-                        {!loading && <Icon path="ic-check"/>}
-                        {t("end_of_consultation")}
+                        {!loading && appointement?.status ==5 ?<Icon path="ic-edit"/>:<Icon path="ic-check"/>}
+                        {appointement?.status ==5 ?t("edit_of_consultation") : t("end_of_consultation")}
                     </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>

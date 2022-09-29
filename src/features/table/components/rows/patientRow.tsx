@@ -5,7 +5,7 @@ import {
     Checkbox,
     Button,
     IconButton,
-    Skeleton
+    Skeleton, Stack
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -57,18 +57,34 @@ function PatientRow({...props}) {
                                 alignItems: "center",
                                 svg: {mr: 0.5},
                             }}
-                            color="primary"
-                        >
+                            color="primary">
                             {loading ? (
                                 <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
                                     {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
-                                    <Typography>{row.firstName} {row.lastName}</Typography>
+                                    <Stack marginLeft={2}>
+                                        <Typography>{row.firstName} {row.lastName}</Typography>
+                                        <Typography
+                                            variant="body2"
+                                            component="span"
+                                            color="text.secondary"
+                                            className="text-time"
+                                        >
+                                            {loading ? (
+                                                <Skeleton variant="text" width={100}/>
+                                            ) : (
+                                                <>
+                                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
+                                                    {moment().diff(new Date(row.birthdate), "years")} ans
+                                                </>
+                                            )}
+                                        </Typography>
+                                    </Stack>
                                 </>
                             )}
                         </Typography>
-                        <Typography
+                        {/*<Typography
                             variant="body2"
                             component="span"
                             color="text.secondary"
@@ -82,7 +98,7 @@ function PatientRow({...props}) {
                                     {moment().diff(new Date(row.birthdate), "years")} ans
                                 </>
                             )}
-                        </Typography>
+                        </Typography>*/}
                     </Box>
                 </Box>
             </TableCell>
@@ -100,17 +116,17 @@ function PatientRow({...props}) {
                     )}
                 </Box>
             </TableCell>
-            <TableCell>
+            {/*<TableCell>
                 {loading ? <Skeleton variant="text"/> : (
                     row.address[0] ? <Typography>{row.address[0].city.name}, {row.address[0].street}</Typography> : "-"
                 ) || "-"}
-            </TableCell>
+            </TableCell>*/}
             <TableCell>
                 <Box display="flex" alignItems="center">
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
                     ) : row.nextAppointment?.dayDate ? (
-                        <>
+                        <Stack direction={"row"} margin={"auto"}>
                             <IconButton size="small">
                                 <Icon path="ic-historique"/>
                             </IconButton>
@@ -145,12 +161,13 @@ function PatientRow({...props}) {
                                     </>
                                 </Typography>
                             </Box>
-                        </>
+                        </Stack>
                     ) : (
                         <Button
                             variant="text"
                             size="small"
                             color="primary"
+                            style={{margin: "auto"}}
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{position: "relative"}}
                         >
@@ -159,8 +176,8 @@ function PatientRow({...props}) {
                     )}
                 </Box>
             </TableCell>
-            <TableCell>
-                <Box display="flex" alignItems="center">
+            <TableCell align={"center"}>
+                <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
                     ) : row.nextAppointment?.dayDate ? (
@@ -213,22 +230,20 @@ function PatientRow({...props}) {
                             component="span"
                             className="next-appointment"
                             variant="body2"
-                            color="text.primary"
-                        >
+                            align={"center"}
+                            margin={"auto"}
+                            color="text.primary">
                             --
                         </Typography>
                     )}
                 </Box>
             </TableCell>
 
-            <TableCell
-                align="right"
-                sx={{
+            <TableCell align="right" sx={{
                     display: "flex",
                     alignItems: "center",
                     minHeight: "58.85px",
-                }}
-            >
+                }}>
                 {loading ? (
                     <>
                         <Skeleton
@@ -242,15 +257,6 @@ function PatientRow({...props}) {
                     </>
                 ) : (
                     <>
-                        <IconButton
-                            size="small"
-                            sx={{
-                                ml: 0.6,
-                                path: {fill: (theme) => theme.palette.common.black},
-                            }}
-                        >
-                            <Icon path="ic-autre2"/>
-                        </IconButton>
                         <Box className="lg-down">
                             <Button
                                 onClick={(e) => {
@@ -271,7 +277,6 @@ function PatientRow({...props}) {
                                 size="small"
                                 sx={{
                                     ml: 0.6,
-                                    color: (theme) => theme.palette.common.black,
                                     path: {fill: (theme) => theme.palette.common.black},
                                 }}
                                 onClick={(e) => {
@@ -283,7 +288,7 @@ function PatientRow({...props}) {
                                         })
                                     );
                                 }}
-                                startIcon={<Icon path="/ic-edit"/>}
+                                startIcon={<Icon path="setting/edit"/>}
                             >
                                 {t("table.edit")}
                             </Button>
@@ -316,9 +321,8 @@ function PatientRow({...props}) {
                                     handleEvent("EDIT_PATIENT", row);
                                 }}
                                 size="small"
-                                className="edit-icon-button"
                             >
-                                <Icon path="/ic-edit"/>
+                                <Icon path="setting/edit"/>
                             </IconButton>
                         </Box>
                     </>

@@ -25,6 +25,7 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
 import {Certificat, Prescription, RequestedAnalysis, Fees, Header} from "@features/files";
+import moment from "moment/moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -47,7 +48,6 @@ function DocumentDetailDialog({...props}) {
         },
     });
 
-    console.log(state)
     const list = [
         {
             title: 'document_type',
@@ -64,7 +64,7 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: 'created_on',
-            value: '12/05/2002',
+            value: moment().format("DD/MM/YYYY"),
         }
     ]
 
