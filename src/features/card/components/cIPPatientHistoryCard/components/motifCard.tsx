@@ -6,8 +6,8 @@ import CircleIcon from '@mui/icons-material/Circle';
 
 function MotifCard({...props}) {
     const {data} = props;
-    const models = data.appointmentData.find((appData: { type: string }) => appData.type === 'models')
-    const notmodels = data.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
+    const models = data?.appointmentData.find((appData: { type: string }) => appData.type === 'models')
+    const notmodels = data?.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
 
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'consultationIP'})
     if (!ready) return <>loading translations...</>

@@ -79,6 +79,7 @@ function ConsultationIPToolbar({...props}) {
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const ginfo = (session?.data as UserDataResponse).general_information
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -86,6 +87,7 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
@@ -178,6 +180,34 @@ function ConsultationIPToolbar({...props}) {
                 setOpenDialog(true);
                 setactions(true)
                 break;
+            case 'write_certif':
+                console.log('write_certif', state)
+                form.append("content", state.content)
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then(() => {
+                    mutateDoc()
+                    setInfo('document_detail')
+                    setInfo('document_detail')
+                    setState({
+                        content: state.content,
+                        doctor: state.name,
+                        patient: state.patient,
+                        days: state.days,
+                        name: 'certif',
+                        type: 'write_certif'
+                    })
+                    setOpenDialog(true);
+                    setactions(true)
+                });
+
+
+                break;
         }
 
         setOpenDialog(false);
@@ -234,8 +264,14 @@ function ConsultationIPToolbar({...props}) {
                 setState(checkUp)
                 break;
             case "write_certif":
-                setInfo('document_detail')
-                setState({type: 'write_certif'})
+                console.log(appointement)
+                setInfo('write_certif')
+                setState({
+                    name: ginfo.firstName + ' ' + ginfo.lastName,
+                    days: 19,
+                    content: '',
+                    patient: appointement.patient.firstName + ' ' + appointement.patient.lastName
+                })
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -409,8 +445,8 @@ function ConsultationIPToolbar({...props}) {
 
 
                     }} className="action-button">
-                        {!loading && appointement?.status ==5 ?<Icon path="ic-edit"/>:<Icon path="ic-check"/>}
-                        {appointement?.status ==5 ?t("edit_of_consultation") : t("end_of_consultation")}
+                        {!loading && appointement?.status == 5 ? <Icon path="ic-edit"/> : <Icon path="ic-check"/>}
+                        {appointement?.status == 5 ? t("edit_of_consultation") : t("end_of_consultation")}
                     </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>
