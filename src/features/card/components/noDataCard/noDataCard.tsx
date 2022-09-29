@@ -8,7 +8,7 @@ export default function AddAppointmentCard({...props}) {
         mainIcon,
         title,
         description,
-        buttonText,
+        buttonText = null,
         buttonIcon,
         buttonVariant,
     } = data;
@@ -26,13 +26,13 @@ export default function AddAppointmentCard({...props}) {
             <Typography variant="body2" color="#00234B" mb={3}>
                 {t(description, {ns})}
             </Typography>
-            {/*<Button
+            {buttonText && <Button
                 variant="contained"
                 color={buttonVariant}
                 startIcon={<Icon path={buttonIcon}/>}
             >
                 {t(buttonText, {ns})}
-            </Button>*/}
+            </Button>}
         </RootStyled>
     );
 }

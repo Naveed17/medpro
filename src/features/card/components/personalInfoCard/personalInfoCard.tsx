@@ -57,7 +57,7 @@ const data = {
 function PersonalInfo({...props}) {
     const {patient, loading} = props;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
-    console.log(patient);
+
     if (!ready) return <div>Loading...</div>;
     return (
         <Box>
