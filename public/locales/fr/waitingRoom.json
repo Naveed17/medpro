@@ -42,6 +42,8 @@
     "room": "salle",
     "start_the_consultation": "Commencer la consultation",
     "leave_waiting_room": "Quitter la salle d'attente",
+    "empty": "Aucun patient dans salle d'attente",
+    "desc": "Selectionner RDV et ajouter le patient dans salle d'attente",
     "table": {
       "Id": "Id",
       "arrival time": "heure d'arrivée",
