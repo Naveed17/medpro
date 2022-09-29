@@ -70,6 +70,7 @@ function ConsultationIPToolbar({...props}) {
         pendingDocuments,
         dialog,
         setDialog,
+        appointement,
         selectedAct,
         selectedModel
     } = props;
@@ -78,6 +79,7 @@ function ConsultationIPToolbar({...props}) {
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const ginfo = (session?.data as UserDataResponse).general_information
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -85,6 +87,7 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
@@ -116,6 +119,10 @@ function ConsultationIPToolbar({...props}) {
                     setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 2);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'balance_sheet_request':
@@ -146,6 +153,10 @@ function ConsultationIPToolbar({...props}) {
                     })
                     setOpenDialog(true);
                     setactions(true)
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'add_a_document':
@@ -168,6 +179,34 @@ function ConsultationIPToolbar({...props}) {
                 });
                 setOpenDialog(true);
                 setactions(true)
+                break;
+            case 'write_certif':
+                console.log('write_certif', state)
+                form.append("content", state.content)
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then(() => {
+                    mutateDoc()
+                    setInfo('document_detail')
+                    setInfo('document_detail')
+                    setState({
+                        content: state.content,
+                        doctor: state.name,
+                        patient: state.patient,
+                        days: state.days,
+                        name: 'certif',
+                        type: 'write_certif'
+                    })
+                    setOpenDialog(true);
+                    setactions(true)
+                });
+
+
                 break;
         }
 
@@ -207,6 +246,7 @@ function ConsultationIPToolbar({...props}) {
                 break
         }
 
+        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)
@@ -224,8 +264,14 @@ function ConsultationIPToolbar({...props}) {
                 setState(checkUp)
                 break;
             case "write_certif":
-                setInfo('document_detail')
-                setState({type: 'write_certif'})
+                console.log(appointement)
+                setInfo('write_certif')
+                setState({
+                    name: ginfo.firstName + ' ' + ginfo.lastName,
+                    days: 19,
+                    content: '',
+                    patient: appointement.patient.firstName + ' ' + appointement.patient.lastName
+                })
                 break;
             case "upload_document":
                 setInfo('add_a_document')
@@ -367,7 +413,7 @@ function ConsultationIPToolbar({...props}) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{width: {xs: '100%', md: '80%'}}}
+                        sx={{width: {xs: '70%', md: '70%'}}}
                         variant={isMobile ? "scrollable" : 'standard'}
                         allowScrollButtonsMobile={isMobile}
                         textColor="primary"
@@ -399,8 +445,8 @@ function ConsultationIPToolbar({...props}) {
 
 
                     }} className="action-button">
-                        {!loading && <Icon path="ic-check"/>}
-                        {t("end_of_consultation")}
+                        {!loading && appointement?.status == 5 ? <Icon path="ic-edit"/> : <Icon path="ic-check"/>}
+                        {appointement?.status == 5 ? t("edit_of_consultation") : t("end_of_consultation")}
                     </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>

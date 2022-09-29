@@ -34,7 +34,7 @@ const Content = ({ ...props }) => {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>('');
     const [size, setSize] = useState<string>('sm');
-    const bigDialogs = ['add_treatment', 'balance_sheet_pending'];
+    const bigDialogs = ['add_treatment'];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
     const { mutate } = useAppSelector(consultationSelector);
     const { trigger } = useRequestMutation(null, "/antecedent");

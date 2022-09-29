@@ -18,9 +18,7 @@ import {
     Typography,
     ListItem, Button,
     DialogActions,
-    FormGroup,
-    FormControlLabel,
-    Checkbox, IconButton, List, Icon, Collapse, ListItemIcon
+    IconButton, List, Collapse, ListItemIcon
 } from "@mui/material";
 import {Dialog, openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
@@ -35,11 +33,11 @@ import {
     DocumentCard,
     PendingDocumentCard,
     HistoryCard,
-    NoDataCard, DrugListCard
+    NoDataCard
 } from "@features/card";
 import {Label} from "@features/label";
 import {Otable} from '@features/table';
-import {CIPPatientHistoryCard, CIPPatientHistoryCardData, ConsultationDetailCard, MotifCard} from "@features/card";
+import {CIPPatientHistoryCard, ConsultationDetailCard, MotifCard} from "@features/card";
 import {ModalConsultation} from '@features/modalConsultation';
 import {motion, AnimatePresence} from 'framer-motion';
 import {useRequest} from "@app/axios";
@@ -149,7 +147,7 @@ const EventStepper = [
         disabled: true
     }
 ];
-const filterData = [
+/*const filterData = [
     "all",
     "report",
     "analysis",
@@ -158,7 +156,7 @@ const filterData = [
     "photo",
     "video",
     "audio"
-];
+];*/
 const noCardData = {
     mainIcon: "ic-doc",
     title: "no-data.event.title",
@@ -213,7 +211,9 @@ function ConsultationInProgress() {
             "weight": 0
         }
     });
-    const [filter, setfilter] = useState<any>({});
+    /*
+        const [filter, setfilter] = useState<any>({});
+    */
     const [selectedModel, setSelectedModel] = useState<any>(null);
 
     const {data: session} = useSession();
@@ -232,7 +232,7 @@ function ConsultationInProgress() {
         setInfo(null)
     }
 
-    const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda? {
+    const {data: httpAppResponse, mutate} = useRequest(mpUuid && agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
@@ -254,8 +254,8 @@ function ConsultationInProgress() {
     }, [httpAppResponse])
 
     useEffect(() => {
-        console.log(appointement)
         if (appointement) {
+            console.log(appointement)
             setPatient(appointement.patient);
             setSelectedModel(appointement?.consultation_sheet.modal)
             dispatch(SetPatient(appointement.patient))
@@ -303,22 +303,20 @@ function ConsultationInProgress() {
         setNumPages(numPages);
     }
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setfilter({
-            ...filter,
-            [event.target.name]: event.target.checked,
-        });
-
-    }
+    /*    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            setfilter({
+                ...filter,
+                [event.target.name]: event.target.checked,
+            });
+        }*/
 
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     }
 
     const submitStepper = (index: number) => {
-        if (EventStepper.length !== index) {
+        if (EventStepper.length !== index)
             EventStepper[index].disabled = false;
-        }
     }
 
     const handleCloseDialogAct = () => {
@@ -388,6 +386,7 @@ function ConsultationInProgress() {
                                        pendingDocuments={pendingDocuments}
                                        setPendingDocuments={setPendingDocuments}
                                        dialog={dialog}
+                                       appointement={appointement}
                                        selectedAct={selectedAct}
                                        selectedModel={selectedModel}
                                        documents={documents}
@@ -416,35 +415,14 @@ function ConsultationInProgress() {
                                 <Button style={{marginBottom: 10, marginTop: -10, fontSize: 12}} onClick={() => {
                                     setSize(patient?.nextAppointments.length)
                                 }}>{t('showAll')}</Button>}
-                            <Stack spacing={1} mb={1}>
-                                <Typography variant="body2">
-                                    {t("document_type")}
-                                </Typography>
-                                <FormGroup row>
-                                    {
-                                        filterData.map((item: any, idx: number) =>
-                                            <FormControlLabel
-                                                key={idx}
-                                                control={
-                                                    <Checkbox checked={filter[item]} onChange={handleChange}
-                                                              name={filter[item]}/>
-                                                }
-                                                label={t(item)}
-                                            />
-                                        )
-                                    }
-
-                                </FormGroup>
-                            </Stack>
 
                             <Stack spacing={2}>
                                 {
-
-
                                     <CIPPatientHistoryCard data={appointement?.latestAppointment}>
                                         <Stack spacing={2}>
                                             {appointement &&
-                                                <MotifCard data={appointement?.latestAppointment}/>}
+                                                <MotifCard data={appointement?.latestAppointment}/>
+                                            }
                                             <List dense>
                                                 {
                                                     [
@@ -514,52 +492,119 @@ function ConsultationInProgress() {
                                                                     </IconButton>
                                                                 </ListItem>
 
-                                                                <ListItem
-                                                                    sx={{p: 0}}
-                                                                >
+                                                                <ListItem sx={{p: 0}}>
                                                                     <Collapse in={collapse === col.id} sx={{width: 1}}>
-                                                                        {col.type}
-                                                                        {/*{
-                                                                                    col.type === "treatment" &&
-                                                                                    col.drugs?.map((item, i) => (
-                                                                                        <React.Fragment
-                                                                                            key={`durg-list-${i}`}>
-                                                                                            <DrugListCard data={item} t={t}
-                                                                                                          list/>
-                                                                                        </React.Fragment>
-                                                                                    ))
-                                                                                }
-                                                                                {
-                                                                                    col.type === "document" &&
-                                                                                    <List sx={{py: 0}}>
-                                                                                        {
-                                                                                            col.documents?.map((item, i) => (
-                                                                                                <ListItem
-                                                                                                    key={`doc-list${i}`}
-                                                                                                    sx={{
-                                                                                                        bgcolor: theme => theme.palette.grey['A100'],
-                                                                                                        mb: 1,
-                                                                                                        borderRadius: 0.7
-                                                                                                    }}>
-                                                                                                    <Typography
-                                                                                                        variant='body2'
-                                                                                                        display='flex'
-                                                                                                        alignItems="center">
-                                                                                                        <CircleIcon sx={{
-                                                                                                        fontSize: 5,
-                                                                                                        mr: 1
-                                                                                                    }}/> {item}
-                                                                                                    </Typography>
-                                                                                                    <IconButton size="small"
-                                                                                                                sx={{ml: 'auto'}}>
-                                                                                                        <IconUrl
-                                                                                                            path="ic-document"/>
-                                                                                                    </IconButton>
-                                                                                                </ListItem>
-                                                                                            ))
-                                                                                        }
-                                                                                    </List>
-                                                                                }*/}
+                                                                        {col.type === "treatment" && appointement?.latestAppointment && appointement?.latestAppointment.treatments.map((treatment: any, idx: number) => (
+                                                                            <Box key={`list-treatement-${idx}`} sx={{
+                                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                                mb: 1,
+                                                                                padding: 2,
+                                                                                borderRadius: 0.7
+                                                                            }}>
+                                                                                <p style={{
+                                                                                    margin: 0,
+                                                                                    fontSize: 13
+                                                                                }}>{treatment.name}</p>
+                                                                                <p style={{
+                                                                                    margin: 0,
+                                                                                    color: 'gray',
+                                                                                    fontSize: 12,
+                                                                                    marginLeft: 15
+                                                                                }}>• {treatment.dosage}</p>
+                                                                                <p style={{
+                                                                                    margin: 0,
+                                                                                    color: 'gray',
+                                                                                    fontSize: 12,
+                                                                                    marginLeft: 15
+                                                                                }}>• {treatment.duration} {t(treatment.durationType)}</p>
+                                                                            </Box>
+                                                                        ))}
+                                                                        {col.type === "treatment" && (appointement?.latestAppointment == null || appointement?.latestAppointment.treatments.length == 0) &&
+                                                                            <p style={{
+                                                                                fontSize: 12,
+                                                                                color: "gray",
+                                                                                textAlign: "center"
+                                                                            }}>Aucun traitement</p>}
+
+                                                                        {col.type === "req-sheet" && appointement?.latestAppointment && appointement?.latestAppointment.requestedAnalyses && appointement?.latestAppointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
+                                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                                mb: 1,
+                                                                                padding: 2,
+                                                                                borderRadius: 0.7
+                                                                            }}>
+                                                                                {reqSheet.hasAnalysis.map((rs: any, idx: number) => (
+                                                                                    <p key={`req-sheet-p-${idx}`}
+                                                                                       style={{
+                                                                                           margin: 0,
+                                                                                           fontSize: 12
+                                                                                       }}>{rs.analysis.name}</p>
+                                                                                ))}
+                                                                            </Box>
+                                                                        ))}
+                                                                        {col.type === "req-sheet" && (appointement?.latestAppointment == null || appointement?.latestAppointment.requestedAnalyses.length == 0) &&
+                                                                            <p style={{
+                                                                                fontSize: 12,
+                                                                                color: "gray",
+                                                                                textAlign: "center"
+                                                                            }}>Aucune demande</p>}
+
+                                                                        {
+                                                                            col.type === "document" && appointement?.latestDocument.length > 0 &&
+                                                                            <Box style={{padding: 20, paddingTop: 25}}>
+                                                                                <Grid container spacing={2} sx={{
+                                                                                    bgcolor: theme => theme.palette.grey['A100'],
+                                                                                    mb: 1,
+                                                                                    padding: 2,
+                                                                                    borderRadius: 0.7
+                                                                                }}>
+                                                                                    {
+                                                                                        appointement?.latestDocument.map((card: any) =>
+                                                                                            <Grid item xs={3}
+                                                                                                  key={`doc-item-${card.uuid}`}>
+                                                                                                <DocumentCard
+                                                                                                    data={card}
+                                                                                                    style={{width: 30}}
+                                                                                                    onClick={() => {
+                                                                                                        if (card.documentType === 'photo') {
+                                                                                                            setIsViewerOpen(card.uri)
+                                                                                                        } else {
+                                                                                                            setInfo('document_detail')
+                                                                                                            let info = card
+                                                                                                            switch (card.documentType) {
+                                                                                                                case "prescription":
+                                                                                                                    info = card.prescription[0].prescription_has_drugs;
+                                                                                                                    break;
+                                                                                                                case "requested-analysis":
+                                                                                                                    info = card.requested_Analyses[0].analyses;
+                                                                                                                    break;
+                                                                                                            }
+                                                                                                            setState({
+                                                                                                                uuid: card.uuid,
+                                                                                                                uri: card.uri,
+                                                                                                                name: card.title,
+                                                                                                                type: card.documentType,
+                                                                                                                info: info,
+                                                                                                                patient: patient.firstName + ' ' + patient.lastName,
+                                                                                                                mutate: mutateDoc
+                                                                                                            })
+                                                                                                            setOpenDialog(true);
+                                                                                                        }
+                                                                                                    }} t={t}/>
+                                                                                            </Grid>
+                                                                                        )
+                                                                                    }
+                                                                                </Grid>
+                                                                            </Box>
+                                                                        }
+
+
+                                                                        {col.type === "document" && (appointement?.latestDocument === null || appointement?.latestDocument.length === 0) &&
+                                                                            <p style={{
+                                                                                fontSize: 12,
+                                                                                color: "gray",
+                                                                                textAlign: "center"
+                                                                            }}>Aucun document</p>}
                                                                     </Collapse>
                                                                 </ListItem>
                                                             </>
@@ -569,118 +614,33 @@ function ConsultationInProgress() {
                                                     ))
                                                 }
                                             </List>
-                                            {/*<List dense>
-                                                        {
-                                                            data.collapse?.map((col, idx: number) => (
-                                                                <React.Fragment key={`list-item-${idx}`}>
-                                                                    <ListItem
-                                                                        onClick={() => setCollapse(collapse === col.id ? "" : col.id)}
-                                                                        sx={{
-                                                                            cursor: "pointer",
-                                                                            borderTop: 1,
-                                                                            borderColor: 'divider',
-                                                                            px: 0,
-                                                                            '& .MuiListItemIcon-root': {
-                                                                                minWidth: 20,
-                                                                                svg: {
-                                                                                    width: 14,
-                                                                                    height: 14,
-                                                                                }
-                                                                            }
-                                                                        }}>
 
-                                                                        <ListItemIcon>
-                                                                            <IconUrl path={col.icon}/>
-                                                                        </ListItemIcon>
-                                                                        <Typography variant='body2' fontWeight={700}>
-                                                                            {t(col.title)}
-                                                                        </Typography>
-                                                                        <IconButton size="small" sx={{ml: 'auto'}}>
-                                                                            <IconUrl path="ic-expand-more"/>
-                                                                        </IconButton>
-                                                                    </ListItem>
-                                                                    <ListItem
-                                                                        sx={{p: 0}}
-                                                                    >
-                                                                        <Collapse in={collapse === col.id}
-                                                                                  sx={{width: 1}}>
-                                                                            {
-                                                                                col.type === "treatment" &&
-                                                                                col.drugs?.map((item, i) => (
-                                                                                    <React.Fragment
-                                                                                        key={`durg-list-${i}`}>
-                                                                                        <DrugListCard data={item} t={t}
-                                                                                                      list/>
-                                                                                    </React.Fragment>
-                                                                                ))
-                                                                            }
-                                                                            {
-                                                                                col.type === "document" &&
-                                                                                <List sx={{py: 0}}>
-                                                                                    {
-                                                                                        col.documents?.map((item, i) => (
-                                                                                            <ListItem
-                                                                                                key={`doc-list${i}`}
-                                                                                                sx={{
-                                                                                                    bgcolor: theme => theme.palette.grey['A100'],
-                                                                                                    mb: 1,
-                                                                                                    borderRadius: 0.7
-                                                                                                }}>
-                                                                                                <Typography
-                                                                                                    variant='body2'
-                                                                                                    display='flex'
-                                                                                                    alignItems="center">
-                                                                                                    <CircleIcon sx={{
-                                                                                                        fontSize: 5,
-                                                                                                        mr: 1
-                                                                                                    }}/> {item}
-                                                                                                </Typography>
-                                                                                                <IconButton size="small"
-                                                                                                            sx={{ml: 'auto'}}>
-                                                                                                    <IconUrl
-                                                                                                        path="ic-document"/>
-                                                                                                </IconButton>
-                                                                                            </ListItem>
-                                                                                        ))
-                                                                                    }
-                                                                                </List>
-                                                                            }
-                                                                        </Collapse>
-                                                                    </ListItem>
-                                                                </React.Fragment>
-                                                            ))
-                                                        }
-                                                    </List>*/}
                                         </Stack>
-                                        {/*                                         {
-                                                data.title === "balance_results" &&
-                                                data.list?.map((item, i) => (
-                                                    <ListItem key={`balance-list${i}`}
-                                                              sx={{
-                                                                  bgcolor: theme => theme.palette.grey['A100'],
-                                                                  mb: 1,
-                                                                  borderRadius: 0.7
-                                                              }}>
-                                                        <Typography variant='body2'>
-                                                            {item}
-                                                        </Typography>
-                                                    </ListItem>
-                                                ))
-                                            }
-                                            {
-                                                data.title === "vaccine" &&
-                                                data.list?.map((item, i) => (
-                                                    <ListItem key={`vaccine-list${i}`}>
-                                                        <Typography variant='body2'>
-                                                            {item}
-                                                        </Typography>
-                                                    </ListItem>
-                                                ))
-                                            }*/}
                                     </CIPPatientHistoryCard>
 
                                 }
                             </Stack>
+
+                            {/*<Stack spacing={1} mb={1} marginTop={3}>
+                                <Typography variant="body2">
+                                    {t("document_type")}
+                                </Typography>
+                                <FormGroup row>
+                                    {
+                                        filterData.map((item: any, idx: number) =>
+                                            <FormControlLabel
+                                                key={idx}
+                                                control={
+                                                    <Checkbox checked={filter[item]} onChange={handleChange}
+                                                              name={filter[item]}/>
+                                                }
+                                                label={t(item)}
+                                            />
+                                        )
+                                    }
+
+                                </FormGroup>
+                            </Stack>*/}
 
                             <Drawer
                                 anchor={"right"}
@@ -810,9 +770,10 @@ function ConsultationInProgress() {
                             }}>
                                 {
                                     documents.map((card: any, idx) =>
-                                        <React.Fragment key={idx}>
-                                            <DocumentCard data={card}  onClick={() => {
+                                        <React.Fragment key={`doc-item-${idx}`}>
+                                            <DocumentCard data={card} onClick={() => {
                                                 if (card.documentType === 'photo') {
+                                                    console.log(card)
                                                     setIsViewerOpen(card.uri)
                                                 } else {
                                                     setInfo('document_detail')
