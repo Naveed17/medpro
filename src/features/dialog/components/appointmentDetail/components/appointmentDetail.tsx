@@ -93,6 +93,7 @@ function AppointmentDetail({...props}) {
         OnDataUpdated,
         OnPatientNoShow,
         OnWaiting,
+        OnLeaveWaiting,
         SetMoveDialog,
         SetCancelDialog,
     } = props;
@@ -168,7 +169,7 @@ function AppointmentDetail({...props}) {
         <RootStyled>
             <AppBar position="static" color='inherit'>
                 <Toolbar>
-                    <Popover
+                    {/*<Popover
                         open={openTooltip}
                         handleClose={() => setOpenTooltip(false)}
                         menuList={menuList}
@@ -184,7 +185,7 @@ function AppointmentDetail({...props}) {
                                 <Icon path="more-vert"/>
                             </IconButton>
                         }
-                    />
+                    />*/}
                     <IconButton
                         size="small"
                         onClick={() => dispatch(openDrawer({type: "view", open: false}))}
@@ -336,13 +337,23 @@ function AppointmentDetail({...props}) {
                     <Stack spacing={1} width={1}>
                         <Button onClick={() => OnWaiting(data)}
                                 sx={{
-                                    display: moment().format("DD-MM-YYYY") !==
-                                    moment(data?.extendedProps.time).format("DD-MM-YYYY") ? "none" : "flex"
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        data?.extendedProps.status.key === "WAITING_ROOM") ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
+                        </Button>
+                        <Button onClick={() => OnLeaveWaiting(data)}
+                                sx={{
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                }}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
+                            {t('leave_waiting_room')}
                         </Button>
                         <Button
                             sx={{

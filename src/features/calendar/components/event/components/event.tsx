@@ -28,7 +28,10 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(appointment.status.key === "ON_GOING" && {
+                    ...(appointment.status.key === "CANCELED" && {
+                            backgroundColor: "error.light",
+                        }
+                    ),...(appointment.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }
                     ), ...(appointment.status.key === "PENDING" && {

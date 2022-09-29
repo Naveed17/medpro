@@ -35,7 +35,7 @@ import {
     DayOfWeek,
     openDrawer,
     setSelectedEvent,
-    setStepperIndex
+    setStepperIndex, setView
 } from "@features/calendar";
 import {
     appointmentSelector,
@@ -235,6 +235,12 @@ function Agenda() {
     useEffect(() => {
         if (filter?.type && timeRange.start !== "" ||
             filter?.gender || filter?.name || filter?.birthdate || filter?.phone) {
+            let localView = view;
+            if (localView !== "listWeek") {
+                localView = "listWeek";
+                dispatch(setView("listWeek"))
+            }
+
             let query = "";
             Object.entries(filter).map((param, index) => {
                 if (param[1]) {
@@ -242,9 +248,9 @@ function Agenda() {
                 }
             });
             setLocalFilter(query);
-            const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
+            const queryPath = `${localView === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`
-            getAppointments(queryPath, view);
+            getAppointments(queryPath, localView);
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
@@ -276,7 +282,12 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        if (view === 'listWeek') {
+        if (view === 'listWeek' &&
+            filter?.type === undefined &&
+            filter?.gender === undefined &&
+            filter?.name === undefined &&
+            filter?.phone === undefined &&
+            filter?.birthdate === undefined) {
             getAppointments(`format=list&page=1&limit=50`, view);
         }
     }
@@ -345,7 +356,7 @@ function Agenda() {
                 updateAppointmentStatus(event?.publicId ? event?.publicId :
                     (event as any)?.id, "6").then(() => {
                     refreshData();
-                    enqueueSnackbar(t(`msg.leave-waiting-room`), {variant: "success"});
+                    enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                 });
                 break;
             case "onPatientNoShow":
@@ -382,7 +393,7 @@ function Agenda() {
             event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
             () => {
                 refreshData();
-                enqueueSnackbar(t(`msg.on-waiting-room`), {variant: "success"});
+                enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
             });
     }
 
@@ -391,7 +402,7 @@ function Agenda() {
             event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
             () => {
                 refreshData();
-                enqueueSnackbar(t(`msg.patient-no-show`), {variant: "success"});
+                enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
                 dispatch(openDrawer({type: "view", open: false}));
             });
     }
@@ -513,7 +524,7 @@ function Agenda() {
             setLoading(false);
             setCancelDialog(false);
             refreshData();
-            enqueueSnackbar(t(`msg.cancel-appointment`), {variant: "success"});
+            enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
         });
     }
 
@@ -537,6 +548,10 @@ function Agenda() {
             case "onDetailPatient":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
+                break;
+            case "onWaitingRoom":
+                onOpenWaitingRoom(event);
+                dispatch(openDrawer({type: "add", open: false}));
                 break;
         }
     }
@@ -609,6 +624,7 @@ function Agenda() {
                                         {...{
                                             events: events.current,
                                             agenda,
+                                            spinner: loading,
                                             t,
                                             sortedData: sortedData.current
                                         }}
@@ -678,7 +694,14 @@ function Agenda() {
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
                             OnPatientNoShow={onPatientNoShow}
-                            OnWaiting={onOpenWaitingRoom}
+                            OnWaiting={(event: EventDef) => {
+                                onOpenWaitingRoom(event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                            }}
+                            OnLeaveWaiting={(event: EventDef) => {
+                                onMenuActions('onLeaveWaitingRoom', event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                            }}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
                             SetCancelDialog={() => setCancelDialog(true)}

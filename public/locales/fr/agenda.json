@@ -226,5 +226,11 @@
       "cancel": "Annuler",
       "confirm": "Confirmer"
     }
+  },
+  "alert": {
+    "cancel-appointment": "le rendez-vous a été annulé avec succès",
+    "leave-waiting-room": "le patient a quitté la salle d'attente",
+    "on-waiting-room": "le patient a entré dans la salle d'attente",
+    "patient-no-show": "le rendez-vous a été modifié avec succès"
   }
 }
