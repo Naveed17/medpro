@@ -2,6 +2,7 @@ import React from "react";
 import moment from "moment/moment";
 
 function Certificat({...props}) {
+    const {data} = props
     return (
         <table hidden={true} id="certificat" style={{backgroundColor: "white"}}>
             <tr>
@@ -24,9 +25,7 @@ function Certificat({...props}) {
             <tr>
                 <td style={{color: "grey", fontSize: 20, lineHeight: 3}}>
                     <p>
-                        Je soussignee, Dr <span>{props.name}</span> certifie avoir exmaine ce
-                        jour : et que son etat de sante
-                        necessite un repos jour(s) a compter de ce jour, sauf complications ulterieures
+                        {data.content}
                     </p>
                 </td>
             </tr>

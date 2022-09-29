@@ -526,7 +526,7 @@ function ConsultationInProgress() {
                                                                                 textAlign: "center"
                                                                             }}>Aucun traitement</p>}
 
-                                                                        {col.type === "req-sheet" && appointement?.latestAppointment.requestedAnalyses && appointement?.latestAppointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
+                                                                        {col.type === "req-sheet" && appointement?.latestAppointment && appointement?.latestAppointment.requestedAnalyses && appointement?.latestAppointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
                                                                             <Box key={`req-sheet-item-${idx}`} sx={{
                                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                                 mb: 1,

@@ -218,7 +218,7 @@ function DocumentDetailDialog({...props}) {
     return (
         <DocumentDetailDialogStyled>
             <Header name={ginfo.firstName + ' ' + ginfo.lastName} speciality={speciality}></Header>
-            <Certificat name={ginfo.firstName + ' ' + ginfo.lastName}></Certificat>
+            <Certificat data={state}></Certificat>
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
             {state.type === 'fees' && <Fees data={state}></Fees>}
