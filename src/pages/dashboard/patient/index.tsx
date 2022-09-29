@@ -90,14 +90,14 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-    {
+    /*{
         id: "city",
         numeric: false,
         disablePadding: false,
         label: "city",
         sortable: true,
         align: "left",
-    },
+    },*/
     {
         id: "nextAppointment",
         numeric: false,
@@ -195,7 +195,6 @@ function Patient() {
                         rows={(httpPatientsResponse as HttpResponse)?.data?.list}
                         from={"patient"}
                         t={t}
-                        minWidth={1100}
                         pagination
                         total={(httpPatientsResponse as HttpResponse)?.data?.total}
                         totalPages={

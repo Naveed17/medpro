@@ -65,14 +65,6 @@ export const headCells = [
         sortable: true,
     },
     {
-        id: "status",
-        numeric: false,
-        disablePadding: true,
-        label: "Status",
-        align: "left",
-        sortable: true,
-    },
-    {
         id: "action",
         numeric: false,
         disablePadding: true,
@@ -206,7 +198,6 @@ function WaitingRoom() {
                                             handleContextMenu(data.event);
                                             setRow(data.row);
                                         }}
-                                        minWidth={1080}
                                     />}
                                     {waitingRooms.length === 0 && (
                                         <NoDataCard t={t} ns={"waitingRoom"} data={AddWaitingRoomCardData}/>
