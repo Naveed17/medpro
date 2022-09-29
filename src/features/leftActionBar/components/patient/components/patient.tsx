@@ -12,7 +12,6 @@ import {
 
 function Patient() {
   const { collapse } = rightActionData.filter;
-
   const { t, ready } = useTranslation("patient");
 
 

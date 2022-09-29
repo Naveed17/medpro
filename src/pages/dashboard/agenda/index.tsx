@@ -50,7 +50,7 @@ import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {ActionBarState, AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -232,42 +232,46 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
-    useEffect(() => {
-        if (filter?.type && timeRange.start !== "" ||
-            filter?.gender || filter?.name || filter?.birthdate || filter?.phone) {
-            let localView = view;
-            if (localView !== "listWeek") {
-                localView = "listWeek";
-                dispatch(setView("listWeek"))
-            }
-
-            let query = "";
+    const prepareSearchKeys = (filter: ActionBarState | undefined) => {
+        let query = "";
+        if (filter) {
             Object.entries(filter).map((param, index) => {
-                if (param[1]) {
+                if (param[0] === "patient" && param[1]) {
+                    Object.entries(param[1]).map(deepParam => {
+                        if (deepParam[1]) {
+                            query += `&${deepParam[0]}=${deepParam[1]}`;
+                        }
+                    })
+                }
+                if (param[0] === "type" && param[1]) {
                     query += `&${param[0]}=${param[1]}`;
                 }
             });
+        }
+        return query;
+    }
+
+    useEffect(() => {
+        if (filter?.type && timeRange.start !== "" || filter?.patient) {
+            const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
-            const queryPath = `${localView === 'listWeek' ? 'format=list&page=1&limit=50' :
-                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`
-            getAppointments(queryPath, localView);
+            const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
+                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
+            getAppointments(queryPath, view);
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
         }
-    }, [filter, getAppointments, timeRange.end, timeRange.start]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const handleOnRangeChange = (event: DatesSetArg) => {
+        dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
-        if (filter?.type === undefined &&
-            filter?.gender === undefined &&
-            filter?.name === undefined &&
-            filter?.phone === undefined &&
-            filter?.birthdate === undefined) {
+        if (prepareSearchKeys(filter as any).length === 0 && localFilter.length === 0) {
             getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
         }
     }
@@ -282,13 +286,10 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        if (view === 'listWeek' &&
-            filter?.type === undefined &&
-            filter?.gender === undefined &&
-            filter?.name === undefined &&
-            filter?.phone === undefined &&
-            filter?.birthdate === undefined) {
-            getAppointments(`format=list&page=1&limit=50`, view);
+        console.log("onViewChange", filter);
+        const query = prepareSearchKeys(filter as any);
+        if (view === 'listWeek' && filter?.patient === undefined) {
+            getAppointments(`format=list&page=1&limit=50${query}`, view);
         }
     }
 
