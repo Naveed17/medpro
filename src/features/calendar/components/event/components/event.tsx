@@ -8,6 +8,7 @@ import SalleIcon from "@themes/overrides/icons/salleIcon";
 import CabinetIcon from "@themes/overrides/icons/cabinetIcon";
 import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
+import Icon from "@themes/urlIcon";
 
 function Event({...props}) {
     const {event, view, t} = props;
@@ -28,7 +29,10 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(appointment.status.key === "ON_GOING" && {
+                    ...(appointment.status.key === "CANCELED" && {
+                            backgroundColor: "error.light",
+                        }
+                    ), ...(appointment.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }
                     ), ...(appointment.status.key === "PENDING" && {
@@ -92,6 +96,15 @@ function Event({...props}) {
                         <CabinetIcon/>
                     )}
                     <span>{event.event._def.title}</span>
+                    {view === "timeGridDay" && (
+                        <>
+                            {appointment.patient?.contact.length > 0 && <>
+                                <Icon path="ic-phone"/>
+                                {appointment.patient?.contact[0]?.code} {appointment.patient?.contact[0].value}
+                            </>}
+                            {appointment.motif && <>{" Motif: "}{appointment.motif?.name}</>}
+                        </>
+                    )}
                 </Typography>
             </EventStyled>
             <Popover

@@ -38,6 +38,7 @@ function Calendar({...props}) {
     const {
         events: appointments,
         OnRangeChange,
+        spinner,
         t: translation,
         sortedData,
         OnInit,
@@ -210,6 +211,7 @@ function Calendar({...props}) {
                                     handleTableEvent(action, eventData)
                                 }
                                 from={"calendar"}
+                                spinner={spinner}
                                 t={translation}
                             />
                             {eventGroupByDay.length === 0 && (

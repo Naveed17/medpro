@@ -62,7 +62,6 @@ function PatientFilter({...props}) {
                     {queryState.gender &&
                         <IconButton size="small" onClick={() => {
                             const query = _.omit(queryState, "gender");
-                            console.log(query)
                             setQueryState({...queryState, gender: null});
                             OnSearch({
                                 query: {...query},
