@@ -39,7 +39,6 @@ function ProfilMenu() {
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
     const anchorRef: any = useRef();
 
-    console.log(agendaConfig);
     const { t, ready } = useTranslation('menu');
     if (!ready) return (<>loading translations...</>);
 
