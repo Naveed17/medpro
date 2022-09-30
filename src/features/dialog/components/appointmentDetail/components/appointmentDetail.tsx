@@ -19,18 +19,13 @@ import {
     ListItem, useTheme
 } from '@mui/material'
 
-import {Popover} from "@features/popover";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
-import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
-import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
@@ -46,45 +41,8 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
+import {LoadingButton} from "@mui/lab";
 
-const menuList = [
-    {
-        title: "start_the_consultation",
-        icon: <PlayCircleIcon/>,
-        action: "onOpenEditPatient",
-    },
-    {
-        title: "add_patient_to_waiting_room",
-        icon: <Icon color={"white"} path='ic-salle'/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "see_patient_form",
-        icon: <InsertDriveFileOutlinedIcon/>,
-        action: "onCancel",
-    },
-
-    {
-        title: "send_a_message",
-        icon: <SmsOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "import_document",
-        icon: <SaveAltOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "move_appointment",
-        icon: <Icon color={"white"} path="iconfinder"/>,
-        action: "onCancel",
-    },
-    {
-        title: "cancel_appointment",
-        icon: <DeleteOutlineOutlinedIcon/>,
-        action: "onCancel",
-    }
-];
 
 function AppointmentDetail({...props}) {
     const {
@@ -96,6 +54,7 @@ function AppointmentDetail({...props}) {
         OnLeaveWaiting,
         SetMoveDialog,
         SetCancelDialog,
+        SetDeleteDialog
     } = props;
 
     const dispatch = useAppDispatch();
@@ -203,14 +162,19 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        <Button
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
                             variant="contained"
                             color="warning"
                             startIcon={<PlayCircleIcon/>}
-                            onClick={() => OnConsultation(data)}
+                            onClick={() => {
+                                setLoading(true);
+                                OnConsultation(data);
+                            }}
                         >
                             {t('event.start')}
-                        </Button>
+                        </LoadingButton>
                     </Stack>
                     {data?.extendedProps.hasErrors.map((error: string, index: number) => (
                         <Stack key={`error${index}`}
@@ -414,7 +378,7 @@ function AppointmentDetail({...props}) {
                                                         'white' : theme.palette.error.main}/>}>
                             {t('event.cancel')}
                         </Button>
-                        <Button onClick={() => SetCancelDialog(true)}
+                        <Button onClick={() => SetDeleteDialog(true)}
                                 fullWidth
                                 variant='contained-white'
                                 color="error"

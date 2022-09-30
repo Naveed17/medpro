@@ -111,6 +111,7 @@ function Event({...props}) {
                 id="mouse-over-popover"
                 sx={{
                     pointerEvents: 'none',
+                    zIndex: 900
                 }}
                 open={open}
                 anchorEl={anchorEl}

@@ -64,7 +64,7 @@ function PatientRow({...props}) {
                                 <>
                                     {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
                                     <Stack marginLeft={2}>
-                                        <Typography>{row.firstName} {row.lastName}</Typography>
+                                        <Typography color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
                                         <Typography
                                             variant="body2"
                                             component="span"
