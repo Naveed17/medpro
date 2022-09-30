@@ -5,7 +5,7 @@ import {
     Checkbox,
     Button,
     IconButton,
-    Skeleton, Stack
+    Skeleton, Stack, useTheme
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -19,6 +19,8 @@ import MenIcon from "@themes/overrides/icons/menIcon";
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
     const dispatch = useAppDispatch();
+    const theme = useTheme();
+
     return (
         <TableRowStyled
             hover
@@ -207,7 +209,7 @@ function PatientRow({...props}) {
                                         alignItems: "center",
                                         "& svg": {
                                             width: 11,
-                                            mr: 0.6,
+                                            mr: 0.6
                                         },
                                     }}
                                     component="span"
@@ -267,6 +269,7 @@ function PatientRow({...props}) {
                                             patientAction: "PATIENT_DETAILS",
                                         })
                                     );
+                                    handleEvent("PATIENT_DETAILS", row);
                                 }}
                                 size="small"
                                 startIcon={<Icon path="/ic-voir"/>}
@@ -276,8 +279,7 @@ function PatientRow({...props}) {
                             <Button
                                 size="small"
                                 sx={{
-                                    ml: 0.6,
-                                    path: {fill: (theme) => theme.palette.common.black},
+                                    ml: 0.6
                                 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -287,8 +289,9 @@ function PatientRow({...props}) {
                                             patientAction: "EDIT_PATIENT",
                                         })
                                     );
+                                    handleEvent("EDIT_PATIENT", row);
                                 }}
-                                startIcon={<Icon path="setting/edit"/>}
+                                startIcon={<Icon color={theme.palette.primary.main} path="setting/edit"/>}
                             >
                                 {t("table.edit")}
                             </Button>
@@ -322,7 +325,7 @@ function PatientRow({...props}) {
                                 }}
                                 size="small"
                             >
-                                <Icon path="setting/edit"/>
+                                <Icon color={theme.palette.primary.main} path="setting/edit"/>
                             </IconButton>
                         </Box>
                     </>

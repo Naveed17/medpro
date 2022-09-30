@@ -105,8 +105,6 @@ function SideBarMenu({children}: LayoutProps) {
                 ))}
             </List>
             <List className="list-bottom">
-
-
                 <ListItem
                     onClick={handleSettingRoute}
                     disableRipple
