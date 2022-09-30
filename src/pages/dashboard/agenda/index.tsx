@@ -35,7 +35,7 @@ import {
     DayOfWeek,
     openDrawer,
     setSelectedEvent,
-    setStepperIndex, setView
+    setStepperIndex
 } from "@features/calendar";
 import {
     appointmentSelector,
@@ -114,6 +114,7 @@ function Agenda() {
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
+    const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
@@ -324,6 +325,7 @@ function Agenda() {
         switch (action) {
             case "onCancel":
                 setEvent(event);
+                setActionDialog('cancel');
                 setCancelDialog(true);
                 break;
             case "onConsultationDetail":
@@ -411,9 +413,10 @@ function Agenda() {
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() =>
-                dispatch(setTimer({isActive: true, isPaused: false, event}))
-            )
+            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setTimer({isActive: true, isPaused: false, event}));
+            })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
@@ -514,6 +517,29 @@ function Agenda() {
         });
     }
 
+    const handleActionDialog = (appointmentUUid: string) => {
+        switch (actionDialog) {
+            case "cancel":
+                cancelAppointment(appointmentUUid);
+                break;
+            case "delete":
+                deleteAppointment(appointmentUUid);
+                break;
+        }
+
+    }
+
+    const deleteAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        updateAppointmentStatus(appointmentUUid, "9").then(() => {
+            dispatch(openDrawer({type: "view", open: false}));
+            setCancelDialog(false);
+            setLoading(false);
+            refreshData();
+            enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
+        });
+    }
+
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
         updateAppointmentStatus(appointmentUUid, "6").then(() => {
@@ -522,8 +548,8 @@ function Agenda() {
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
             };
             dispatch(setSelectedEvent(eventUpdated));
-            setLoading(false);
             setCancelDialog(false);
+            setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
         });
@@ -705,7 +731,14 @@ function Agenda() {
                             }}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
-                            SetCancelDialog={() => setCancelDialog(true)}
+                            SetCancelDialog={() => {
+                                setActionDialog('cancel');
+                                setCancelDialog(true)
+                            }}
+                            SetDeleteDialog={() => {
+                                setActionDialog('delete');
+                                setCancelDialog(true);
+                            }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
@@ -795,7 +828,8 @@ function Agenda() {
                                 {t("dialogs.move-dialog.garde-date")}
                             </Button>
                             <LoadingButton
-                                {...(loading && {loading})}
+                                {...{loading}}
+                                loadingPosition="start"
                                 variant="contained"
                                 color={"warning"}
                                 onClick={() => handleMoveAppointment(event as EventDef)}
@@ -818,13 +852,13 @@ function Agenda() {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")} </Typography>
+                                            variant="subtitle1">{t(`dialogs.${actionDialog}-dialog.sub-title`)} </Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
+                                            margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
                             </Box>)
                     }}
                     open={cancelDialog}
-                    title={t("dialogs.cancel-dialog.title")}
+                    title={t(`dialogs.${actionDialog}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
@@ -832,16 +866,17 @@ function Agenda() {
                                 onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.cancel-dialog.cancel")}
+                                {t(`dialogs.${actionDialog}-dialog.cancel`)}
                             </Button>
                             <LoadingButton
-                                {...(loading && loading)}
+                                {...{loading}}
+                                loadingPosition="start"
                                 variant="contained"
                                 color={"error"}
-                                onClick={() => cancelAppointment(event?.publicId ? event?.publicId as string : (event as any)?.id)}
+                                onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                             >
-                                {t("dialogs.cancel-dialog.confirm")}
+                                {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
                     }
