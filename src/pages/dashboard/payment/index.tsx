@@ -140,6 +140,26 @@ const rows = [
 
 
 
+    },
+    {
+        uuid: 8,
+        date: "10/10/2022",
+        date2: "10 Avril 2022",
+        time: "15:30",
+        name: 'Asma Anderson',
+        insurance: "",
+        type: "check",
+        payment_type: ['ic-argent'],
+        billing_status: "yes",
+        amount: 10,
+        pending: 600,
+        method: {
+            name: 'credit_card',
+            icon: "ic-card"
+        },
+
+
+
     }
 ];
 interface HeadCell {
@@ -227,9 +247,14 @@ const headCells: readonly HeadCell[] = [
 ];
 function Payment() {
     const [open, setOpen] = useState<boolean>(false)
+    const [selected, setSelected] = useState<any>(null)
     const { t, ready } = useTranslation("payment");
-    const handleClose = () => setOpen(false)
-    const handleSave = () => setOpen(false)
+    const handleClose = () => setOpen(false);
+    const handleSave = () => setOpen(false);
+    const handleEdit = (props: any) => {
+        setSelected(props);
+        setOpen(true);
+    }
     return (
         <>
             <SubHeader>
@@ -244,7 +269,7 @@ function Payment() {
                                 - {t('btn_header_1')}
                             </Button>
                             <Button variant="contained" color="success"
-                                onClick={() => setOpen(true)}
+                                onClick={() => { setOpen(true); setSelected(null); }}
                             >
                                 + {t('btn_header_2')}
                             </Button>
@@ -258,12 +283,13 @@ function Payment() {
                     rows={rows}
                     from={"payment"}
                     t={t}
+                    edit={handleEdit}
 
                 />
             </Box>
             <Dialog action={'payment_dialog'}
                 open={open}
-                data={{ t }}
+                data={{ t, selected }}
                 size={"md"}
                 direction={'ltr'}
                 title={t('dialog_title')}

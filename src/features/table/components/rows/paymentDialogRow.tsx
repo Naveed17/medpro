@@ -29,13 +29,13 @@ function PaymentDialogRow({ ...props }) {
             <Stack direction='row' spacing={.5} alignItems="center">
               <Icon path="ic-agenda" />
               <Typography variant="body2">
-                {row.date.date1}
+                {row.date}
               </Typography>
             </Stack>
             <Stack direction='row' spacing={.5} alignItems="center">
               <Icon path="ic-agenda" />
               <Typography variant="body2">
-                {row.date.date2}
+                {row.date2}
               </Typography>
             </Stack>
             <Stack direction='row' spacing={.5} alignItems="center">

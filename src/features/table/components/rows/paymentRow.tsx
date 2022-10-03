@@ -23,7 +23,7 @@ import { Label } from '@features/label'
 import { lineHeight } from "@mui/system";
 
 function PaymentRow({ ...props }) {
-  const { row, isItemSelected, handleClick, t, labelId, loading } = props;
+  const { row, isItemSelected, handleClick, t, labelId, loading, editMotif } = props;
   return (
     <>
       <TableRowStyled
@@ -37,10 +37,11 @@ function PaymentRow({ ...props }) {
         className="payment-row"
         sx={{
           bgcolor: (theme: Theme) => alpha(
-            (row.amount > 0 && theme.palette.success.main)
+            (row.pending && theme.palette.warning.darker)
+            || (row.amount > 0 && theme.palette.success.main)
             || (row.amount < 0 && theme.palette.error.main)
-            || theme.palette.background.paper
 
+            || theme.palette.background.paper
             ,
 
             row.amount === 0 ? 1 : 0.1),
@@ -182,12 +183,25 @@ function PaymentRow({ ...props }) {
             <Skeleton width={40} height={20} />
 
           ) : (
-            <Typography color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'} fontWeight={700}>{row.amount}</Typography>
+            row.pending ? <Stack direction='row' spacing={2} alignItems="center">
+              <Typography color={theme => theme.palette.warning.darker} fontWeight={600}>
+                {row.amount}/{row.pending}
+              </Typography>
+              <IconButton color="primary" onClick={(e) => {
+                e.stopPropagation()
+                editMotif(row)
+              }
+              }>
+                <Icon path="ic-argent" />
+              </IconButton>
+            </Stack> :
+              <Typography color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'} fontWeight={700}>{row.amount}</Typography>
 
           )}
         </TableCell>
       </TableRowStyled>
-      {row.collapse &&
+      {
+        row.collapse &&
         <TableRow>
           <TableCell colSpan={9} style={{
             backgroundColor: 'transparent',

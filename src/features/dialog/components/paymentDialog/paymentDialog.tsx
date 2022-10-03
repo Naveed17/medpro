@@ -3,25 +3,8 @@ import PaymentDialogStyled from './overrides/paymentDialogStyle';
 import { Stack, Grid, Avatar, Typography, Theme, Button, Box, Divider, Checkbox, FormControlLabel, FormGroup, Paper, TextField, IconButton } from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import { Otable } from '@features/table';
+import { DatePicker } from "@features/datepicker";
 import { motion, AnimatePresence } from 'framer-motion';
-const rows = [
-    {
-        uuid: 1,
-        date: {
-            date1: '10/10/2022',
-            date2: "10 Avril 2022",
-        },
-        time: "15:30",
-        method: {
-            name: 'credit_card',
-            icon: "ic-card"
-        },
-        amount: 200
-
-
-    },
-
-];
 const data = [
     {
         icon: 'ic-argent',
@@ -106,7 +89,7 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 function PaymentDialog({ ...props }) {
-    const { data: { t } } = props
+    const { data: { t, selected } } = props
     const img = null;
     const [state, setState] = React.useState<any>({
         species: false,
@@ -155,33 +138,40 @@ function PaymentDialog({ ...props }) {
             [event.target.name]: event.target.checked,
         });
     };
-    console.log(state.tab3Data)
     return (
         <PaymentDialogStyled>
-            <Stack spacing={2} direction="row" alignItems='center' justifyContent="space-between">
-                <Stack spacing={2} direction="row" alignItems='center'>
-                    <Avatar {...(img ? { src: img, alt: 'some-name', sx: { bgcolor: 'transparent' } } : { sx: { bgcolor: (theme: Theme) => theme.palette.primary.main } })} />
-                    <Stack>
-                        <Stack direction="row" spacing={0.5} alignItems="center">
-                            <IconUrl path="ic-h" />
-                            <Typography color="primary">
-                                Asma Anderson
-                            </Typography>
-                        </Stack>
-                        <Stack direction="row" spacing={0.5} alignItems="center">
-                            <IconUrl path="ic-anniverssaire" />
-                            <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                07/05/2016
-                            </Typography>
+            <Stack spacing={2} direction="row" alignItems='center' justifyContent={selected ? 'space-between' : 'flex-end'}>
+                {
+                    selected &&
+                    <Stack spacing={2} direction="row" alignItems='center'>
+                        <Avatar {...(img ? { src: img, alt: 'some-name', sx: { bgcolor: 'transparent' } } : { sx: { bgcolor: (theme: Theme) => theme.palette.primary.main } })} />
+                        <Stack>
+                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                <IconUrl path="ic-h" />
+                                <Typography color="primary">
+                                    {selected.name}
+                                </Typography>
+                            </Stack>
+                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                <IconUrl path="ic-anniverssaire" />
+                                <Typography variant='body2' color="text.secondary" alignItems='center'>
+                                    07/05/2016
+                                </Typography>
+                            </Stack>
                         </Stack>
                     </Stack>
-                </Stack>
+                }
+
                 <Stack direction="row" alignItems="center" spacing={1}>
-                    <Button size='small' variant='contained' color="error">
-                        {t("btn_remain")}
-                        <Typography fontWeight={700} component='strong' mx={1}>100</Typography>
-                        TND
-                    </Button>
+                    {
+                        selected &&
+                        <Button size='small' variant='contained' color="error">
+                            {t("btn_remain")}
+                            <Typography fontWeight={700} component='strong' mx={1}>{selected.pending}</Typography>
+                            TND
+                        </Button>
+                    }
+
                     <Button size='small' variant='contained' color="warning">
                         {t("total")}
                         <Typography fontWeight={700} component='strong' mx={1}>100</Typography>
@@ -189,17 +179,21 @@ function PaymentDialog({ ...props }) {
                     </Button>
                 </Stack>
             </Stack>
-            <Box mt={4}>
-                <Otable
-                    headers={headCells}
-                    rows={rows}
-                    from={"payment_dialog"}
-                    sx={{ tableLayout: 'fixed' }}
-                    t={t}
+            {
+                selected &&
+                <Box mt={4}>
+                    <Otable
+                        headers={headCells}
+                        rows={[selected]}
+                        from={"payment_dialog"}
+                        sx={{ tableLayout: 'fixed' }}
+                        t={t}
 
-                />
-                <Divider />
-            </Box>
+                    />
+                    <Divider />
+                </Box>
+            }
+
             <FormGroup row
                 {...(state.selected && {
                     sx: {
@@ -259,7 +253,6 @@ function PaymentDialog({ ...props }) {
                 }
                 {
                     state.selected === "card" &&
-
                     <TabPanel index={1}>
                         <Stack px={4} minHeight={200} justifyContent="center">
                             <Box width={1}>
@@ -336,7 +329,7 @@ function PaymentDialog({ ...props }) {
                                                             placeholder={t("carrier")}
                                                             value={state.tab3Data[idx].carrier}
                                                             fullWidth
-                                                            type="number"
+                                                            type="text"
                                                             onChange={(e) => {
                                                                 let newArr = [...state.tab3Data];
                                                                 newArr[idx].carrier = e.target.value;
@@ -371,7 +364,7 @@ function PaymentDialog({ ...props }) {
                                                                 })
                                                             }
                                                             }
-                                                            type="number"
+                                                            type="text"
                                                             required
                                                         />
                                                     </Grid>
@@ -411,23 +404,18 @@ function PaymentDialog({ ...props }) {
                                                     <Grid item xs={12} lg={10}>
                                                         <Grid container alignItems='cetner' spacing={1}>
                                                             <Grid item xs={12} lg={4}>
-                                                                <TextField
-                                                                    variant="outlined"
-                                                                    placeholder={t("payment_date")}
-                                                                    fullWidth
+                                                                <DatePicker
                                                                     value={state.tab3Data[idx].payment_date}
-                                                                    type="number"
-                                                                    required
-                                                                    onChange={(e) => {
+                                                                    onChange={(e: any) => {
                                                                         let newArr = [...state.tab3Data];
                                                                         newArr[idx].payment_date = e.target.value;
                                                                         setState({
                                                                             ...state,
                                                                             tab3Data: newArr
                                                                         })
-                                                                    }
-                                                                    }
+                                                                    }}
                                                                 />
+
                                                             </Grid>
                                                             <Grid item xs={12} lg={8}>
                                                                 <Stack direction={{ xs: 'column', lg: 'row' }} alignItems={{ lg: 'center', xs: 'flex-start' }} spacing={{ xs: 0, lg: 4 }}>
