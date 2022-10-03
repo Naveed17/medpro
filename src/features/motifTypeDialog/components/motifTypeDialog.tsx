@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
+import {useFormik, Form, FormikProvider} from "formik";
 import {
     Typography,
     Card,
@@ -11,30 +11,27 @@ import {
     FormControl,
     Select,
     MenuItem,
-    Button, Skeleton
+    Button, ListItemText
 } from '@mui/material'
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import ThemeColorPicker from "@themes/overrides/ThemeColorPicker"
-import React, { useState } from "react";
-import { useTranslation } from "next-i18next";
-import { useRequestMutation } from "@app/axios";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import IconUrl from "@themes/urlIcon";
+import React, {useState} from "react";
+import {useTranslation} from "next-i18next";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {IconsTypes} from "@features/calendar";
+
 const icons = [
     'ic-consultation',
     'ic-teleconsultation',
     'ic-control',
     'ic-clinique',
     'ic-at-home',
-    'ic-at-home',
-    'ic-medical-representative',
-    'ic-staff-meeting',
-    'ic-absence',
     'ic-personal'
 ]
-const PaperStyled = styled(Form)(({ theme }) => ({
+const PaperStyled = styled(Form)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     borderRadius: 0,
     height: '100%',
@@ -75,16 +72,16 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function EditMotifDialog({ ...props }) {
-    const { mutateEvent } = props
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+function EditMotifDialog({...props}) {
+    const {mutateEvent} = props
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const initalData = Array.from(new Array(20));
     const [submit, setSubmit] = useState(false);
-    const { trigger } = useRequestMutation(null, "/settings/type");
-    const { t, ready } = useTranslation('settings');
+    const {trigger} = useRequestMutation(null, "/settings/type");
+    const {t, ready} = useTranslation('settings');
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t('users.new.ntc'))
@@ -101,7 +98,7 @@ function EditMotifDialog({ ...props }) {
         },
         validationSchema,
 
-        onSubmit: async (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             props.closeDraw()
             const form = new FormData();
             form.append('color', values.color);
@@ -118,7 +115,7 @@ function EditMotifDialog({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(r => mutateEvent())
+                }, {revalidate: true, populateCache: true}).then(r => mutateEvent())
             } else {
                 trigger({
                     method: "POST",
@@ -128,21 +125,21 @@ function EditMotifDialog({ ...props }) {
                         ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(r => mutateEvent())
+                }, {revalidate: true, populateCache: true}).then(r => mutateEvent())
             }
 
         },
     });
 
     if (!ready) return (<>loading translations...</>);
-    console.log(medical_entity.uuid, 'data')
-    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
+    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
+
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                noValidate
-                className='root'
-                onSubmit={handleSubmit}>
+                         noValidate
+                         className='root'
+                         onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
                     {props.data ? t('motifType.dialog.update') : t('motifType.dialog.add')}
@@ -155,17 +152,18 @@ function EditMotifDialog({ ...props }) {
                         <Stack spacing={2}>
                             <Stack spacing={2} direction="row">
                                 <Box>
-                                    <Typography display='flex' justifyContent="flex-start" variant="body2" color="text.secondary" gutterBottom>
+                                    <Typography display='flex' justifyContent="flex-start" variant="body2"
+                                                color="text.secondary" gutterBottom>
                                         {t('motifType.dialog.color')}{" "}
                                         <Typography component="span" color="error" ml={.2}>
                                             *
                                         </Typography>
                                     </Typography>
                                     <ThemeColorPicker color={values.color}
-                                        onSellectColor={(v: string) => setFieldValue('color', v)} />
+                                                      onSellectColor={(v: string) => setFieldValue('color', v)}/>
 
                                     {touched.color && errors.color && (
-                                        <FormHelperText error sx={{ mx: 0 }}>
+                                        <FormHelperText error sx={{mx: 0}}>
                                             {Boolean(touched.color && errors.color)}
                                         </FormHelperText>
                                     )}
@@ -190,18 +188,23 @@ function EditMotifDialog({ ...props }) {
                                 </Box>
                             </Stack>
                             <FormControl size="small" fullWidth>
-                                <Typography gutterBottom variant="body2" color="text.secondary">{t("motifType.dialog.selectIcon")}</Typography>
+                                <Typography gutterBottom variant="body2"
+                                            color="text.secondary">{t("motifType.dialog.selectIcon")}</Typography>
                                 <Select
                                     id="demo-select-small"
                                     {...getFieldProps("icon")}
                                     value={values.icon}>
-
                                     {
                                         icons.map((icon, idx) =>
-                                        (<MenuItem key={idx} value={icon}>
-                                            <IconUrl path={icon} />
-                                            {icon}
-                                        </MenuItem>))
+                                            (<MenuItem key={idx} value={icon}>
+                                                <Stack direction={"row"}>
+                                                    {IconsTypes[icon]}
+                                                    <Typography sx={{
+                                                        textTransform: "capitalize",
+                                                        ml: .5
+                                                    }}>{icon.replace('ic-', ' ')}</Typography>
+                                                </Stack>
+                                            </MenuItem>))
                                     }
                                 </Select>
                             </FormControl>

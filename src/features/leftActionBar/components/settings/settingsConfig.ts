@@ -40,7 +40,7 @@ const settingsData = {
         {
             name: "type",
             icon: "setting/ic-edit-file",
-            href: "/dashboard/settings/motif-type",
+            href: "/dashboard/settings/consultation-type",
             disable: false
         },
 

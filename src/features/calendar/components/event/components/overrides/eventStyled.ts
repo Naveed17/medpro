@@ -3,8 +3,8 @@ import {Box} from "@mui/material";
 
 const EventStyled = styled(Box)(({theme}) => ({
     svg: {
-        width: 8,
-        height: 8,
+        width: 12,
+        height: 12,
         margin: theme.spacing(0, 0.5),
     },
     '& .MuiBadge-badge': {
