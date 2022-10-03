@@ -56,7 +56,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
-import IconUrl from "@themes/urlIcon";
+import {sideBarSelector} from "@features/sideBarMenu";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -94,6 +94,7 @@ function Agenda() {
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {submitted} = useAppSelector(appointmentSelector);
+    const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -254,6 +255,14 @@ function Agenda() {
         }
         return query;
     }
+
+    useEffect(() => {
+        console.log("sidebarOpened", sidebarOpened);
+        if(calendarEl && currentDate) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.gotoDate(currentDate.date);
+        }
+    }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (filter?.type && timeRange.start !== "" || filter?.patient) {
