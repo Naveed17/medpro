@@ -45,7 +45,7 @@ function TextIconRadio({...props}) {
                         color: color
                     }}
                 />
-                {/*{icon}*/}
+                {icon}
                 <Typography sx={{fontSize: "16px"}}>{title}</Typography>
             </Box>
         </RadioButtonStyled>

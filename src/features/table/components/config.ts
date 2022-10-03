@@ -8,7 +8,7 @@ const rowsActionsData = [
     ),
   },
   {
-    action: "motif-type",
+    action: "consultation-type",
     component: dynamic((): any =>
       import("@features/table/components/rows/motifTypeRow").then((mod) => mod)
     ),

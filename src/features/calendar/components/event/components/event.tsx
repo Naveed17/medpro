@@ -10,6 +10,7 @@ import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
+import {IconsTypes} from "@features/calendar";
 
 function Event({...props}) {
     const {event, view, t} = props;
@@ -75,13 +76,14 @@ function Event({...props}) {
                         <DangerIcon/> :
                         appointment.status.key === "WAITING_ROOM" ?
                             <SalleIcon/> :
-                            <AccessTimeIcon color={"disabled"} className="ic-time"/>}
-                    <span>
-                    {!appointment.overlapEvent && appointment.time.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}
-                </span>
+                            !appointment.overlapEvent && <AccessTimeIcon color={"disabled"} className="ic-time"/>}
+
+                    {!appointment.overlapEvent &&
+                        <span> {appointment.time.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
+                        </span>}
                 </Typography>
 
                 <Typography variant="body2" component={"span"} sx={{
@@ -91,12 +93,8 @@ function Event({...props}) {
                         textOverflow: "ellipsis"
                     }
                 }} color="primary" noWrap>
-                    {appointment.meeting ? (
-                        <IconUrl path="ic-video" className="ic-video"/>
-                    ) : (
-                        <CabinetIcon/>
-                    )}
-                    <span>{event.event._def.title}</span>
+                    {!appointment.overlapEvent && IconsTypes[appointment.type.icon]}
+                    <span {...(appointment.overlapEvent && {style: {marginLeft: ".5rem"}})}>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>
                             {appointment.patient?.contact.length > 0 && <>

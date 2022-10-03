@@ -1,36 +1,20 @@
 import {TextIconRadio} from "@features/buttons";
-import DateRangeIcon from "@mui/icons-material/DateRange";
 import {Box, FormControlLabel, LinearProgress, RadioGroup} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
-import DomicileIcon from "@themes/overrides/icons/domicileIcon";
-import TelemedicineIcon from "@themes/overrides/icons/telemedicineIcon";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
-import {openDrawer, setStepperIndex} from "@features/calendar";
+import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import StaffIcon from "@themes/overrides/icons/staffIcon";
-import AbsentIcon from "@themes/overrides/icons/absentIcon";
 
-const IconsTypes: any = {
-    'ic-consultation': <DateRangeIcon/>,
-    'ic-teleconsultation': <TelemedicineIcon/>,
-    'ic-control': <DomicileIcon/>,
-    'ic-clinique': <StaffIcon/>,
-    'ic-at-home': <AbsentIcon/>,
-    'ic-medical-representative': <AbsentIcon/>,
-    'ic-staff-meeting': <AbsentIcon/>,
-    'ic-absence': <AbsentIcon/>,
-    'ic-personal': <AbsentIcon/>
-}
 
 function EventType({...props}) {
     const {onNext} = props;
@@ -79,7 +63,6 @@ function EventType({...props}) {
                     {t("stepper-0.title")}
                 </Typography>
                 <FormControlStyled fullWidth size="small">
-                    {/*<FormLabel id="type-group-label">{t("stepper-0.sub-title")}</FormLabel>*/}
                     <RadioGroup
                         aria-labelledby="type-group-label"
                         defaultValue="female"
