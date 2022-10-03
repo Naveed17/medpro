@@ -9,6 +9,7 @@ import CabinetIcon from "@themes/overrides/icons/cabinetIcon";
 import {AppointmentPatientCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
+import moment from "moment-timezone";
 
 function Event({...props}) {
     const {event, view, t} = props;
@@ -116,8 +117,8 @@ function Event({...props}) {
                 open={open}
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: view !== 'timeGridWeek' ? 'left' : 'right'
+                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
+                    horizontal: view === "timeGridDay" ? 'left' : moment(appointment.time).weekday() > 4 ? -305 : 'right'
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus

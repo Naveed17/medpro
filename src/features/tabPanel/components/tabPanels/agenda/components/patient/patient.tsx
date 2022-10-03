@@ -85,6 +85,8 @@ function Patient({...props}) {
         form.append('insurance', JSON.stringify(patient.insurance));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);
+        form.append('region', patient.region);
+        form.append('zip_code', patient.zip_code);
         trigger(
             {
                 method: "POST",
