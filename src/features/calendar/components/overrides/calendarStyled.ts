@@ -98,8 +98,11 @@ const CalendarStyled = styled('div')(({theme}) => ({
         transition: theme.transitions.create('opacity'),
         '&:hover': {opacity: 1}
     },
-    '& .fc .fc-more-popover .fc-popover-body': {
-        padding: theme.spacing(1.5)
+    '& .fc .fc-more-popover': {
+        zIndex: 99,
+        '& .fc-popover-body': {
+            padding: theme.spacing(1.5)
+        }
     },
     '& .fc .fc-popover-body': {
         '& .fc-daygrid-event.fc-event-start, & .fc-daygrid-event.fc-event-end': {
