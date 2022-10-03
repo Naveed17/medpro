@@ -1,6 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    openDrawer, setConfig, setCurrentDate, setSelectedEvent, setStepperIndex,
+    openDrawer, setConfig, setCurrentDate, setGroupedByDayAppointments, setSelectedEvent, setStepperIndex,
     setView
 } from './actions';
 import {EventDef} from "@fullcalendar/react";
@@ -14,6 +14,7 @@ export type CalendarProps = {
     config: AgendaConfigurationModel | null;
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
+    sortedData: GroupEventsModel[];
 };
 
 const initialState: CalendarProps = {
@@ -24,7 +25,8 @@ const initialState: CalendarProps = {
     currentStepper: 0,
     config: null,
     currentDate: {date: new Date(), fallback: false},
-    selectedEvent: null
+    selectedEvent: null,
+    sortedData: []
 };
 
 export const AgendaReducer = createReducer(initialState, builder => {
@@ -46,5 +48,7 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.currentDate = action.payload;
     }).addCase(setSelectedEvent, (state, action) => {
         state.selectedEvent = action.payload;
+    }).addCase(setGroupedByDayAppointments, (state, action) => {
+        state.sortedData = action.payload;
     });
 });

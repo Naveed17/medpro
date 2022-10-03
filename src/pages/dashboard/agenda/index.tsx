@@ -8,7 +8,7 @@ import {
     Box,
     Button,
     Container,
-    Drawer,
+    Drawer, Fab,
     LinearProgress,
     Theme,
     Typography,
@@ -33,7 +33,7 @@ import {
     agendaSelector,
     AppointmentStatus,
     DayOfWeek,
-    openDrawer,
+    openDrawer, setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -56,6 +56,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
+import IconUrl from "@themes/urlIcon";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -222,6 +223,8 @@ function Agenda() {
                 };
             });
 
+            dispatch(setGroupedByDayAppointments(groupArrays));
+
             if (isMobile || view === "listWeek") {
                 // sort grouped data
                 sortedData.current = groupArrays.slice()
@@ -231,7 +234,7 @@ function Agenda() {
 
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
 
     const prepareSearchKeys = (filter: ActionBarState | undefined) => {
         let query = "";
@@ -420,6 +423,7 @@ function Agenda() {
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
+            // hide notification after 8000ms
             setInterval(() => {
                 setError(false);
             }, 8000);

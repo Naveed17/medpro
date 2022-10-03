@@ -1,4 +1,4 @@
-import React from "react";
+import React, {memo} from "react";
 import {Button, Stack, Typography} from "@mui/material";
 import {Player} from "@lottiefiles/react-lottie-player";
 import IconUrl from "@themes/urlIcon";
@@ -9,12 +9,20 @@ const RootStyle = styled(Stack)(({theme}) => ({
     padding: theme.spacing(2),
 }));
 
+export const LottiePlayer: any = memo(({src, ...props}: any) => {
+    return (
+        <Player src={src}
+                {...props}/>
+    );
+})
+LottiePlayer.displayName = "lottie-player";
+
 function SuccessCard({...props}) {
     const {onClickTextButton, data} = props;
     const {title, description, buttons} = data;
     return (
         <RootStyle key={"success-card"} justifyContent="center" alignItems="center" height={1}>
-            <Player
+            <LottiePlayer
                 autoplay
                 keepLastFrame
                 src="/static/lotties/check-mark-success.json"
