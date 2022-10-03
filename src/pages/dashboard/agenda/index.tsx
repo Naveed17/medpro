@@ -257,7 +257,6 @@ function Agenda() {
     }
 
     useEffect(() => {
-        console.log("sidebarOpened", sidebarOpened);
         if(calendarEl && currentDate) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.gotoDate(currentDate.date);
