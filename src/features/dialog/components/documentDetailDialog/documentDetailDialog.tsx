@@ -18,36 +18,40 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useState, useRef, useEffect} from 'react';
 import {Document, Page, pdfjs} from "react-pdf";
-import {actionButtons} from './config'
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
-import moment from "moment";
 import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {PdfTempleteOne} from "@features/files";
+import autoTable from 'jspdf-autotable';
+import {Certificat, Prescription, RequestedAnalysis, Fees, Header} from "@features/files";
+import moment from "moment/moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data: {state, setDialog}} = props
+    const {data: {state,setOpenDialog}} = props
     const router = useRouter();
-    const {data: session, status} = useSession();
+    const {data: session} = useSession();
 
+    const ginfo = (session?.data as UserDataResponse).general_information
+    const medical_professional = (session?.data as UserDataResponse).medical_professional
+    const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
     const formik = useFormik({
         initialValues: {
             name: state.name,
         },
         onSubmit: async (values) => {
+            console.log(values)
         },
     });
 
     const list = [
         {
             title: 'document_type',
-            value: state.type,
+            value: t(state.type),
 
         },
         {
@@ -60,7 +64,7 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: 'created_on',
-            value: '12/05/2002',
+            value: moment().format("DD/MM/YYYY"),
         }
     ]
 
@@ -69,61 +73,87 @@ function DocumentDetailDialog({...props}) {
     const componentRef = useRef<any>(null)
     const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
-    console.log(state)
+
+    const actionButtons = [
+        {
+            title: 'print',
+            icon: "ic-imprime"
+        },
+        /* {
+             title: 'share',
+             icon: "ic-send"
+         },*/
+        {
+            title: hide ? 'show' : 'hide',
+            icon: "ic-menu2"
+        },
+        {
+            title: 'edit',
+            icon: "ic-edit-gray"
+        },
+        {
+            title: 'download',
+            icon: "ic-dowlaodfile"
+        },
+        {
+            title: 'delete',
+            icon: "icdelete"
+        }
+    ];
     useEffect(() => {
         const doc = new jsPDF({
             format: 'a5'
         });
-
         if (!hide) {
-            doc.setFontSize(18);
-            doc.setTextColor('#0696D6');
-            doc.text("Doctor Jones", 10, 20);
-            doc.text("specilalist", 10, 30);
-            doc.setFontSize(14);
-            doc.text("Some dummy data", 10, 40);
-            doc.text("Some where", doc.internal.pageSize.getWidth() - 40, 20);
-            doc.text("Some where", doc.internal.pageSize.getWidth() - 40, 30);
-            doc.setFontSize(12);
-            doc.text("Tel: 00000000", doc.internal.pageSize.getWidth() - 40, 40);
+            autoTable(doc, {
+                html: '#header',
+                useCss: true
+            })
         }
 
         if (state.type === 'prescription') {
-            doc.setTextColor('#1B2746');
-            doc.setFontSize(16);
-            doc.text('Tunis, le ' + moment().format('DD MMMM yyyy'), doc.internal.pageSize.getWidth() - 85, 70)
-            doc.text("Nom & Prénom: " + state.patient, 10, 90);
-            doc.setFontSize(14);
-            let position = 110;
-            state.info.map((drug: any, i: number) => {
-                if (i > 1) {
-                    doc.addPage();
-                }
-                doc.text(drug.standard_drug.commercial_name, 10, position).setTextColor('#7C878E').setFontSize(12);
-                doc.text("• " + drug.dosage, 24, position + 8);
-                doc.text("• Durée: " + drug.duration + ' ' + drug.duration_type, 24, position + 15).setTextColor('black').setFontSize(15);
-                position += 30
+            autoTable(doc, {
+                html: '#prescription',
+                useCss: true,
+                includeHiddenHtml: true,
+                styles: {fillColor: [255, 255, 255]},
+                startY: 70
+            })
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        } else if (state.type === 'requested-analysis') {
+            autoTable(doc, {
+                html: '#requested-analysis',
+                useCss: true,
+                includeHiddenHtml: true,
+                styles: {fillColor: [255, 255, 255]},
+                startY: 70
+            })
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        } else if (state.type === 'write_certif') {
+
+            autoTable(doc, {
+                html: '#certificat',
+                useCss: true,
+                includeHiddenHtml: true,
+                styles: {fillColor: [255, 255, 255]},
+                startY: 70
+            })
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+        } else if (state.type === 'fees') {
+            autoTable(doc, {
+                html: '#fees',
+                useCss: true,
+                includeHiddenHtml: true,
+                styles: {fillColor: [255, 255, 255]},
+                startY: 60
             })
 
-
             const uri = doc.output('bloburi').toString()
             setFile(uri)
-        } else
-            if (state.name === 'requested-analysis') {
-            console.log(state.info)
-            const doc = new jsPDF()
-            doc.text("Prière, Faire pratiquer à  " + state.patient, 20, 60);
-            doc.text("Les analyses suivantes:", 20, 70);
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else if(state.name ==='write_certif'){
-                const doc = new jsPDF('p', 'pt', 'letter')
-                //doc.html("Aaaaaa")
-                doc.text("In development...",20,60)
-                const uri = doc.output('bloburi').toString()
-                setFile(uri)
-            }
-            else setFile(state.uri)
+        } else setFile(state.uri)
     }, [state, hide])
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -148,7 +178,8 @@ function DocumentDetailDialog({...props}) {
                     url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
-                    // mutate()
+                     state.mutate()
+                    setOpenDialog(false)
                 });
 
                 break;
@@ -159,14 +190,10 @@ function DocumentDetailDialog({...props}) {
             case "hide":
                 sethide(!hide)
                 break;
+            case "show":
+                sethide(!hide)
+                break;
             case "download":
-                /*html2pdf(componentRef.current, {
-                    margin: 1,
-                    filename: 'document.pdf',
-                    image: {type: 'jpeg', quality: 0.98},
-                    html2canvas: {dpi: 192, letterRendering: true},
-                    jsPDF: {unit: 'in', format: 'a5', orientation: 'portrait'}
-                })*/
                 if (file) {
                     fetch(file).then(response => {
                         response.blob().then(blob => {
@@ -186,10 +213,15 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-    const {values, handleSubmit, getFieldProps} = formik;
+    const {handleSubmit, getFieldProps} = formik;
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
+            <Header name={ginfo.firstName + ' ' + ginfo.lastName} speciality={speciality}></Header>
+            <Certificat data={state}></Certificat>
+            {state.type === 'prescription' && <Prescription data={state}></Prescription>}
+            {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
+            {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
                     <FormikProvider value={formik}>
@@ -198,8 +230,7 @@ function DocumentDetailDialog({...props}) {
                             component={Form}
                             autoComplete="off"
                             noValidate
-                            onSubmit={handleSubmit}
-                        >
+                            onSubmit={handleSubmit}>
                             <Box sx={{
                                 '.react-pdf__Page': {
                                     marginBottom: 1,

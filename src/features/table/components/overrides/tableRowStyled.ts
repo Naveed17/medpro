@@ -130,6 +130,15 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
         color: theme.palette.text.primary,
         fontWeight: 700,
       }
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.common.white + "!important",
+      '.MuiTableCell-root': {
+        backgroundColor: theme.palette.common.white + "!important",
+      }
+    },
+    '&.Mui-selected': {
+      backgroundColor: theme.palette.common.white + "!important",
     }
   },
   '&.payment-dialog-row': {

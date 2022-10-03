@@ -3,6 +3,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
 import { Box, Typography, Stack, Button, DialogActions, } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
+import { SubFooter } from '@features/subFooter';
 import { DashLayout } from "@features/base";
 import { LoadingScreen } from "@features/loadingScreen";
 import { Otable } from "@features/table";
@@ -10,6 +11,8 @@ import { useTranslation } from "next-i18next";
 import { Dialog } from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
+import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
 const rows = [
     {
         uuid: 1,
@@ -255,6 +258,7 @@ function Payment() {
         setSelected(props);
         setOpen(true);
     }
+    const { addBilling } = useAppSelector(tableActionSelector);
     return (
         <>
             <SubHeader>
@@ -287,6 +291,16 @@ function Payment() {
 
                 />
             </Box>
+            <SubFooter>
+                <Stack spacing={3} direction='row' justifyContent='flex-end' alignItems="center" width={1}>
+                    <Button variant="text-black">
+                        {t('receive')}
+                    </Button>
+                    <Button variant="contained" onClick={() => console.log(addBilling)}>
+                        {t('billing')}
+                    </Button>
+                </Stack>
+            </SubFooter>
             <Dialog action={'payment_dialog'}
                 open={open}
                 data={{ t, selected }}

@@ -17,13 +17,36 @@ import { TableRowStyled } from "@features/table";
 import Icon from "@themes/urlIcon";
 // redux
 import { useAppDispatch } from "@app/redux/hooks";
+import { addBilling } from "@features/table";
 import { alpha, Theme } from '@mui/material/styles';
 import Image from "next/image";
 import { Label } from '@features/label'
-import { lineHeight } from "@mui/system";
-
+import { useState, useEffect } from 'react'
 function PaymentRow({ ...props }) {
+  const dispatch = useAppDispatch();
   const { row, isItemSelected, handleClick, t, labelId, loading, editMotif } = props;
+  const [selected, setSelected] = useState<any>([])
+  const handleChildSelect = (id: any) => {
+    const selectedIndex = selected.indexOf(id);
+    let newSelected: readonly string[] = [];
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id);
+    } else {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+    setSelected(newSelected);
+  };
+  useEffect(() => {
+    if (!isItemSelected) {
+      setSelected([])
+    }
+  }, [isItemSelected])
+  useEffect(() => {
+    dispatch(addBilling(selected))
+  }, [selected])
   return (
     <>
       <TableRowStyled
@@ -202,7 +225,7 @@ function PaymentRow({ ...props }) {
       </TableRowStyled>
       {
         row.collapse &&
-        <TableRow>
+        <TableRow >
           <TableCell colSpan={9} style={{
             backgroundColor: 'transparent',
             border: 'none',
@@ -214,10 +237,12 @@ function PaymentRow({ ...props }) {
             <Collapse in={isItemSelected} timeout="auto" unmountOnExit sx={{ pl: 6 }}>
               <Table>
                 {
-                  row.collapse.map((col: any, idx: number) =>
-                    <TableRow hover
+                  row.collapse.map((col: any, idx: number) => {
+                    return <TableRow hover
+                      onClick={() => handleChildSelect(col)}
                       role="checkbox"
                       key={idx}
+                      className="collapse-row"
                       sx={{
                         bgcolor: (theme: Theme) => theme.palette.background.paper
                       }}
@@ -228,14 +253,14 @@ function PaymentRow({ ...props }) {
                         ) : (
                           <Checkbox
                             color="primary"
-                            checked={false}
+                            checked={selected.some((item: any) => item.uuid === col.uuid)}
                             inputProps={{
                               "aria-labelledby": labelId,
                             }}
                           />
                         )}
                       </TableCell>
-                      <TableCell style={{ backgroundColor: 'transparent', border: 'none' }}>
+                      <TableCell style={{ backgroundColor: 'transparent', border: 'none', }}>
                         {loading ? (
                           <Stack direction="row" spacing={1} alignItems="center">
                             <Skeleton width={20} height={30} />
@@ -259,9 +284,9 @@ function PaymentRow({ ...props }) {
 
                         )}
                       </TableCell>
-                      <TableCell style={{ backgroundColor: 'transparent', border: 'none' }}>
+                      <TableCell style={{ backgroundColor: 'transparent', border: 'none', }}>
                         {loading ? (
-                          <Stack direction="row" spacing={1} alignItems="center">
+                          <Stack direction="row" spacing={1} alignItems="left">
                             <Skeleton variant="circular" width={20} height={20} />
                             <Skeleton width={100} />
                           </Stack>
@@ -283,7 +308,7 @@ function PaymentRow({ ...props }) {
 
                         )}
                       </TableCell>
-                      <TableCell align="center" style={{ backgroundColor: 'transparent', border: 'none' }}>
+                      <TableCell style={{ backgroundColor: 'transparent', border: 'none', }}>
                         {loading ? (
                           <Stack direction="row" spacing={1} alignItems="center">
                             <Skeleton width={20} height={30} />
@@ -291,7 +316,7 @@ function PaymentRow({ ...props }) {
 
                           </Stack>
                         ) : (
-                          <Stack direction='row' alignItems="center" justifyContent='center' spacing={1}>
+                          <Stack direction='row' alignItems="center" justifyContent='flex-start' spacing={1}>
                             {
                               col.payment_type.map((type: any, i: number) =>
                                 <Stack key={i} direction="row" alignItems="center" spacing={1}>
@@ -305,7 +330,7 @@ function PaymentRow({ ...props }) {
 
                         )}
                       </TableCell>
-                      <TableCell align="center" style={{ backgroundColor: 'transparent', border: 'none' }}>
+                      <TableCell align="left" style={{ backgroundColor: 'transparent', border: 'none', }}>
                         {loading ? (
                           <Skeleton width={40} height={40} />
 
@@ -317,7 +342,7 @@ function PaymentRow({ ...props }) {
                             : <Typography>--</Typography>
                         )}
                       </TableCell>
-                      <TableCell align="center" style={{ backgroundColor: 'transparent', border: 'none' }}>
+                      <TableCell style={{ backgroundColor: 'transparent', border: 'none' }}>
                         {loading ? (
                           <Skeleton width={40} height={20} />
 
@@ -328,7 +353,7 @@ function PaymentRow({ ...props }) {
                       </TableCell>
                     </TableRow>
 
-                  )
+                  })
                 }
 
 

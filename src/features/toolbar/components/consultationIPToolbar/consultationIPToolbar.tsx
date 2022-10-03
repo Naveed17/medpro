@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from 'react'
-import { Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery } from '@mui/material'
+import React, {useEffect, useState} from 'react'
+import {Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
-import { useTranslation } from 'next-i18next'
-import { documentButtonList } from './config'
-import { Dialog } from '@features/dialog';
+import {useTranslation} from 'next-i18next'
+import {documentButtonList} from './config'
+import {Dialog} from '@features/dialog';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
-import { useRequestMutation } from "@app/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import { LoadingButton } from "@mui/lab";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { consultationSelector } from "@features/toolbar";
-import { setTimer } from "@features/card";
-import { Theme } from '@mui/material/styles'
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
+import {setTimer} from "@features/card";
+import {Theme} from '@mui/material/styles'
 
-function ConsultationIPToolbar({ ...props }) {
+function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [value, setValue] = useState('patient history');
     const [info, setInfo] = useState<null | string>('');
@@ -28,12 +28,12 @@ function ConsultationIPToolbar({ ...props }) {
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
     const [label, setlabel] = useState<string>('patient_history')
-    const [lastTabs, setLastTabs] = useState(0);
+    const [lastTabs, setLastTabs] = useState<string>('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [end, setEnd] = useState(false);
-    const { exam } = useAppSelector(consultationSelector);
+    const {exam} = useAppSelector(consultationSelector);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
@@ -70,14 +70,16 @@ function ConsultationIPToolbar({ ...props }) {
         pendingDocuments,
         dialog,
         setDialog,
+        appointement,
         selectedAct,
         selectedModel
     } = props;
-    const { trigger } = useRequestMutation(null, "/drugs");
+    const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const ginfo = (session?.data as UserDataResponse).general_information
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -85,6 +87,7 @@ function ConsultationIPToolbar({ ...props }) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
+        console.log(info)
         switch (info) {
             case 'medical_prescription':
                 form.append('globalNote', "");
@@ -116,6 +119,10 @@ function ConsultationIPToolbar({ ...props }) {
                     setOpenDialog(true)
                     setactions(true)
                     setPrescription([])
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 2);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'balance_sheet_request':
@@ -135,16 +142,21 @@ function ConsultationIPToolbar({ ...props }) {
                     setCheckUp([])
                     setInfo('document_detail')
                     const res = r.data.data;
+                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
-                        name: 'bilan',
-                        type: 'analysis',
+                        name: 'requested-analysis',
+                        type: 'requested-analysis',
                         info: res[0].analyses,
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
                     })
                     setOpenDialog(true);
                     setactions(true)
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                    setPendingDocuments(pdoc)
                 })
                 break;
             case 'add_a_document':
@@ -167,6 +179,34 @@ function ConsultationIPToolbar({ ...props }) {
                 });
                 setOpenDialog(true);
                 setactions(true)
+                break;
+            case 'write_certif':
+                console.log('write_certif', state)
+                form.append("content", state.content)
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then(() => {
+                    mutateDoc()
+                    setInfo('document_detail')
+                    setInfo('document_detail')
+                    setState({
+                        content: state.content,
+                        doctor: state.name,
+                        patient: state.patient,
+                        days: state.days,
+                        name: 'certif',
+                        type: 'write_certif'
+                    })
+                    setOpenDialog(true);
+                    setactions(true)
+                });
+
+
                 break;
         }
 
@@ -206,6 +246,7 @@ function ConsultationIPToolbar({ ...props }) {
                 break
         }
 
+        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)
@@ -223,12 +264,18 @@ function ConsultationIPToolbar({ ...props }) {
                 setState(checkUp)
                 break;
             case "write_certif":
-                setInfo('document_detail')
-                setState({ name: 'write_certif' })
+                console.log(appointement)
+                setInfo('write_certif')
+                setState({
+                    name: ginfo.firstName + ' ' + ginfo.lastName,
+                    days: 19,
+                    content: '',
+                    patient: appointement.patient.firstName + ' ' + appointement.patient.lastName
+                })
                 break;
             case "upload_document":
                 setInfo('add_a_document')
-                setState({ name: '', description: '', type: '', files: [] })
+                setState({name: '', description: '', type: '', files: []})
                 break;
             default:
                 setInfo(null)
@@ -265,7 +312,7 @@ function ConsultationIPToolbar({ ...props }) {
         const acts: { act_uuid: string, price: string }[] = []
         if (end) {
             selectedAct.map((act: { uuid: string, fees: string }) => {
-                acts.push({ act_uuid: act.uuid, price: act.fees })
+                acts.push({act_uuid: act.uuid, price: act.fees})
             })
             const form = new FormData();
             form.append("acts", JSON.stringify(acts))
@@ -274,8 +321,9 @@ function ConsultationIPToolbar({ ...props }) {
             form.append("notes", exam.notes)
             form.append("diagnostic", exam.diagnosis)
             form.append("treatment", exam.treatment)
+            form.append("consultation_reason", exam.motif)
             form.append("status", "5")
-            form.append("consultation_reason", "")
+
             trigger({
                 method: "PUT",
                 url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/data/${router.locale}`,
@@ -287,7 +335,7 @@ function ConsultationIPToolbar({ ...props }) {
                 console.log('end consultation', r)
                 router.push('/dashboard/agenda').then(r => {
                     console.log(r)
-                    dispatch(setTimer({ isActive: false }))
+                    dispatch(setTimer({isActive: false}))
                 })
             });
         }
@@ -297,14 +345,14 @@ function ConsultationIPToolbar({ ...props }) {
 
     useEffect(() => {
         selected(label);
-        if (lastTabs === 2) {
+        if (lastTabs === 'consultation_form') {
             const btn = document.getElementsByClassName('sub-btn')[1];
             const examBtn = document.getElementsByClassName('sub-exam')[0];
 
             (btn as HTMLElement)?.click();
             (examBtn as HTMLElement)?.click();
         }
-        setLastTabs(tabs)
+        setLastTabs(label)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
 
@@ -355,7 +403,7 @@ function ConsultationIPToolbar({ ...props }) {
                     >
                         {documentButtonList.map((item, index) => (
                             <MenuItem key={`document-button-list-${index}`} onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon} />
+                                <Icon path={item.icon}/>
                                 {t(item.label)}
                             </MenuItem>
                         ))}
@@ -365,15 +413,18 @@ function ConsultationIPToolbar({ ...props }) {
                     <Tabs
                         value={value}
                         onChange={handleChange}
-                        sx={{ width: { xs: '100%', md: '80%' } }}
+                        sx={{width: {xs: '70%', md: '70%'}}}
                         variant={isMobile ? "scrollable" : 'standard'}
-                        allowScrollButtonsMobile={isMobile ? true : false}
+                        allowScrollButtonsMobile={isMobile}
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({ label, value }, index) => (
-                            <Tab onFocus={() => { setTabs(index); setlabel(label) }} className='custom-tab' key={label} value={value}
-                                label={t(label)} />
+                        {tabsData.map(({label, value}, index) => (
+                            <Tab onFocus={() => {
+                                setTabs(index);
+                                setlabel(label)
+                            }} className='custom-tab' key={label} value={value}
+                                 label={t(label)}/>
                         ))}
                     </Tabs>
                     <LoadingButton loading={loading} variant="outlined" color="primary" onClick={() => {
@@ -388,53 +439,52 @@ function ConsultationIPToolbar({ ...props }) {
 
 
                         setTimeout(() => {
-                            console.log(selectedModel)
                             setEnd(true)
                             setLoading(false)
                         }, 3000)
 
 
                     }} className="action-button">
-                        {!loading && <Icon path="ic-check" />}
-                        {t("end_of_consultation")}
+                        {!loading && appointement?.status == 5 ? <Icon path="ic-edit"/> : <Icon path="ic-check"/>}
+                        {appointement?.status == 5 ? t("edit_of_consultation") : t("end_of_consultation")}
                     </LoadingButton>
                 </Stack>
             </ConsultationIPToolbarStyled>
             {
                 info &&
                 <Dialog action={info}
-                    open={openDialog}
-                    data={{ state, setState }}
-                    size={"lg"}
-                    direction={'ltr'}
-                    sx={{ height: 400 }}
-                    {...(info === "document_detail") && {
-                        sx: { height: 400, p: 0 }
-                    }}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {
-                    ...(info === "document_detail" && {
-                        onClose: handleCloseDialog
-                    })
-                    }
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        action ? <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                startIcon={<CloseIcon />}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                onClick={handleSaveDialog}
+                        open={openDialog}
+                        data={{state, setState}}
+                        size={"lg"}
+                        direction={'ltr'}
+                        sx={{height: 400}}
+                        {...(info === "document_detail") && {
+                            sx: {height: 400, p: 0}
+                        }}
+                        title={t(info === "document_detail" ? "doc_detail_title" : info)}
+                        {
+                            ...(info === "document_detail" && {
+                                onClose: handleCloseDialog
+                            })
+                        }
+                        dialogClose={handleCloseDialog}
+                        actionDialog={
+                            action ? <DialogActions>
+                                    <Button onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                        {t('cancel')}
+                                    </Button>
+                                    <Button variant="contained"
+                                            onClick={handleSaveDialog}
 
-                                startIcon={<Icon
-                                    path='ic-dowlaodfile' />}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                            : null
+                                            startIcon={<Icon
+                                                path='ic-dowlaodfile'/>}>
+                                        {t('save')}
+                                    </Button>
+                                </DialogActions>
+                                : null
 
-                    } />
+                        }/>
             }
 
         </>

@@ -1,6 +1,6 @@
 import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
 
-import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
+import {Box, IconButton, Menu, Theme, useMediaQuery, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
@@ -38,6 +38,7 @@ function Calendar({...props}) {
     const {
         events: appointments,
         OnRangeChange,
+        spinner,
         t: translation,
         sortedData,
         OnInit,
@@ -69,6 +70,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
+    const [loading, setLoading] = useState(false);
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
@@ -210,6 +212,7 @@ function Calendar({...props}) {
                                     handleTableEvent(action, eventData)
                                 }
                                 from={"calendar"}
+                                spinner={spinner}
                                 t={translation}
                             />
                             {eventGroupByDay.length === 0 && (
@@ -250,13 +253,14 @@ function Calendar({...props}) {
                                 navLinks
                                 selectable
                                 eventDurationEditable
+                                slotEventOverlap={false}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 eventContent={(event) =>
-                                    <Event event={event} openingHours={openingHours} t={translation}/>
+                                    <Event {...{event, openingHours, view}} t={translation}/>
                                 }
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
@@ -328,12 +332,15 @@ function Calendar({...props}) {
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
                                     moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
+                                    data.action === "onConsultationView" && eventMenu?.extendedProps.status.key !== "FINISHED" ||
+                                    data.action === "onConsultationDetail" && eventMenu?.extendedProps.status.key === "FINISHED" ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
                                     data.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
                                     data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
+                                    data.action === "onPatientNoShow" && moment().isBefore(eventMenu?.extendedProps.time) ||
                                     data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
                                 )).map((v: any) => (
-                                        <MenuItem
+                                        <IconButton
                                             key={uniqueId()}
                                             onClick={() => {
                                                 OnMenuActions(v.action, eventMenu);
@@ -345,7 +352,7 @@ function Calendar({...props}) {
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
                                                 {translation(`${v.title}`, {ns: 'common'})}
                                             </Typography>
-                                        </MenuItem>
+                                        </IconButton>
                                     )
                                 )}
                             </Menu>

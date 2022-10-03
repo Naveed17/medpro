@@ -23,7 +23,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment from "moment-timezone";
@@ -34,7 +34,6 @@ import {
     AppointmentStatus,
     DayOfWeek,
     openDrawer,
-    setConfig,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -47,11 +46,11 @@ import {
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {ActionBarState, AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -105,6 +104,7 @@ function Agenda() {
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive} = useAppSelector(timerSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [
         timeRange,
@@ -114,6 +114,7 @@ function Agenda() {
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
+    const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
@@ -129,17 +130,7 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    }, SWRNoValidateConfig);
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data
-        .find((item: AgendaConfigurationModel) =>
-            item.isDefault) as AgendaConfigurationModel;
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
     const {
@@ -177,7 +168,7 @@ function Agenda() {
         setLoading(true);
         trigger({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${router.locale}?${query}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -186,6 +177,9 @@ function Agenda() {
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
             appointments?.map((appointment) => {
+                const hasErrors = [
+                    ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
                 eventsUpdated.push({
                     start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                     time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
@@ -194,14 +188,15 @@ function Agenda() {
                     allDay: false,
                     borderColor: appointment.type?.color,
                     patient: appointment.patient,
+                    overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                     motif: appointment.consultationReason,
                     instruction: appointment.instruction !== null ? appointment.instruction : "",
                     id: appointment.uuid,
-                    hasError: getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
+                    hasErrors,
                     dur: appointment.duration,
                     type: appointment.type,
                     meeting: false,
-                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").utcOffset(0).isBetween(moment().utcOffset(0).subtract(30, "minutes"), moment().utcOffset(0)),
+                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
                     addRoom: true,
                     status: AppointmentStatus[appointment.status]
                 });
@@ -238,42 +233,46 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
 
-    useEffect(() => {
-        if (agenda) {
-            dispatch(setConfig(agenda));
-        }
-    }, [agenda, dispatch])
-
-    useEffect(() => {
-        if (filter?.type && timeRange.start !== "" ||
-            filter?.gender || filter?.name || filter?.birthdate || filter?.phone) {
-            let query = "";
+    const prepareSearchKeys = (filter: ActionBarState | undefined) => {
+        let query = "";
+        if (filter) {
             Object.entries(filter).map((param, index) => {
-                if (param[1]) {
+                if (param[0] === "patient" && param[1]) {
+                    Object.entries(param[1]).map(deepParam => {
+                        if (deepParam[1]) {
+                            query += `&${deepParam[0]}=${deepParam[1]}`;
+                        }
+                    })
+                }
+                if (param[0] === "type" && param[1]) {
                     query += `&${param[0]}=${param[1]}`;
                 }
             });
+        }
+        return query;
+    }
+
+    useEffect(() => {
+        if (filter?.type && timeRange.start !== "" || filter?.patient) {
+            const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
-                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`
+                `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
             getAppointments(queryPath, view);
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
             getAppointments(queryPath, view);
         }
-    }, [filter, getAppointments, timeRange.end, timeRange.start]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const handleOnRangeChange = (event: DatesSetArg) => {
+        dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
-        if (filter?.type === undefined &&
-            filter?.gender === undefined &&
-            filter?.name === undefined &&
-            filter?.phone === undefined &&
-            filter?.birthdate === undefined) {
+        if (prepareSearchKeys(filter as any).length === 0 && localFilter.length === 0) {
             getAppointments(`start_date=${startStr}&end_date=${endStr}&format=week`);
         }
     }
@@ -288,8 +287,10 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`, view);
+        console.log("onViewChange", filter);
+        const query = prepareSearchKeys(filter as any);
+        if (view === 'listWeek' && filter?.patient === undefined) {
+            getAppointments(`format=list&page=1&limit=50${query}`, view);
         }
     }
 
@@ -324,6 +325,7 @@ function Agenda() {
         switch (action) {
             case "onCancel":
                 setEvent(event);
+                setActionDialog('cancel');
                 setCancelDialog(true);
                 break;
             case "onConsultationDetail":
@@ -331,11 +333,18 @@ function Agenda() {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
                         dispatch(setTimer({isActive: true, isPaused: false, event}));
-                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4");
+                        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                            start_date: moment().format("DD-MM-YYYY"),
+                            start_time: moment().format("HH:mm")
+                        });
                     });
                 } else {
                     setError(true);
                 }
+                break;
+            case "onConsultationView":
+                const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPatientDetail":
                 setEvent(event);
@@ -348,7 +357,14 @@ function Agenda() {
             case "onLeaveWaitingRoom":
                 setEvent(event);
                 updateAppointmentStatus(event?.publicId ? event?.publicId :
-                    (event as any)?.id, "6").then(() => refreshData());
+                    (event as any)?.id, "6").then(() => {
+                    refreshData();
+                    enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
+                });
+                break;
+            case "onPatientNoShow":
+                setEvent(event);
+                onPatientNoShow(event);
                 break;
             case "onMove":
                 dispatch(setSelectedEvent(event));
@@ -378,15 +394,29 @@ function Agenda() {
     const onOpenWaitingRoom = (event: EventDef) => {
         updateAppointmentStatus(
             event?.publicId ? event?.publicId : (event as any)?.id, "3").then(
-            () => refreshData());
+            () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
+            });
+    }
+
+    const onPatientNoShow = (event: EventDef) => {
+        updateAppointmentStatus(
+            event?.publicId ? event?.publicId : (event as any)?.id, "10").then(
+            () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+            });
     }
 
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() =>
-                dispatch(setTimer({isActive: true, isPaused: false, event}))
-            )
+            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setTimer({isActive: true, isPaused: false, event}));
+            })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
@@ -433,7 +463,7 @@ function Agenda() {
         form.append('duration', event.extendedProps.duration);
         updateAppointmentTrigger({
             method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/change-date/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -457,7 +487,7 @@ function Agenda() {
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/${eventId}/clone/${router.locale}`,
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -471,14 +501,42 @@ function Agenda() {
         });
     }
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
         const form = new FormData();
         form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
         return updateStatusTrigger({
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
+
+    const handleActionDialog = (appointmentUUid: string) => {
+        switch (actionDialog) {
+            case "cancel":
+                cancelAppointment(appointmentUUid);
+                break;
+            case "delete":
+                deleteAppointment(appointmentUUid);
+                break;
+        }
+
+    }
+
+    const deleteAppointment = (appointmentUUid: string) => {
+        setLoading(true);
+        updateAppointmentStatus(appointmentUUid, "9").then(() => {
+            dispatch(openDrawer({type: "view", open: false}));
+            setCancelDialog(false);
+            setLoading(false);
+            refreshData();
+            enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
         });
     }
 
@@ -490,9 +548,10 @@ function Agenda() {
                     {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
             };
             dispatch(setSelectedEvent(eventUpdated));
-            setLoading(false);
             setCancelDialog(false);
+            setLoading(false);
             refreshData();
+            enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
         });
     }
 
@@ -516,6 +575,10 @@ function Agenda() {
             case "onDetailPatient":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
+                break;
+            case "onWaitingRoom":
+                onOpenWaitingRoom(event);
+                dispatch(openDrawer({type: "add", open: false}));
                 break;
         }
     }
@@ -573,11 +636,11 @@ function Agenda() {
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
-                    visibility: !httpAgendasResponse || !httpAppointmentResponse || loading ? "visible" : "hidden"
+                    visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
                 <DesktopContainer>
                     <>
-                        {httpAgendasResponse &&
+                        {agenda &&
                             <AnimatePresence exitBeforeEnter>
                                 <motion.div
                                     initial={{opacity: 0}}
@@ -588,6 +651,7 @@ function Agenda() {
                                         {...{
                                             events: events.current,
                                             agenda,
+                                            spinner: loading,
                                             t,
                                             sortedData: sortedData.current
                                         }}
@@ -656,10 +720,25 @@ function Agenda() {
                             OnConsultation={onConsultationDetail}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
-                            OnWaiting={onOpenWaitingRoom}
+                            OnPatientNoShow={onPatientNoShow}
+                            OnWaiting={(event: EventDef) => {
+                                onOpenWaitingRoom(event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                            }}
+                            OnLeaveWaiting={(event: EventDef) => {
+                                onMenuActions('onLeaveWaitingRoom', event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                            }}
                             OnEditDetail={() => dispatch(openDrawer({type: "patient", open: true}))}
                             SetMoveDialog={() => setMoveDialogInfo(true)}
-                            SetCancelDialog={() => setCancelDialog(true)}
+                            SetCancelDialog={() => {
+                                setActionDialog('cancel');
+                                setCancelDialog(true)
+                            }}
+                            SetDeleteDialog={() => {
+                                setActionDialog('delete');
+                                setCancelDialog(true);
+                            }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
                         />}
@@ -706,7 +785,7 @@ function Agenda() {
                                 onCloseDialog={cleanDrawData}
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
-                                ConsultationId={event?.publicId}
+                                onConsultation={() => onMenuActions('onConsultationDetail', event)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
@@ -749,7 +828,8 @@ function Agenda() {
                                 {t("dialogs.move-dialog.garde-date")}
                             </Button>
                             <LoadingButton
-                                {...(loading && {loading})}
+                                {...{loading}}
+                                loadingPosition="start"
                                 variant="contained"
                                 color={"warning"}
                                 onClick={() => handleMoveAppointment(event as EventDef)}
@@ -772,13 +852,13 @@ function Agenda() {
                         return (
                             <Box sx={{minHeight: 150}}>
                                 <Typography sx={{textAlign: "center"}}
-                                            variant="subtitle1">{t("dialogs.cancel-dialog.sub-title")} </Typography>
+                                            variant="subtitle1">{t(`dialogs.${actionDialog}-dialog.sub-title`)} </Typography>
                                 <Typography sx={{textAlign: "center"}}
-                                            margin={2}>{t("dialogs.cancel-dialog.description")}</Typography>
+                                            margin={2}>{t(`dialogs.${actionDialog}-dialog.description`)}</Typography>
                             </Box>)
                     }}
                     open={cancelDialog}
-                    title={t("dialogs.cancel-dialog.title")}
+                    title={t(`dialogs.${actionDialog}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
@@ -786,16 +866,17 @@ function Agenda() {
                                 onClick={() => setCancelDialog(false)}
                                 startIcon={<CloseIcon/>}
                             >
-                                {t("dialogs.cancel-dialog.cancel")}
+                                {t(`dialogs.${actionDialog}-dialog.cancel`)}
                             </Button>
                             <LoadingButton
-                                {...(loading && loading)}
+                                {...{loading}}
+                                loadingPosition="start"
                                 variant="contained"
                                 color={"error"}
-                                onClick={() => cancelAppointment(event?.publicId ? event?.publicId as string : (event as any)?.id)}
+                                onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
                             >
-                                {t("dialogs.cancel-dialog.confirm")}
+                                {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
                     }

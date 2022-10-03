@@ -65,14 +65,6 @@ export const headCells = [
         sortable: true,
     },
     {
-        id: "status",
-        numeric: false,
-        disablePadding: true,
-        label: "Status",
-        align: "left",
-        sortable: true,
-    },
-    {
         id: "action",
         numeric: false,
         disablePadding: true,
@@ -82,12 +74,9 @@ export const headCells = [
     },
 ];
 const AddWaitingRoomCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "table.no-data.event.title",
-    description: "table.no-data.event.description",
-    buttonText: "table.no-data.event.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
+    mainIcon: "ic-salle",
+    title: "empty",
+    description: "desc"
 };
 
 function WaitingRoom() {
@@ -199,7 +188,7 @@ function WaitingRoom() {
                         <Box display={{xs: "none", md: "block"}} mt={1}>
                             {waitingRooms &&
                                 <>
-                                    <Otable
+                                    {waitingRooms.length > 0 && <Otable
                                         headers={headCells}
                                         rows={waitingRooms}
                                         from={"waitingRoom"}
@@ -209,8 +198,7 @@ function WaitingRoom() {
                                             handleContextMenu(data.event);
                                             setRow(data.row);
                                         }}
-                                        minWidth={1080}
-                                    />
+                                    />}
                                     {waitingRooms.length === 0 && (
                                         <NoDataCard t={t} ns={"waitingRoom"} data={AddWaitingRoomCardData}/>
                                     )}

@@ -18,6 +18,8 @@
     "payment_date": "Date de reglement",
     "expiry_date": "date de decheance",
     "add_cheque": "Ajouter un Chéque",
+    "billing": "Facturer",
+    "receive": "Réceptionner",
     "table": {
         "date": "Date",
         "time": "Heure",

@@ -1,7 +1,7 @@
 import {Box, Button, Divider, Paper, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
-import {PatientdetailsCard} from "@features/card";
+import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
     DocumentsPanel,
     Instruction,
@@ -22,6 +22,7 @@ import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {SyntheticEvent, useState} from "react";
+import PatientDetailStyled from "./overrides/patientDetailStyled";
 
 function a11yProps(index: number) {
     return {
@@ -43,12 +44,12 @@ const AddAppointmentCardData = {
 function PatientDetail({...props}) {
     const {
         patientId,
-        ConsultationId,
         isAddAppointment = false,
         currentStepper = 0,
         onCloseDialog,
         onChangeStepper,
         onAddAppointment,
+        onConsultation = null
     } = props;
 
     const stepperData = [
@@ -78,13 +79,13 @@ function PatientDetail({...props}) {
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest({
+    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    } : null);
 
     // handle tab change
     const handleStepperIndexChange = (
@@ -94,15 +95,16 @@ function PatientDetail({...props}) {
         setIndex(newValue);
     };
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)
-        ?.data as PatientModel;
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+    const nextAppointments = (patient ? patient.nextAppointments : []);
+    const previousAppointments = (patient ? patient.previousAppointments : []);
 
     if (!ready) return <>loading translations...</>;
 
     return (
         <>
             {!isAdd ? (
-                <Box height={!isAdd ? "100%" : 0}>
+                <PatientDetailStyled height={!isAdd ? "100%" : 0}>
                     {" "}
                     <PatientDetailsToolbar
                         onClose={() => {
@@ -110,21 +112,12 @@ function PatientDetail({...props}) {
                             onCloseDialog(false);
                         }}
                     />
-                    <PatientdetailsCard
+                    <PatientDetailsCard
                         loading={!patient}
                         patient={patient}
-                        Onconsultation={ConsultationId}
+                        onConsultation={onConsultation}
                     />
-                    <Box
-                        sx={{
-                            width: {md: 726, xs: "100%"},
-                            bgcolor: "background.default",
-                            "& div[role='tabpanel']": {
-                                height: {md: "calc(100vh - 312px)", xs: "auto"},
-                                overflowY: "auto",
-                            },
-                        }}
-                    >
+                    <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs
                             value={index}
                             onChange={handleStepperIndexChange}
@@ -157,20 +150,25 @@ function PatientDetail({...props}) {
                             />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            <GroupTable
-                                from="patient"
-                                loading={!patient}
-                                data={(httpPatientDetailsResponse as HttpResponse)?.data}
-                            />
-                            {/* ) : ( */}
-                            {/* <NoDataCard t={t} data={AddAppointmentCardData} /> */}
-                            {/* )} */}
+                            {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
+                                <GroupTable
+                                    from="patient"
+                                    loading={!patient}
+                                    data={patient}
+                                />
+                            ) : (
+                                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
+                            )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={2}>
                             <DocumentsPanel/>
                         </TabPanel>
                         <Paper
+                            className={"action-buttons"}
                             sx={{
+                                position: "absolute",
+                                bottom: 0,
+                                width: "100%",
                                 borderRadius: 0,
                                 borderWidth: "0px",
                                 p: 2,
@@ -215,7 +213,7 @@ function PatientDetail({...props}) {
                             ]}
                         />
                     </Box>
-                </Box>
+                </PatientDetailStyled>
             ) : (
                 <CustomStepper
                     stepperData={stepperData}

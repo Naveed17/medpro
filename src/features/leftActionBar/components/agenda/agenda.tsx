@@ -18,7 +18,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, DayOfWeek} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setView} from "@features/calendar";
 import moment from "moment-timezone";
 
 const CalendarPickers = dynamic(() =>
@@ -88,7 +88,10 @@ function Agenda() {
                         children: (
                             <FilterRootStyled>
                                 <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => dispatch(setFilter(data.query))}
+                                    OnSearch={(data: { query: ActionBarState }) => {
+                                        dispatch(setView("listWeek"));
+                                        dispatch(setFilter({patient: data.query}));
+                                    }}
                                     item={{
                                         heading: {
                                             icon: "ic-patient",
@@ -102,7 +105,7 @@ function Agenda() {
                                             labels: [
                                                 {label: "name", placeholder: "name"},
                                                 {label: "birthdate", placeholder: "--/--/----"},
-                                                {label: "phone", placeholder: "telephone"},
+                                                {label: "phone", placeholder: "phone"},
                                             ],
                                         },
                                     }} t={t}/>

@@ -1,4 +1,4 @@
-import {Typography, IconButton, Stack, Box} from "@mui/material";
+import {Typography, IconButton, Box} from "@mui/material";
 import RootStyled from './overrides/rootStyled';
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
@@ -15,12 +15,7 @@ function AppointmentListMobile({...props}) {
     const handleEventClick = () => {
         OnSelectEvent(Object.assign(event, {
             extendedProps: {
-                description: event.description,
-                meeting: event.meeting,
-                motif: event.motif,
-                patient: event.patient,
-                status: event.status,
-                time: event.time
+                ...event
             }
         }));
     }
@@ -29,12 +24,7 @@ function AppointmentListMobile({...props}) {
         setOpenTooltip(false)
         OnMenuActions(data.action, Object.assign(event, {
             extendedProps: {
-                description: event.description,
-                meeting: event.meeting,
-                motif: event.motif,
-                patient: event.patient,
-                status: event.status,
-                time: event.time
+                ...event
             }
         }));
     }

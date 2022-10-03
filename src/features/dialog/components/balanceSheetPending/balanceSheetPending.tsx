@@ -48,7 +48,7 @@ function BalanceSheetPendingDialog({...props}) {
     if (!ready) return <>loading translations...</>;
     return (
         <BalanceSheetPendingStyled>
-            <Grid container spacing={5}>
+            {/*<Grid container spacing={5}>
                 <Grid item xs={12} md={7}>
                     <Typography marginBottom={2} gutterBottom>{t('importResult')}</Typography>
 
@@ -56,7 +56,7 @@ function BalanceSheetPendingDialog({...props}) {
                         <UploadFileCard fontSize={16} onDrop={handleDrop}/>
                     </Box>
                     <Stack height={1}>
-                        {/*                        <FormikProvider value={formik}>
+                                                <FormikProvider value={formik}>
                             <Stack
                                 spacing={2}
                                 component={Form}
@@ -88,11 +88,11 @@ function BalanceSheetPendingDialog({...props}) {
                                     {t('add_balance_sheet')}
                                 </Button>
                             </Stack>
-                        </FormikProvider>*/}
+                        </FormikProvider>
                     </Stack>
                     <Divider orientation="vertical"/>
                 </Grid>
-                <Grid item xs={12} md={5}>
+                <Grid item xs={12} md={5}>*/}
                     <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
                     {
                         analyses.hasAnalysis.map((item: any, index: number) => (
@@ -113,8 +113,10 @@ function BalanceSheetPendingDialog({...props}) {
                                 />
                             </Card>
                         ))}
+{/*
                 </Grid>
             </Grid>
+*/}
             <Dialog action={"add_a_document"}
                     open={openDialog}
                     data={files}

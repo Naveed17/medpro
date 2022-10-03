@@ -12,6 +12,7 @@ import { RDVCard, RDVMobileCard } from "@features/card/";
 // utils
 import { useTranslation } from "next-i18next";
 import _ from "lodash";
+
 function RDVRow({ ...props }) {
   const { data, loading } = props;
   console.log(data);
@@ -41,7 +42,7 @@ function RDVRow({ ...props }) {
   if (!ready) return <>loading translations...</>;
   return (
     <React.Fragment>
-        {data.nextAppointments.length > 0 && <TableRow>
+        {data?.nextAppointments.length > 0 && <TableRow>
             <TableCell colSpan={3} className="text-row">
                 <Typography variant="body1" color="text.primary">
                     {loading ? (

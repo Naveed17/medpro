@@ -102,8 +102,8 @@ function PaymentDialog({ ...props }) {
                 carrier: "",
                 bank: "",
                 check_number: '',
-                payment_date: "",
-                expiry_date: ""
+                payment_date: new Date(),
+                expiry_date: new Date(),
 
             }
         ]
@@ -114,8 +114,8 @@ function PaymentDialog({ ...props }) {
             carrier: "",
             bank: "",
             check_number: '',
-            payment_date: "",
-            expiry_date: ""
+            payment_date: new Date(),
+            expiry_date: new Date(),
         }
 
         ];
@@ -167,7 +167,7 @@ function PaymentDialog({ ...props }) {
                         selected &&
                         <Button size='small' variant='contained' color="error">
                             {t("btn_remain")}
-                            <Typography fontWeight={700} component='strong' mx={1}>{selected.pending}</Typography>
+                            <Typography fontWeight={700} component='strong' mx={1}>{selected.pending - selected.amount}</Typography>
                             TND
                         </Button>
                     }
@@ -406,9 +406,9 @@ function PaymentDialog({ ...props }) {
                                                             <Grid item xs={12} lg={4}>
                                                                 <DatePicker
                                                                     value={state.tab3Data[idx].payment_date}
-                                                                    onChange={(e: any) => {
+                                                                    onChange={(newValue: any) => {
                                                                         let newArr = [...state.tab3Data];
-                                                                        newArr[idx].payment_date = e.target.value;
+                                                                        newArr[idx].payment_date = newValue;
                                                                         setState({
                                                                             ...state,
                                                                             tab3Data: newArr
@@ -422,16 +422,11 @@ function PaymentDialog({ ...props }) {
                                                                     <Typography color="text.secondary" variant='body2' fontWeight={400}>
                                                                         {t("expiry_date")}
                                                                     </Typography>
-                                                                    <TextField
-                                                                        variant="outlined"
-                                                                        placeholder={t("expiry_date")}
+                                                                    <DatePicker
                                                                         value={state.tab3Data[idx].expiry_date}
-                                                                        fullWidth
-                                                                        type="number"
-                                                                        required
-                                                                        onChange={(e) => {
+                                                                        onChange={(newValue: any) => {
                                                                             let newArr = [...state.tab3Data];
-                                                                            newArr[idx].expiry_date = e.target.value;
+                                                                            newArr[idx].expiry_date = newValue;
                                                                             setState({
                                                                                 ...state,
                                                                                 tab3Data: newArr

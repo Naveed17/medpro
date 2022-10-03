@@ -164,7 +164,29 @@ main {
     margin: 0;
   }
 }
+.collapse-row{
+  position: relative;
+  &::before{
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 116%;
+    border: 1px solid #ddd;
+    left: -15px;
+    z-index: -1;
+    border-right: none;
+    top:-55%;
+    border-radius: 6px;
 
+  }
+  &:hover{
+    background-color: $white !important;
+   
+  }
+}
 .snackbar-notification #notistack-snackbar{
   font-family: "Poppins", serif;
+}
+#ReactSimpleImageViewer{
+  z-index: 9999;
 }

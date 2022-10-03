@@ -1,13 +1,15 @@
 import {createReducer} from "@reduxjs/toolkit";
-import {setFilter} from "./actions";
+import {setFilter, resetFilterPatient} from "./actions";
 
 export type ActionBarState = {
     query: {
         type?: string;
-        gender?: string;
-        birthdate?: string;
-        phone?: string;
-        name?: string;
+        patient?: {
+            gender?: string;
+            birthdate?: string;
+            phone?: string;
+            name?: string;
+        }
     } | undefined;
 };
 
@@ -19,5 +21,8 @@ export const leftActionBarReducer = createReducer(initialState, (builder) => {
     builder
         .addCase(setFilter, (state, action) => {
             state.query = action.payload;
+        })
+        .addCase(resetFilterPatient, (state, action) => {
+            return {...state, query: {...state.query, patient: undefined}}
         });
 });

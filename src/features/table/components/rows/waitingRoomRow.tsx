@@ -86,7 +86,6 @@ function WaitingRoomRow({...props}) {
                             <Typography
                                 component={"span"}
                                 sx={{
-                                    mt: 1,
                                     display: "flex",
                                     alignItems: "center",
                                     color: theme.palette.success.main,
@@ -125,11 +124,7 @@ function WaitingRoomRow({...props}) {
                         <Skeleton variant="text" width={80}/>
                     )}
                 </TableCell>
-                <TableCell
-                    sx={{
-                        my: 1,
-                    }}
-                >
+                <TableCell>
                     {row ? (
                         <Box
                             display="flex"
@@ -158,11 +153,7 @@ function WaitingRoomRow({...props}) {
                         </Stack>
                     )}
                 </TableCell>
-                <TableCell
-                    sx={{
-                        my: 1,
-                    }}
-                >
+                <TableCell>
                     {row ? (
                         <Stack direction="row"
                                alignItems="center"
@@ -196,7 +187,7 @@ function WaitingRoomRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     )}
                 </TableCell>
-                <TableCell>
+                {/*<TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
                             {row.appointment_type ?
@@ -214,18 +205,19 @@ function WaitingRoomRow({...props}) {
                                         {row.appointment_type?.name}
                                     </Typography>
                                 </> : " -- "}
-                            {/*<PlayCircleRoundedIcon color="success"/>*/}
-                            {/*<Typography variant="body2">*/}
-                            {/*    120 TND*/}
-                            {/*</Typography>*/}
+                            <PlayCircleRoundedIcon color="success"/>
+                            <Typography variant="body2">
+                                120 TND
+                            </Typography>
                         </Stack>
                     ) : (
                         <Skeleton variant="text" width={100}/>
                     )}
-                </TableCell>
+                </TableCell>*/}
                 <TableCell align="right">
                     <IconButton
                         onClick={(event) => {
+                            event.stopPropagation();
                             handleEvent({action: "open-popover", row, event});
                         }}
                         sx={{display: "block", ml: "auto"}}

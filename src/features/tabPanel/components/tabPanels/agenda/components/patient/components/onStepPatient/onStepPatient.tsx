@@ -1,4 +1,4 @@
-import {FastField, FieldArray, Form, FormikProvider, useFormik} from "formik";
+import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
     Box, Button,
     FormControl,
@@ -11,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import React from "react";
+import React, {memo} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -26,6 +26,12 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+export const MyTextInput: any = memo(({...props}) => {
+    return (
+        <TextField {...props}/>
+    );
+})
+MyTextInput.displayName = "TextField";
 
 function OnStepPatient({...props}) {
     const {
@@ -88,11 +94,11 @@ function OnStepPatient({...props}) {
             address: "",
             email: "",
             cin: "",
-            from: "",
+            family_doctor: "",
             insurance: [] as {
                 insurance_number: string;
                 insurance_uuid: string;
-            }[],
+            }[]
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
@@ -544,7 +550,7 @@ function OnStepPatient({...props}) {
                                 render={arrayHelpers => (
                                     values.insurance.map((val, index: number) => (
                                         <Grid
-                                            key={Math.random()}
+                                            key={index}
                                             container
                                             spacing={2}
                                             sx={{mt: index > 0 ? 0.5 : 0}}
@@ -582,7 +588,7 @@ function OnStepPatient({...props}) {
                                             </Grid>
                                             <Grid item xs={12} md={8}>
                                                 <Stack direction="row" spacing={2} key={`stack-${index}`}>
-                                                    <TextField
+                                                    <MyTextInput
                                                         variant="outlined"
                                                         placeholder={t("assurance-phone-error")}
                                                         size="small"
@@ -612,37 +618,50 @@ function OnStepPatient({...props}) {
                             />
                         </Box>
                     </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("email")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("email-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("email")}
-                                error={Boolean(touched.email && errors.email)}
-                                helperText={
-                                    Boolean(touched.email && errors.email)
-                                        ? String(errors.email)
-                                        : undefined
-                                }
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("cin")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("cin-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("cin")}
-                            />
-                        </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("email")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("email-placeholder")}
+                            type="email"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("email")}
+                            error={Boolean(touched.email && errors.email)}
+                            helperText={
+                                Boolean(touched.email && errors.email)
+                                    ? String(errors.email)
+                                    : undefined
+                            }
+                        />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("cin")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("cin-placeholder")}
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("cin")}
+                        />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("family_doctor")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("family_doctor-placeholder")}
+                            type="text"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("family_doctor")}
+                        />
+                    </Box>
                 </Stack>
 
                 <Stack
@@ -664,7 +683,7 @@ function OnStepPatient({...props}) {
                 </Stack>
             </Stack>
         </FormikProvider>
-)
+    )
 }
 
 export default OnStepPatient;
