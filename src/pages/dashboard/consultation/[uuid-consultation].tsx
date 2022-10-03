@@ -18,7 +18,7 @@ import {
     Typography,
     ListItem, Button,
     DialogActions,
-    IconButton, List, Collapse, ListItemIcon
+    IconButton, List, Collapse, ListItemIcon, CardContent, Card
 } from "@mui/material";
 import {Dialog, openDrawer as DialogOpenDrawer} from "@features/dialog";
 import {CustomStepper} from "@features/customStepper";
@@ -50,8 +50,12 @@ import {ConsultationFilter} from "@features/leftActionBar";
 import IconUrl from "@themes/urlIcon";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
-import {uniqueId} from 'lodash'
+import {capitalize, uniqueId} from 'lodash'
 import ImageViewer from 'react-simple-image-viewer';
+import Icon from "@themes/urlIcon";
+import CIPPatientHistoryCardStyled
+    from "@features/card/components/cIPPatientHistoryCard/components/overrides/cIPPatientHistoryCardStyle";
+import CircleIcon from "@mui/icons-material/Circle";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -161,7 +165,7 @@ const noCardData = {
     mainIcon: "ic-doc",
     title: "no-data.event.title",
     description: "no-data.event.description",
-    buttonText: "no-data.event.button-text",
+    //buttonText: "no-data.event.button-text",
     buttonIcon: "ic-doc",
     buttonVariant: "warning",
 };
@@ -211,6 +215,45 @@ function ConsultationInProgress() {
             "weight": 0
         }
     });
+    const subMotifCard = [
+        {
+            id: 1,
+            title: 'treatment_medication',
+            icon: 'ic-traitement',
+            type: 'treatment',
+            drugs: [
+                {
+                    id: 1,
+                    name: "Doliprane 1000",
+                    dosage: "dosage_unit",
+                    duration: 10,
+                },
+                {
+                    id: 2,
+                    name: "Doliprane 1000",
+                    dosage: "dosage_unit",
+                    duration: 10,
+                }
+            ]
+        },
+        {
+            id: 2,
+            title: 'documents',
+            icon: 'ic-document',
+            type: 'document',
+            documents: [
+                'document_1',
+                'document_2',
+            ]
+        },
+        {
+            id: 3,
+            title: 'bal_sheet_req',
+            icon: 'ic-document',
+            type: 'req-sheet',
+
+        }
+    ];
     /*
         const [filter, setfilter] = useState<any>({});
     */
@@ -236,7 +279,7 @@ function ConsultationInProgress() {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
 
     const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
         method: "GET",
@@ -374,6 +417,7 @@ function ConsultationInProgress() {
         setIsViewerOpen('');
     };
 
+
     const {t, ready} = useTranslation("consultation");
     if (!ready) return <>consulation translations...</>;
 
@@ -416,54 +460,77 @@ function ConsultationInProgress() {
                                     setSize(patient?.nextAppointments.length)
                                 }}>{t('showAll')}</Button>}
 
+                            {appointement && appointement.status === 5 && <Stack spacing={2}>
+                                <CIPPatientHistoryCardStyled sx={{border: '2px solid #fed400', marginBottom: 2}}>
+                                    <Stack className="card-header" p={2} direction="row" alignItems="center"
+                                           borderBottom={1}
+                                           borderColor="divider">
+                                        <Typography display='flex' alignItems="center" component="div"
+                                                    fontWeight={600}>
+                                            <Icon path={'ic-doc'}/>
+                                            {capitalize(t('reason_for_consultation'))} {appointement.consultationReason ? <>: {appointement.consultationReason.name}</> : <>:
+                                            --</>}
+                                        </Typography>
+                                        <Typography variant='body2' color="text.secondary" ml="auto">
+                                            {appointement.dayDate}
+                                        </Typography>
+                                    </Stack>
+                                    <CardContent>
+                                        <Grid container spacing={2}>
+                                            {appointement.consultation_sheet.modal.data && JSON.stringify(appointement?.consultation_sheet.modal.data) !=='{"submit":true}' &&
+                                                <Grid item xs={12} md={6}>
+                                                    <Card className="motif-card">
+                                                        <CardContent>
+                                                            <Stack direction="row" alignItems="center"
+                                                                   justifyContent="space-between"
+                                                                   textTransform={"capitalize"}>
+                                                                <Typography variant="body2" fontWeight={700}
+                                                                            marginBottom={1}>
+                                                                    {t('tracking_data')}
+                                                                </Typography>
+                                                            </Stack>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Grid>}
+
+                                            <Grid item xs={12} md={6}>
+                                                <Card className="motif-card">
+                                                    <CardContent>
+                                                        {
+                                                            Object.keys(appointement.consultation_sheet.exam.appointment_data).map((appdata, idx) => (
+                                                                appdata !== 'models' && <Box key={'tex' + idx}>
+                                                                    <Typography variant="body2" fontWeight={700}
+                                                                                textTransform={"capitalize"}>
+                                                                        {appdata}
+                                                                    </Typography>
+                                                                    <List>
+                                                                        <ListItem>
+                                                                            • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
+                                                                        </ListItem>
+                                                                    </List>
+                                                                </Box>
+                                                            ))
+                                                        }
+                                                    </CardContent>
+                                                </Card>
+                                            </Grid>
+
+                                        </Grid>
+
+                                    </CardContent>
+                                </CIPPatientHistoryCardStyled>
+                            </Stack>}
+
                             <Stack spacing={2}>
-                                {
-                                    <CIPPatientHistoryCard data={appointement?.latestAppointment}>
+                                {appointement && appointement.latestAppointments.map((app: any) => (
+                                    <CIPPatientHistoryCard key={app.appointment.uuid} data={app}>
                                         <Stack spacing={2}>
-                                            {appointement &&
-                                                <MotifCard data={appointement?.latestAppointment}/>
-                                            }
+                                            <MotifCard data={app}/>
+
+
                                             <List dense>
                                                 {
-                                                    [
-                                                        {
-                                                            id: 1,
-                                                            title: 'treatment_medication',
-                                                            icon: 'ic-traitement',
-                                                            type: 'treatment',
-                                                            drugs: [
-                                                                {
-                                                                    id: 1,
-                                                                    name: "Doliprane 1000",
-                                                                    dosage: "dosage_unit",
-                                                                    duration: 10,
-                                                                },
-                                                                {
-                                                                    id: 2,
-                                                                    name: "Doliprane 1000",
-                                                                    dosage: "dosage_unit",
-                                                                    duration: 10,
-                                                                }
-                                                            ]
-                                                        },
-                                                        {
-                                                            id: 2,
-                                                            title: 'documents',
-                                                            icon: 'ic-document',
-                                                            type: 'document',
-                                                            documents: [
-                                                                'document_1',
-                                                                'document_2',
-                                                            ]
-                                                        },
-                                                        {
-                                                            id: 3,
-                                                            title: 'bal_sheet_req',
-                                                            icon: 'ic-document',
-                                                            type: 'req-sheet',
-
-                                                        }
-                                                    ].map((col, idx) => (
+                                                    subMotifCard.map((col, idx) => (
                                                         <React.Fragment key={`list-item-${idx}`}>
                                                             <>
                                                                 <ListItem
@@ -550,7 +617,7 @@ function ConsultationInProgress() {
                                                                             }}>Aucune demande</p>}
 
                                                                         {
-                                                                            col.type === "document" && appointement?.latestDocument.length > 0 &&
+                                                                            col.type === "document" && app.documents.length > 0 &&
                                                                             <Box style={{padding: 20, paddingTop: 25}}>
                                                                                 <Grid container spacing={2} sx={{
                                                                                     bgcolor: theme => theme.palette.grey['A100'],
@@ -559,7 +626,7 @@ function ConsultationInProgress() {
                                                                                     borderRadius: 0.7
                                                                                 }}>
                                                                                     {
-                                                                                        appointement?.latestDocument.map((card: any) =>
+                                                                                        app.documents.map((card: any) =>
                                                                                             <Grid item xs={3}
                                                                                                   key={`doc-item-${card.uuid}`}>
                                                                                                 <DocumentCard
@@ -599,12 +666,14 @@ function ConsultationInProgress() {
                                                                         }
 
 
-                                                                        {col.type === "document" && (appointement?.latestDocument === null || appointement?.latestDocument.length === 0) &&
+                                                                        {
+                                                                            col.type === "document" && (app.documents === null || app.documents.length === 0) &&
                                                                             <p style={{
                                                                                 fontSize: 12,
                                                                                 color: "gray",
                                                                                 textAlign: "center"
-                                                                            }}>Aucun document</p>}
+                                                                            }}>Aucun document</p>
+                                                                        }
                                                                     </Collapse>
                                                                 </ListItem>
                                                             </>
@@ -617,9 +686,10 @@ function ConsultationInProgress() {
 
                                         </Stack>
                                     </CIPPatientHistoryCard>
-
+                                ))
                                 }
                             </Stack>
+                            {/**/}
 
                             {/*<Stack spacing={1} mb={1} marginTop={3}>
                                 <Typography variant="body2">
@@ -677,9 +747,10 @@ function ConsultationInProgress() {
                         <TabPanel index={2}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} md={5}>
-                                    <ModalConsultation
+                                    <p>En cours dev...</p>
+                                    {/* <ModalConsultation
                                         modal={selectedModel}
-                                        setSM={setSelectedModel}/>
+                                        setSM={setSelectedModel}/>*/}
                                 </Grid>
                                 <Grid item xs={12} md={7}>
                                     <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>

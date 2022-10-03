@@ -6,8 +6,8 @@ import CircleIcon from '@mui/icons-material/Circle';
 
 function MotifCard({...props}) {
     const {data} = props;
-    const models = data?.appointmentData.find((appData: { type: string }) => appData.type === 'models')
-    const notmodels = data?.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
+    const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
+    const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
 
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'consultationIP'})
     if (!ready) return <>loading translations...</>
@@ -26,8 +26,9 @@ function MotifCard({...props}) {
                                 <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
 */}
                             </Stack>
+{/*
                             <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
-                                {Object.keys(JSON.parse(models.value)).map((ml, idx) => (
+                                {models && Object.keys(JSON.parse(models.value)).map((ml, idx) => (
                                     ml !== "submit" && <ListItem key={'modelData' + idx}>
                                         <ListItemIcon>
                                             <CircleIcon/>
@@ -36,6 +37,7 @@ function MotifCard({...props}) {
                                     </ListItem>
                                 ))}
                             </List>
+*/}
                         </CardContent>
                     </Card>
                 </Grid>}
@@ -43,7 +45,7 @@ function MotifCard({...props}) {
                 {notmodels && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
-                            {data.appointmentData.map((data: { name: string, value: string }, idx: number) => (
+                            {data.appointment.appointmentData.map((data: { name: string, value: string }, idx: number) => (
                                 data.name !== 'models' && <Box key={'data-appointement' + idx}>
                                     <Typography variant="body2" fontWeight={700}
                                                 textTransform={"capitalize"}>

@@ -162,8 +162,7 @@ function ModalConsultation({...props}) {
                                 Array.from({length: 3}).map((_, idx) =>
                                     <Box key={`loading-box-${idx}`}>
                                         <Typography alignSelf="center" marginBottom={2} marginTop={2}>
-                                            <Skeleton width={130} height={12}
-                                                      variant="rectangular"/>
+                                            <Skeleton width={130} variant="text"/>
                                         </Typography>
                                         <Card className='loading-card'>
                                             <Stack spacing={2}>
@@ -171,10 +170,8 @@ function ModalConsultation({...props}) {
                                                     {
                                                         Array.from({length: 4}).map((_, idx) =>
                                                             <ListItem key={`skeleton-item-${idx}`} sx={{py: .5}}>
-                                                                <Skeleton width={'50%'} height={12}
-                                                                          variant="rectangular"/>
-                                                                <Skeleton sx={{ml: 1}} width={'50%'} height={12}
-                                                                          variant="rectangular"/>
+                                                                <Skeleton width={'40%'} variant="text"/>
+                                                                <Skeleton sx={{ml: 1}} width={'50%'} variant="text"/>
                                                             </ListItem>
                                                         )
                                                     }

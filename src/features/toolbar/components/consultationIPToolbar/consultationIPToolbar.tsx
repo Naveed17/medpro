@@ -37,6 +37,21 @@ function ConsultationIPToolbar({...props}) {
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
+
+    const {
+        selected,
+        appuuid,
+        mutate,
+        agenda,
+        mutateDoc,
+        setPendingDocuments,
+        pendingDocuments,
+        dialog,
+        setDialog,
+        appointement,
+        selectedAct,
+        selectedModel
+    } = props;
     const tabsData = [
         {
             label: "patient_history",
@@ -60,20 +75,6 @@ function ConsultationIPToolbar({...props}) {
             value: 'documents',
         }
     ];
-    const {
-        selected,
-        appuuid,
-        mutate,
-        agenda,
-        mutateDoc,
-        setPendingDocuments,
-        pendingDocuments,
-        dialog,
-        setDialog,
-        appointement,
-        selectedAct,
-        selectedModel
-    } = props;
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
@@ -245,12 +246,9 @@ function ConsultationIPToolbar({...props}) {
                 }
                 break
         }
-
-        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)
-
     }
 
     const handleClose = (action: string) => {
