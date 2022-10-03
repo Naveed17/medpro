@@ -130,6 +130,7 @@
       "mrs": "Mme",
       "date-of-birth": "Date de naissance",
       "gender": "Genre",
+      "gender-error": "Veuillez choisir le genre.",
       "name": "Nom",
       "name-placeholder": "Tapez le nom du patient",
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
