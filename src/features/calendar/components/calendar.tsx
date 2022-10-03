@@ -1,6 +1,6 @@
 import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
 
-import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
+import {Box, IconButton, Menu, Theme, useMediaQuery, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
@@ -70,6 +70,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
+    const [loading, setLoading] = useState(false);
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
@@ -339,7 +340,7 @@ function Calendar({...props}) {
                                     data.action === "onPatientNoShow" && moment().isBefore(eventMenu?.extendedProps.time) ||
                                     data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
                                 )).map((v: any) => (
-                                        <MenuItem
+                                        <IconButton
                                             key={uniqueId()}
                                             onClick={() => {
                                                 OnMenuActions(v.action, eventMenu);
@@ -351,10 +352,11 @@ function Calendar({...props}) {
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
                                                 {translation(`${v.title}`, {ns: 'common'})}
                                             </Typography>
-                                        </MenuItem>
+                                        </IconButton>
                                     )
                                 )}
                             </Menu>
+
                         </Box>
                     )}
                 </CalendarStyled>

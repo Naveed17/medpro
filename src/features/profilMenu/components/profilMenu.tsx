@@ -4,7 +4,18 @@ import {
     profileMenuSelector,
     ProfileSectionStyled
 } from "@features/profilMenu";
-import {Box, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Typography} from "@mui/material";
+import {
+    Box,
+    ClickAwayListener,
+    Grow,
+    IconButton,
+    MenuItem,
+    MenuList,
+    Paper,
+    Popper,
+    Typography,
+    useMediaQuery
+} from "@mui/material";
 import Icon from "@themes/icon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -14,11 +25,16 @@ import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
+import {Theme} from "@mui/material/styles";
+import {toggleMobileBar} from "@features/sideBarMenu";
+import {agendaSelector} from "@features/calendar";
 
 function ProfilMenu() {
     const { data: session } = useSession();
     const router = useRouter();
     const { opened } = useAppSelector(profileMenuSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const dir = router.locale === 'ar' ? 'rtl': 'ltr';
     const anchorRef: any = useRef();
@@ -41,6 +57,10 @@ function ProfilMenu() {
                 });
                 dispatch(logout({redirect: false}));
                 window.location.href = path;
+                break;
+            case 'profile':
+                isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+                dispatch(toggleMobileBar(true));
                 break;
         }
     };

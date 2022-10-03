@@ -1,5 +1,5 @@
 const Config = [
-    {
+/*    {
         name: 'News',
         icon: 'ic-magazine',
         path: '/',
@@ -28,11 +28,12 @@ const Config = [
         name: 'Statistics',
         icon: 'ic-statiqtique',
         path: '/',
-    },
+    },*/
     {
         name: 'Settings',
         icon: 'ic-doctor-h-setting',
-        path: '/',
+        path: '/dashboard/settings/profil',
+        action: 'profile'
     },
     {
         name: 'Switch-agenda',
@@ -60,7 +61,7 @@ const Config = [
         name: 'Logout',
         icon: 'ic-deconnexion',
         path: '/',
-        action: 'logout',
+        action: 'logout'
     },
 
 ]

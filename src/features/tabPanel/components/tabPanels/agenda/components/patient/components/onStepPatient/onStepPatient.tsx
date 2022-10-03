@@ -66,7 +66,7 @@ function OnStepPatient({...props}) {
             month: Yup.string().required(t("date-error")),
             year: Yup.string().required(t("date-error")),
         }),
-//        email: Yup.string().email("Invalid email").required("Email Required")
+        gender: Yup.string().required(t("gender-error"))
     });
     const formik = useFormik({
         initialValues: {
@@ -168,19 +168,19 @@ function OnStepPatient({...props}) {
                 onSubmit={handleSubmit}
             >
                 <Stack spacing={2} className="inner-section">
-                    <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 2}}>
-                        {t("personal-info")}
-                    </Typography>
-
                     <Box>
-                        <FormControl component="fieldset">
+                        <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
+                            {t("personal-info")}
+                        </Typography>
+                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)} >
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
                                 <Typography component="span" color="error">
                                     *
                                 </Typography>
                             </Typography>
-                            <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
+                            <RadioGroup row aria-label="gender"
+                                        {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
                                     control={<Radio size="small"/>}
@@ -192,6 +192,7 @@ function OnStepPatient({...props}) {
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
+                            {(touched.gender && errors.gender) && <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
                     <Box>
@@ -421,45 +422,45 @@ function OnStepPatient({...props}) {
                     </Box>
 
                     <Box>
-                        <Grid container spacing={2}>
-                            <Grid item md={4} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                >
-                                    {t("country")}
-                                </Typography>
-                                <FormControl fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id={"country"}
-                                        size="small"
-                                        {...getFieldProps("country")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={selected => {
-                                            if (selected.length === 0) {
-                                                return <em>{t("country-placeholder")}</em>;
-                                            }
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            gutterBottom
+                        >
+                            {t("country")}
+                        </Typography>
+                        <FormControl fullWidth>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id={"country"}
+                                size="small"
+                                {...getFieldProps("country")}
+                                displayEmpty
+                                sx={{color: "text.secondary"}}
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("country-placeholder")}</em>;
+                                    }
 
-                                            const country = countries?.find(country => country.uuid === selected);
-                                            return <Typography>{country?.name}</Typography>
-                                        }}
-                                    >
-                                        {countries?.map((country) => (
-                                            <MenuItem
-                                                key={country.uuid}
-                                                value={country.uuid}>
-                                                <Box component="img"
-                                                     src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
-                                                <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                            </MenuItem>)
-                                        )}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item md={4} xs={12}>
+                                    const country = countries?.find(country => country.uuid === selected);
+                                    return <Typography>{country?.name}</Typography>
+                                }}
+                            >
+                                {countries?.map((country) => (
+                                    <MenuItem
+                                        key={country.uuid}
+                                        value={country.uuid}>
+                                        <Box component="img"
+                                             src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
+                                        <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                    </MenuItem>)
+                                )}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box>
+                        <Grid container spacing={2}>
+                            <Grid item md={6} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -495,7 +496,7 @@ function OnStepPatient({...props}) {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={4} xs={12}>
+                            <Grid item md={6} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"

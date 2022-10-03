@@ -177,7 +177,7 @@ function Instruction({...props}) {
                                         variant: "contained",
                                         sx: {
                                             "& svg": {
-                                                "& path": {fill: theme.palette.text.primary}
+                                                "& path": {fill: !isTodayAppointment() ? "white" : theme.palette.text.primary}
                                             },
                                         },
                                         title: t("waiting"),
