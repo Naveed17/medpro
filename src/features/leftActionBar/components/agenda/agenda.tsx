@@ -29,7 +29,7 @@ function Agenda() {
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
     const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
@@ -71,7 +71,10 @@ function Agenda() {
     if (!ready) return (<>loading translations...</>);
     return (
         <BoxStyled>
-            <CalendarPickers shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+            <CalendarPickers
+                renderDay
+                {...{notes}}
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
             {<Accordion
                 translate={{
                     t: t,

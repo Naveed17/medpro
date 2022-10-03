@@ -33,7 +33,7 @@ import {
     agendaSelector,
     AppointmentStatus,
     DayOfWeek,
-    openDrawer,
+    openDrawer, setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -223,6 +223,8 @@ function Agenda() {
                 };
             });
 
+            dispatch(setGroupedByDayAppointments(groupArrays));
+
             if (isMobile || view === "listWeek") {
                 // sort grouped data
                 sortedData.current = groupArrays.slice()
@@ -232,7 +234,7 @@ function Agenda() {
 
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
 
     const prepareSearchKeys = (filter: ActionBarState | undefined) => {
         let query = "";
@@ -421,6 +423,7 @@ function Agenda() {
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
+            // hide notification after 8000ms
             setInterval(() => {
                 setError(false);
             }, 8000);
@@ -665,11 +668,6 @@ function Agenda() {
                                         OnSelectDate={onSelectDate}
                                         OnViewChange={onViewChange}
                                         OnRangeChange={handleOnRangeChange}/>
-{/*                                    <Fab sx={{position: "sticky", bottom: "1rem", right: "1rem", zIndex: 98}}
-                                         size="small"
-                                         aria-label={"info"} color={"primary"}>
-                                        <IconUrl color={"white"} path={"ic-plusinfo-quetsion"}/>
-                                    </Fab>*/}
                                 </motion.div>
                             </AnimatePresence>
                         }
