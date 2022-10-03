@@ -56,7 +56,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
-import IconUrl from "@themes/urlIcon";
+import {sideBarSelector} from "@features/sideBarMenu";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -94,6 +94,7 @@ function Agenda() {
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {submitted} = useAppSelector(appointmentSelector);
+    const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -256,6 +257,13 @@ function Agenda() {
     }
 
     useEffect(() => {
+        if (calendarEl && currentDate) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.gotoDate(currentDate.date);
+        }
+    }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (filter?.type && timeRange.start !== "" || filter?.patient) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
@@ -384,7 +392,7 @@ function Agenda() {
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
-                    date: new Date(event?.extendedProps.time),
+                    date: new Date(),
                     time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
                     action: "reschedule",
                     selected: false
@@ -485,9 +493,8 @@ function Agenda() {
     const handleRescheduleAppointment = (event: EventDef) => {
         setLoading(true);
         const form = new FormData();
-        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        form.append('start_date', event.extendedProps.newDate.clone().format("DD-MM-YYYY"));
+        form.append('start_time', event.extendedProps.newDate.clone().format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
