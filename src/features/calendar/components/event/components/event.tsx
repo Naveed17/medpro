@@ -117,8 +117,8 @@ function Event({...props}) {
                 open={open}
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: moment(appointment.time).weekday() > 4 ? -305 : 'right'
+                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
+                    horizontal: view === "timeGridDay" ? 'left' : moment(appointment.time).weekday() > 4 ? -305 : 'right'
                 }}
                 onClose={handlePopoverClose}
                 disableRestoreFocus
