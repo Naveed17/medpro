@@ -255,12 +255,6 @@ function TimeSchedule({...props}) {
                                     const motif = reasons?.find(reason => reason.uuid === selected);
                                     return (
                                         <Box sx={{display: "inline-flex"}}>
-                                            {/*<FiberManualRecordIcon
-                                        fontSize="small"
-                                        sx={{
-                                            color: motif?.color
-                                        }}
-                                    />*/}
                                             <Typography>{motif?.name}</Typography>
                                         </Box>
 
@@ -269,17 +263,6 @@ function TimeSchedule({...props}) {
                             >
                                 {reasons?.map((consultationReason) => (
                                     <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
-                                        {/*<FiberManualRecordIcon
-                                    fontSize="small"
-                                    sx={{
-                                        border: .1,
-                                        borderColor: 'divider',
-                                        borderRadius: '50%',
-                                        p: 0.05,
-                                        mr: 1,
-                                        color: consultationReason.color
-                                    }}
-                                />*/}
                                         {consultationReason.name}
                                     </MenuItem>
                                 ))}
@@ -313,48 +296,6 @@ function TimeSchedule({...props}) {
                         </Select>
                     </FormControl>
                 </>}
-
-                {/*                {medical_professional && (
-                    <Box>
-                        <Typography
-                            variant="body1"
-                            color="text.primary"
-                            fontWeight={500}
-                            mt={5}
-                            sx={{textTransform: "uppercase", fontWeight: 500}}
-                        >
-                            {t("stepper-1.practitioner")}
-                        </Typography>
-                        <Typography variant="body1" color="text.primary" my={1}>
-                            {t("stepper-1.affect-des")}
-                        </Typography>
-                        <Grid container spacing={2}>
-                            {Array.from({length: 2}).map((_, index) => (
-                                <Grid key={index} item xs={12} lg={6}>
-                                    <RadioTextImage
-                                        name={`agenda-${index}`}
-                                        image="/static/img/men.png"
-                                        type="Dermatologue"
-                                        onChange={(v: string) => setProfessional(v)}
-                                        value={professional}
-                                        fullWidth
-                                    />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                )}*/}
-
-                {/*{location && <Typography*/}
-                {/*    variant="body1"*/}
-                {/*    color="text.primary"*/}
-                {/*    fontWeight={500}*/}
-                {/*    mt={5}*/}
-                {/*    mb={0.5}*/}
-                {/*    sx={{textTransform: "uppercase", fontWeight: 500}}*/}
-                {/*>*/}
-                {/*    {t("stepper-1.time-slot")}*/}
-                {/*</Typography>}*/}
                 <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                     {t("stepper-1.date-message")}
                 </Typography>

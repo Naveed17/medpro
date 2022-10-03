@@ -27,7 +27,6 @@ export default function StaticDatePicker({ ...props }) {
         <DatePicker
           reduceAnimations
           displayStaticWrapperAs="desktop"
-          disablePast
           shouldDisableDate={onDateDisabled}
           onChange={onChange}
           value={value}

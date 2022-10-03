@@ -34,6 +34,9 @@ function Event({...props}) {
                     ...(appointment.status.key === "CANCELED" && {
                             backgroundColor: "error.light",
                         }
+                    ), ...(appointment.status.key === "FINISHED" && {
+                            backgroundColor: "success.lighter",
+                        }
                     ), ...(appointment.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }

@@ -8,7 +8,7 @@ import {
     Box,
     Button,
     Container,
-    Drawer,
+    Drawer, Fab,
     LinearProgress,
     Theme,
     Typography,
@@ -56,6 +56,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
+import IconUrl from "@themes/urlIcon";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -664,6 +665,11 @@ function Agenda() {
                                         OnSelectDate={onSelectDate}
                                         OnViewChange={onViewChange}
                                         OnRangeChange={handleOnRangeChange}/>
+{/*                                    <Fab sx={{position: "sticky", bottom: "1rem", right: "1rem", zIndex: 98}}
+                                         size="small"
+                                         aria-label={"info"} color={"primary"}>
+                                        <IconUrl color={"white"} path={"ic-plusinfo-quetsion"}/>
+                                    </Fab>*/}
                                 </motion.div>
                             </AnimatePresence>
                         }
