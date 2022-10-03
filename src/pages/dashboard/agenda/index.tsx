@@ -257,7 +257,7 @@ function Agenda() {
     }
 
     useEffect(() => {
-        if(calendarEl && currentDate) {
+        if (calendarEl && currentDate) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.gotoDate(currentDate.date);
         }
@@ -392,7 +392,7 @@ function Agenda() {
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
-                    date: new Date(event?.extendedProps.time),
+                    date: new Date(),
                     time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
                     action: "reschedule",
                     selected: false
@@ -493,9 +493,8 @@ function Agenda() {
     const handleRescheduleAppointment = (event: EventDef) => {
         setLoading(true);
         const form = new FormData();
-        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        form.append('start_date', event.extendedProps.newDate.clone().format("DD-MM-YYYY"));
+        form.append('start_time', event.extendedProps.newDate.clone().format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",

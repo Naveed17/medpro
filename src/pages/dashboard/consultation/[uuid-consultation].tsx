@@ -550,7 +550,7 @@ function ConsultationInProgress() {
                                                                             }}>Aucune demande</p>}
 
                                                                         {
-                                                                            col.type === "document" && appointement?.latestDocument.length > 0 &&
+                                                                            col.type === "document" && appointement?.latestDocument?.length > 0 &&
                                                                             <Box style={{padding: 20, paddingTop: 25}}>
                                                                                 <Grid container spacing={2} sx={{
                                                                                     bgcolor: theme => theme.palette.grey['A100'],
@@ -559,7 +559,7 @@ function ConsultationInProgress() {
                                                                                     borderRadius: 0.7
                                                                                 }}>
                                                                                     {
-                                                                                        appointement?.latestDocument.map((card: any) =>
+                                                                                        appointement?.latestDocument?.map((card: any) =>
                                                                                             <Grid item xs={3}
                                                                                                   key={`doc-item-${card.uuid}`}>
                                                                                                 <DocumentCard
@@ -599,7 +599,7 @@ function ConsultationInProgress() {
                                                                         }
 
 
-                                                                        {col.type === "document" && (appointement?.latestDocument === null || appointement?.latestDocument.length === 0) &&
+                                                                        {col.type === "document" && (appointement?.latestDocument === null || appointement?.latestDocument?.length === 0) &&
                                                                             <p style={{
                                                                                 fontSize: 12,
                                                                                 color: "gray",
