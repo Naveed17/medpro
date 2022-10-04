@@ -16,7 +16,7 @@ import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
 import {configSelector, setDirection, setLocalization} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {Localization} from "@app/localization/localization";
+import {Localization} from "@app/localization";
 import * as locales from "@mui/material/locale";
 import moment from "moment-timezone";
 
