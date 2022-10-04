@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
-import { Box, Typography, Stack, Button, DialogActions, } from "@mui/material";
+import { Box, Typography, Stack, Button, DialogActions, useMediaQuery, Theme } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
 import { DashLayout } from "@features/base";
@@ -13,6 +13,9 @@ import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
+import { PaymentMobileCard } from '@features/card'
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 const rows = [
     {
         uuid: 1,
@@ -249,6 +252,7 @@ const headCells: readonly HeadCell[] = [
 
 ];
 function Payment() {
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const [open, setOpen] = useState<boolean>(false)
     const [selected, setSelected] = useState<any>(null)
     const { t, ready } = useTranslation("payment");
@@ -269,28 +273,58 @@ function Payment() {
                         <Typography variant="h6">1 140 TND</Typography>
                         <Stack direction='row' spacing={1} alignItems="center">
                             <Typography variant="h6">I</Typography>
-                            <Button variant="contained" color="error">
-                                - {t('btn_header_1')}
+                            <Button variant="contained" color="error"
+                                {
+                                ...(isMobile && {
+                                    size: "small",
+                                    sx: { minWidth: 40 }
+                                })
+                                }
+                            >
+                                - {!isMobile && t('btn_header_1')}
                             </Button>
                             <Button variant="contained" color="success"
+                                {
+                                ...(isMobile && {
+                                    size: "small",
+                                    sx: { minWidth: 40 }
+                                })
+                                }
                                 onClick={() => { setOpen(true); setSelected(null); }}
                             >
-                                + {t('btn_header_2')}
+                                + {!isMobile && t('btn_header_2')}
                             </Button>
                         </Stack>
                     </Stack>
                 </Stack>
             </SubHeader>
-            <Box className="container">
-                <Otable
-                    headers={headCells}
-                    rows={rows}
-                    from={"payment"}
-                    t={t}
-                    edit={handleEdit}
 
-                />
+            <Box className="container">
+                <DesktopContainer>
+                    <Otable
+                        headers={headCells}
+                        rows={rows}
+                        from={"payment"}
+                        t={t}
+                        edit={handleEdit}
+
+                    />
+                </DesktopContainer>
+                <MobileContainer>
+                    <Stack spacing={2}>
+                        {
+                            rows.map((card, idx) =>
+                                <React.Fragment key={idx}>
+                                    <PaymentMobileCard data={card} t={t} />
+                                </React.Fragment>
+                            )
+                        }
+
+                    </Stack>
+                    <Box pb={6} />
+                </MobileContainer>
             </Box>
+
             <SubFooter>
                 <Stack spacing={3} direction='row' justifyContent='flex-end' alignItems="center" width={1}>
                     <Button variant="text-black">
