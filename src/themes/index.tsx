@@ -16,7 +16,7 @@ import {prefixer} from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
 import {configSelector, setDirection, setLocalization} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {Index} from "@app/localization";
+import {Localization} from "@app/localization";
 import * as locales from "@mui/material/locale";
 import moment from "moment-timezone";
 
@@ -27,7 +27,7 @@ function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
     const router = useRouter();
     const lang: string | undefined = router.locale;
-    const [locale, setLocale] = useState<SupportedLocales>(Index(lang));
+    const [locale, setLocale] = useState<SupportedLocales>(Localization(lang));
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
     const dispatch = useAppDispatch();
 

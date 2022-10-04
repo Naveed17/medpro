@@ -2,7 +2,7 @@ import arLocale from "date-fns/locale/ar";
 import frLocale from "date-fns/locale/fr";
 import enLocale from "date-fns/locale/en-US";
 
-export function Index(lang: string | undefined): any {
+export function Localization(lang: string | undefined): any {
     switch (lang){
         case 'ar': return 'arEG';
         case 'fr': return 'frFR';
