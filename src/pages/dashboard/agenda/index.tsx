@@ -57,6 +57,7 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
+import {prepareSearchKeys} from "@app/hooks";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -237,25 +238,6 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
 
-    const prepareSearchKeys = (filter: ActionBarState | undefined) => {
-        let query = "";
-        if (filter) {
-            Object.entries(filter).map((param, index) => {
-                if (param[0] === "patient" && param[1]) {
-                    Object.entries(param[1]).map(deepParam => {
-                        if (deepParam[1]) {
-                            query += `&${deepParam[0]}=${deepParam[1]}`;
-                        }
-                    })
-                }
-                if (param[0] === "type" && param[1]) {
-                    query += `&${param[0]}=${param[1]}`;
-                }
-            });
-        }
-        return query;
-    }
-
     useEffect(() => {
         if (calendarEl && currentDate) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
@@ -298,7 +280,6 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        console.log("onViewChange", filter);
         const query = prepareSearchKeys(filter as any);
         if (view === 'listWeek' && filter?.patient === undefined) {
             getAppointments(`format=list&page=1&limit=50${query}`, view);
