@@ -3,6 +3,7 @@ import {styled} from "@mui/system";
 import {AppBar} from "@mui/material";
 
 const SubHeaderStyled = styled(AppBar)(({theme}) => ({
+    top: 64,
     border: "none",
     [theme.breakpoints.down('sm')]: {
         ".MuiToolbar-root": {

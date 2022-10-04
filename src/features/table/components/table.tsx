@@ -52,6 +52,7 @@ function Otable({...props}) {
         handleEvent,
         hideHeaderOnMobile,
         loading,
+        maxHeight = `calc(100vh - 220px)`,
         totalPages,
         total,
         ...rest
@@ -112,9 +113,10 @@ function Otable({...props}) {
             }
         }
     }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <Box>
-            <TableContainer sx={{maxHeight: `calc(100vh - 220px)`}}>
+            <TableContainer sx={{maxHeight}}>
                 <Table
                     stickyHeader
                     sx={{minWidth: minWidth}}

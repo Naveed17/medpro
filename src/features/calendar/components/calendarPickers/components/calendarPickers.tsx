@@ -3,13 +3,12 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import {LocaleFnsProvider} from "@app/localization/localization";
+import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {Badge, TextField, useTheme} from "@mui/material";
-import {StaticDatePicker} from '@mui/x-date-pickers/StaticDatePicker';
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
-import {PickersDay} from "@mui/x-date-pickers";
+import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 
 type CalendarPickerView = "day" | "month" | "year";
 

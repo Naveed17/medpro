@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DatePicker from "@mui/lab/DatePicker";
-import { LocaleFnsProvider } from "@app/localization/localization";
+import { LocaleFnsProvider } from "@app/localization";
 
 function BasicDatePicker({ ...props }) {
   const { onChange, value } = props;

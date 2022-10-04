@@ -623,12 +623,12 @@ function Agenda() {
     if (!ready) return (<LoadingScreen/>);
 
     return (
-        <>
+        <div>
             <SubHeader
                 {...{
                     sx: {
                         "& .MuiToolbar-root": {
-                            "display": "block"
+                            display: "block"
                         }
                     }
                 }}>
@@ -931,7 +931,7 @@ function Agenda() {
                     }
                 />
             </Box>
-        </>
+        </div>
     )
 }
 

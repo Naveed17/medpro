@@ -16,7 +16,7 @@ const variants = {
     exit: {opacity: 0},
 };
 
-function DashLayout({children}: LayoutProps) {
+function DashLayout({children, ...props}: LayoutProps) {
     const router = useRouter();
     const {data: session, status} = useSession();
     const dispatch = useAppDispatch();
