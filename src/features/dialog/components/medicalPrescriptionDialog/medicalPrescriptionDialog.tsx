@@ -239,7 +239,7 @@ function MedicalPrescriptionDialog({...props}) {
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                     renderInput={(params) => <TextField {...params}
                                                                         onChange={(ev) => {
-                                                                            if (ev.target.value.length >= 3) {
+                                                                            if (ev.target.value.length >= 2) {
                                                                                 trigger({
                                                                                     method: "GET",
                                                                                     url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
