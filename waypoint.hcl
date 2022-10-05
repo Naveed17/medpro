@@ -19,7 +19,7 @@ variable "registry_auth_password" {
 
 variable "registry_secrets" {
   type      = string
-  default   = "ghcr.io.smartmedsa"
+  default   = "io.ghcr.smartmedsa"
   sensitive = true
 }
 
