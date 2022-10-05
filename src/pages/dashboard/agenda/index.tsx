@@ -353,7 +353,7 @@ function Agenda() {
                     (event as any)?.id, "6").then(() => {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
-                    dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) - 1}))
+                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
                 });
                 break;
             case "onPatientNoShow":
@@ -391,7 +391,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}))
+                dispatch(setOngoing({waiting_room: waiting_room + 1}))
             });
     }
 
