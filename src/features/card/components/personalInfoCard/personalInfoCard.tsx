@@ -88,11 +88,11 @@ function PersonalInfo({...props}) {
                                         <Skeleton variant="text"/>
                                     ) : v.name === "name" ? (
                                         <>
-                                            {patient.firstName} {patient.firstName}
+                                            {patient.firstName} {patient.lastName}
                                         </>
                                     ) : v.name === "telephone" ? (
                                         <>
-                                            {(patient.contact.length > 0 && patient.contact[0].value) || "-"}
+                                            {(patient.contact.length > 0 && `${patient.contact[0].code ? patient.contact[0].code : ""}${patient.contact[0].value}`) || "-"}
                                         </>
                                     ) : v.name === "address" ? (
                                         <>

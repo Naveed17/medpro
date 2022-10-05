@@ -236,7 +236,7 @@ function DocumentsPanel() {
           </CardContent>
         </Card>
       ) : (
-        <NoDataCard t={t} data={AddAppointmentCardData} />
+        <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
       )}
       {/* <Dialog open={true} onClose={() => console.log("adasd")}>
         <AppBar
@@ -266,7 +266,7 @@ function DocumentsPanel() {
             To subscribe to this website, please enter your email address here.
             We will send updates occasionally.
           </DialogContentText>
-        
+
         </DialogContent>
         <DialogActions>
           <Button onClick={() => console.log("adasd")}>Annuler</Button>
