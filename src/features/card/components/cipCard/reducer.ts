@@ -5,14 +5,14 @@ import {
 import {EventDef} from "@fullcalendar/react";
 
 export type TimerProps = {
-    time: number;
+    startTime: string | null;
     isActive: boolean;
     isPaused: boolean;
     event: EventDef | null;
 };
 
 const initialState: TimerProps = {
-    time: 0,
+    startTime: null,
     isActive: false,
     isPaused: true,
     event: null

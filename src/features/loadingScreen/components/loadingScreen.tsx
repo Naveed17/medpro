@@ -6,22 +6,10 @@ import { useTranslation } from "next-i18next";
 import React from "react";
 
 function LoadingScreen({ ...props }) {
+    const {text = "loading"}= props
     const theme = useTheme();
     const { t, ready } = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
-
-    const Icon = {
-        hidden: {
-            opacity: 0,
-            pathLength: 0,
-            fill: theme.palette.background.paper,
-        },
-        visible: {
-            opacity: 1,
-            pathLength: 1,
-            fill: theme.palette.primary.main,
-        },
-    };
 
     const container = {
         hidden: { opacity: 1, scale: 0, repeat: "Infinity", repeatDelay: 0.5 },
@@ -127,7 +115,7 @@ c14 -42 51 -50 99 -22 22 13 55 22 79 22 38 0 41 -2 34 -22 -12 -40 -42 -75
                     </motion.ul>
                 </Box>
                 <Typography variant="body1" mt={3} px={2} color="text.primary">
-                    {t('loading')}
+                    {t(text)}
                 </Typography>
             </Box>
         </RootStyled>

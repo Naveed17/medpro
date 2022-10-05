@@ -325,7 +325,12 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        dispatch(setTimer({isActive: true, isPaused: false, event}));
+                        dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().format("HH:mm")
+                        }));
                         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
                             start_date: moment().format("DD-MM-YYYY"),
                             start_time: moment().format("HH:mm")
@@ -405,12 +410,23 @@ function Agenda() {
             });
     }
 
+    const onConsultationView = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+            dispatch(openDrawer({type: "view", open: false}));
+        })
+    }
+
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
                 dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({isActive: true, isPaused: false, event}));
+                dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
+                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                });
             })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
@@ -713,6 +729,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
                             OnPatientNoShow={onPatientNoShow}

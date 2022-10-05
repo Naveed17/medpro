@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 // utils
 import Icon from "@themes/icon";
@@ -28,9 +28,10 @@ import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {AppointmentPatientCard, CipCard, timerSelector} from "@features/card";
+import {AppointmentPatientCard, CipCard, setTimer, timerSelector} from "@features/card";
 import moment from "moment-timezone";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {dashLayoutSelector} from "@features/base";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
@@ -42,6 +43,8 @@ function TopNavBar({...props}) {
     const theme = useTheme();
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
+    const {ongoing} = useAppSelector(dashLayoutSelector);
+
     const router = useRouter();
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
@@ -57,7 +60,22 @@ function TopNavBar({...props}) {
         {name: "Effectué", color: theme.palette.success.lighter},
         {name: "Annulé", color: theme.palette.error.light},
         {name: "En attende", color: theme.palette.warning.light}
-    ]
+    ];
+
+    useEffect(() => {
+        if (ongoing) {
+            const event: any = {
+                publicId: ongoing?.uuid as string,
+                extendedProps: {
+                    patient: {
+                        lastName: ongoing?.patient.split(" ")[0],
+                        firstName: ongoing?.patient.split(" ")[1]
+                    }
+                }
+            };
+            dispatch(setTimer({isActive: true, isPaused: false, event, startTime: ongoing?.start_time}));
+        }
+    }, [dispatch, ongoing]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
