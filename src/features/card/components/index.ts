@@ -31,3 +31,4 @@ export * from "./patientCardMobile";
 export * from './motifTypeCard';
 export * from './patientMobileCard';
 export * from './paymentMobileCard'
+export * from './paymentDialogMobileCard'

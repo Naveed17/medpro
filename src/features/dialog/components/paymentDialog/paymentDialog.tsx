@@ -1,10 +1,13 @@
 import React from 'react'
 import PaymentDialogStyled from './overrides/paymentDialogStyle';
-import { Stack, Grid, Avatar, Typography, Theme, Button, Box, Divider, Checkbox, FormControlLabel, FormGroup, Paper, TextField, IconButton } from '@mui/material'
+import { Stack, Grid, Avatar, Typography, useMediaQuery, Theme, Button, Box, Divider, Checkbox, FormControlLabel, FormGroup, Paper, TextField, IconButton } from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import { Otable } from '@features/table';
 import { DatePicker } from "@features/datepicker";
 import { motion, AnimatePresence } from 'framer-motion';
+import { DesktopContainer } from '@themes/desktopConainter';
+import { PaymentDialogMobileCard } from '@features/card';
+import { MobileContainer } from '@themes/mobileContainer';
 const data = [
     {
         icon: 'ic-argent',
@@ -90,6 +93,7 @@ function TabPanel(props: TabPanelProps) {
 }
 function PaymentDialog({ ...props }) {
     const { data: { t, selected } } = props
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const img = null;
     const [state, setState] = React.useState<any>({
         species: false,
@@ -140,7 +144,7 @@ function PaymentDialog({ ...props }) {
     };
     return (
         <PaymentDialogStyled>
-            <Stack spacing={2} direction="row" alignItems='center' justifyContent={selected ? 'space-between' : 'flex-end'}>
+            <Stack spacing={2} direction={{ xs: selected ? 'column' : 'row', md: 'row' }} alignItems='center' justifyContent={selected ? 'space-between' : 'flex-end'}>
                 {
                     selected &&
                     <Stack spacing={2} direction="row" alignItems='center'>
@@ -162,19 +166,27 @@ function PaymentDialog({ ...props }) {
                     </Stack>
                 }
 
-                <Stack direction="row" alignItems="center" spacing={1}>
+                <Stack direction={{ xs: 'column', md: 'row' }} alignItems="center" justifyContent={{ xs: 'center', md: 'flex-start' }} spacing={1}>
                     {
                         selected &&
-                        <Button size='small' variant='contained' color="error">
+                        <Button size='small' variant='contained' color="error"
+                            {...(isMobile && {
+                                fullWidth: true
+                            })}
+                        >
                             {t("btn_remain")}
                             <Typography fontWeight={700} component='strong' mx={1}>{selected.pending - selected.amount}</Typography>
                             TND
                         </Button>
                     }
 
-                    <Button size='small' variant='contained' color="warning">
+                    <Button size='small' variant='contained' color="warning"
+                        {...(isMobile && {
+                            fullWidth: true
+                        })}
+                    >
                         {t("total")}
-                        <Typography fontWeight={700} component='strong' mx={1}>100</Typography>
+                        <Typography fontWeight={700} component='strong' mx={1}>{selected ? selected.pending : 0}</Typography>
                         TND
                     </Button>
                 </Stack>
@@ -182,15 +194,20 @@ function PaymentDialog({ ...props }) {
             {
                 selected &&
                 <Box mt={4}>
-                    <Otable
-                        headers={headCells}
-                        rows={[selected]}
-                        from={"payment_dialog"}
-                        sx={{ tableLayout: 'fixed' }}
-                        t={t}
+                    <DesktopContainer>
+                        <Otable
+                            headers={headCells}
+                            rows={[selected]}
+                            from={"payment_dialog"}
+                            sx={{ tableLayout: 'fixed' }}
+                            t={t}
 
-                    />
-                    <Divider />
+                        />
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <PaymentDialogMobileCard data={selected} t={t} />
+                    </MobileContainer>
+                    <Divider sx={{ mt: 4 }} />
                 </Box>
             }
 
@@ -218,7 +235,10 @@ function PaymentDialog({ ...props }) {
                         label={
                             <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
                                 <IconUrl path={method.icon} />
-                                <Typography>{t(method.label)}</Typography>
+                                {
+                                    !isMobile && <Typography>{t(method.label)}</Typography>
+                                }
+
                             </Stack>
                         }
                     />
@@ -231,7 +251,7 @@ function PaymentDialog({ ...props }) {
                 {
                     state.selected === "species" &&
                     <TabPanel index={0}>
-                        <Stack px={4} minHeight={200} justifyContent="center">
+                        <Stack px={{ xs: 2, md: 4 }} minHeight={200} justifyContent="center">
                             <Box width={1}>
                                 <Typography gutterBottom>
                                     {t('enter_the_amount')}

@@ -7,7 +7,7 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
     },
     '.MuiFormGroup-root': {
         marginTop: theme.spacing(3),
-
+        flexWrap: 'nowrap',
         '.MuiFormControlLabel-root': {
             backgroundColor: theme.palette.primary.lighter,
             border: '1px solid transparent',

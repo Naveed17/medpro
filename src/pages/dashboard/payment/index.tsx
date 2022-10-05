@@ -1,7 +1,7 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import React, { ReactElement, useState } from "react";
-import { Box, Typography, Stack, Button, DialogActions, useMediaQuery, Theme } from "@mui/material";
+import { Box, Typography, Stack, Button, DialogActions, useMediaQuery, Theme, List, ListItem, IconButton } from "@mui/material";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from '@features/subFooter';
 import { DashLayout } from "@features/base";
@@ -16,6 +16,11 @@ import { tableActionSelector } from "@features/table";
 import { PaymentMobileCard } from '@features/card'
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
+import DialogTitle from '@mui/material/DialogTitle';
+import MuiDialog from '@mui/material/Dialog';
+import Icon from "@themes/urlIcon";
+import { useTheme } from "@mui/material";
+import { Label } from "@features/label";
 const rows = [
     {
         uuid: 1,
@@ -252,21 +257,29 @@ const headCells: readonly HeadCell[] = [
 
 ];
 function Payment() {
+    const theme = useTheme() as Theme
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
-    const [open, setOpen] = useState<boolean>(false)
+    const [open, setOpen] = useState<boolean>(false);
+    const [collapse, setCollapse] = useState<boolean>(false);
     const [selected, setSelected] = useState<any>(null)
     const { t, ready } = useTranslation("payment");
+    const [collapseDate, setCollapseData] = useState<any>(null)
     const handleClose = () => setOpen(false);
+    const handleCloseCollapse = () => setCollapse(false);
     const handleSave = () => setOpen(false);
     const handleEdit = (props: any) => {
         setSelected(props);
         setOpen(true);
     }
+    const handleCollapse = (props: any) => {
+        setCollapseData(props);
+        setCollapse(true);
+    }
     const { addBilling } = useAppSelector(tableActionSelector);
     return (
         <>
             <SubHeader>
-                <Stack direction='row' width={1} justifyContent="space-between" alignItems="center">
+                <Stack direction='row' width={1} justifyContent="space-between" alignItems="center" >
                     <Typography>{t('path')}</Typography>
                     <Stack direction='row' spacing={3} alignItems="center">
                         <Typography variant="subtitle2">{t('total')}</Typography>
@@ -315,7 +328,7 @@ function Payment() {
                         {
                             rows.map((card, idx) =>
                                 <React.Fragment key={idx}>
-                                    <PaymentMobileCard data={card} t={t} />
+                                    <PaymentMobileCard data={card} t={t} edit={handleEdit} getCollapseData={handleCollapse} />
                                 </React.Fragment>
                             )
                         }
@@ -330,7 +343,7 @@ function Payment() {
                     <Button variant="text-black">
                         {t('receive')}
                     </Button>
-                    <Button variant="contained" onClick={() => console.log(addBilling)}>
+                    <Button disabled={addBilling.length === 0} variant="contained" onClick={() => console.log(addBilling)}>
                         {t('billing')}
                     </Button>
                 </Stack>
@@ -358,7 +371,84 @@ function Payment() {
                     </DialogActions>
                 }
             />
+            <MuiDialog
+                PaperProps={{
+                    style: {
+                        margin: 4,
+                        width: '100%',
+                        paddingBottom: 16,
+                    },
+                }}
+                onClose={handleCloseCollapse} open={collapse}>
+                <DialogTitle sx={{ bgcolor: theme => theme.palette.primary.main, position: 'relative' }}>Data
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleCloseCollapse}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: theme.palette.grey[0],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
 
+                <List sx={{ pt: 3 }}>
+                    {
+                        collapseDate?.map((col: any, idx: number) =>
+                            <ListItem key={idx}
+                                sx={{
+                                    "&:not(:last-child)": {
+                                        borderBottom: `1px solid ${theme.palette.divider}`
+                                    }
+                                }}
+                            >
+                                <Stack sx={{
+                                    '.react-svg svg': {
+                                        width: theme => theme.spacing(1.5),
+                                        path: {
+                                            fill: theme => theme.palette.text.primary
+                                        }
+                                    }
+                                }} direction="row" alignItems='center' justifyContent='space-between' width={1}>
+                                    <Stack spacing={0.5} direction="row" alignItems='center'>
+                                        <Icon path="ic-agenda-jour" />
+                                        <Typography fontWeight={600}>
+                                            {col.date}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack spacing={0.5} direction="row" alignItems='center'>
+                                        <Icon path="setting/ic-time" />
+                                        <Typography fontWeight={600} className="date">
+                                            {col.time}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack direction='row' alignItems="center" justifyContent='flex-start' spacing={1}>
+                                        {
+                                            col.payment_type.map((type: any, i: number) =>
+                                                <Stack key={i} direction="row" alignItems="center" spacing={1}>
+                                                    <Icon path={type.icon} />
+                                                    <Typography color="text.primary" variant="body2">{t("table." + type.name)}</Typography>
+                                                </Stack>
+
+                                            )
+                                        }
+                                    </Stack>
+                                    <Stack direction='row' alignItems="center" justifyContent='flex-start' spacing={2}>
+                                        {col.billing_status ?
+                                            <Label className="label" variant="ghost" color={col.billing_status === "yes" ? "success" : 'error'}>{t('table.' + col.billing_status)}</Label>
+                                            : <Typography>--</Typography>}
+                                        <Typography color={(col.amount > 0 && 'success.main' || col.amount < 0 && 'error.main') || 'text.primary'} fontWeight={700}>{col.amount}</Typography>
+                                    </Stack>
+                                </Stack>
+
+                            </ListItem>
+                        )
+                    }
+                </List>
+            </MuiDialog>
         </>
     )
 }

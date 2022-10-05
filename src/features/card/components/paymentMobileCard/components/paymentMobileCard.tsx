@@ -1,13 +1,13 @@
-import { CardContent, Link, Theme, Stack, Box, Typography, IconButton } from '@mui/material'
+import { CardContent, Link, Theme, Stack, Box, Typography, IconButton, Collapse } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import Icon from '@themes/urlIcon'
 import { Label } from '@features/label'
-import React from 'react'
+import React, { useState } from 'react'
 import PaymentMobileCardStyled from './overrides/paymentMobileCardStyle'
 import Image from 'next/image'
 import { ModelDot } from "@features/modelDot";
 function PaymentMobileCard({ ...props }) {
-    const { data, t } = props
+    const { data, t, edit, getCollapseData } = props
     console.log(data)
     const theme = useTheme() as Theme
     return (
@@ -79,12 +79,18 @@ function PaymentMobileCard({ ...props }) {
                             <Typography color={theme => theme.palette.warning.darker} fontWeight={600}>
                                 {data.amount}/{data.pending}
                             </Typography>
-                            <IconButton color="primary">
+                            <IconButton color="primary" onClick={() => edit(data)}>
                                 <Icon path="ic-argent" />
                             </IconButton>
                         </Stack> :
                             <Typography color={(data.amount > 0 && 'success.main' || data.amount < 0 && 'error.main') || 'text.primary'} fontWeight={700}>{data.amount}</Typography>
 
+                        }
+                        {
+                            data.collapse &&
+                            <Link underline='none' onClick={() => getCollapseData(data.collapse)}>
+                                {t('more')}
+                            </Link>
                         }
                     </Stack>
                 </Stack>

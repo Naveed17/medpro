@@ -20,6 +20,7 @@
     "add_cheque": "Ajouter un Chéque",
     "billing": "Facturer",
     "receive": "Réceptionner",
+    "more": "Plus",
     "table": {
         "date": "Date",
         "time": "Heure",
