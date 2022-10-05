@@ -37,12 +37,14 @@ function CalendarPickers({...props}) {
                 <StaticDatePicker
                     {...props}
                     renderDay={(day, _value, DayComponentProps) => {
-                        const isSelected =
-                            !DayComponentProps.outsideCurrentMonth &&
-                            notes.find((note: any) => note.date === moment(day).format('DD-MM-YYYY'));
-
+                        const note = notes.find((note: any) => note.date === moment(day).format('DD-MM-YYYY'));
+                        const isSelected = !DayComponentProps.outsideCurrentMonth && note;
                         return (
-                            <PickersDay {...(isSelected && {sx: {backgroundColor: theme.palette.error.light}})} {...DayComponentProps} />
+                            <PickersDay {...(isSelected && {
+                                sx: {
+                                    backgroundColor: note.events.length > 5 ? theme.palette.error.light : theme.palette.error.lighter
+                                }
+                            })} {...DayComponentProps} />
                         );
                     }}
                     disableOpenPicker
