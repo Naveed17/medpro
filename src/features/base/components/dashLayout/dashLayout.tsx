@@ -8,6 +8,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useEffect} from "react";
 import {setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
+import {dashLayoutState, setOngoing} from "@features/base";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 const variants = {
@@ -24,7 +25,7 @@ function DashLayout({children, ...props}: LayoutProps) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest( {
+    const {data: httpAgendasResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
@@ -32,10 +33,10 @@ function DashLayout({children, ...props}: LayoutProps) {
         }
     }, SWRNoValidateConfig);
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) =>
-        item.isDefault) as AgendaConfigurationModel;
+    const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
+    const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
-    const {data: httpOngoingResponse, error: errorHttpOngoing} = useRequest(agenda ? {
+    const {data: httpOngoingResponse} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
@@ -43,11 +44,20 @@ function DashLayout({children, ...props}: LayoutProps) {
         }
     } : null, SWRNoValidateConfig);
 
+    const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
+
     useEffect(() => {
         if (agenda) {
             dispatch(setConfig(agenda));
         }
     }, [agenda, dispatch])
+
+    useEffect(() => {
+        if (calendarStatus) {
+            console.log("waiting_room", calendarStatus.waiting_room)
+            dispatch(setOngoing({waiting_room: calendarStatus.waiting_room}))
+        }
+    }, [calendarStatus, dispatch]);
 
     return (
         <SideBarMenu>
