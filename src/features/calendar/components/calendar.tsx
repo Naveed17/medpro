@@ -254,7 +254,7 @@ function Calendar({...props}) {
                                 navLinks
                                 selectable
                                 eventDurationEditable
-                                slotEventOverlap={false}
+                                slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
