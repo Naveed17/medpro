@@ -1,12 +1,12 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useState} from "react";
 //components
-import {NoDataCard} from "@features/card";
+import {NoDataCard, setTimer} from "@features/card";
 import Icon from "@themes/urlIcon";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {Box, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -20,8 +20,10 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import Typography from "@mui/material/Typography";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
+import moment from "moment-timezone";
+import {EventDef} from "@fullcalendar/react";
 
 export const headCells = [
     {
@@ -83,9 +85,11 @@ function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const dispatch = useAppDispatch();
     const {t, ready} = useTranslation("waitingRoom", {keyPrefix: "config"});
 
     const {query: filter} = useAppSelector(leftActionBarSelector);
+    const {waiting_room} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [contextMenu, setContextMenu] = useState<{
@@ -127,9 +131,14 @@ function WaitingRoom() {
     } = useRequestMutation(null, "/agenda/update/appointment/status",
         TriggerWithoutValidation);
 
-    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
         const form = new FormData();
         form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
         return updateStatusTrigger({
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
@@ -161,9 +170,24 @@ function WaitingRoom() {
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
+                const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                    const event: any = {
+                        publicId: row?.uuid as string,
+                        extendedProps: {
+                            patient: row?.patient
+                        }
+                    };
+                    dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    updateAppointmentStatus(row?.uuid as string, "4", {
+                        start_date: moment().format("DD-MM-YYYY"),
+                        start_time: moment().format("HH:mm")
+                    });
+                });
                 break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
+                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
                     mutateWaitingRoom();
                 });
                 break;

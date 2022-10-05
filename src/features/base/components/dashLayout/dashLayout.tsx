@@ -6,7 +6,7 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useEffect} from "react";
-import {setConfig} from "@features/calendar";
+import {setAgendas, setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 
@@ -49,13 +49,16 @@ function DashLayout({children, ...props}: LayoutProps) {
     useEffect(() => {
         if (agenda) {
             dispatch(setConfig(agenda));
+            dispatch(setAgendas(agendas));
         }
-    }, [agenda, dispatch])
+    }, [agenda, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (calendarStatus) {
-            console.log("waiting_room", calendarStatus.waiting_room)
-            dispatch(setOngoing({waiting_room: calendarStatus.waiting_room}))
+            dispatch(setOngoing({
+                waiting_room: calendarStatus.waiting_room,
+                ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
+            }))
         }
     }, [calendarStatus, dispatch]);
 
