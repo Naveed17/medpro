@@ -15,7 +15,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -96,6 +96,7 @@ function Agenda() {
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {submitted} = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
+    const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -352,6 +353,7 @@ function Agenda() {
                     (event as any)?.id, "6").then(() => {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
+                    dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) - 1}))
                 });
                 break;
             case "onPatientNoShow":
@@ -389,6 +391,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
+                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}))
             });
     }
 

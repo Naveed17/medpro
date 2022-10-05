@@ -4,8 +4,8 @@ import {
 } from './actions';
 
 export type dashLayoutState = {
-    waiting_room: number;
-    ongoing: {
+    waiting_room?: number;
+    ongoing?: {
         "uuid": "string";
         "start_time": "string";
         "patient": "string";
