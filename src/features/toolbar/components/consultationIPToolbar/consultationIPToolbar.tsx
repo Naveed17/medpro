@@ -26,6 +26,7 @@ function ConsultationIPToolbar({...props}) {
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
+    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
     const [label, setlabel] = useState<string>('patient_history')
     const [lastTabs, setLastTabs] = useState<string>('');
@@ -160,6 +161,9 @@ function ConsultationIPToolbar({...props}) {
                     setPendingDocuments(pdoc)
                 })
                 break;
+            case 'medical_imagery':
+                console.log(state)
+                break
             case 'add_a_document':
                 form.append('title', state.name);
                 form.append('description', state.description);
@@ -244,6 +248,20 @@ function ConsultationIPToolbar({...props}) {
                     pdoc = pdoc.filter(obj => obj.id !== 1);
                 }
                 break
+            case 'medical_imagery':
+                setImagery(state)
+                /*if (state.length > 0) {
+                    if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
+                        pdoc.push({
+                            id: 1,
+                            name: "Demande bilan",
+                            status: "in_progress",
+                            icon: 'ic-analyse'
+                        })
+                } else {
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                }*/
+                break
         }
         setOpenDialog(false);
         setInfo(null)
@@ -259,6 +277,10 @@ function ConsultationIPToolbar({...props}) {
             case "balance_sheet_request":
                 setInfo('balance_sheet_request')
                 setState(checkUp)
+                break;
+            case "medical_imagery":
+                setInfo('medical_imagery')
+                setState(imagery)
                 break;
             case "write_certif":
                 console.log(appointement)
@@ -298,6 +320,10 @@ function ConsultationIPToolbar({...props}) {
                 setInfo('balance_sheet_request')
                 setState(checkUp)
                 break;
+            /*case "medical_imagery":
+                setInfo('medical_imagery')
+                setState(imagery)
+                break;*/
         }
         setDialog('')
         setOpenDialog(true);

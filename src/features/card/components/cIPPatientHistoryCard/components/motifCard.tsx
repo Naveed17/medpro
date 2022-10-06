@@ -15,7 +15,7 @@ function MotifCard({...props}) {
     return (
         <RootStled>
             <Grid container spacing={2}>
-                {models && models.data && <Grid item xs={12} md={6}>
+                {models && models.data && models.data.length > 0  && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
                             <Stack direction="row" alignItems="center" justifyContent="space-between"
