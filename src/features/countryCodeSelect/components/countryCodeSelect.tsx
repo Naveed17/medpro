@@ -45,6 +45,7 @@ function CountryCodeSelect({...props}) {
                     <InputAdornment position="start">
                         <Image
                             style={{marginLeft: 3}}
+                            alt={"flag"}
                             src={`https://flagcdn.com/${state && state.code.toLowerCase()}.svg`}
                             width="27px"
                             height="15px"
