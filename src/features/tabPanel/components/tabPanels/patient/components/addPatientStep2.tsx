@@ -43,8 +43,8 @@ function AddPatientStep2({...props}) {
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
         initialValues: {
-            country: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.country,
-            region: address.length > 0 ? address[0]?.state?.uuid : stepsData.step2.region,
+            country: address.length > 0 ? address[0]?.city?.country?.uuid : stepsData.step2.country,
+            region: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
@@ -180,12 +180,13 @@ function AddPatientStep2({...props}) {
                                         <Select
                                             labelId="demo-simple-select-label"
                                             id={"country"}
+                                            disabled={!countries}
                                             size="small"
                                             {...getFieldProps("country")}
                                             displayEmpty
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
-                                                if (selected.length === 0) {
+                                                if (selected?.length === 0) {
                                                     return <em>{t("add-patient.country-placeholder")}</em>;
                                                 }
 
@@ -217,13 +218,13 @@ function AddPatientStep2({...props}) {
                                         <Select
                                             labelId="demo-simple-select-label"
                                             id={"region"}
-                                            disabled={!values.country}
+                                            disabled={!values.country && !states}
                                             size="small"
                                             {...getFieldProps("region")}
                                             displayEmpty={true}
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
-                                                if (selected.length === 0) {
+                                                if (selected?.length === 0) {
                                                     return <em>{t("add-patient.region-placeholder")}</em>;
                                                 }
 

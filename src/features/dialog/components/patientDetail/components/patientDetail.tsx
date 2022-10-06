@@ -98,6 +98,7 @@ function PatientDetail({...props}) {
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = (patient ? patient.nextAppointments : []);
     const previousAppointments = (patient ? patient.previousAppointments : []);
+    const documents = (patient ? patient.documents : []);
 
     if (!ready) return <>loading translations...</>;
 
@@ -152,11 +153,6 @@ function PatientDetail({...props}) {
                         <TabPanel padding={1} value={index} index={1}>
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
                                 <GroupTable
-                                    sx={{
-                                        "& .MuiTableCell-root":{
-                                            minHeight: 38
-                                        }
-                                    }}
                                     from="patient"
                                     loading={!patient}
                                     data={patient}
@@ -166,14 +162,14 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={2}>
-                            <DocumentsPanel />
+                            <DocumentsPanel {...{documents}} />
                         </TabPanel>
                         <Paper
                             className={"action-buttons"}
                             sx={{
-                                position: "absolute",
+                                position: "fixed",
                                 bottom: 0,
-                                width: "100%",
+                                width: "51%",
                                 borderRadius: 0,
                                 borderWidth: "0px",
                                 p: 2,
