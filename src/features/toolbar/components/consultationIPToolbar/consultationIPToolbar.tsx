@@ -320,10 +320,10 @@ function ConsultationIPToolbar({...props}) {
                 setInfo('balance_sheet_request')
                 setState(checkUp)
                 break;
-            case "medical_imagery":
+            /*case "medical_imagery":
                 setInfo('medical_imagery')
                 setState(imagery)
-                break;
+                break;*/
         }
         setDialog('')
         setOpenDialog(true);
