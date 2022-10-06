@@ -60,14 +60,7 @@ function ConsultationInProgress() {
     const [selectedUuid, setSelectedUuid] = useState<string[]>([])
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [valueModel, setValueModel] = useState<ModalModel>({
-        color: "#FEBD15",
-        hasData: false,
-        isEnabled: true,
-        label: "--",
-        structure: [],
-        uuid: ""
-    });
+    const [sheet, setSheet] = useState<any>(null);
     const [stateAct, setstateAct] = useState({
         "uuid": "",
         "isTopAct": true,
@@ -125,6 +118,11 @@ function ConsultationInProgress() {
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     } : null);
+    const {data: httpSheetResponse} = useRequest(mpUuid && agenda ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/professionals/${mpUuid}/consultation-sheet/${router.locale}`,
+        headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+    } : null);
     const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(mpUuid && agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/documents/${router.locale}`,
@@ -142,22 +140,32 @@ function ConsultationInProgress() {
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data)
     }, [httpAppResponse])
+
     useEffect(() => {
-        if (appointement) {
-            console.log(appointement)
-            setPatient(appointement.patient);
-            setSelectedModel(appointement?.consultation_sheet.modal)
-            //localStorage.setItem('Modeldata', JSON.stringify(appointement?.consultation_sheet.modal.data))
-            setValueModel(appointement?.consultation_sheet.modal.default_modal);
-            dispatch(SetPatient(appointement.patient))
-            dispatch(SetMutation(mutate))
-            const app_data = appointement.consultation_sheet.exam.appointment_data;
+        if (httpSheetResponse) {
+            setSheet((httpSheetResponse as HttpResponse)?.data)
+        }
+    }, [httpSheetResponse])
+    useEffect(() => {
+        if (sheet) {
+            setSelectedModel(sheet.modal)
+            localStorage.setItem('Modeldata', JSON.stringify(sheet.modal.data));
+            const app_data = sheet.exam.appointment_data;
             dispatch(SetExam({
                 motif: app_data?.consultation_reason ? app_data?.consultation_reason.uuid : '',
                 notes: app_data?.notes ? app_data.notes.value : '',
                 diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : '',
                 treatment: app_data?.treatments ? app_data.treatments.value : '',
             }))
+        }
+    }, [dispatch, sheet])
+
+    useEffect(() => {
+        if (appointement) {
+            console.log(appointement)
+            setPatient(appointement.patient);
+            dispatch(SetPatient(appointement.patient))
+            dispatch(SetMutation(mutate))
 
             if (appointement.acts) {
                 let sAct: any[] = []
@@ -281,6 +289,7 @@ function ConsultationInProgress() {
                     <HistoryTab patient={patient}
                                 appointement={appointement}
                                 t={t}
+                                appuuid={uuind}
                                 setIsViewerOpen={setIsViewerOpen}
                                 direction={direction}
                                 setInfo={setInfo}
@@ -306,12 +315,12 @@ function ConsultationInProgress() {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
                             {models && <WidgetForm modal={selectedModel}
-                                                   value={valueModel}
                                                    models={models}
                                                    setSM={setSelectedModel}></WidgetForm>}
                         </Grid>
                         <Grid item xs={12} md={7}>
-                            <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
+
+                            {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>

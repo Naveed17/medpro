@@ -19,8 +19,8 @@ import {alpha} from "@mui/material/styles";
 import {ModelDot} from "@features/modelDot";
 import ConsultationModalStyled from './overrides/modalConsultationStyle'
 import {useTranslation} from "next-i18next";
-import {motion} from "framer-motion";
 import IconUrl from "@themes/urlIcon";
+import {motion} from "framer-motion";
 
 const Form: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
@@ -34,9 +34,46 @@ const variants = {
 };
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
-    const [pageLoading, setPageLoading] = useState(false);
+
+    let cmp: any[] = [];
+    const {modal} = props
+    console.log(props)
+    if (modal) {
+        cmp = [...modal.default_modal.structure]
+    }
+
+    return (
+        <>
+            <Form
+                onChange={(ev: any) => {
+                    console.log('changes detected', ev.data)
+                    localStorage.setItem('Modeldata', JSON.stringify(ev.data))
+                }}
+                onRender={() => {
+
+                }}
+                // @ts-ignore
+                submission={{data: JSON.parse(localStorage.getItem('Modeldata'))}}
+                form={
+                    {
+                        display: "form",
+                        components: cmp
+                    }
+                }
+            />
+
+        </>
+    )
+})
+WidgetForm.displayName = "widget-form";
+
+function Widget({...props}) {
+
+    const {modal, models} = props
     const [open, setOpen] = useState(false);
+    const [pageLoading, setPageLoading] = useState(false);
     const [change, setChange] = useState(false);
+    const [render, setRender] = useState(true);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
     //const [loadModel, setLoadModel] = useState(true);
@@ -48,13 +85,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         structure: [],
         uuid: ""
     }
-    let cmp: any[] = [];
-    const {modal, models} = props
-    console.log(props)
-    if (modal) {
-        cmp = [...modal.default_modal.structure]
+    if (modal)
         value = modal.default_modal;
-    }
 
     const handleClickAway = () => {
         setOpen(!open);
@@ -70,8 +102,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
     const handleChange = () => {
         setChange(true)
     }
-
-
     return (
         <>
             <ConsultationModalStyled>
@@ -94,21 +124,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                 </Stack>
                 <CardContent sx={{bgcolor: alpha(value?.color, 0.1)}}>
                     <Box>
-                        <Form
-                            onChange={(ev: any) => {
-                                console.log('submit model', ev.data)
-                                localStorage.setItem('Modeldata', JSON.stringify(ev.data))
-                            }}
-                            // @ts-ignore
-                            submission={{data: JSON.parse(localStorage.getItem('Modeldata'))}}
-                            form={
-                                {
-                                    display: "form",
-                                    components: cmp
-                                }
-                            }
-                        />
-
+                        <WidgetForm modal={modal} models={models}></WidgetForm>
                         {
                             pageLoading &&
                             Array.from({length: 3}).map((_, idx) =>
@@ -142,7 +158,8 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         exit="initial">
                         <Paper className="menu-list">
                             <MenuList>
-                                <ListItemText style={{textAlign:"center", color:"red"}}>En cours dev ( you cant change ) </ListItemText>
+                                <ListItemText style={{textAlign: "center", color: "red"}}>En cours dev ( you cant change
+                                    ) </ListItemText>
                                 {models && models.map((item: any, idx: number) => (
                                     <MenuItem key={`model-item-${idx}`} onClick={() => handleClick(item)}>
                                         <ListItemIcon>
@@ -181,19 +198,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         </DialogActions>
                     }/>*/}
         </>
-    )
-})
-WidgetForm.displayName = "widget-form";
-
-function Widget({...props}) {
-
-    const {modal, models} = props
-
-    return (
-        <>
-            <WidgetForm modal={modal} models={models}></WidgetForm>
-        </>
-
     );
 }
 
