@@ -1,12 +1,6 @@
 import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
-import {
-    Box,
-    Grid,
-    List,
-    TextField,
-    Typography
-} from "@mui/material";
+import {Box, Grid, List, TextField, Typography} from "@mui/material";
 
 function CertifDialog({...props}) {
 
@@ -16,7 +10,7 @@ function CertifDialog({...props}) {
     const [days, setDays] = useState<string>(data.state.days)
 
     useEffect(() => {
-        data.state.content = `Je soussigné, <span style="font-weight: bold">Dr ${data.state.name}</span> certifie avoir examiné ce  jour : <span style="font-weight: bold">${patient}</span> et que son etat de sante necessite un repos de ${days} jour(s) a compter de ce jour, sauf complications ulterieures`
+        data.state.content = `Je soussigné, Dr ${data.state.name} certifie avoir examiné ce  jour : ${patient} et que son etat de sante necessite un repos de ${days} jour(s) a compter de ce jour, sauf complications ulterieures`
         setValue(data.state.content)
 
         data.setState(data.state)

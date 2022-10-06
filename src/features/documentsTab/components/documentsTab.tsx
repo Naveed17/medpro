@@ -49,6 +49,15 @@ function DocumentsTab({...props}) {
                                         case "requested-analysis":
                                             info = card.requested_Analyses[0].analyses;
                                             break;
+                                        /*case "certif":
+                                            setState({
+                                                content: state.content,
+                                                doctor: state.name,
+                                                patient: state.patient,
+                                                days: state.days,
+                                                name: 'certif',
+                                                type: 'write_certif'
+                                            })*/
                                     }
                                     setState({
                                         uuid: card.uuid,

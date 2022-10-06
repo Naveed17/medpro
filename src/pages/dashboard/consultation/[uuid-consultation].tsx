@@ -28,6 +28,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from 'react-simple-image-viewer';
 import dynamic from "next/dynamic";
 import {Widget} from "@features/widget";
+import {HistoryTab} from "@features/historyTab";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -37,7 +38,7 @@ const Form: any = dynamic(() => import("@formio/react").then((mod: any) => mod.F
 });
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
-    const {modal, models} = props;
+        const {modal, models} = props;
         return (
             <Widget modal={modal} models={models}></Widget>
         )
@@ -49,7 +50,6 @@ WidgetForm.displayName = "widget-form";
 function ConsultationInProgress() {
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>('consultation_form');
-    const [collapse, setCollapse] = useState<any>('');
     const [file, setFile] = useState('/static/files/sample.pdf');
     const [acts, setActs] = useState<any>('');
     const [total, setTotal] = useState<number>(0);
@@ -69,7 +69,6 @@ function ConsultationInProgress() {
     const [selectedUuid, setSelectedUuid] = useState<string[]>([])
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([])
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [size, setSize] = useState<number>(3);
     const [valueModel, setValueModel] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
@@ -288,7 +287,16 @@ function ConsultationInProgress() {
             <Box className="container">
 
                 <TabPanel value={value} index={'patient_history'}>
-                    {value}
+                    <HistoryTab patient={patient}
+                                appointement={appointement}
+                                t={t}
+                                setIsViewerOpen={setIsViewerOpen}
+                                direction={direction}
+                                setInfo={setInfo}
+                                mutateDoc={mutateDoc}
+                                setState={setState}
+                                dispatch={dispatch}
+                                setOpenDialog={setOpenDialog}></HistoryTab>
                 </TabPanel>
                 <TabPanel value={value} index={'mediktor_report'}>
                     <Box sx={{
@@ -307,9 +315,9 @@ function ConsultationInProgress() {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
                             {models && <WidgetForm modal={selectedModel}
-                                         value={valueModel}
-                                         models={models}
-                                         setSM={setSelectedModel}></WidgetForm>}
+                                                   value={valueModel}
+                                                   models={models}
+                                                   setSM={setSelectedModel}></WidgetForm>}
                         </Grid>
                         <Grid item xs={12} md={7}>
                             <ConsultationDetailCard exam={appointement?.consultation_sheet.exam}/>
