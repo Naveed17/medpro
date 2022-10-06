@@ -19,6 +19,7 @@ export type AppointmentState = {
     submitted: {
         uuids: Array<string>;
         patient: PatientWithNextAndLatestAppointment | null;
+        recurringDates: RecurringDateModel[];
     } | null
 };
 
@@ -55,7 +56,7 @@ export const appointmentReducer = createReducer(initialState, (builder) => {
     }).addCase(setAppointmentInstruction, (state, action) => {
         state.instruction = action.payload;
     }).addCase(setAppointmentSubmit, (state, action) => {
-        return {...initialState, submitted: {...action.payload, patient: state.patient}};
+        return {...initialState, submitted: {...action.payload, patient: state.patient, recurringDates: state.recurringDates}};
     }).addCase(resetAppointment, (state, action) => {
         return {...state, ...initialState};
     }).addCase(resetSubmitAppointment, (state, action) => {

@@ -19,16 +19,16 @@ export default function HistoryCard({...props}) {
     return (
         <HistoryCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
-                <Stack spacing={1} alignItems={'flex-start'}>
+                {row.consultationReason && <Stack spacing={1} alignItems={'flex-start'}>
                     <Typography fontWeight={400}>
                         {t("reason_for_consultation")}
                     </Typography>
-                    {row.consultationReason && <Typography component={Stack} spacing={1} alignItems="center" direction="row">
+                    <Typography component={Stack} spacing={1} alignItems="center" direction="row">
                         <ModelDot color={row.consultationReason.color} selected={false} size={21} sizedot={13}
                                   padding={3} marginRight={5}/>
                         {row.consultationReason.name}
-                    </Typography>}
-                </Stack>
+                    </Typography>
+                </Stack>}
                 <Box display={{xs: 'none', md: 'block'}}>
                     <Typography fontWeight={400}>
                         {t("appointment_date")}
@@ -66,7 +66,9 @@ export default function HistoryCard({...props}) {
                         dispatch(openDrawer(true));
                     }} size="small">{t('see_details')}</Button>
                     <IconButton
-                        onClick={()=>{dispatch(openDrawer(true));}}
+                        onClick={() => {
+                            dispatch(openDrawer(true));
+                        }}
                         className="btn-more-mobile" size="small">
                         <Icon path='ic-edit-file'/>
                     </IconButton>

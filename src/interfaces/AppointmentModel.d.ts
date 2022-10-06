@@ -10,6 +10,7 @@ interface AppointmentModel {
   duration: number;
   isVip: boolean;
   PatientHasAgendaAppointment: boolean | null;
+  overlapEvent: boolean | null;
   new: boolean;
   consultationReason: ConsultationReasonLessModel;
   patient: PatientLessModel;

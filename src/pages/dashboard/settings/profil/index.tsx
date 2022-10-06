@@ -26,13 +26,14 @@ import { RootStyled } from "@features/toolbar";
 import { configSelector } from "@features/base";
 import { Dialog } from "@features/dialog";
 import { SubHeader } from "@features/subHeader";
-import { useAppSelector } from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import { checkListSelector } from "@features/checkList";
 import { useRouter } from 'next/router'
 import { useRequest, useRequestMutation } from "@app/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
+import {toggleSideBar} from "@features/sideBarMenu";
 
 function Profil() {
 
@@ -49,6 +50,7 @@ function Profil() {
     const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
+    const dispatch = useAppDispatch();
 
     const [loading, setLoading] = useState<boolean>(true);
     const initalData = Array.from(new Array(3));
@@ -85,7 +87,10 @@ function Profil() {
         if (errorHttpMedicalProfessional !== undefined) {
             console.log(errorHttpMedicalProfessional)
         }
-    }, [errorHttpMedicalProfessional, httpMedicalProfessionalResponse, user])
+
+        dispatch(toggleSideBar(false));
+
+    }, [dispatch, errorHttpMedicalProfessional, httpMedicalProfessionalResponse, user])
 
     const [dialogContent, setDialogContent] = useState('');
     const { direction } = useAppSelector(configSelector);

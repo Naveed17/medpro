@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
@@ -12,11 +12,10 @@ import {useRouter} from "next/router";
 function CipCard() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {time: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
-    const [time, setTime] = useState<number>(initTimer);
-    const timer = useMemo(() => {
-        return [time, setTime];
-    }, [time, setTime]);
+
+    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+
+    const [time, setTime] = useState<number>(moment().diff(moment(initTimer, "HH:mm"), "seconds"));
 
     useEffect(() => {
         let interval: any = null;
@@ -32,18 +31,6 @@ function CipCard() {
             clearInterval(interval);
         };
     }, [isActive, isPaused, time]);
-
-    const handleStart = () => {
-        dispatch(setTimer({isActive: true, isPaused: false}));
-    };
-
-    const handlePauseResume = () => {
-        dispatch(setTimer({isPaused: !isPaused}));
-    };
-
-    const handleReset = () => {
-        dispatch(setTimer({isActive: false, time: 0}));
-    };
 
     const handleConsultation = () => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -63,7 +50,7 @@ function CipCard() {
                 </Typography>
                 <Box className={'timer-card'}>
                     <Typography color="common.white" variant='caption'>
-                        {moment().hour(0).minute(0).second(timer as unknown as number).format('HH : mm : ss')}
+                        {moment().hour(0).minute(0).second(moment().diff(moment(initTimer, "HH:mm"), "seconds") as unknown as number).format('HH : mm : ss')}
                     </Typography>
                 </Box>
                 <Label color='warning' variant='filled' className='label'>

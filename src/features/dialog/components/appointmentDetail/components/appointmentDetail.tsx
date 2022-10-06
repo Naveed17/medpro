@@ -19,17 +19,13 @@ import {
     ListItem, useTheme
 } from '@mui/material'
 
-import {Popover} from "@features/popover";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
-import SmsOutlinedIcon from '@mui/icons-material/SmsOutlined';
-import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
@@ -45,55 +41,21 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
+import {LoadingButton} from "@mui/lab";
 
-const menuList = [
-    {
-        title: "start_the_consultation",
-        icon: <PlayCircleIcon/>,
-        action: "onOpenEditPatient",
-    },
-    {
-        title: "add_patient_to_waiting_room",
-        icon: <Icon color={"white"} path='ic-salle'/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "see_patient_form",
-        icon: <InsertDriveFileOutlinedIcon/>,
-        action: "onCancel",
-    },
-
-    {
-        title: "send_a_message",
-        icon: <SmsOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "import_document",
-        icon: <SaveAltOutlinedIcon/>,
-        action: "onCancel",
-    },
-    {
-        title: "move_appointment",
-        icon: <Icon color={"white"} path="iconfinder"/>,
-        action: "onCancel",
-    },
-    {
-        title: "cancel_appointment",
-        icon: <DeleteOutlineOutlinedIcon/>,
-        action: "onCancel",
-    }
-];
 
 function AppointmentDetail({...props}) {
     const {
         OnConsultation,
+        OnConsultationView,
         OnEditDetail,
         OnDataUpdated,
         OnPatientNoShow,
         OnWaiting,
+        OnLeaveWaiting,
         SetMoveDialog,
         SetCancelDialog,
+        SetDeleteDialog
     } = props;
 
     const dispatch = useAppDispatch();
@@ -167,7 +129,7 @@ function AppointmentDetail({...props}) {
         <RootStyled>
             <AppBar position="static" color='inherit'>
                 <Toolbar>
-                    <Popover
+                    {/*<Popover
                         open={openTooltip}
                         handleClose={() => setOpenTooltip(false)}
                         menuList={menuList}
@@ -183,7 +145,7 @@ function AppointmentDetail({...props}) {
                                 <Icon path="more-vert"/>
                             </IconButton>
                         }
-                    />
+                    />*/}
                     <IconButton
                         size="small"
                         onClick={() => dispatch(openDrawer({type: "view", open: false}))}
@@ -201,14 +163,19 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        <Button
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
                             variant="contained"
                             color="warning"
                             startIcon={<PlayCircleIcon/>}
-                            onClick={() => OnConsultation(data)}
+                            onClick={() => {
+                                setLoading(true);
+                                data?.extendedProps.status.key === "FINISHED" ? OnConsultationView(data) : OnConsultation(data);
+                            }}
                         >
-                            {t('event.start')}
-                        </Button>
+                            {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
+                        </LoadingButton>
                     </Stack>
                     {data?.extendedProps.hasErrors.map((error: string, index: number) => (
                         <Stack key={`error${index}`}
@@ -335,13 +302,23 @@ function AppointmentDetail({...props}) {
                     <Stack spacing={1} width={1}>
                         <Button onClick={() => OnWaiting(data)}
                                 sx={{
-                                    display: moment().format("DD-MM-YYYY") !==
-                                    moment(data?.extendedProps.time).format("DD-MM-YYYY") ? "none" : "flex"
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        data?.extendedProps.status.key === "WAITING_ROOM") ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained'
                                 startIcon={<Icon path='ic-salle'/>}>
                             {t('waiting')}
+                        </Button>
+                        <Button onClick={() => OnLeaveWaiting(data)}
+                                sx={{
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                }}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
+                            {t('leave_waiting_room')}
                         </Button>
                         <Button
                             sx={{
@@ -393,13 +370,20 @@ function AppointmentDetail({...props}) {
                                 sx={{
                                     display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
                                     '& svg': {
-                                        width: 14,
-                                        height: 14
+                                        width: 16,
+                                        height: 16
                                     }
                                 }}
                                 startIcon={<IconUrl path='icdelete'
                                                     color={data?.extendedProps.status.key === "CANCELED" ?
                                                         'white' : theme.palette.error.main}/>}>
+                            {t('event.cancel')}
+                        </Button>
+                        <Button onClick={() => SetDeleteDialog(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
+                                startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
                             {t('event.delete')}
                         </Button>
                     </Stack>

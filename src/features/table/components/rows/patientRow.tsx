@@ -1,347 +1,338 @@
 import TableCell from "@mui/material/TableCell";
 import {
-  Typography,
-  Box,
-  Checkbox,
-  Button,
-  IconButton,
-  Skeleton,
+    Typography,
+    Box,
+    Checkbox,
+    Button,
+    IconButton,
+    Skeleton, Stack, useTheme
 } from "@mui/material";
-import { TableRowStyled } from "@features/table";
+import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import { useAppDispatch } from "@app/redux/hooks";
-import { onOpenPatientDrawer } from "@features/table";
+import {useAppDispatch} from "@app/redux/hooks";
+import {onOpenPatientDrawer} from "@features/table";
+import WomenIcon from "@themes/overrides/icons/womenIcon";
+import MenIcon from "@themes/overrides/icons/menIcon";
 
-function PatientRow({ ...props }) {
-  const { row, isItemSelected, handleClick, t, labelId, loading } = props;
-  const dispatch = useAppDispatch();
-  return (
-    <TableRowStyled
-      hover
-      onClick={() => !loading && handleClick(row.uuid as string)}
-      role="checkbox"
-      aria-checked={isItemSelected}
-      tabIndex={-1}
-      key={Math.random()}
-      selected={isItemSelected}
-    >
-      <TableCell padding="checkbox">
-        {loading ? (
-          <Skeleton variant="circular" width={28} height={28} />
-        ) : (
-          <Checkbox
-            color="primary"
-            checked={isItemSelected}
-            inputProps={{
-              "aria-labelledby": labelId,
-            }}
-          />
-        )}
-      </TableCell>
-      <TableCell>
-        <Box
-          display="flex"
-          alignItems="center"
-          sx={{ img: { borderRadius: "4px" } }}
+function PatientRow({...props}) {
+    const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
+    const dispatch = useAppDispatch();
+    const theme = useTheme();
+
+    return (
+        <TableRowStyled
+            hover
+            onClick={() => !loading && handleClick(row.uuid as string)}
+            role="checkbox"
+            aria-checked={isItemSelected}
+            tabIndex={-1}
+            key={Math.random()}
+            selected={isItemSelected}
         >
-          {/* <img
-            src={row.avatar as string}
-            className="avatar"
-            alt="avatar"
-            height="28px"
-            width={28}
-          /> */}
-          <Box ml={1}>
-            <Typography
-              variant="body1"
-              component="span"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                svg: { mr: 0.5 },
-              }}
-              color="primary"
-            >
-              {loading ? (
-                <Skeleton variant="text" width={100} />
-              ) : (
-                <>
-                  <Icon
-                    path={`ic-${
-                      row.gender === "M" || row.gender === "0" ? "h" : "f"
-                    }`}
-                  />
-                  {row.firstName} {row.lastName}
-                </>
-              )}
-            </Typography>
-            <Typography
-              variant="body2"
-              component="span"
-              color="text.secondary"
-              className="text-time"
-            >
-              {loading ? (
-                <Skeleton variant="text" width={100} />
-              ) : (
-                <>
-                  <Icon path="ic-anniverssaire" /> {row.birthdate} -
-                  {moment().diff(new Date(row.birthdate), "years")}
-                </>
-              )}{" "}
-            </Typography>
-          </Box>
-        </Box>
-      </TableCell>
-      <TableCell>
-        <Box display="flex" component="span" alignItems="center">
-          {loading ? (
-            <Skeleton variant="text" width={100} />
-          ) : (
-            <>
-              {row.contact.length > 0 && <Icon path="ic-tel" />}
-              <Typography sx={{ ml: 0.6 }}>
-                {(row.contact.length > 0 && row.contact[0].value) || "-"}
-              </Typography>
-            </>
-          )}
-        </Box>
-      </TableCell>
-      <TableCell>
-        {loading ? <Skeleton variant="text" /> : row.city || "-"}
-      </TableCell>
-      <TableCell>
-        {false ? (
-          <Button
-            variant="text"
-            size="small"
-            color="primary"
-            startIcon={<Icon path="ic-agenda-+" />}
-            sx={{ position: "relative" }}
-          >
-            {t("table.add-appointment")}
-          </Button>
-        ) : (
-          <Box display="flex" alignItems="center">
-            {loading ? (
-              <Skeleton variant="text" width={140} />
-            ) : row.nextAppointment?.dayDate ? (
-              <>
-                <IconButton size="small">
-                  <Icon path="ic-historique" />
-                </IconButton>
-
-                <Box ml={1}>
-                  <Typography
-                    component="span"
-                    className="next-appointment"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    <>
-                      <Icon path="ic-agenda" />
-                      {row.nextAppointment?.dayDate}
-                    </>
-                  </Typography>
-                  <Typography
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      "& svg": {
-                        width: 11,
-                        mr: 0.6,
-                      },
-                    }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    <>
-                      <Icon path="ic-time" /> {row.nextAppointment?.startTime}
-                    </>
-                  </Typography>
-                </Box>
-              </>
-            ) : (
-              <Button
-                variant="text"
-                size="small"
-                color="primary"
-                startIcon={<Icon path="ic-agenda-+" />}
-                sx={{ position: "relative" }}
-              >
-                {t("table.add-appointment")}
-              </Button>
-            )}
-          </Box>
-        )}
-      </TableCell>
-      <TableCell>
-        <Box display="flex" alignItems="center">
-          {loading ? (
-            <Skeleton variant="text" width={140} />
-          ) : row.nextAppointment?.dayDate ? (
-            <>
-              <IconButton size="small">
-                <Icon path="ic-historique" />
-              </IconButton>
-              <Box ml={1}>
-                <Typography
-                  component="span"
-                  className="next-appointment"
-                  variant="body2"
-                  color="text.primary"
+            <TableCell padding="checkbox">
+                {loading ? (
+                    <Skeleton variant="circular" width={28} height={28}/>
+                ) : (
+                    <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                            "aria-labelledby": labelId,
+                        }}
+                    />
+                )}
+            </TableCell>
+            <TableCell>
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    sx={{img: {borderRadius: "4px"}}}
                 >
-                  {loading ? (
-                    <Skeleton variant="text" width={100} />
-                  ) : (
-                    <>
-                      <Icon path="ic-agenda" />
-                      {row.nextAppointment?.dayDate || "-"}
-                    </>
-                  )}
-                </Typography>
-                <Typography
-                  sx={{
+                    <Box ml={1}>
+                        <Typography
+                            variant="body1"
+                            component="span"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                svg: {mr: 0.5},
+                            }}
+                            color="primary">
+                            {loading ? (
+                                <Skeleton variant="text" width={100}/>
+                            ) : (
+                                <>
+                                    {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
+                                    <Stack marginLeft={2}>
+                                        <Typography color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
+                                        <Typography
+                                            variant="body2"
+                                            component="span"
+                                            color="text.secondary"
+                                            className="text-time"
+                                        >
+                                            {loading ? (
+                                                <Skeleton variant="text" width={100}/>
+                                            ) : (
+                                                <>
+                                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
+                                                    {moment().diff(new Date(row.birthdate), "years")} ans
+                                                </>
+                                            )}
+                                        </Typography>
+                                    </Stack>
+                                </>
+                            )}
+                        </Typography>
+                        {/*<Typography
+                            variant="body2"
+                            component="span"
+                            color="text.secondary"
+                            className="text-time"
+                        >
+                            {loading ? (
+                                <Skeleton variant="text" width={100}/>
+                            ) : (
+                                <>
+                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
+                                    {moment().diff(new Date(row.birthdate), "years")} ans
+                                </>
+                            )}
+                        </Typography>*/}
+                    </Box>
+                </Box>
+            </TableCell>
+            <TableCell>
+                <Box display="flex" component="span" alignItems="center">
+                    {loading ? (
+                        <Skeleton variant="text" width={100}/>
+                    ) : (
+                        <>
+                            {row.contact.length > 0 && <Icon path="ic-tel"/>}
+                            <Typography sx={{ml: 0.6}}>
+                                {(row.contact.length > 0 && row.contact[0].value) || "-"}
+                            </Typography>
+                        </>
+                    )}
+                </Box>
+            </TableCell>
+            {/*<TableCell>
+                {loading ? <Skeleton variant="text"/> : (
+                    row.address[0] ? <Typography>{row.address[0].city.name}, {row.address[0].street}</Typography> : "-"
+                ) || "-"}
+            </TableCell>*/}
+            <TableCell>
+                <Box display="flex" alignItems="center">
+                    {loading ? (
+                        <Skeleton variant="text" width={140}/>
+                    ) : row.nextAppointment?.dayDate ? (
+                        <Stack direction={"row"} margin={"auto"}>
+                            <IconButton size="small">
+                                <Icon path="ic-historique"/>
+                            </IconButton>
+
+                            <Box ml={1}>
+                                <Typography
+                                    component="span"
+                                    className="next-appointment"
+                                    variant="body2"
+                                    color="text.primary"
+                                >
+                                    <>
+                                        <Icon path="ic-agenda"/>
+                                        {row.nextAppointment?.dayDate}
+                                    </>
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& svg": {
+                                            width: 11,
+                                            mr: 0.6,
+                                        },
+                                    }}
+                                    component="span"
+                                    variant="body2"
+                                    color="text.primary"
+                                >
+                                    <>
+                                        <Icon path="ic-time"/> {row.nextAppointment?.startTime}
+                                    </>
+                                </Typography>
+                            </Box>
+                        </Stack>
+                    ) : (
+                        <Button
+                            variant="text"
+                            size="small"
+                            color="primary"
+                            style={{margin: "auto"}}
+                            startIcon={<Icon path="ic-agenda-+"/>}
+                            sx={{position: "relative"}}
+                        >
+                            {t("table.add-appointment")}
+                        </Button>
+                    )}
+                </Box>
+            </TableCell>
+            <TableCell align={"center"}>
+                <Box display="flex" alignItems="center" margin={"auto"}>
+                    {loading ? (
+                        <Skeleton variant="text" width={140}/>
+                    ) : row.nextAppointment?.dayDate ? (
+                        <>
+                            <IconButton size="small">
+                                <Icon path="ic-historique"/>
+                            </IconButton>
+                            <Box ml={1}>
+                                <Typography
+                                    component="span"
+                                    className="next-appointment"
+                                    variant="body2"
+                                    color="text.primary"
+                                >
+                                    {loading ? (
+                                        <Skeleton variant="text" width={100}/>
+                                    ) : (
+                                        <>
+                                            <Icon path="ic-agenda"/>
+                                            {row.nextAppointment?.dayDate || "-"}
+                                        </>
+                                    )}
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& svg": {
+                                            width: 11,
+                                            mr: 0.6
+                                        },
+                                    }}
+                                    component="span"
+                                    variant="body2"
+                                    color="text.primary"
+                                >
+                                    {loading ? (
+                                        <Skeleton variant="text" width={100}/>
+                                    ) : (
+                                        <>
+                                            <Icon path="ic-time"/>{" "}
+                                            {row.nextAppointment?.startTime || "-"}
+                                        </>
+                                    )}
+                                </Typography>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography
+                            component="span"
+                            className="next-appointment"
+                            variant="body2"
+                            align={"center"}
+                            margin={"auto"}
+                            color="text.primary">
+                            --
+                        </Typography>
+                    )}
+                </Box>
+            </TableCell>
+
+            <TableCell align="right" sx={{
                     display: "flex",
                     alignItems: "center",
-                    "& svg": {
-                      width: 11,
-                      mr: 0.6,
-                    },
-                  }}
-                  component="span"
-                  variant="body2"
-                  color="text.primary"
-                >
-                  {loading ? (
-                    <Skeleton variant="text" width={100} />
-                  ) : (
+                    minHeight: "58.85px",
+                }}>
+                {loading ? (
                     <>
-                      <Icon path="ic-time" />{" "}
-                      {row.nextAppointment?.startTime || "-"}
+                        <Skeleton
+                            variant="circular"
+                            width={22}
+                            height={22}
+                            sx={{ml: 1}}
+                        />
+                        <Skeleton variant="text" width={60} sx={{ml: 1}}/>
+                        <Skeleton variant="text" width={60}/>
                     </>
-                  )}
-                </Typography>
-              </Box>
-            </>
-          ) : (
-            <Typography
-              component="span"
-              className="next-appointment"
-              variant="body2"
-              color="text.primary"
-            >
-              --
-            </Typography>
-          )}
-        </Box>
-      </TableCell>
-
-      <TableCell
-        align="right"
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          minHeight: "58.85px",
-        }}
-      >
-        {loading ? (
-          <>
-            <Skeleton
-              variant="circular"
-              width={22}
-              height={22}
-              sx={{ ml: 1 }}
-            />
-            <Skeleton variant="text" width={60} sx={{ ml: 1 }} />
-            <Skeleton variant="text" width={60} />
-          </>
-        ) : (
-          <>
-            <IconButton
-              size="small"
-              sx={{
-                ml: 0.6,
-                path: { fill: (theme) => theme.palette.common.black },
-              }}
-            >
-              <Icon path="ic-autre2" />
-            </IconButton>
-            <Box className="lg-down">
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch(
-                    onOpenPatientDrawer({
-                      patientId: row.uuid,
-                      patientAction: "PATIENT_DETAILS",
-                    })
-                  );
-                }}
-                size="small"
-                startIcon={<Icon path="/ic-voir" />}
-              >
-                {t("table.see-card")}
-              </Button>
-              <Button
-                size="small"
-                sx={{
-                  ml: 0.6,
-                  color: (theme) => theme.palette.common.black,
-                  path: { fill: (theme) => theme.palette.common.black },
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch(
-                    onOpenPatientDrawer({
-                      patientId: row.uuid,
-                      patientAction: "EDIT_PATIENT",
-                    })
-                  );
-                }}
-                startIcon={<Icon path="/ic-edit" />}
-              >
-                {t("table.edit")}
-              </Button>
-            </Box>
-            <Box className="lg-up">
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch(
-                    onOpenPatientDrawer({
-                      patientId: row.uuid,
-                      patientAction: "PATIENT_DETAILS",
-                    })
-                  );
-                }}
-              >
-                <Icon path="/ic-voir" />
-              </IconButton>
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  dispatch(
-                    onOpenPatientDrawer({
-                      patientId: row.uuid,
-                      patientAction: "EDIT_PATIENT",
-                    })
-                  );
-                }}
-                size="small"
-                className="edit-icon-button"
-              >
-                <Icon path="/ic-edit" />
-              </IconButton>
-            </Box>
-          </>
-        )}
-      </TableCell>
-    </TableRowStyled>
-  );
+                ) : (
+                    <>
+                        <Box className="lg-down">
+                            <Button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    dispatch(
+                                        onOpenPatientDrawer({
+                                            patientId: row.uuid,
+                                            patientAction: "PATIENT_DETAILS",
+                                        })
+                                    );
+                                    handleEvent("PATIENT_DETAILS", row);
+                                }}
+                                size="small"
+                                startIcon={<Icon path="/ic-voir"/>}
+                            >
+                                {t("table.see-card")}
+                            </Button>
+                            <Button
+                                size="small"
+                                sx={{
+                                    ml: 0.6
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    dispatch(
+                                        onOpenPatientDrawer({
+                                            patientId: row.uuid,
+                                            patientAction: "EDIT_PATIENT",
+                                        })
+                                    );
+                                    handleEvent("EDIT_PATIENT", row);
+                                }}
+                                startIcon={<Icon color={theme.palette.primary.main} path="setting/edit"/>}
+                            >
+                                {t("table.edit")}
+                            </Button>
+                        </Box>
+                        <Box className="lg-up">
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    dispatch(
+                                        onOpenPatientDrawer({
+                                            patientId: row.uuid,
+                                            patientAction: "PATIENT_DETAILS",
+                                        })
+                                    );
+                                    handleEvent("PATIENT_DETAILS", row);
+                                }}
+                            >
+                                <Icon path="/ic-voir"/>
+                            </IconButton>
+                            <IconButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    dispatch(
+                                        onOpenPatientDrawer({
+                                            patientId: row.uuid,
+                                            patientAction: "EDIT_PATIENT",
+                                        })
+                                    );
+                                    handleEvent("EDIT_PATIENT", row);
+                                }}
+                                size="small"
+                            >
+                                <Icon color={theme.palette.primary.main} path="setting/edit"/>
+                            </IconButton>
+                        </Box>
+                    </>
+                )}
+            </TableCell>
+        </TableRowStyled>
+    );
 }
+
 export default PatientRow;

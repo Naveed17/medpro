@@ -29,8 +29,10 @@ function Consultation() {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (patient) dispatch(toggleSideBar(false));
-        console.log(patient);
+        if (patient) {
+            dispatch(toggleSideBar(false));
+            console.log(patient);
+        }
     }, [dispatch, patient]);
 
     if (!ready) return <>loading translations...</>;
@@ -41,7 +43,7 @@ function Consultation() {
                     <Avatar
                         sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
                         src={
-                            patient?.gender === "O"
+                            patient?.gender === "M"
                                 ? "/static/icons/men-avatar.svg"
                                 : "/static/icons/women-avatar.svg"
                         }

@@ -18,7 +18,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, DayOfWeek} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setView} from "@features/calendar";
 import moment from "moment-timezone";
 
 const CalendarPickers = dynamic(() =>
@@ -29,7 +29,7 @@ function Agenda() {
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
     const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
@@ -71,7 +71,10 @@ function Agenda() {
     if (!ready) return (<>loading translations...</>);
     return (
         <BoxStyled>
-            <CalendarPickers shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+            <CalendarPickers
+                renderDay
+                {...{notes}}
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
             {<Accordion
                 translate={{
                     t: t,
@@ -88,7 +91,10 @@ function Agenda() {
                         children: (
                             <FilterRootStyled>
                                 <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => dispatch(setFilter(data.query))}
+                                    OnSearch={(data: { query: ActionBarState }) => {
+                                        dispatch(setView("listWeek"));
+                                        dispatch(setFilter({patient: data.query}));
+                                    }}
                                     item={{
                                         heading: {
                                             icon: "ic-patient",
@@ -102,7 +108,7 @@ function Agenda() {
                                             labels: [
                                                 {label: "name", placeholder: "name"},
                                                 {label: "birthdate", placeholder: "--/--/----"},
-                                                {label: "phone", placeholder: "telephone"},
+                                                {label: "phone", placeholder: "phone"},
                                             ],
                                         },
                                     }} t={t}/>

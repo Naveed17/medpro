@@ -1,26 +1,27 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import {LocaleFnsProvider} from "@app/localization/localization";
+import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {TextField} from "@mui/material";
-import {StaticDatePicker} from '@mui/x-date-pickers/StaticDatePicker';
+import {Badge, TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
+import moment from "moment-timezone";
+import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 
 type CalendarPickerView = "day" | "month" | "year";
 
 function CalendarPickers({...props}) {
+    const {notes} = props;
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
-    const [date, setDate] = useState(initData.date);
     const [defaultView, setDefaultView] = useState<CalendarPickerView>("day");
 
     const handleDateChange = (date: Date) => {
-        setDate(date);
         dispatch(setCurrentDate({date, fallback: true}));
     }
     const onYearChange = (year: any) => {
@@ -35,9 +36,20 @@ function CalendarPickers({...props}) {
             >
                 <StaticDatePicker
                     {...props}
+                    renderDay={(day, _value, DayComponentProps) => {
+                        const note = notes.find((note: any) => note.date === moment(day).format('DD-MM-YYYY'));
+                        const isSelected = !DayComponentProps.outsideCurrentMonth && note;
+                        return (
+                            <PickersDay {...(isSelected && {
+                                sx: {
+                                    backgroundColor: note.events.length > 5 ? theme.palette.error.light : theme.palette.error.lighter
+                                }
+                            })} {...DayComponentProps} />
+                        );
+                    }}
                     disableOpenPicker
                     toolbarTitle={""}
-                    value={date}
+                    value={initData.date}
                     renderInput={(params) => <TextField {...params} />}
                     displayStaticWrapperAs="desktop"
                     onChange={(date) => handleDateChange(date)}

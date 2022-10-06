@@ -12,7 +12,11 @@ import {
     ListItemText,
     Button,
     DialogActions,
+    List,
+    ListItem,
+    Card,
     Box,
+    Skeleton
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -43,6 +47,7 @@ function ModalConsultation({...props}) {
     const {modal, setSM} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
+    const [pageLoading, setPageLoading] = useState(false);
     let medical_entity: MedicalEntityModel | null = null;
     const [open, setOpen] = useState(false);
     const [change, setChange] = useState(false);
@@ -63,11 +68,12 @@ function ModalConsultation({...props}) {
 
 
     useEffect(() => {
-        //console.log(modal)
+        setPageLoading(true)
         if (modal)
             setValue(modal.default_modal);
         setTimeout(() => {
-            setLoadModel(false)
+            setLoadModel(false);
+            setPageLoading(false)
         }, 1000)
     }, [modal])
 
@@ -92,7 +98,6 @@ function ModalConsultation({...props}) {
     const handleClick = (prop: ModalModel) => {
         setLoadModel(true)
         setValue(prop);
-        //console.log(prop)
         let data = {};
         prop.structure[0].components.map((cmp: any) => {
             data = {...data, ...{[cmp.key]: ''}}
@@ -134,10 +139,12 @@ function ModalConsultation({...props}) {
                     <CardContent sx={{
                         bgcolor: alpha(value?.color, 0.1)
                     }}>
+
                         <Box>
                             {!loadModel && <FormBuilder
                                 onSubmit={(ev: any) => {
                                     modal.data = ev.data
+                                    console.log('submit model',ev.data)
                                     setSM(modal)
                                 }}
                                 onError={console.log}
@@ -150,6 +157,33 @@ function ModalConsultation({...props}) {
                                     }
                                 }
                             />}
+                            {
+                                pageLoading &&
+                                Array.from({length: 3}).map((_, idx) =>
+                                    <Box key={`loading-box-${idx}`}>
+                                        <Typography alignSelf="center" marginBottom={2} marginTop={2}>
+                                            <Skeleton width={130} height={12}
+                                                      variant="rectangular"/>
+                                        </Typography>
+                                        <Card className='loading-card'>
+                                            <Stack spacing={2}>
+                                                <List style={{marginTop: 25}}>
+                                                    {
+                                                        Array.from({length: 4}).map((_, idx) =>
+                                                            <ListItem key={`skeleton-item-${idx}`} sx={{py: .5}}>
+                                                                <Skeleton width={'50%'} height={12}
+                                                                          variant="rectangular"/>
+                                                                <Skeleton sx={{ml: 1}} width={'50%'} height={12}
+                                                                          variant="rectangular"/>
+                                                            </ListItem>
+                                                        )
+                                                    }
+
+                                                </List>
+                                            </Stack>
+                                        </Card>
+                                    </Box>)
+                            }
 
 
                         </Box>
@@ -161,8 +195,8 @@ function ModalConsultation({...props}) {
                             exit="initial">
                             <Paper className="menu-list">
                                 <MenuList>
-                                    {models.map((item, index) => (
-                                        <MenuItem key={index} onClick={() => handleClick(item)}>
+                                    {models.map((item, idx) => (
+                                        <MenuItem key={`model-item-${idx}`} onClick={() => handleClick(item)}>
                                             <ListItemIcon>
                                                 <ModelDot color={item.color} selected={false} size={21} sizedot={13}
                                                           padding={3}/>

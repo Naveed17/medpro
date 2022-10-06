@@ -1,4 +1,4 @@
-import {FastField, FieldArray, Form, FormikProvider, useFormik} from "formik";
+import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
     Box, Button,
     FormControl,
@@ -11,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import React from "react";
+import React, {memo} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -26,6 +26,12 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+export const MyTextInput: any = memo(({...props}) => {
+    return (
+        <TextField {...props}/>
+    );
+})
+MyTextInput.displayName = "TextField";
 
 function OnStepPatient({...props}) {
     const {
@@ -60,7 +66,7 @@ function OnStepPatient({...props}) {
             month: Yup.string().required(t("date-error")),
             year: Yup.string().required(t("date-error")),
         }),
-//        email: Yup.string().email("Invalid email").required("Email Required")
+        gender: Yup.string().required(t("gender-error"))
     });
     const formik = useFormik({
         initialValues: {
@@ -88,11 +94,11 @@ function OnStepPatient({...props}) {
             address: "",
             email: "",
             cin: "",
-            from: "",
+            family_doctor: "",
             insurance: [] as {
                 insurance_number: string;
                 insurance_uuid: string;
-            }[],
+            }[]
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
@@ -162,19 +168,19 @@ function OnStepPatient({...props}) {
                 onSubmit={handleSubmit}
             >
                 <Stack spacing={2} className="inner-section">
-                    <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 2}}>
-                        {t("personal-info")}
-                    </Typography>
-
                     <Box>
-                        <FormControl component="fieldset">
+                        <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
+                            {t("personal-info")}
+                        </Typography>
+                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)} >
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
                                 <Typography component="span" color="error">
                                     *
                                 </Typography>
                             </Typography>
-                            <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
+                            <RadioGroup row aria-label="gender"
+                                        {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
                                     control={<Radio size="small"/>}
@@ -186,6 +192,7 @@ function OnStepPatient({...props}) {
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
+                            {(touched.gender && errors.gender) && <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
                     <Box>
@@ -415,45 +422,45 @@ function OnStepPatient({...props}) {
                     </Box>
 
                     <Box>
-                        <Grid container spacing={2}>
-                            <Grid item md={4} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                >
-                                    {t("country")}
-                                </Typography>
-                                <FormControl fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id={"country"}
-                                        size="small"
-                                        {...getFieldProps("country")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={selected => {
-                                            if (selected.length === 0) {
-                                                return <em>{t("country-placeholder")}</em>;
-                                            }
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            gutterBottom
+                        >
+                            {t("country")}
+                        </Typography>
+                        <FormControl fullWidth>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id={"country"}
+                                size="small"
+                                {...getFieldProps("country")}
+                                displayEmpty
+                                sx={{color: "text.secondary"}}
+                                renderValue={selected => {
+                                    if (selected.length === 0) {
+                                        return <em>{t("country-placeholder")}</em>;
+                                    }
 
-                                            const country = countries?.find(country => country.uuid === selected);
-                                            return <Typography>{country?.name}</Typography>
-                                        }}
-                                    >
-                                        {countries?.map((country) => (
-                                            <MenuItem
-                                                key={country.uuid}
-                                                value={country.uuid}>
-                                                <Box component="img"
-                                                     src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
-                                                <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                            </MenuItem>)
-                                        )}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item md={4} xs={12}>
+                                    const country = countries?.find(country => country.uuid === selected);
+                                    return <Typography>{country?.name}</Typography>
+                                }}
+                            >
+                                {countries?.map((country) => (
+                                    <MenuItem
+                                        key={country.uuid}
+                                        value={country.uuid}>
+                                        <Box component="img"
+                                             src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
+                                        <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                    </MenuItem>)
+                                )}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box>
+                        <Grid container spacing={2}>
+                            <Grid item md={6} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -489,7 +496,7 @@ function OnStepPatient({...props}) {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={4} xs={12}>
+                            <Grid item md={6} xs={12}>
                                 <Typography
                                     variant="body2"
                                     color="text.secondary"
@@ -544,7 +551,7 @@ function OnStepPatient({...props}) {
                                 render={arrayHelpers => (
                                     values.insurance.map((val, index: number) => (
                                         <Grid
-                                            key={Math.random()}
+                                            key={index}
                                             container
                                             spacing={2}
                                             sx={{mt: index > 0 ? 0.5 : 0}}
@@ -582,7 +589,7 @@ function OnStepPatient({...props}) {
                                             </Grid>
                                             <Grid item xs={12} md={8}>
                                                 <Stack direction="row" spacing={2} key={`stack-${index}`}>
-                                                    <TextField
+                                                    <MyTextInput
                                                         variant="outlined"
                                                         placeholder={t("assurance-phone-error")}
                                                         size="small"
@@ -612,37 +619,50 @@ function OnStepPatient({...props}) {
                             />
                         </Box>
                     </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("email")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("email-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("email")}
-                                error={Boolean(touched.email && errors.email)}
-                                helperText={
-                                    Boolean(touched.email && errors.email)
-                                        ? String(errors.email)
-                                        : undefined
-                                }
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("cin")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("cin-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("cin")}
-                            />
-                        </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("email")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("email-placeholder")}
+                            type="email"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("email")}
+                            error={Boolean(touched.email && errors.email)}
+                            helperText={
+                                Boolean(touched.email && errors.email)
+                                    ? String(errors.email)
+                                    : undefined
+                            }
+                        />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("cin")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("cin-placeholder")}
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("cin")}
+                        />
+                    </Box>
+                    <Box>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            {t("family_doctor")}
+                        </Typography>
+                        <TextField
+                            placeholder={t("family_doctor-placeholder")}
+                            type="text"
+                            variant="outlined"
+                            size="small"
+                            fullWidth
+                            {...getFieldProps("family_doctor")}
+                        />
+                    </Box>
                 </Stack>
 
                 <Stack
@@ -664,7 +684,7 @@ function OnStepPatient({...props}) {
                 </Stack>
             </Stack>
         </FormikProvider>
-)
+    )
 }
 
 export default OnStepPatient;

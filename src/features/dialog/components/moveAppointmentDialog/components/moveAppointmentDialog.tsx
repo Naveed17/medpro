@@ -66,8 +66,8 @@ function MoveAppointmentDialog() {
 
     return (
         <BoxStyled>
-            <AppointmentPatientCard style={{width: "60%", margin: "1rem auto"}} data={data?.extendedProps}/>
-            <Typography mt={4} mb={2}
+            {/*<AppointmentPatientCard style={{width: "60%", margin: "1rem auto"}} data={data?.extendedProps}/>*/}
+            <Typography mt={2} mb={2}
                         sx={{
                             textAlign: "center",
                             fontWeight: "600",

@@ -12,12 +12,12 @@
   "filter": {
     "title": "Filtre",
     "patient": "Patient",
-    "date-of-birth": "Date de naissance",
+    "birthdate": "Date de naissance",
     "gender": "Genre",
     "male": "Homme",
     "female": "Femme",
     "name": "Nom & prénom",
-    "telephone": "Numéro de téléphone",
+    "phone": "Numéro de téléphone",
     "place": "Lieu",
     "city": "Ville",
     "search": "Recherche",
@@ -120,17 +120,20 @@
         "fin": "Fin",
         "group": "Groupe",
         "gender": "Genre",
+        "gender-error": "Veuillez choisir le genre.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",
         "mr": "M.",
         "mrs": "Mme",
         "last-name": "Nom",
         "last-name-placeholder": "Tapez le nom du patient",
-        "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
+        "last-name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name": "Prénom",
         "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
+        "family_doctor": "Médecin traitant",
+        "family_doctor-placeholder": "Tapez le nom du médecin traitant",
         "day": "Jour",
         "month": "Mois",
         "year": "Année",
@@ -140,8 +143,8 @@
         "cancel": "Annuler",
         "next": "Suivant",
         "region": "Région",
-        "country": "Pays",
-        "country-placeholder": "pays",
+        "country": "Nationalité",
+        "country-placeholder": "nationalité",
         "region-placeholder": "région",
         "zip": "Code postal",
         "address": "Adresse",
@@ -219,10 +222,24 @@
     },
     "cancel-dialog": {
       "title": "Annuler RDV",
-      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "sub-title": "Voulez-vous vraiment annuler le RDV?",
       "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Confirmer"
+    },
+    "delete-dialog": {
+      "title": "Supprimer RDV",
+      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
     }
+  },
+  "alert": {
+    "cancel-appointment": "le rendez-vous a été annulé avec succès",
+    "delete-appointment": "le rendez-vous a été supprimé avec succès",
+    "leave-waiting-room": "le patient a quitté la salle d'attente",
+    "on-waiting-room": "le patient a entré dans la salle d'attente",
+    "patient-no-show": "le rendez-vous a été modifié avec succès"
   }
 }

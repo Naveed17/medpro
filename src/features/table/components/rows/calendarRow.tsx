@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Button, Badge} from "@mui/material";
+import {Typography, Box, Button, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
@@ -9,23 +9,24 @@ import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
 import {setCurrentDate, setView} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import DangerIcon from "@themes/overrides/icons/dangerIcon";
+import Icon from "@themes/urlIcon";
+import {sideBarSelector} from "@features/sideBarMenu";
 
 function CalendarRow({...props}) {
-    const {row, handleEvent} = props;
+    const {row, handleEvent, data} = props;
+    const {spinner} = data;
     const dispatch = useAppDispatch();
+    const theme = useTheme();
+    const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
         if (!eventData.hasOwnProperty("extendedProps")) {
             event = Object.assign(eventData, {
                 extendedProps: {
-                    instruction: eventData.instruction,
-                    meeting: eventData.meeting,
-                    motif: eventData.motif,
-                    patient: eventData.patient,
-                    status: eventData.status,
-                    time: eventData.time
+                    ...eventData
                 }
             });
         }
@@ -88,10 +89,7 @@ function CalendarRow({...props}) {
                             svg: {
                                 width: "10px",
                                 height: 18,
-                                mr: 1,
-                                path: {
-                                    fill: (theme) => theme.palette.text.secondary,
-                                },
+                                mr: 1
                             },
                             position: "relative",
                             "&:after": {
@@ -108,14 +106,9 @@ function CalendarRow({...props}) {
                         className="first-child"
                     >
                         <Box sx={{display: "flex"}}>
-                            {data.new && <Label
-                                sx={{mr: 1}}
-                                variant="filled"
-                                color={"primary"}
-                            >
-                                {"New"}
-                            </Label>}
+
                             <Box sx={{display: "flex", mt: .3}}>
+                                {data.hasErrors.length > 0 && <DangerIcon className="error"/>}
                                 <TimeIcon/>
                                 <Typography variant="body2" color="text.secondary">
                                     {new Date(data.time).toLocaleTimeString([], {
@@ -124,12 +117,22 @@ function CalendarRow({...props}) {
                                     })}
                                 </Typography>
                             </Box>
+                            <Box sx={{display: "flex"}}>
+                                {data.new && <Label
+                                    sx={{ml: 1, fontSize: 10}}
+                                    variant="filled"
+                                    color={"primary"}
+                                >
+                                    Nouveau
+                                </Label>}
+                            </Box>
                         </Box>
                     </TableCell>
                     <TableCell
                         sx={{
                             p: "10px 12px",
                             color: "primary.main",
+                            minHeight: "40px",
                             display: "flex",
                             svg: {
                                 width: "10px",
@@ -194,28 +197,38 @@ function CalendarRow({...props}) {
                             <Button
                                 variant="text"
                                 color="primary"
+                                disabled={spinner}
                                 size="small"
                                 sx={{mr: 1}}
+                                {...(sideBarOpened && {sx: {minWidth: 40}})}
                                 onClick={() => handleEventClick("waitingRoom", data)}
                             >
-                                Ajouter à la salle d’attente
+                                <Icon color={spinner ? "white" : theme.palette.primary.main}
+                                      path="ic-salle"/> {!sideBarOpened && <span
+                                style={{marginLeft: "5px"}}>Ajouter à la salle d’attente</span>}
                             </Button>
                             :
                             <Button
+                                disabled={spinner}
                                 variant="text"
                                 color="primary"
                                 size="small"
                                 sx={{mr: 1}}
+                                {...(sideBarOpened && {sx: {minWidth: 40}})}
                                 onClick={() => handleEventClick("leaveWaitingRoom", data)}
                             >
-                                Quitter la salle d’attente
+                                <Icon color={theme.palette.primary.main} path="ic-salle"/> {!sideBarOpened && <span
+                                style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
                             </Button>
                         }
 
-                        <Button onClick={() => handleEventClick("showEvent", data)} variant="text"
+                        <Button onClick={() => handleEventClick("showEvent", data)}
+                                {...(sideBarOpened && {sx: {minWidth: 40}})}
+                                variant="text"
                                 color="primary"
                                 size="small">
-                            Voir détails
+                            <Icon path="setting/edit"/> {!sideBarOpened &&
+                            <span style={{marginLeft: "5px"}}>Voir détails</span>}
                         </Button>
                     </TableCell>
                 </TableRowStyled>

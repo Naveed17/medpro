@@ -3,7 +3,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import TimePicker from "@mui/lab/TimePicker";
 import Stack from "@mui/material/Stack";
-import {LocaleFnsProvider} from "@app/localization/localization";
+import {LocaleFnsProvider} from "@app/localization";
 import {useAppSelector} from "@app/redux/hooks";
 import {configSelector} from "@features/base";
 import {useState} from "react";

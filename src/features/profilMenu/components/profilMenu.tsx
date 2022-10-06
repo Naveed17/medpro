@@ -4,31 +4,73 @@ import {
     profileMenuSelector,
     ProfileSectionStyled
 } from "@features/profilMenu";
-import {Box, ClickAwayListener, Grow, IconButton, MenuItem, MenuList, Paper, Popper, Typography} from "@mui/material";
+import {
+    Box,
+    ClickAwayListener,
+    Grow,
+    IconButton, ListItemIcon, ListItemText,
+    MenuItem,
+    MenuList,
+    Paper,
+    Popper,
+    Typography,
+    useMediaQuery
+} from "@mui/material";
 import Icon from "@themes/icon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRef} from "react";
+import {useRef, useState} from "react";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
+import {Theme} from "@mui/material/styles";
+import {toggleMobileBar} from "@features/sideBarMenu";
+import {agendaSelector} from "@features/calendar";
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {LoadingScreen} from "@features/loadingScreen";
+import {Check} from "@mui/icons-material";
+import Link from "next/link";
 
 function ProfilMenu() {
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const router = useRouter();
-    const { opened } = useAppSelector(profileMenuSelector);
+    const {opened} = useAppSelector(profileMenuSelector);
+    const {agendas} = useAppSelector(agendaSelector);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
-    const dir = router.locale === 'ar' ? 'rtl': 'ltr';
     const anchorRef: any = useRef();
+    const {t, ready} = useTranslation('menu');
 
-    const { t, ready } = useTranslation('menu');
+    const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger} = useRequestMutation(null, "/settings");
+
     if (!ready) return (<>loading translations...</>);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));
     };
+
+    const switchAgenda = (agenda: AgendaConfigurationModel) => {
+        trigger({
+            method: "PATCH",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/agendas/" + agenda.uuid + '/switch/' + router.locale,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(result => {
+            setLoading(true);
+            router.reload();
+        })
+    }
 
     const handleMenuItem = async (action: string) => {
         switch (action) {
@@ -42,6 +84,10 @@ function ProfilMenu() {
                 dispatch(logout({redirect: false}));
                 window.location.href = path;
                 break;
+            case 'profile':
+                isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+                dispatch(toggleMobileBar(true));
+                break;
         }
     };
 
@@ -52,7 +98,9 @@ function ProfilMenu() {
         dispatch(openMenu(false));
     };
 
-    return(
+    if (loading) return (<LoadingScreen text={"loading-switch"}/>);
+
+    return (
         <ProfileSectionStyled
             onClick={handleToggle}
             ref={anchorRef}
@@ -69,7 +117,7 @@ function ProfilMenu() {
                     width={26}
                     height={26}
                 />
-                <Icon path="ic-menu" />
+                <Icon path="ic-menu"/>
             </IconButton>
             <Popper
                 open={opened}
@@ -79,7 +127,7 @@ function ProfilMenu() {
                 transition
                 disablePortal
                 className="profile-menu-container">
-                {({ TransitionProps }) => (
+                {({TransitionProps}) => (
                     <Grow
                         {...TransitionProps}
                         style={{
@@ -108,7 +156,7 @@ function ProfilMenu() {
                                                 />
                                                 <Box className="profile-detail">
                                                     <Typography variant="body1" className="name">
-                                                        {session?.user && (<> Dr { session.user.name} </>)}
+                                                        {session?.user && (<> Dr {session.user.name} </>)}
                                                     </Typography>
                                                     <Typography variant="body2" className="des">
                                                         Agenda Cabinet
@@ -124,30 +172,36 @@ function ProfilMenu() {
                                             disableRipple
                                             className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
                                             }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
-                                            <IconUrl path={item.icon} />
+                                            <IconUrl path={item.icon}/>
                                             <Typography variant="body1" className="item-name">
                                                 {t("doctor-dropdown." + item.name.toLowerCase())}
                                             </Typography>
                                             {item.hasOwnProperty("items") ? (
                                                 <>
-                                                    {dir === "rtl" ? <Icon path="ic-retour" /> : <Icon path="ic-flesh-droite" />}
+                                                    {dir === "rtl" ? <Icon path="ic-retour"/> :
+                                                        <Icon path="ic-flesh-droite"/>}
                                                     <MenuList className="sub-items">
-                                                        {item.items.map((subItem: any, subIndex: any) => (
+                                                        {agendas?.map((subItem: any, subIndex: any) => (
                                                             <MenuItem
+                                                                onClick={() => switchAgenda(subItem)}
                                                                 key={`sub-${subIndex}`}
-                                                                disableRipple
-                                                                className={`${item.items.length - 1 === subIndex
-                                                                    ? ""
-                                                                    : "border-bottom"
-                                                                }`}>
-                                                                <Icon path={subItem.icon} />
-                                                                <Typography
-                                                                    variant="body1"
-                                                                    className="item-name">
-                                                                    {subItem.name}
-                                                                </Typography>
+                                                                selected={subItem.isDefault}
+                                                                className={"border-bottom"}>
+                                                                <ListItemText>
+                                                                    {subItem.locations[0].name}
+                                                                </ListItemText>
                                                             </MenuItem>
                                                         ))}
+                                                        <Link href={"/dashboard/settings/places/new"}>
+                                                            <MenuItem>
+                                                                <ListItemIcon>
+                                                                    <IconUrl path={"ic-plus"} />
+                                                                </ListItemIcon>
+                                                                <ListItemText>
+                                                                    Ajouter un agenda
+                                                                </ListItemText>
+                                                            </MenuItem>
+                                                        </Link>
                                                     </MenuList>
                                                 </>
                                             ) : null}
@@ -162,4 +216,5 @@ function ProfilMenu() {
         </ProfileSectionStyled>
     )
 }
+
 export default ProfilMenu

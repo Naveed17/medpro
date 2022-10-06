@@ -4,6 +4,7 @@ interface EventModal {
     end: Date;
     title: string;
     allDay: boolean;
+    overlapEvent: boolean;
     borderColor: string;
     motif: ConsultationReasonModel;
     type: AppointmentTypeModel;

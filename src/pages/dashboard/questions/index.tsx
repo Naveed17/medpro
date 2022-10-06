@@ -138,10 +138,13 @@ function Questions() {
 }
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
+        fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'questions']))
     }
 })
 export default Questions
+
+Questions.auth = true;
 
 Questions.getLayout = function getLayout(page: ReactElement) {
     return (

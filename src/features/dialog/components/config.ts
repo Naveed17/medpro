@@ -187,6 +187,14 @@ const dialogData = [
                 (mod) => mod
             )
         ),
+    },
+    {
+        action: "write_certif",
+        component: dynamic((): any =>
+            import("@features/dialog/components/certifDialog/certifDialog").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 

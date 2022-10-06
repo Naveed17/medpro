@@ -52,6 +52,7 @@ function TimeSchedule({...props}) {
     const [loading, setLoading] = useState(false);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
+    const [timeAvailable, setTimeAvailable] = useState(false);
 
     const {t, ready} = useTranslation("agenda", {
         keyPrefix: "steppers",
@@ -67,9 +68,13 @@ function TimeSchedule({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {trigger} = useRequestMutation(null, "/calendar/slots");
+    const {data: httpSlotsResponse, trigger} = useRequestMutation(null, "/calendar/slots");
 
-    const getSlots = useCallback((date: Date, duration: string) => {
+    const onTimeAvailable = useCallback((slots: TimeSlotModel[], time: string) => {
+        return slots.find((item: TimeSlotModel) => item.start === time);
+    }, []);
+
+    const getSlots = useCallback((date: Date, duration: string, time: string) => {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
@@ -77,14 +82,19 @@ function TimeSchedule({...props}) {
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         } : null, TriggerWithoutValidation).then((result) => {
             const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
-            const slots = weekTimeSlots.find(slot =>
-                slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
+            const slots = weekTimeSlots.find(slot => slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
             if (slots) {
                 setTimeSlots(slots);
+                if (onTimeAvailable(slots, time)) {
+                    setTimeAvailable(true);
+                } else {
+                    setRecurringDates([]);
+                    setTimeAvailable(false);
+                }
             }
-            setLoading(false)
+            setLoading(false);
         });
-    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken])
+    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onChangeReason = (event: SelectChangeEvent) => {
         setReason(event.target.value as string);
@@ -95,7 +105,7 @@ function TimeSchedule({...props}) {
 
         if (date) {
             setTime(moment(date).format('HH:mm'));
-            getSlots(date, reason?.duration as any);
+            getSlots(date, reason?.duration as any, moment(date).format('HH:mm'));
         }
     };
 
@@ -155,9 +165,11 @@ function TimeSchedule({...props}) {
         setRecurringDates(updatedRecurringDates);
         dispatch(setAppointmentRecurringDates(updatedRecurringDates));
         setTime(newTime);
+        setTimeAvailable(true);
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+    const slots = (httpSlotsResponse as HttpResponse)?.data as TimeSlotModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations?.find(local => local.uuid === location)?.openingHours[0].openingHours;
 
@@ -175,7 +187,7 @@ function TimeSchedule({...props}) {
         if (date) {
             setTime(moment(date).format('HH:mm'));
             if (duration !== "") {
-                getSlots(date, duration as string);
+                getSlots(date, duration as string, moment(date).format('HH:mm'));
             }
         }
     }, [date, duration, getSlots]);
@@ -188,7 +200,6 @@ function TimeSchedule({...props}) {
 
     if (errorHttpConsultReason) return <div>failed to load</div>
     if (!ready) return (<LoadingScreen/>);
-
 
     return (
         <div>
@@ -244,12 +255,6 @@ function TimeSchedule({...props}) {
                                     const motif = reasons?.find(reason => reason.uuid === selected);
                                     return (
                                         <Box sx={{display: "inline-flex"}}>
-                                            {/*<FiberManualRecordIcon
-                                        fontSize="small"
-                                        sx={{
-                                            color: motif?.color
-                                        }}
-                                    />*/}
                                             <Typography>{motif?.name}</Typography>
                                         </Box>
 
@@ -258,17 +263,6 @@ function TimeSchedule({...props}) {
                             >
                                 {reasons?.map((consultationReason) => (
                                     <MenuItem value={consultationReason.uuid} key={consultationReason.uuid}>
-                                        {/*<FiberManualRecordIcon
-                                    fontSize="small"
-                                    sx={{
-                                        border: .1,
-                                        borderColor: 'divider',
-                                        borderRadius: '50%',
-                                        p: 0.05,
-                                        mr: 1,
-                                        color: consultationReason.color
-                                    }}
-                                />*/}
                                         {consultationReason.name}
                                     </MenuItem>
                                 ))}
@@ -302,48 +296,6 @@ function TimeSchedule({...props}) {
                         </Select>
                     </FormControl>
                 </>}
-
-                {/*                {medical_professional && (
-                    <Box>
-                        <Typography
-                            variant="body1"
-                            color="text.primary"
-                            fontWeight={500}
-                            mt={5}
-                            sx={{textTransform: "uppercase", fontWeight: 500}}
-                        >
-                            {t("stepper-1.practitioner")}
-                        </Typography>
-                        <Typography variant="body1" color="text.primary" my={1}>
-                            {t("stepper-1.affect-des")}
-                        </Typography>
-                        <Grid container spacing={2}>
-                            {Array.from({length: 2}).map((_, index) => (
-                                <Grid key={index} item xs={12} lg={6}>
-                                    <RadioTextImage
-                                        name={`agenda-${index}`}
-                                        image="/static/img/men.png"
-                                        type="Dermatologue"
-                                        onChange={(v: string) => setProfessional(v)}
-                                        value={professional}
-                                        fullWidth
-                                    />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                )}*/}
-
-                {/*{location && <Typography*/}
-                {/*    variant="body1"*/}
-                {/*    color="text.primary"*/}
-                {/*    fontWeight={500}*/}
-                {/*    mt={5}*/}
-                {/*    mb={0.5}*/}
-                {/*    sx={{textTransform: "uppercase", fontWeight: 500}}*/}
-                {/*>*/}
-                {/*    {t("stepper-1.time-slot")}*/}
-                {/*</Typography>}*/}
                 <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
                     {t("stepper-1.date-message")}
                 </Typography>
@@ -375,7 +327,7 @@ function TimeSchedule({...props}) {
                     </Grid>
                 </Grid>
 
-                {(recurringDates.length > 0) &&
+                {(timeAvailable && recurringDates.length > 0) &&
                     <>
                         <Typography variant="body1" color="text.primary" mb={1}>
                             {t("stepper-1.selected-appointment")}

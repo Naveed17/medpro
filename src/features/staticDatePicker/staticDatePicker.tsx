@@ -12,7 +12,7 @@ import { useAppSelector } from "@app/redux/hooks";
 
 // __________
 import { configSelector } from "@features/base";
-import { LocaleFnsProvider } from "@app/localization/localization";
+import { LocaleFnsProvider } from "@app/localization";
 
 export default function StaticDatePicker({ ...props }) {
   const { loading, value, onChange, onDateDisabled, ...rest } = props;
@@ -27,7 +27,6 @@ export default function StaticDatePicker({ ...props }) {
         <DatePicker
           reduceAnimations
           displayStaticWrapperAs="desktop"
-          disablePast
           shouldDisableDate={onDateDisabled}
           onChange={onChange}
           value={value}

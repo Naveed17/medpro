@@ -61,9 +61,7 @@ function Instruction({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {
-        trigger,
-    } = useRequestMutation(null, "/calendar/addPatient");
+    const {trigger} = useRequestMutation(null, "/calendar/addPatient");
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
@@ -122,8 +120,8 @@ function Instruction({...props}) {
 
     const isTodayAppointment = () => {
         let hasAppointmentToday = false
-        recurringDates.map(recurring => {
-            hasAppointmentToday = moment(recurring.date, "DD-MM-YYYY").isSame(moment(), "day");
+        submitted?.recurringDates.map(recurring => {
+            hasAppointmentToday = recurring.date === moment().format("DD-MM-YYYY");
             if (hasAppointmentToday) {
                 return false
             }
@@ -138,16 +136,22 @@ function Instruction({...props}) {
     }
 
     const handleActionClick = (action: string) => {
+        let defEvent = null;
         switch (action) {
             case "onDetailPatient" :
-                const defEvent = {
+                defEvent = {
                     extendedProps: {
                         patient: submitted?.patient
                     }
                 };
-                OnAction(action, defEvent);
+                break;
+            case "onWaitingRoom" :
+                defEvent = {
+                    publicId: submitted?.uuids[0]
+                };
                 break;
         }
+        OnAction(action, defEvent);
     }
 
     if (!ready) return <>loading translations...</>;
@@ -173,7 +177,7 @@ function Instruction({...props}) {
                                         variant: "contained",
                                         sx: {
                                             "& svg": {
-                                                "& path": {fill: theme.palette.text.primary}
+                                                "& path": {fill: !isTodayAppointment() ? "white" : theme.palette.text.primary}
                                             },
                                         },
                                         title: t("waiting"),

@@ -10,6 +10,7 @@
   "stats": " Statistiques",
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
+  "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",
   "type_of_document": "Type de document",
   "prescription_of_medication": "Ordonnance de médicaments",
@@ -43,6 +44,8 @@
   "consultation_type": "Type de consultation",
   "appintment_date": "Date de RDV",
   "start_the_consultation": "Commencer la consultation",
+  "view_the_consultation": "Ouvrir la consultation",
+  "patient_no_show": "le patient ne s'est pas présenté",
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
   "leave_waiting_room": "Quitter la salle d'attente",
   "see_patient_form": "Voir fiche Patient",
@@ -53,6 +56,9 @@
   "print": "Imprimer",
   "video": "video",
   "photo": "photo",
+  "medical-imaging": "Imagerie médicale",
+  "analyse": "Analyse",
+  "rapport": "Rapport",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",
@@ -106,7 +112,8 @@
     "insctruction-placeholder'": "tapez ici vos instructions",
     "add-waiting-room": "Ajouter patient à la salle d'attente",
     "move": "Déplacer RDV",
-    "delete": "Annuler RDV"
+    "cancel": "Annuler RDV",
+    "delete": "Supprimer RDV"
   },
   "dialogs": {
     "move-dialog": {
@@ -138,13 +145,51 @@
     },
     "cancel-dialog": {
       "title": "Annuler RDV",
-      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "sub-title": "Voulez-vous vraiment annuler le RDV?",
       "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Confirmer"
+    },
+    "delete-dialog": {
+      "title": "Supprimer RDV",
+      "sub-title": "Voulez-vous vraiment supprimer le RDV?",
+      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "cancel": "Annuler",
+      "confirm": "Supprimer"
     }
   },
-  "medical-imaging": "Imagerie médicale",
-  "analyse": "Analyse",
-  "rapport": "Rapport"
+  "filter": {
+    "title": "Filtre",
+    "patient": "Patient",
+    "date-of-birth": "Date de naissance",
+    "gender": "Genre",
+    "male": "Homme",
+    "female": "Femme",
+    "name": "Nom & prénom",
+    "telephone": "Numéro de téléphone",
+    "place": "Lieu",
+    "city": "Ville",
+    "search": "Recherche",
+    "appointment": "Rendez-vous",
+    "type": "Type",
+    "next-appointment": "Prochain rendez-vous",
+    "last-appointment": "Dernier rendez-vous",
+    "reasons": "Motif de consultation",
+    "status": "Statut",
+    "meetingType": "Type RDV",
+    "meeting": {
+      "cabinet": "Cabinet",
+      "home": "Domicile",
+      "teleconsultation": "Téléconsultation"
+    },
+    "all": "Tous",
+    "done": "Effectué",
+    "confirm": "Confirmé",
+    "pending": "En attente",
+    "cancel": "Annulé",
+    "expired": "Expiré",
+    "no_show": "Patient ne s'est pas présenté",
+    "cancel_patient": "Annulé par le patient",
+    "note": "Notes"
+  }
 }
