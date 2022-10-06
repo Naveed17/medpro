@@ -35,10 +35,19 @@ function DocumentsTab({...props}) {
                     documents.map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
                             <DocumentCard data={card} onClick={() => {
-                                console.log(card)
-
                                 if (card.documentType === 'photo') {
                                     setIsViewerOpen(card.uri)
+                                } else if (card.documentType === 'medical-certificate') {
+                                    setInfo('document_detail');
+                                    setState({
+                                        content: card.content,
+                                        doctor: card.name,
+                                        patient: card.patient,
+                                        days: card.days,
+                                        name: 'certif',
+                                        type: 'write_certif'
+                                    })
+                                    setOpenDialog(true);
                                 } else {
                                     setInfo('document_detail')
                                     let info = card
@@ -49,15 +58,6 @@ function DocumentsTab({...props}) {
                                         case "requested-analysis":
                                             info = card.requested_Analyses[0].analyses;
                                             break;
-                                        /*case "certif":
-                                            setState({
-                                                content: state.content,
-                                                doctor: state.name,
-                                                patient: state.patient,
-                                                days: state.days,
-                                                name: 'certif',
-                                                type: 'write_certif'
-                                            })*/
                                     }
                                     setState({
                                         uuid: card.uuid,

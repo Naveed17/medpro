@@ -142,7 +142,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         exit="initial">
                         <Paper className="menu-list">
                             <MenuList>
-                                <ListItemText style={{textAlign:"center", color:"red"}}>En cours dev ( you can't change ) </ListItemText>
+                                <ListItemText style={{textAlign:"center", color:"red"}}>En cours dev ( you cant change ) </ListItemText>
                                 {models && models.map((item: any, idx: number) => (
                                     <MenuItem key={`model-item-${idx}`} onClick={() => handleClick(item)}>
                                         <ListItemIcon>
