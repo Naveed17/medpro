@@ -17,7 +17,7 @@ import {useRouter} from "next/router";
 
 
 function EventType({...props}) {
-    const {onNext} = props;
+    const {onNext, OnAction} = props;
 
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -102,7 +102,12 @@ function EventType({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={() => dispatch(openDrawer({type: "add", open: false}))}
+                    onClick={() => {
+                        dispatch(openDrawer({type: "add", open: false}));
+                        if (OnAction) {
+                            OnAction("close")
+                        }
+                    }}
                 >
                     {t("finish")}
                 </Button>

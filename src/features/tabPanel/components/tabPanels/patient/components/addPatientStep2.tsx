@@ -193,6 +193,7 @@ function AddPatientStep2({...props}) {
                                         return (
                                             <Stack direction={"row"}>
                                                 <Image width={20} height={14}
+                                                       alt={"flag"}
                                                        src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
                                                 <Typography ml={1}>{country?.name}</Typography>
                                             </Stack>)
@@ -203,6 +204,7 @@ function AddPatientStep2({...props}) {
                                             key={country.uuid}
                                             value={country.uuid}>
                                             <Image width={20} height={14}
+                                                   alt={"flag"}
                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                         </MenuItem>)
