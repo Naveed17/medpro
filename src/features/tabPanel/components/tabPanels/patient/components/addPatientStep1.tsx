@@ -65,6 +65,7 @@ function AddPatientStep1({...props}) {
             month: Yup.string().required(t("date-error")),
             year: Yup.string().required(t("date-error")),
         }),
+        gender: Yup.string().required(t("gender-error"))
     });
 
     const formik = useFormik({
@@ -118,7 +119,7 @@ function AddPatientStep1({...props}) {
                         {t("personal-info")}
                     </Typography>
                     <Box>
-                        <FormControl component="fieldset">
+                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
                                 <Typography component="span" color="error">
@@ -137,6 +138,7 @@ function AddPatientStep1({...props}) {
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
+                            {(touched.gender && errors.gender) && <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
                     <Box>

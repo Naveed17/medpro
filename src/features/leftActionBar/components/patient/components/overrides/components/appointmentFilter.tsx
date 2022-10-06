@@ -63,16 +63,16 @@ function AppointmentFilter({...props}) {
             </Box>
             <Box>
                 <InputLabel shrink sx={{mt: 2}}>
-                    {t(`${keyPrefix}next-appointment`)}
+                    {t(`${keyPrefix}appointment`)}
                 </InputLabel>
                 <DatePicker/>
             </Box>
-            <Box>
+            {/*            <Box>
                 <InputLabel shrink sx={{mt: 2}}>
                     {t(`${keyPrefix}last-appointment`)}
                 </InputLabel>
                 <DatePicker/>
-            </Box>
+            </Box>*/}
         </Box>
     );
 }
