@@ -14,11 +14,11 @@ function CIPPatientHistoryCard({data, children}: { data: any, children?: React.R
                    borderColor="divider">
                 <Typography display='flex' alignItems="center" component="div" fontWeight={600}>
                     <Icon path={'ic-doc'}/>
-                    {capitalize(t('reason_for_consultation'))} {data?.consultationReason ? <>: {data?.consultationReason.name}</> : <>:
+                    {capitalize(t('reason_for_consultation'))} {data?.appointment.consultationReason ? <>: {data?.appointment.consultationReason.name}</> : <>:
                     --</>}
                 </Typography>
                 <Typography variant='body2' color="text.secondary" ml="auto">
-                    {data?.dayDate}
+                    {data?.appointment.dayDate}
                 </Typography>
             </Stack>
             <CardContent>

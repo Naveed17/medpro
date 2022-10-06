@@ -76,10 +76,11 @@ function DocumentCard({...props}) {
                         data.documentType == "medical-imaging" && "ic-soura" ||
                         data.documentType === "photo" && "ic-img" ||
                         data.documentType === "Rapport" && "ic-text" ||
+                        data.documentType === "medical-certificate" && "ic-text" ||
                         data.documentType === "video" && "ic-video-outline" ||
                         data.documentType !== "prescription" && "ic-pdf" || ""
                     }/>
-                    <Typography variant='subtitle2' fontWeight={700}>
+                    <Typography variant='subtitle2' fontWeight={700} textAlign={"center"} fontSize={12}>
                         {t(data.title)}
                     </Typography>
                 </Stack>

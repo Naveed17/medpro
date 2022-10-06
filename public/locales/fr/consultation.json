@@ -50,11 +50,13 @@
   "documents": "Documents",
   "in_progress": "En cours",
   "doc_detail_title": "Document",
+  "reason_for_consultation": "Motif du consultation",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
+    "reason_for_consultation": "Motif du consultation",
     "patient_history": "Fiche d'historique",
     "mediktor_report": "Interrogatoire",
-    "consultation_form": "Consultation en cours",
+    "consultation_form": "Fiche consultation",
     "medical_procedures": "Note d'honoraires",
     "end_of_consultation": "Fin de consultation",
     "edit_of_consultation": "Modifier consultation",
@@ -62,7 +64,10 @@
     "reason": "Motif",
     "edit": "Modifier",
     "tracking_data": "Donnees de suivi",
-    "diagonistic": "Diagnostic",
+    "consultation_reason": "Motif du consultation",
+    "diagnostics": "Diagnostique",
+    "treatments": "Traitements",
+    "diagonistic": "Diagnostique",
     "treatment_medication": "Traitement (médicament)",
     "billan": "Billan",
     "document": "Document",
@@ -70,7 +75,6 @@
     "upload_document": "Télécharger un document",
     "enter": "Saisie",
     "review": "Examan",
-    "reason_for_consultation": "Motif de consultation",
     "check": "Contrôle",
     "notes": "Notes",
     "hint_text": "Texte d'indice",
@@ -174,7 +178,6 @@
     "requested-analysis": "Demande analyse",
     "years": "Ans",
     "months": "mois"
-
   },
   "table": {
     "acts": "Actes",
@@ -188,12 +191,16 @@
     "agenda": "Agenda",
     "action": "Action",
     "confirmed": "Confirmé",
-    "reason_for_consultation": "Motif du consultation",
     "check": "Contrôle",
     "send_the_link": "Envoyer le lien du questionnaire",
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails"
   },
+  "tracking_data": "Donnees de suivi",
+  "consultation_reason": "Motif du consultation",
+  "diagnostics": "Diagnostique",
+  "treatments": "Traitements",
+  "diagonistic": "Diagnostique",
   "total": "Total",
   "next_meeting": "Prochain rdv",
   "document_type": "Type de document",
@@ -214,7 +221,7 @@
   "no-data": {
     "event": {
       "title": "Aucun document ",
-      "description": "Ajouter des analyses,rapports, imageries médicales, photos, vidéos.... ",
+      "description": "Ajouter des analyses, rapports, imageries médicales, photos, vidéos.... ",
       "button-text": "Télécharger document"
     }
   },

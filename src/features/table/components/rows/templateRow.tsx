@@ -46,9 +46,9 @@ function MotifRow({...props}) {
                         <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => editMotif(row, 'see')}>
                             <IconUrl path="setting/ic-voir"/>
                         </IconButton>
-                        <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => editMotif(row, 'edit')}>
+                        {/*<IconButton size="small" sx={{mr: {md: 1}}} onClick={() => editMotif(row, 'edit')}>
                             <IconUrl path="setting/edit"/>
-                        </IconButton>
+                        </IconButton>*/}
                     </>
                     : <Skeleton width={30} height={40} sx={{m: 'auto'}}/>}
             </TableCell>
