@@ -35,6 +35,8 @@ import {
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {PatientDetail} from "@features/dialog";
+import {leftActionBarSelector} from "@features/leftActionBar";
+import {prepareSearchKeys} from "@app/hooks";
 
 const stepperData = [
     {
@@ -128,23 +130,9 @@ function Patient() {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
-    const {
-        data: httpPatientsResponse,
-        mutate,
-    } = useRequest(
-        {
-            method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }, SWRNoValidateConfig);
-
     // selectors
+    const {query: filter} = useAppSelector(leftActionBarSelector);
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {patientId, patientAction} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
 
@@ -153,8 +141,26 @@ function Patient() {
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
+    const [localFilter, setLocalFilter] = useState("");
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpPatientsResponse, mutate} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    }, SWRNoValidateConfig);
+
+
+    useEffect(() => {
+        if (filter?.type || filter?.patient) {
+            const query = prepareSearchKeys(filter as any);
+            setLocalFilter(query);
+        }
+    }, [filter]);
 
     const submitStepper = (index: number) => {
         if (index === 2) {

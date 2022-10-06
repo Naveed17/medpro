@@ -1,22 +1,23 @@
 //material-ui
-import {Box, Button, Typography, Badge, Skeleton} from "@mui/material";
+import { Box, Button, Typography, Badge, Skeleton } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 // styled
-import {RootStyled} from "./overrides";
+import { RootStyled } from "./overrides";
 
 // utils
 import Icon from "@themes/urlIcon";
-import {pxToRem} from "@themes/formatFontSize";
-import {useTranslation} from "next-i18next";
-import {useAppSelector} from "@app/redux/hooks";
+import { pxToRem } from "@themes/formatFontSize";
+import { useTranslation } from "next-i18next";
+import { useAppSelector } from "@app/redux/hooks";
 import moment from "moment-timezone";
-import {timerSelector} from "@features/card";
-
-function PatientDetailsCard({...props}) {
-    const {patient, onConsultation, loading} = props;
-
-    const {isActive} = useAppSelector(timerSelector);
-    const {t, ready} = useTranslation("patient", {
+import { timerSelector } from "@features/card";
+import MenIcon from "@themes/overrides/icons/menIcon";
+import WomenIcon from "@themes/overrides/icons/womenIcon";
+import { QrCodeScanner } from '@features/qrCodeScanner'
+function PatientDetailsCard({ ...props }) {
+    const { patient, onConsultation, loading } = props;
+    const { isActive } = useAppSelector(timerSelector);
+    const { t, ready } = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
 
@@ -26,6 +27,7 @@ function PatientDetailsCard({...props}) {
             <Badge
                 color="success"
                 variant="dot"
+                invisible={patient?.nextAppointments.length === 0}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right",
@@ -36,15 +38,17 @@ function PatientDetailsCard({...props}) {
                         variant="rectangular"
                         width={pxToRem(59)}
                         height={pxToRem(59)}
-                        sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                        sx={{ borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1 }}
                     />
                 ) : (
                     <Box
                         component="img"
-                        src={"/static/img/150-13 6.png"}
+                        src={patient?.gender === "M"
+                            ? "/static/icons/men-avatar.svg"
+                            : "/static/icons/women-avatar.svg"}
                         width={pxToRem(59)}
                         height={pxToRem(59)}
-                        sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                        sx={{ borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1 }}
                     />
                 )}
             </Badge>
@@ -55,11 +59,11 @@ function PatientDetailsCard({...props}) {
                         fontFamily: "Poppins",
                         fontSize: 19,
                         mb: 1,
-                        textAlign: {md: "left", sm: "center", xs: "center"},
+                        textAlign: { md: "left", sm: "center", xs: "center" },
                     }}
                 >
                     {loading ? (
-                        <Skeleton variant="text" width={150}/>
+                        <Skeleton variant="text" width={150} />
                     ) : (
                         `${patient?.firstName} ${patient?.lastName}`
                     )}
@@ -71,10 +75,10 @@ function PatientDetailsCard({...props}) {
                     className="date-birth"
                 >
                     {loading ? (
-                        <Skeleton variant="text" width={150}/>
+                        <Skeleton variant="text" width={150} />
                     ) : (
                         <>
-                            <Icon path="ic-anniverssaire"/>
+                            <Icon path="ic-anniverssaire" />
                             {patient?.birthdate} -{" "}
                             {moment().diff(new Date(patient?.birthdate), "years")}{" "}
                             {t("years")}
@@ -84,10 +88,12 @@ function PatientDetailsCard({...props}) {
             </Box>
             <div>
                 {loading ? (
-                    <Skeleton variant="text" width={150}/>
+                    <Skeleton variant="text" width={150} />
                 ) : (
-                    <Typography variant="body2" component="span" className="alert">
-                        <Icon path="danger"/>
+                    <Typography
+                        visibility={"hidden"}
+                        variant="body2" component="span" className="alert">
+                        <Icon path="danger" />
                         {t("duplicate")}
                     </Typography>
                 )}
@@ -99,11 +105,11 @@ function PatientDetailsCard({...props}) {
                     className="email-link"
                 >
                     {loading ? (
-                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100} />
                     ) : (
-                        <>
-                            <Icon path="ic-message-contour"/>
-                            {t("add-email")}
+                        patient?.email && <>
+                            <Icon path="ic-message-contour" />
+                            {patient?.email}
                         </>
                     )}
                 </Typography>
@@ -111,15 +117,15 @@ function PatientDetailsCard({...props}) {
             <Box
                 display="flex"
                 alignItems="center"
-                sx={{ml: {md: 1, sm: 0, xs: 0}, mt: {md: 4, sm: 1, xs: 1}}}
+                sx={{ ml: { md: 1, sm: 0, xs: 0 }, mt: { md: 4, sm: 1, xs: 1 } }}
             >
                 {loading ? (
-                    <Skeleton variant="text" width={100}/>
+                    <Skeleton variant="text" width={100} />
                 ) : (
                     <>
                         {patient?.telephone && (
                             <>
-                                <Icon path="ic-tel"/>
+                                <Icon path="ic-tel" />
                                 <Typography variant="body2">{patient?.telephone}</Typography>
                             </>
                         )}
@@ -131,9 +137,9 @@ function PatientDetailsCard({...props}) {
                     <Skeleton
                         variant="rectangular"
                         sx={{
-                            ml: {md: "auto", xs: 0},
-                            maxWidth: {md: 193, xs: "100%"},
-                            minHeight: {md: 60, xs: 40},
+                            ml: { md: "auto", xs: 0 },
+                            maxWidth: { md: 193, xs: "100%" },
+                            minHeight: { md: 60, xs: 40 },
                             width: 153,
                             my: 2,
                             borderRadius: "4px",
@@ -145,10 +151,10 @@ function PatientDetailsCard({...props}) {
                         onClick={onConsultation}
                         variant="contained"
                         color="warning"
-                        startIcon={<PlayCircleIcon/>}
+                        startIcon={<PlayCircleIcon />}
                         sx={{
-                            ml: {md: "auto", sm: 0, xs: 0},
-                            maxWidth: {md: 193, xs: "100%"},
+                            ml: { md: "auto", sm: 0, xs: 0 },
+                            maxWidth: { md: 193, xs: "100%" },
                             my: 2,
                         }}
                     >
@@ -157,6 +163,9 @@ function PatientDetailsCard({...props}) {
                 )}
                 </>
             }
+            <Box ml='auto'>
+                <QrCodeScanner value="123" width={80} height={80} />
+            </Box>
         </RootStyled>
     );
 }

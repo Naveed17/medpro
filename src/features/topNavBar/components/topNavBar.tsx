@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 // utils
 import Icon from "@themes/icon";
@@ -12,7 +12,7 @@ import {
     Badge,
     Toolbar,
     IconButton,
-    Box,
+    Box, Popover, Chip, Typography, useTheme, Card, List, ListItem, ListSubheader,
 } from "@mui/material";
 
 // config
@@ -28,21 +28,62 @@ import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {CipCard, timerSelector} from "@features/card";
+import {AppointmentPatientCard, CipCard, setTimer, timerSelector} from "@features/card";
+import moment from "moment-timezone";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {dashLayoutSelector} from "@features/base";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
+
 
 function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
+    const theme = useTheme();
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
+    const {ongoing} = useAppSelector(dashLayoutSelector);
+
     const router = useRouter();
+
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
     const settingHas = router.pathname.includes('settings/');
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
 
+    const infos = [
+        {name: "En consultation", color: theme.palette.success.light},
+        {name: "Salle d'attende", color: theme.palette.secondary.light},
+        {name: "Effectué", color: theme.palette.success.lighter},
+        {name: "Annulé", color: theme.palette.error.light},
+        {name: "En attende", color: theme.palette.warning.light}
+    ];
+
+    useEffect(() => {
+        if (ongoing) {
+            const event: any = {
+                publicId: ongoing?.uuid as string,
+                extendedProps: {
+                    patient: {
+                        lastName: ongoing?.patient.split(" ")[0],
+                        firstName: ongoing?.patient.split(" ")[1]
+                    }
+                }
+            };
+            dispatch(setTimer({isActive: true, isPaused: false, event, startTime: ongoing?.start_time}));
+        }
+    }, [dispatch, ongoing]);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     return (
         <>
             {dashboard ?
@@ -116,11 +157,45 @@ function TopNavBar({...props}) {
                                     </MenuItem>
                                 </Badge>
                             ))}
-                            <Badge badgeContent={null} className="custom-badge badge">
+                            <Badge onClick={handleClick} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
                             </Badge>
+                            <Popover
+                                id={id}
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={handleClose}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: -180
+                                }}
+                            >
+                                <List
+                                    sx={{width: 200}}
+                                    subheader={
+                                        <ListSubheader component="div" id="nested-list-subheader">
+                                            Statut du rendez-vous
+                                        </ListSubheader>
+                                    }>
+                                    {infos.map((info, index) =>
+                                        <ListItem key={index} sx={{display: "inline-flex"}}>
+                                            <FiberManualRecordIcon
+                                                fontSize="small"
+                                                sx={{
+                                                    border: .1,
+                                                    borderColor: 'divider',
+                                                    borderRadius: '50%',
+                                                    p: 0.05,
+                                                    mr: 1,
+                                                    color: info.color
+                                                }}
+                                            />
+                                            <Typography>{info.name}</Typography>
+                                        </ListItem>)}
+                                </List>
+                            </Popover>
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-cloc"}/>

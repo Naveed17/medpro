@@ -85,12 +85,12 @@
       "end": "Fin"
     },
     "no-data": {
-      "documents": {
+      "appointment": {
         "title": "Ajouter votre premier rendez-vous",
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
         "button-text": "Ajouter un RDV"
       },
-      "group-table": {
+      "documents": {
         "title": "Ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur 'Ajouter un document'",
         "button-text": "Ajouter un document "
@@ -130,6 +130,7 @@
       "mrs": "Mme",
       "date-of-birth": "Date de naissance",
       "gender": "Genre",
+      "gender-error": "Veuillez choisir le genre.",
       "name": "Nom",
       "name-placeholder": "Tapez le nom du patient",
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
@@ -173,6 +174,8 @@
       "add-appo": "Ajouter RDV",
       "register": "Enregistrer",
       "return": "Retourner à",
+      "contact": "Contact",
+      "zip_code": "Zip code",
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",
@@ -183,7 +186,11 @@
   },
   "background": {
     "title": "Antécédents",
-    "family-history": "Antécédents familiaux",
+    "way_of_life": "Mode de vie",
+    "allergic": "Allergies",
+    "family_antecedents": "Antécédents familiaux",
+    "medical_antecedents": "Antécédents médicaux",
+    "surgical_antecedents": "Antécédents chirurgicaux",
     "add-background": "Ajouter Antécédents",
     "register": "Enregistrer",
     "cancel": "Annuler"

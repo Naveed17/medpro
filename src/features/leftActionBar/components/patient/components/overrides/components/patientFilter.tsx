@@ -24,7 +24,7 @@ interface StateProps {
 }
 
 function PatientFilter({...props}) {
-    const {item, t, OnSearch} = props;
+    const {item, t, keyPrefix = "", OnSearch} = props;
     const [queryState, setQueryState] = useState<StateProps>({
         name: "",
         phone: "",
@@ -35,7 +35,7 @@ function PatientFilter({...props}) {
     return (
         <Box component="figure" sx={{m: 0}}>
             <Typography variant="body2" color="text.secondary">
-                {t(`${item.gender?.heading}`)}
+                {t(`${keyPrefix}${item.gender?.heading}`)}
             </Typography>
             <FormControl component="fieldset">
                 <RadioGroup
@@ -44,7 +44,11 @@ function PatientFilter({...props}) {
                     onChange={(e) => {
                         setQueryState({...queryState, gender: e.target.value});
                         OnSearch({
-                            query: {...queryState, gender: e.target.value},
+                            query: {
+                                ...queryState,
+                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                gender: e.target.value
+                            }
                         });
                     }}
                     value={queryState.gender}
@@ -56,7 +60,7 @@ function PatientFilter({...props}) {
                             key={`gender-${i}`}
                             value={++i}
                             control={<Radio/>}
-                            label={t(`${g}`)}
+                            label={t(`${keyPrefix}${g}`)}
                         />
                     ))}
                     {queryState.gender &&
@@ -83,7 +87,7 @@ function PatientFilter({...props}) {
                         {lab.label === "name" || lab.label === "phone" ? (
                             <>
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
-                                    {t(`${lab.label}`)}
+                                    {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
                                 <TextField
                                     onChange={(e) =>
@@ -96,6 +100,7 @@ function PatientFilter({...props}) {
                                                 OnSearch({
                                                     query: {
                                                         ...queryState,
+                                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
                                                         [lab.label]: (e.target as HTMLInputElement).value,
                                                     },
                                                 });
@@ -109,13 +114,13 @@ function PatientFilter({...props}) {
                                     }}
                                     type={lab.label === "name" ? "text" : "number"}
                                     fullWidth
-                                    placeholder={t(`${lab.placeholder}`)}
+                                    placeholder={t(`${keyPrefix}${lab.placeholder}`)}
                                 />
                             </>
                         ) : (
                             <>
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
-                                    {t(`${lab.label}`)}
+                                    {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DatePicker

@@ -1,34 +1,35 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useEffect, useState } from "react";
-import { DashLayout } from "@features/base";
-import { Box, Button, Container, Drawer, Stack, Typography } from "@mui/material";
-import { useTranslation } from "next-i18next";
-import { MotifTypeDialog } from "@features/motifTypeDialog";
-import { SubHeader } from "@features/subHeader";
-import { configSelector } from "@features/base";
-import { useAppSelector } from "@app/redux/hooks";
-import { Otable } from "@features/table";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { useRequest } from "@app/axios";
-import { useRouter } from "next/router";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
-import { MotifTypeCard } from '@features/card'
-function MotifType() {
-    const { data: session } = useSession();
-    const { data: user } = session as Session;
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useEffect, useState} from "react";
+import {DashLayout} from "@features/base";
+import {Box, Button, Container, Drawer, Stack, Typography} from "@mui/material";
+import {useTranslation} from "next-i18next";
+import {MotifTypeDialog} from "@features/motifTypeDialog";
+import {SubHeader} from "@features/subHeader";
+import {configSelector} from "@features/base";
+import {useAppSelector} from "@app/redux/hooks";
+import {Otable} from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRequest} from "@app/axios";
+import {useRouter} from "next/router";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {MotifTypeCard} from '@features/card'
+
+function ConsultationType() {
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [edit, setEdit] = useState(false);
     const [selected, setSelected] = useState<any>();
-    const { direction } = useAppSelector(configSelector);
-    const { data, error, mutate } = useRequest({
+    const {direction} = useAppSelector(configSelector);
+    const {data, error, mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
-        headers: { Authorization: `Bearer ${session?.accessToken}` }
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
     useEffect(() => {
@@ -41,7 +42,7 @@ function MotifType() {
         setEdit(false);
     }
 
-    const { t, ready } = useTranslation(['settings', 'common'], {
+    const {t, ready} = useTranslation(['settings', 'common'], {
         keyPrefix: "motifType.config",
     });
 
@@ -88,20 +89,20 @@ function MotifType() {
                         onClick={() =>
                             editMotif(null)
                         }
-                        sx={{ ml: "auto" }}
+                        sx={{ml: "auto"}}
                     >
                         {t("add")}
                     </Button>
                 </Stack>
             </SubHeader>
             <DesktopContainer>
-                <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 }, '& table': { tableLayout: 'fixed' } }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, '& table': {tableLayout: 'fixed'}}}>
                     <Otable headers={headCells}
-                        rows={rows}
-                        from={'motif-type'}
-                        pagination={true}
-                        t={t}
-                        edit={editMotif}
+                            rows={rows}
+                            from={'consultation-type'}
+                            pagination={true}
+                            t={t}
+                            edit={editMotif}
                     />
                 </Box>
             </DesktopContainer>
@@ -111,7 +112,7 @@ function MotifType() {
                         {
                             rows.map((row, idx) =>
                                 <React.Fragment key={idx}>
-                                    <MotifTypeCard t={t} data={row} handleDrawer={editMotif} />
+                                    <MotifTypeCard t={t} data={row} handleDrawer={editMotif}/>
                                 </React.Fragment>
                             )
                         }
@@ -140,11 +141,11 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'settings']))
     }
 })
-export default MotifType
+export default ConsultationType
 
-MotifType.auth = true;
+ConsultationType.auth = true;
 
-MotifType.getLayout = function getLayout(page: ReactElement) {
+ConsultationType.getLayout = function getLayout(page: ReactElement) {
     return (
         <DashLayout>
             {page}

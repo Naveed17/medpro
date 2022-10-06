@@ -5,7 +5,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   backgroundColor: theme.palette.background.paper,
-  marginTop: theme.spacing(1),
+  marginTop: theme.spacing(9),
   flexDirection: "row",
   [theme.breakpoints.down("md")]: {
     flexDirection: "column",

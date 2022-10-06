@@ -1,6 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    openDrawer, setConfig, setCurrentDate, setSelectedEvent, setStepperIndex,
+    openDrawer, setAgendas, setConfig, setCurrentDate, setGroupedByDayAppointments, setSelectedEvent, setStepperIndex,
     setView
 } from './actions';
 import {EventDef} from "@fullcalendar/react";
@@ -12,8 +12,10 @@ export type CalendarProps = {
     openPatientDrawer: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
+    agendas: AgendaConfigurationModel[];
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
+    sortedData: GroupEventsModel[];
 };
 
 const initialState: CalendarProps = {
@@ -23,8 +25,10 @@ const initialState: CalendarProps = {
     openPatientDrawer: false,
     currentStepper: 0,
     config: null,
+    agendas: [],
     currentDate: {date: new Date(), fallback: false},
-    selectedEvent: null
+    selectedEvent: null,
+    sortedData: []
 };
 
 export const AgendaReducer = createReducer(initialState, builder => {
@@ -42,9 +46,13 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.currentStepper = action.payload;
     }).addCase(setConfig, (state, action) => {
         state.config = action.payload;
+    }).addCase(setAgendas, (state, action) => {
+        state.agendas = action.payload;
     }).addCase(setCurrentDate, (state, action) => {
         state.currentDate = action.payload;
     }).addCase(setSelectedEvent, (state, action) => {
         state.selectedEvent = action.payload;
+    }).addCase(setGroupedByDayAppointments, (state, action) => {
+        state.sortedData = action.payload;
     });
 });

@@ -15,7 +15,7 @@ import {useAppDispatch} from "@app/redux/hooks";
 
 function Patient() {
     const {collapse} = rightActionData.filter;
-    const {t, ready} = useTranslation("patient", {keyPrefix: 'filter'});
+    const {t, ready} = useTranslation("patient");
     const dispatch = useAppDispatch();
 
     const data = collapse.map((item) => {
@@ -23,7 +23,7 @@ function Patient() {
             heading: {
                 id: item.heading.title,
                 icon: item.heading.icon,
-                title: t(`${item.heading.title}`),
+                title: t(item.heading.title.toLowerCase()),
             },
             children: (
                 <FilterRootStyled>
@@ -48,17 +48,18 @@ function Patient() {
                                         {label: "phone", placeholder: "telephone"},
                                     ],
                                 },
-                            }} t={t}/>
+                            }}
+                            keyPrefix={"filter."}
+                            t={t}/>
                     ) : item.heading.title === "place" ? (
-                        <PlaceFilter item={item} t={t}/>
+                        <PlaceFilter item={item} t={t} keyPrefix={"filter."}/>
                     ) : (
-                        <AppointmentFilter item={item} t={t}/>
+                        <AppointmentFilter item={item} t={t} ready={ready} keyPrefix={"filter."}/>
                     )}
                 </FilterRootStyled>
             ),
         };
     });
-
     if (!ready) return <>loading translations...</>;
 
     return (
@@ -70,9 +71,9 @@ function Patient() {
                     sx={{py: 5, pl: "10px", mb: "0.21em"}}
                     gutterBottom
                 >
-                    {t(`title`)}
+                    {t(`filter.title`)}
                 </Typography>
-                <Accordion translate={{t, ready}} badge={null} data={data} defaultValue={"Patient"}/>
+                <Accordion translate={{t, ready}} data={data} defaultValue={"Patient"}/>
             </FilterContainerStyles>
         </div>
     );

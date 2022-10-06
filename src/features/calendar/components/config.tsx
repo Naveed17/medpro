@@ -1,6 +1,25 @@
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import Icon from "@themes/urlIcon";
 import {FormatterInput} from "@fullcalendar/common";
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
+import AbsentIcon from "@themes/overrides/icons/absentIcon";
+import FingerprintOutlinedIcon from '@mui/icons-material/FingerprintOutlined';
+import AddHomeOutlinedIcon from '@mui/icons-material/AddHomeOutlined';
+import LocalHospitalOutlinedIcon from '@mui/icons-material/LocalHospitalOutlined';
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
+import VideocamOutlinedIcon from '@mui/icons-material/VideocamOutlined';
+
+export const IconsTypes: any = {
+    'ic-consultation': <EventOutlinedIcon/>,
+    'ic-teleconsultation': <VideocamOutlinedIcon/>,
+    'ic-control': <LocalHospitalOutlinedIcon/>,
+    'ic-clinique': <ApartmentOutlinedIcon/>,
+    'ic-at-home': <AddHomeOutlinedIcon/>,
+    'ic-medical-representative': <AbsentIcon/>,
+    'ic-staff-meeting': <AbsentIcon/>,
+    'ic-absence': <AbsentIcon/>,
+    'ic-personal': <FingerprintOutlinedIcon/>
+}
 
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {key: "PENDING", value: "En attende", color: "#FFD400"},

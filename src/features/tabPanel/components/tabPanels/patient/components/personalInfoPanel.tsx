@@ -1,12 +1,15 @@
 // ______________________________
-import { PersonalInfoCard, BackgroundCard } from "@features/card";
+import { PersonalInfoCard, BackgroundCard, PatientDetailContactCard } from "@features/card";
+import { Stack } from "@mui/material";
 
 function PersonInfoPanel({ ...props }) {
   return (
-    <div>
+    <Stack spacing={2}>
       <PersonalInfoCard {...props} />
+      <PatientDetailContactCard {...props} />
       <BackgroundCard {...props} />
-    </div>
+
+    </Stack>
   );
 }
 export default PersonInfoPanel;

@@ -15,7 +15,6 @@ import _ from "lodash";
 
 function RDVRow({ ...props }) {
   const { data, loading } = props;
-  console.log(data);
   const matches = useMediaQuery("(min-width:900px)");
 
   const mapped =
@@ -42,21 +41,21 @@ function RDVRow({ ...props }) {
   if (!ready) return <>loading translations...</>;
   return (
     <React.Fragment>
-        {data?.nextAppointments.length > 0 && <TableRow>
-            <TableCell colSpan={3} className="text-row">
-                <Typography variant="body1" color="text.primary">
-                    {loading ? (
-                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                    ) : (
-                        <>
-                            {t("pending-appo")}{" "}
-                            {data.nextAppointments.length > 1 &&
-                                `(${data.nextAppointments.length})`}
-                        </>
-                    )}
-                </Typography>
-            </TableCell>
-        </TableRow>}
+      {data?.nextAppointments.length > 0 && <TableRow>
+        <TableCell colSpan={3} className="text-row">
+          <Typography variant="body1" color="text.primary">
+            {loading ? (
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
+            ) : (
+              <>
+                {t("pending-appo")}{" "}
+                {data.nextAppointments.length > 1 &&
+                  `(${data.nextAppointments.length})`}
+              </>
+            )}
+          </Typography>
+        </TableCell>
+      </TableRow>}
       {(loading ? Array.from(new Array(3)) : data.nextAppointments).map(
         (data: PatientDetailsRDV) => (
           <React.Fragment key={Math.random()}>
@@ -72,13 +71,13 @@ function RDVRow({ ...props }) {
         <TableCell colSpan={3} className="text-row">
           <Typography variant="body1" color="text.primary">
             {loading ? (
-                <Skeleton variant="text" sx={{maxWidth: 200}}/>
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
             ) : (
-                <>
-                  {t("old-appo")}{" "}
-                  {data.previousAppointments.length > 1 &&
-                      `(${data.previousAppointments.length})`}
-                </>
+              <>
+                {t("old-appo")}{" "}
+                {data.previousAppointments.length > 1 &&
+                  `(${data.previousAppointments.length})`}
+              </>
             )}
           </Typography>
         </TableCell>
@@ -97,7 +96,7 @@ function RDVRow({ ...props }) {
                 </Typography>
               </TableCell>
             </TableRow>
-            {(loading ? Array.from(new Array(4)) : data.data).map(
+            {(loading ? Array.from(new Array(4)) : data?.data).map(
               (inner: any) => (
                 <React.Fragment key={Math.random()}>
                   {matches ? (

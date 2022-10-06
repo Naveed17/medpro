@@ -17,8 +17,8 @@ import { Dialog } from '@features/dialog'
 import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
-import { uniqueId } from 'lodash'
 import { ActFeesDialog } from "@features/dialog";
+
 interface HeadCell {
     disablePadding: boolean;
     id: string;
@@ -27,8 +27,8 @@ interface HeadCell {
     sortable: boolean;
     align: "left" | "right" | "center";
 }
-const headCells: readonly HeadCell[] = [
 
+const headCells: readonly HeadCell[] = [
     {
         id: "name",
         numeric: false,

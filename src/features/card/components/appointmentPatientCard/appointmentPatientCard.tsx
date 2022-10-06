@@ -65,10 +65,10 @@ function AppointmentPatientCard({...props}) {
                             borderRadius: '50%',
                             p: 0.05,
                             mr: 1,
-                            color: data?.type.color
+                            color: data?.type?.color
                         }}
                     />
-                    <Typography>{data?.type.name}</Typography>
+                    <Typography>{data?.type?.name}</Typography>
                 </Box>
             </Stack>}
             {data?.motif && <Stack

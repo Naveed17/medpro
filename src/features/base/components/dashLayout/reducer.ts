@@ -5,7 +5,7 @@ import {
 
 export type dashLayoutState = {
     waiting_room: number;
-    ongoing: {
+    ongoing?: {
         "uuid": "string";
         "start_time": "string";
         "patient": "string";

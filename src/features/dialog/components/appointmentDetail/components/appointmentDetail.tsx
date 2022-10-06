@@ -47,6 +47,7 @@ import {LoadingButton} from "@mui/lab";
 function AppointmentDetail({...props}) {
     const {
         OnConsultation,
+        OnConsultationView,
         OnEditDetail,
         OnDataUpdated,
         OnPatientNoShow,
@@ -170,10 +171,10 @@ function AppointmentDetail({...props}) {
                             startIcon={<PlayCircleIcon/>}
                             onClick={() => {
                                 setLoading(true);
-                                OnConsultation(data);
+                                data?.extendedProps.status.key === "FINISHED" ? OnConsultationView(data) : OnConsultation(data);
                             }}
                         >
-                            {t('event.start')}
+                            {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
                         </LoadingButton>
                     </Stack>
                     {data?.extendedProps.hasErrors.map((error: string, index: number) => (

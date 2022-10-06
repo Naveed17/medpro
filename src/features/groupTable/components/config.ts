@@ -7,6 +7,12 @@ const rowsActionsData = [
       import("@features/groupTable/components/rows/rdvRow").then((mod) => mod)
     ),
   },
+  {
+    action: "upcoming",
+    component: dynamic((): any =>
+      import("@features/groupTable/components/rows/rdvUpcomingRow").then((mod) => mod)
+    ),
+  },
 ];
 
 export default rowsActionsData;

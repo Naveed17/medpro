@@ -19,7 +19,7 @@ const initialState: MenuState = {
             },
             country_code: "",
             phone: "",
-            gender: "1"
+            gender: ""
         },
         step2: {
             country: "",
