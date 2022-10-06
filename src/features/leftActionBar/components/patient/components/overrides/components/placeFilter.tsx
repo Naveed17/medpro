@@ -124,7 +124,7 @@ function PlaceFilter({...props}) {
                             key={country.uuid}
                             value={country.uuid}>
                             <Box component="img"
-                                 src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
+                                 src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                         </MenuItem>)
                     )}

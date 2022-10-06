@@ -23,7 +23,7 @@ function QuestionCard({ patientData, t }: any) {
                     <Box
                         component="img"
                         alt="Questions"
-                        src={`https://flagcdn.com/w20/${patientData?.countary}.png`}
+                        src={`https://flagcdn.com/${patientData?.country}.svg`}
                         width={23}
                         height={16}
 

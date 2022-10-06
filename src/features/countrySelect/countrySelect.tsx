@@ -35,8 +35,14 @@ function CountrySelect({...props}) {
             isOptionEqualToValue={(option, value) => option.label === value.label}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
-                    <Box component="img"
-                         src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}/>
+                    <Image
+                        loading="lazy"
+                        width={20}
+                        height={14}
+                        style={{marginLeft: 2}}
+                        src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
+                        alt={state && state.label}
+                    />
                     <Typography sx={{ml: 1}}>{option.label}</Typography>
                 </MenuItem>
             )}
@@ -45,10 +51,9 @@ function CountrySelect({...props}) {
                     <InputAdornment position="start">
                         <Image
                             loading="lazy"
-                            width="27px"
-                            height={18}
-                            style={{marginLeft: 3}}
-                            src={`https://flagcdn.com/w20/${state && state.code.toLowerCase()}.png`}
+                            width={20}
+                            height={14}
+                            src={`https://flagcdn.com/${state && state.code.toLowerCase()}.svg`}
                             alt={state && state.label}
                         />
                     </InputAdornment>

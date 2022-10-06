@@ -15,7 +15,6 @@ import _ from "lodash";
 
 function RDVRow({ ...props }) {
   const { data, loading } = props;
-  console.log(data);
   const matches = useMediaQuery("(min-width:900px)");
 
   const mapped =

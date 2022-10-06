@@ -255,8 +255,8 @@ function AppointmentDetail({...props}) {
                                 {data?.extendedProps.patient.phone && <ListItem>
                                     <IconUrl path='ic-tel'/>
                                     <Box component='img'
-                                         src={`https://flagcdn.com/w20/${data?.extendedProps.patient.phone.ccode}.png`}
-                                         srcSet={`https://flagcdn.com/w40/${data?.extendedProps.patient.phone.ccode}.png 2x`}
+                                         src={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg`}
+                                         srcSet={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg 2x`}
                                          sx={{width: 13, ml: 1}}/>
                                     <Link underline="none" href={`tel:${data?.extendedProps.patient.phone}`}
                                           sx={{ml: 1, fontSize: 11}}

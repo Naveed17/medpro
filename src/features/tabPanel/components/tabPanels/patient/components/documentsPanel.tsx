@@ -128,9 +128,11 @@ const rows: PatientDocuments[] = [
   //   specialist: null,
   // },
 ];
-function DocumentsPanel() {
+function DocumentsPanel({...props}) {
+  const {documents} = props;
+  console.log(documents);
   // filter checked array
-  const [checked, setChecked] = React.useState<PatientDocuments[]>([]);
+  const [checked, setChecked] = React.useState<PatientDocuments[]>(documents);
 
   // handle change for checkboxes
   const handleToggle =
