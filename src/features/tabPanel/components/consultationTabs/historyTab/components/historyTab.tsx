@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CIPPatientHistoryCard, DocumentCard, HistoryCard, MotifCard} from "@features/card";
 import {Label} from "@features/label";
 import {
@@ -35,6 +35,7 @@ function HistoryTab({...props}) {
         setInfo,
         mutateDoc,
         setState,
+        appuuid,
         dispatch,
         setOpenDialog
     } = props
@@ -82,7 +83,21 @@ function HistoryTab({...props}) {
     const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const [collapse, setCollapse] = useState<any>('');
     const [size, setSize] = useState<number>(3);
+    const [apps, setApps] = useState<any>([]);
 
+    useEffect(()=>{
+        if (appointement) {
+            console.log(appointement)
+            const index = appointement.latestAppointments.findIndex((app:any) => app.appointment.uuid === appuuid)
+            if (index > -1){
+                const element = appointement.latestAppointments.splice(index, 1)[0];
+                console.log(element); // ['css']
+                appointement.latestAppointments.splice(0, 0, element);
+            }
+            setApps([...appointement.latestAppointments])
+
+        }
+    },[appointement, appuuid])
     return (
         <>
             <Stack spacing={2} mb={2} alignItems="flex-start">
@@ -101,94 +116,9 @@ function HistoryTab({...props}) {
                     setSize(patient?.nextAppointments.length)
                 }}>{t('showAll')}</Button>}
 
-            {appointement && appointement.status === 5 && <Stack spacing={2}>
-                <CIPPatientHistoryCardStyled sx={{border: '2px solid #fed400', marginBottom: 2}}>
-                    <Stack className="card-header" p={2} direction="row" alignItems="center"
-                           borderBottom={1}
-                           borderColor="divider">
-                        <Typography display='flex' alignItems="center" component="div"
-                                    fontWeight={600}>
-                            <Icon path={'ic-doc'}/>
-                            {capitalize(t('reason_for_consultation'))} {appointement.consultationReason ? <>: {appointement.consultationReason.name}</> : <>:
-                            --</>}
-                        </Typography>
-                        <Typography variant='body2' color="text.secondary" ml="auto">
-                            {appointement.dayDate}
-                        </Typography>
-                    </Stack>
-                    <CardContent>
-                        <Grid container spacing={2}>
-                            {appointement.consultation_sheet.modal.data && JSON.stringify(appointement?.consultation_sheet.modal.data) !== '{"submit":true}' &&
-                                <Grid item xs={12} md={6}>
-                                    <Card className="motif-card">
-                                        <CardContent>
-
-                                            <Typography variant="body2" fontWeight={700}
-                                                        marginBottom={1}>
-                                                {t('tracking_data')}
-                                            </Typography>
-
-                                            {
-                                                Object.keys(appointement.consultation_sheet.modal.data).map((appdata, idx) => (
-                                                    appdata !== 'models' && <Box key={'tex' + idx}>
-                                                        <List>
-                                                            <ListItem>
-                                                                • <Typography variant="body2"
-                                                                              fontWeight={700}
-                                                                              textTransform={"capitalize"}>
-                                                                {appdata}
-                                                            </Typography> : {appointement.consultation_sheet.modal.data[appdata] ? appointement.consultation_sheet.modal.data[appdata] : '--'}
-                                                            </ListItem>
-                                                        </List>
-                                                    </Box>
-                                                ))
-                                            }
-                                        </CardContent>
-                                    </Card>
-                                </Grid>}
-
-                            <Grid item xs={12} md={6}>
-                                { appointement.consultation_sheet.exam.appointment_data && Object.keys(appointement.consultation_sheet.exam.appointment_data).length > 0 &&
-                                    <Card className="motif-card">
-                                        <CardContent>
-                                            {
-                                                Object.keys(appointement.consultation_sheet.exam.appointment_data).map((appdata, idx) => (
-                                                    appdata !== 'models' && <Box key={'tex' + idx}>
-                                                        <Typography variant="body2" fontWeight={700}>
-                                                            {t(appdata)}
-                                                        </Typography>
-                                                        {
-                                                            appdata !== 'consultation_reason' &&
-                                                            <List>
-                                                                <ListItem>
-                                                                    • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
-                                                                </ListItem>
-                                                            </List>
-                                                        }
-                                                        {
-                                                            appdata === 'consultation_reason' &&
-                                                            <List>
-                                                                <ListItem>
-                                                                    • {appointement.consultation_sheet.exam.appointment_data[appdata].name}
-                                                                </ListItem>
-                                                            </List>
-                                                        }
-                                                    </Box>
-                                                ))
-                                            }
-                                        </CardContent>
-                                    </Card>}
-                            </Grid>
-
-                        </Grid>
-
-                    </CardContent>
-                </CIPPatientHistoryCardStyled>
-            </Stack>}
-
             <Stack spacing={2}>
-                {appointement && appointement.latestAppointments.map((app: any) => (
-                    <CIPPatientHistoryCard key={app.appointment.uuid} data={app}>
+                {apps.map((app: any) => (
+                    <CIPPatientHistoryCard key={app.appointment.uuid} data={app} appuuid={appuuid}>
                         <Stack spacing={2}>
                             <MotifCard data={app}/>
                             <List dense>
@@ -224,7 +154,7 @@ function HistoryTab({...props}) {
 
                                                 <ListItem sx={{p: 0}}>
                                                     <Collapse in={collapse === col.id} sx={{width: 1}}>
-                                                        {col.type === "treatment" && appointement?.latestAppointment && appointement?.latestAppointment.treatments.map((treatment: any, idx: number) => (
+                                                        {col.type === "treatment" &&  app.appointment.treatments.map((treatment: any, idx: number) => (
                                                             <Box key={`list-treatement-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                 mb: 1,
@@ -249,14 +179,14 @@ function HistoryTab({...props}) {
                                                                 }}>• {treatment.duration} {t(treatment.durationType)}</p>
                                                             </Box>
                                                         ))}
-                                                        {col.type === "treatment" && (appointement?.latestAppointment == null || appointement?.latestAppointment.treatments.length == 0) &&
+                                                        {col.type === "treatment" && app.appointment.treatments.length == 0 &&
                                                             <p style={{
                                                                 fontSize: 12,
                                                                 color: "gray",
                                                                 textAlign: "center"
                                                             }}>Aucun traitement</p>}
 
-                                                        {col.type === "req-sheet" && appointement?.latestAppointment && appointement?.latestAppointment.requestedAnalyses && appointement?.latestAppointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
+                                                        {col.type === "req-sheet"  && app?.appointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
                                                             <Box key={`req-sheet-item-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                 mb: 1,
@@ -268,11 +198,11 @@ function HistoryTab({...props}) {
                                                                        style={{
                                                                            margin: 0,
                                                                            fontSize: 12
-                                                                       }}>{rs.analysis.name}</p>
+                                                                       }}>{rs.analysis.name} : {rs.result ? rs.result : ' --'}</p>
                                                                 ))}
                                                             </Box>
                                                         ))}
-                                                        {col.type === "req-sheet" && (appointement?.latestAppointment == null || appointement?.latestAppointment.requestedAnalyses.length == 0) &&
+                                                        {col.type === "req-sheet"  && app.appointment.requestedAnalyses.length == 0 &&
                                                             <p style={{
                                                                 fontSize: 12,
                                                                 color: "gray",
@@ -340,8 +270,6 @@ function HistoryTab({...props}) {
                                                     </Collapse>
                                                 </ListItem>
                                             </>
-
-
                                         </React.Fragment>
                                     ))
                                 }

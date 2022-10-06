@@ -5,11 +5,11 @@ import {capitalize} from 'lodash'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 
-function CIPPatientHistoryCard({data, children}: { data: any, children?: React.ReactNode }) {
+function CIPPatientHistoryCard({data,appuuid, children}: { data: any,appuuid:string, children?: React.ReactNode }) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     if (!ready) return <>loading translations...</>;
     return (
-        <CIPPatientHistoryCardStyled>
+        <CIPPatientHistoryCardStyled style={{border:data.appointment.uuid === appuuid ? '2px solid #FFD400':''}}>
             <Stack className="card-header" p={2} direction="row" alignItems="center" borderBottom={1}
                    borderColor="divider">
                 <Typography display='flex' alignItems="center" component="div" fontWeight={600}>
