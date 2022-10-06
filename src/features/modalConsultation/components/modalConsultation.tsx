@@ -22,7 +22,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {Dialog} from '@features/dialog';
 import {alpha} from '@mui/material/styles'
-import Icon from '@themes/urlIcon'
 import {useTranslation} from "next-i18next";
 import {motion} from 'framer-motion'
 import {modalConfig} from './config'
@@ -31,11 +30,13 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRequestMutation} from "@app/axios";
 import dynamic from "next/dynamic";
+import Icon from "@themes/icon";
 
-const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
+const Form: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
 ), {
     ssr: false,
 });
+
 const variants = {
     initial: {opacity: 0},
     animate: {
@@ -47,8 +48,9 @@ function ModalConsultation({...props}) {
     const {modal, setSM} = props;
     const {data: session, status} = useSession();
     const loading = status === 'loading';
-    const [pageLoading, setPageLoading] = useState(false);
     let medical_entity: MedicalEntityModel | null = null;
+
+    const [pageLoading, setPageLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [change, setChange] = useState(false);
     const [models, setModels] = useState<ModalModel[]>([]);
@@ -66,15 +68,19 @@ function ModalConsultation({...props}) {
 
     const {trigger} = useRequestMutation(null, "/consultation/", {revalidate: true, populateCache: false});
 
+    let cmp: any[] = [];
+    if (props.modal)
+        cmp = [...props.modal.default_modal.structure]
 
     useEffect(() => {
         setPageLoading(true)
-        if (modal)
+        if (modal) {
             setValue(modal.default_modal);
-        setTimeout(() => {
-            setLoadModel(false);
-            setPageLoading(false)
-        }, 1000)
+            setTimeout(() => {
+                setLoadModel(false);
+                setPageLoading(false)
+            }, 1000)
+        }
     }, [modal])
 
     useEffect(() => {
@@ -121,10 +127,12 @@ function ModalConsultation({...props}) {
     const {data: user} = session as Session;
     medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
+
     return (
         <>
             <ClickAwayListener onClickAway={handleClickAway}>
                 <ConsultationModalStyled>
+
                     <Stack spacing={1} p={2} direction="row" alignItems="center" className="card-header"
                            bgcolor={alpha(value?.color, 0.3)}>
                         <Stack onClick={() => setOpen(prev => !prev)} spacing={1} direction="row" alignItems="center"
@@ -141,22 +149,21 @@ function ModalConsultation({...props}) {
                     }}>
 
                         <Box>
-                            {!loadModel && <FormBuilder
-                                onSubmit={(ev: any) => {
-                                    modal.data = ev.data
-                                    console.log('submit model',ev.data)
-                                    setSM(modal)
+                            <Form
+                                onChange={(ev: any) => {
+                                    console.log('submit model', ev.data)
+                                    localStorage.setItem('Modeldata', JSON.stringify(ev.data))
                                 }}
-                                onError={console.log}
-                                onEditComponent={console.log}
-                                submission={{data: modal.data}}
+                                // @ts-ignore
+                                submission={{data: JSON.parse(localStorage.getItem('Modeldata'))}}
                                 form={
                                     {
                                         display: "form",
-                                        components: value.structure
+                                        components: cmp
                                     }
                                 }
-                            />}
+                            />
+
                             {
                                 pageLoading &&
                                 Array.from({length: 3}).map((_, idx) =>
@@ -236,4 +243,4 @@ function ModalConsultation({...props}) {
     )
 }
 
-export default ModalConsultation
+export default React.memo(ModalConsultation)

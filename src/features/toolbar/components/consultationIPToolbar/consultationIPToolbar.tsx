@@ -315,7 +315,7 @@ function ConsultationIPToolbar({...props}) {
             const form = new FormData();
             form.append("acts", JSON.stringify(acts))
             form.append("modal_uuid", selectedModel.default_modal.uuid)
-            form.append("modal_data", JSON.stringify(selectedModel.data))
+            form.append("modal_data", (localStorage.getItem('Modeldata') as string))
             form.append("notes", exam.notes)
             form.append("diagnostic", exam.diagnosis)
             form.append("treatment", exam.treatment)
@@ -334,6 +334,8 @@ function ConsultationIPToolbar({...props}) {
                 router.push('/dashboard/agenda').then(r => {
                     console.log(r)
                     dispatch(setTimer({isActive: false}))
+                    localStorage.removeItem('Modeldata');
+                    console.log(localStorage.getItem('Modeldata'))
                 })
             });
         }
