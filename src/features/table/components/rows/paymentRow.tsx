@@ -46,6 +46,7 @@ function PaymentRow({ ...props }) {
   }, [isItemSelected])
   useEffect(() => {
     dispatch(addBilling(selected))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected])
   return (
     <>
