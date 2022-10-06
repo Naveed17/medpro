@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery} from '@mui/material'
+import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
 import {useTranslation} from 'next-i18next'
@@ -193,7 +193,6 @@ function ConsultationIPToolbar({...props}) {
                     }
                 }).then(() => {
                     mutateDoc()
-                    setInfo('document_detail')
                     setInfo('document_detail')
                     setState({
                         content: state.content,

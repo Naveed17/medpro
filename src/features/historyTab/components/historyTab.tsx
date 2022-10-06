@@ -137,7 +137,7 @@ function HistoryTab({...props}) {
                                                                               fontWeight={700}
                                                                               textTransform={"capitalize"}>
                                                                 {appdata}
-                                                            </Typography> : {appointement.consultation_sheet.modal.data[appdata]}
+                                                            </Typography> : {appointement.consultation_sheet.modal.data[appdata] ? appointement.consultation_sheet.modal.data[appdata] : '--'}
                                                             </ListItem>
                                                         </List>
                                                     </Box>
@@ -153,15 +153,25 @@ function HistoryTab({...props}) {
                                         {
                                             Object.keys(appointement.consultation_sheet.exam.appointment_data).map((appdata, idx) => (
                                                 appdata !== 'models' && <Box key={'tex' + idx}>
-                                                    <Typography variant="body2" fontWeight={700}
-                                                                textTransform={"capitalize"}>
-                                                        {appdata}
+                                                    <Typography variant="body2" fontWeight={700}>
+                                                        {t(appdata)}
                                                     </Typography>
-                                                    <List>
-                                                        <ListItem>
-                                                            • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
-                                                        </ListItem>
-                                                    </List>
+                                                    {
+                                                        appdata !== 'consultation_reason' &&
+                                                        <List>
+                                                            <ListItem>
+                                                                • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
+                                                            </ListItem>
+                                                        </List>
+                                                    }
+                                                    {
+                                                        appdata === 'consultation_reason' &&
+                                                        <List>
+                                                            <ListItem>
+                                                                • {appointement.consultation_sheet.exam.appointment_data[appdata].name}
+                                                            </ListItem>
+                                                        </List>
+                                                    }
                                                 </Box>
                                             ))
                                         }
