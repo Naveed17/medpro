@@ -14,8 +14,6 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack} from "@mui/material";
-import {DocumentsTab} from "@features/documentsTab";
-import {FeesTab} from "@features/feesTab";
 import {ConsultationDetailCard, PendingDocumentCard} from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
@@ -23,19 +21,12 @@ import {DrawerBottom} from "@features/drawerBottom";
 import {ConsultationFilter} from "@features/leftActionBar";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {uniqueId} from 'lodash'
-import {Instruction, Patient, TabPanel, TimeSchedule} from "@features/tabPanel";
+import {DocumentsTab, FeesTab, HistoryTab, Instruction, Patient, TabPanel, TimeSchedule} from "@features/tabPanel";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from 'react-simple-image-viewer';
-import dynamic from "next/dynamic";
 import {Widget} from "@features/widget";
-import {HistoryTab} from "@features/historyTab";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-const Form: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
-), {
-    ssr: false,
-});
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
         const {modal, models} = props;

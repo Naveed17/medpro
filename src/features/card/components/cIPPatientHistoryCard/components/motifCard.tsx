@@ -9,9 +9,9 @@ function MotifCard({...props}) {
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
 
-    console.log(models.data)
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'consultationIP'})
     if (!ready) return <>loading translations...</>
+
     return (
         <RootStled>
             <Grid container spacing={2}>
