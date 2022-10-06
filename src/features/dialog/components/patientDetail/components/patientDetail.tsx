@@ -233,7 +233,6 @@ function PatientDetail({...props}) {
                         }
                     }}
                     onBackButton={(index: number) => {
-                        console.log("onBackButton", index);
                         return index === 0 && setIsAdd(false)
                     }}
                     scroll
