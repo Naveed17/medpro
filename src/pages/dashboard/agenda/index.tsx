@@ -15,7 +15,7 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -56,7 +56,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
-import IconUrl from "@themes/urlIcon";
+import {sideBarSelector} from "@features/sideBarMenu";
+import {prepareSearchKeys} from "@app/hooks";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -94,6 +95,8 @@ function Agenda() {
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {submitted} = useAppSelector(appointmentSelector);
+    const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
+    const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -236,24 +239,12 @@ function Agenda() {
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
 
-    const prepareSearchKeys = (filter: ActionBarState | undefined) => {
-        let query = "";
-        if (filter) {
-            Object.entries(filter).map((param, index) => {
-                if (param[0] === "patient" && param[1]) {
-                    Object.entries(param[1]).map(deepParam => {
-                        if (deepParam[1]) {
-                            query += `&${deepParam[0]}=${deepParam[1]}`;
-                        }
-                    })
-                }
-                if (param[0] === "type" && param[1]) {
-                    query += `&${param[0]}=${param[1]}`;
-                }
-            });
+    useEffect(() => {
+        if (calendarEl && currentDate) {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.gotoDate(currentDate.date);
         }
-        return query;
-    }
+    }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (filter?.type && timeRange.start !== "" || filter?.patient) {
@@ -290,7 +281,6 @@ function Agenda() {
     }
 
     const onViewChange = (view: string) => {
-        console.log("onViewChange", filter);
         const query = prepareSearchKeys(filter as any);
         if (view === 'listWeek' && filter?.patient === undefined) {
             getAppointments(`format=list&page=1&limit=50${query}`, view);
@@ -335,7 +325,12 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        dispatch(setTimer({isActive: true, isPaused: false, event}));
+                        dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment().format("HH:mm")
+                        }));
                         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
                             start_date: moment().format("DD-MM-YYYY"),
                             start_time: moment().format("HH:mm")
@@ -363,6 +358,7 @@ function Agenda() {
                     (event as any)?.id, "6").then(() => {
                     refreshData();
                     enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
+                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
                 });
                 break;
             case "onPatientNoShow":
@@ -384,7 +380,7 @@ function Agenda() {
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 dispatch(setMoveDateTime({
-                    date: new Date(event?.extendedProps.time),
+                    date: new Date(),
                     time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
                     action: "reschedule",
                     selected: false
@@ -400,6 +396,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
+                dispatch(setOngoing({waiting_room: waiting_room + 1}))
             });
     }
 
@@ -413,12 +410,23 @@ function Agenda() {
             });
     }
 
+    const onConsultationView = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+            dispatch(openDrawer({type: "view", open: false}));
+        })
+    }
+
     const onConsultationDetail = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
                 dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({isActive: true, isPaused: false, event}));
+                dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
+                updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
+                    start_date: moment().format("DD-MM-YYYY"),
+                    start_time: moment().format("HH:mm")
+                });
             })
         } else {
             dispatch(openDrawer({type: "view", open: false}));
@@ -485,9 +493,8 @@ function Agenda() {
     const handleRescheduleAppointment = (event: EventDef) => {
         setLoading(true);
         const form = new FormData();
-        form.append('start_date', event.extendedProps.newDate.format("DD-MM-YYYY"));
-        form.append('start_time',
-            event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
+        form.append('start_date', event.extendedProps.newDate.clone().format("DD-MM-YYYY"));
+        form.append('start_time', event.extendedProps.newDate.clone().format("HH:mm"));
         const eventId = event.publicId ? event.publicId : (event as any).id;
         updateAppointmentTrigger({
             method: "POST",
@@ -616,12 +623,12 @@ function Agenda() {
     if (!ready) return (<LoadingScreen/>);
 
     return (
-        <>
+        <div>
             <SubHeader
                 {...{
                     sx: {
                         "& .MuiToolbar-root": {
-                            "display": "block"
+                            display: "block"
                         }
                     }
                 }}>
@@ -722,6 +729,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
                             OnPatientNoShow={onPatientNoShow}
@@ -924,7 +932,7 @@ function Agenda() {
                     }
                 />
             </Box>
-        </>
+        </div>
     )
 }
 

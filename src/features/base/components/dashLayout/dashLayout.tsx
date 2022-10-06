@@ -6,8 +6,9 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useEffect} from "react";
-import {setConfig} from "@features/calendar";
+import {setAgendas, setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
+import {dashLayoutState, setOngoing} from "@features/base";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 const variants = {
@@ -16,7 +17,7 @@ const variants = {
     exit: {opacity: 0},
 };
 
-function DashLayout({children}: LayoutProps) {
+function DashLayout({children, ...props}: LayoutProps) {
     const router = useRouter();
     const {data: session, status} = useSession();
     const dispatch = useAppDispatch();
@@ -24,7 +25,7 @@ function DashLayout({children}: LayoutProps) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest( {
+    const {data: httpAgendasResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
@@ -32,10 +33,10 @@ function DashLayout({children}: LayoutProps) {
         }
     }, SWRNoValidateConfig);
 
-    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) =>
-        item.isDefault) as AgendaConfigurationModel;
+    const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
+    const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
-    const {data: httpOngoingResponse, error: errorHttpOngoing} = useRequest(agenda ? {
+    const {data: httpOngoingResponse} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
@@ -43,11 +44,23 @@ function DashLayout({children}: LayoutProps) {
         }
     } : null, SWRNoValidateConfig);
 
+    const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
+
     useEffect(() => {
         if (agenda) {
             dispatch(setConfig(agenda));
+            dispatch(setAgendas(agendas));
         }
-    }, [agenda, dispatch])
+    }, [agenda, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (calendarStatus) {
+            dispatch(setOngoing({
+                waiting_room: calendarStatus.waiting_room,
+                ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
+            }))
+        }
+    }, [calendarStatus, dispatch]);
 
     return (
         <SideBarMenu>

@@ -18,15 +18,6 @@ function PatientDetailsToolbar({ ...props }) {
               <Button
                 variant="contained"
                 color="primary"
-                // sx={{
-                //   "&.Mui-disabled": {
-                //     bgcolor: (theme) => theme.palette.grey["A500"],
-                //     color: (theme) => theme.palette.grey["A0"],
-                //   },
-                //   "svg path": {
-                //     fill: (theme) => theme.palette.grey["A0"],
-                //   },
-                // }}
                 disabled
                 startIcon={<Icon path="ic-edit" />}
               >
@@ -42,11 +33,11 @@ function PatientDetailsToolbar({ ...props }) {
                 <Icon path={"ic-refrech"} />
               </IconButton>
             </ListItem>
-            <ListItem disablePadding sx={{ marginRight: "20px" }}>
+{/*            <ListItem disablePadding sx={{ marginRight: "20px" }}>
               <IconButton color="primary" edge="start">
                 <Icon path={"ic-autre2"} />
               </IconButton>
-            </ListItem>
+            </ListItem>*/}
             <ListItem disablePadding>
               <IconButton
                 onClick={() => props.onClose()}

@@ -206,6 +206,7 @@ function Calendar({...props}) {
                     {view === "listWeek" ? (
                         <Box className="container">
                             <Otable
+                                maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
                                 handleEvent={(action: string, eventData: EventModal) =>
@@ -253,7 +254,7 @@ function Calendar({...props}) {
                                 navLinks
                                 selectable
                                 eventDurationEditable
-                                slotEventOverlap={false}
+                                slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
                                 allDaySlot={false}
@@ -280,7 +281,7 @@ function Calendar({...props}) {
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}
-                                height={"100vh"}
+                                height={"80vh"}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:20:00"}

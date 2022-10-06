@@ -96,7 +96,7 @@ function Event({...props}) {
                         textOverflow: "ellipsis"
                     }
                 }} color="primary" noWrap>
-                    {!appointment.overlapEvent && IconsTypes[appointment.type.icon]}
+                    {!appointment.overlapEvent && IconsTypes[appointment.type?.icon]}
                     <span {...(appointment.overlapEvent && {style: {marginLeft: ".5rem"}})}>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>

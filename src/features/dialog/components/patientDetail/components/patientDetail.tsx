@@ -34,9 +34,9 @@ function a11yProps(index: number) {
 // add patient details RDV for not data
 const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
-    title: "no-data.group-table.title",
-    description: "no-data.group-table.description",
-    buttonText: "no-data.group-table.button-text",
+    title: "no-data.appointment.title",
+    description: "no-data.appointment.description",
+    buttonText: "no-data.appointment.button-text",
     buttonIcon: "ic-agenda-+",
     buttonVariant: "warning",
 };
@@ -152,6 +152,11 @@ function PatientDetail({...props}) {
                         <TabPanel padding={1} value={index} index={1}>
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
                                 <GroupTable
+                                    sx={{
+                                        "& .MuiTableCell-root":{
+                                            minHeight: 38
+                                        }
+                                    }}
                                     from="patient"
                                     loading={!patient}
                                     data={patient}
@@ -161,7 +166,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={2}>
-                            <DocumentsPanel/>
+                            <DocumentsPanel />
                         </TabPanel>
                         <Paper
                             className={"action-buttons"}
@@ -176,7 +181,7 @@ function PatientDetail({...props}) {
                                 display: {md: "block", xs: "none"},
                             }}
                         >
-                            <Button
+                            {/*<Button
                                 size="medium"
                                 variant="text-primary"
                                 color="primary"
@@ -187,7 +192,7 @@ function PatientDetail({...props}) {
                                 }}
                             >
                                 {t("tabs.import")}
-                            </Button>
+                            </Button>*/}
                             <Button
                                 onClick={() => setIsAdd(!isAdd)}
                                 size="medium"

@@ -11,10 +11,12 @@ import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
+import MenIcon from "@themes/overrides/icons/menIcon";
+import WomenIcon from "@themes/overrides/icons/womenIcon";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
-
+    console.log(patient);
     const {isActive} = useAppSelector(timerSelector);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
@@ -26,6 +28,7 @@ function PatientDetailsCard({...props}) {
             <Badge
                 color="success"
                 variant="dot"
+                invisible={patient?.nextAppointments.length === 0}
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "right",
@@ -41,7 +44,9 @@ function PatientDetailsCard({...props}) {
                 ) : (
                     <Box
                         component="img"
-                        src={"/static/img/150-13 6.png"}
+                        src={patient?.gender === "M"
+                            ? "/static/icons/men-avatar.svg"
+                            : "/static/icons/women-avatar.svg"}
                         width={pxToRem(59)}
                         height={pxToRem(59)}
                         sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
@@ -86,7 +91,9 @@ function PatientDetailsCard({...props}) {
                 {loading ? (
                     <Skeleton variant="text" width={150}/>
                 ) : (
-                    <Typography variant="body2" component="span" className="alert">
+                    <Typography
+                        visibility={"hidden"}
+                        variant="body2" component="span" className="alert">
                         <Icon path="danger"/>
                         {t("duplicate")}
                     </Typography>
@@ -101,9 +108,9 @@ function PatientDetailsCard({...props}) {
                     {loading ? (
                         <Skeleton variant="text" width={100}/>
                     ) : (
-                        <>
+                        patient?.email && <>
                             <Icon path="ic-message-contour"/>
-                            {t("add-email")}
+                            {patient?.email}
                         </>
                     )}
                 </Typography>
