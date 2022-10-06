@@ -316,8 +316,8 @@ function PlacesDetail() {
                         WED: [],
                         TUE: [],
                         FRI: [],
-                        SUN: [],
                         SAT: [],
+                        SUN: [],
                     }
                 }
             ];

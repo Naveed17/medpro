@@ -14,21 +14,25 @@ function AddDocumentDialog({...props}) {
     const [type, setType] = useState('');
     const [types, setTypes] = useState([]);
     const [name, setName] = useState('');
+    const [loading, setLoading] = useState(true);
     const [description, setDescription] = useState('');
     const {data} = props
 
     const router = useRouter();
     const {data: session} = useSession();
 
-    const {data: httpTypeResponse, error: errorHttpType} = useRequest({
+    const {data: httpTypeResponse} = useRequest({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
     })
 
     useEffect(() => {
-        if (httpTypeResponse)
+        if (httpTypeResponse) {
             setTypes((httpTypeResponse as HttpResponse).data)
+            setLoading(false)
+        }
+
     }, [httpTypeResponse])
 
     const handleDrop = React.useCallback(
@@ -53,19 +57,31 @@ function AddDocumentDialog({...props}) {
             <Typography fontWeight={600} variant="subtitle2">
                 {t('type_of_document')}
             </Typography>
-            <Stack maxWidth="90%" m="auto" width="100%" >
+            <Stack maxWidth="90%" m="auto" width="100%">
                 <Grid container spacing={2} mt={2} margin={"auto"}>
-                    {types.map((item: { logo: string, name: string, uuid: string }, index) =>
-                        <Grid key={index} item xs={6} md={2}>
-                            <DocumentButton icon={item.logo} t={t} lable={item.name} uuid={item.uuid} selected={type}
-                                            handleOnClick={(v: string) => {
-                                                setType(v)
-                                                data.state.type = v
-                                                data.setState(data.state)
-                                            }}/>
-                        </Grid>
-                    )}
 
+                    {
+                        loading ? Array.from(new Array(6)).map(((val,idx) => (
+                                <Grid key={'loading-card-'+idx} item xs={6} md={2}>
+                                    <DocumentButton selected={""}
+                                                    height={100}
+                                                    paddingTop={20}
+                                                    loading={true}/>
+                                </Grid>
+                            ))) :
+                            types.map((item: { logo: string, name: string, uuid: string }, index) =>
+                                <Grid key={index} item xs={6} md={2}>
+                                    <DocumentButton icon={item.logo} t={t} lable={item.name} uuid={item.uuid}
+                                                    selected={type}
+                                                    height={100}
+                                                    handleOnClick={(v: string) => {
+                                                        setType(v)
+                                                        data.state.type = v
+                                                        data.setState(data.state)
+                                                    }}/>
+                                </Grid>
+                            )
+                    }
                 </Grid>
             </Stack>
             <Stack spacing={2} maxWidth="90%" width={1} mx='auto' mt={3}>

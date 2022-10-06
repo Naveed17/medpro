@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Tabs, Tab, Stack, Button, MenuItem, DialogActions, useMediaQuery} from '@mui/material'
+import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery} from '@mui/material'
 import ConsultationIPToolbarStyled from './overrides/consultationIPToolbarStyle'
 import StyledMenu from './overrides/menuStyle'
 import {useTranslation} from 'next-i18next'
@@ -37,6 +37,21 @@ function ConsultationIPToolbar({...props}) {
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
+
+    const {
+        selected,
+        appuuid,
+        mutate,
+        agenda,
+        mutateDoc,
+        setPendingDocuments,
+        pendingDocuments,
+        dialog,
+        setDialog,
+        appointement,
+        selectedAct,
+        selectedModel
+    } = props;
     const tabsData = [
         {
             label: "patient_history",
@@ -60,20 +75,6 @@ function ConsultationIPToolbar({...props}) {
             value: 'documents',
         }
     ];
-    const {
-        selected,
-        appuuid,
-        mutate,
-        agenda,
-        mutateDoc,
-        setPendingDocuments,
-        pendingDocuments,
-        dialog,
-        setDialog,
-        appointement,
-        selectedAct,
-        selectedModel
-    } = props;
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
@@ -193,7 +194,6 @@ function ConsultationIPToolbar({...props}) {
                 }).then(() => {
                     mutateDoc()
                     setInfo('document_detail')
-                    setInfo('document_detail')
                     setState({
                         content: state.content,
                         doctor: state.name,
@@ -245,12 +245,9 @@ function ConsultationIPToolbar({...props}) {
                 }
                 break
         }
-
-        console.log(pdoc)
         setOpenDialog(false);
         setInfo(null)
         setPendingDocuments(pdoc)
-
     }
 
     const handleClose = (action: string) => {
@@ -317,7 +314,7 @@ function ConsultationIPToolbar({...props}) {
             const form = new FormData();
             form.append("acts", JSON.stringify(acts))
             form.append("modal_uuid", selectedModel.default_modal.uuid)
-            form.append("modal_data", JSON.stringify(selectedModel.data))
+            form.append("modal_data", (localStorage.getItem('Modeldata') as string))
             form.append("notes", exam.notes)
             form.append("diagnostic", exam.diagnosis)
             form.append("treatment", exam.treatment)
@@ -336,6 +333,8 @@ function ConsultationIPToolbar({...props}) {
                 router.push('/dashboard/agenda').then(r => {
                     console.log(r)
                     dispatch(setTimer({isActive: false}))
+                    localStorage.removeItem('Modeldata');
+                    console.log(localStorage.getItem('Modeldata'))
                 })
             });
         }
