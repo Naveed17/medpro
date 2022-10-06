@@ -148,35 +148,36 @@ function HistoryTab({...props}) {
                                 </Grid>}
 
                             <Grid item xs={12} md={6}>
-                                <Card className="motif-card">
-                                    <CardContent>
-                                        {
-                                            Object.keys(appointement.consultation_sheet.exam.appointment_data).map((appdata, idx) => (
-                                                appdata !== 'models' && <Box key={'tex' + idx}>
-                                                    <Typography variant="body2" fontWeight={700}>
-                                                        {t(appdata)}
-                                                    </Typography>
-                                                    {
-                                                        appdata !== 'consultation_reason' &&
-                                                        <List>
-                                                            <ListItem>
-                                                                • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
-                                                            </ListItem>
-                                                        </List>
-                                                    }
-                                                    {
-                                                        appdata === 'consultation_reason' &&
-                                                        <List>
-                                                            <ListItem>
-                                                                • {appointement.consultation_sheet.exam.appointment_data[appdata].name}
-                                                            </ListItem>
-                                                        </List>
-                                                    }
-                                                </Box>
-                                            ))
-                                        }
-                                    </CardContent>
-                                </Card>
+                                { appointement.consultation_sheet.exam.appointment_data && Object.keys(appointement.consultation_sheet.exam.appointment_data).length > 0 &&
+                                    <Card className="motif-card">
+                                        <CardContent>
+                                            {
+                                                Object.keys(appointement.consultation_sheet.exam.appointment_data).map((appdata, idx) => (
+                                                    appdata !== 'models' && <Box key={'tex' + idx}>
+                                                        <Typography variant="body2" fontWeight={700}>
+                                                            {t(appdata)}
+                                                        </Typography>
+                                                        {
+                                                            appdata !== 'consultation_reason' &&
+                                                            <List>
+                                                                <ListItem>
+                                                                    • {appointement.consultation_sheet.exam.appointment_data[appdata].value}
+                                                                </ListItem>
+                                                            </List>
+                                                        }
+                                                        {
+                                                            appdata === 'consultation_reason' &&
+                                                            <List>
+                                                                <ListItem>
+                                                                    • {appointement.consultation_sheet.exam.appointment_data[appdata].name}
+                                                                </ListItem>
+                                                            </List>
+                                                        }
+                                                    </Box>
+                                                ))
+                                            }
+                                        </CardContent>
+                                    </Card>}
                             </Grid>
 
                         </Grid>

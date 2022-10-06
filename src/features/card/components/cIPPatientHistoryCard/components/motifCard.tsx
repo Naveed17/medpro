@@ -1,4 +1,4 @@
-import {Card, CardContent, Grid, Typography, List, ListItem, ListItemIcon, Stack, Box} from '@mui/material'
+import {Box, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
 import React from 'react'
 import {useTranslation} from 'next-i18next'
 import RootStled from './overrides/rootStyle';
@@ -9,12 +9,13 @@ function MotifCard({...props}) {
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
 
+    console.log(models.data)
     const {t, ready} = useTranslation('consultation', {keyPrefix: 'consultationIP'})
     if (!ready) return <>loading translations...</>
     return (
         <RootStled>
             <Grid container spacing={2}>
-                {models && <Grid item xs={12} md={6}>
+                {models && models.data && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
                             <Stack direction="row" alignItems="center" justifyContent="space-between"
@@ -26,21 +27,22 @@ function MotifCard({...props}) {
                                 <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
 */}
                             </Stack>
-{/*
+
                             <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
-                                {models && Object.keys(JSON.parse(models.value)).map((ml, idx) => (
+                                {Object.keys(models.data).map((ml, idx) => (
                                     ml !== "submit" && <ListItem key={'modelData' + idx}>
                                         <ListItemIcon>
                                             <CircleIcon/>
                                         </ListItemIcon>
-                                        {ml} : {JSON.parse(models.value)[ml] ? JSON.parse(models.value)[ml] : '--'}
+                                        {ml} : {models.data[ml] ? models.data[ml] : '--'}
                                     </ListItem>
                                 ))}
                             </List>
-*/}
+
                         </CardContent>
                     </Card>
-                </Grid>}
+                </Grid>
+                }
 
                 {notmodels && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
