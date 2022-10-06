@@ -33,7 +33,9 @@ function WeekDayPicker({...props}) {
 
     useEffect(() => {
         getMonths();
-        const now = (action === "reschedule" ? moment() : moment()).startOf('week').toDate();
+        const now = action === "reschedule" ? moment().toDate() :
+            moment().diff(moment().startOf('week'), 'days') > 0 ?
+                moment().toDate() : moment().startOf('week').toDate();
         let daysOfYear = [];
         for (
             let d = new Date(now.getFullYear(), now.getMonth(), now.getDate());

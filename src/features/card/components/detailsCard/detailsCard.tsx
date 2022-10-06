@@ -88,7 +88,7 @@ export default function DetailsCard({ ...props }) {
                                         lineHeight={1}
                                         variant="body1"
                                     >
-                                        {item.patient}
+                                        {item.patient.lastName} {item.patient.firstName}
                                     </Typography>
                                     <Stack spacing={2} direction="row" alignItems="center" ml="auto" mt={2}>
                                         <Label
