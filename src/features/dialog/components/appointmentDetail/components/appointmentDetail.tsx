@@ -322,7 +322,7 @@ function AppointmentDetail({...props}) {
                         </Button>
                         <Button
                             sx={{
-                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
+                                display: (moment().isBefore(data?.extendedProps.time) || data?.extendedProps.status.key === "FINISHED") ? "none" : "flex"
                             }}
                             onClick={() => OnPatientNoShow(data)}
                             fullWidth variant='contained'
@@ -368,7 +368,8 @@ function AppointmentDetail({...props}) {
                                 variant='contained-white'
                                 color="error"
                                 sx={{
-                                    display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
+                                    display: (data?.extendedProps.status.key === "CANCELED" ||
+                                        data?.extendedProps.status.key === "FINISHED") ? "none" : "flex",
                                     '& svg': {
                                         width: 16,
                                         height: 16
@@ -380,6 +381,9 @@ function AppointmentDetail({...props}) {
                             {t('event.cancel')}
                         </Button>
                         <Button onClick={() => SetDeleteDialog(true)}
+                                sx={{
+                                    display: data?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
+                                }}
                                 fullWidth
                                 variant='contained-white'
                                 color="error"

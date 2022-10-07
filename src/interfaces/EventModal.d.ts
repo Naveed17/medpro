@@ -5,6 +5,7 @@ interface EventModal {
     title: string;
     allDay: boolean;
     overlapEvent: boolean;
+    editable: boolean;
     borderColor: string;
     motif: ConsultationReasonModel;
     type: AppointmentTypeModel;
