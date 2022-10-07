@@ -66,6 +66,14 @@ const dialogData = [
         ),
     },
     {
+        action: "medical_imagery",
+        component: dynamic((): any =>
+            import("@features/dialog/components/medicalImagery/medicalImagery").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "balance_sheet_pending",
         component: dynamic((): any =>
             import("@features/dialog/components/balanceSheetPending/balanceSheetPending").then(

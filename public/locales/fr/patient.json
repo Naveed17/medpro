@@ -74,6 +74,10 @@
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
   },
   "config": {
+    "reason_for_consultation": "Motif du consultation",
+    "treatment_medication": "Traitement (médicament)",
+    "documents": "Documents",
+    "bal_sheet_req": "Demande bilan",
     "tabs": {
       "personal-info": "Informations personnelle",
       "additional-information": "Info supplémentaires",
@@ -85,7 +89,17 @@
       "time-slot": "Créneau horaire",
       "advice": "Instruction / Conseil",
       "end": "Fin",
-      "patient_file": "Fiche patient"
+      "patient_file": "Fiche patient",
+      "filter": "Filter",
+      "all": "Tous",
+      "report": "Rapport",
+      "analysis": "Analyses",
+      "prescription_drugs": "Ordonnance de médicaments",
+      "medical_imaging": "Imagerie médicale",
+      "photo": "Photo",
+      "video": "video",
+      "audio": "Audio",
+      "history": "Historique"
     },
     "no-data": {
       "appointment": {
@@ -146,8 +160,8 @@
       "birthdate": "Date de naissance",
       "family_doctor": "Médecin traitant",
       "family_doctor-placeholder": "Tapez le nom du médecin traitant",
-      "country": "Pays",
-      "country-placeholder": "pays",
+      "country": "Nationalité",
+      "country-placeholder": "nationalité",
       "day": "Jour",
       "month": "Mois",
       "year": "Année",

@@ -72,6 +72,7 @@ function MedicalPrescriptionDialog({...props}) {
             revalidate: true,
             populateCache: true
         }).then((cnx) => {
+            mutate();
             setDrugsList((cnx?.data as HttpResponse)?.data)
         })
         setOpenDialog(false);
@@ -121,7 +122,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpModelResponse} = useRequest({
+    const {data: httpModelResponse,mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -229,7 +230,7 @@ function MedicalPrescriptionDialog({...props}) {
                                         }
                                     </Menu>
                                 </Stack>
-                                {drugsList && <Autocomplete
+                                {drugsList ? <Autocomplete
                                     id="cmo"
                                     value={drug}
                                     size='small'
@@ -238,7 +239,7 @@ function MedicalPrescriptionDialog({...props}) {
                                     isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                     renderInput={(params) => <TextField {...params}
                                                                         onChange={(ev) => {
-                                                                            if (ev.target.value.length >= 3) {
+                                                                            if (ev.target.value.length >= 2) {
                                                                                 trigger({
                                                                                     method: "GET",
                                                                                     url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
@@ -254,6 +255,12 @@ function MedicalPrescriptionDialog({...props}) {
                                                                         }}
                                                                         onBlur={(ev) => handleInputChange(ev.target.value)}
                                                                         placeholder={t('placeholder_drug_name')}/>}
+                                />: <Autocomplete
+                                    disablePortal
+                                    id="combo-box-demo"
+                                    options={[]}
+                                    size='small'
+                                    renderInput={(params) => <TextField {...params} placeholder={t('placeholder_drug_name')} />}
                                 />
                                 }
                             </Stack>

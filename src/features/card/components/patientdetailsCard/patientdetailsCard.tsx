@@ -80,7 +80,7 @@ function PatientDetailsCard({ ...props }) {
                         <>
                             <Icon path="ic-anniverssaire" />
                             {patient?.birthdate} -{" "}
-                            {moment().diff(new Date(patient?.birthdate), "years")}{" "}
+                            {moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}{" "}
                             {t("years")}
                         </>
                     )}

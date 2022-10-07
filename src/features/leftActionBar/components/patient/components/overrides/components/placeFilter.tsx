@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useEffect} from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import {
     Typography,
     Box,
@@ -9,15 +9,15 @@ import {
     FormGroup,
     Checkbox,
 } from "@mui/material";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import _ from "lodash";
-import {useIsMountedRef} from "@app/hooks";
-import {SelectChangeEvent} from "@mui/material";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import { useIsMountedRef } from "@app/hooks";
+import { SelectChangeEvent } from "@mui/material";
+import { useRequest } from "@app/axios";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 
-function PlaceFilter({...props}) {
-    const {item, t, keyPrefix = ""} = props;
+function PlaceFilter({ ...props }) {
+    const { item, t, keyPrefix = "" } = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
 
@@ -29,24 +29,24 @@ function PlaceFilter({...props}) {
         states: []
     });
 
-    const {data: httpCountriesResponse} = useRequest({
+    const { data: httpCountriesResponse } = useRequest({
         method: "GET",
         url: "/api/public/places/countries/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: httpStatesResponse} = useRequest(state.country.length > 0 ? {
+    const { data: httpStatesResponse } = useRequest(state.country.length > 0 ? {
         method: "GET",
         url: `/api/public/places/countries/${state.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {query} = router;
-    const {states} = query as { states: string };
+    const { query } = router;
+    const { states } = query as { states: string };
 
 
     const handleChangeCity = (event: SelectChangeEvent) => {
-        setstate({...state, country: event.target.value});
+        setstate({ ...state, country: event.target.value });
         router.push({
-            query: {...router.query, city: event.target.value},
+            query: { ...router.query, city: event.target.value },
         });
     };
 
@@ -54,7 +54,7 @@ function PlaceFilter({...props}) {
         let data = state.states;
         if (e.target.checked) {
             data = [...data, props.toLowerCase()];
-            setstate({...state, states: [...state.states, props.toLowerCase()]});
+            setstate({ ...state, states: [...state.states, props.toLowerCase()] });
             router.push({
                 query: {
                     ...router.query,
@@ -68,9 +68,9 @@ function PlaceFilter({...props}) {
                 const filtered = state.states.filter(
                     (gen: string) => gen !== props.toLowerCase()
                 );
-                setstate({...state, states: filtered});
+                setstate({ ...state, states: filtered });
                 router.push({
-                    query: {...router.query, states: filtered.join("_")},
+                    query: { ...router.query, states: filtered.join("_") },
                 });
             } else {
                 const query = _.omit(router.query, "states");
@@ -97,7 +97,7 @@ function PlaceFilter({...props}) {
 
 
     return (
-        <Box component="figure" sx={{m: 0}}>
+        <Box component="figure" sx={{ m: 0 }}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.city?.heading}`)}
             </Typography>
@@ -109,7 +109,7 @@ function PlaceFilter({...props}) {
                     value={state.country}
                     size="small"
                     displayEmpty
-                    sx={{color: "text.secondary"}}
+                    sx={{ color: "text.secondary" }}
                     renderValue={(selected: string) => {
                         if (selected?.length === 0) {
                             return <em>{t(`${keyPrefix}country-placeholder`)}</em>;
@@ -124,14 +124,14 @@ function PlaceFilter({...props}) {
                             key={country.uuid}
                             value={country.uuid}>
                             <Box component="img"
-                                 src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
-                            <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`} />
+                            <Typography sx={{ ml: 1 }}>{country.name}</Typography>
                         </MenuItem>)
                     )}
                 </Select>
             </FormControl>
 
-            <FormControl sx={{mt: 1}} component="fieldset" variant="standard">
+            <FormControl sx={{ mt: 1 }} component="fieldset" variant="standard">
                 <FormGroup>
                     {statesCountry?.slice(0, 10).map((c, i) => (
                         <FormControlLabel

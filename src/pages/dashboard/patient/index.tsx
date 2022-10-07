@@ -236,28 +236,6 @@ function Patient() {
                         patientId={patientId}
                     />
                 )}
-                {/*                    <Zoom in={isAddAppointment}>
-                        <Box
-                            height={isAddAppointment ? "100%" : 0}
-                            sx={{
-                                "& .MuiTabs-root": {
-                                    position: "sticky",
-                                    top: 0,
-                                    bgcolor: (theme) => theme.palette.background.paper,
-                                    zIndex: 11,
-                                },
-                            }}
-                        >
-                            <CustomStepper
-                                currentIndex={0}
-                                stepperData={stepperData}
-                                scroll
-                                t={t}
-                                minWidth={726}
-                                onClickCancel={() => setAddAppointment(false)}
-                            />
-                        </Box>
-                    </Zoom>*/}
             </Drawer>
             <Drawer
                 anchor={"right"}
@@ -304,6 +282,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         fallback: false,
         ...(await serverSideTranslations(locale as string, [
             "patient",
+            "agenda",
             "menu",
             "common",
         ])),

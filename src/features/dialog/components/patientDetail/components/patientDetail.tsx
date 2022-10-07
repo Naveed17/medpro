@@ -3,11 +3,12 @@ import { PatientDetailsToolbar } from "@features/toolbar";
 import { onOpenPatientDrawer } from "@features/table";
 import { NoDataCard, PatientDetailsCard } from "@features/card";
 import {
-    DocumentsPanel,
+    DocumentsPanel, EventType,
     Instruction,
-    PersonalInfoPanel,
+    PersonalInfoPanel, setAppointmentPatient,
     TabPanel,
     TimeSchedule,
+    FilesPanel
 } from "@features/tabPanel";
 import { GroupTable } from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -41,6 +42,24 @@ const AddAppointmentCardData = {
     buttonVariant: "warning",
 };
 
+const stepperData = [
+    {
+        title: "tabs.time-slot",
+        children: EventType,
+        disabled: false
+    },
+    {
+        title: "tabs.time-slot",
+        children: TimeSchedule,
+        disabled: false
+    },
+    {
+        title: "tabs.advice",
+        children: Instruction,
+        disabled: true
+    },
+];
+
 function PatientDetail({ ...props }) {
     const {
         patientId,
@@ -51,19 +70,6 @@ function PatientDetail({ ...props }) {
         onAddAppointment,
         onConsultation = null
     } = props;
-
-    const stepperData = [
-        {
-            title: "tabs.time-slot",
-            children: TimeSchedule,
-            disabled: false,
-        },
-        {
-            title: "tabs.advice",
-            children: Instruction,
-            disabled: true,
-        },
-    ];
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -95,9 +101,19 @@ function PatientDetail({ ...props }) {
         setIndex(newValue);
     };
 
+    const submitStepper = (index: number) => {
+        if (stepperData.length !== index) {
+            stepperData[index].disabled = false;
+        } else {
+            stepperData.map((stepper, index) => stepper.disabled = true);
+            setIndex(0);
+        }
+    }
+
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = (patient ? patient.nextAppointments : []);
     const previousAppointments = (patient ? patient.previousAppointments : []);
+    const documents = (patient ? patient.documents : []);
 
     if (!ready) return <>loading translations...</>;
 
@@ -155,7 +171,7 @@ function PatientDetail({ ...props }) {
                             />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-
+                            <FilesPanel t={t} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
 
@@ -172,7 +188,7 @@ function PatientDetail({ ...props }) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel />
+                            <DocumentsPanel {...{ documents }} />
                         </TabPanel>
                         <Paper
                             className={"action-buttons"}
@@ -190,22 +206,24 @@ function PatientDetail({ ...props }) {
                             <Button
                                 size="medium"
                                 variant="text-primary"
-                                color="primary"
                                 startIcon={<Icon path="ic-dowlaodfile" />}
-                                sx={{
-                                    mr: 1,
-                                    width: { md: "auto", sm: "100%", xs: "100%" },
-                                }}
+                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
                             >
                                 {t("tabs.import")}
                             </Button>
                             <Button
-                                onClick={() => setIsAdd(!isAdd)}
                                 size="medium"
                                 variant="contained"
                                 color="primary"
                                 startIcon={<Icon path="ic-agenda-+" />}
-                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" } }}
+                                sx={{
+                                    mr: 1,
+                                    width: { md: "auto", sm: "100%", xs: "100%" },
+                                }}
+                                onClick={() => {
+                                    dispatch(setAppointmentPatient(patient as any));
+                                    setIsAdd(!isAdd);
+                                }}
                             >
                                 {t("tabs.add-appo")}
                             </Button>
@@ -217,7 +235,10 @@ function PatientDetail({ ...props }) {
                                 right: 16,
                                 display: { md: "none", xs: "flex" },
                             }}
-                            onClick={() => setIsAdd(!isAdd)}
+                            onClick={() => {
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd)
+                            }}
                             actions={[
                                 { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
                                 { icon: <CloudUploadIcon />, name: t("tabs.import") },
@@ -228,7 +249,15 @@ function PatientDetail({ ...props }) {
             ) : (
                 <CustomStepper
                     stepperData={stepperData}
-                    onBackButton={(index: number) => index === 0 && setIsAdd(false)}
+                    OnSubmitStepper={submitStepper}
+                    OnAction={(action: string) => {
+                        if (action === "close") {
+                            setIsAdd(false)
+                        }
+                    }}
+                    onBackButton={(index: number) => {
+                        return index === 0 && setIsAdd(false)
+                    }}
                     scroll
                     t={t}
                     minWidth={726}

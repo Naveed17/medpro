@@ -76,4 +76,5 @@ function RdvCard({ ...props }) {
     </RootStyled>
   );
 }
+
 export default RdvCard;

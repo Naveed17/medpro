@@ -6,7 +6,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
   paddingBottom: 5,
   position: "fixed",
   top: 0,
-  zIndex: 111,
+  zIndex: 998,
   "& .header": {
     backgroundColor: theme.palette.background.paper,
     paddingRight: "24px",

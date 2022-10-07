@@ -85,7 +85,7 @@ function CIPPatientHistoryCard({ ...props }) {
                                 }}>
                                 {
                                     cReason?.map(cr => (
-                                        <MenuItem key={cr.uuid} value={cr.uuid}>
+                                        <MenuItem key={'xyq'+cr.uuid} value={cr.uuid}>
                                             <ModelDot color={cr.color} selected={false} size={21} sizedot={13}
                                                       padding={3} marginRight={15}></ModelDot>
                                             {cr.name}
