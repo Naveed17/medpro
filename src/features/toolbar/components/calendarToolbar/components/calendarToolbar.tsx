@@ -114,7 +114,6 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                             {icon: <WeekIcon/>, label: "Month"},
                             {icon: <GridIcon/>, label: "List"},
                         ]}
-                        onSelect={(event: any) => console.log(event)}
                     />
 
 
