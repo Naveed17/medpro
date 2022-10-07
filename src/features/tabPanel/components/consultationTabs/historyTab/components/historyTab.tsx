@@ -4,8 +4,6 @@ import {Label} from "@features/label";
 import {
     Box,
     Button,
-    Card,
-    CardContent,
     Collapse,
     Drawer,
     Grid,
@@ -17,11 +15,7 @@ import {
     Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import CIPPatientHistoryCardStyled
-    from "@features/card/components/cIPPatientHistoryCard/components/overrides/cIPPatientHistoryCardStyle";
 import {useAppSelector} from "@app/redux/hooks";
-import Icon from "@themes/icon";
-import {capitalize} from 'lodash'
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer} from "@features/dialog";
 
 function HistoryTab({...props}) {
@@ -85,11 +79,11 @@ function HistoryTab({...props}) {
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
 
-    useEffect(()=>{
+    useEffect(() => {
         if (appointement) {
             console.log(appointement)
-            const index = appointement.latestAppointments.findIndex((app:any) => app.appointment.uuid === appuuid)
-            if (index > -1){
+            const index = appointement.latestAppointments.findIndex((app: any) => app.appointment.uuid === appuuid)
+            if (index > -1) {
                 const element = appointement.latestAppointments.splice(index, 1)[0];
                 console.log(element); // ['css']
                 appointement.latestAppointments.splice(0, 0, element);
@@ -97,7 +91,7 @@ function HistoryTab({...props}) {
             setApps([...appointement.latestAppointments])
 
         }
-    },[appointement, appuuid])
+    }, [appointement, appuuid])
     return (
         <>
             <Stack spacing={2} mb={2} alignItems="flex-start">
@@ -154,7 +148,7 @@ function HistoryTab({...props}) {
 
                                                 <ListItem sx={{p: 0}}>
                                                     <Collapse in={collapse === col.id} sx={{width: 1}}>
-                                                        {col.type === "treatment" &&  app.appointment.treatments.map((treatment: any, idx: number) => (
+                                                        {col.type === "treatment" && app.appointment.treatments.map((treatment: any, idx: number) => (
                                                             <Box key={`list-treatement-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                 mb: 1,
@@ -186,7 +180,7 @@ function HistoryTab({...props}) {
                                                                 textAlign: "center"
                                                             }}>Aucun traitement</p>}
 
-                                                        {col.type === "req-sheet"  && app?.appointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
+                                                        {col.type === "req-sheet" && app?.appointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
                                                             <Box key={`req-sheet-item-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                 mb: 1,
@@ -202,7 +196,7 @@ function HistoryTab({...props}) {
                                                                 ))}
                                                             </Box>
                                                         ))}
-                                                        {col.type === "req-sheet"  && app.appointment.requestedAnalyses.length == 0 &&
+                                                        {col.type === "req-sheet" && app.appointment.requestedAnalyses.length == 0 &&
                                                             <p style={{
                                                                 fontSize: 12,
                                                                 color: "gray",
@@ -228,6 +222,17 @@ function HistoryTab({...props}) {
                                                                                     onClick={() => {
                                                                                         if (card.documentType === 'photo') {
                                                                                             setIsViewerOpen(card.uri)
+                                                                                        } else if (card.documentType === 'medical-certificate') {
+                                                                                            setInfo('document_detail');
+                                                                                            setState({
+                                                                                                content: card.certificate[0].content,
+                                                                                                doctor: card.name,
+                                                                                                patient: card.patient,
+                                                                                                days: card.days,
+                                                                                                name: 'certif',
+                                                                                                type: 'write_certif'
+                                                                                            })
+                                                                                            setOpenDialog(true);
                                                                                         } else {
                                                                                             setInfo('document_detail')
                                                                                             let info = card
