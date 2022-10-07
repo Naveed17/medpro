@@ -67,7 +67,8 @@ function PatientDetail({...props}) {
         onCloseDialog,
         onChangeStepper,
         onAddAppointment,
-        onConsultation = null
+        onConsultation = null,
+        mutate: mutatePatientList
     } = props;
 
     const dispatch = useAppDispatch();
@@ -229,7 +230,13 @@ function PatientDetail({...props}) {
                     OnSubmitStepper={submitStepper}
                     OnAction={(action: string) => {
                         if (action === "close") {
-                            setIsAdd(false)
+                            if (patientId) {
+                                setIsAdd(false);
+                            } else {
+                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                onCloseDialog(false);
+                            }
+                            mutatePatientList();
                         }
                     }}
                     onBackButton={(index: number) => {
