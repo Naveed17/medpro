@@ -7,7 +7,7 @@ import {
     MenuItem,
     Select,
     FormGroup,
-    Checkbox,
+    Checkbox, Stack, OutlinedInput, Chip, InputLabel,
 } from "@mui/material";
 import {useRouter} from "next/router";
 import _ from "lodash";
@@ -15,12 +15,34 @@ import {useIsMountedRef} from "@app/hooks";
 import {SelectChangeEvent} from "@mui/material";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import Image from "next/image";
+import moment from "moment-timezone";
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            width: 250,
+        },
+    },
+};
+
+interface StateProps {
+    states: string;
+    type: string;
+}
 
 function PlaceFilter({...props}) {
-    const {item, t, keyPrefix = ""} = props;
+    const {item, t, keyPrefix = "", OnSearch} = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
 
+    const [queryState, setQueryState] = useState<StateProps>({
+        states: "",
+        type: ""
+    });
     const [state, setstate] = useState<{
         country: string;
         states: string[];
@@ -45,39 +67,28 @@ function PlaceFilter({...props}) {
 
     const handleChangeCity = (event: SelectChangeEvent) => {
         setstate({...state, country: event.target.value});
-        router.push({
+        /*router.push({
             query: {...router.query, city: event.target.value},
-        });
+        });*/
     };
 
-    const handleChange = (props: string, e: ChangeEvent<HTMLInputElement>) => {
-        let data = state.states;
-        if (e.target.checked) {
-            data = [...data, props.toLowerCase()];
-            setstate({...state, states: [...state.states, props.toLowerCase()]});
-            router.push({
-                query: {
-                    ...router.query,
-                    states: [...state.states, props.toLowerCase()].join("_"),
-                },
+    const handleStateChange = (event: SelectChangeEvent<string[]>) => {
+        const {target: {value}} = event;
+        const states = typeof value === 'string' ? value.split(',') : value;
+        setstate({...state, states});
+        setQueryState({...queryState, states: value as string});
+        if (value.length === 0) {
+            const query = _.omit(queryState, "states");
+            OnSearch({
+                query
             });
         } else {
-            const index = data.indexOf(props.toLowerCase());
-            data.splice(index, 1);
-            if (data.length > 0) {
-                const filtered = state.states.filter(
-                    (gen: string) => gen !== props.toLowerCase()
-                );
-                setstate({...state, states: filtered});
-                router.push({
-                    query: {...router.query, states: filtered.join("_")},
-                });
-            } else {
-                const query = _.omit(router.query, "states");
-                router.push({
-                    query,
-                });
-            }
+            OnSearch({
+                query: {
+                    ...queryState,
+                    states: value
+                }
+            });
         }
     };
 
@@ -99,7 +110,7 @@ function PlaceFilter({...props}) {
     return (
         <Box component="figure" sx={{m: 0}}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t(`${keyPrefix}${item.city?.heading}`)}
+                {t(`${keyPrefix}${item.country?.heading}`)}
             </Typography>
             <FormControl size="small" fullWidth>
                 <Select
@@ -116,51 +127,68 @@ function PlaceFilter({...props}) {
                         }
 
                         const country = countries?.find(country => country.uuid === selected);
-                        return <Typography>{country?.name}</Typography>
+                        return (
+                            <Stack direction={"row"}>
+                                <Image
+                                    alt={"flag"}
+                                    width={20}
+                                    height={14}
+                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                <Typography ml={1}>{country?.name}</Typography>
+                            </Stack>)
                     }}
                 >
                     {countries?.map((country) => (
                         <MenuItem
                             key={country.uuid}
                             value={country.uuid}>
-                            <Box component="img"
-                                 src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                            <Image
+                                alt={"flag"}
+                                width={20}
+                                height={14}
+                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                         </MenuItem>)
                     )}
                 </Select>
             </FormControl>
 
-            <FormControl sx={{mt: 1}} component="fieldset" variant="standard">
-                <FormGroup>
-                    {statesCountry?.slice(0, 10).map((c, i) => (
-                        <FormControlLabel
-                            key={i}
-                            control={
-                                <Checkbox
-                                    size="small"
-                                    checked={state.states.includes(c.uuid)}
-                                    onChange={(e) => handleChange(c.uuid, e)}
-                                    name={c.uuid}
-                                />
-                            }
-                            label={
-                                <Typography
-                                    sx={{
-                                        fontSize: 10,
-                                        span: {
-                                            ml: 1,
-                                            color: (theme) => theme.palette.primary.main,
-                                        },
-                                    }}
-                                >
-                                    {c.name}
-                                    <span>(6)</span>
-                                </Typography>
-                            }
-                        />
-                    ))}
-                </FormGroup>
+            <Typography mt={2} variant="body2" color="text.secondary" gutterBottom>
+                {t(`${keyPrefix}${item.city?.heading}`)}
+            </Typography>
+            <FormControl size="small" fullWidth>
+                <Select
+                    labelId="state-select-label"
+                    id={"state"}
+                    disabled={!state.country}
+                    value={state.states}
+                    onChange={handleStateChange}
+                    multiple
+                    size="small"
+                    displayEmpty
+                    input={<OutlinedInput id="select-multiple-chip" label="Chip"/>}
+                    sx={{color: "text.secondary"}}
+                    renderValue={(selected: string[]) => {
+                        if (selected?.length === 0) {
+                            return <em>{t(`${keyPrefix}city-placeholder`)}</em>;
+                        }
+
+                        return (<Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
+                            {selected?.map(value => (
+                                <Chip key={value} label={statesCountry?.find(state => state.uuid === value).name}/>
+                            ))}
+                        </Box>)
+                    }}
+                    MenuProps={MenuProps}
+                >
+                    {statesCountry?.map((state) => (
+                        <MenuItem
+                            key={state.uuid}
+                            value={state.uuid}>
+                            <Typography sx={{ml: 1}}>{state.name}</Typography>
+                        </MenuItem>)
+                    )}
+                </Select>
             </FormControl>
         </Box>
     );

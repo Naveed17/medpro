@@ -125,6 +125,8 @@ function Agenda() {
 
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
+    const [startTime, setStartTime] = useState("08:00:00");
+    const [endTime, setEndTime] = useState("20:00:00");
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
@@ -190,6 +192,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
+                    editable: AppointmentStatus[appointment.status].key !== "FINISHED",
                     borderColor: appointment.type?.color,
                     patient: appointment.patient,
                     overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
