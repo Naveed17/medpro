@@ -1,4 +1,4 @@
-import React, {memo, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 import dynamic from "next/dynamic";
 import {
     Box,
@@ -39,7 +39,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
     const {modal} = props
     console.log(props)
     if (modal) {
-        cmp = [...modal.default_modal.structure]
+        cmp = [...modal]
     }
 
     return (
@@ -69,30 +69,36 @@ WidgetForm.displayName = "widget-form";
 
 function Widget({...props}) {
 
-    const {modal, models} = props
+    const {modal, setModal, models} = props
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
     const [change, setChange] = useState(false);
-    const [render, setRender] = useState(true);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
-    //const [loadModel, setLoadModel] = useState(true);
-    let value = {
+    const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
         hasData: false,
         isEnabled: true,
         label: "--",
         structure: [],
         uuid: ""
-    }
-    if (modal)
-        value = modal.default_modal;
+    });
+
+    useEffect(() => {
+        if (modal)
+            setValue(modal.default_modal);
+    }, [modal])
 
     const handleClickAway = () => {
         setOpen(!open);
     };
     const handleClick = (prop: ModalModel) => {
-
+        console.log(modal)
+        console.log(prop)
+        modal.default_modal = prop
+        setModal(modal)
+        setValue(prop);
+        setOpen(false);
     };
 
     const handleCloseDialog = () => {
@@ -124,7 +130,12 @@ function Widget({...props}) {
                 </Stack>
                 <CardContent sx={{bgcolor: alpha(value?.color, 0.1)}}>
                     <Box>
-                        <WidgetForm modal={modal} models={models}></WidgetForm>
+
+                        {
+                            models.map((m: any) => (
+                                m.uuid === modal.default_modal.uuid && <WidgetForm key={m.uuid} modal={m.structure}></WidgetForm>
+                            ))
+                        }
                         {
                             pageLoading &&
                             Array.from({length: 3}).map((_, idx) =>
@@ -158,8 +169,6 @@ function Widget({...props}) {
                         exit="initial">
                         <Paper className="menu-list">
                             <MenuList>
-                                <ListItemText style={{textAlign: "center", color: "red"}}>En cours dev ( you cant change
-                                    ) </ListItemText>
                                 {models && models.map((item: any, idx: number) => (
                                     <MenuItem key={`model-item-${idx}`} onClick={() => handleClick(item)}>
                                         <ListItemIcon>

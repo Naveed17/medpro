@@ -40,7 +40,7 @@ function DocumentsTab({...props}) {
                                 } else if (card.documentType === 'medical-certificate') {
                                     setInfo('document_detail');
                                     setState({
-                                        content: card.content,
+                                        content: card.certificate[0].content,
                                         doctor: card.name,
                                         patient: card.patient,
                                         days: card.days,
