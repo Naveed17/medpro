@@ -10,7 +10,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import {MouseEvent, useEffect, useRef, useState} from "react";
 
 function CalendarViewButton({...props}) {
-    const {data, onSelect, ...rest} = props;
+    const {data, onSelect = null, ...rest} = props;
     const [width, setWidth] = useState(0);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [selected, setSelected] = useState(data[0]);
@@ -25,7 +25,9 @@ function CalendarViewButton({...props}) {
     const handleClose = (props: any) => {
         setAnchorEl(null);
         setSelected(props);
-        onSelect(props?.label);
+        if (onSelect) {
+            onSelect(props?.label);
+        }
     }
 
     useEffect(() => {
@@ -33,9 +35,12 @@ function CalendarViewButton({...props}) {
             const element = ref.current.getBoundingClientRect();
             setWidth(element.width);
         }
-        onSelect(selected?.label);
+        if (onSelect) {
+            onSelect(selected?.label);
+        }
 
     }, [onSelect, selected.label])
+
     return (
         <RootStyled>
             <Button

@@ -231,5 +231,13 @@
     }
   },
   "prescription": "Ordonnance",
-  "requested-analysis": "Demande analyse"
+  "requested-analysis": "Demande analyse",
+  "steppers": {
+    "tabs": {
+      "tab-1": "Type",
+      "tab-2": "Créneau horaire",
+      "tab-3": "Patient",
+      "tab-4": "Instruction"
+    }
+  }
 }
