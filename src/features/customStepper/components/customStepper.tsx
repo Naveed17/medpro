@@ -1,10 +1,8 @@
-import React, {useState, ReactNode, SyntheticEvent, useCallback, useEffect} from "react";
+import React, {useState, ReactNode, SyntheticEvent, useCallback} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import {RootStyled} from "@features/customStepper";
-import {useIsMountedRef} from "@app/hooks";
-import _ from "lodash";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
 
@@ -29,35 +27,7 @@ function CustomStepper({...props}) {
     } = props;
     const [value, setValue] = useState<number>(currentIndex);
     const [last, setLast] = useState<number>(1);
-    const [submited, setSubmited] = useState(false);
-    const [steppers, setSteppers] = useState();
 
-    // useEffect(() => {
-    //     console.log(last, submited)
-    //     if (last !== value) {
-    //         const listItems = stepperData.map((v: { key: string; title: string; children: ReactNode; }, i: number) => {
-    //             const Component: any = v.children;
-    //             return (
-    //                 <TabPanel key={i.toString()} value={Number(value)} index={i}>
-    //                     <Component
-    //                         OnAction={OnCustomAction}
-    //                         onNext={(index: number) => submitStepper(index)}
-    //                         onBack={() => {
-    //                             if (value > 0) {
-    //                                 setValue(value - 1);
-    //                             }
-    //                             if (onBackButton) {
-    //                                 onBackButton(value);
-    //                             }
-    //                         }}
-    //                         {...props}
-    //                     />
-    //                 </TabPanel>
-    //             );
-    //         });
-    //         setSteppers(listItems);
-    //     }
-    // }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const customActions = useCallback(
         (action: string, event: EventDef) => {
