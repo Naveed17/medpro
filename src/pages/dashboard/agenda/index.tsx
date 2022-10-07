@@ -190,6 +190,7 @@ function Agenda() {
                     end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                     title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
                     allDay: false,
+                    editable: AppointmentStatus[appointment.status].key !== "FINISHED",
                     borderColor: appointment.type?.color,
                     patient: appointment.patient,
                     overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
