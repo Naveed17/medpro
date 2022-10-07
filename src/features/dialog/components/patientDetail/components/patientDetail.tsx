@@ -132,13 +132,18 @@ function PatientDetail({ ...props }) {
                             />
                             <Tab
                                 disableRipple
-                                label={t("tabs.appointment")}
+                                label={t("tabs.patient_file")}
                                 {...a11yProps(1)}
                             />
                             <Tab
                                 disableRipple
-                                label={t("tabs.documents")}
+                                label={t("tabs.appointment")}
                                 {...a11yProps(2)}
+                            />
+                            <Tab
+                                disableRipple
+                                label={t("tabs.documents")}
+                                {...a11yProps(3)}
                             />
                         </Tabs>
                         <Divider />
@@ -150,23 +155,23 @@ function PatientDetail({ ...props }) {
                             />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            fsdf
+
+                        </TabPanel>
+                        <TabPanel padding={1} value={index} index={2}>
+
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
+
                                 <GroupTable
-                                    sx={{
-                                        "& .MuiTableCell-root": {
-                                            minHeight: 38
-                                        }
-                                    }}
                                     from="patient"
                                     loading={!patient}
                                     data={patient}
                                 />
+
                             ) : (
                                 <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
                             )}
                         </TabPanel>
-                        <TabPanel padding={2} value={index} index={2}>
+                        <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel />
                         </TabPanel>
                         <Paper

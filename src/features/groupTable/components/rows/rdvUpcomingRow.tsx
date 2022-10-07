@@ -1,8 +1,13 @@
 import React from 'react'
-
-function RdvUpcomingRow() {
+import { TableCell, TableRow } from '@mui/material';
+function RdvUpcomingRow({ ...props }) {
+    console.log(props)
     return (
-        <div>RdvUpcomingRow</div>
+        <TableRow>
+            <TableCell>
+
+            </TableCell>
+        </TableRow>
     )
 }
 
