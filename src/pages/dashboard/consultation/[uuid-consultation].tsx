@@ -29,9 +29,9 @@ import {Widget} from "@features/widget";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(({src, ...props}: any) => {
-        const {modal, models} = props;
+        const {modal, setSM, models} = props;
         return (
-            <Widget modal={modal} models={models}></Widget>
+            <Widget modal={modal} setModal={setSM} models={models}></Widget>
         )
     },
     // NEVER UPDATE
