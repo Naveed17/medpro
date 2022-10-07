@@ -22,7 +22,6 @@ import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer, setView} from "@features/calendar";
-import ExportEventIcon from "@themes/overrides/icons/exportEventIcon";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
@@ -53,8 +52,8 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
 
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", icon: TodayIcon},
-        {value: "timeGridWeek", label: "Week", icon: DayIcon},
-        {value: "dayGridMonth", label: "Month", icon: WeekIcon},
+        {value: "timeGridWeek", label: "Weeks", icon: DayIcon},
+        {value: "dayGridMonth", label: "Months", icon: WeekIcon},
         {value: "listWeek", label: "Agenda", icon: GridIcon},
         // {value: "export", label: "Export", icon: ExportEventIcon},
     ];
@@ -70,7 +69,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
         <RootStyled {...props}>
             <Box>
                 <Hidden smDown>
-                    <Tooltip title={"today"} TransitionComponent={Zoom}>
+                    <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
                         <IconButton
                             onClick={onToday}
                             aria-label="Calendar"
@@ -131,7 +130,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                         <Tooltip key={viewOption.value}
                                  TransitionComponent={Zoom}
                                  onClick={() => viewOption.value !== "export" && handleViewChagne(viewOption.value)}
-                                 title={viewOption.label}>
+                                 title={t(`times.${viewOption.label.toLowerCase()}`, {ns: "common"})}>
                             <ToggleButtonStyled
                                 value="dayGridMonth"
                                 sx={{
