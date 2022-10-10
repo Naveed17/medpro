@@ -60,9 +60,9 @@ function RDVRow({ ...props }) {
         (data: PatientDetailsRDV) => (
           <React.Fragment key={Math.random()}>
             {matches ? (
-              <RDVCard t={t} loading={loading} inner={data} {...{patient}} />
+              <RDVCard t={t} inner={data} {...{patient, loading}} />
             ) : (
-              <RDVMobileCard loading={loading} inner={data} />
+              <RDVMobileCard {...{loading}} inner={data} />
             )}
           </React.Fragment>
         )
@@ -102,8 +102,7 @@ function RDVRow({ ...props }) {
                   {matches ? (
                     <RDVCard
                       inner={inner}
-                      {...{patient}}
-                      loading={loading}
+                      {...{patient, loading}}
                       key={Math.random()}
                     />
                   ) : (
