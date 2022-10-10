@@ -37,7 +37,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
 
     let cmp: any[] = [];
     const {modal} = props
-    console.log(props)
     if (modal) {
         cmp = [...modal]
     }
@@ -47,10 +46,11 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
             <Form
                 onChange={(ev: any) => {
                     console.log('changes detected', ev.data)
-                    localStorage.setItem('Modeldata', JSON.stringify(ev.data))
-                }}
-                onRender={() => {
+                    if (ev.data.taille && ev.data.poids){
+                        ev.data.imc = ev.data.poids / Math.pow(ev.data.taille,2)
+                    }
 
+                    localStorage.setItem('Modeldata', JSON.stringify(ev.data))
                 }}
                 // @ts-ignore
                 submission={{data: JSON.parse(localStorage.getItem('Modeldata'))}}
@@ -73,7 +73,6 @@ function Widget({...props}) {
     const [open, setOpen] = useState(false);
     const [pageLoading, setPageLoading] = useState(false);
     const [change, setChange] = useState(false);
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [openDialog, setOpenDialog] = useState(false);
     const [value, setValue] = useState<ModalModel>({
         color: "#FEBD15",
@@ -93,8 +92,6 @@ function Widget({...props}) {
         setOpen(!open);
     };
     const handleClick = (prop: ModalModel) => {
-        console.log(modal)
-        console.log(prop)
         modal.default_modal = prop
         setModal(modal)
         setValue(prop);
