@@ -3,7 +3,7 @@ import { PersonalInfoCard, BackgroundCard } from "@features/card";
 
 function PersonInfoPanel({ ...props }) {
   return (
-    <div>
+    <div className={"container"}>
       <PersonalInfoCard {...props} />
       <BackgroundCard {...props} />
     </div>
