@@ -49,3 +49,4 @@ yarn-error.log*
 # Waypoint
 waypoint.hcl
 .wpoutputs/
+kustomize/

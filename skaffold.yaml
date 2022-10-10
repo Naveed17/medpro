@@ -1,0 +1,39 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+build:
+  artifacts:
+    - image: ghcr.io/smartmedsa/med-pro
+      hooks:
+        before:
+          - command: [ "bash", "-c", "envsubst < .env.local.dist  > .env" ]
+  local:
+    useDockerCLI: true
+    useBuildkit: true
+    push: true
+  tagPolicy:
+    customTemplate:
+      template: "{{.WORKSPACE}}-{{.SHA}}"
+      components:
+        - name: WORKSPACE
+          envTemplate:
+            template: "{{.WORKSPACE}}"
+        - name: SHA
+          gitCommit:
+            variant: AbbrevCommitSha
+            ignoreChanges: true
+deploy:
+  kustomize:
+    paths:
+      - "./kustomize/overlay/{{ .ENVIRONMENT }}"
+    hooks:
+      before:
+        - host:
+            command: [ "bash", "-c", " for FILE in ./kustomize/overlay/$ENVIRONMENT/*.tpl; do envsubst < $FILE > ${FILE/'.tpl'/} ; done" ]
+
+      after:
+        - host:
+            command: [ "bash", "-c", "echo ::set-output name=host::'https://'${INGRESS_HOST}" ]
+        - host:
+            command: [ "bash" , "-c", "for FILE in ./kustomize/overlay/$ENVIRONMENT/*.yaml; do [[ -e $FILE ]] && rm $FILE ; done"]
+
+
