@@ -205,6 +205,7 @@ function Calendar({...props}) {
                     {view === "listWeek" ? (
                         <Box className="container">
                             <Otable
+                                {...{spinner}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -212,10 +213,9 @@ function Calendar({...props}) {
                                     handleTableEvent(action, eventData)
                                 }
                                 from={"calendar"}
-                                spinner={spinner}
                                 t={translation}
                             />
-                            {eventGroupByDay.length === 0 && (
+                            {(!spinner && eventGroupByDay.length === 0) && (
                                 <NoDataCard t={translation} data={AddAppointmentCardData}/>
                             )}
                         </Box>
