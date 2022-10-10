@@ -33,3 +33,4 @@ export * from './patientMobileCard';
 export * from './paymentMobileCard'
 export * from './paymentDialogMobileCard'
 export * from './patientContactDetailCard'
+export * from './rdvPreviousCard'

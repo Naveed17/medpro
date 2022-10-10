@@ -94,7 +94,7 @@ function HistoryTab({ ...props }) {
 
         }
     }, [appointement, appuuid])
-
+    console.log(apps)
     return (
         <>
             <Stack spacing={2} mb={2} alignItems="flex-start">

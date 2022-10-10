@@ -10,7 +10,6 @@ import RootStyled from "./overrides/rootStyled";
 import { ModelDot } from '@features/modelDot'
 function RdvCard({ ...props }) {
   const { inner, loading } = props;
-  console.log(inner)
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "patient-details",
   });

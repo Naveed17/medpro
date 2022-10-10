@@ -163,7 +163,7 @@ function PatientDetailsCard({ ...props }) {
                 )}
                 </>
             }
-            <Box ml='auto'>
+            <Box ml={{ lg: 'auto', xs: 0 }}>
                 <QrCodeScanner value="123" width={80} height={80} />
             </Box>
         </RootStyled>

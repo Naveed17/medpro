@@ -8,7 +8,7 @@ import {
   Skeleton,
 } from "@mui/material";
 // components
-import { RDVCard, RDVMobileCard } from "@features/card/";
+import { RDVCard, RDVMobileCard, RDVPreviousCard } from "@features/card";
 // utils
 import { useTranslation } from "next-i18next";
 import _ from "lodash";
@@ -100,7 +100,7 @@ function RDVRow({ ...props }) {
               (inner: any) => (
                 <React.Fragment key={Math.random()}>
                   {matches ? (
-                    <RDVCard
+                    <RDVPreviousCard
                       inner={inner}
                       loading={loading}
                       key={Math.random()}
