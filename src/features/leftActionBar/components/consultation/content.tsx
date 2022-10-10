@@ -26,6 +26,7 @@ import { useRequestMutation } from "@app/axios";
 import { useRouter } from "next/router";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import {setAppointmentPatient} from "@features/tabPanel";
 
 const Content = ({ ...props }) => {
     const { id, patient } = props;
@@ -102,8 +103,10 @@ const Content = ({ ...props }) => {
         setOpenDialog(false);
         setInfo('');
     }
+
     const handleOpen = (action: string) => {
         if (action === "consultation") {
+            dispatch(setAppointmentPatient(patient));
             dispatch(openDrawer({ type: "add", open: true }));
             return
         }

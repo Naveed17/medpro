@@ -1,6 +1,7 @@
 import { styled } from '@mui/material/styles';
 
 const RootStyled = styled('div')(({ theme }) => ({
+    opacity: 0,
     '& .MuiButton-root': {
         paddingLeft: theme.spacing(1.5),
         paddingRight: theme.spacing(1.5),

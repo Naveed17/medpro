@@ -66,7 +66,7 @@ function Consultation() {
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
                                     {patient?.birthdate
-                                        ? moment().diff(new Date(patient?.birthdate), "years")
+                                        ? moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")
                                         : "--"}{" "}
                                     {t("year")})
                                 </Typography></>}

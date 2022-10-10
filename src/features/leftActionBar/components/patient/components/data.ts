@@ -24,18 +24,14 @@ const rightActionData = {
           icon: "ic-pin",
           title: "place",
         },
+        country: {
+          heading: "country",
+          placeholder: "enter-country",
+        },
         city: {
           heading: "city",
-          placeholder: "enter-city",
-          cities: [
-            "Lahore",
-            "Karachi",
-            "Islamabad",
-            "Rawalpindi",
-            "Quetta",
-            "Peshawar",
-          ],
-        },
+          placeholder: "enter-city"
+        }
       },
       {
         heading: {

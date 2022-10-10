@@ -21,7 +21,15 @@ import { DrawerBottom } from "@features/drawerBottom";
 import { ConsultationFilter } from "@features/leftActionBar";
 import { agendaSelector, openDrawer, setStepperIndex } from "@features/calendar";
 import { uniqueId } from 'lodash'
-import { DocumentsTab, FeesTab, HistoryTab, Instruction, Patient, TabPanel, TimeSchedule } from "@features/tabPanel";
+import {
+    DocumentsTab,
+    EventType,
+    FeesTab,
+    HistoryTab,
+    Instruction,
+    TabPanel,
+    TimeSchedule
+} from "@features/tabPanel";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from 'react-simple-image-viewer';
 import { Widget } from "@features/widget";
@@ -29,9 +37,9 @@ import { Widget } from "@features/widget";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(({ src, ...props }: any) => {
-    const { modal, models } = props;
+    const { modal, setSM, models } = props;
     return (
-        <Widget modal={modal} models={models}></Widget>
+        <Widget modal={modal} setModal={setSM} models={models}></Widget>
     )
 },
     // NEVER UPDATE
@@ -83,12 +91,13 @@ function ConsultationInProgress() {
 
     const EventStepper = [
         {
+            title: "steppers.tabs.tab-1",
+            children: EventType,
+            disabled: true
+        },
+        {
             title: "steppers.tabs.tab-2",
             children: TimeSchedule,
-            disabled: true
-        }, {
-            title: "steppers.tabs.tab-3",
-            children: Patient,
             disabled: true
         }, {
             title: "steppers.tabs.tab-4",
@@ -146,6 +155,7 @@ function ConsultationInProgress() {
             setSheet((httpSheetResponse as HttpResponse)?.data)
         }
     }, [httpSheetResponse])
+
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal)
@@ -179,10 +189,12 @@ function ConsultationInProgress() {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [appointement, dispatch, mutate])
+
     useEffect(() => {
         setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
         setActs((httpMPResponse as HttpResponse)?.data[0].acts)
     }, [httpMPResponse])
+
     useEffect(() => {
         let fees = 0;
         let uuids: string[] = [];
@@ -193,6 +205,7 @@ function ConsultationInProgress() {
         setTotal(fees)
         setSelectedUuid(uuids)
     }, [selectedAct, appointement])
+
     useEffect(() => {
         if (patientId) {
             setopen(true);
@@ -377,12 +390,11 @@ function ConsultationInProgress() {
                 >
                     <Box height={"100%"}>
                         <CustomStepper
-                            currentIndex={currentStepper}
+                            {...{ currentStepper, t }}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             stepperData={EventStepper}
                             scroll
-                            t={t}
                             minWidth={726} />
                     </Box>
                 </Drawer>

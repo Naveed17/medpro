@@ -4,8 +4,6 @@ import { Label } from "@features/label";
 import {
     Box,
     Button,
-    Card,
-    CardContent,
     Collapse,
     Drawer,
     Grid,
@@ -18,8 +16,6 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { useAppSelector } from "@app/redux/hooks";
-import Icon from "@themes/icon";
-import { capitalize } from 'lodash'
 import { AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer } from "@features/dialog";
 
 function HistoryTab({ ...props }) {
@@ -94,7 +90,6 @@ function HistoryTab({ ...props }) {
 
         }
     }, [appointement, appuuid])
-    console.log(apps)
     return (
         <>
             <Stack spacing={2} mb={2} alignItems="flex-start">
@@ -225,6 +220,17 @@ function HistoryTab({ ...props }) {
                                                                                     onClick={() => {
                                                                                         if (card.documentType === 'photo') {
                                                                                             setIsViewerOpen(card.uri)
+                                                                                        } else if (card.documentType === 'medical-certificate') {
+                                                                                            setInfo('document_detail');
+                                                                                            setState({
+                                                                                                content: card.certificate[0].content,
+                                                                                                doctor: card.name,
+                                                                                                patient: card.patient,
+                                                                                                days: card.days,
+                                                                                                name: 'certif',
+                                                                                                type: 'write_certif'
+                                                                                            })
+                                                                                            setOpenDialog(true);
                                                                                         } else {
                                                                                             setInfo('document_detail')
                                                                                             let info = card

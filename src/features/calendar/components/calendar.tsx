@@ -59,8 +59,7 @@ function Calendar({...props}) {
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
-    const [events, setEvents] =
-        useState<ConsultationReasonTypeModel[]>(appointments);
+    const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(currentDate.date);
@@ -284,7 +283,7 @@ function Calendar({...props}) {
                                 height={"80vh"}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
-                                slotMaxTime={"20:20:00"}
+                                slotMaxTime={"20:00:00"}
                                 businessHours={daysOfWeek}
                                 firstDay={1}
                                 initialView={view}
@@ -336,9 +335,11 @@ function Calendar({...props}) {
                                     data.action === "onConsultationView" && eventMenu?.extendedProps.status.key !== "FINISHED" ||
                                     data.action === "onConsultationDetail" && eventMenu?.extendedProps.status.key === "FINISHED" ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
-                                    data.action === "onCancel" && eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                    data.action === "onCancel" && (eventMenu?.extendedProps.status.key === "CANCELED" ||
+                                        eventMenu?.extendedProps.status.key === "FINISHED") ||
                                     data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
-                                    data.action === "onPatientNoShow" && moment().isBefore(eventMenu?.extendedProps.time) ||
+                                    data.action === "onPatientNoShow" && (moment().isBefore(eventMenu?.extendedProps.time) ||
+                                        eventMenu?.extendedProps.status.key === "FINISHED") ||
                                     data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
                                 )).map((v: any) => (
                                         <IconButton

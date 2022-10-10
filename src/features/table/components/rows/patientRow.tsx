@@ -172,6 +172,10 @@ function PatientRow({...props}) {
                         </Stack>
                     ) : (
                         <Button
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleEvent("ADD_APPOINTMENT", row);
+                            }}
                             variant="text"
                             size="small"
                             color="primary"

@@ -31,7 +31,7 @@ import {useRequest} from "@app/axios";
 import {
     AddPatientStep1,
     AddPatientStep2,
-    AddPatientStep3, onResetPatient,
+    AddPatientStep3, onResetPatient, setAppointmentPatient,
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {PatientDetail} from "@features/dialog";
@@ -172,11 +172,18 @@ function Patient() {
     const handleTableActions = (action: string, event: PatientModel) => {
         switch (action) {
             case "PATIENT_DETAILS":
+                setAddAppointment(false);
                 setPatientDetailDrawer(true);
                 break;
             case "EDIT_PATIENT":
                 setSelectedPatient(event);
                 setPatientDrawer(true);
+                break;
+            case "ADD_APPOINTMENT":
+                dispatch(setAppointmentPatient(event as any));
+                setAddAppointment(true);
+                setSelectedPatient(event);
+                setPatientDetailDrawer(true);
                 break;
         }
     }
@@ -223,19 +230,15 @@ function Patient() {
                     setPatientDetailDrawer(false);
                 }}
             >
-                {!isAddAppointment && (
-                    <PatientDetail
-                        onCloseDialog={() => {
-                            dispatch(onOpenPatientDrawer({patientId: ""}));
-                            setPatientDetailDrawer(false);
-                        }}
-                        onChangeStepper={(index: number) =>
-                            console.log("onChangeStepper", index)
-                        }
-                        onAddAppointment={() => console.log("onAddAppointment")}
-                        patientId={patientId}
-                    />
-                )}
+                <PatientDetail
+                    {...{isAddAppointment, mutate}}
+                    onCloseDialog={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                    patientId={patientId}
+                />
             </Drawer>
             <Drawer
                 anchor={"right"}

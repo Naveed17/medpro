@@ -73,7 +73,9 @@ main {
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
-
+  .sr-only{
+    visibility: hidden;
+  }
   label {
     float: left;
     width: 6rem;

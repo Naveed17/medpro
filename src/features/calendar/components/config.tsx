@@ -24,7 +24,7 @@ export const IconsTypes: any = {
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {key: "PENDING", value: "En attende", color: "#FFD400"},
     1: {key: "CONFIRMED", value: "Confirmé", color: "#1BC47D"},
-    2: {key: "REFUSED", value: "Effectué", color: "#E83B68"},
+    2: {key: "REFUSED", value: "Refusé", color: "#E83B68"},
     3: {key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B"},
     4: {key: "ON_GOING", value: "En consultation", color: "#1939B7"},
     5: {key: "FINISHED", value: "Effectué", color: "#0096d6"},
