@@ -1,6 +1,6 @@
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState, useRef } from "react";
 import { DashLayout } from "@features/base";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
@@ -18,6 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import { ActFeesDialog } from "@features/dialog";
+import { uniqueId } from 'lodash'
 
 interface HeadCell {
     disablePadding: boolean;
@@ -43,48 +44,36 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "amount",
         sortable: true,
-        align: "center",
-    },
-    {
-        id: "actions",
-        numeric: false,
-        disablePadding: false,
-        label: "actions",
-        sortable: false,
         align: "right",
     },
 
 ];
 
 function ActFees() {
-
     const { data: session } = useSession();
     const [mainActes, setMainActes] = useState<any>([]);
+    const didMountRef = useRef<boolean>(false);
     const router = useRouter();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [selected, setselected] = useState();
+    const [selected, setselected] = useState<any>({});
     const [edit, setEdit] = useState(false);
     const { direction } = useAppSelector(configSelector);
     const [stateAct, setstateAct] = useState({
-        "uuid": "",
+        "uuid": uniqueId(),
         "isTopAct": true,
         fees: 0,
         "act": {
             "uuid": "",
-            "name": "",
+            "name": "demo",
             "description": "",
             "weight": 0
         }
     });
     const initalData = Array.from(new Array(8));
-
     const { data: user } = session as Session;
-
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
     const { trigger } = useRequestMutation(null, "/settings/acts");
-
     const { data: httpProfessionalsActs, error: errorActs, mutate } = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
@@ -96,13 +85,26 @@ function ActFees() {
             setMainActes(((httpProfessionalsActs as any).data) as ActModel[])
         }
     }, [httpProfessionalsActs]);
-    const handleCloseDialogAct = () => {
-        setOpenDialog(false);
-    }
-    const closeDraw = () => {
-        setEdit(false);
-    }
-    const handleSaveDialog = () => {
+
+    useEffect(() => {
+        if (didMountRef.current) {
+            const form = new FormData();
+            form.append("attribute", "price");
+            form.append("value", `${selected.fees}`);
+            trigger({
+                method: "PATCH",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + selected.uuid + '/' + router.locale,
+                data: form,
+                headers: {
+                    ContentType: 'multipart/form-data',
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, { revalidate: true, populateCache: true }).then((r) => mutate());
+        }
+        didMountRef.current = true;
+    }, [selected])
+
+    const handleCreate = () => {
         const form = new FormData();
         form.append('name', JSON.stringify({
             "fr": stateAct.act.name,
@@ -117,13 +119,10 @@ function ActFees() {
                 Authorization: `Bearer ${session?.accessToken}`
             }
         }, { revalidate: true, populateCache: true }).then(r => mutate())
-        setOpenDialog(false);
+
 
     }
-    const handleEdit = (v: any) => {
-        setselected(v)
-        setEdit(true)
-    };
+
     const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
     if (!ready) return <>loading translations...</>;
 
@@ -139,12 +138,12 @@ function ActFees() {
                     headers={headCells}
                     rows={mainActes}
                     from={"actfees"}
-                    edit={handleEdit}
+                    edit={setselected}
                     t={t}
                 />
 
                 <Button
-                    onClick={() => setOpenDialog(true)}
+                    onClick={() => handleCreate()}
                     size='small' sx={{
                         '& .react-svg svg': {
                             width: theme => theme.spacing(1.5),
@@ -152,39 +151,6 @@ function ActFees() {
                         }
                     }} startIcon={<IconUrl path="ic-plus" />}>{t("add_a_new_act")}</Button>
             </Box>
-            <Dialog action={'add_act'}
-                open={openDialog}
-                data={{ stateAct, setstateAct, t }}
-                size={"sm"}
-                direction={'ltr'}
-                title={t('add_a_new_act')}
-                sx={{ height: 200 }}
-                dialogClose={handleCloseDialogAct}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={handleCloseDialogAct}
-                            startIcon={<CloseIcon />}>
-                            {t('cancel')}
-                        </Button>
-                        <Button disabled={!(stateAct.fees && stateAct.act.name)} variant="contained"
-                            onClick={handleSaveDialog}
-                            startIcon={<IconUrl
-                                path='ic-dowlaodfile' />}>
-                            {t('save')}
-                        </Button>
-                    </DialogActions>
-                } />
-            <Drawer
-                anchor={'right'}
-                open={edit}
-                dir={direction}
-                onClose={closeDraw}>
-                <ActFeesDialog
-                    data={selected}
-                    mutateEvent={mutate}
-                    closeDraw={closeDraw}
-                />
-            </Drawer>
         </>
     );
 }
