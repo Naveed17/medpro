@@ -8,6 +8,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,
         '--fc-event-border-color': theme.palette.info.light,
+        '--fc-non-business-color': 'rgba(221, 238, 246, 0.4)',
         '--fc-now-indicator-color': theme.palette.error.main,
         '--fc-today-bg-color': theme.palette.action.selected,
         '--fc-page-bg-color': theme.palette.background.default,

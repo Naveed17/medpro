@@ -69,11 +69,6 @@ const RootStyled = styled("div")(({theme}) => ({
                 fill: theme.palette.error.main,
             },
         },
-        /*        svg: {
-                    width: 8,
-                    height: 8,
-                    margin: theme.spacing(0, 0.5),
-                },*/
         "&:before": {
             content: '""',
             position: "absolute",
@@ -110,6 +105,10 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .fc .fc-timegrid-slot-minor": {
         borderTopStyle: "none",
     },
+    "& .fc-non-business": {
+        /* avec plusieurs longueurs pour les points d'arrêt */
+        backgroundImage: "repeating-linear-gradient(-45deg, transparent 0 20px, rgba(132, 132, 142, 0.1) 20px 40px)"
+    }
 }));
 
 export default RootStyled;
