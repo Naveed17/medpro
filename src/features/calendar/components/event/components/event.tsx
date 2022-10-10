@@ -1,12 +1,9 @@
 import {Box, Chip, Popover, Typography} from "@mui/material";
-import IconUrl from "@themes/urlIcon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import {useRouter} from "next/router";
 import SalleIcon from "@themes/overrides/icons/salleIcon";
-import CabinetIcon from "@themes/overrides/icons/cabinetIcon";
-import {AppointmentPatientCard} from "@features/card";
+import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
@@ -135,7 +132,7 @@ function Event({...props}) {
                               }}
                               size="small"
                               color={"primary"}/>}
-                    <AppointmentPatientCard
+                    <AppointmentPopoverCard
                         style={{width: "300px", border: "none"}}
                         data={appointment}/>
                 </>

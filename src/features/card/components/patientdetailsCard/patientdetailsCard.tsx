@@ -11,8 +11,6 @@ import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
-import MenIcon from "@themes/overrides/icons/menIcon";
-import WomenIcon from "@themes/overrides/icons/womenIcon";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
