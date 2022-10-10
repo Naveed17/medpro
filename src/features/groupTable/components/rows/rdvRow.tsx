@@ -14,12 +14,12 @@ import { useTranslation } from "next-i18next";
 import _ from "lodash";
 
 function RDVRow({ ...props }) {
-  const { data, loading } = props;
+  const { data: patient, loading } = props;
   const matches = useMediaQuery("(min-width:900px)");
 
   const mapped =
     !loading &&
-    data.previousAppointments?.map((v: any) => {
+      patient.previousAppointments?.map((v: any) => {
       return {
         ...v,
         year: v.dayDate.slice(-4),
@@ -41,7 +41,7 @@ function RDVRow({ ...props }) {
   if (!ready) return <>loading translations...</>;
   return (
     <React.Fragment>
-        {data?.nextAppointments.length > 0 && <TableRow>
+        {patient?.nextAppointments.length > 0 && <TableRow>
             <TableCell colSpan={3} className="text-row">
                 <Typography variant="body1" color="text.primary">
                     {loading ? (
@@ -49,25 +49,25 @@ function RDVRow({ ...props }) {
                     ) : (
                         <>
                             {t("pending-appo")}{" "}
-                            {data.nextAppointments.length > 1 &&
-                                `(${data.nextAppointments.length})`}
+                            {patient.nextAppointments.length > 1 &&
+                                `(${patient.nextAppointments.length})`}
                         </>
                     )}
                 </Typography>
             </TableCell>
         </TableRow>}
-      {(loading ? Array.from(new Array(3)) : data.nextAppointments).map(
+      {(loading ? Array.from(new Array(3)) : patient.nextAppointments).map(
         (data: PatientDetailsRDV) => (
           <React.Fragment key={Math.random()}>
             {matches ? (
-              <RDVCard t={t} loading={loading} inner={data} />
+              <RDVCard t={t} inner={data} {...{patient, loading}} />
             ) : (
-              <RDVMobileCard loading={loading} inner={data} />
+              <RDVMobileCard {...{loading}} inner={data} />
             )}
           </React.Fragment>
         )
       )}
-      {data.previousAppointments.length > 0 && <TableRow>
+      {patient.previousAppointments.length > 0 && <TableRow>
         <TableCell colSpan={3} className="text-row">
           <Typography variant="body1" color="text.primary">
             {loading ? (
@@ -75,8 +75,8 @@ function RDVRow({ ...props }) {
             ) : (
                 <>
                   {t("old-appo")}{" "}
-                  {data.previousAppointments.length > 1 &&
-                      `(${data.previousAppointments.length})`}
+                  {patient.previousAppointments.length > 1 &&
+                      `(${patient.previousAppointments.length})`}
                 </>
             )}
           </Typography>
@@ -102,7 +102,7 @@ function RDVRow({ ...props }) {
                   {matches ? (
                     <RDVCard
                       inner={inner}
-                      loading={loading}
+                      {...{patient, loading}}
                       key={Math.random()}
                     />
                   ) : (

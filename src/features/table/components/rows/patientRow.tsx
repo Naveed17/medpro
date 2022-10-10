@@ -78,7 +78,7 @@ function PatientRow({...props}) {
                                             ) : (
                                                 <>
                                                     <Icon path="ic-anniverssaire"/> {row.birthdate} - {" "}
-                                                    {moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years")}ans
+                                                    {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                                 </>
                                             )}
                                         </Typography>
@@ -86,21 +86,6 @@ function PatientRow({...props}) {
                                 </>
                             )}
                         </Typography>
-                        {/*<Typography
-                            variant="body2"
-                            component="span"
-                            color="text.secondary"
-                            className="text-time"
-                        >
-                            {loading ? (
-                                <Skeleton variant="text" width={100}/>
-                            ) : (
-                                <>
-                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
-                                    {moment().diff(new Date(row.birthdate), "years")} ans
-                                </>
-                            )}
-                        </Typography>*/}
                     </Box>
                 </Box>
             </TableCell>
