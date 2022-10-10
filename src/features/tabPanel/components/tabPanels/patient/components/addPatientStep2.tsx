@@ -71,7 +71,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+    const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
@@ -114,7 +114,9 @@ function AddPatientStep2({...props}) {
             "is_support": false
         }));
         form.append('gender', gender);
-        form.append('birthdate', `${day}-${month}-${year}`);
+        if (day && month && year) {
+            form.append('birthdate', `${day}-${month}-${year}`);
+        }
         form.append('address', JSON.stringify({
             fr: values.address
         }));

@@ -14,7 +14,7 @@ import {
     Button,
     Select,
     Stack,
-    FormHelperText,
+    FormHelperText, MenuItem,
 } from "@mui/material";
 import {addPatientSelector, onAddPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -60,11 +60,6 @@ function AddPatientStep1({...props}) {
             .min(8, t("telephone-error"))
             .matches(phoneRegExp, t("telephone-error"))
             .required(t("telephone-error")),
-        birthdate: Yup.object().shape({
-            day: Yup.string().required(t("date-error")),
-            month: Yup.string().required(t("date-error")),
-            year: Yup.string().required(t("date-error")),
-        }),
         gender: Yup.string().required(t("gender-error"))
     });
 
@@ -105,6 +100,9 @@ function AddPatientStep1({...props}) {
         dispatch(onAddPatient({...stepsData, step1: values}));
     };
     const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+
+    console.log(values);
+
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -138,7 +136,8 @@ function AddPatientStep1({...props}) {
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
-                            {(touched.gender && errors.gender) && <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
+                            {(touched.gender && errors.gender) &&
+                                <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
                     <Box>
@@ -202,9 +201,6 @@ function AddPatientStep1({...props}) {
                             component="span"
                         >
                             {t("date-of-birth")}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
                         </Typography>
                         <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
                             <FormControl size="small" fullWidth>
@@ -213,32 +209,31 @@ function AddPatientStep1({...props}) {
                                     id={"day"}
                                     {...getFieldProps("birthdate.day")}
                                     value={values.birthdate.day}
-                                    displayEmpty={true}
+                                    displayEmpty
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value: string) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("day")
-                                    }
+                                    renderValue={(value: string) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("day")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {Array.from(
                                         Array(
                                             moment(
-                                                `${values.birthdate.year}-${values.birthdate.month}`,
+                                                `1970-01`,
                                                 "YYYY-MM"
                                             ).daysInMonth()
                                         ).keys()
                                     ).map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={i > 9 ? `${i}` : `0${i + 1}`}
                                         >
-                                            {i + 1}
-                                        </option>
+                                            <Typography>{i + 1}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
@@ -255,23 +250,22 @@ function AddPatientStep1({...props}) {
                                     value={values.birthdate.month}
                                     displayEmpty={true}
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("month")
-                                    }
+                                    renderValue={(value) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("month")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {moment.monthsShort().map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={i > 9 ? `${i}` : `0${i + 1}`}
                                         >
-                                            {v}
-                                        </option>
+                                            <Typography>{v}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
@@ -288,23 +282,22 @@ function AddPatientStep1({...props}) {
                                     value={values.birthdate.year}
                                     displayEmpty={true}
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("year")
-                                    }
+                                    renderValue={(value) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("year")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {Array.from(Array(100).keys()).map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={`${moment().year() - 100 + i + 1}`}
                                         >
-                                            {moment().year() - 100 + i + 1}
-                                        </option>
+                                            <Typography>{moment().year() - 100 + i + 1}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (

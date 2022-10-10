@@ -257,6 +257,7 @@ function Instruction({...props}) {
                                         value={rappel}
                                         onChange={handleRappelChange}
                                     >
+                                        <MenuItem value={"0"}>{t("stepper-3.day")} 0</MenuItem>
                                         <MenuItem value={"1"}>{t("stepper-3.day")} 1</MenuItem>
                                         <MenuItem value={"2"}>{t("stepper-3.day")} 2</MenuItem>
                                         <MenuItem value={"3"}>{t("stepper-3.day")} 3</MenuItem>

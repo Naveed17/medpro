@@ -2,7 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Card } from "@mui/material";
 const DetailCardStyled = styled(Card)(({ theme }) => ({
     border: `1px solid ${theme.palette.grey["A900"]}`,
-    margin: 0,
+    margin: "0.5rem",
     overflow: "visible",
     padding: theme.spacing(1, 1.5),
     '&:not(style)+:not(style)': {

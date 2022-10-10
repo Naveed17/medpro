@@ -13,16 +13,16 @@ const initialState: MenuState = {
             first_name: "",
             last_name: "",
             birthdate: {
-                day: "01",
-                month: "01",
-                year: "1970",
+                day: "",
+                month: "",
+                year: "",
             },
             country_code: "",
             phone: "",
             gender: ""
         },
         step2: {
-            country: "",
+            country: "98b08199-a1d8-44bc-8b33-1203195b718e", // TN
             region: "",
             zip_code: "",
             address: "",
