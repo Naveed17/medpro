@@ -4,12 +4,12 @@ import { Stack } from "@mui/material";
 
 function PersonInfoPanel({ ...props }) {
   return (
-    <Stack spacing={2}>
+    <div className={"container"}>
       <PersonalInfoCard {...props} />
       <PatientDetailContactCard {...props} />
       <BackgroundCard {...props} />
 
-    </Stack>
+    </div>
   );
 }
 export default PersonInfoPanel;

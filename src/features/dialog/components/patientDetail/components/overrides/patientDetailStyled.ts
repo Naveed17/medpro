@@ -7,6 +7,9 @@ const PatientDetailStyled = styled(Box)(({ theme }) => ({
         "& div[role='tabpanel']": {
             height: { md: "calc(100vh - 284px)", xs: "auto" },
             overflowY: "auto",
+            "& .container": {
+                marginBottom: "6rem"
+            }
         },
     }
 }));

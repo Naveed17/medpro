@@ -131,7 +131,7 @@ function PatientDetail({ ...props }) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        patient={patient}
+                        {...{ patient }}
                         onConsultation={onConsultation}
                     />
                     <Box className={"container"} sx={{ width: { md: 726, xs: "100%" } }}>
@@ -167,7 +167,7 @@ function PatientDetail({ ...props }) {
                         <TabPanel padding={1} value={index} index={0}>
                             <PersonalInfoPanel
                                 loading={!patient}
-                                patient={patient}
+                                {...{ patient }}
                                 mutate={mutate}
                             />
                         </TabPanel>
@@ -189,7 +189,7 @@ function PatientDetail({ ...props }) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{ documents }} />
+                            <DocumentsPanel {...{ documents, patient }} />
                         </TabPanel>
                         <Paper
                             className={"action-buttons"}
@@ -256,7 +256,7 @@ function PatientDetail({ ...props }) {
                             if (patientId) {
                                 setIsAdd(false);
                             } else {
-                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                dispatch(onOpenPatientDrawer({ patientId: "" }));
                                 onCloseDialog(false);
                             }
                             mutatePatientList();

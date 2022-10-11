@@ -43,7 +43,7 @@ function CipCard() {
         <CipCardStyled onClick={handleConsultation}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 1.7}}>
                 <IconButton size="small">
-                    {isActive && !isPaused ? <PauseCircleFilledRoundedIcon/> : <PlayCircleRoundedIcon/>}
+                    <PlayCircleRoundedIcon/>
                 </IconButton>
                 <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
                     {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}
