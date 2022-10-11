@@ -1,20 +1,19 @@
-import "firebase/messaging";
-import firebase from "firebase/compat";
+import firebase from 'firebase/compat/app';
+import "firebase/compat/messaging";
 
 const firebaseCloudMessaging = {
     init: async () => {
         if (!firebase?.apps?.length) {
-
             // Initialize the Firebase app with the credentials
             firebase?.initializeApp({
-                apiKey: "AIzaSyCvTRLwdDiRw9yqErIQH66PxSd1rpEjfT0",
-                authDomain: "android-app-291211.firebaseapp.com",
-                databaseURL: "https://android-app-291211.firebaseio.com",
-                projectId: "android-app-291211",
-                storageBucket: "android-app-291211.appspot.com",
-                messagingSenderId: "945400370872",
-                appId: "1:945400370872:web:6023eb6b9235c48eac064d",
-                measurementId: "G-PMY89G91XT"
+                apiKey: process.env.NEXT_PUBLIC_FCM_API_KEY,
+                authDomain: process.env.NEXT_PUBLIC_FCM_AUTH_DOMAIN,
+                databaseURL: process.env.NEXT_PUBLIC_FCM_DATABASE_URL,
+                projectId: process.env.NEXT_PUBLIC_FCM_PROJECT_ID,
+                storageBucket: process.env.NEXT_PUBLIC_FCM_STORAGE_BUCKET,
+                messagingSenderId: process.env.NEXT_PUBLIC_FCM_MESSAGING_SENDER_ID,
+                appId: process.env.NEXT_PUBLIC_FCM_APP_ID,
+                measurementId: process.env.NEXT_PUBLIC_FCM_MEASUREMENT_ID
             });
 
             try {
@@ -31,7 +30,7 @@ const firebaseCloudMessaging = {
                 if (status && status === "granted") {
                     // Get new token from Firebase
                     const fcm_token = await messaging.getToken({
-                        vapidKey: "your_web_push_certificate_key_pair",
+                        vapidKey: process.env.NEXT_PUBLIC_FCM_KEY_PAIR
                     });
 
                     // Set token in our local storage
@@ -41,7 +40,7 @@ const firebaseCloudMessaging = {
                     }
                 }
             } catch (error) {
-                console.error(error);
+                console.error("firebaseCloudMessaging", error);
                 return null;
             }
         }
