@@ -191,44 +191,7 @@ function PatientDetail({ ...props }) {
                         <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel {...{ documents, patient }} />
                         </TabPanel>
-                        <Paper
-                            className={"action-buttons"}
-                            sx={{
-                                position: "sticky",
-                                bottom: 0,
-                                width: "100%",
-                                borderRadius: 0,
-                                borderWidth: "0px",
-                                p: 2,
-                                textAlign: "right",
-                                display: { md: "block", xs: "none" },
-                            }}
-                        >
-                            {/* <Button
-                                size="medium"
-                                variant="text-primary"
-                                startIcon={<Icon path="ic-dowlaodfile" />}
-                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
-                            >
-                                {t("tabs.import")}
-                            </Button> */}
-                            <Button
-                                size="medium"
-                                variant="contained"
-                                color="primary"
-                                startIcon={<Icon path="ic-agenda-+" />}
-                                sx={{
-                                    mr: 1,
-                                    width: { md: "auto", sm: "100%", xs: "100%" },
-                                }}
-                                onClick={() => {
-                                    dispatch(setAppointmentPatient(patient as any));
-                                    setIsAdd(!isAdd);
-                                }}
-                            >
-                                {t("tabs.add-appo")}
-                            </Button>
-                        </Paper>
+
                         <SpeedDial
                             sx={{
                                 position: "fixed",
@@ -246,6 +209,45 @@ function PatientDetail({ ...props }) {
                             ]}
                         />
                     </Box>
+                    <Paper
+                        className={"action-buttons"}
+                        sx={{
+                            position: "sticky",
+                            bottom: 0,
+                            width: "100%",
+                            borderRadius: 0,
+                            borderWidth: "0px",
+                            p: 2,
+                            mt: 'auto',
+                            textAlign: "right",
+                            display: { md: "block", xs: "none" },
+                        }}
+                    >
+                        {/* <Button
+                                size="medium"
+                                variant="text-primary"
+                                startIcon={<Icon path="ic-dowlaodfile" />}
+                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
+                            >
+                                {t("tabs.import")}
+                            </Button> */}
+                        <Button
+                            size="medium"
+                            variant="contained"
+                            color="primary"
+                            startIcon={<Icon path="ic-agenda-+" />}
+                            sx={{
+                                mr: 1,
+                                width: { md: "auto", sm: "100%", xs: "100%" },
+                            }}
+                            onClick={() => {
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd);
+                            }}
+                        >
+                            {t("tabs.add-appo")}
+                        </Button>
+                    </Paper>
                 </PatientDetailStyled>
             ) : (
                 <CustomStepper

@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
-import { Box } from "@mui/material";
+import { Stack } from "@mui/material";
 
-const PatientDetailStyled = styled(Box)(({ theme }) => ({
+const PatientDetailStyled = styled(Stack)(({ theme }) => ({
     ".container": {
         backgroundColor: theme.palette.background.default,
         "& div[role='tabpanel']": {
