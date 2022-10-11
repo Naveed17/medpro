@@ -159,7 +159,14 @@ function ActFees() {
                     size='small' sx={{
                         '& .react-svg svg': {
                             width: theme => theme.spacing(1.5),
-                            path: { fill: theme => theme.palette.primary.main }
+                            path: { fill: theme => theme.palette.primary.main },
+
+                        },
+                        '&.Mui-disabled': {
+                            '& .react-svg svg': {
+                                path: { fill: theme => theme.palette.common.white },
+
+                            },
                         }
                     }} startIcon={<IconUrl path="ic-plus" />}>{t("add_a_new_act")}</Button>
             </Box>
