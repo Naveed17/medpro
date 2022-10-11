@@ -5,6 +5,5 @@ export * from './appointmentDetail';
 export * from './moveAppointmentDialog';
 export * from './qrCodeDialog';
 export * from './patientDetail';
-export * from './actFeesDialog'
 export { default as Dialog } from "./dialog";
 export { default as DialogData } from "./config";

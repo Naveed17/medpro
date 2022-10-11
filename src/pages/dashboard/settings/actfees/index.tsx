@@ -5,7 +5,7 @@ import { DashLayout } from "@features/base";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { Box, Drawer } from "@mui/material";
-import { Button, DialogActions } from "@mui/material";
+import { Button } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import { useRequest, useRequestMutation } from "@app/axios";
@@ -13,12 +13,9 @@ import { useRouter } from "next/router";
 import { RootStyled } from "@features/toolbar";
 import { SubHeader } from "@features/subHeader";
 import { Otable } from '@features/table'
-import { Dialog } from '@features/dialog'
-import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
-import { ActFeesDialog } from "@features/dialog";
-import { uniqueId } from 'lodash'
+import { uniqueId, isEmpty } from 'lodash'
 
 interface HeadCell {
     disablePadding: boolean;
@@ -44,7 +41,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "amount",
         sortable: true,
-        align: "right",
+        align: "left",
     },
 
 ];
@@ -52,24 +49,25 @@ const headCells: readonly HeadCell[] = [
 function ActFees() {
     const { data: session } = useSession();
     const [mainActes, setMainActes] = useState<any>([]);
+    const [loading, setLoading] = useState<boolean>(false)
     const didMountRef = useRef<boolean>(false);
     const router = useRouter();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selected, setselected] = useState<any>({});
     const [edit, setEdit] = useState(false);
     const { direction } = useAppSelector(configSelector);
+    const [isNew, setNew] = useState(false)
     const [stateAct, setstateAct] = useState({
         "uuid": uniqueId(),
         "isTopAct": true,
         fees: 0,
         "act": {
             "uuid": "",
-            "name": "demo",
+            "name": "",
             "description": "",
             "weight": 0
         }
     });
-    const initalData = Array.from(new Array(8));
     const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
@@ -81,13 +79,19 @@ function ActFees() {
     });
 
     useEffect(() => {
-        if (httpProfessionalsActs !== undefined) {
-            setMainActes(((httpProfessionalsActs as any).data) as ActModel[])
-        }
+        setLoading(true)
+        const fetchData = async () => {
+            if (httpProfessionalsActs !== undefined) {
+                const response = await ((httpProfessionalsActs as any).data)
+                setMainActes(response as ActModel[])
+                setLoading(false)
+            }
+        };
+        fetchData()
     }, [httpProfessionalsActs]);
 
     useEffect(() => {
-        if (didMountRef.current) {
+        if (didMountRef.current && !isEmpty(selected) && selected.fees) {
             const form = new FormData();
             form.append("attribute", "price");
             form.append("value", `${selected.fees}`);
@@ -103,8 +107,8 @@ function ActFees() {
         }
         didMountRef.current = true;
     }, [selected])
-
     const handleCreate = () => {
+        setNew(true)
         const form = new FormData();
         form.append('name', JSON.stringify({
             "fr": stateAct.act.name,
@@ -125,7 +129,6 @@ function ActFees() {
 
     const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
     if (!ready) return <>loading translations...</>;
-
     return (
         <>
             <SubHeader>
@@ -139,10 +142,14 @@ function ActFees() {
                     rows={mainActes}
                     from={"actfees"}
                     edit={setselected}
+                    isNew={isNew}
+                    setNew={setNew}
+                    loading={loading}
                     t={t}
                 />
 
                 <Button
+                    disabled={isNew}
                     onClick={() => handleCreate()}
                     size='small' sx={{
                         '& .react-svg svg': {
