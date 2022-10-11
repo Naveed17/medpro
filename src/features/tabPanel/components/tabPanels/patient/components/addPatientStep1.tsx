@@ -72,7 +72,7 @@ function AddPatientStep1({...props}) {
             last_name: selectedPatient
                 ? selectedPatient.lastName
                 : stepsData.step1.last_name,
-            birthdate: selectedPatient
+            birthdate: selectedPatient?.birthdate
                 ? {
                     day: selectedPatient.birthdate.split("-")[0] as string,
                     month: selectedPatient.birthdate.split("-")[1] as string,
@@ -100,8 +100,6 @@ function AddPatientStep1({...props}) {
         dispatch(onAddPatient({...stepsData, step1: values}));
     };
     const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
-
-    console.log(values);
 
     return (
         <FormikProvider value={formik}>
