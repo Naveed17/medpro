@@ -91,40 +91,45 @@ function ActFees() {
     }, [httpProfessionalsActs]);
 
     useEffect(() => {
-        if (didMountRef.current && !isEmpty(selected) && selected.fees) {
-            const form = new FormData();
-            form.append("attribute", "price");
-            form.append("value", `${selected.fees}`);
-            trigger({
-                method: "PATCH",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + selected.uuid + '/' + router.locale,
-                data: form,
-                headers: {
-                    ContentType: 'multipart/form-data',
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }, { revalidate: true, populateCache: true }).then((r) => mutate());
+        if (didMountRef.current) {
+            if (isNew) {
+                const form = new FormData();
+                form.append('name', JSON.stringify({
+                    "fr": selected.act,
+                }));
+                form.append('price', `${selected.fees}`)
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, { revalidate: true, populateCache: true }).then(r => { setNew(false); mutate() })
+            } else if (!isEmpty(selected) && selected.fees) {
+                const form = new FormData();
+                form.append("attribute", "price");
+                form.append("value", `${selected.fees}`);
+                trigger({
+                    method: "PATCH",
+                    url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + selected.uuid + '/' + router.locale,
+                    data: form,
+                    headers: {
+                        ContentType: 'multipart/form-data',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }, { revalidate: true, populateCache: true }).then((r) => mutate());
+            }
         }
         didMountRef.current = true;
     }, [selected])
     const handleCreate = () => {
-        setNew(true)
-        const form = new FormData();
-        form.append('name', JSON.stringify({
-            "fr": stateAct.act.name,
-        }));
-        form.append('price', `${stateAct.fees}`)
-        trigger({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
-            data: form,
-            headers: {
-                ContentType: 'application/x-www-form-urlencoded',
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, { revalidate: true, populateCache: true }).then(r => mutate())
-
-
+        setNew(true);
+        setMainActes([
+            ...mainActes,
+            stateAct
+        ])
     }
 
     const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });

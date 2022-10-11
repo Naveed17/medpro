@@ -45,7 +45,6 @@ function ActFeesRow({ ...props }) {
                                 fees: +fees
 
                             }))
-                            setNew(false);
                             setShow(false)
                         }}
 
