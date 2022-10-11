@@ -327,7 +327,7 @@ function ConsultationInProgress() {
                 <TabPanel value={value} index={'consultation_form'}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
-                            {models && <WidgetForm modal={selectedModel}
+                            {models && selectedModel && <WidgetForm modal={selectedModel}
                                                    models={models}
                                                    setSM={setSelectedModel}></WidgetForm>}
                         </Grid>
