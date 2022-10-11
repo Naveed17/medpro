@@ -204,14 +204,14 @@ function PatientDetail({ ...props }) {
                                 display: { md: "block", xs: "none" },
                             }}
                         >
-                            <Button
+                            {/* <Button
                                 size="medium"
                                 variant="text-primary"
                                 startIcon={<Icon path="ic-dowlaodfile" />}
                                 sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
                             >
                                 {t("tabs.import")}
-                            </Button>
+                            </Button> */}
                             <Button
                                 size="medium"
                                 variant="contained"
