@@ -62,11 +62,13 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+
     const {t, ready} = useTranslation("common")
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {selectedEvent: data} = useAppSelector(agendaSelector);
 
     const {
@@ -93,7 +95,7 @@ function AppointmentDetail({...props}) {
         }).then(() => {
             setLoading(false);
             setEdited(false);
-            if(OnDataUpdated) {
+            if (OnDataUpdated) {
                 OnDataUpdated();
             }
         });
@@ -164,7 +166,7 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        <LoadingButton
+                        {!roles.includes('ROLE_SECRETARY') && <LoadingButton
                             {...{loading}}
                             loadingPosition="start"
                             variant="contained"
@@ -176,7 +178,7 @@ function AppointmentDetail({...props}) {
                             }}
                         >
                             {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
-                        </LoadingButton>
+                        </LoadingButton>}
                     </Stack>
                     {data?.extendedProps.hasErrors?.map((error: string, index: number) => (
                         <Stack key={`error${index}`}

@@ -134,8 +134,18 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>*/}
                         <Hidden mdDown>
-                            <IconButton onClick={() => document.body.requestFullscreen()} color="primary" edge="start"
-                                        className="btn">
+                            <IconButton
+                                onClick={() => {
+                                    if (document.fullscreenElement) {
+                                        document.exitFullscreen()
+                                            .catch((err) => console.error(err));
+                                    } else {
+                                        document.documentElement.requestFullscreen()
+                                            .catch((err) => console.error(err));
+                                    }
+                                }}
+                                color="primary" edge="start"
+                                className="btn">
                                 <Icon path="ic-scan"/>
                             </IconButton>
                             {/*<TextFieldSearch color="primary" className="topbar-search"/>*/}
@@ -204,7 +214,7 @@ function TopNavBar({...props}) {
                         </MenuList>
                         <LangButton/>
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{pr: 0}} disableRipple>
+                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
                                 <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
@@ -233,7 +243,7 @@ function TopNavBar({...props}) {
                         </MenuList>
 
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{pr: 0}} disableRipple>
+                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
                                 <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>

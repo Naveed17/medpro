@@ -192,7 +192,7 @@ function CalendarRow({...props}) {
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
-                    <TableCell align="center">{config?.name}</TableCell>
+                    <TableCell align="center">{"Agenda "}{config?.name}</TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         {data?.status.key !== "WAITING_ROOM" ?
                             <Button
