@@ -1,10 +1,9 @@
-import {AppointmentPatientCard} from "@features/card";
 import {Typography} from "@mui/material";
 import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -14,11 +13,14 @@ import {useIsMountedRef} from "@app/hooks";
 import {dialogMoveSelector, setLimit, setMoveDateTime} from "@features/dialog";
 import {useTranslation} from "next-i18next";
 import BoxStyled from "./overrides/boxStyled";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRouter} from "next/router";
 
 function MoveAppointmentDialog() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
+    const router = useRouter();
 
     const {t} = useTranslation(['agenda', 'common']);
 
@@ -30,7 +32,14 @@ function MoveAppointmentDialog() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
+    const {data: httpProfessionalsResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
     const {
         trigger
@@ -51,13 +60,13 @@ function MoveAppointmentDialog() {
             }
             setLoading(false)
         });
-    }, [agendaConfig, medical_entity.uuid, medical_professional.uuid, moveDialogDate, session?.accessToken, trigger]);
+    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]);
 
     useEffect(() => {
-        if (isMounted.current) {
+        if (isMounted.current && medical_professional?.uuid) {
             getSlots();
         }
-    }, [getSlots, isMounted]);
+    }, [getSlots, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleDateChange = (type: string, newDate?: Date, newTime?: string) => {
         dispatch(setMoveDateTime(type === 'date' ?

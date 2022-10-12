@@ -39,6 +39,7 @@ function Calendar({...props}) {
         events: appointments,
         OnRangeChange,
         spinner,
+        roles,
         t: translation,
         sortedData,
         OnInit,
@@ -332,8 +333,8 @@ function Calendar({...props}) {
                                 {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
                                     moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                                     data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
-                                    data.action === "onConsultationView" && eventMenu?.extendedProps.status.key !== "FINISHED" ||
-                                    data.action === "onConsultationDetail" && eventMenu?.extendedProps.status.key === "FINISHED" ||
+                                    data.action === "onConsultationView" && (eventMenu?.extendedProps.status.key !== "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
+                                    data.action === "onConsultationDetail" && (eventMenu?.extendedProps.status.key === "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
                                     data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
                                     data.action === "onCancel" && (eventMenu?.extendedProps.status.key === "CANCELED" ||
                                         eventMenu?.extendedProps.status.key === "FINISHED") ||
