@@ -18,7 +18,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import { ActFeesDialog } from "@features/dialog";
-import { AppointmentPopoverCard } from '@features/card'
 
 interface HeadCell {
     disablePadding: boolean;
@@ -186,9 +185,6 @@ function ActFees() {
                     closeDraw={closeDraw}
                 />
             </Drawer>
-            <Box my={5}>
-                <AppointmentPopoverCard data={null} style={{}} />
-            </Box>
         </>
     );
 }

@@ -31,6 +31,7 @@ function AppointmentPopoverCard({ ...props }) {
                 <Typography
                     color="text.primary"
                     fontWeight={400}
+                    textAlign="center"
                     noWrap
                     fontSize={12}
                 >
