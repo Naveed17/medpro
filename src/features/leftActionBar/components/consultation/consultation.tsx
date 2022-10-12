@@ -81,6 +81,7 @@ function Consultation() {
                                                readOnly: !edit
                                            }}
                                            placeholder={'name'}
+                                           onChange={(ev) =>{}}
                                            id={'name'}
                                            value={patient?.firstName + " " + patient?.lastName}/>
                                 <Typography variant="body2" color="text.secondary">

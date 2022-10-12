@@ -145,8 +145,6 @@ const Content = ({...props}) => {
                                                         {list.name} / {list.duration} {list.durationType}
                                                     </Typography>
                                                     <IconButton size="small" onClick={() => {
-                                                        console.log(list)
-
                                                         trigger({
                                                             method: "PATCH",
                                                             url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/' + list.uuid + '/' + router.locale,
