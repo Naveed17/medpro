@@ -135,7 +135,7 @@ function Agenda() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
@@ -665,6 +665,7 @@ function Agenda() {
                                         {...{
                                             events: events.current,
                                             agenda,
+                                            roles,
                                             spinner: loading,
                                             t,
                                             sortedData: sortedData.current

@@ -75,6 +75,7 @@ export const headCells = [
         sortable: false,
     },
 ];
+
 const AddWaitingRoomCardData = {
     mainIcon: "ic-salle",
     title: "empty",
@@ -102,9 +103,19 @@ function WaitingRoom() {
     } | null>(null);
     const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
+    const [popoverActions, setPopoverActions] = useState([{
+        title: "start_the_consultation",
+        icon: <PlayCircleIcon />,
+        action: "onConsultationStart",
+    }, {
+        title: "leave_waiting_room",
+        icon: <Icon color={"white"} path="ic-salle" />,
+        action: "onLeaveWaitingRoom",
+    }]);
 
     const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
 
     const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest({
         method: "GET",
@@ -205,6 +216,16 @@ function WaitingRoom() {
         }
     }, [dispatch, waitingRooms]);
 
+    useEffect(() => {
+        if (roles && roles.includes('ROLE_SECRETARY')) {
+            setPopoverActions([{
+                title: "leave_waiting_room",
+                icon: <Icon color={"white"} path="ic-salle" />,
+                action: "onLeaveWaitingRoom",
+            }])
+        }
+    }, [roles]);
+
     if (!ready) return <>loading translations...</>;
 
     return (
@@ -276,15 +297,7 @@ function WaitingRoom() {
                                         }}
                                     >
                                         {
-                                            [{
-                                                title: "start_the_consultation",
-                                                icon: <PlayCircleIcon />,
-                                                action: "onConsultationStart",
-                                            }, {
-                                                title: "leave_waiting_room",
-                                                icon: <Icon color={"white"} path="ic-salle" />,
-                                                action: "onLeaveWaitingRoom",
-                                            }].map(
+                                            popoverActions.map(
                                                 (v: any, index) => (
                                                     <MenuItem
                                                         key={index}

@@ -19,6 +19,7 @@ import SwrProvider from "@app/swr/swrProvider";
 import AuthGuard from "@app/keycloak/authGuard";
 import moment from "moment-timezone";
 import Head from "next/head";
+import {FcmLayout} from "@features/base";
 
 
 interface MyAppProps extends AppProps {
@@ -39,31 +40,33 @@ function MyApp({Component, pageProps: {...pageProps}}: MyAppProps) {
             <SnackbarProvider className={"snackbar-notification"}
                               maxSnack={3}
                               anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-                <AppThemeProvider>
-                    <GlobleStyles>
-                        <KeycloakSession session={pageProps.session}>
-                            <SwrProvider fallback={pageProps.fallback}>
-                                <Head>
-                                    <title>Med Pro</title>
-                                    <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
-                                </Head>
-                                <AnimatePresence
-                                    exitBeforeEnter
-                                    initial={false}
-                                    onExitComplete={() => window.scrollTo(0, 0)}
-                                >
-                                    {Component.auth ? (
-                                        <AuthGuard>
-                                            {getLayout(<Component {...pageProps} />)}
-                                        </AuthGuard>
-                                    ) : (
-                                        <> {getLayout(<Component {...pageProps} />)}</>
-                                    )}
-                                </AnimatePresence>
-                            </SwrProvider>
-                        </KeycloakSession>
-                    </GlobleStyles>
-                </AppThemeProvider>
+                <FcmLayout>
+                    <AppThemeProvider>
+                        <GlobleStyles>
+                            <KeycloakSession session={pageProps.session}>
+                                <SwrProvider fallback={pageProps.fallback}>
+                                    <Head>
+                                        <title>Med Pro</title>
+                                        <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
+                                    </Head>
+                                    <AnimatePresence
+                                        exitBeforeEnter
+                                        initial={false}
+                                        onExitComplete={() => window.scrollTo(0, 0)}
+                                    >
+                                        {Component.auth ? (
+                                            <AuthGuard>
+                                                {getLayout(<Component {...pageProps} />)}
+                                            </AuthGuard>
+                                        ) : (
+                                            <> {getLayout(<Component {...pageProps} />)}</>
+                                        )}
+                                    </AnimatePresence>
+                                </SwrProvider>
+                            </KeycloakSession>
+                        </GlobleStyles>
+                    </AppThemeProvider>
+                </FcmLayout>
             </SnackbarProvider>
         </Provider>
     );

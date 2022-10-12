@@ -2,6 +2,7 @@
 
 body {
   overflow: auto;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -73,9 +74,17 @@ main {
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
-  .sr-only{
+
+  .sr-only {
     visibility: hidden;
   }
+
+  .formio-errors {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+  }
+
   label {
     float: left;
     width: 6rem;
@@ -179,16 +188,12 @@ main {
     border-right: none;
     top:-55%;
     border-radius: 6px;
-
-  }
-  &:hover{
-    background-color: $white !important;
-   
   }
 }
-.snackbar-notification #notistack-snackbar{
+.snackbar-notification #notistack-snackbar {
   font-family: "Poppins", serif;
 }
-#ReactSimpleImageViewer{
+
+#ReactSimpleImageViewer {
   z-index: 9999;
 }
