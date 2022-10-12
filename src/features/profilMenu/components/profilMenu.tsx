@@ -85,7 +85,8 @@ function ProfilMenu() {
                 window.location.href = path;
                 break;
             case 'profile':
-                isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+                isMobile ? router.push("/dashboard/settings") :
+                    router.push(`/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
                 dispatch(toggleMobileBar(true));
                 break;
         }
@@ -113,7 +114,7 @@ function ProfilMenu() {
                     className="profile-img"
                     component="img"
                     alt="The house from the offer."
-                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec": "dr"}.png`}
+                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
                     width={26}
                     height={26}
                 />
@@ -150,12 +151,13 @@ function ProfilMenu() {
                                                     className="profile-img"
                                                     component="img"
                                                     alt="The house from the offer."
-                                                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec": "dr"}.png`}                                                    width={pxToRem(46)}
+                                                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
+                                                    width={pxToRem(46)}
                                                     height={pxToRem(46)}
                                                 />
                                                 <Box className="profile-detail">
                                                     <Typography variant="body1" className="name">
-                                                        {session?.user && <> {roles.includes('ROLE_SECRETARY') ? "SECRÉTAIRE": "DR"} {session.user.name?.toUpperCase()} </>}
+                                                        {session?.user && <> {roles.includes('ROLE_SECRETARY') ? "SECRÉTAIRE" : "DR"} {session.user.name?.toUpperCase()} </>}
                                                     </Typography>
                                                     <Typography variant="body2" className="des">
                                                         Agenda {config?.name}
@@ -194,7 +196,7 @@ function ProfilMenu() {
                                                         <Link href={"/dashboard/settings/places/new"}>
                                                             <MenuItem>
                                                                 <ListItemIcon>
-                                                                    <IconUrl path={"ic-plus"} />
+                                                                    <IconUrl path={"ic-plus"}/>
                                                                 </ListItemIcon>
                                                                 <ListItemText>
                                                                     Ajouter un agenda
