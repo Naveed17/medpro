@@ -60,13 +60,20 @@ function TimeSchedule({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
+
+    const {data: httpProfessionalsResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
 
     const {data: httpSlotsResponse, trigger} = useRequestMutation(null, "/calendar/slots");
 
