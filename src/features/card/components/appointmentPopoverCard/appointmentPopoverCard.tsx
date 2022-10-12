@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar} from "@mui/material";
+import { Box, Typography, Stack, Avatar } from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 
@@ -8,15 +8,26 @@ import moment from "moment-timezone";
 import CallIcon from "@mui/icons-material/Call";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import IconUrl from "@themes/urlIcon";
-import React from "react";
-import {Label} from "@features/label";
+import React, { useEffect, useRef, useState } from "react";
+import { Label } from "@features/label";
 
-function AppointmentPopoverCard({...props}) {
-    const {data, style} = props;
+function AppointmentPopoverCard({ ...props }) {
+    const { data, style } = props;
+    const [height, setHeight] = useState(0)
+    const componentRef = useRef<null | HTMLDivElement>(null);
 
+    useEffect(() => {
+        if (componentRef.current) {
+            setHeight(componentRef.current.clientHeight)
+        }
+    }, [])
     return (
-        <RootStyled sx={style}>
-            <Box className={"badge"} sx={{m: 1, background: data?.type?.color}}>
+        <RootStyled sx={style} ref={componentRef}>
+            <Box className={"badge"} sx={{
+                background: data?.type?.color || "red",
+                width: height - 9
+
+            }}>
                 <Typography
                     color="text.primary"
                     fontWeight={400}
@@ -24,6 +35,8 @@ function AppointmentPopoverCard({...props}) {
                     fontSize={12}
                 >
                     {data?.type?.name}
+
+
                 </Typography>
             </Box>
 
@@ -37,31 +50,31 @@ function AppointmentPopoverCard({...props}) {
                         display: "flex",
                         fontSize: 16,
                         alignItems: "center",
-                        svg: {mr: 0.6}
+                        svg: { mr: 0.6 }
                     }}
                     component="span"
                 >
-                    <IconUrl path="ic-time"/> {moment(data?.time).format("HH:mm")}
+                    <IconUrl path="ic-time" /> {moment(data?.time).format("HH:mm")}
                 </Typography>
                 <Typography
                     variant="body1"
                     color="text.primary"
                     fontWeight={600}
                     component="span"
-                    sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}
+                    sx={{ display: "flex", alignItems: "center", svg: { mr: 0.6 } }}
                 >
-                    <IconUrl path="ic-calendar"/> {moment(data?.time).format("DD-MM-YYYY")}
+                    <IconUrl path="ic-calendar" /> {moment(data?.time).format("DD-MM-YYYY")}
                 </Typography>
             </Stack>
             <Stack pl={4} direction="row" justifyContent='space-between' alignItems='center'>
                 <Label variant='filled'
-                       color={
-                           data?.status.key === "CONFIRMED"
-                               ? "success"
-                               : data?.status.key === "CANCELED"
-                                   ? "error"
-                                   : "primary"
-                       }>
+                    color={
+                        data?.status.key === "CONFIRMED"
+                            ? "success"
+                            : data?.status.key === "CANCELED"
+                                ? "error"
+                                : "primary"
+                    }>
                     {data?.status.value}
                 </Label>
             </Stack>
@@ -69,12 +82,12 @@ function AppointmentPopoverCard({...props}) {
                 direction="row"
                 spacing={1}
                 mt={1}
-                sx={{p: "0 2rem"}}
+                sx={{ p: "0 2rem" }}
             >
                 <Box mt={.5}>
-                    <Avatar sx={{width: 24, height: 24}}
-                            src={`/static/icons/${data?.patient.gender !== "O" ?
-                                "men" : "women"}-avatar.svg`}/>
+                    <Avatar sx={{ width: 24, height: 24 }}
+                        src={`/static/icons/${data?.patient.gender !== "O" ?
+                            "men" : "women"}-avatar.svg`} />
                 </Box>
                 <Box>
                     <Typography
@@ -99,7 +112,7 @@ function AppointmentPopoverCard({...props}) {
                         }}
                         component="span"
                     >
-                        <CallIcon/>
+                        <CallIcon />
                         {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
                         {data?.patient.contact[0]?.value}
                     </Typography>
