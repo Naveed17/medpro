@@ -3,6 +3,7 @@ import {Box} from "@mui/material";
 
 const EventStyled = styled(Box)(({theme}) => ({
     svg: {
+        marginLeft: ".5rem",
         width: 12,
         height: 12,
         margin: theme.spacing(0, 0.5),
