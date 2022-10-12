@@ -24,7 +24,7 @@ function AppointmentPopoverCard({ ...props }) {
     return (
         <RootStyled sx={style} ref={componentRef}>
             <Box className={"badge"} sx={{
-                background: data?.type?.color || "red",
+                background: data?.type?.color,
                 width: height - 9
 
             }}>
