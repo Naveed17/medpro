@@ -8,6 +8,7 @@ import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {IconsTypes} from "@features/calendar";
+import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
 
 function Event({...props}) {
     const {event, view, t} = props;
@@ -28,31 +29,13 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(appointment.status.key === "CANCELED" && {
-                            backgroundColor: "error.light",
-                        }
-                    ), ...(appointment.status.key === "FINISHED" && {
-                            backgroundColor: "success.lighter",
-                        }
-                    ), ...(appointment.status.key === "ON_GOING" && {
+                    ...(appointment.status.key === "ON_GOING" && {
                             backgroundColor: "success.light",
                         }
-                    ), ...(appointment.status.key === "PENDING" && {
-                            backgroundColor: "warning.light",
-                        }
                     ), ...(appointment.status.key === "WAITING_ROOM" && {
-                            backgroundColor: "secondary.lighter",
                             "& .ic-waiting .MuiSvgIcon-root": {
                                 width: 16,
-                                height: 16,
-                                ml: ".5rem"
-                            }
-                        }
-                    ), ...(appointment.hasErrors.length > 0 && {
-                            "& .MuiSvgIcon-root": {
-                                width: 10,
-                                height: 10,
-                                ml: ".5rem"
+                                height: 16
                             }
                         }
                     ),
@@ -72,18 +55,15 @@ function Event({...props}) {
                                 {className: "ic-waiting"})}
                             component={"span"}
                             color="text.primary">
-                    {appointment.hasErrors.length > 0 ?
-                        <DangerIcon/> :
-                        appointment.status.key === "WAITING_ROOM" ?
-                            <SalleIcon/> :
-                            !appointment.overlapEvent && <AccessTimeIcon color={"disabled"} className="ic-time"/>}
+                    {!appointment.overlapEvent && appointment?.status.icon}
+                    {appointment.hasErrors.length > 0 && <DangerIcon/>}
 
-                    {!appointment.overlapEvent &&
+                    {/*{!appointment.overlapEvent &&
                         <span> {appointment.time.toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit"
                         })}
-                        </span>}
+                        </span>}*/}
                 </Typography>
 
                 <Typography variant="body2" component={"span"} sx={{
@@ -93,7 +73,6 @@ function Event({...props}) {
                         textOverflow: "ellipsis"
                     }
                 }} color="primary" noWrap>
-                    {!appointment.overlapEvent && IconsTypes[appointment.type?.icon]}
                     <span {...(appointment.overlapEvent && {style: {marginLeft: ".5rem"}})}>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
                         <>

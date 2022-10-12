@@ -1,9 +1,34 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import "firebase/messaging";
 import {firebaseCloudMessaging} from "@app/firebase";
 import firebase from 'firebase/compat/app';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
+    PaperProps
+} from "@mui/material";
+
+function PaperComponent(props: PaperProps) {
+    return (
+        <Paper {...props} />
+    );
+}
 
 function FcmLayout({children}: LayoutProps) {
+    const [open, setOpen] = useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     useEffect(() => {
         setToken();
@@ -33,13 +58,47 @@ function FcmLayout({children}: LayoutProps) {
     function getMessage() {
         const messaging = firebase.messaging();
         messaging.onMessage((message) => {
-            console.log(message);
+            switch (message.data.type) {
+                case "agenda":
+                    console.log(message.notification);
+                    break;
+            }
         });
     }
 
     return (
         <>
             {children}
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperComponent={PaperComponent}
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        position: "absolute",
+                        right: 0,
+                        bottom: 0
+                    }
+                }}
+                aria-labelledby="draggable-dialog-title"
+            >
+                <DialogTitle style={{cursor: 'move'}} id="draggable-dialog-title">
+                    Subscribe
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        To subscribe to this website, please enter your email address here. We
+                        will send updates occasionally.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleClose}>Subscribe</Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
