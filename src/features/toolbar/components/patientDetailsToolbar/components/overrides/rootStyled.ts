@@ -4,9 +4,9 @@ import { styled } from "@mui/material/styles";
 const RootStyled = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   paddingBottom: 5,
-  position: "sticky",
+  position: "fixed",
   top: 0,
-  zIndex: 111,
+  zIndex: 998,
   "& .header": {
     backgroundColor: theme.palette.background.paper,
     paddingRight: "24px",

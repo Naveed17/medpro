@@ -1,5 +1,5 @@
 // react
-import {useEffect, useState, ReactElement} from "react";
+import React, {useEffect, useState, ReactElement} from "react";
 
 // next
 import {GetStaticProps} from "next";
@@ -31,12 +31,13 @@ import {useRequest} from "@app/axios";
 import {
     AddPatientStep1,
     AddPatientStep2,
-    AddPatientStep3, onResetPatient,
+    AddPatientStep3, onResetPatient, setAppointmentPatient,
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {PatientDetail} from "@features/dialog";
+import {AppointmentDetail, PatientDetail} from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {prepareSearchKeys} from "@app/hooks";
+import {agendaSelector, openDrawer} from "@features/calendar";
 
 const stepperData = [
     {
@@ -135,9 +136,10 @@ function Patient() {
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {patientId, patientAction} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-
+    const {openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [appointmentDetailDrawer, setAppointmentDetailDrawer] = useState<boolean>(false);
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
@@ -172,11 +174,18 @@ function Patient() {
     const handleTableActions = (action: string, event: PatientModel) => {
         switch (action) {
             case "PATIENT_DETAILS":
+                setAddAppointment(false);
                 setPatientDetailDrawer(true);
                 break;
             case "EDIT_PATIENT":
                 setSelectedPatient(event);
                 setPatientDrawer(true);
+                break;
+            case "ADD_APPOINTMENT":
+                dispatch(setAppointmentPatient(event as any));
+                setAddAppointment(true);
+                setSelectedPatient(event);
+                setPatientDetailDrawer(true);
                 break;
         }
     }
@@ -214,6 +223,20 @@ function Patient() {
                     PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
                 />
             </Box>
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}
+            >
+                <AppointmentDetail
+                    OnDataUpdated={() => mutate()}
+                />
+            </Drawer>
+
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}
@@ -223,42 +246,17 @@ function Patient() {
                     setPatientDetailDrawer(false);
                 }}
             >
-                {!isAddAppointment && (
-                    <PatientDetail
-                        onCloseDialog={() => {
-                            dispatch(onOpenPatientDrawer({patientId: ""}));
-                            setPatientDetailDrawer(false);
-                        }}
-                        onChangeStepper={(index: number) =>
-                            console.log("onChangeStepper", index)
-                        }
-                        onAddAppointment={() => console.log("onAddAppointment")}
-                        patientId={patientId}
-                    />
-                )}
-                {/*                    <Zoom in={isAddAppointment}>
-                        <Box
-                            height={isAddAppointment ? "100%" : 0}
-                            sx={{
-                                "& .MuiTabs-root": {
-                                    position: "sticky",
-                                    top: 0,
-                                    bgcolor: (theme) => theme.palette.background.paper,
-                                    zIndex: 11,
-                                },
-                            }}
-                        >
-                            <CustomStepper
-                                currentIndex={0}
-                                stepperData={stepperData}
-                                scroll
-                                t={t}
-                                minWidth={726}
-                                onClickCancel={() => setAddAppointment(false)}
-                            />
-                        </Box>
-                    </Zoom>*/}
+                <PatientDetail
+                    {...{isAddAppointment, mutate}}
+                    onCloseDialog={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                    patientId={patientId}
+                />
             </Drawer>
+
             <Drawer
                 anchor={"right"}
                 open={patientDrawer}
@@ -304,6 +302,8 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         fallback: false,
         ...(await serverSideTranslations(locale as string, [
             "patient",
+            "agenda",
+            "consultation",
             "menu",
             "common",
         ])),

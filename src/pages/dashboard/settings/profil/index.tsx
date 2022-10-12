@@ -36,7 +36,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/sideBarMenu";
 
 function Profil() {
-
     const router = useRouter();
     const { newAssurances, newMode, newLangues, newQualification } = useAppSelector(checkListSelector);
     const { data: session } = useSession();
@@ -70,13 +69,13 @@ function Profil() {
         if (httpMedicalProfessionalResponse !== undefined) {
             const infoData = (httpMedicalProfessionalResponse as any).data[0];
             const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-            setName(medical_professional.publicName);
+            setName(medical_professional?.publicName);
             let lngs: LanguageModel[] = [];
-            medical_professional.languages.map(lang => lngs.push(lang.language))
+            medical_professional?.languages.map(lang => lngs.push(lang.language))
             setLanguages(lngs);
-            setSpeciality(medical_professional.specialities.filter((spe: any) => spe.isMain)[0].speciality.name);
+            setSpeciality(medical_professional?.specialities.filter((spe: any) => spe.isMain)[0].speciality.name);
             setLoading(false);
-            setMedicalProfessionalUuid(medical_professional.uuid);
+            setMedicalProfessionalUuid(medical_professional?.uuid);
             if (infoData !== undefined) {
                 setInsurances(infoData.insurances);
                 setPaymentMeans(infoData.payments);

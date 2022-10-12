@@ -24,6 +24,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 export const MyTextInput: any = memo(({...props}) => {
@@ -61,11 +62,6 @@ function OnStepPatient({...props}) {
             .min(8, t("telephone-error"))
             .matches(PhoneRegExp, t("telephone-error"))
             .required(t("telephone-error")),
-        birthdate: Yup.object().shape({
-            day: Yup.string().required(t("date-error")),
-            month: Yup.string().required(t("date-error")),
-            year: Yup.string().required(t("date-error")),
-        }),
         gender: Yup.string().required(t("gender-error"))
     });
     const formik = useFormik({
@@ -88,7 +84,7 @@ function OnStepPatient({...props}) {
             gender: Boolean(selectedPatient)
                 ? selectedPatient.gender
                 : patient.step1.gender,
-            country: "",
+            country: "98b08199-a1d8-44bc-8b33-1203195b718e", // TN
             region: "",
             zip_code: "",
             address: "",
@@ -172,7 +168,7 @@ function OnStepPatient({...props}) {
                         <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
                             {t("personal-info")}
                         </Typography>
-                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)} >
+                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
                                 <Typography component="span" color="error">
@@ -192,7 +188,8 @@ function OnStepPatient({...props}) {
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
-                            {(touched.gender && errors.gender) && <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
+                            {(touched.gender && errors.gender) &&
+                                <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
                     <Box>
@@ -259,9 +256,6 @@ function OnStepPatient({...props}) {
                             component="span"
                         >
                             {t("date-of-birth")}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
                         </Typography>
                         <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
                             <FormControl size="small" fullWidth>
@@ -271,30 +265,29 @@ function OnStepPatient({...props}) {
                                     {...getFieldProps("birthdate.day")}
                                     displayEmpty
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value: string) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("day")
-                                    }
+                                    renderValue={(value: string) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("day")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {Array.from(
                                         Array(
                                             moment(
-                                                `${values.birthdate.year}-${values.birthdate.month}`,
+                                                `1970-01`,
                                                 "YYYY-MM"
                                             ).daysInMonth()
                                         ).keys()
                                     ).map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={i > 9 ? `${i}` : `0${i + 1}`}
                                         >
-                                            {i + 1}
-                                        </option>
+                                            <Typography>{i + 1}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
@@ -310,23 +303,22 @@ function OnStepPatient({...props}) {
                                     {...getFieldProps("birthdate.month")}
                                     displayEmpty
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("month")
-                                    }
+                                    renderValue={(value) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("month")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {moment.monthsShort().map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={i > 9 ? `${i}` : `0${i + 1}`}
                                         >
-                                            {v}
-                                        </option>
+                                            <Typography>{v}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
@@ -342,23 +334,22 @@ function OnStepPatient({...props}) {
                                     {...getFieldProps("birthdate.year")}
                                     displayEmpty
                                     sx={{color: "text.secondary"}}
-                                    renderValue={(value) =>
-                                        value?.length
-                                            ? Array.isArray(value)
-                                                ? value.join(", ")
-                                                : value
-                                            : t("year")
-                                    }
+                                    renderValue={(value) => {
+                                        if (value?.length === 0) {
+                                            return <em>{t("year")}</em>;
+                                        }
+
+                                        return <Typography>{value}</Typography>
+                                    }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
-                                    native
                                 >
                                     {Array.from(Array(100).keys()).map((v, i) => (
-                                        <option
-                                            key={Math.random()}
+                                        <MenuItem
+                                            key={i}
                                             value={`${moment().year() - 100 + i + 1}`}
                                         >
-                                            {moment().year() - 100 + i + 1}
-                                        </option>
+                                            <Typography>{moment().year() - 100 + i + 1}</Typography>
+                                        </MenuItem>
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
@@ -450,8 +441,11 @@ function OnStepPatient({...props}) {
                                     <MenuItem
                                         key={country.uuid}
                                         value={country.uuid}>
-                                        <Box component="img"
-                                             src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
+                                        <Image
+                                            width={20}
+                                            alt={"flags"}
+                                            height={14}
+                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
                                         <Typography sx={{ml: 1}}>{country.name}</Typography>
                                     </MenuItem>)
                                 )}

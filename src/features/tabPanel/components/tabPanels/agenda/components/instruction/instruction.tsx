@@ -49,7 +49,7 @@ function Instruction({...props}) {
         submitted,
         recurringDates
     } = useAppSelector(appointmentSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
@@ -113,7 +113,7 @@ function Instruction({...props}) {
             if (value?.data.status === 'success') {
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
-                onNext(4);
+                onNext(currentStepper + 1);
             }
         });
     }
@@ -133,6 +133,9 @@ function Instruction({...props}) {
         dispatch(resetAppointment());
         dispatch(setStepperIndex(0));
         dispatch(openDrawer({type: "add", open: false}));
+        if (OnAction) {
+            OnAction("close")
+        }
     }
 
     const handleActionClick = (action: string) => {
@@ -254,6 +257,7 @@ function Instruction({...props}) {
                                         value={rappel}
                                         onChange={handleRappelChange}
                                     >
+                                        <MenuItem value={"0"}>{t("stepper-3.day")} 0</MenuItem>
                                         <MenuItem value={"1"}>{t("stepper-3.day")} 1</MenuItem>
                                         <MenuItem value={"2"}>{t("stepper-3.day")} 2</MenuItem>
                                         <MenuItem value={"3"}>{t("stepper-3.day")} 3</MenuItem>

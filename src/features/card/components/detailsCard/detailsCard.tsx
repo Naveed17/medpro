@@ -15,13 +15,13 @@ import DetailCardStyled from "./overrides/detailCardStyle";
 import CircleIcon from '@mui/icons-material/Circle';
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 export default function DetailsCard({ ...props }) {
-    const { rows, consultation, waitingRoom, t } = props;
+    const { rows, waitingRoom, t } = props;
     const theme = useTheme();
     return (
         <>
-            {rows?.map((item: any) => (
+            {rows?.map((item: any, i: number) => (
                 <DetailCardStyled
-                    key={Math.random()}
+                    key={i}
                     sx={{
                         borderLeft: `6px solid ${item.status === "completed"
                             ? theme.palette.success.main
@@ -37,14 +37,6 @@ export default function DetailsCard({ ...props }) {
                         <Grid container>
                             <Grid item md={10} sm={10} xs={11}>
                                 <Box display="flex" justifyContent="space-between" alignItems="center" >
-                                    <Typography
-                                        display="inline"
-                                        variant="body2"
-                                        color="text.primary"
-                                        align="center"
-                                        fontSize={12}
-                                    >{item.id}
-                                    </Typography>
                                     <Box sx={{
                                         display: "flex", alignItems: "center",
                                         color: theme.palette.success.main,
@@ -59,12 +51,12 @@ export default function DetailsCard({ ...props }) {
                                     }}>
                                         <Icon path="ic-time" />
                                         <span>
-                                            {item.arrivaltime}
+                                            {item.arrive_time}
                                         </span>
                                     </Box>
-                                    <Stack direction="row"
-                                        alignItems="center"
-                                        spacing={1}
+                                    {item.consultation_reason && <Stack direction="row"
+                                            alignItems="center"
+                                            spacing={1}
                                     >
                                         <CircleIcon fontSize="small" sx={{
                                             border: 1,
@@ -72,12 +64,12 @@ export default function DetailsCard({ ...props }) {
                                             borderRadius: '50%',
                                             p: 0.2,
                                         }}
-                                            color='primary'
+                                                    color='primary'
                                         />
                                         <Typography color="primary">
-                                            {item.reson}
+                                            {item.consultation_reason.name}
                                         </Typography>
-                                    </Stack>
+                                    </Stack>}
                                 </Box>
                                 <Stack direction='row' alignItems="center">
                                     <Typography
@@ -88,27 +80,8 @@ export default function DetailsCard({ ...props }) {
                                         lineHeight={1}
                                         variant="body1"
                                     >
-                                        {item.patient}
+                                        {item.patient.lastName} {item.patient.firstName}
                                     </Typography>
-                                    <Stack spacing={2} direction="row" alignItems="center" ml="auto" mt={2}>
-                                        <Label
-                                            variant="filled"
-                                            color={
-                                                item?.status === "completed"
-                                                    ? "success"
-                                                    : item?.status === "canceled"
-                                                        ? "error"
-                                                        : "primary"
-                                            }
-                                        >
-                                            {t(`table.${item.status}`)}
-                                        </Label>
-                                        <PlayCircleRoundedIcon color="success" />
-                                        <Typography variant="body2">
-                                            120 TND
-                                        </Typography>
-                                    </Stack>
-
                                 </Stack>
 
                             </Grid>
@@ -121,7 +94,7 @@ export default function DetailsCard({ ...props }) {
                             </Grid>
                         </Grid>
                     }
-                    {consultation && (<>
+                   {/* {item.consultation_reason && (<>
                         <Stack className="consultation-details" direction="row" alignItems='center'>
                             <Stack spacing={1} justifyContent="flex-start" alignItems='flex-start'>
                                 <Button
@@ -141,7 +114,7 @@ export default function DetailsCard({ ...props }) {
 
                                     }
                                 >
-                                    {item.reson}
+                                    {item.consultation_reason.name}
                                 </Button>
                                 <Stack direction='row' spacing={2}>
                                     <Stack direction="row" alignItems='center' className="date-container">
@@ -183,7 +156,7 @@ export default function DetailsCard({ ...props }) {
                                 <Icon path="more-vert" />
                             </IconButton>
                         </Stack>
-                    </>)}
+                    </>)}*/}
                 </DetailCardStyled>
             ))
             }

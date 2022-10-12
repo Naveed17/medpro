@@ -10,7 +10,7 @@ import {
     ListItem,
     ListItemIcon,
     IconButton,
-    Collapse,
+    Collapse, Skeleton,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
@@ -26,12 +26,15 @@ function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
+    const [loading, setLoading] = useState<boolean>(true);
+
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (patient) {
             dispatch(toggleSideBar(false));
             console.log(patient);
+            setLoading(false)
         }
     }, [dispatch, patient]);
 
@@ -49,20 +52,24 @@ function Consultation() {
                         }
                     />
                     <Box>
-                        <Typography
-                            variant="body1"
-                            color="primary.main"
-                            sx={{fontFamily: "Poppins"}}
-                        >
-                            {patient?.firstName + " " + patient?.lastName}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {patient?.birthdate} (
-                            {patient?.birthdate
-                                ? moment().diff(new Date(patient?.birthdate), "years")
-                                : "--"}{" "}
-                            {t("year")})
-                        </Typography>
+                        {loading ?
+                            <>
+                                <Skeleton width={130} variant="text" />
+                                <Skeleton variant="text" />
+                            </> : <><Typography
+                                variant="body1"
+                                color="primary.main"
+                                sx={{fontFamily: "Poppins"}}
+                            >
+                                {patient?.firstName + " " + patient?.lastName}
+                            </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {patient?.birthdate} (
+                                    {patient?.birthdate
+                                        ? moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")
+                                        : "--"}{" "}
+                                    {t("year")})
+                                </Typography></>}
                     </Box>
                 </Box>
                 <Box className="contact" ml={2}>

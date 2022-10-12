@@ -77,8 +77,8 @@ function PatientRow({...props}) {
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
                                                 <>
-                                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
-                                                    {moment().diff(new Date(row.birthdate), "years")} ans
+                                                    <Icon path="ic-anniverssaire"/> {row.birthdate} - {" "}
+                                                    {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                                 </>
                                             )}
                                         </Typography>
@@ -86,21 +86,6 @@ function PatientRow({...props}) {
                                 </>
                             )}
                         </Typography>
-                        {/*<Typography
-                            variant="body2"
-                            component="span"
-                            color="text.secondary"
-                            className="text-time"
-                        >
-                            {loading ? (
-                                <Skeleton variant="text" width={100}/>
-                            ) : (
-                                <>
-                                    <Icon path="ic-anniverssaire"/> {row.birthdate} -
-                                    {moment().diff(new Date(row.birthdate), "years")} ans
-                                </>
-                            )}
-                        </Typography>*/}
                     </Box>
                 </Box>
             </TableCell>
@@ -123,12 +108,17 @@ function PatientRow({...props}) {
                     row.address[0] ? <Typography>{row.address[0].city.name}, {row.address[0].street}</Typography> : "-"
                 ) || "-"}
             </TableCell>*/}
-            <TableCell>
-                <Box display="flex" alignItems="center">
+            <TableCell align={"center"}>
+                <Box display="flex" alignItems="center" sx={{float: "left"}}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
                     ) : row.nextAppointment?.dayDate ? (
-                        <Stack direction={"row"} margin={"auto"}>
+                        <Stack direction={"row"} margin={"auto"} sx={{
+                            "& .MuiButtonBase-root": {
+                                height: "fit-content",
+                                alignSelf: "center"
+                            }
+                        }}>
                             <IconButton size="small">
                                 <Icon path="ic-historique"/>
                             </IconButton>
@@ -159,13 +149,18 @@ function PatientRow({...props}) {
                                     color="text.primary"
                                 >
                                     <>
-                                        <Icon path="ic-time"/> {row.nextAppointment?.startTime}
+                                        <Icon path="ic-time"/>
+                                        {row.nextAppointment?.startTime}
                                     </>
                                 </Typography>
                             </Box>
                         </Stack>
                     ) : (
                         <Button
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleEvent("ADD_APPOINTMENT", row);
+                            }}
                             variant="text"
                             size="small"
                             color="primary"
@@ -182,7 +177,7 @@ function PatientRow({...props}) {
                 <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
-                    ) : row.nextAppointment?.dayDate ? (
+                    ) : row.latestAppointment?.dayDate ? (
                         <>
                             <IconButton size="small">
                                 <Icon path="ic-historique"/>
@@ -199,7 +194,7 @@ function PatientRow({...props}) {
                                     ) : (
                                         <>
                                             <Icon path="ic-agenda"/>
-                                            {row.nextAppointment?.dayDate || "-"}
+                                            {row.latestAppointment?.dayDate || "-"}
                                         </>
                                     )}
                                 </Typography>
@@ -221,7 +216,7 @@ function PatientRow({...props}) {
                                     ) : (
                                         <>
                                             <Icon path="ic-time"/>{" "}
-                                            {row.nextAppointment?.startTime || "-"}
+                                            {row.latestAppointment?.startTime || "-"}
                                         </>
                                     )}
                                 </Typography>
@@ -242,10 +237,10 @@ function PatientRow({...props}) {
             </TableCell>
 
             <TableCell align="right" sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: "58.85px",
-                }}>
+                display: "flex",
+                alignItems: "center",
+                minHeight: "58.85px",
+            }}>
                 {loading ? (
                     <>
                         <Skeleton

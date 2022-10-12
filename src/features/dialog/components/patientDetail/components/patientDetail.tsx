@@ -3,9 +3,9 @@ import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
-    DocumentsPanel,
+    DocumentsPanel, EventType,
     Instruction,
-    PersonalInfoPanel,
+    PersonalInfoPanel, setAppointmentPatient,
     TabPanel,
     TimeSchedule,
 } from "@features/tabPanel";
@@ -41,6 +41,24 @@ const AddAppointmentCardData = {
     buttonVariant: "warning",
 };
 
+const stepperData = [
+    {
+        title: "tabs.time-slot",
+        children: EventType,
+        disabled: false
+    },
+    {
+        title: "tabs.time-slot",
+        children: TimeSchedule,
+        disabled: false
+    },
+    {
+        title: "tabs.advice",
+        children: Instruction,
+        disabled: true
+    },
+];
+
 function PatientDetail({...props}) {
     const {
         patientId,
@@ -49,21 +67,9 @@ function PatientDetail({...props}) {
         onCloseDialog,
         onChangeStepper,
         onAddAppointment,
-        onConsultation = null
+        onConsultation = null,
+        mutate: mutatePatientList
     } = props;
-
-    const stepperData = [
-        {
-            title: "tabs.time-slot",
-            children: TimeSchedule,
-            disabled: false,
-        },
-        {
-            title: "tabs.advice",
-            children: Instruction,
-            disabled: true,
-        },
-    ];
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -95,9 +101,19 @@ function PatientDetail({...props}) {
         setIndex(newValue);
     };
 
+    const submitStepper = (index: number) => {
+        if (stepperData.length !== index) {
+            stepperData[index].disabled = false;
+        } else {
+            stepperData.map((stepper, index) => stepper.disabled = true);
+            setIndex(0);
+        }
+    }
+
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = (patient ? patient.nextAppointments : []);
     const previousAppointments = (patient ? patient.previousAppointments : []);
+    const documents = (patient ? patient.documents : []);
 
     if (!ready) return <>loading translations...</>;
 
@@ -114,7 +130,7 @@ function PatientDetail({...props}) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        patient={patient}
+                        {...{patient}}
                         onConsultation={onConsultation}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
@@ -145,18 +161,13 @@ function PatientDetail({...props}) {
                         <TabPanel padding={1} value={index} index={0}>
                             <PersonalInfoPanel
                                 loading={!patient}
-                                patient={patient}
+                                {...{patient}}
                                 mutate={mutate}
                             />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
                                 <GroupTable
-                                    sx={{
-                                        "& .MuiTableCell-root":{
-                                            minHeight: 38
-                                        }
-                                    }}
                                     from="patient"
                                     loading={!patient}
                                     data={patient}
@@ -166,14 +177,14 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={2}>
-                            <DocumentsPanel />
+                            <DocumentsPanel {...{documents, patient}} />
                         </TabPanel>
                         <Paper
                             className={"action-buttons"}
                             sx={{
-                                position: "absolute",
+                                position: "fixed",
                                 bottom: 0,
-                                width: "100%",
+                                width: "51%",
                                 borderRadius: 0,
                                 borderWidth: "0px",
                                 p: 2,
@@ -181,20 +192,11 @@ function PatientDetail({...props}) {
                                 display: {md: "block", xs: "none"},
                             }}
                         >
-                            {/*<Button
-                                size="medium"
-                                variant="text-primary"
-                                color="primary"
-                                startIcon={<Icon path="ic-dowlaodfile"/>}
-                                sx={{
-                                    mr: 1,
-                                    width: {md: "auto", sm: "100%", xs: "100%"},
-                                }}
-                            >
-                                {t("tabs.import")}
-                            </Button>*/}
                             <Button
-                                onClick={() => setIsAdd(!isAdd)}
+                                onClick={() => {
+                                    dispatch(setAppointmentPatient(patient as any));
+                                    setIsAdd(!isAdd);
+                                }}
                                 size="medium"
                                 variant="contained"
                                 color="primary"
@@ -211,7 +213,10 @@ function PatientDetail({...props}) {
                                 right: 16,
                                 display: {md: "none", xs: "flex"},
                             }}
-                            onClick={() => setIsAdd(!isAdd)}
+                            onClick={() => {
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd)
+                            }}
                             actions={[
                                 {icon: <SpeedDialIcon/>, name: t("tabs.add-appo")},
                                 {icon: <CloudUploadIcon/>, name: t("tabs.import")},
@@ -222,7 +227,21 @@ function PatientDetail({...props}) {
             ) : (
                 <CustomStepper
                     stepperData={stepperData}
-                    onBackButton={(index: number) => index === 0 && setIsAdd(false)}
+                    OnSubmitStepper={submitStepper}
+                    OnAction={(action: string) => {
+                        if (action === "close") {
+                            if (patientId) {
+                                setIsAdd(false);
+                            } else {
+                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                onCloseDialog(false);
+                            }
+                            mutatePatientList();
+                        }
+                    }}
+                    onBackButton={(index: number) => {
+                        return index === 0 && setIsAdd(false)
+                    }}
                     scroll
                     t={t}
                     minWidth={726}

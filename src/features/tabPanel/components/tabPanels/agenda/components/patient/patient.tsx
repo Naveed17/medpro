@@ -78,7 +78,10 @@ function Patient({...props}) {
             "is_support": false
         }));
         form.append('gender', patient.gender);
-        form.append('birthdate', `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
+        if (patient.birthdate.day && patient.birthdate.month && patient.birthdate.year) {
+            form.append('birthdate',
+                `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
+        }
         form.append('address', JSON.stringify({
             fr: patient.address
         }));
@@ -87,6 +90,7 @@ function Patient({...props}) {
         form.append('family_doctor', patient.family_doctor);
         form.append('region', patient.region);
         form.append('zip_code', patient.zip_code);
+
         trigger(
             {
                 method: "POST",
@@ -104,7 +108,6 @@ function Patient({...props}) {
                 setAddPatient(false);
             }
         });
-
     }
 
     return (

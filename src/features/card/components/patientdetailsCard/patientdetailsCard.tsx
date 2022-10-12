@@ -11,12 +11,9 @@ import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
-import MenIcon from "@themes/overrides/icons/menIcon";
-import WomenIcon from "@themes/overrides/icons/womenIcon";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
-    console.log(patient);
     const {isActive} = useAppSelector(timerSelector);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
@@ -81,8 +78,8 @@ function PatientDetailsCard({...props}) {
                         <>
                             <Icon path="ic-anniverssaire"/>
                             {patient?.birthdate} -{" "}
-                            {moment().diff(new Date(patient?.birthdate), "years")}{" "}
-                            {t("years")}
+                            {patient?.birthdate &&
+                                (`${moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")} ${t("years")}`)}
                         </>
                     )}
                 </Typography>

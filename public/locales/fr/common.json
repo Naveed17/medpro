@@ -59,6 +59,9 @@
   "medical-imaging": "Imagerie médicale",
   "analyse": "Analyse",
   "rapport": "Rapport",
+  "today": "Aujourd’hui",
+  "permission": "Vous n'avez pas la permission d'accéder à cette ressource",
+  "back": "Retour",
   "login": {
     "sign_in": "Connecté en tant que",
     "sign_title": "Vous avez déjà utilisé med.tn ?",
@@ -83,6 +86,8 @@
     "month": "moi",
     "months": "mois",
     "day": "jour",
+    "week": "semaine",
+    "weeks": "semaines",
     "days": "jours",
     "hour": "heure",
     "hours": "heures",
@@ -91,7 +96,8 @@
     "seconde": "seconde",
     "secondes": "secondes",
     "millisecond": "milliseconde",
-    "milliseconds": "millisecondes"
+    "milliseconds": "millisecondes",
+    "agenda": "list"
   },
   "event": {
     "new": "Nouveau",

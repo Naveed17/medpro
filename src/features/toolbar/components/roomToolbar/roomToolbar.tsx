@@ -6,17 +6,14 @@ import {WaitingRoom} from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
 import SalleIcon from "@themes/overrides/icons/salleIcon";
+import {useSnackbar} from "notistack";
 
-type Props = {
-    board?: boolean | undefined;
-    data?: number[] | any[] | undefined;
-    handleCollapse?: (v: number) => void
-}
-
-function RoomToolbar({board, data, handleCollapse}: Props) {
+function RoomToolbar({...props}) {
+    const {board, data, handleCollapse, openCalendar} = props;
     const [open, setopen] = useState(false);
     const router = useRouter();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'subheader'});
     if (!ready) return (<>loading translations...</>);
@@ -30,7 +27,7 @@ function RoomToolbar({board, data, handleCollapse}: Props) {
                 {(isMobile && board) && (
                     <React.Fragment>
                         {
-                            data?.map(item => (
+                            data?.map((item: any) => (
                                 <Button
                                     {...(handleCollapse && {onClick: () => handleCollapse(item.id)})}
                                     sx={{
@@ -52,6 +49,11 @@ function RoomToolbar({board, data, handleCollapse}: Props) {
 
                 }
                 <Button
+                    onClick={() => {
+                        router.push('/dashboard/agenda').then(() => {
+                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                        });
+                    }}
                     startIcon={<SalleIcon/>}
                     variant="contained"
                     color="warning">

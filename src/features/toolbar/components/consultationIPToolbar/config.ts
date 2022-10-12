@@ -1,10 +1,10 @@
 export const documentButtonList = [
     {
-        icon: "ic-plus",
+        icon: "ic-ordonance",
         label: "draw_up_an_order",
     },
     {
-        icon: "ic-plus",
+        icon: "ic-color-edit-file",
         label: "write_certif",
     },
    /* {
@@ -12,7 +12,11 @@ export const documentButtonList = [
         label: "write_mail",
     },*/
     {
-        icon: "ic-messanger-lite",
+        icon: "ic-soura",
+        label: "medical_imagery",
+    },
+    {
+        icon: "ic-analyse",
         label: "balance_sheet_request",
     },
     {

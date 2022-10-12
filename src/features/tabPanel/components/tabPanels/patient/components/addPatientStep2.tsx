@@ -22,6 +22,7 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import Image from "next/image";
 
 const MyTextInput: any = memo(({...props}) => {
     return (
@@ -43,8 +44,8 @@ function AddPatientStep2({...props}) {
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
         initialValues: {
-            country: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.country,
-            region: address.length > 0 ? address[0]?.state?.uuid : stepsData.step2.region,
+            country: address.length > 0 ? address[0]?.city?.country?.uuid : stepsData.step2.country,
+            region: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
@@ -70,7 +71,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+    const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
@@ -113,7 +114,9 @@ function AddPatientStep2({...props}) {
             "is_support": false
         }));
         form.append('gender', gender);
-        form.append('birthdate', `${day}-${month}-${year}`);
+        if (day && month && year) {
+            form.append('birthdate', `${day}-${month}-${year}`);
+        }
         form.append('address', JSON.stringify({
             fr: values.address
         }));
@@ -167,44 +170,52 @@ function AddPatientStep2({...props}) {
                             {t("add-patient.additional-information")}
                         </Typography>
                         <Box>
-                            <Grid container spacing={2}>
-                                <Grid item md={6} xs={12}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        gutterBottom
-                                    >
-                                        {t("add-patient.country")}
-                                    </Typography>
-                                    <FormControl fullWidth>
-                                        <Select
-                                            labelId="demo-simple-select-label"
-                                            id={"country"}
-                                            size="small"
-                                            {...getFieldProps("country")}
-                                            displayEmpty
-                                            sx={{color: "text.secondary"}}
-                                            renderValue={selected => {
-                                                if (selected.length === 0) {
-                                                    return <em>{t("add-patient.country-placeholder")}</em>;
-                                                }
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                            >
+                                {t("add-patient.country")}
+                            </Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"country"}
+                                    disabled={!countries}
+                                    size="small"
+                                    {...getFieldProps("country")}
+                                    displayEmpty
+                                    sx={{color: "text.secondary"}}
+                                    renderValue={selected => {
+                                        if (selected?.length === 0) {
+                                            return <em>{t("add-patient.country-placeholder")}</em>;
+                                        }
 
-                                                const country = countries?.find(country => country.uuid === selected);
-                                                return <Typography>{country?.name}</Typography>
-                                            }}
-                                        >
-                                            {countries?.map((country) => (
-                                                <MenuItem
-                                                    key={country.uuid}
-                                                    value={country.uuid}>
-                                                    <Box component="img"
-                                                         src={`https://flagcdn.com/w20/${country.code.toLowerCase()}.png`}/>
-                                                    <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                                </MenuItem>)
-                                            )}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
+                                        const country = countries?.find(country => country.uuid === selected);
+                                        return (
+                                            <Stack direction={"row"}>
+                                                <Image width={20} height={14}
+                                                       alt={"flag"}
+                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                <Typography ml={1}>{country?.name}</Typography>
+                                            </Stack>)
+                                    }}
+                                >
+                                    {countries?.map((country) => (
+                                        <MenuItem
+                                            key={country.uuid}
+                                            value={country.uuid}>
+                                            <Image width={20} height={14}
+                                                   alt={"flag"}
+                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                        </MenuItem>)
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                        <Box>
+                            <Grid container spacing={2}>
                                 <Grid item md={6} xs={12}>
                                     <Typography
                                         variant="body2"
@@ -217,13 +228,13 @@ function AddPatientStep2({...props}) {
                                         <Select
                                             labelId="demo-simple-select-label"
                                             id={"region"}
-                                            disabled={!values.country}
+                                            disabled={!values.country && !states}
                                             size="small"
                                             {...getFieldProps("region")}
                                             displayEmpty={true}
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
-                                                if (selected.length === 0) {
+                                                if (selected?.length === 0) {
                                                     return <em>{t("add-patient.region-placeholder")}</em>;
                                                 }
 
@@ -241,23 +252,23 @@ function AddPatientStep2({...props}) {
                                         </Select>
                                     </FormControl>
                                 </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                    >
+                                        {t("add-patient.zip")}
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder="10004"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("zip_code")}
+                                    />
+                                </Grid>
                             </Grid>
-                        </Box>
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                gutterBottom
-                            >
-                                {t("add-patient.zip")}
-                            </Typography>
-                            <TextField
-                                variant="outlined"
-                                placeholder="10004"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("zip_code")}
-                            />
                         </Box>
                         <Box>
                             <Typography variant="body2" color="text.secondary" gutterBottom>

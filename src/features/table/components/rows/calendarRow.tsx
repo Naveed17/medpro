@@ -8,7 +8,7 @@ import {Label} from "@features/label";
 import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import TimeIcon from "@themes/overrides/icons/time";
-import {setCurrentDate, setView} from "@features/calendar";
+import {agendaSelector, setCurrentDate, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
@@ -20,11 +20,12 @@ function CalendarRow({...props}) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
+    const {config} = useAppSelector(agendaSelector);
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
         if (!eventData.hasOwnProperty("extendedProps")) {
-            event = Object.assign(eventData, {
+            event = Object.assign({...eventData}, {
                 extendedProps: {
                     ...eventData
                 }
@@ -191,7 +192,7 @@ function CalendarRow({...props}) {
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
-                    <TableCell align="center">Agenda hôpital</TableCell>
+                    <TableCell align="center">{"Agenda "}{config?.name}</TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         {data?.status.key !== "WAITING_ROOM" ?
                             <Button

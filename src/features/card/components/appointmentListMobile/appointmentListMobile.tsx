@@ -13,7 +13,7 @@ function AppointmentListMobile({...props}) {
     const [openTooltip, setOpenTooltip] = useState(false);
 
     const handleEventClick = () => {
-        OnSelectEvent(Object.assign(event, {
+        OnSelectEvent(Object.assign({...event}, {
             extendedProps: {
                 ...event
             }

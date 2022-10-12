@@ -12,14 +12,13 @@ import {
     Badge,
     Toolbar,
     IconButton,
-    Box, Popover, Chip, Typography, useTheme, Card, List, ListItem, ListSubheader,
+    Box, Popover, Typography, useTheme, List, ListItem, ListSubheader,
 } from "@mui/material";
 
 // config
 import {siteHeader} from "@features/sideBarMenu";
 
 // components
-import {TextFieldSearch} from "@features/textFieldSearch";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
@@ -28,8 +27,7 @@ import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import {AppointmentPatientCard, CipCard, setTimer, timerSelector} from "@features/card";
-import moment from "moment-timezone";
+import {CipCard, setTimer, timerSelector} from "@features/card";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {dashLayoutSelector} from "@features/base";
 
@@ -41,6 +39,7 @@ function TopNavBar({...props}) {
     const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
     const theme = useTheme();
+
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
     const {ongoing} = useAppSelector(dashLayoutSelector);
@@ -135,7 +134,18 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>*/}
                         <Hidden mdDown>
-                            <IconButton color="primary" edge="start" className="btn">
+                            <IconButton
+                                onClick={() => {
+                                    if (document.fullscreenElement) {
+                                        document.exitFullscreen()
+                                            .catch((err) => console.error(err));
+                                    } else {
+                                        document.documentElement.requestFullscreen()
+                                            .catch((err) => console.error(err));
+                                    }
+                                }}
+                                color="primary" edge="start"
+                                className="btn">
                                 <Icon path="ic-scan"/>
                             </IconButton>
                             {/*<TextFieldSearch color="primary" className="topbar-search"/>*/}
@@ -204,7 +214,7 @@ function TopNavBar({...props}) {
                         </MenuList>
                         <LangButton/>
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{pr: 0}} disableRipple>
+                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
                                 <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>
@@ -233,7 +243,7 @@ function TopNavBar({...props}) {
                         </MenuList>
 
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{pr: 0}} disableRipple>
+                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
                                 <ProfilMenuIcon/>
                             </MenuItem>
                         </MenuList>

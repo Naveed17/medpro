@@ -43,13 +43,12 @@ import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import {LoadingButton} from "@mui/lab";
 
-
 function AppointmentDetail({...props}) {
     const {
         OnConsultation,
         OnConsultationView,
         OnEditDetail,
-        OnDataUpdated,
+        OnDataUpdated = null,
         OnPatientNoShow,
         OnWaiting,
         OnLeaveWaiting,
@@ -63,11 +62,13 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+
     const {t, ready} = useTranslation("common")
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {selectedEvent: data} = useAppSelector(agendaSelector);
 
     const {
@@ -76,7 +77,7 @@ function AppointmentDetail({...props}) {
         TriggerWithoutValidation);
 
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
-    const [instruction, setInstruction] = useState(data?.extendedProps.instruction);
+    const [instruction, setInstruction] = useState(data?.extendedProps?.instruction ? data?.extendedProps?.instruction : "");
     const [openTooltip, setOpenTooltip] = useState(false);
     const [edited, setEdited] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -94,7 +95,9 @@ function AppointmentDetail({...props}) {
         }).then(() => {
             setLoading(false);
             setEdited(false);
-            OnDataUpdated();
+            if (OnDataUpdated) {
+                OnDataUpdated();
+            }
         });
     }
 
@@ -163,7 +166,7 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        <LoadingButton
+                        {!roles.includes('ROLE_SECRETARY') && <LoadingButton
                             {...{loading}}
                             loadingPosition="start"
                             variant="contained"
@@ -175,9 +178,9 @@ function AppointmentDetail({...props}) {
                             }}
                         >
                             {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
-                        </LoadingButton>
+                        </LoadingButton>}
                     </Stack>
-                    {data?.extendedProps.hasErrors.map((error: string, index: number) => (
+                    {data?.extendedProps.hasErrors?.map((error: string, index: number) => (
                         <Stack key={`error${index}`}
                                sx={{mt: 2}} spacing={2}
                                direction="row" justifyContent='space-between'
@@ -188,7 +191,7 @@ function AppointmentDetail({...props}) {
                             </Typography>
                         </Stack>
                     ))}
-                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors.length > 1 ? 0 : 2}} variant="body1"
+                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors?.length > 1 ? 0 : 2}} variant="body1"
                                 fontWeight={600}>
                         {t('time_slot')}
                     </Typography>
@@ -255,8 +258,8 @@ function AppointmentDetail({...props}) {
                                 {data?.extendedProps.patient.phone && <ListItem>
                                     <IconUrl path='ic-tel'/>
                                     <Box component='img'
-                                         src={`https://flagcdn.com/w20/${data?.extendedProps.patient.phone.ccode}.png`}
-                                         srcSet={`https://flagcdn.com/w40/${data?.extendedProps.patient.phone.ccode}.png 2x`}
+                                         src={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg`}
+                                         srcSet={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg 2x`}
                                          sx={{width: 13, ml: 1}}/>
                                     <Link underline="none" href={`tel:${data?.extendedProps.patient.phone}`}
                                           sx={{ml: 1, fontSize: 11}}
@@ -298,96 +301,101 @@ function AppointmentDetail({...props}) {
                         </CardContent>
                     </Card>
                 </Box>
-                <CardActions sx={{pb: 4}}>
-                    <Stack spacing={1} width={1}>
-                        <Button onClick={() => OnWaiting(data)}
+                {router.pathname !== "/dashboard/patient" &&
+                    <CardActions sx={{pb: 4}}>
+                        <Stack spacing={1} width={1}>
+                            <Button onClick={() => OnWaiting(data)}
+                                    sx={{
+                                        display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                            data?.extendedProps.status.key === "WAITING_ROOM") ? "none" : "flex"
+                                    }}
+                                    fullWidth
+                                    variant='contained'
+                                    startIcon={<Icon path='ic-salle'/>}>
+                                {t('waiting')}
+                            </Button>
+                            <Button onClick={() => OnLeaveWaiting(data)}
+                                    sx={{
+                                        display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                            data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                    }}
+                                    fullWidth
+                                    variant='contained'
+                                    startIcon={<Icon path='ic-salle'/>}>
+                                {t('leave_waiting_room')}
+                            </Button>
+                            <Button
                                 sx={{
-                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                        data?.extendedProps.status.key === "WAITING_ROOM") ? "none" : "flex"
+                                    display: (moment().isBefore(data?.extendedProps.time) || data?.extendedProps.status.key === "FINISHED") ? "none" : "flex"
                                 }}
-                                fullWidth
-                                variant='contained'
-                                startIcon={<Icon path='ic-salle'/>}>
-                            {t('waiting')}
-                        </Button>
-                        <Button onClick={() => OnLeaveWaiting(data)}
+                                onClick={() => OnPatientNoShow(data)}
+                                fullWidth variant='contained'
+                                startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
+                                {t('event.missPatient')}
+                            </Button>
+                            <Button
                                 sx={{
-                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                        data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                    display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
                                 }}
-                                fullWidth
-                                variant='contained'
-                                startIcon={<Icon path='ic-salle'/>}>
-                            {t('leave_waiting_room')}
-                        </Button>
-                        <Button
-                            sx={{
-                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
-                            }}
-                            onClick={() => OnPatientNoShow(data)}
-                            fullWidth variant='contained'
-                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
-                            {t('event.missPatient')}
-                        </Button>
-                        <Button
-                            sx={{
-                                display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
-                            }}
-                            onClick={() => {
-                                dispatch(setMoveDateTime({
-                                    date: new Date(data?.extendedProps.time),
-                                    time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
-                                    action: "reschedule",
-                                    selected: false
-                                }));
-                                SetMoveDialog(true)
-                            }}
-                            fullWidth variant='contained'
-                            startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
-                            {t('event.reschedule')}
-                        </Button>
-                        <Button
-                            sx={{
-                                display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
-                            }}
-                            onClick={() => {
-                                dispatch(setMoveDateTime({
-                                    date: new Date(data?.extendedProps.time),
-                                    time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
-                                    action: "move",
-                                    selected: false
-                                }));
-                                SetMoveDialog(true)
-                            }}
-                            fullWidth variant='contained'
-                            startIcon={<IconUrl path='iconfinder'/>}>
-                            {t('event.move')}
-                        </Button>
-                        <Button onClick={() => SetCancelDialog(true)}
-                                fullWidth
-                                variant='contained-white'
-                                color="error"
+                                onClick={() => {
+                                    dispatch(setMoveDateTime({
+                                        date: new Date(data?.extendedProps.time),
+                                        time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                        action: "reschedule",
+                                        selected: false
+                                    }));
+                                    SetMoveDialog(true)
+                                }}
+                                fullWidth variant='contained'
+                                startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
+                                {t('event.reschedule')}
+                            </Button>
+                            <Button
                                 sx={{
-                                    display: data?.extendedProps.status.key === "CANCELED" ? "none" : "flex",
-                                    '& svg': {
-                                        width: 16,
-                                        height: 16
-                                    }
+                                    display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
                                 }}
-                                startIcon={<IconUrl path='icdelete'
-                                                    color={data?.extendedProps.status.key === "CANCELED" ?
-                                                        'white' : theme.palette.error.main}/>}>
-                            {t('event.cancel')}
-                        </Button>
-                        <Button onClick={() => SetDeleteDialog(true)}
-                                fullWidth
-                                variant='contained-white'
-                                color="error"
-                                startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
-                            {t('event.delete')}
-                        </Button>
-                    </Stack>
-                </CardActions>
+                                onClick={() => {
+                                    dispatch(setMoveDateTime({
+                                        date: new Date(data?.extendedProps.time),
+                                        time: moment(new Date(data?.extendedProps.time)).format("HH:mm"),
+                                        action: "move",
+                                        selected: false
+                                    }));
+                                    SetMoveDialog(true)
+                                }}
+                                fullWidth variant='contained'
+                                startIcon={<IconUrl path='iconfinder'/>}>
+                                {t('event.move')}
+                            </Button>
+                            <Button onClick={() => SetCancelDialog(true)}
+                                    fullWidth
+                                    variant='contained-white'
+                                    color="error"
+                                    sx={{
+                                        display: (data?.extendedProps.status.key === "CANCELED" ||
+                                            data?.extendedProps.status.key === "FINISHED") ? "none" : "flex",
+                                        '& svg': {
+                                            width: 16,
+                                            height: 16
+                                        }
+                                    }}
+                                    startIcon={<IconUrl path='icdelete'
+                                                        color={data?.extendedProps.status.key === "CANCELED" ?
+                                                            'white' : theme.palette.error.main}/>}>
+                                {t('event.cancel')}
+                            </Button>
+                            <Button onClick={() => SetDeleteDialog(true)}
+                                    sx={{
+                                        display: data?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
+                                    }}
+                                    fullWidth
+                                    variant='contained-white'
+                                    color="error"
+                                    startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
+                                {t('event.delete')}
+                            </Button>
+                        </Stack>
+                    </CardActions>}
             </Box>
 
             <Dialog action={() => <QrCodeDialog data={data}/>}

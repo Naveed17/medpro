@@ -1,7 +1,6 @@
 // Material
 import {
     Box,
-    CssBaseline,
     Drawer,
     List,
     ListItem,
@@ -26,21 +25,25 @@ const {sidebarItems} = siteHeader;
 //style
 import "@styles/sidebarMenu.module.scss";
 import Image from 'next/image'
-import StatsIcon from "@themes/overrides/icons/statsIcon";
 import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
-import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
+import {toggleMobileBar} from "@features/sideBarMenu/actions";
 import React, {useEffect, useRef} from "react";
 import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
-import {dashLayoutSelector} from "@features/base/components/dashLayout/selectors";
+import {dashLayoutSelector} from "@features/base";
+import {useSession} from "next-auth/react";
 
 function SideBarMenu({children}: LayoutProps) {
+    const {data: session} = useSession();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const router = useRouter();
     const dispatch = useAppDispatch();
+
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
+
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
     let container: any = useRef<HTMLDivElement>(null);
@@ -62,7 +65,8 @@ function SideBarMenu({children}: LayoutProps) {
 
 
     const handleSettingRoute = () => {
-        isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+        isMobile ? router.push("/dashboard/settings") :
+            router.push(`/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`);
         dispatch(toggleMobileBar(true));
     };
 

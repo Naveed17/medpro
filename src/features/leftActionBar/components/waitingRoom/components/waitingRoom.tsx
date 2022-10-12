@@ -9,8 +9,15 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {FilterRootStyled, leftActionBarSelector, PatientFilter, setFilter} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    FilterRootStyled,
+    leftActionBarSelector,
+    PatientFilter,
+    setFilter
+} from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {setView} from "@features/calendar";
 
 function WaitingRoom() {
     const {data: session} = useSession();
@@ -66,24 +73,29 @@ function WaitingRoom() {
                         },
                         children: (
                             <FilterRootStyled>
-                                <PatientFilter item={{
-                                    heading: {
-                                        icon: "ic-patient",
-                                        title: "patient",
-                                    },
+                                <PatientFilter
+                                    OnSearch={(data: { query: ActionBarState }) => {
+                                        dispatch(setView("listWeek"));
+                                        dispatch(setFilter({patient: data.query}));
+                                    }}
+                                    item={{
+                                        heading: {
+                                            icon: "ic-patient",
+                                            title: "patient",
+                                        },
 
-                                    gender: {
-                                        heading: "gender",
-                                        genders: ["male", "female"],
-                                    },
-                                    textField: {
-                                        labels: [
-                                            {label: "name", placeholder: "name"},
-                                            {label: "date-of-birth", placeholder: "--/--/----"},
-                                            {label: "telephone", placeholder: "telephone"},
-                                        ],
-                                    },
-                                }} t={t}/>
+                                        gender: {
+                                            heading: "gender",
+                                            genders: ["male", "female"],
+                                        },
+                                        textField: {
+                                            labels: [
+                                                {label: "name", placeholder: "name"},
+                                                {label: "date-of-birth", placeholder: "--/--/----"},
+                                                {label: "telephone", placeholder: "telephone"},
+                                            ],
+                                        },
+                                    }} t={t}/>
                             </FilterRootStyled>
                         ),
                     },

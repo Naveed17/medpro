@@ -2,7 +2,8 @@
   "subheader": {
     "title": "Salle d’attente",
     "room": "salle",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente."
   },
   "filter": {
     "title": "Filtre",
@@ -42,6 +43,7 @@
     "room": "salle",
     "start_the_consultation": "Commencer la consultation",
     "leave_waiting_room": "Quitter la salle d'attente",
+    "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente.",
     "empty": "Aucun patient dans salle d'attente",
     "desc": "Selectionner RDV et ajouter le patient dans salle d'attente",
     "table": {
