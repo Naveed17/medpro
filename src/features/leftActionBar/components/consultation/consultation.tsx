@@ -2,15 +2,19 @@
 import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
-    Box,
-    Typography,
     Avatar,
-    Stack,
+    Box,
+    Button,
+    Collapse,
+    IconButton,
+    InputAdornment,
     List,
     ListItem,
     ListItemIcon,
-    IconButton,
-    Collapse, Skeleton,
+    Skeleton,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
@@ -21,12 +25,15 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
+import {pxToRem} from "@themes/formatFontSize";
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const [loading, setLoading] = useState<boolean>(true);
+    const [edit, setEdit] = useState<boolean>(false);
 
     const dispatch = useAppDispatch();
 
@@ -54,15 +61,28 @@ function Consultation() {
                     <Box>
                         {loading ?
                             <>
-                                <Skeleton width={130} variant="text" />
-                                <Skeleton variant="text" />
-                            </> : <><Typography
-                                variant="body1"
-                                color="primary.main"
-                                sx={{fontFamily: "Poppins"}}
-                            >
-                                {patient?.firstName + " " + patient?.lastName}
-                            </Typography>
+                                <Skeleton width={130} variant="text"/>
+                                <Skeleton variant="text"/>
+                            </> : <>
+                                <TextField variant="standard"
+                                           InputProps={{
+                                               style: {
+                                                   background: "white",
+                                                   width: '120%'
+                                               },
+                                               disableUnderline: true,
+                                           }}
+                                           inputProps={{
+                                               style: {
+                                                   background: "white",
+                                                   fontSize: pxToRem(14),
+                                                   color: '#0696D6'
+                                               },
+                                               readOnly: !edit
+                                           }}
+                                           placeholder={'name'}
+                                           id={'name'}
+                                           value={patient?.firstName + " " + patient?.lastName}/>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
                                     {patient?.birthdate
@@ -70,6 +90,14 @@ function Consultation() {
                                         : "--"}{" "}
                                     {t("year")})
                                 </Typography></>}
+                    </Box>
+
+                    <Box onClick={() => {
+                        setEdit(true)
+                        document.getElementById('name')?.focus()
+                    }}
+                         style={{position: "absolute", top: 20, right: 10}}>
+                        <Icon path={'ic-duotone'}/>
                     </Box>
                 </Box>
                 <Box className="contact" ml={2}>
@@ -89,35 +117,66 @@ function Consultation() {
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        {patient?.contact && patient?.contact.length > 0 && <Typography
-                            component="div"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
-                                mb: 0.3,
-                            }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            <Icon path="ic-phone"/>
-                            {patient?.contact[0].code} {patient?.contact[0].value}
-                        </Typography>}
-                        <Typography
-                            component="div"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
-                            }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            {patient?.email && <Icon path="ic-message-contour"/>}
-                            {patient?.email}
-                        </Typography>
+                        {patient?.contact && patient?.contact.length > 0 &&
+                            <TextField variant="standard"
+                                       InputProps={{
+                                           style: {
+                                               background: "white",
+                                               width: '120%'
+                                           },
+                                           disableUnderline: true,
+                                           startAdornment: (
+                                               <InputAdornment
+                                                   position="start">
+                                                   <Icon
+                                                       path="ic-phone"/>
+                                               </InputAdornment>
+                                           )
+                                       }}
+                                       inputProps={{
+                                           style: {
+                                               background: "white",
+                                               fontSize: 12,
+                                               color: '#7C878E'
+                                           },
+                                           readOnly: !edit
+                                       }}
+                                       placeholder={'Ajouter numéro téléphone'}
+                                       value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
+                            />}
+
+                        <TextField variant="standard"
+                                   InputProps={{
+                                       style: {background: "white", width: '120%'},
+                                       disableUnderline: true,
+                                       startAdornment: (
+                                           <InputAdornment position="start">
+                                               <Icon path="ic-message-contour"/>
+                                           </InputAdornment>
+                                       )
+                                   }}
+                                   inputProps={{style: {background: "white", fontSize: 12, color: '#7C878E'}}}
+                                   placeholder={'Ajouter adresse e-mail'}
+                                   value={patient?.email}
+                        />
                     </Box>
                 </Box>
+            </Box>
+            <Box style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: '-30px',
+                justifyContent: "center"
+            }}>
+                {edit && <Button className='btn-add'
+                                 sx={{ml: 'auto', margin: 'auto'}}
+                                 size='small'
+                                 onClick={() => {
+                                     setEdit(false)
+                                 }}
+                                 startIcon={<SaveAsIcon/>}>
+                    {t('save')}
+                </Button>}
             </Box>
 
             {/* <Stack spacing={1} mb={1}>
