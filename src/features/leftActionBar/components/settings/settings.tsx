@@ -1,5 +1,5 @@
 import React from "react";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 // Material ui
 import {
     Typography,
@@ -14,14 +14,18 @@ import {
 
 // config data
 import settingsData from "./settingsConfig";
-import { SettingBarStyled } from "@features/leftActionBar";
-import { useTranslation } from "next-i18next";
+import {SettingBarStyled} from "@features/leftActionBar";
+import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
+import {useSession} from "next-auth/react";
 
 function Settings() {
+    const {data: session} = useSession();
     const router = useRouter();
 
-    const { t, ready } = useTranslation("settings");
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+
+    const {t, ready} = useTranslation("settings");
     if (!ready) return (<>loading translations...</>);
 
     return (
@@ -29,23 +33,26 @@ function Settings() {
             <Typography variant="h6" className="heading">
                 {t('menu.' + settingsData.title)}
             </Typography>
-            <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
+            <Box sx={{width: "100%", bgcolor: "background.paper"}}>
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData.data.map((v: any) => (
                             <ListItem
                                 key={v.name}
-                                onClick={() => {
-                                    !v.disable && router.push(`${v.href}`);
-                                }}
-
+                                {...((roles?.includes('ROLE_SECRETARY') &&
+                                    ['profile', 'acts', 'actfees'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
                                 className={router.pathname === v.href ? 'active' : ''}
                                 disablePadding>
-                                <ListItemButton disabled={v.disable} disableRipple>
+                                <ListItemButton
+                                    onClick={() => {
+                                        router.push(`${v.href}`);
+                                    }}
+                                    disabled={v.disable}
+                                    disableRipple>
                                     <ListItemIcon>
-                                        <IconUrl path={v.icon} />
+                                        <IconUrl path={v.icon}/>
                                     </ListItemIcon>
-                                    <ListItemText primary={t('menu.' + v.name)} />
+                                    <ListItemText primary={t('menu.' + v.name)}/>
                                 </ListItemButton>
                             </ListItem>
                         ))}

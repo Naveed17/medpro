@@ -46,10 +46,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
             <Form
                 onChange={(ev: any) => {
                     console.log('changes detected', ev.data)
-                    if (ev.data.taille && ev.data.poids){
-                        ev.data.imc = ev.data.poids / Math.pow(ev.data.taille,2)
-                    }
-
                     localStorage.setItem('Modeldata', JSON.stringify(ev.data))
                 }}
                 // @ts-ignore
@@ -94,6 +90,7 @@ function Widget({...props}) {
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop
         setModal(modal)
+        console.log(modal)
         setValue(prop);
         setOpen(false);
     };

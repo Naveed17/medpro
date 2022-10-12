@@ -13,7 +13,6 @@ export default function HistoryCard({...props}) {
     const {row, patient} = props
     const dispatch = useAppDispatch();
     const status = AppointmentStatus[row.status];
-
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     if (!ready) return <>loading translations...</>;
     return (
@@ -59,7 +58,7 @@ export default function HistoryCard({...props}) {
                                 motif: row.consultationReason,
                                 description: "",
                                 meeting: false,
-                                status: status.value
+                                status
                             }
                         }
                         dispatch(setSelectedEvent(event as any));

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: med-pro
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: http

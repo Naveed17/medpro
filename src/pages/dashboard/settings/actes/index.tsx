@@ -93,17 +93,17 @@ function Actes() {
         if (httpProfessionalsResponse !== undefined) {
 
             const professionalSpecialities = {};
-            (httpProfessionalsResponse as any).data[0].medical_professional.specialities.map((speciality: any, index: number) => {
+            (httpProfessionalsResponse as any).data[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
 
             setSpecialities(professionalSpecialities);
             setIsProfil(true);
-            setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0].medical_professional.uuid);
-            const acts = (httpProfessionalsResponse as any).data[0].acts;
+            setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0]?.medical_professional.uuid);
+            const acts = (httpProfessionalsResponse as any).data[0]?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
-            acts.map((act: MedicalProfessionalActModel) => {
+            acts?.map((act: MedicalProfessionalActModel) => {
                 act.isTopAct ? main.push((act.act) as ActModel) : secondary.push(act.act);
             });
             setMainActes(main);

@@ -32,14 +32,13 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
-import {Check} from "@mui/icons-material";
 import Link from "next/link";
 
 function ProfilMenu() {
     const {data: session} = useSession();
     const router = useRouter();
     const {opened} = useAppSelector(profileMenuSelector);
-    const {agendas} = useAppSelector(agendaSelector);
+    const {agendas, config} = useAppSelector(agendaSelector);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
@@ -49,6 +48,7 @@ function ProfilMenu() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const {data: user} = session as Session;
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger} = useRequestMutation(null, "/settings");
@@ -85,7 +85,8 @@ function ProfilMenu() {
                 window.location.href = path;
                 break;
             case 'profile':
-                isMobile ? router.push("/dashboard/settings") : router.push("/dashboard/settings/profil")
+                isMobile ? router.push("/dashboard/settings") :
+                    router.push(`/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
                 dispatch(toggleMobileBar(true));
                 break;
         }
@@ -113,7 +114,7 @@ function ProfilMenu() {
                     className="profile-img"
                     component="img"
                     alt="The house from the offer."
-                    src="/static/mock-images/avatars/avatar_1.jpg"
+                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
                     width={26}
                     height={26}
                 />
@@ -150,16 +151,16 @@ function ProfilMenu() {
                                                     className="profile-img"
                                                     component="img"
                                                     alt="The house from the offer."
-                                                    src="/static/mock-images/avatars/avatar_1.jpg"
+                                                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
                                                     width={pxToRem(46)}
                                                     height={pxToRem(46)}
                                                 />
                                                 <Box className="profile-detail">
                                                     <Typography variant="body1" className="name">
-                                                        {session?.user && (<> Dr {session.user.name} </>)}
+                                                        {session?.user && <> {roles.includes('ROLE_SECRETARY') ? "SECRÉTAIRE" : "DR"} {session.user.name?.toUpperCase()} </>}
                                                     </Typography>
                                                     <Typography variant="body2" className="des">
-                                                        Agenda Cabinet
+                                                        Agenda {config?.name}
                                                     </Typography>
                                                 </Box>
                                             </MenuItem>
@@ -195,7 +196,7 @@ function ProfilMenu() {
                                                         <Link href={"/dashboard/settings/places/new"}>
                                                             <MenuItem>
                                                                 <ListItemIcon>
-                                                                    <IconUrl path={"ic-plus"} />
+                                                                    <IconUrl path={"ic-plus"}/>
                                                                 </ListItemIcon>
                                                                 <ListItemText>
                                                                     Ajouter un agenda

@@ -98,7 +98,7 @@ function BalanceSheetDialog({...props}) {
     const handleChange = (ev: any) => {
         setName(ev.target.value);
 
-        if (ev.target.value.length > 2) {
+        if (ev.target.value.length >= 2) {
             trigger({
                 method: "GET",
                 url: "/api/private/analysis/" + router.locale + '?name=' + ev.target.value,

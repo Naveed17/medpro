@@ -1,19 +1,24 @@
 import React, {useEffect, useState} from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
-import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import {Label} from '@features/label';
 import {IconButton, Stack, Typography, Box} from '@mui/material';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {setTimer, timerSelector} from "@features/card";
+import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function CipCard() {
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
 
     const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+
+    const {data: user} = session as Session;
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
     const [time, setTime] = useState<number>(moment().diff(moment(initTimer, "HH:mm"), "seconds"));
 
@@ -40,10 +45,10 @@ function CipCard() {
     }
 
     return (
-        <CipCardStyled onClick={handleConsultation}>
+        <CipCardStyled {...(!roles.includes('ROLE_SECRETARY') && {onClick:handleConsultation})}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 1.7}}>
                 <IconButton size="small">
-                    {isActive && !isPaused ? <PauseCircleFilledRoundedIcon/> : <PlayCircleRoundedIcon/>}
+                    <PlayCircleRoundedIcon/>
                 </IconButton>
                 <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
                     {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}

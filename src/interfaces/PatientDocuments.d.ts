@@ -4,7 +4,7 @@ interface PatientDocuments {
   firstName: null | string;
   lastName: null | string;
   img: null | string;
-  type: string;
+  documentType: string;
   createdAt: string;
   createdBy: string;
   specialist: null | string;

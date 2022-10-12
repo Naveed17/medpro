@@ -1,5 +1,5 @@
 // react
-import {useEffect, useState, ReactElement} from "react";
+import React, {useEffect, useState, ReactElement} from "react";
 
 // next
 import {GetStaticProps} from "next";
@@ -34,9 +34,10 @@ import {
     AddPatientStep3, onResetPatient, setAppointmentPatient,
 } from "@features/tabPanel";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {PatientDetail} from "@features/dialog";
+import {AppointmentDetail, PatientDetail} from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {prepareSearchKeys} from "@app/hooks";
+import {agendaSelector, openDrawer} from "@features/calendar";
 
 const stepperData = [
     {
@@ -135,9 +136,10 @@ function Patient() {
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {patientId, patientAction} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-
+    const {openViewDrawer} = useAppSelector(agendaSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [appointmentDetailDrawer, setAppointmentDetailDrawer] = useState<boolean>(false);
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
@@ -221,6 +223,20 @@ function Patient() {
                     PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
                 />
             </Box>
+
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                }}
+            >
+                <AppointmentDetail
+                    OnDataUpdated={() => mutate()}
+                />
+            </Drawer>
+
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}
@@ -240,6 +256,7 @@ function Patient() {
                     patientId={patientId}
                 />
             </Drawer>
+
             <Drawer
                 anchor={"right"}
                 open={patientDrawer}
@@ -286,6 +303,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "patient",
             "agenda",
+            "consultation",
             "menu",
             "common",
         ])),

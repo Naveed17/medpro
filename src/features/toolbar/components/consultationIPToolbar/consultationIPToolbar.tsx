@@ -361,6 +361,7 @@ function ConsultationIPToolbar({...props}) {
                     dispatch(setTimer({isActive: false}))
                     localStorage.removeItem('Modeldata');
                     console.log(localStorage.getItem('Modeldata'))
+                    mutate();
                 })
             });
         }
@@ -368,6 +369,15 @@ function ConsultationIPToolbar({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end])
 
+    useEffect(() => {
+
+        if (appointement && appointement.latestAppointments.length === 0) {
+            setValue('consultation form');
+            setlabel('consultation_form');
+            setLastTabs('consultation_form')
+            setTabs(2)
+        }
+    }, [appointement]);
     useEffect(() => {
         selected(label);
         if (lastTabs === 'consultation_form') {

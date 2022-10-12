@@ -8,7 +8,7 @@ function GroupTable({ ...props }) {
   const Component: any = selectted?.component;
   return (
     <div>
-      <TableContainer>
+      <TableContainer className={"container"}>
         <Table size="small" aria-label="a dense table">
           <TableBody>
             <Component isNext data={data} loading={loading} />

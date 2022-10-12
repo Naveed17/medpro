@@ -8,7 +8,6 @@ import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
 import {ReactElement, useState} from 'react';
 import CloseIcon from "@mui/icons-material/Close";
-import CircleIcon from '@mui/icons-material/Circle';
 import moment from "moment-timezone";
 
 function WaitingRoomRow({...props}) {
@@ -60,10 +59,12 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         )
     }
+    
     const getDuration = (time: string) => {
-        return moment.duration(moment(
-            `${moment().format("DD-MM-YYYY")} ${time}`, "DD-MM-YYYY HH:mm")
-            .diff(moment(), "minutes")).humanize(true);
+        const duration: any = moment.duration(moment.utc().diff(moment.utc(time, "HH:mm")));
+        const hours = duration._data.hours !== 0 ? `${duration._data.hours} heures, ` : '';
+        const minutes = duration._data.minutes !== 0 ? `${duration._data.minutes} minutes` : '';
+        return `${hours} ${minutes}`;
     }
 
     const onClickTooltipItem = (item: {
