@@ -1,6 +1,6 @@
 // hooks
-import {useState} from "react";
-import {useTranslation} from "next-i18next";
+import { useState } from "react";
+import { useTranslation } from "next-i18next";
 // material
 import {
     Typography,
@@ -11,17 +11,17 @@ import {
     DialogActions,
 } from "@mui/material";
 // ____________________________________
-import {Dialog} from "@features/dialog";
+import { Dialog } from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import RootStyled from "./overrides/rootStyled";
 // utils
 import Icon from "@themes/urlIcon";
-import {useAppDispatch} from "@app/redux/hooks";
-import {openDrawer} from "@features/calendar";
-import {useRequestMutation} from "@app/axios";
-import {useRouter} from "next/router";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
+import { useAppDispatch } from "@app/redux/hooks";
+import { openDrawer } from "@features/calendar";
+import { useRequestMutation } from "@app/axios";
+import { useRouter } from "next/router";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 
 // selected dumy data
 const cardItems: PatientDetailsList[] = [
@@ -30,8 +30,8 @@ const cardItems: PatientDetailsList[] = [
         title: "title",
         icon: "ic-doc",
         items: [
-            {id: 0, name: "Diabète / Hypoglycémie"},
-            {id: 1, name: "Problèmes cardiaques / Hypertension"},
+            { id: 0, name: "Diabète / Hypoglycémie" },
+            { id: 1, name: "Problèmes cardiaques / Hypertension" },
         ],
     },
 ];
@@ -41,8 +41,8 @@ const emptyObject = {
     value: "",
 };
 
-function BackgroundCard({...props}) {
-    const {loading, patient, mutate} = props;
+function BackgroundCard({ ...props }) {
+    const { loading, patient, mutate } = props;
     const [data, setdata] = useState([...cardItems]);
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -50,9 +50,9 @@ function BackgroundCard({...props}) {
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const { trigger } = useRequestMutation(null, "/antecedent");
     const router = useRouter();
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
 
     const codes: any = {
         way_of_life: "0",
@@ -90,7 +90,7 @@ function BackgroundCard({...props}) {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             },
-            {revalidate: true, populateCache: true}
+            { revalidate: true, populateCache: true }
         ).then((r) => console.log("edit qualification", r));
 
         mutate();
@@ -99,7 +99,7 @@ function BackgroundCard({...props}) {
     };
     const handleOpen = (action: string) => {
         if (action === "consultation") {
-            dispatch(openDrawer({type: "add", open: true}));
+            dispatch(openDrawer({ type: "add", open: true }));
             return;
         }
         setState(patient.antecedents[action]);
@@ -110,20 +110,20 @@ function BackgroundCard({...props}) {
         handleClickDialog();
     };
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
 
     const onChangeList = (prop: PatientDetailsList) => {
         const newState = data.map((obj) => {
             if (obj.id === prop.id) {
-                return {...prop};
+                return { ...prop };
             }
             return obj;
         });
         setdata(newState);
     };
-    const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
+    const { t, ready } = useTranslation("patient", { keyPrefix: "background" });
     if (!ready) return <div>Loading...</div>;
 
     return (
@@ -131,10 +131,10 @@ function BackgroundCard({...props}) {
             <Typography
                 variant="body1"
                 color="text.primary"
-                sx={{my: 1, pt: 1}}
+                gutterBottom
             >
                 {loading ? (
-                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                    <Skeleton variant="text" sx={{ maxWidth: 200 }} />
                 ) : (
                     t("title")
                 )}
@@ -143,7 +143,7 @@ function BackgroundCard({...props}) {
                 {Object.keys(loading ? emptyObject : patient.antecedents).map(
                     (antecedent, idx: number) => (
                         <Grid key={Math.random()} item md={6} sm={12} xs={12}>
-                            <Paper sx={{p: 1.5, borderWidth: 0, height: "100%"}}>
+                            <Paper sx={{ p: 1.5, borderWidth: 0, height: "100%" }}>
                                 <Typography
                                     variant="body1"
                                     color="text.primary"
@@ -154,15 +154,15 @@ function BackgroundCard({...props}) {
                                     {loading ? (
                                         <Skeleton
                                             variant="text"
-                                            sx={{maxWidth: 150, width: "100%"}}
+                                            sx={{ maxWidth: 150, width: "100%" }}
                                         />
                                     ) : (
                                         t(antecedent)
                                     )}
                                 </Typography>
                                 {(loading
-                                        ? Array.from(new Array(3))
-                                        : patient.antecedents[antecedent]
+                                    ? Array.from(new Array(3))
+                                    : patient.antecedents[antecedent]
                                 ).map((v: any) => (
                                     <Typography
                                         key={Math.random()}
@@ -170,11 +170,11 @@ function BackgroundCard({...props}) {
                                         color="text.secondary"
                                         fontSize={11}
                                     >
-                                        {loading ? <Skeleton variant="text"/> : v.name}
+                                        {loading ? <Skeleton variant="text" /> : v.name}
                                     </Typography>
                                 ))}
                                 {loading ? (
-                                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                    <Skeleton variant="text" sx={{ maxWidth: 200 }} />
                                 ) : (
                                     <Button
                                         variant="text"
@@ -183,10 +183,10 @@ function BackgroundCard({...props}) {
                                         onClick={() => handleOpen(antecedent)}
                                         sx={{
                                             mt: 1,
-                                            svg: {width: 15, mr: 0.5, path: {fill: "#0696D6"}},
+                                            svg: { width: 15, mr: 0.5, path: { fill: "#0696D6" } },
                                         }}
                                     >
-                                        <Icon path="ic-plus"/> {t("add-background")}
+                                        <Icon path="ic-plus" /> {t("add-background")}
                                     </Button>
                                 )}
                             </Paper>
@@ -213,13 +213,13 @@ function BackgroundCard({...props}) {
                     dialogClose={handleCloseDialog}
                     actionDialog={
                         <DialogActions>
-                            <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                            <Button onClick={handleCloseDialog} startIcon={<CloseIcon />}>
                                 {t("cancel")}
                             </Button>
                             <Button
                                 variant="contained"
                                 onClick={handleCloseDialog}
-                                startIcon={<Icon path="ic-dowlaodfile"/>}
+                                startIcon={<Icon path="ic-dowlaodfile" />}
                             >
                                 {t("save")}
                             </Button>

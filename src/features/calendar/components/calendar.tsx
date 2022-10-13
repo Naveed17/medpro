@@ -199,6 +199,23 @@ function Calendar({...props}) {
         setContextMenu(null);
     };
 
+    const MenuContextlog = (action: string, eventMenu: EventDef) => {
+        return (
+            action === "onWaitingRoom" &&
+            (moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
+                (eventMenu?.extendedProps.status.key === "WAITING_ROOM" || eventMenu?.extendedProps.status.key === "ON_GOING" || eventMenu?.extendedProps.status.key === "FINISHED")) ||
+            action === "onConsultationView" && (eventMenu?.extendedProps.status.key !== "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
+            action === "onConsultationDetail" && (["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
+            action === "onCancel" &&
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
+            action === "onPatientNoShow" && ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
+                eventMenu?.extendedProps.status.key === "FINISHED") ||
+            action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
+        )
+    }
+
     return (
         <Box bgcolor="#F0FAFF">
             <RootStyled>
@@ -289,6 +306,7 @@ function Calendar({...props}) {
                                 firstDay={1}
                                 initialView={view}
                                 dayMaxEventRows={isLgScreen ? 6 : 3}
+                                eventMaxStack={1}
                                 eventDisplay="block"
                                 headerToolbar={false}
                                 allDayMaintainDuration
@@ -330,19 +348,7 @@ function Calendar({...props}) {
                                     horizontal: 'left',
                                 }}
                             >
-                                {CalendarContextMenu.filter(data => !(data.action === "onWaitingRoom" &&
-                                    moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
-                                    data.action === "onWaitingRoom" && eventMenu?.extendedProps.status.key === "WAITING_ROOM" ||
-                                    data.action === "onConsultationView" && (eventMenu?.extendedProps.status.key !== "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
-                                    data.action === "onConsultationDetail" && (eventMenu?.extendedProps.status.key === "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
-                                    data.action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
-                                    data.action === "onCancel" && (eventMenu?.extendedProps.status.key === "CANCELED" ||
-                                        eventMenu?.extendedProps.status.key === "FINISHED") ||
-                                    data.action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
-                                    data.action === "onPatientNoShow" && (moment().isBefore(eventMenu?.extendedProps.time) ||
-                                        eventMenu?.extendedProps.status.key === "FINISHED") ||
-                                    data.action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
-                                )).map((v: any) => (
+                                {CalendarContextMenu.filter(data => !MenuContextlog(data.action, eventMenu as EventDef)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
                                             onClick={() => {

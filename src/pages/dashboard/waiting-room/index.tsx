@@ -1,29 +1,31 @@
-import {GetStaticProps} from "next";
-import React, {ReactElement, useEffect, useState} from "react";
+import { GetStaticProps } from "next";
+import React, { ReactElement, useEffect, useState } from "react";
 //components
-import {DetailsCard, NoDataCard, setTimer} from "@features/card";
+import { DetailsCard, NoDataCard, setTimer } from "@features/card";
 import Icon from "@themes/urlIcon";
 // next-i18next
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {useTranslation} from "next-i18next";
-import {DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Box, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
-import {SubHeader} from "@features/subHeader";
-import {RoomToolbar} from "@features/toolbar";
-import {Otable} from "@features/table";
-import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {useSession} from "next-auth/react";
-import {useRouter} from "next/router";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+import { DashLayout, dashLayoutSelector, setOngoing } from "@features/base";
+import { Box, LinearProgress, Menu, MenuItem, useTheme } from "@mui/material";
+import { SubHeader } from "@features/subHeader";
+import { RoomToolbar } from "@features/toolbar";
+import { Otable } from "@features/table";
+import { Session } from "next-auth";
+import { useRequest, useRequestMutation } from "@app/axios";
+import { SWRNoValidateConfig, TriggerWithoutValidation } from "@app/swr/swrProvider";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 import Typography from "@mui/material/Typography";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
+import { leftActionBarSelector } from "@features/leftActionBar";
 import moment from "moment-timezone";
-import {useSnackbar} from "notistack";
+import { useSnackbar } from "notistack";
+import {toggleSideBar} from "@features/sideBarMenu";
+import {useIsMountedRef} from "@app/hooks";
 
 export const headCells = [
     {
@@ -86,15 +88,16 @@ const AddWaitingRoomCardData = {
 };
 
 function WaitingRoom() {
-    const {data: session, status} = useSession();
+    const { data: session, status } = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
-    const {t, ready} = useTranslation("waitingRoom", {keyPrefix: "config"});
+    const isMounted = useIsMountedRef();
+    const { enqueueSnackbar } = useSnackbar();
 
-    const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "config" });
+    const { query: filter } = useAppSelector(leftActionBarSelector);
+    const { waiting_room } = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [contextMenu, setContextMenu] = useState<{
@@ -105,19 +108,19 @@ function WaitingRoom() {
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [popoverActions, setPopoverActions] = useState([{
         title: "start_the_consultation",
-        icon: <PlayCircleIcon/>,
+        icon: <PlayCircleIcon />,
         action: "onConsultationStart",
     }, {
         title: "leave_waiting_room",
-        icon: <Icon color={"white"} path="ic-salle"/>,
+        icon: <Icon color={"white"} path="ic-salle" />,
         action: "onLeaveWaitingRoom",
     }]);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+    const { data: httpAgendasResponse, error: errorHttpAgendas } = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
@@ -157,7 +160,7 @@ function WaitingRoom() {
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
             data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
+            headers: { Authorization: `Bearer ${session?.accessToken}` }
         });
     }
 
@@ -171,8 +174,8 @@ function WaitingRoom() {
                     mouseY: event.clientY - 6,
                 }
                 : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                  // Other native context menus might behave different.
-                  // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
                 null,
         );
     };
@@ -185,14 +188,14 @@ function WaitingRoom() {
         switch (action) {
             case "onConsultationStart":
                 const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
-                router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                router.push(slugConsultation, slugConsultation, { locale: router.locale }).then(() => {
                     const event: any = {
                         publicId: row?.uuid as string,
                         extendedProps: {
                             patient: row?.patient
                         }
                     };
-                    dispatch(setTimer({isActive: true, isPaused: false, event}));
+                    dispatch(setTimer({ isActive: true, isPaused: false, event }));
                     updateAppointmentStatus(row?.uuid as string, "4", {
                         start_date: moment().format("DD-MM-YYYY"),
                         start_time: moment().format("HH:mm")
@@ -201,7 +204,7 @@ function WaitingRoom() {
                 break;
             case "onLeaveWaitingRoom":
                 updateAppointmentStatus(row?.uuid as string, "6").then(() => {
-                    dispatch(setOngoing({waiting_room: waiting_room - 1}))
+                    dispatch(setOngoing({ waiting_room: waiting_room - 1 }))
                     mutateWaitingRoom();
                 });
                 break;
@@ -211,8 +214,14 @@ function WaitingRoom() {
     const waitingRooms = (httpWaitingRoomsResponse as HttpResponse)?.data as any;
 
     useEffect(() => {
+        if (isMounted.current) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]);
+
+    useEffect(() => {
         if (waitingRooms) {
-            dispatch(setOngoing({waiting_room: waitingRooms.length}))
+            dispatch(setOngoing({ waiting_room: waitingRooms.length }))
         }
     }, [dispatch, waitingRooms]);
 
@@ -220,7 +229,7 @@ function WaitingRoom() {
         if (roles && roles.includes('ROLE_SECRETARY')) {
             setPopoverActions([{
                 title: "leave_waiting_room",
-                icon: <Icon color={"white"} path="ic-salle"/>,
+                icon: <Icon color={"white"} path="ic-salle" />,
                 action: "onLeaveWaitingRoom",
             }])
         }
@@ -231,15 +240,15 @@ function WaitingRoom() {
     return (
         <>
             <SubHeader>
-                <RoomToolbar/>
+                <RoomToolbar />
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
-                }} color="warning"/>
+                }} color="warning" />
                 <DesktopContainer>
                     <Box className="container">
-                        <Box display={{xs: "none", md: "block"}} mt={1}>
+                        <Box display={{ xs: "none", md: "block" }} mt={1}>
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 && <Otable
@@ -258,11 +267,11 @@ function WaitingRoom() {
                                             t={t}
                                             onHandleClick={() => {
                                                 router.push('/dashboard/agenda').then(() => {
-                                                    enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                                                    enqueueSnackbar(t("add-to-waiting-room"), { variant: 'info' })
                                                 });
                                             }}
                                             ns={"waitingRoom"}
-                                            data={AddWaitingRoomCardData}/>
+                                            data={AddWaitingRoomCardData} />
                                     )}
 
                                     <Menu
@@ -277,14 +286,14 @@ function WaitingRoom() {
                                                     padding: theme.spacing(2),
                                                     display: "flex",
                                                     alignItems: "center",
-                                                    svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                                    svg: { color: "#fff", marginRight: theme.spacing(1), fontSize: 20 },
                                                     cursor: "pointer",
                                                 }
                                             },
                                         }}
                                         anchorPosition={
                                             contextMenu !== null
-                                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
                                                 : undefined
                                         }
                                         anchorOrigin={{
@@ -308,7 +317,7 @@ function WaitingRoom() {
                                                         }}
                                                     >
                                                         {v.icon}
-                                                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                        <Typography fontSize={15} sx={{ color: "#fff" }}>
                                                             {t(`${v.title}`)}
                                                         </Typography>
                                                     </MenuItem>
@@ -321,7 +330,7 @@ function WaitingRoom() {
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
-                    <DetailsCard waitingRoom rows={waitingRooms} t={t}/>
+                    <DetailsCard waitingRoom rows={waitingRooms} t={t} />
                 </MobileContainer>
             </Box>
 
@@ -329,7 +338,7 @@ function WaitingRoom() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, [

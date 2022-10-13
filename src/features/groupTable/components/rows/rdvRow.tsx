@@ -8,7 +8,7 @@ import {
   Skeleton,
 } from "@mui/material";
 // components
-import { RDVCard, RDVMobileCard } from "@features/card/";
+import { RDVCard, RDVMobileCard, RDVPreviousCard } from "@features/card";
 // utils
 import { useTranslation } from "next-i18next";
 import _ from "lodash";
@@ -19,7 +19,7 @@ function RDVRow({ ...props }) {
 
   const mapped =
     !loading &&
-      patient.previousAppointments?.map((v: any) => {
+    patient.previousAppointments?.map((v: any) => {
       return {
         ...v,
         year: v.dayDate.slice(-4),
@@ -41,28 +41,28 @@ function RDVRow({ ...props }) {
   if (!ready) return <>loading translations...</>;
   return (
     <React.Fragment>
-        {patient?.nextAppointments.length > 0 && <TableRow>
-            <TableCell colSpan={3} className="text-row">
-                <Typography variant="body1" color="text.primary">
-                    {loading ? (
-                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                    ) : (
-                        <>
-                            {t("pending-appo")}{" "}
-                            {patient.nextAppointments.length > 1 &&
-                                `(${patient.nextAppointments.length})`}
-                        </>
-                    )}
-                </Typography>
-            </TableCell>
-        </TableRow>}
+      {patient?.nextAppointments.length > 0 && <TableRow>
+        <TableCell colSpan={3} className="text-row">
+          <Typography variant="body1" color="text.primary">
+            {loading ? (
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
+            ) : (
+              <>
+                {t("pending-appo")}{" "}
+                {patient.nextAppointments.length > 1 &&
+                  `(${patient.nextAppointments.length})`}
+              </>
+            )}
+          </Typography>
+        </TableCell>
+      </TableRow>}
       {(loading ? Array.from(new Array(3)) : patient.nextAppointments).map(
         (data: PatientDetailsRDV) => (
           <React.Fragment key={Math.random()}>
             {matches ? (
-              <RDVCard t={t} inner={data} {...{patient, loading}} />
+              <RDVCard t={t} inner={data} {...{ patient, loading }} />
             ) : (
-              <RDVMobileCard {...{loading}} inner={data} />
+              <RDVMobileCard {...{ loading }} inner={data} />
             )}
           </React.Fragment>
         )
@@ -71,13 +71,13 @@ function RDVRow({ ...props }) {
         <TableCell colSpan={3} className="text-row">
           <Typography variant="body1" color="text.primary">
             {loading ? (
-                <Skeleton variant="text" sx={{maxWidth: 200}}/>
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
             ) : (
-                <>
-                  {t("old-appo")}{" "}
-                  {patient.previousAppointments.length > 1 &&
-                      `(${patient.previousAppointments.length})`}
-                </>
+              <>
+                {t("old-appo")}{" "}
+                {patient.previousAppointments.length > 1 &&
+                  `(${patient.previousAppointments.length})`}
+              </>
             )}
           </Typography>
         </TableCell>
@@ -96,13 +96,13 @@ function RDVRow({ ...props }) {
                 </Typography>
               </TableCell>
             </TableRow>
-            {(loading ? Array.from(new Array(4)) : data.data).map(
+            {(loading ? Array.from(new Array(4)) : data?.data).map(
               (inner: any) => (
                 <React.Fragment key={Math.random()}>
                   {matches ? (
-                    <RDVCard
+                    <RDVPreviousCard
                       inner={inner}
-                      {...{patient, loading}}
+                      {...{ patient, loading }}
                       key={Math.random()}
                     />
                   ) : (

@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Alert} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 
@@ -8,18 +8,30 @@ import moment from "moment-timezone";
 import CallIcon from "@mui/icons-material/Call";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import IconUrl from "@themes/urlIcon";
-import React from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style} = props;
+    const [height, setHeight] = useState(0)
+    const componentRef = useRef<null | HTMLDivElement>(null);
 
+    useEffect(() => {
+        if (componentRef.current) {
+            setHeight(componentRef.current.clientHeight)
+        }
+    }, [])
     return (
-        <RootStyled sx={style}>
-            <Box className={"badge"} sx={{m: 1, background: data?.type?.color}}>
+        <RootStyled sx={style} ref={componentRef}>
+            <Box className={"badge"} sx={{
+                background: data?.type?.color,
+                width: height - 9
+
+            }}>
                 <Typography
                     color="text.primary"
                     fontWeight={400}
+                    textAlign="center"
                     noWrap
                     fontSize={12}
                 >
@@ -65,6 +77,16 @@ function AppointmentPopoverCard({...props}) {
                     {data?.status.value}
                 </Label>
             </Stack>
+            {data.motif && <Stack pl={4} direction="row" mt={1} justifyContent='space-between' alignItems='flex-start'>
+                <Alert severity="info"
+                       sx={{
+                           "& .MuiAlert-icon": {
+                               mr: .5
+                           },
+                           p: "0 .5rem"
+                       }}>
+                    {" Motif: "}{data.motif?.name}</Alert>
+            </Stack>}
             <Stack
                 direction="row"
                 spacing={1}

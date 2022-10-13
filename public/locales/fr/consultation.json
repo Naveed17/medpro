@@ -182,6 +182,7 @@
     "see_details": "Voir détails",
     "prescription": "Ordonnance",
     "requested-analysis": "Demande analyse",
+    "requested-medical-imaging": "Demande imagerie",
     "years": "Ans",
     "months": "mois"
   },
@@ -233,6 +234,7 @@
   },
   "prescription": "Ordonnance",
   "requested-analysis": "Demande analyse",
+  "requested-medical-imaging": "Demande imagerie",
   "steppers": {
     "tabs": {
       "tab-1": "Type",

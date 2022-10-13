@@ -7,6 +7,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     '& .fc': {
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,
+        '--fc-more-link-bg-color': theme.palette.warning.main,
         '--fc-event-border-color': theme.palette.info.light,
         '--fc-non-business-color': 'rgba(221, 238, 246, 0.4)',
         '--fc-now-indicator-color': theme.palette.error.main,
@@ -86,7 +87,11 @@ const CalendarStyled = styled('div')(({theme}) => ({
         overflow: 'hidden',
         // boxShadow: theme.customShadows.z20,
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: theme.palette.background.paper
+        backgroundColor: theme.palette.background.paper,
+        "& .fc-popover-body": {
+            overflow: "scroll",
+            maxHeight: 300
+        }
     },
     '& .fc .fc-popover-header': {
         ...theme.typography.subtitle2,

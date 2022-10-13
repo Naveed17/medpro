@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
-import {CIPPatientHistoryCard, DocumentCard, HistoryCard, MotifCard} from "@features/card";
-import {Label} from "@features/label";
+import React, { useEffect, useState } from "react";
+import { PatientHistoryCard, DocumentCard, HistoryCard, MotifCard } from "@features/card";
+import { Label } from "@features/label";
 import {
     Box,
     Button,
@@ -15,11 +15,10 @@ import {
     Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {useAppSelector} from "@app/redux/hooks";
-import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer} from "@features/dialog";
+import { useAppSelector } from "@app/redux/hooks";
+import { AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer } from "@features/dialog";
 
-function HistoryTab({...props}) {
-
+function HistoryTab({ ...props }) {
     const {
         patient,
         appointement,
@@ -74,14 +73,12 @@ function HistoryTab({...props}) {
         }
     ];
 
-    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const [collapse, setCollapse] = useState<any>('');
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
-
     useEffect(() => {
         if (appointement) {
-            console.log(appointement)
             const index = appointement.latestAppointments.findIndex((app: any) => app.appointment.uuid === appuuid)
             if (index > -1) {
                 const element = appointement.latestAppointments.splice(index, 1)[0];
@@ -100,21 +97,21 @@ function HistoryTab({...props}) {
                 {
                     patient?.nextAppointments.slice(0, size).map((data: any, index: number) => (
                         <React.Fragment key={`patient-${index}`}>
-                            <HistoryCard row={data} patient={patient} t={t}/>
+                            <HistoryCard row={data} patient={patient} t={t} />
                         </React.Fragment>
                     ))
                 }
             </Stack>
             {size < patient?.nextAppointments.length &&
-                <Button style={{marginBottom: 10, marginTop: -10, fontSize: 12}} onClick={() => {
+                <Button style={{ marginBottom: 10, marginTop: -10, fontSize: 12 }} onClick={() => {
                     setSize(patient?.nextAppointments.length)
                 }}>{t('showAll')}</Button>}
 
             <Stack spacing={2}>
                 {apps.map((app: any) => (
-                    <CIPPatientHistoryCard key={app.appointment.uuid} data={app} appuuid={appuuid}>
+                    <PatientHistoryCard t={t} key={app.appointment.uuid} data={app} appuuid={appuuid}>
                         <Stack spacing={2}>
-                            <MotifCard data={app}/>
+                            <MotifCard data={app} t={t} />
                             <List dense>
                                 {
                                     subMotifCard.map((col: any, idx: number) => (
@@ -136,18 +133,18 @@ function HistoryTab({...props}) {
                                                         }
                                                     }}>
                                                     <ListItemIcon>
-                                                        <IconUrl path={col.icon}/>
+                                                        <IconUrl path={col.icon} />
                                                     </ListItemIcon>
                                                     <Typography variant='body2' fontWeight={700}>
                                                         {t(col.title)}
                                                     </Typography>
-                                                    <IconButton size="small" sx={{ml: 'auto'}}>
-                                                        <IconUrl path="ic-expand-more"/>
+                                                    <IconButton size="small" sx={{ ml: 'auto' }}>
+                                                        <IconUrl path="ic-expand-more" />
                                                     </IconButton>
                                                 </ListItem>
 
-                                                <ListItem sx={{p: 0}}>
-                                                    <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                                <ListItem sx={{ p: 0 }}>
+                                                    <Collapse in={collapse === col.id} sx={{ width: 1 }}>
                                                         {col.type === "treatment" && app.appointment.treatments.map((treatment: any, idx: number) => (
                                                             <Box key={`list-treatement-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
@@ -189,10 +186,10 @@ function HistoryTab({...props}) {
                                                             }}>
                                                                 {reqSheet.hasAnalysis.map((rs: any, idx: number) => (
                                                                     <p key={`req-sheet-p-${idx}`}
-                                                                       style={{
-                                                                           margin: 0,
-                                                                           fontSize: 12
-                                                                       }}>{rs.analysis.name} : {rs.result ? rs.result : ' --'}</p>
+                                                                        style={{
+                                                                            margin: 0,
+                                                                            fontSize: 12
+                                                                        }}>{rs.analysis.name} : {rs.result ? rs.result : ' --'}</p>
                                                                 ))}
                                                             </Box>
                                                         ))}
@@ -205,7 +202,7 @@ function HistoryTab({...props}) {
 
                                                         {
                                                             col.type === "document" && app.documents.length > 0 &&
-                                                            <Box style={{padding: 20, paddingTop: 25}}>
+                                                            <Box style={{ padding: 20, paddingTop: 25 }}>
                                                                 <Grid container spacing={2} sx={{
                                                                     bgcolor: theme => theme.palette.grey['A100'],
                                                                     mb: 1,
@@ -215,10 +212,10 @@ function HistoryTab({...props}) {
                                                                     {
                                                                         app.documents.map((card: any) =>
                                                                             <Grid item xs={3}
-                                                                                  key={`doc-item-${card.uuid}`}>
+                                                                                key={`doc-item-${card.uuid}`}>
                                                                                 <DocumentCard
                                                                                     data={card}
-                                                                                    style={{width: 30}}
+                                                                                    style={{ width: 30 }}
                                                                                     onClick={() => {
                                                                                         if (card.documentType === 'photo') {
                                                                                             setIsViewerOpen(card.uri)
@@ -255,7 +252,7 @@ function HistoryTab({...props}) {
                                                                                             })
                                                                                             setOpenDialog(true);
                                                                                         }
-                                                                                    }} t={t}/>
+                                                                                    }} t={t} />
                                                                             </Grid>
                                                                         )
                                                                     }
@@ -281,7 +278,7 @@ function HistoryTab({...props}) {
                             </List>
 
                         </Stack>
-                    </CIPPatientHistoryCard>
+                    </PatientHistoryCard>
                 ))
                 }
             </Stack>
@@ -293,7 +290,7 @@ function HistoryTab({...props}) {
                     dispatch(DialogOpenDrawer(false))
                 }}
             >
-                <AppointmentDetail/>
+                <AppointmentDetail />
             </Drawer>
         </>
     );

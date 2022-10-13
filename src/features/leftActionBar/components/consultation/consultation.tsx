@@ -2,15 +2,19 @@
 import React, {useEffect, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
-    Box,
-    Typography,
     Avatar,
-    Stack,
+    Box,
+    Button,
+    Collapse,
+    IconButton,
+    InputAdornment,
     List,
     ListItem,
     ListItemIcon,
-    IconButton,
-    Collapse, Skeleton,
+    Skeleton,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
@@ -18,15 +22,23 @@ import Content from "./content";
 import {collapse as collapseData} from "./config";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
+import {consultationSelector, SetPatient} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
+import {pxToRem} from "@themes/formatFontSize";
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const [loading, setLoading] = useState<boolean>(true);
+    const [edit, setEdit] = useState<boolean>(false);
+    const {trigger} = useRequestMutation(null, "/patients");
 
     const dispatch = useAppDispatch();
 
@@ -37,6 +49,11 @@ function Consultation() {
             setLoading(false)
         }
     }, [dispatch, patient]);
+
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -54,15 +71,41 @@ function Consultation() {
                     <Box>
                         {loading ?
                             <>
-                                <Skeleton width={130} variant="text" />
-                                <Skeleton variant="text" />
-                            </> : <><Typography
-                                variant="body1"
-                                color="primary.main"
-                                sx={{fontFamily: "Poppins"}}
-                            >
-                                {patient?.firstName + " " + patient?.lastName}
-                            </Typography>
+                                <Skeleton width={130} variant="text"/>
+                                <Skeleton variant="text"/>
+                            </> : <>
+                                <TextField variant="standard"
+                                           InputProps={{
+                                               style: {
+                                                   background: "white",
+                                                   width: '120%'
+                                               },
+                                               disableUnderline: true,
+                                           }}
+                                           inputProps={{
+                                               style: {
+                                                   background: "white",
+                                                   fontSize: pxToRem(14),
+                                                   color: '#0696D6'
+                                               },
+                                               readOnly: !edit
+                                           }}
+                                           placeholder={'name'}
+                                           onChange={(ev) => {
+                                               if (patient) {
+                                                   let p = {...patient}
+                                                   console.log(ev.target.value)
+                                                   const res = ev.target.value.split(' ')
+                                                   p.firstName = res[0];
+                                                   p.lastName = res[1] ? res[1] : '';
+                                                   dispatch(SetPatient(p))
+                                               }
+                                           }}
+                                           id={'name'}
+                                           onClick={() => {
+                                               setEdit(true)
+                                           }}
+                                           value={patient?.firstName + " " + patient?.lastName}/>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
                                     {patient?.birthdate
@@ -70,6 +113,14 @@ function Consultation() {
                                         : "--"}{" "}
                                     {t("year")})
                                 </Typography></>}
+                    </Box>
+
+                    <Box onClick={() => {
+                        setEdit(true)
+                        document.getElementById('name')?.focus()
+                    }}
+                         style={{position: "absolute", top: 20, right: 10}}>
+                        <Icon path={'ic-duotone'}/>
                     </Box>
                 </Box>
                 <Box className="contact" ml={2}>
@@ -89,35 +140,110 @@ function Consultation() {
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        {patient?.contact && patient?.contact.length > 0 && <Typography
-                            component="div"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
-                                mb: 0.3,
-                            }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            <Icon path="ic-phone"/>
-                            {patient?.contact[0].code} {patient?.contact[0].value}
-                        </Typography>}
-                        <Typography
-                            component="div"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                "& .react-svg": {mr: 0.8},
-                            }}
-                            variant="body2"
-                            color="text.secondary"
-                        >
-                            {patient?.email && <Icon path="ic-message-contour"/>}
-                            {patient?.email}
-                        </Typography>
+                        {patient?.contact && patient?.contact.length > 0 &&
+                            <TextField variant="standard"
+                                       InputProps={{
+                                           style: {
+                                               background: "white",
+                                               width: '120%'
+                                           },
+                                           disableUnderline: true,
+                                           startAdornment: (
+                                               <InputAdornment
+                                                   position="start">
+                                                   <Icon
+                                                       path="ic-phone"/>
+                                               </InputAdornment>
+                                           )
+                                       }}
+                                       inputProps={{
+                                           style: {
+                                               background: "white",
+                                               fontSize: 12,
+                                               color: '#7C878E'
+                                           },
+                                           readOnly: !edit
+
+                                       }}
+
+                                       onClick={() => {
+                                           setEdit(true)
+                                       }}
+                                       placeholder={'Ajouter numéro téléphone'}
+                                       value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
+                            />}
+
+                        <TextField variant="standard"
+                                   InputProps={{
+                                       style: {background: "white", width: '120%'},
+                                       disableUnderline: true,
+                                       startAdornment: (
+                                           <InputAdornment position="start">
+                                               <Icon path="ic-message-contour"/>
+                                           </InputAdornment>
+                                       )
+                                   }}
+                                   inputProps={{
+                                       style: {
+                                           background: "white",
+                                           fontSize: 12,
+                                           color: '#7C878E'
+                                       },
+                                       readOnly: !edit
+                                   }}
+                                   onChange={(ev) => {
+                                       if (patient) {
+                                           let p = {...patient}
+                                           p.email = ev.target.value;
+                                           dispatch(SetPatient(p))
+                                       }
+                                   }}
+                                   onClick={() => {
+                                       setEdit(true)
+                                   }}
+                                   placeholder={'Ajouter adresse e-mail'}
+                                   value={patient?.email}
+                        />
                     </Box>
                 </Box>
+            </Box>
+            <Box style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: '-30px',
+                justifyContent: "center"
+            }}>
+                {edit && <Button className='btn-add'
+                                 sx={{ml: 'auto', margin: 'auto'}}
+                                 size='small'
+                                 onClick={() => {
+                                     console.log(patient)
+                                     if (patient) {
+                                         const form = new FormData();
+                                         form.append('first_name', patient.firstName);
+                                         form.append('last_name', patient.lastName);
+                                         form.append('gender', patient.gender);
+                                         form.append('phone', JSON.stringify(patient.contact[0]));
+                                         form.append('email', patient.email);
+
+                                         trigger({
+                                             method: "PUT",
+                                             url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+                                             headers: {
+                                                 ContentType: 'application/x-www-form-urlencoded',
+                                                 Authorization: `Bearer ${session?.accessToken}`
+                                             },
+                                             data:form,
+                                         }, {revalidate: true, populateCache: true}).then((data) => {
+                                             console.log(data)
+                                         });
+
+                                         setEdit(false)
+                                     }
+                                 }}
+                                 startIcon={<SaveAsIcon/>}>
+                    {t('save')}
+                </Button>}
             </Box>
 
             {/* <Stack spacing={1} mb={1}>

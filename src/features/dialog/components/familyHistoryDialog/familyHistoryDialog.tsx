@@ -4,7 +4,7 @@ import {useTranslation} from 'next-i18next';
 import {Box, Button, Checkbox, FormControlLabel, FormGroup, InputAdornment, Stack, TextField} from '@mui/material'
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -14,6 +14,7 @@ function FamilyHistoryDialog({...props}) {
     const setState = props.data.setState;
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
+    const {trigger} = useRequestMutation(null, "/antecedent");
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
@@ -35,7 +36,7 @@ function FamilyHistoryDialog({...props}) {
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/antecedents/4/${router.locale}`,
+        url: `/api/private/antecedents/4/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -151,8 +152,26 @@ function FamilyHistoryDialog({...props}) {
                                                sx={{ml: 'auto'}}
                                                size='small'
                                                onClick={() => {
-                                                   antecedents.push({name: value, type: 4, uuid: ''})
-                                                   setAntecedents([...antecedents])
+                                                   const form = new FormData();
+                                                   form.append('type', '4');
+                                                   form.append('name', value);
+                                                   trigger({
+                                                       method: "POST",
+                                                       url: `/api/private/antecedents/${router.locale}`,
+                                                       data: form,
+                                                       headers: {
+                                                           ContentType: 'multipart/form-data',
+                                                           Authorization: `Bearer ${session?.accessToken}`
+                                                       }
+                                                   }, {revalidate: true, populateCache: true}).then((data) => {
+                                                       antecedents.push({
+                                                           name: value,
+                                                           type: 4,
+                                                           uuid: (data?.data as HttpResponse).data.uuid
+                                                       })
+                                                       setAntecedents([...antecedents])
+                                                   });
+
                                                }}
                                                startIcon={<AddIcon/>}>
                         {t('createAnt')}

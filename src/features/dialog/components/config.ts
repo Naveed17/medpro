@@ -189,9 +189,9 @@ const dialogData = [
         ),
     },
     {
-        action: "add_act",
+        action: "payment_dialog",
         component: dynamic((): any =>
-            import("@features/dialog/components/addActsDialog/components/addActsDialog").then(
+            import("@features/dialog/components/paymentDialog/paymentDialog").then(
                 (mod) => mod
             )
         ),

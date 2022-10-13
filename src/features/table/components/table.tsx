@@ -55,6 +55,7 @@ function Otable({...props}) {
         maxHeight = `calc(100vh - 220px)`,
         totalPages,
         total,
+        sx,
         ...rest
     } = props;
 
@@ -63,6 +64,7 @@ function Otable({...props}) {
     const [tableHeadData, setTableHeadData] = useState<any>(null);
     const [active, setActive] = useState([]);
     const [selected, setSelected] = React.useState<readonly string[]>(select);
+
     const handleRequestSort = (event: any, property: SetStateAction<string>) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");
@@ -119,24 +121,26 @@ function Otable({...props}) {
             <TableContainer sx={{maxHeight}}>
                 <Table
                     stickyHeader
-                    sx={{minWidth: minWidth}}
+                    sx={{minWidth: minWidth, ...sx}}
                     aria-labelledby="tableTitle"
                     size={"medium"}
                 >
                     <OHead
-                        order={order}
-                        orderBy={orderBy}
-                        state={state}
-                        t={t}
-                        checkedType={checkedType}
-                        handleConfig={handleConfig}
+                        {...{
+                            order,
+                            orderBy,
+                            state,
+                            t,
+                            checkedType,
+                            handleConfig,
+                            hideHeaderOnMobile
+                        }}
                         onRequestSort={handleRequestSort}
                         data={headers}
                         getData={(data: any) => setTableHeadData(data)}
                         onSelectAllClick={handleSelectAllClick}
                         rowCount={rows?.length}
                         numSelected={selected.length}
-                        hideHeaderOnMobile={hideHeaderOnMobile}
                     />
 
                     <TableBody>
@@ -149,21 +153,23 @@ function Otable({...props}) {
                             return (
                                 <Component
                                     key={index}
-                                    row={row}
-                                    t={t}
+                                    {...{
+                                        row,
+                                        t,
+                                        handleChange,
+                                        handleClick,
+                                        handleEvent,
+                                        loading,
+                                        active,
+                                        ids,
+                                        checkedType,
+                                        labelId,
+                                        selected,
+                                        isItemSelected
+                                    }}
                                     tableHeadData={state}
-                                    handleChange={handleChange}
                                     editMotif={edit}
-                                    active={active}
-                                    ids={ids}
-                                    checkedType={checkedType}
-                                    labelId={labelId}
                                     data={rest}
-                                    selected={selected}
-                                    isItemSelected={isItemSelected}
-                                    handleClick={handleClick}
-                                    handleEvent={handleEvent}
-                                    loading={loading}
                                 />
                             );
                         })}

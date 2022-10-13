@@ -1,0 +1,1 @@
+export { default as PatientDetailContactCard } from './patientContactDetailCard'

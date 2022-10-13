@@ -74,6 +74,7 @@ function DocumentCard({...props}) {
                         data.documentType == "requested-analysis" && "ic-analyse" ||
                         data.documentType == "analyse" && "ic-analyse" ||
                         data.documentType == "medical-imaging" && "ic-soura" ||
+                        data.documentType == "requested-medical-imaging" && "ic-soura" ||
                         data.documentType === "photo" && "ic-img" ||
                         data.documentType === "Rapport" && "ic-text" ||
                         data.documentType === "medical-certificate" && "ic-text" ||

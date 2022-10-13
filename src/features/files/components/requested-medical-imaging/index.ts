@@ -1,0 +1,1 @@
+export { default as RequestedAnalysis } from './requested-medical-imaging'

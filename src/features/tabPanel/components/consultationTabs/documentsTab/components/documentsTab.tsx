@@ -58,6 +58,9 @@ function DocumentsTab({...props}) {
                                         case "requested-analysis":
                                             info = card.requested_Analyses[0].analyses;
                                             break;
+                                        case "requested-medical-imaging":
+                                            info = card.medical_imaging[0]['medical-imaging'];
+                                            break;
                                     }
                                     setState({
                                         uuid: card.uuid,

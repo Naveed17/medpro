@@ -134,6 +134,9 @@ function DocumentsPanel({...props}) {
                         tbody: {
                             mt: 1,
                         },
+                        "& .MuiCardContent-root": {
+                            background: "white"
+                        }
                     }}
                 >
                     <CardContent>
