@@ -38,6 +38,7 @@ function Consultation() {
     const {patient} = useAppSelector(consultationSelector);
     const [loading, setLoading] = useState<boolean>(true);
     const [edit, setEdit] = useState<boolean>(false);
+    const [number, setNumber] = useState<any>(null);
     const {trigger} = useRequestMutation(null, "/patients");
 
     const dispatch = useAppDispatch();
@@ -46,6 +47,7 @@ function Consultation() {
         if (patient) {
             dispatch(toggleSideBar(false));
             console.log(patient);
+            setNumber(patient.contact[0])
             setLoading(false)
         }
     }, [dispatch, patient]);
@@ -140,7 +142,7 @@ function Consultation() {
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        {patient?.contact && patient?.contact.length > 0 &&
+                        {number &&
                             <TextField variant="standard"
                                        InputProps={{
                                            style: {
@@ -165,12 +167,18 @@ function Consultation() {
                                            readOnly: !edit
 
                                        }}
-
+                                       onChange={(ev) => {
+                                           if (patient) {
+                                               let nm = {...number}
+                                               nm.value = ev.target.value
+                                               setNumber(nm)
+                                           }
+                                       }}
                                        onClick={() => {
                                            setEdit(true)
                                        }}
-                                       placeholder={'Ajouter numéro téléphone'}
-                                       value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
+                                       placeholder={'Ajouter téléphone'}
+                                       value={(number.code ? number.code + ' ' : '') + number.value}
                             />}
 
                         <TextField variant="standard"
@@ -202,8 +210,7 @@ function Consultation() {
                                        setEdit(true)
                                    }}
                                    placeholder={'Ajouter adresse e-mail'}
-                                   value={patient?.email}
-                        />
+                                   value={patient?.email}/>
                     </Box>
                 </Box>
             </Box>
@@ -222,7 +229,7 @@ function Consultation() {
                                          const form = new FormData();
                                          form.append('first_name', patient.firstName);
                                          form.append('last_name', patient.lastName);
-                                         form.append('gender', patient.gender);
+                                         form.append('gender', patient.gender === 'M' ? '1' : '2');
                                          form.append('phone', JSON.stringify(patient.contact[0]));
                                          form.append('email', patient.email);
 
@@ -233,7 +240,7 @@ function Consultation() {
                                                  ContentType: 'application/x-www-form-urlencoded',
                                                  Authorization: `Bearer ${session?.accessToken}`
                                              },
-                                             data:form,
+                                             data: form,
                                          }, {revalidate: true, populateCache: true}).then((data) => {
                                              console.log(data)
                                          });
