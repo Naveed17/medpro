@@ -23,6 +23,11 @@ export const siteHeader = {
             href: '/dashboard/patient',
         },
         // {
+        //     icon: "ic-payment",
+        //     name: "payment",
+        //     href: '/dashboard/payment',
+        // },
+        // {
         //     icon: "ic-messanger-lite",
         //     name: "message",
         //     href: '#',

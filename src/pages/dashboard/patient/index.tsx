@@ -36,8 +36,9 @@ import {
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail, PatientDetail} from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import {prepareSearchKeys} from "@app/hooks";
+import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
+import {toggleSideBar} from "@features/sideBarMenu";
 
 const stepperData = [
     {
@@ -131,6 +132,7 @@ function Patient() {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const router = useRouter();
+    const isMounted = useIsMountedRef();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -163,6 +165,12 @@ function Patient() {
             setLocalFilter(query);
         }
     }, [filter]);
+
+    useEffect(() => {
+        if (isMounted.current) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]);
 
     const submitStepper = (index: number) => {
         if (index === 2) {

@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {useTranslation} from "next-i18next";
+import React, { useState } from "react";
+import { useTranslation } from "next-i18next";
 
 // material
 import {
@@ -9,13 +9,13 @@ import {
     FormControlLabel,
     Checkbox,
 } from "@mui/material";
-import {useMediaQuery} from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 
 //components
-import {PatientDetailsDocumentCard, NoDataCard} from "@features/card";
-import {Otable} from "@features/table";
-import {uniqueId} from "lodash";
-import {Dialog} from "@features/dialog";
+import { PatientDetailsDocumentCard, NoDataCard } from "@features/card";
+import { Otable } from "@features/table";
+import { uniqueId } from "lodash";
+import { Dialog } from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 
 const typeofDocs = [
@@ -78,8 +78,8 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
-function DocumentsPanel({...props}) {
-    const {documents, patient} = props;
+function DocumentsPanel({ ...props }) {
+    const { documents, patient } = props;
     // filter checked array
     const [checked, setChecked] = React.useState<PatientDocuments[]>(documents);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -119,7 +119,7 @@ function DocumentsPanel({...props}) {
     const isMobile = useMediaQuery("(max-width:600px)");
 
     // translation
-    const {t, ready} = useTranslation("patient", {
+    const { t, ready } = useTranslation("patient", {
         keyPrefix: "config",
     });
 
@@ -229,18 +229,18 @@ function DocumentsPanel({...props}) {
                     </CardContent>
                 </Card>
             ) : (
-                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
+                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
             )}
 
             <Dialog action={"document_detail"}
-                    open={openDialog}
-                    data={{state: document, setState: setDocument, setOpenDialog}}
-                    size={"lg"}
-                    direction={'ltr'}
-                    sx={{p: 0}}
-                    title={t("doc_detail_title")}
-                    onClose={handleCloseDialog}
-                    dialogClose={handleCloseDialog}
+                open={openDialog}
+                data={{ state: document, setState: setDocument, setOpenDialog }}
+                size={"lg"}
+                direction={'ltr'}
+                sx={{ p: 0 }}
+                title={t("doc_detail_title")}
+                onClose={handleCloseDialog}
+                dialogClose={handleCloseDialog}
             />
 
             {isViewerOpen.length > 0 && (

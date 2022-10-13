@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useEffect} from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import {
     Typography,
     Box,
@@ -9,12 +9,12 @@ import {
     FormGroup,
     Checkbox, Stack, OutlinedInput, Chip, InputLabel,
 } from "@mui/material";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import _ from "lodash";
-import {useIsMountedRef} from "@app/hooks";
-import {SelectChangeEvent} from "@mui/material";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import { useIsMountedRef } from "@app/hooks";
+import { SelectChangeEvent } from "@mui/material";
+import { useRequest } from "@app/axios";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import Image from "next/image";
 import moment from "moment-timezone";
 
@@ -34,8 +34,8 @@ interface StateProps {
     type: string;
 }
 
-function PlaceFilter({...props}) {
-    const {item, t, keyPrefix = "", OnSearch} = props;
+function PlaceFilter({ ...props }) {
+    const { item, t, keyPrefix = "", OnSearch } = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
 
@@ -51,32 +51,32 @@ function PlaceFilter({...props}) {
         states: []
     });
 
-    const {data: httpCountriesResponse} = useRequest({
+    const { data: httpCountriesResponse } = useRequest({
         method: "GET",
         url: "/api/public/places/countries/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: httpStatesResponse} = useRequest(state.country.length > 0 ? {
+    const { data: httpStatesResponse } = useRequest(state.country.length > 0 ? {
         method: "GET",
         url: `/api/public/places/countries/${state.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {query} = router;
-    const {states} = query as { states: string };
+    const { query } = router;
+    const { states } = query as { states: string };
 
 
     const handleChangeCity = (event: SelectChangeEvent) => {
-        setstate({...state, country: event.target.value});
+        setstate({ ...state, country: event.target.value });
         /*router.push({
             query: {...router.query, city: event.target.value},
         });*/
     };
 
     const handleStateChange = (event: SelectChangeEvent<string[]>) => {
-        const {target: {value}} = event;
+        const { target: { value } } = event;
         const states = typeof value === 'string' ? value.split(',') : value;
-        setstate({...state, states});
-        setQueryState({...queryState, states: value as string});
+        setstate({ ...state, states });
+        setQueryState({ ...queryState, states: value as string });
         if (value.length === 0) {
             const query = _.omit(queryState, "states");
             OnSearch({
@@ -108,7 +108,7 @@ function PlaceFilter({...props}) {
 
 
     return (
-        <Box component="figure" sx={{m: 0}}>
+        <Box component="figure" sx={{ m: 0 }}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.country?.heading}`)}
             </Typography>
@@ -120,7 +120,7 @@ function PlaceFilter({...props}) {
                     value={state.country}
                     size="small"
                     displayEmpty
-                    sx={{color: "text.secondary"}}
+                    sx={{ color: "text.secondary" }}
                     renderValue={(selected: string) => {
                         if (selected?.length === 0) {
                             return <em>{t(`${keyPrefix}country-placeholder`)}</em>;
@@ -133,7 +133,7 @@ function PlaceFilter({...props}) {
                                     alt={"flag"}
                                     width={20}
                                     height={14}
-                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`} />
                                 <Typography ml={1}>{country?.name}</Typography>
                             </Stack>)
                     }}
@@ -146,8 +146,8 @@ function PlaceFilter({...props}) {
                                 alt={"flag"}
                                 width={20}
                                 height={14}
-                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
-                            <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`} />
+                            <Typography sx={{ ml: 1 }}>{country.name}</Typography>
                         </MenuItem>)
                     )}
                 </Select>
@@ -166,16 +166,16 @@ function PlaceFilter({...props}) {
                     multiple
                     size="small"
                     displayEmpty
-                    input={<OutlinedInput id="select-multiple-chip" label="Chip"/>}
-                    sx={{color: "text.secondary"}}
+                    input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                    sx={{ color: "text.secondary" }}
                     renderValue={(selected: string[]) => {
                         if (selected?.length === 0) {
                             return <em>{t(`${keyPrefix}city-placeholder`)}</em>;
                         }
 
-                        return (<Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
+                        return (<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                             {selected?.map(value => (
-                                <Chip key={value} label={statesCountry?.find(state => state.uuid === value).name}/>
+                                <Chip key={value} label={statesCountry?.find(state => state.uuid === value).name} />
                             ))}
                         </Box>)
                     }}
@@ -185,7 +185,7 @@ function PlaceFilter({...props}) {
                         <MenuItem
                             key={state.uuid}
                             value={state.uuid}>
-                            <Typography sx={{ml: 1}}>{state.name}</Typography>
+                            <Typography sx={{ ml: 1 }}>{state.name}</Typography>
                         </MenuItem>)
                     )}
                 </Select>

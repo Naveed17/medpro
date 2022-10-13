@@ -1,9 +1,9 @@
-import {SetStateAction, useEffect, useState} from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import * as React from "react";
-import {Box, TableBody, TableContainer, Table} from "@mui/material";
+import { Box, TableBody, TableContainer, Table } from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
-import {Pagination} from "@features/pagination";
+import { Pagination } from "@features/pagination";
 
 function descendingComparator(a: any, b: any, orderBy: any) {
     if (b[orderBy] < a[orderBy]) {
@@ -35,7 +35,7 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-function Otable({...props}) {
+function Otable({ ...props }) {
     const {
         rows,
         headers,
@@ -55,6 +55,7 @@ function Otable({...props}) {
         maxHeight = `calc(100vh - 220px)`,
         totalPages,
         total,
+        sx,
         ...rest
     } = props;
 
@@ -116,10 +117,10 @@ function Otable({...props}) {
 
     return (
         <Box>
-            <TableContainer sx={{maxHeight}}>
+            <TableContainer sx={{ maxHeight }}>
                 <Table
                     stickyHeader
-                    sx={{minWidth: minWidth}}
+                    sx={{ minWidth: minWidth, ...sx }}
                     aria-labelledby="tableTitle"
                     size={"medium"}
                 >
@@ -141,8 +142,8 @@ function Otable({...props}) {
 
                     <TableBody>
                         {(loading
-                                ? Array.from(new Array(10))
-                                : stableSort(rows, getComparator(order, orderBy))
+                            ? Array.from(new Array(10))
+                            : stableSort(rows, getComparator(order, orderBy))
                         ).map((row, index) => {
                             const isItemSelected = isSelected(row?.uuid as string);
                             const labelId = `enhanced-table-checkbox-${index}`;
@@ -170,9 +171,9 @@ function Otable({...props}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box py={1}/>
+            <Box py={1} />
             {!loading && pagination && parseInt(totalPages) > 1 && (
-                <Pagination total={total} count={totalPages}/>
+                <Pagination total={total} count={totalPages} />
             )}
         </Box>
     );
