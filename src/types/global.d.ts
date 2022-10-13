@@ -1,6 +1,6 @@
-import {CustomShadowType} from "@themes/shadows";
+import { CustomShadowType } from "@themes/shadows";
 import React from "react";
-import {PaletteColor, Palette} from "@mui/material";
+import { PaletteColor, Palette } from "@mui/material";
 
 declare global {
     type LayoutProps = {
@@ -53,7 +53,8 @@ declare module "@mui/material" {
     interface PaletteColor {
         lighter: string;
         light: string;
-        main: string
+        main: string;
+        darker?: string;
     }
 
     interface ThemeOptions {

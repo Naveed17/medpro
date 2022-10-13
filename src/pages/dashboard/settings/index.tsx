@@ -1,21 +1,12 @@
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect} from "react";
-import {useRouter} from "next/router";
+import React, {ReactElement} from "react";
 import {Box, useMediaQuery} from "@mui/material";
 import {Theme} from "@mui/material/styles";
 import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
-
-function Redirect({to}: { to: string }) {
-    const router = useRouter();
-
-    useEffect(() => {
-        router.push(to);
-    }, [router, to]);
-    return null;
-}
+import {Redirect} from "@features/redirect";
 
 function Settings() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));

@@ -123,5 +123,39 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
       },
     },
   },
+  '&.payment-row': {
+    '.MuiTableCell-root': {
+      backgroundColor: 'transparent',
+      '.label': {
+        color: theme.palette.text.primary,
+        fontWeight: 700,
+      }
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.common.white + "!important",
+      '.MuiTableCell-root': {
+        backgroundColor: theme.palette.common.white + "!important",
+      }
+    },
+    '&.Mui-selected': {
+      backgroundColor: theme.palette.common.white + "!important",
+    }
+  },
+  '&.payment-dialog-row': {
+    svg: {
+      width: 10,
+      height: 10,
+      path: {
+        fill: theme.palette.text.primary
+      }
+    },
+    '.ic-card': {
+      svg: {
+        width: 14,
+        height: 14,
+
+      },
+    }
+  }
 }));
 export default TableRowStyled;

@@ -1,4 +1,4 @@
-import {FieldArray, Form, FormikProvider, useFormik} from "formik";
+import { FieldArray, Form, FormikProvider, useFormik } from "formik";
 import {
     Box, Button,
     FormControl,
@@ -11,30 +11,30 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo} from "react";
-import {useAppSelector} from "@app/redux/hooks";
-import {addPatientSelector} from "@features/tabPanel";
+import React, { memo } from "react";
+import { useAppSelector } from "@app/redux/hooks";
+import { addPatientSelector } from "@features/tabPanel";
 import * as Yup from "yup";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import {
     PhoneRegExp
 } from "./config";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@app/axios";
-import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import { useRequest } from "@app/axios";
+import { useRouter } from "next/router";
+import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
-export const MyTextInput: any = memo(({...props}) => {
+export const MyTextInput: any = memo(({ ...props }) => {
     return (
-        <TextField {...props}/>
+        <TextField {...props} />
     );
 })
 MyTextInput.displayName = "TextField";
 
-function OnStepPatient({...props}) {
+function OnStepPatient({ ...props }) {
     const {
         onNext,
         onClose,
@@ -44,11 +44,11 @@ function OnStepPatient({...props}) {
         translationPrefix = "add-patient",
     } = props;
     const router = useRouter();
-    const {t, ready} = useTranslation(translationKey, {
+    const { t, ready } = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
 
-    const {stepsData: patient} = useAppSelector(addPatientSelector);
+    const { stepsData: patient } = useAppSelector(addPatientSelector);
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
@@ -99,28 +99,28 @@ function OnStepPatient({...props}) {
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             if (OnSubmit) {
-                OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
+                OnSubmit({ ...values, contact: contacts[0], countryCode: selectedCountry });
             }
         },
     });
-    const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+    const { values, handleSubmit, touched, errors, isSubmitting, getFieldProps } = formik;
 
-    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+    const { data: httpContactResponse, error: errorHttpContact } = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: httpCountriesResponse} = useRequest({
+    const { data: httpCountriesResponse } = useRequest({
         method: "GET",
         url: "/api/public/places/countries/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: httpInsuranceResponse} = useRequest({
+    const { data: httpInsuranceResponse } = useRequest({
         method: "GET",
         url: "/api/public/insurances/" + router.locale
     }, SWRNoValidateConfig);
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const { data: httpStatesResponse } = useRequest(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
@@ -136,7 +136,7 @@ function OnStepPatient({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleAddInsurance = () => {
-        const insurance = [...values.insurance, {insurance_uuid: "", insurance_number: ""}];
+        const insurance = [...values.insurance, { insurance_uuid: "", insurance_number: "" }];
         formik.setFieldValue("insurance", insurance);
     };
 
@@ -165,7 +165,7 @@ function OnStepPatient({...props}) {
             >
                 <Stack spacing={2} className="inner-section">
                     <Box>
-                        <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
+                        <Typography mt={1} variant="h6" color="text.primary" sx={{ mb: 1, overflow: "visible" }}>
                             {t("personal-info")}
                         </Typography>
                         <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
@@ -176,15 +176,15 @@ function OnStepPatient({...props}) {
                                 </Typography>
                             </Typography>
                             <RadioGroup row aria-label="gender"
-                                        {...getFieldProps("gender")}>
+                                {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
-                                    control={<Radio size="small"/>}
+                                    control={<Radio size="small" />}
                                     label={t("mr")}
                                 />
                                 <FormControlLabel
                                     value={2}
-                                    control={<Radio size="small"/>}
+                                    control={<Radio size="small" />}
                                     label={t("mrs")}
                                 />
                             </RadioGroup>
@@ -257,14 +257,14 @@ function OnStepPatient({...props}) {
                         >
                             {t("date-of-birth")}
                         </Typography>
-                        <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
+                        <Stack spacing={3} direction={{ xs: "column", lg: "row" }}>
                             <FormControl size="small" fullWidth>
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.day")}
                                     displayEmpty
-                                    sx={{color: "text.secondary"}}
+                                    sx={{ color: "text.secondary" }}
                                     renderValue={(value: string) => {
                                         if (value?.length === 0) {
                                             return <em>{t("day")}</em>;
@@ -291,7 +291,7 @@ function OnStepPatient({...props}) {
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                    <FormHelperText error sx={{ px: 2, mx: 0 }}>
                                         {touched.birthdate.day && errors.birthdate.day}
                                     </FormHelperText>
                                 )}
@@ -302,7 +302,7 @@ function OnStepPatient({...props}) {
                                     id={"day"}
                                     {...getFieldProps("birthdate.month")}
                                     displayEmpty
-                                    sx={{color: "text.secondary"}}
+                                    sx={{ color: "text.secondary" }}
                                     renderValue={(value) => {
                                         if (value?.length === 0) {
                                             return <em>{t("month")}</em>;
@@ -322,7 +322,7 @@ function OnStepPatient({...props}) {
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                    <FormHelperText error sx={{ px: 2, mx: 0 }}>
                                         {touched.birthdate.month && errors.birthdate.month}
                                     </FormHelperText>
                                 )}
@@ -333,7 +333,7 @@ function OnStepPatient({...props}) {
                                     id={"day"}
                                     {...getFieldProps("birthdate.year")}
                                     displayEmpty
-                                    sx={{color: "text.secondary"}}
+                                    sx={{ color: "text.secondary" }}
                                     renderValue={(value) => {
                                         if (value?.length === 0) {
                                             return <em>{t("year")}</em>;
@@ -353,7 +353,7 @@ function OnStepPatient({...props}) {
                                     ))}
                                 </Select>
                                 {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                    <FormHelperText error sx={{ px: 2, mx: 0 }}>
                                         {touched.birthdate.year && errors.birthdate.year}
                                     </FormHelperText>
                                 )}
@@ -386,7 +386,7 @@ function OnStepPatient({...props}) {
                                         if (country) {
                                             formik.setFieldValue("country", country.uuid);
                                         }
-                                    }}/>
+                                    }} />
                             </Grid>
                             <Grid item md={6} lg={8} xs={12}>
                                 <TextField
@@ -406,7 +406,7 @@ function OnStepPatient({...props}) {
                             </Grid>
                         </Grid>
                         {touched.phone && errors.phone && (
-                            <FormHelperText error sx={{px: 2, mx: 0}}>
+                            <FormHelperText error sx={{ px: 2, mx: 0 }}>
                                 {touched.phone && errors.phone}
                             </FormHelperText>
                         )}
@@ -427,7 +427,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 {...getFieldProps("country")}
                                 displayEmpty
-                                sx={{color: "text.secondary"}}
+                                sx={{ color: "text.secondary" }}
                                 renderValue={selected => {
                                     if (selected.length === 0) {
                                         return <em>{t("country-placeholder")}</em>;
@@ -445,8 +445,8 @@ function OnStepPatient({...props}) {
                                             width={20}
                                             alt={"flags"}
                                             height={14}
-                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
-                                        <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`} />
+                                        <Typography sx={{ ml: 1 }}>{country.name}</Typography>
                                     </MenuItem>)
                                 )}
                             </Select>
@@ -470,7 +470,7 @@ function OnStepPatient({...props}) {
                                         size="small"
                                         {...getFieldProps("region")}
                                         displayEmpty={true}
-                                        sx={{color: "text.secondary"}}
+                                        sx={{ color: "text.secondary" }}
                                         renderValue={selected => {
                                             if (selected.length === 0) {
                                                 return <em>{t("region-placeholder")}</em>;
@@ -523,7 +523,7 @@ function OnStepPatient({...props}) {
                         />
                     </Box>
                     <Box>
-                        <Typography sx={{mt: 1.5, textTransform: "capitalize"}}>
+                        <Typography sx={{ mt: 1.5, textTransform: "capitalize" }}>
                             <IconButton
                                 onClick={handleAddInsurance}
                                 className="success-light"
@@ -535,11 +535,11 @@ function OnStepPatient({...props}) {
                                     },
                                 }}
                             >
-                                <Icon path="ic-plus"/>
+                                <Icon path="ic-plus" />
                             </IconButton>
                             {t("assurance")}
                         </Typography>
-                        <Box sx={{mb: 1.5}}>
+                        <Box sx={{ mb: 1.5 }}>
                             <FieldArray
                                 name={"insurance"}
                                 render={arrayHelpers => (
@@ -548,7 +548,7 @@ function OnStepPatient({...props}) {
                                             key={index}
                                             container
                                             spacing={2}
-                                            sx={{mt: index > 0 ? 0.5 : 0}}
+                                            sx={{ mt: index > 0 ? 0.5 : 0 }}
                                         >
                                             <Grid item xs={12} md={4}>
                                                 <FormControl fullWidth>
@@ -557,7 +557,7 @@ function OnStepPatient({...props}) {
                                                         size="small"
                                                         {...getFieldProps(`insurance[${index}].insurance_uuid`)}
                                                         displayEmpty
-                                                        sx={{color: "text.secondary"}}
+                                                        sx={{ color: "text.secondary" }}
                                                         renderValue={(selected) => {
                                                             if (selected.length === 0) {
                                                                 return <em>{t("assurance-placeholder")}</em>;
@@ -572,10 +572,10 @@ function OnStepPatient({...props}) {
                                                                 key={insurance.uuid}
                                                                 value={insurance.uuid}>
                                                                 <Box key={insurance.uuid}
-                                                                     component="img" width={30} height={30}
-                                                                     src={insurance.logoUrl}/>
+                                                                    component="img" width={30} height={30}
+                                                                    src={insurance.logoUrl} />
                                                                 <Typography
-                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
+                                                                    sx={{ ml: 1 }}>{insurance.name}</Typography>
                                                             </MenuItem>)
                                                         )}
                                                     </Select>
@@ -604,7 +604,7 @@ function OnStepPatient({...props}) {
                                                             },
                                                         }}
                                                     >
-                                                        <Icon path="ic-moin"/>
+                                                        <Icon path="ic-moin" />
                                                     </IconButton>
                                                 </Stack>
                                             </Grid>

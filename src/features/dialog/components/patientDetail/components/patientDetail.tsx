@@ -1,27 +1,28 @@
-import {Box, Button, Divider, Paper, Tab, Tabs} from "@mui/material";
-import {PatientDetailsToolbar} from "@features/toolbar";
-import {onOpenPatientDrawer} from "@features/table";
-import {NoDataCard, PatientDetailsCard} from "@features/card";
+import { Box, Button, Divider, Paper, Tab, Tabs } from "@mui/material";
+import { PatientDetailsToolbar } from "@features/toolbar";
+import { onOpenPatientDrawer } from "@features/table";
+import { NoDataCard, PatientDetailsCard } from "@features/card";
 import {
     DocumentsPanel, EventType,
     Instruction,
     PersonalInfoPanel, setAppointmentPatient,
     TabPanel,
     TimeSchedule,
+    FilesPanel
 } from "@features/tabPanel";
-import {GroupTable} from "@features/groupTable";
+import { GroupTable } from "@features/groupTable";
 import Icon from "@themes/urlIcon";
-import {SpeedDial} from "@features/speedDial";
-import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch} from "@app/redux/hooks";
-import {useRequest} from "@app/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useTranslation} from "next-i18next";
+import { SpeedDial } from "@features/speedDial";
+import { CustomStepper } from "@features/customStepper";
+import { useAppDispatch } from "@app/redux/hooks";
+import { useRequest } from "@app/axios";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { useRouter } from "next/router";
+import { useTranslation } from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {SyntheticEvent, useState} from "react";
+import { SyntheticEvent, useState } from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 
 function a11yProps(index: number) {
@@ -59,7 +60,7 @@ const stepperData = [
     },
 ];
 
-function PatientDetail({...props}) {
+function PatientDetail({ ...props }) {
     const {
         patientId,
         isAddAppointment = false,
@@ -73,19 +74,19 @@ function PatientDetail({...props}) {
 
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {data: session} = useSession();
+    const { data: session } = useSession();
 
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
 
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
+    const { data: httpPatientDetailsResponse, mutate } = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
         headers: {
@@ -124,16 +125,16 @@ function PatientDetail({...props}) {
                     {" "}
                     <PatientDetailsToolbar
                         onClose={() => {
-                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            dispatch(onOpenPatientDrawer({ patientId: "" }));
                             onCloseDialog(false);
                         }}
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient}}
+                        {...{ patient }}
                         onConsultation={onConsultation}
                     />
-                    <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
+                    <Box className={"container"} sx={{ width: { md: 726, xs: "100%" } }}>
                         <Tabs
                             value={index}
                             onChange={handleStepperIndexChange}
@@ -148,81 +149,105 @@ function PatientDetail({...props}) {
                             />
                             <Tab
                                 disableRipple
-                                label={t("tabs.appointment")}
+                                label={t("tabs.patient_file")}
                                 {...a11yProps(1)}
                             />
                             <Tab
                                 disableRipple
-                                label={t("tabs.documents")}
+                                label={t("tabs.appointment")}
                                 {...a11yProps(2)}
                             />
+                            <Tab
+                                disableRipple
+                                label={t("tabs.documents")}
+                                {...a11yProps(3)}
+                            />
                         </Tabs>
-                        <Divider/>
+                        <Divider />
                         <TabPanel padding={1} value={index} index={0}>
                             <PersonalInfoPanel
                                 loading={!patient}
-                                {...{patient}}
+                                {...{ patient }}
                                 mutate={mutate}
                             />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
+                            <FilesPanel t={t} />
+                        </TabPanel>
+                        <TabPanel padding={1} value={index} index={2}>
+
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
+
                                 <GroupTable
                                     from="patient"
                                     loading={!patient}
                                     data={patient}
                                 />
+
                             ) : (
-                                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
+                                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
                             )}
                         </TabPanel>
-                        <TabPanel padding={2} value={index} index={2}>
-                            <DocumentsPanel {...{documents, patient}} />
+                        <TabPanel padding={2} value={index} index={3}>
+                            <DocumentsPanel {...{ documents, patient }} />
                         </TabPanel>
-                        <Paper
-                            className={"action-buttons"}
-                            sx={{
-                                position: "fixed",
-                                bottom: 0,
-                                width: "51%",
-                                borderRadius: 0,
-                                borderWidth: "0px",
-                                p: 2,
-                                textAlign: "right",
-                                display: {md: "block", xs: "none"},
-                            }}
-                        >
-                            <Button
-                                onClick={() => {
-                                    dispatch(setAppointmentPatient(patient as any));
-                                    setIsAdd(!isAdd);
-                                }}
-                                size="medium"
-                                variant="contained"
-                                color="primary"
-                                startIcon={<Icon path="ic-agenda-+"/>}
-                                sx={{width: {md: "auto", sm: "100%", xs: "100%"}}}
-                            >
-                                {t("tabs.add-appo")}
-                            </Button>
-                        </Paper>
+
                         <SpeedDial
                             sx={{
                                 position: "fixed",
                                 bottom: 16,
                                 right: 16,
-                                display: {md: "none", xs: "flex"},
+                                display: { md: "none", xs: "flex" },
                             }}
                             onClick={() => {
                                 dispatch(setAppointmentPatient(patient as any));
                                 setIsAdd(!isAdd)
                             }}
                             actions={[
-                                {icon: <SpeedDialIcon/>, name: t("tabs.add-appo")},
-                                {icon: <CloudUploadIcon/>, name: t("tabs.import")},
+                                { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
+                                { icon: <CloudUploadIcon />, name: t("tabs.import") },
                             ]}
                         />
                     </Box>
+                    <Paper
+                        className={"action-buttons"}
+                        sx={{
+                            position: "sticky",
+                            bottom: 0,
+                            width: "100%",
+                            borderRadius: 0,
+                            borderWidth: "0px",
+                            p: 2,
+                            mt: 'auto',
+                            textAlign: "right",
+                            display: { md: "block", xs: "none" },
+                        }}
+                    >
+                        {/* <Button
+                                size="medium"
+                                variant="text-primary"
+                                startIcon={<Icon path="ic-dowlaodfile" />}
+                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
+                            >
+                                {t("tabs.import")}
+                            </Button> */}
+                        <Button
+                            size="medium"
+                            variant="contained"
+                            color="primary"
+                            startIcon={<Icon path="ic-agenda-+" />}
+                            sx={{
+                                mr: 1,
+                                width: { md: "auto", sm: "100%", xs: "100%" },
+                            }}
+                            onClick={() => {
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd);
+                            }}
+                        >
+                            {t("tabs.add-appo")}
+                        </Button>
+                    </Paper>
                 </PatientDetailStyled>
             ) : (
                 <CustomStepper
@@ -233,7 +258,7 @@ function PatientDetail({...props}) {
                             if (patientId) {
                                 setIsAdd(false);
                             } else {
-                                dispatch(onOpenPatientDrawer({patientId: ""}));
+                                dispatch(onOpenPatientDrawer({ patientId: "" }));
                                 onCloseDialog(false);
                             }
                             mutatePatientList();
