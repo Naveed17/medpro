@@ -78,7 +78,14 @@ function AppointmentPopoverCard({...props}) {
                 </Label>
             </Stack>
             {data.motif && <Stack pl={4} direction="row" mt={1} justifyContent='space-between' alignItems='flex-start'>
-                <Alert severity="info" sx={{p: "0 .5rem"}}>{" Motif: "}{data.motif?.name}</Alert>
+                <Alert severity="info"
+                       sx={{
+                           "& .MuiAlert-icon": {
+                               mr: .5
+                           },
+                           p: "0 .5rem"
+                       }}>
+                    {" Motif: "}{data.motif?.name}</Alert>
             </Stack>}
             <Stack
                 direction="row"
