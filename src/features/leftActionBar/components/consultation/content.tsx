@@ -142,8 +142,9 @@ const Content = ({...props}) => {
                                                     <ListItemIcon>
                                                         <CircleIcon/>
                                                     </ListItemIcon>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {list.name} / {list.duration} {list.durationType} {list.isOtherProfessional?'other':'me'}
+                                                    <Typography variant="body2"
+                                                                color={list.isOtherProfessional ? 'text.secondary' : ''}>
+                                                        {list.name} / {list.duration} {list.durationType} {list.isOtherProfessional ? '' : '( ordonnance )'}
                                                     </Typography>
                                                     <IconButton size="small" onClick={() => {
                                                         trigger({
@@ -222,7 +223,13 @@ const Content = ({...props}) => {
                                 patient?.requestedAnalyses.map((ra: any, index: number) =>
                                     <ContentStyled key={index}>
                                         <CardContent style={{paddingBottom: 5}}>
-                                            <p style={{textAlign:"right",textTransform:"capitalize",margin:'5px 15px',fontSize:12,color: '#7C878E'}}>{moment(ra?.appointment,'DD-MM-YYYY').format('MMM DD/YYYY')}</p>
+                                            <p style={{
+                                                textAlign: "right",
+                                                textTransform: "capitalize",
+                                                margin: '5px 15px',
+                                                fontSize: 12,
+                                                color: '#7C878E'
+                                            }}>{moment(ra?.appointment, 'DD-MM-YYYY').format('MMM DD/YYYY')}</p>
                                             <Stack spacing={2} alignItems="flex-start">
                                                 <List dense>
                                                     {

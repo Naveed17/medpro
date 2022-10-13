@@ -94,13 +94,17 @@ function Consultation() {
                                            onChange={(ev) => {
                                                if (patient) {
                                                    let p = {...patient}
-                                                   p.firstName = ev.target.value.split(' ')[0];
-                                                   p.lastName = ev.target.value.split(' ')[1];
+                                                   console.log(ev.target.value)
+                                                   const res = ev.target.value.split(' ')
+                                                   p.firstName = res[0];
+                                                   p.lastName = res[1] ? res[1] : '';
                                                    dispatch(SetPatient(p))
                                                }
                                            }}
                                            id={'name'}
-                                           onClick={()=>{setEdit(true)}}
+                                           onClick={() => {
+                                               setEdit(true)
+                                           }}
                                            value={patient?.firstName + " " + patient?.lastName}/>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
@@ -162,7 +166,9 @@ function Consultation() {
 
                                        }}
 
-                                       onClick={()=>{setEdit(true)}}
+                                       onClick={() => {
+                                           setEdit(true)
+                                       }}
                                        placeholder={'Ajouter numéro téléphone'}
                                        value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
                             />}
@@ -192,7 +198,9 @@ function Consultation() {
                                            dispatch(SetPatient(p))
                                        }
                                    }}
-                                   onClick={()=>{setEdit(true)}}
+                                   onClick={() => {
+                                       setEdit(true)
+                                   }}
                                    placeholder={'Ajouter adresse e-mail'}
                                    value={patient?.email}
                         />
@@ -210,10 +218,12 @@ function Consultation() {
                                  size='small'
                                  onClick={() => {
                                      console.log(patient)
-                                     if (patient){
+                                     if (patient) {
                                          const form = new FormData();
                                          form.append('first_name', patient.firstName);
                                          form.append('last_name', patient.lastName);
+                                         form.append('gender', patient.gender);
+                                         form.append('phone', JSON.stringify(patient.contact[0]));
                                          form.append('email', patient.email);
 
                                          trigger({
@@ -222,7 +232,8 @@ function Consultation() {
                                              headers: {
                                                  ContentType: 'application/x-www-form-urlencoded',
                                                  Authorization: `Bearer ${session?.accessToken}`
-                                             }
+                                             },
+                                             data:form,
                                          }, {revalidate: true, populateCache: true}).then((data) => {
                                              console.log(data)
                                          });
