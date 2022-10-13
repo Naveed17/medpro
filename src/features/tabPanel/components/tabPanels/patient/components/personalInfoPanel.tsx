@@ -8,7 +8,6 @@ function PersonInfoPanel({ ...props }) {
       <PersonalInfoCard {...props} />
       <PatientDetailContactCard {...props} />
       <BackgroundCard {...props} />
-
     </Stack>
   );
 }
