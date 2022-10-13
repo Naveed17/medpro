@@ -10,13 +10,14 @@ on:
   pull_request:
     branches:
       - 'develop'
-    types: [ opened ,synchronize ,reopened ]
+    types: [ opened ,synchronize ,reopened, labeled ]
   
 jobs:
   CI:
     runs-on: ubuntu-latest
     if: ((github.event.action != 'closed' && github.event.pull_request.merged != true))
     steps:
+
       - uses: actions/checkout@v3
 
       - name: setup-node - ${{ secrets.NODE_VERSION }}
@@ -28,20 +29,62 @@ jobs:
 
       - run: npm run lint
 
+  envmap:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      enable_cd: ${{ steps.export.outputs.enable_cd }}
+      environments: ${{ steps.export.outputs.environments }}
+    steps:
+      - name: github-slug-action
+        uses: rlespinasse/github-slug-action@v4
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
+      - uses: kanga333/variable-mapper@master
+        id: export
+        with:
+          mode: first_match
+          export_to: output
+          key: "${{ github.ref }}"
+          map: |
+            {
+              "refs/heads/develop": {
+                "enable_cd": "true",
+                "environments": "{\"envs\":[{\"name\": \"develop\",\"ws\": \"develop\"}]}"
+              },
+              "refs/tags/v[1-9].[0-9]+.[0-9]+": {
+                "enable_cd": "true",
+                "environments": "{\"envs\":[{\"name\": \"prod-ma\",\"ws\": \"prod-ma\"} , {\"name\": \"prod-tn\",\"ws\": \"prod-tn\"}]}"
+              },
+                "refs/pull/.*": {
+                "enable_cd": "${{ contains(github.event.pull_request.labels.*.name, 'preview') }}",
+                "environments": "{\"envs\":[{\"name\": \"preview\",\"ws\": \"pr-${{ github.event.number }}\"}]}"
+              },
+              ".*": {
+                "enable_cd": "false"
+              }
+            }
+
   CD:
-    if: github.ref == 'refs/heads/develop'
-    uses: SmartMedSA/github-workflows/.github/workflows/waypoint.yml@develop
-    needs: CI
+    needs: [CI,envmap]
+    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@develop
+    if: ${{ needs.envmap.outputs.enable_cd == 'true' }}
+    strategy:
+      matrix: ${{ fromJSON(needs.envmap.outputs.environments) }}
     with:
-      cmd: up -prune=false
-      environment: develop
-      workspace: develop
-      tag: develop
+      cmd:  skaffold run
+      environment: ${{ matrix.envs.name }}
+      workspace: ${{ matrix.envs.ws }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-      kubeconfig:  ${{ secrets.KUBECONFIG }}
-      WAYPOINT_SERVER_TOKEN: ${{ secrets.WAYPOINT_SERVER_TOKEN }}
-      WAYPOINT_SERVER_ADDR: ${{ secrets.WAYPOINT_SERVER_ADDR }}
-      WAYPOINT_SERVER_TLS: ${{ secrets.WAYPOINT_SERVER_TLS }}
-      WAYPOINT_SERVER_TLS_SKIP_VERIFY: ${{ secrets.WAYPOINT_SERVER_TLS_SKIP_VERIFY }}
-      WP_VARS_HCL: ${{ secrets.WP_VARS_HCL }}
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      ENV_VARS: |
+        ${{ secrets.ENV_VARS }}
+        INGRESS_TARGET=${{ secrets.INGRESS_TARGET }}
+        INGRESS_HOST=${{ secrets.INGRESS_HOST }}
+        NEXTAUTH_URL=https://${{ secrets.INGRESS_HOST }}
+      SKAFFOLD_KUBE_CONTEXT: ${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
+      SKAFFOLD_NAMESPACE: ${{ secrets.SKAFFOLD_NAMESPACE }}
+
+
+
