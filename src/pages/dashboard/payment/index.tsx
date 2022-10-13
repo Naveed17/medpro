@@ -343,7 +343,7 @@ function Payment() {
                     <Button variant="text-black">
                         {t('receive')}
                     </Button>
-                    <Button disabled={addBilling.length === 0} variant="contained" onClick={() => console.log(addBilling)}>
+                    <Button disabled={addBilling ? addBilling.length === 0 : true} variant="contained" onClick={() => console.log(addBilling)}>
                         {t('billing')}
                     </Button>
                 </Stack>
