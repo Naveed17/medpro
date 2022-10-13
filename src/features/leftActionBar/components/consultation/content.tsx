@@ -27,6 +27,7 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {setAppointmentPatient} from "@features/tabPanel";
+import moment from "moment/moment";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -141,12 +142,11 @@ const Content = ({...props}) => {
                                                     <ListItemIcon>
                                                         <CircleIcon/>
                                                     </ListItemIcon>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {list.name} / {list.duration} {list.durationType}
+                                                    <Typography variant="body2"
+                                                                color={list.isOtherProfessional ? 'text.secondary' : ''}>
+                                                        {list.name} / {list.duration} {list.durationType} {list.isOtherProfessional ? '' : '( ordonnance )'}
                                                     </Typography>
                                                     <IconButton size="small" onClick={() => {
-                                                        console.log(list)
-
                                                         trigger({
                                                             method: "PATCH",
                                                             url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/prescription-has-drugs/' + list.uuid + '/' + router.locale,
@@ -223,6 +223,13 @@ const Content = ({...props}) => {
                                 patient?.requestedAnalyses.map((ra: any, index: number) =>
                                     <ContentStyled key={index}>
                                         <CardContent style={{paddingBottom: 5}}>
+                                            <p style={{
+                                                textAlign: "right",
+                                                textTransform: "capitalize",
+                                                margin: '5px 15px',
+                                                fontSize: 12,
+                                                color: '#7C878E'
+                                            }}>{moment(ra?.appointment, 'DD-MM-YYYY').format('MMM DD/YYYY')}</p>
                                             <Stack spacing={2} alignItems="flex-start">
                                                 <List dense>
                                                     {

@@ -131,7 +131,12 @@ function ActFees() {
             stateAct
         ])
     }
-
+    const handleRemove = () => {
+        setMainActes([
+            ...mainActes
+        ].slice(0, -1));
+        setNew(false);
+    }
     const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
     if (!ready) return <>loading translations...</>;
     return (
@@ -148,27 +153,28 @@ function ActFees() {
                     from={"actfees"}
                     edit={setselected}
                     isNew={isNew}
-                    setNew={setNew}
                     loading={loading}
                     t={t}
                 />
+                {
+                    isNew ? <Button size="small" onClick={handleRemove}>{t('cancel')}</Button> :
+                        <Button
+                            onClick={() => handleCreate()}
+                            size='small' sx={{
+                                '& .react-svg svg': {
+                                    width: theme => theme.spacing(1.5),
+                                    path: { fill: theme => theme.palette.primary.main },
 
-                <Button
-                    disabled={isNew}
-                    onClick={() => handleCreate()}
-                    size='small' sx={{
-                        '& .react-svg svg': {
-                            width: theme => theme.spacing(1.5),
-                            path: { fill: theme => theme.palette.primary.main },
+                                },
+                                '&.Mui-disabled': {
+                                    '& .react-svg svg': {
+                                        path: { fill: theme => theme.palette.common.white },
 
-                        },
-                        '&.Mui-disabled': {
-                            '& .react-svg svg': {
-                                path: { fill: theme => theme.palette.common.white },
+                                    },
+                                }
+                            }} startIcon={<IconUrl path="ic-plus" />}>{t("add_a_new_act")}</Button>
+                }
 
-                            },
-                        }
-                    }} startIcon={<IconUrl path="ic-plus" />}>{t("add_a_new_act")}</Button>
             </Box>
         </>
     );
