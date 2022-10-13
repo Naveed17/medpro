@@ -23,7 +23,7 @@ function RDVMobileCard({ ...props }) {
         <RootStyled
           sx={{
             "&:before": {
-              bgcolor: inner.consultationReason.color,
+              bgcolor: inner.consultationReason?.color,
             },
           }}
         >

@@ -5,15 +5,8 @@ const QrCodeDialogStyled = styled(Box)(({ theme }) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: theme.spacing(1.5),
     border: `3px solid ${theme.palette.warning.main}`,
-    width: 200,
-    height: 200,
-    borderRadius: theme.spacing(2.5),
-    [theme.breakpoints.down("sm")]:{
-        width: 190,
-        height: 190,
-    },
-
     zIndex: 1,
 
     '& .code-wrapper': {

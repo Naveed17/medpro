@@ -116,6 +116,22 @@ const rowsActionsData = [
       )
     ),
   },
+  {
+    action: "payment",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/paymentRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "payment_dialog",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/paymentDialogRow").then(
+        (mod) => mod
+      )
+    ),
+  },
 ];
 
 export default rowsActionsData;

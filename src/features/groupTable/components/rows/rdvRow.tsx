@@ -8,18 +8,18 @@ import {
   Skeleton,
 } from "@mui/material";
 // components
-import { RDVCard, RDVMobileCard } from "@features/card/";
+import { RDVCard, RDVMobileCard, RDVPreviousCard } from "@features/card";
 // utils
 import { useTranslation } from "next-i18next";
 import _ from "lodash";
 
 function RDVRow({ ...props }) {
-  const { data: patient, loading } = props;
+  const { data, loading } = props;
   const matches = useMediaQuery("(min-width:900px)");
 
   const mapped =
     !loading &&
-      patient.previousAppointments?.map((v: any) => {
+    data.previousAppointments?.map((v: any) => {
       return {
         ...v,
         year: v.dayDate.slice(-4),
@@ -41,43 +41,43 @@ function RDVRow({ ...props }) {
   if (!ready) return <>loading translations...</>;
   return (
     <React.Fragment>
-        {patient?.nextAppointments.length > 0 && <TableRow>
-            <TableCell colSpan={3} className="text-row">
-                <Typography variant="body1" color="text.primary">
-                    {loading ? (
-                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                    ) : (
-                        <>
-                            {t("pending-appo")}{" "}
-                            {patient.nextAppointments.length > 1 &&
-                                `(${patient.nextAppointments.length})`}
-                        </>
-                    )}
-                </Typography>
-            </TableCell>
-        </TableRow>}
-      {(loading ? Array.from(new Array(3)) : patient.nextAppointments).map(
+      {data?.nextAppointments.length > 0 && <TableRow>
+        <TableCell colSpan={3} className="text-row">
+          <Typography variant="body1" color="text.primary">
+            {loading ? (
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
+            ) : (
+              <>
+                {t("pending-appo")}{" "}
+                {data.nextAppointments.length > 1 &&
+                  `(${data.nextAppointments.length})`}
+              </>
+            )}
+          </Typography>
+        </TableCell>
+      </TableRow>}
+      {(loading ? Array.from(new Array(3)) : data.nextAppointments).map(
         (data: PatientDetailsRDV) => (
           <React.Fragment key={Math.random()}>
             {matches ? (
-              <RDVCard t={t} inner={data} {...{patient, loading}} />
+              <RDVCard t={t} loading={loading} inner={data} />
             ) : (
-              <RDVMobileCard {...{loading}} inner={data} />
+              <RDVMobileCard loading={loading} inner={data} />
             )}
           </React.Fragment>
         )
       )}
-      {patient.previousAppointments.length > 0 && <TableRow>
+      {data.previousAppointments.length > 0 && <TableRow>
         <TableCell colSpan={3} className="text-row">
           <Typography variant="body1" color="text.primary">
             {loading ? (
-                <Skeleton variant="text" sx={{maxWidth: 200}}/>
+              <Skeleton variant="text" sx={{ maxWidth: 200 }} />
             ) : (
-                <>
-                  {t("old-appo")}{" "}
-                  {patient.previousAppointments.length > 1 &&
-                      `(${patient.previousAppointments.length})`}
-                </>
+              <>
+                {t("old-appo")}{" "}
+                {data.previousAppointments.length > 1 &&
+                  `(${data.previousAppointments.length})`}
+              </>
             )}
           </Typography>
         </TableCell>
@@ -96,13 +96,13 @@ function RDVRow({ ...props }) {
                 </Typography>
               </TableCell>
             </TableRow>
-            {(loading ? Array.from(new Array(4)) : data.data).map(
+            {(loading ? Array.from(new Array(4)) : data?.data).map(
               (inner: any) => (
                 <React.Fragment key={Math.random()}>
                   {matches ? (
-                    <RDVCard
+                    <RDVPreviousCard
                       inner={inner}
-                      {...{patient, loading}}
+                      loading={loading}
                       key={Math.random()}
                     />
                   ) : (
