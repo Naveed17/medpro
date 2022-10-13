@@ -1,9 +1,9 @@
-import { SetStateAction, useEffect, useState } from "react";
+import {SetStateAction, useEffect, useState} from "react";
 import * as React from "react";
-import { Box, TableBody, TableContainer, Table } from "@mui/material";
+import {Box, TableBody, TableContainer, Table} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
-import { Pagination } from "@features/pagination";
+import {Pagination} from "@features/pagination";
 
 function descendingComparator(a: any, b: any, orderBy: any) {
     if (b[orderBy] < a[orderBy]) {
@@ -35,7 +35,7 @@ function stableSort(array: any[], comparator: (arg0: any, arg1: any) => any) {
     return stabilizedThis.map((el) => el[0]);
 }
 
-function Otable({ ...props }) {
+function Otable({...props}) {
     const {
         rows,
         headers,
@@ -64,6 +64,7 @@ function Otable({ ...props }) {
     const [tableHeadData, setTableHeadData] = useState<any>(null);
     const [active, setActive] = useState([]);
     const [selected, setSelected] = React.useState<readonly string[]>(select);
+
     const handleRequestSort = (event: any, property: SetStateAction<string>) => {
         const isAsc = orderBy === property && order === "asc";
         setOrder(isAsc ? "desc" : "asc");
@@ -117,63 +118,67 @@ function Otable({ ...props }) {
 
     return (
         <Box>
-            <TableContainer sx={{ maxHeight }}>
+            <TableContainer sx={{maxHeight}}>
                 <Table
                     stickyHeader
-                    sx={{ minWidth: minWidth, ...sx }}
+                    sx={{minWidth: minWidth, ...sx}}
                     aria-labelledby="tableTitle"
                     size={"medium"}
                 >
                     <OHead
-                        order={order}
-                        orderBy={orderBy}
-                        state={state}
-                        t={t}
-                        checkedType={checkedType}
-                        handleConfig={handleConfig}
+                        {...{
+                            order,
+                            orderBy,
+                            state,
+                            t,
+                            checkedType,
+                            handleConfig,
+                            hideHeaderOnMobile
+                        }}
                         onRequestSort={handleRequestSort}
                         data={headers}
                         getData={(data: any) => setTableHeadData(data)}
                         onSelectAllClick={handleSelectAllClick}
                         rowCount={rows?.length}
                         numSelected={selected.length}
-                        hideHeaderOnMobile={hideHeaderOnMobile}
                     />
 
                     <TableBody>
                         {(loading
-                            ? Array.from(new Array(10))
-                            : stableSort(rows, getComparator(order, orderBy))
+                                ? Array.from(new Array(10))
+                                : stableSort(rows, getComparator(order, orderBy))
                         ).map((row, index) => {
                             const isItemSelected = isSelected(row?.uuid as string);
                             const labelId = `enhanced-table-checkbox-${index}`;
                             return (
                                 <Component
                                     key={index}
-                                    row={row}
-                                    t={t}
+                                    {...{
+                                        row,
+                                        t,
+                                        handleChange,
+                                        handleClick,
+                                        handleEvent,
+                                        loading,
+                                        active,
+                                        ids,
+                                        checkedType,
+                                        labelId,
+                                        selected,
+                                        isItemSelected
+                                    }}
                                     tableHeadData={state}
-                                    handleChange={handleChange}
                                     editMotif={edit}
-                                    active={active}
-                                    ids={ids}
-                                    checkedType={checkedType}
-                                    labelId={labelId}
                                     data={rest}
-                                    selected={selected}
-                                    isItemSelected={isItemSelected}
-                                    handleClick={handleClick}
-                                    handleEvent={handleEvent}
-                                    loading={loading}
                                 />
                             );
                         })}
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box py={1} />
+            <Box py={1}/>
             {!loading && pagination && parseInt(totalPages) > 1 && (
-                <Pagination total={total} count={totalPages} />
+                <Pagination total={total} count={totalPages}/>
             )}
         </Box>
     );

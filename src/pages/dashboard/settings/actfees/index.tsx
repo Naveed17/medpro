@@ -1,21 +1,20 @@
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useEffect, useState, useRef } from "react";
-import { DashLayout } from "@features/base";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { Box, Drawer } from "@mui/material";
-import { Button } from "@mui/material";
-import { useTranslation } from "next-i18next";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useEffect, useState, useRef} from "react";
+import {DashLayout} from "@features/base";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {Box, useMediaQuery} from "@mui/material";
+import {Button} from "@mui/material";
+import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import { useRequest, useRequestMutation } from "@app/axios";
-import { useRouter } from "next/router";
-import { RootStyled } from "@features/toolbar";
-import { SubHeader } from "@features/subHeader";
-import { Otable } from '@features/table'
-import { useAppSelector } from "@app/redux/hooks";
-import { configSelector } from "@features/base";
-import { uniqueId, isEmpty } from 'lodash'
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {RootStyled} from "@features/toolbar";
+import {SubHeader} from "@features/subHeader";
+import {Otable} from '@features/table';
+import {isEmpty} from 'lodash';
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -47,18 +46,17 @@ const headCells: readonly HeadCell[] = [
 ];
 
 function ActFees() {
-    const { data: session } = useSession();
+    const {data: session} = useSession();
+    const isMobile = useMediaQuery("(max-width:669px)");
+
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false)
     const didMountRef = useRef<boolean>(false);
     const router = useRouter();
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selected, setselected] = useState<any>({});
-    const [edit, setEdit] = useState(false);
-    const { direction } = useAppSelector(configSelector);
     const [isNew, setNew] = useState(false)
     const [stateAct, setstateAct] = useState({
-        "uuid": uniqueId(),
+        "uuid": "NEWROW",
         "isTopAct": true,
         fees: 0,
         "act": {
@@ -68,14 +66,16 @@ function ActFees() {
             "weight": 0
         }
     });
-    const { data: user } = session as Session;
+
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const { trigger } = useRequestMutation(null, "/settings/acts");
-    const { data: httpProfessionalsActs, error: errorActs, mutate } = useRequest({
+
+    const {trigger} = useRequestMutation(null, "/settings/acts");
+    const {data: httpProfessionalsActs, error: errorActs, mutate} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${router.locale}`,
-        headers: { Authorization: `Bearer ${session?.accessToken}` }
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
     useEffect(() => {
@@ -103,10 +103,12 @@ function ActFees() {
                     url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/new-acts/${router.locale}`,
                     data: form,
                     headers: {
-                        ContentType: 'application/x-www-form-urlencoded',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then(r => { setNew(false); mutate() })
+                }, TriggerWithoutValidation).then(r => {
+                    setNew(false);
+                    mutate()
+                })
             } else if (!isEmpty(selected) && selected.fees) {
                 const form = new FormData();
                 form.append("attribute", "price");
@@ -116,65 +118,55 @@ function ActFees() {
                     url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + "/acts/" + selected.uuid + '/' + router.locale,
                     data: form,
                     headers: {
-                        ContentType: 'multipart/form-data',
                         Authorization: `Bearer ${session?.accessToken}`
                     }
-                }, { revalidate: true, populateCache: true }).then((r) => mutate());
+                }, TriggerWithoutValidation).then((r) => mutate());
             }
         }
         didMountRef.current = true;
-    }, [selected])
+    }, [selected]) // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleCreate = () => {
         setNew(true);
         setMainActes([
-            ...mainActes,
-            stateAct
+            stateAct,
+            ...mainActes
         ])
     }
+
     const handleRemove = () => {
         setMainActes([
             ...mainActes
-        ].slice(0, -1));
+        ].filter((act: any) => act.uuid !== "NEWROW"));
         setNew(false);
     }
-    const { t, ready } = useTranslation("settings", { keyPrefix: "actfees" });
+
+    const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
     if (!ready) return <>loading translations...</>;
+
     return (
         <>
             <SubHeader>
                 <RootStyled>
-                    <p style={{ margin: 0 }}>{t('path')}</p>
+                    <p style={{margin: 0}}>{t('path')}</p>
                 </RootStyled>
+                {
+                    isNew ? <Button variant="contained" onClick={handleRemove}>{t('cancel')}</Button> :
+                        <Button
+                            onClick={() => handleCreate()}
+                            variant="contained"
+                            startIcon={<IconUrl width={"14"} height={"14"} color={"white"}
+                                                path="ic-plus"/>}>{t("add_a_new_act")}</Button>
+                }
             </SubHeader>
-            <Box sx={{ p: { xs: "40px 8px", sm: "30px 8px", md: 2 }, 'table': { tableLayout: 'fixed' } }}>
+            <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, 'table': {tableLayout: 'fixed'}}}>
                 <Otable
                     headers={headCells}
                     rows={mainActes}
                     from={"actfees"}
                     edit={setselected}
-                    isNew={isNew}
-                    loading={loading}
-                    t={t}
+                    {...{t, loading, isNew}}
                 />
-                {
-                    isNew ? <Button size="small" onClick={handleRemove}>{t('cancel')}</Button> :
-                        <Button
-                            onClick={() => handleCreate()}
-                            size='small' sx={{
-                                '& .react-svg svg': {
-                                    width: theme => theme.spacing(1.5),
-                                    path: { fill: theme => theme.palette.primary.main },
-
-                                },
-                                '&.Mui-disabled': {
-                                    '& .react-svg svg': {
-                                        path: { fill: theme => theme.palette.common.white },
-
-                                    },
-                                }
-                            }} startIcon={<IconUrl path="ic-plus" />}>{t("add_a_new_act")}</Button>
-                }
-
             </Box>
         </>
     );

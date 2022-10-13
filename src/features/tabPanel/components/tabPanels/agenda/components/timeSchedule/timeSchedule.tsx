@@ -25,7 +25,7 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
-import {IconButton} from "@mui/material";
+import {IconButton, LinearProgress} from "@mui/material";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -61,15 +61,15 @@ function TimeSchedule({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
-        method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
-
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -110,7 +110,7 @@ function TimeSchedule({...props}) {
             setDuration(reason.duration as any);
         }
 
-        if (date) {
+        if (date && medical_professional?.uuid) {
             setTime(moment(date).format('HH:mm'));
             getSlots(date, reason?.duration as any, moment(date).format('HH:mm'));
         }
@@ -191,13 +191,13 @@ function TimeSchedule({...props}) {
     }, [openingHours]);
 
     useEffect(() => {
-        if (date) {
+        if (date && medical_professional?.uuid) {
             setTime(moment(date).format('HH:mm'));
             if (duration !== "") {
                 getSlots(date, duration as string, moment(date).format('HH:mm'));
             }
         }
-    }, [date, duration, getSlots]);
+    }, [date, duration, getSlots]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (locations && locations.length === 1) {
@@ -210,6 +210,9 @@ function TimeSchedule({...props}) {
 
     return (
         <div>
+            <LinearProgress sx={{
+                visibility: !medical_professional ? "visible" : "hidden"
+            }} color="warning"/>
             <Box className="inner-section">
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-1.title")}
@@ -313,7 +316,7 @@ function TimeSchedule({...props}) {
                             onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
                             onChange={(newDate: Date) => onChangeDatepicker(newDate)}
                             value={(location) ? date : null}
-                            loading={!location}
+                            loading={!location || !medical_professional}
                         />
                     </Grid>
                     <Grid item md={6} xs={12}>

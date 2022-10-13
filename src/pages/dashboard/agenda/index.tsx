@@ -8,7 +8,7 @@ import {
     Box,
     Button,
     Container,
-    Drawer, Fab,
+    Drawer,
     LinearProgress,
     Theme,
     Typography,
@@ -41,8 +41,8 @@ import {
     appointmentSelector,
     EventType,
     Instruction,
-    Patient, resetSubmitAppointment,
-    setAppointmentDate,
+    Patient, resetAppointment, resetSubmitAppointment,
+    setAppointmentDate, setAppointmentPatient,
     setAppointmentRecurringDates,
     TimeSchedule
 } from "@features/tabPanel";
@@ -62,26 +62,6 @@ import {prepareSearchKeys} from "@app/hooks";
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
-
-const EventStepper = [
-    {
-        title: "steppers.tabs.tab-1",
-        children: EventType,
-        disabled: false
-    }, {
-        title: "steppers.tabs.tab-2",
-        children: TimeSchedule,
-        disabled: true
-    }, {
-        title: "steppers.tabs.tab-3",
-        children: Patient,
-        disabled: true
-    }, {
-        title: "steppers.tabs.tab-4",
-        children: Instruction,
-        disabled: true
-    }
-];
 
 function Agenda() {
     const {data: session, status} = useSession();
@@ -122,7 +102,25 @@ function Agenda() {
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
-
+    const [eventStepper, setEventStepper] = useState([
+        {
+            title: "steppers.tabs.tab-1",
+            children: EventType,
+            disabled: false
+        }, {
+            title: "steppers.tabs.tab-2",
+            children: TimeSchedule,
+            disabled: true
+        }, {
+            title: "steppers.tabs.tab-3",
+            children: Patient,
+            disabled: true
+        }, {
+            title: "steppers.tabs.tab-4",
+            children: Instruction,
+            disabled: true
+        }
+    ]);
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
     const [startTime, setStartTime] = useState("08:00:00");
@@ -382,13 +380,12 @@ function Agenda() {
             case "onReschedule":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
-                dispatch(setMoveDateTime({
-                    date: new Date(),
-                    time: moment(new Date(event?.extendedProps.time)).format("HH:mm"),
-                    action: "reschedule",
-                    selected: false
-                }));
-                setMoveDialogInfo(true);
+                if (eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
+                    setEventStepper(eventStepper.filter(stepper => stepper.title !== "steppers.tabs.tab-3"));
+                }
+                dispatch(resetAppointment());
+                dispatch(setAppointmentPatient(event.extendedProps.patient as any));
+                dispatch(openDrawer({type: "add", open: true}));
                 break;
         }
     }
@@ -570,6 +567,7 @@ function Agenda() {
     }
 
     const onSelectDate = (eventArg: DateSelectArg) => {
+        dispatch(resetAppointment());
         dispatch(setAppointmentDate(eventArg.start));
         dispatch(setAppointmentRecurringDates([{
             id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
@@ -577,6 +575,17 @@ function Agenda() {
             date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
             status: "success"
         }]));
+
+        if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
+            setEventStepper(
+                [...eventStepper.slice(0, 2),
+                    {
+                        title: "steppers.tabs.tab-3",
+                        children: Patient,
+                        disabled: true
+                    },
+                    ...eventStepper.slice(2)]);
+        }
         dispatch(openDrawer({type: "add", open: true}));
     }
 
@@ -598,10 +607,12 @@ function Agenda() {
     }
 
     const submitStepper = (index: number) => {
-        if (EventStepper.length !== index) {
-            EventStepper[index].disabled = false;
+        const steps: any = eventStepper.map((stepper, index) => ({...stepper}));
+        if (eventStepper.length !== index) {
+            steps[index].disabled = false;
+            setEventStepper(steps);
         } else {
-            EventStepper.map((stepper, index) => stepper.disabled = true);
+            setEventStepper(steps.map((stepper: any) => stepper.disabled = true));
             refreshData();
         }
     }
@@ -623,6 +634,21 @@ function Agenda() {
         }
     }
 
+    const handleAddAppointment = () => {
+        dispatch(resetAppointment());
+        if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
+            setEventStepper(
+                [...eventStepper.slice(0, 2),
+                    {
+                        title: "steppers.tabs.tab-3",
+                        children: Patient,
+                        disabled: true
+                    },
+                    ...eventStepper.slice(2)]);
+        }
+        dispatch(openDrawer({type: "add", open: true}));
+    }
+
     if (!ready) return (<LoadingScreen/>);
 
     return (
@@ -635,7 +661,9 @@ function Agenda() {
                         }
                     }
                 }}>
-                <CalendarToolbar onToday={handleOnToday} date={date}/>
+                <CalendarToolbar
+                    OnToday={handleOnToday}
+                    OnAddAppointment={handleAddAppointment}/>
                 {error &&
                     <AnimatePresence exitBeforeEnter>
                         <motion.div
@@ -769,7 +797,7 @@ function Agenda() {
                         if (submitted) {
                             dispatch(resetSubmitAppointment());
                         }
-                        EventStepper[0].disabled = false;
+                        eventStepper[0].disabled = false;
                         dispatch(openDrawer({type: "add", open: false}));
                         setTimeout(() => {
                             setEvent(undefined);
@@ -780,7 +808,7 @@ function Agenda() {
                         <CustomStepper
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
-                            stepperData={EventStepper}
+                            stepperData={eventStepper}
                             OnCustomAction={handleStepperActions}
                             scroll
                             t={t}
