@@ -16,6 +16,8 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {setTimer} from "@features/card";
 import {Theme} from '@mui/material/styles'
+import {setAppointmentPatient} from "@features/tabPanel";
+import {openDrawer} from "@features/calendar";
 
 function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -175,16 +177,15 @@ function ConsultationIPToolbar({...props}) {
                 }).then((r: any) => {
                     mutateDoc();
                     mutate();
-                    setCheckUp([])
+                    setImagery([])
                     setInfo('document_detail')
                     const res = r.data.data;
-                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
                         name: 'requested-medical-imaging',
                         type: 'requested-medical-imaging',
-                        info: res[0].analyses,
+                        info: res[0]['medical-imaging'],
                         patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
                     })
                     setOpenDialog(true);
@@ -422,24 +423,27 @@ function ConsultationIPToolbar({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs]);
 
+    const handleOpen = () => {
+            dispatch(setAppointmentPatient(appointement?.patient));
+            dispatch(openDrawer({type: "add", open: true}));
+    }
+
     if (!ready) return <>toolbar loading..</>;
 
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
                 <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-                    {/*<Button disabled variant="contained"
+                    <Button  variant="contained"
                             onClick={
                                 () => {
-                                    setInfo("document_detail");
-                                    setOpenDialog(true);
-                                    setState('/static/files/sample.pdf')
-                                    setactions(false)
+                                    handleOpen()
                                 }
                             }
                     >
                         {t("RDV")}
                     </Button>
+                    {/*
                     <Button variant="contained">
                         {t("vaccine")}
                     </Button>

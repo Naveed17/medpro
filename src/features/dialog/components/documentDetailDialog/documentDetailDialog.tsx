@@ -1,22 +1,22 @@
 import {
-    Grid,
-    Stack,
     Box,
+    Button,
+    Grid,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Typography,
+    Stack,
     TextField,
-    Button
+    Typography
 } from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useReactToPrint} from 'react-to-print'
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Document, Page, pdfjs} from "react-pdf";
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
@@ -24,15 +24,16 @@ import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
-import {Certificat, Prescription, RequestedAnalysis, Fees, Header} from "@features/files";
+import {Certificat, Fees, Header, Prescription, RequestedAnalysis} from "@features/files";
 import moment from "moment/moment";
+import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const {data: {state,setOpenDialog}} = props
+    const {data: {state, setOpenDialog}} = props
     const router = useRouter();
     const {data: session} = useSession();
 
@@ -131,6 +132,16 @@ function DocumentDetailDialog({...props}) {
             })
             const uri = doc.output('bloburi').toString()
             setFile(uri)
+        } else if (state.type === 'requested-medical-imaging') {
+            autoTable(doc, {
+                html: '#requested-medical-imaging',
+                useCss: true,
+                includeHiddenHtml: true,
+                styles: {fillColor: [255, 255, 255]},
+                startY: 70
+            })
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
         } else if (state.type === 'write_certif') {
 
             autoTable(doc, {
@@ -178,7 +189,7 @@ function DocumentDetailDialog({...props}) {
                     url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
-                     state.mutate()
+                    state.mutate()
                     setOpenDialog(false)
                 });
 
@@ -221,6 +232,7 @@ function DocumentDetailDialog({...props}) {
             <Certificat data={state}></Certificat>
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
+            {state.type ==='requested-medical-imaging' && <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
