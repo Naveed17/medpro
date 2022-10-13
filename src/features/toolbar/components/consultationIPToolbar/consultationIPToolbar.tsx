@@ -59,10 +59,10 @@ function ConsultationIPToolbar({...props}) {
             value: 'patient history',
 
         },
-        {
+       /* {
             label: "mediktor_report",
             value: 'mediktor report',
-        },
+        },*/
         {
             label: "consultation_form",
             value: 'consultation form',
@@ -162,8 +162,39 @@ function ConsultationIPToolbar({...props}) {
                 })
                 break;
             case 'medical_imagery':
-                console.log(state)
-                break
+                form.append('medical-imaging', JSON.stringify(state));
+
+                trigger({
+                    method: "POST",
+                    url: "/api/medical-entity/" + medical_entity.uuid + '/appointment/' + appuuid + '/medical-imaging/' + router.locale,
+                    data: form,
+                    headers: {
+                        ContentType: 'application/x-www-form-urlencoded',
+                        Authorization: `Bearer ${session?.accessToken}`
+                    }
+                }).then((r: any) => {
+                    mutateDoc();
+                    mutate();
+                    setCheckUp([])
+                    setInfo('document_detail')
+                    const res = r.data.data;
+                    console.log(res)
+                    setState({
+                        uuid: res[0].uuid,
+                        uri: res[1],
+                        name: 'requested-medical-imaging',
+                        type: 'requested-medical-imaging',
+                        info: res[0].analyses,
+                        patient: res[0].patient.firstName + ' ' + res[0].patient.lastName
+                    })
+                    setOpenDialog(true);
+                    setactions(true)
+
+                    let pdoc = [...pendingDocuments]
+                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                    setPendingDocuments(pdoc)
+                })
+                break;
             case 'add_a_document':
                 form.append('title', state.name);
                 form.append('description', state.description);

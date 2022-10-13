@@ -12,7 +12,7 @@ import {
     Stack,
     TextField
 } from '@mui/material'
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
@@ -36,12 +36,13 @@ function LifeStyleDialog({...props}) {
     const {data: session} = useSession();
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
+    const {trigger} = useRequestMutation(null, "/antecedent");
 
     const router = useRouter();
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
-        url: `/api/antecedents/${codes[action]}/${router.locale}`,
+        url: `/api/private/antecedents/${codes[action]}/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }
@@ -163,8 +164,19 @@ function LifeStyleDialog({...props}) {
                             sx={{ml: 'auto'}}
                             size='small'
                             onClick={() => {
-                                antecedents.push({name: value, type: codes[action], uuid: ''})
-                                setAntecedents([...antecedents])
+                                const form = new FormData();
+                                form.append('type',codes[action]);
+                                form.append('name', value);
+                                trigger({
+                                    method: "POST",
+                                    url: `/api/private/antecedents/${router.locale}`,
+                                    data: form,
+                                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+                                }, {revalidate: true, populateCache: true}).then((data) => {
+                                    antecedents.push({name: value, type: codes[action], uuid: (data?.data as HttpResponse).data.uuid})
+                                    setAntecedents([...antecedents])
+                                });
+
                             }}
                             startIcon={<AddIcon/>}>
                         {t('createAnt')}

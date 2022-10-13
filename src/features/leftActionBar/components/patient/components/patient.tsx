@@ -84,7 +84,7 @@ function Patient() {
                 >
                     {t(`filter.title`)}
                 </Typography>
-                <Accordion translate={{t, ready}} data={data} defaultValue={"Patient"}/>
+                <Accordion translate={{t, ready}} data={data} defaultValue={"patient"}/>
             </FilterContainerStyles>
         </div>
     );

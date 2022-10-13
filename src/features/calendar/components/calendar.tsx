@@ -289,6 +289,7 @@ function Calendar({...props}) {
                                 firstDay={1}
                                 initialView={view}
                                 dayMaxEventRows={isLgScreen ? 6 : 3}
+                                eventMaxStack={1}
                                 eventDisplay="block"
                                 headerToolbar={false}
                                 allDayMaintainDuration

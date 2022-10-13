@@ -24,10 +24,9 @@ function MedicalImageryDialog({...props}) {
     const {data} = props;
 
     const [model, setModel] = useState<string>('');
-    const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
-    const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
+    const [miList, setMiList] = useState<MIModel[]>([]);
+    const [mi, setMi] = useState<MIModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/medicalImagery");
     const [name, setName] = useState('');
@@ -44,7 +43,7 @@ function MedicalImageryDialog({...props}) {
         },
         onSubmit: async () => {
             if (name.length > 0)
-                addAnalysis({uuid: '', name})
+                addImage({uuid: '', name})
         },
     });
     const initalData = Array.from(new Array(20));
@@ -55,22 +54,22 @@ function MedicalImageryDialog({...props}) {
 
     const {data: httpAnalysisResponse} = useRequest({
         method: "GET",
-        url: "/api/private/analysis/" + router.locale,
+        url: "/api/private/medical-imaging/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const addAnalysis = (value: AnalysisModel) => {
+    const addImage = (value: MIModel) => {
         setName('')
-        analysis.push(value)
-        setAnalysis([...analysis])
-        data.setState([...analysis])
+        mi.push(value)
+        setMi([...mi])
+        data.setState([...mi])
     }
 
     const saveModel = () => {
         const form = new FormData();
         form.append('globalNote', "");
         form.append('name', model);
-        form.append('analyses', JSON.stringify(analysis));
+        form.append('analyses', JSON.stringify(mi));
 
         trigger({
             method: "POST",
@@ -85,38 +84,27 @@ function MedicalImageryDialog({...props}) {
     const handleChange = (ev: any) => {
         setName(ev.target.value);
 
-        if (ev.target.value.length > 2) {
+        if (ev.target.value.length >= 2) {
             trigger({
                 method: "GET",
-                url: "/api/private/analysis/" + router.locale + '?name=' + ev.target.value,
+                url: "/api/private/medical-imaging/" + router.locale + '?name=' + ev.target.value,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data
                 if (res.length > 0)
-                    setAnalysisList(res)
+                    setMiList(res)
                 else
-                    setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+                    setMiList((httpAnalysisResponse as HttpResponse)?.data);
 
             })
         } else
-            setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+            setMiList((httpAnalysisResponse as HttpResponse)?.data);
     }
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpModelResponse} = useRequest({
-        method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + '/requested-analysis-modal/' + router.locale,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    });
-
     useEffect(() => {
-        if (httpModelResponse)
-            setModels((httpModelResponse as HttpResponse).data);
-    }, [httpModelResponse])
-
-    useEffect(() => {
-        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+        setMiList((httpAnalysisResponse as HttpResponse)?.data);
         setTimeout(() => {
             setLoading(false)
         }, 1000)
@@ -157,9 +145,9 @@ function MedicalImageryDialog({...props}) {
                                 !loading ?
                                     <List className='items-list'>
                                         {
-                                            analysisList?.map(anaylis => (
+                                            miList?.map(anaylis => (
                                                     <ListItemButton key={anaylis.uuid} onClick={() => {
-                                                        addAnalysis(anaylis)
+                                                        addImage(anaylis)
                                                     }}>
                                                         <ListItemText primary={anaylis.name}/>
                                                     </ListItemButton>
@@ -184,7 +172,7 @@ function MedicalImageryDialog({...props}) {
                 <Grid item xs={12} md={5}>
                     <Stack direction="row" alignItems="center">
                         <Typography gutterBottom>{t('medical_imagery_list')}</Typography>
-                        {analysis.length > 0 && <Button className='btn-add'
+                        {/*{analysis.length > 0 && <Button className='btn-add'
                                                         sx={{ml: 'auto'}}
                                                         onClick={() => {
                                                             setOpenDialog(true)
@@ -193,19 +181,19 @@ function MedicalImageryDialog({...props}) {
                                                             <AddIcon/>
                                                         }>
                             {t('save_template')}
-                        </Button>}
+                        </Button>}*/}
                     </Stack>
                     <Box className="list-container">
                         {
-                            analysis.length > 0 ?
-                                analysis.map((item, index) => (
+                            mi.length > 0 ?
+                                mi.map((item, index) => (
                                     <Card key={index}>
                                         <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
                                             <Typography>{item.name}</Typography>
                                             <IconButton size="small" onClick={() => {
-                                                analysis.splice(index, 1);
-                                                setAnalysis([...analysis])
-                                                data.setState([...analysis])
+                                                mi.splice(index, 1);
+                                                setMi([...mi])
+                                                data.setState([...mi])
                                             }}>
                                                 <Icon path="setting/icdelete"/>
                                             </IconButton>

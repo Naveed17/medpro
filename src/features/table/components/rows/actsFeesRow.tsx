@@ -1,47 +1,58 @@
 import TableCell from "@mui/material/TableCell";
-import {InputBase, Box, IconButton, Skeleton, Stack, Typography} from "@mui/material";
-import { useTheme, alpha, Theme } from "@mui/material/styles";
+import { InputBase, IconButton, Skeleton, Stack, Typography, Button } from "@mui/material";
+import { useTheme, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
-import React from "react";
-import IconUrl from '@themes/urlIcon'
-
+import React, { useState } from "react";
 function ActFeesRow({ ...props }) {
+    const { row, editMotif, t, data } = props;
+    const { isNew, setNew } = data
     const theme = useTheme() as Theme;
-    const { row, editMotif } = props;
+    const [act, setAct] = useState("")
+    const [fees, setFees] = useState("");
+    const [show, setShow] = useState(false)
     return (
         <TableRowStyled className={'cip-medical-proce-row'} hover>
             <TableCell>
-                <Typography variant="body1" margin={2} color="text.primary">
-                    {row.act.name}
-                </Typography>
+                {
+                    row ? <InputBase fullWidth placeholder={t("name_of_act")} inputProps={{ readOnly: !isNew }} value={act ? act : row?.act?.name || ""} onChange={(e) => {
+                        setAct(e.target.value);
+                        setShow(true)
+                    }}
+                    /> : <Skeleton width={160} />
+                }
+
             </TableCell>
-            <TableCell align="center">
-                <Typography variant="body1" color="text.primary">
-                    {row.fees} TND
-                </Typography>
-            </TableCell>
-            <TableCell align="right">
-                {row ? (
-                    <Box display="flex" alignItems="center" justifyContent="flex-end">
-                        <IconButton size="small" sx={{ mr: { md: 1 } }}
-                            onClick={() => editMotif(row)}>
-                            <IconUrl path="setting/edit" />
-                        </IconButton>
-                       {/* <IconButton size="small" sx={{ mr: { md: 1 } }}>
-                            <IconUrl path="setting/icdelete" />
-                        </IconButton>*/}
-                    </Box>
-                ) : (
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        alignItems="center"
-                        justifyContent="flex-end"
-                    >
-                        <Skeleton variant="text" width={50} />
-                        <Skeleton variant="text" width={50} />
-                    </Stack>
-                )}
+            <TableCell align="left">
+                {
+                    row ?
+                        <>
+                            <InputBase sx={{ maxWidth: 40 }} placeholder={t("price_of_act")} type="number" value={fees ? fees : row?.fees || ""} onChange={(e) => {
+                                setFees(e.target.value);
+                                setShow(true)
+                            }}
+                            />
+                            TND </> : <Skeleton width={100} />
+
+                }
+                {
+                    ((act || fees) && show) &&
+                    <Button
+                        onClick={() => {
+                            editMotif((prev: { uuid: string, act: string, fees: number }) => ({
+                                ...prev,
+                                uuid: row.act.uuid,
+                                act,
+                                fees: +fees
+
+                            }))
+                            setShow(false)
+                        }}
+
+                        size="small" sx={{ float: 'right' }}>
+                        {t("save")}
+                    </Button>
+                }
+
             </TableCell>
         </TableRowStyled>
     );

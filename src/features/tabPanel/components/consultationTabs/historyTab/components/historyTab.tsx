@@ -79,7 +79,6 @@ function HistoryTab({ ...props }) {
     const [apps, setApps] = useState<any>([]);
     useEffect(() => {
         if (appointement) {
-            console.log(appointement)
             const index = appointement.latestAppointments.findIndex((app: any) => app.appointment.uuid === appuuid)
             if (index > -1) {
                 const element = appointement.latestAppointments.splice(index, 1)[0];
