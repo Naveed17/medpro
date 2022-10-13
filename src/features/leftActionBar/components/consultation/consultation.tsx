@@ -22,11 +22,15 @@ import Content from "./content";
 import {collapse as collapseData} from "./config";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
+import {consultationSelector, SetPatient} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {pxToRem} from "@themes/formatFontSize";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
+import {useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
@@ -34,6 +38,7 @@ function Consultation() {
     const {patient} = useAppSelector(consultationSelector);
     const [loading, setLoading] = useState<boolean>(true);
     const [edit, setEdit] = useState<boolean>(false);
+    const {trigger} = useRequestMutation(null, "/patients");
 
     const dispatch = useAppDispatch();
 
@@ -44,6 +49,11 @@ function Consultation() {
             setLoading(false)
         }
     }, [dispatch, patient]);
+
+    const router = useRouter();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -81,8 +91,16 @@ function Consultation() {
                                                readOnly: !edit
                                            }}
                                            placeholder={'name'}
-                                           onChange={(ev) =>{}}
+                                           onChange={(ev) => {
+                                               if (patient) {
+                                                   let p = {...patient}
+                                                   p.firstName = ev.target.value.split(' ')[0];
+                                                   p.lastName = ev.target.value.split(' ')[1];
+                                                   dispatch(SetPatient(p))
+                                               }
+                                           }}
                                            id={'name'}
+                                           onClick={()=>{setEdit(true)}}
                                            value={patient?.firstName + " " + patient?.lastName}/>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
@@ -141,7 +159,10 @@ function Consultation() {
                                                color: '#7C878E'
                                            },
                                            readOnly: !edit
+
                                        }}
+
+                                       onClick={()=>{setEdit(true)}}
                                        placeholder={'Ajouter numéro téléphone'}
                                        value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
                             />}
@@ -156,7 +177,22 @@ function Consultation() {
                                            </InputAdornment>
                                        )
                                    }}
-                                   inputProps={{style: {background: "white", fontSize: 12, color: '#7C878E'}}}
+                                   inputProps={{
+                                       style: {
+                                           background: "white",
+                                           fontSize: 12,
+                                           color: '#7C878E'
+                                       },
+                                       readOnly: !edit
+                                   }}
+                                   onChange={(ev) => {
+                                       if (patient) {
+                                           let p = {...patient}
+                                           p.email = ev.target.value;
+                                           dispatch(SetPatient(p))
+                                       }
+                                   }}
+                                   onClick={()=>{setEdit(true)}}
                                    placeholder={'Ajouter adresse e-mail'}
                                    value={patient?.email}
                         />
@@ -173,7 +209,26 @@ function Consultation() {
                                  sx={{ml: 'auto', margin: 'auto'}}
                                  size='small'
                                  onClick={() => {
-                                     setEdit(false)
+                                     console.log(patient)
+                                     if (patient){
+                                         const form = new FormData();
+                                         form.append('first_name', patient.firstName);
+                                         form.append('last_name', patient.lastName);
+                                         form.append('email', patient.email);
+
+                                         trigger({
+                                             method: "PUT",
+                                             url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+                                             headers: {
+                                                 ContentType: 'application/x-www-form-urlencoded',
+                                                 Authorization: `Bearer ${session?.accessToken}`
+                                             }
+                                         }, {revalidate: true, populateCache: true}).then((data) => {
+                                             console.log(data)
+                                         });
+
+                                         setEdit(false)
+                                     }
                                  }}
                                  startIcon={<SaveAsIcon/>}>
                     {t('save')}

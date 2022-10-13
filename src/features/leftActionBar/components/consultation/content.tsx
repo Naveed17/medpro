@@ -27,6 +27,7 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {setAppointmentPatient} from "@features/tabPanel";
+import moment from "moment/moment";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -142,7 +143,7 @@ const Content = ({...props}) => {
                                                         <CircleIcon/>
                                                     </ListItemIcon>
                                                     <Typography variant="body2" color="text.secondary">
-                                                        {list.name} / {list.duration} {list.durationType}
+                                                        {list.name} / {list.duration} {list.durationType} {list.isOtherProfessional?'other':'me'}
                                                     </Typography>
                                                     <IconButton size="small" onClick={() => {
                                                         trigger({
@@ -221,6 +222,7 @@ const Content = ({...props}) => {
                                 patient?.requestedAnalyses.map((ra: any, index: number) =>
                                     <ContentStyled key={index}>
                                         <CardContent style={{paddingBottom: 5}}>
+                                            <p style={{textAlign:"right",textTransform:"capitalize",margin:'5px 15px',fontSize:12,color: '#7C878E'}}>{moment(ra?.appointment,'DD-MM-YYYY').format('MMM DD/YYYY')}</p>
                                             <Stack spacing={2} alignItems="flex-start">
                                                 <List dense>
                                                     {
