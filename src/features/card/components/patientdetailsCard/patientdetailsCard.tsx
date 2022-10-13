@@ -147,7 +147,6 @@ function PatientDetailsCard({ ...props }) {
                     />
                 ) : (
                     <Button
-                        disabled={isActive}
                         onClick={onConsultation}
                         variant="contained"
                         color="warning"
@@ -156,6 +155,7 @@ function PatientDetailsCard({ ...props }) {
                             ml: { md: "auto", sm: 0, xs: 0 },
                             maxWidth: { md: 193, xs: "100%" },
                             my: 2,
+                            display: isActive ? "none" : "block"
                         }}
                     >
                         {t("start-consultation")}
