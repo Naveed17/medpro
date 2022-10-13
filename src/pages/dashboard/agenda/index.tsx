@@ -612,7 +612,7 @@ function Agenda() {
             steps[index].disabled = false;
             setEventStepper(steps);
         } else {
-            setEventStepper(steps.map((stepper: any) => stepper.disabled = true));
+            setEventStepper(steps.map((stepper: any) => ({...stepper, disabled: true})));
             refreshData();
         }
     }
