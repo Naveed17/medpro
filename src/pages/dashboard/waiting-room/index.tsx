@@ -24,6 +24,8 @@ import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { leftActionBarSelector } from "@features/leftActionBar";
 import moment from "moment-timezone";
 import { useSnackbar } from "notistack";
+import {toggleSideBar} from "@features/sideBarMenu";
+import {useIsMountedRef} from "@app/hooks";
 
 export const headCells = [
     {
@@ -90,9 +92,10 @@ function WaitingRoom() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const isMounted = useIsMountedRef();
     const { enqueueSnackbar } = useSnackbar();
-    const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "config" });
 
+    const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "config" });
     const { query: filter } = useAppSelector(leftActionBarSelector);
     const { waiting_room } = useAppSelector(dashLayoutSelector);
 
@@ -209,6 +212,12 @@ function WaitingRoom() {
     }
 
     const waitingRooms = (httpWaitingRoomsResponse as HttpResponse)?.data as any;
+
+    useEffect(() => {
+        if (isMounted.current) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]);
 
     useEffect(() => {
         if (waitingRooms) {

@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import {RootStyled} from "@features/toolbar";
 import {
     Box,
@@ -21,31 +20,13 @@ import GridIcon from "@themes/overrides/icons/gridIcon";
 import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, openDrawer, setView} from "@features/calendar";
+import {agendaSelector, setView} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 
-CalendarToolbar.propTypes = {
-    date: PropTypes.instanceOf(Date).isRequired,
-    onToday: PropTypes.func,
-    onNextDate: PropTypes.func,
-    onPrevDate: PropTypes.func,
-    onChangeView: PropTypes.func,
-    view: PropTypes.oneOf([
-        "dayGridMonth",
-        "timeGridWeek",
-        "timeGridDay",
-        "listWeek",
-    ]),
-};
-
-type CalendarToolbarProps = {
-    date: Date
-    onToday: React.EventHandler<any>
-};
-
-function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
+function CalendarToolbar({...props}) {
+    const {OnToday, OnAddAppointment} = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {view, currentDate} = useAppSelector(agendaSelector);
@@ -71,7 +52,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                 <Hidden smDown>
                     <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
                         <IconButton
-                            onClick={onToday}
+                            onClick={OnToday}
                             aria-label="Calendar"
                             sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
                             <CalendarIcon/>
@@ -118,7 +99,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
 
 
                     <CalendarAddButton
-                        onClickEvent={() => dispatch(openDrawer({type: "add", open: true}))}
+                        onClickEvent={OnAddAppointment}
                     />
                 </Stack>
             </Hidden>
@@ -144,7 +125,7 @@ function CalendarToolbar({date, onToday, ...props}: CalendarToolbarProps) {
                     <Button
                         startIcon={<AddEventIcon/>}
                         variant="contained"
-                        onClick={() => dispatch(openDrawer({type: "add", open: true}))}
+                        onClick={OnAddAppointment}
                         color="warning">
                         {t("add")}
                     </Button>
