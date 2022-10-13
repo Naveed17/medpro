@@ -643,7 +643,7 @@ function Agenda() {
                             animate={{opacity: 1}}
                             transition={{ease: "easeIn", duration: 1}}
                         >
-                            <Alert sx={{marginBottom: 2}}
+                            <Alert sx={{marginBottom: 2, p: "0 5px"}}
                                    severity="error">{t("in-consultation-error")}</Alert>
                         </motion.div>
                     </AnimatePresence>}
