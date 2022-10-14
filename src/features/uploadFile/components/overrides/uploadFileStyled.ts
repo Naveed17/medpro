@@ -23,6 +23,6 @@ const DropZoneStyle = styled('div')(({theme, property}): any => {
         '& svg path': {fill: theme.palette.grey['A600']},
         '&:hover': {opacity: 0.72, cursor: 'pointer'},
     }
-    return Boolean(property) ? multi : single;
+    return Boolean(property) ? single : multi;
 });
 export default DropZoneStyle;

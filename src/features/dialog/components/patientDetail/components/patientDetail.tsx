@@ -131,8 +131,7 @@ function PatientDetail({ ...props }) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{ patient }}
-                        onConsultation={onConsultation}
+                        {...{ patient, onConsultation}}
                     />
                     <Box className={"container"} sx={{ width: { md: 726, xs: "100%" } }}>
                         <Tabs

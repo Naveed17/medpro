@@ -108,6 +108,9 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .fc-non-business": {
         /* avec plusieurs longueurs pour les points d'arrêt */
         backgroundImage: "repeating-linear-gradient(-45deg, transparent 0 20px, rgba(132, 132, 142, 0.1) 20px 40px)"
+    },
+    "& .filtered":{
+        opacity: .4
     }
 }));
 

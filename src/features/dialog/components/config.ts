@@ -211,7 +211,16 @@ const dialogData = [
                 (mod) => mod
             )
         ),
-    }
+    },
+    {
+        action: "add_vaccin",
+        component: dynamic((): any =>
+            import("@features/dialog/components/addVaccineDialog/addVaccineDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+   
 ];
 
 export default dialogData;
