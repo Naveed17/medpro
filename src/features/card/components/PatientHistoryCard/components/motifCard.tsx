@@ -7,11 +7,12 @@ import CircleIcon from '@mui/icons-material/Circle';
 function MotifCard({ ...props }) {
     const { data, t } = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
+    console.log(Object.keys(models.data))
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
     return (
         <RootStled>
             <Grid container spacing={2}>
-                {models && models.data && models.data.length > 0 && <Grid item xs={12} md={6}>
+                {models && models.data && Object.keys(models.data).length > 0  && <Grid item xs={12} md={6}>
                     <Card className="motif-card">
                         <CardContent>
                             <Stack direction="row" alignItems="center" justifyContent="space-between"
