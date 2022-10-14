@@ -180,7 +180,7 @@ function Agenda() {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
-            if (!filter) {
+            if (!filter || events.current.length === 0) {
                 appointments?.map((appointment) => {
                     const hasErrors = [
                         ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
