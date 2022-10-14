@@ -95,6 +95,7 @@ function Event({...props}) {
                               size="small"
                               color={"primary"}/>}
                     <AppointmentPopoverCard
+                        {...{t}}
                         style={{width: "300px", border: "none"}}
                         data={appointment}/>
                 </>

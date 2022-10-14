@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Alert} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
@@ -8,9 +8,10 @@ import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
+import Icon from "@themes/urlIcon";
 
 function AppointmentPopoverCard({...props}) {
-    const {data, style} = props;
+    const {data, style, t} = props;
     const [height, setHeight] = useState(0)
     const componentRef = useRef<null | HTMLDivElement>(null);
 
@@ -38,6 +39,29 @@ function AppointmentPopoverCard({...props}) {
                 </Typography>
             </Box>
 
+            {data?.hasErrors?.map((error: string, index: number) => (
+                <Stack key={`error${index}`}
+                       spacing={2} mt={.5} pl={4}
+                       direction="row">
+                    <Alert
+                        sx={{
+                            fontSize: 12,
+                            p: "0 .5rem",
+                            m: "0 .5rem",
+                            "& .MuiSvgIcon-root": {
+                                width: 8,
+                                height: 8
+                            },
+                            "& .MuiAlert-icon": {
+                                mr: 1
+                            }
+                        }}
+                        icon={<Icon width={"12"} height={"12"} path="danger"/>}
+                        severity="error">
+                        {t(error, {ns: "common"})}
+                    </Alert>
+                </Stack>
+            ))}
             <Stack direction="row" spacing={2} mt={.5} pl={4}>
                 <Typography
                     variant="body1"
