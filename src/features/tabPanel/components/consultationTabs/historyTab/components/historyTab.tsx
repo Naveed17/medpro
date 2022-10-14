@@ -70,6 +70,13 @@ function HistoryTab({ ...props }) {
             icon: 'ic-document',
             type: 'req-sheet',
 
+        },
+        {
+            id: 4,
+            title: 'medical_sheet_req',
+            icon: 'ic-soura',
+            type: 'req-medical-imaging',
+
         }
     ];
 
@@ -193,6 +200,22 @@ function HistoryTab({ ...props }) {
                                                                 ))}
                                                             </Box>
                                                         ))}
+                                                        {col.type === "req-medical-imaging" && app?.appointment.requestedImaging  && app?.appointment.requestedImaging.length > 0 &&
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+                                                                {app?.appointment.requestedImaging['medical-imaging'].map((rs: any, idx: number) => (
+                                                                    <p key={`req-sheet-p-${idx}`}
+                                                                       style={{
+                                                                           margin: 0,
+                                                                           fontSize: 12
+                                                                       }}>{rs['medical-imaging'].name} </p>
+                                                                ))}
+                                                            </Box>
+                                                        }
                                                         {col.type === "req-sheet" && app.appointment.requestedAnalyses.length == 0 &&
                                                             <p style={{
                                                                 fontSize: 12,

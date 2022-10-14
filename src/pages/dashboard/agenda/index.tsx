@@ -168,7 +168,7 @@ function Agenda() {
         return true;
     }, [openingHours]);
 
-    const getAppointments = useCallback((query: string, view = "timeGridWeek") => {
+    const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean) => {
         setLoading(true);
         trigger({
             method: "GET",
@@ -180,32 +180,42 @@ function Agenda() {
             const eventCond = (result?.data as HttpResponse)?.data;
             const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
             const eventsUpdated: EventModal[] = [];
-            appointments?.map((appointment) => {
-                const hasErrors = [
-                    ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
-                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
-                eventsUpdated.push({
-                    start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-                    time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
-                    end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
-                    title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
-                    allDay: false,
-                    editable: AppointmentStatus[appointment.status].key !== "FINISHED",
-                    borderColor: appointment.type?.color,
-                    patient: appointment.patient,
-                    overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
-                    motif: appointment.consultationReason,
-                    instruction: appointment.instruction !== null ? appointment.instruction : "",
-                    id: appointment.uuid,
-                    hasErrors,
-                    dur: appointment.duration,
-                    type: appointment.type,
-                    meeting: false,
-                    new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
-                    addRoom: true,
-                    status: AppointmentStatus[appointment.status]
+            if (!filter) {
+                appointments?.map((appointment) => {
+                    const hasErrors = [
+                        ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
+                        ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
+                    eventsUpdated.push({
+                        start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                        time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
+                        end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
+                        title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
+                        allDay: false,
+                        editable: AppointmentStatus[appointment.status].key !== "FINISHED",
+                        borderColor: appointment.type?.color,
+                        patient: appointment.patient,
+                        overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
+                        motif: appointment.consultationReason,
+                        instruction: appointment.instruction !== null ? appointment.instruction : "",
+                        id: appointment.uuid,
+                        filtered: false,
+                        hasErrors,
+                        dur: appointment.duration,
+                        type: appointment.type,
+                        meeting: false,
+                        new: moment(appointment.createdAt, "DD-MM-YYYY HH:mm").add(1, "hours").isBetween(moment().subtract(30, "minutes"), moment(), "minutes", '[]'),
+                        addRoom: true,
+                        status: AppointmentStatus[appointment.status]
+                    });
                 });
-            });
+            } else {
+                events.current.map(event => {
+                    eventsUpdated.push({
+                        ...event,
+                        filtered: !appointments?.find(appointment => appointment.uuid === event.id)
+                    })
+                })
+            }
             events.current = eventsUpdated;
             // this gives an object with dates as keys
             const groups: any = eventsUpdated.reduce(
@@ -253,7 +263,7 @@ function Agenda() {
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
-            getAppointments(queryPath, view);
+            getAppointments(queryPath, view, view !== 'listWeek');
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`

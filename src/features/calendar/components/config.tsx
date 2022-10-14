@@ -15,6 +15,9 @@ import DefaultCircleIcon from "@themes/overrides/icons/defaultCircleIcon";
 import SalleIcon from "@themes/overrides/icons/salleIcon";
 import FinishedCircleIcon from "@themes/overrides/icons/finishedCircleIcon";
 import ExpiredCircleIcon from "@themes/overrides/icons/expiredCircleIcon";
+import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
+import NoShowCircleIcon from "@themes/overrides/icons/noShowCircleIcon";
+import WaitingCircleIcon from "@themes/overrides/icons/waitingCircleIcon";
 
 export const IconsTypes: any = {
     'ic-consultation': <EventOutlinedIcon/>,
@@ -29,17 +32,29 @@ export const IconsTypes: any = {
 }
 
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
-    0: {key: "PENDING", value: "En attende", color: "#FFD400", icon: <DefaultCircleIcon/>},
-    1: {key: "CONFIRMED", value: "Confirmé", color: "#1BC47D", icon: <ConfirmCircleIcon/>},
-    2: {key: "REFUSED", value: "Refusé", color: "#E83B68", icon: <DefaultCircleIcon/>},
-    3: {key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B", icon: <SalleIcon/>},
-    4: {key: "ON_GOING", value: "En consultation", color: "#1939B7"},
-    5: {key: "FINISHED", value: "Effectué", color: "#0096d6", icon: <FinishedCircleIcon/>},
-    6: {key: "CANCELED", value: "Annulé", color: "#c92a2a", icon: <CancelCircleIcon/>},
-    7: {key: "EXPIRED", value: "Expiré", color: "#ff6600", icon: <ExpiredCircleIcon/>},
-    8: {key: "PAUSED", value: "Pausé", color: "#ff6660"},
-    9: {key: "DELETED", value: "Supprimé", color: "#E83B99"},
-    10: {key: "NOSHOW", value: "Patient ne s'est pas présenté", color: "#0563A8", icon: <ExpiredCircleIcon/>},
+    0: {key: "PENDING", value: "En attende", color: "#FFD400", classColor: "warning", icon: <DefaultCircleIcon/>},
+    1: {key: "CONFIRMED", value: "Confirmé", color: "#1BC47D", classColor: "success", icon: <ConfirmCircleIcon/>},
+    2: {key: "REFUSED", value: "Refusé", color: "#E83B68", classColor: "error", icon: <DefaultCircleIcon/>},
+    3: {key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B", classColor: "back", icon: <WaitingCircleIcon/>},
+    4: {
+        key: "ON_GOING",
+        value: "En consultation",
+        color: "#1BC47D",
+        classColor: "success",
+        icon: <OnGogingCircleIcon/>
+    },
+    5: {key: "FINISHED", value: "Effectué", color: "#0096d6", classColor: "primary", icon: <FinishedCircleIcon/>},
+    6: {key: "CANCELED", value: "Annulé", color: "#c92a2a", classColor: "error", icon: <CancelCircleIcon/>},
+    7: {key: "EXPIRED", value: "Expiré", color: "#ff6600", classColor: "expire", icon: <ExpiredCircleIcon/>},
+    8: {key: "PAUSED", value: "Pausé", color: "#ff6660", classColor: "warning"},
+    9: {key: "DELETED", value: "Supprimé", color: "#E83B99", classColor: "error"},
+    10: {
+        key: "NOSHOW",
+        value: "Raté",
+        color: "#7C878E",
+        classColor: "back",
+        icon: <NoShowCircleIcon/>
+    },
 };
 
 export const TableHead = [
