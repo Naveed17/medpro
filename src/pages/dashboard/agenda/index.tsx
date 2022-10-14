@@ -263,7 +263,7 @@ function Agenda() {
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}${query}`;
-            getAppointments(queryPath, view, true);
+            getAppointments(queryPath, view, view !== 'listWeek');
         } else if (localFilter) {
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
                 `start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`}`
