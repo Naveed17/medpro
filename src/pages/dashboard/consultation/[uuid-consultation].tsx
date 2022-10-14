@@ -183,9 +183,11 @@ function ConsultationInProgress() {
     }, [appointement, dispatch, mutate])
 
     useEffect(() => {
-        const mpRes = (httpMPResponse as HttpResponse)?.data[0]
-        setMpUuid(mpRes.medical_professional.uuid);
-        setActs(mpRes.acts)
+        if (httpMPResponse) {
+            const mpRes = (httpMPResponse as HttpResponse)?.data[0]
+            setMpUuid(mpRes.medical_professional.uuid);
+            setActs(mpRes.acts)
+        }
     }, [httpMPResponse])
 
     useEffect(() => {
@@ -274,19 +276,19 @@ function ConsultationInProgress() {
         <>
             <SubHeader>
                 <ConsultationIPToolbar appuuid={uuind}
-                    mutate={mutate}
-                    mutateDoc={mutateDoc}
-                    pendingDocuments={pendingDocuments}
-                    setPendingDocuments={setPendingDocuments}
-                    dialog={dialog}
-                    appointement={appointement}
-                    selectedAct={selectedAct}
-                    selectedModel={selectedModel}
-                    documents={documents}
-                    agenda={agenda?.uuid}
-                    setDialog={setDialog}
-                    endingDocuments={setPendingDocuments}
-                    selected={(v: string) => setValue(v)} />
+                                       mutate={mutate}
+                                       mutateDoc={mutateDoc}
+                                       pendingDocuments={pendingDocuments}
+                                       setPendingDocuments={setPendingDocuments}
+                                       dialog={dialog}
+                                       appointement={appointement}
+                                       selectedAct={selectedAct}
+                                       selectedModel={selectedModel}
+                                       documents={documents}
+                                       agenda={agenda?.uuid}
+                                       setDialog={setDialog}
+                                       endingDocuments={setPendingDocuments}
+                                       selected={(v: string) => setValue(v)}/>
             </SubHeader>
 
             <Box className="container">
@@ -299,6 +301,7 @@ function ConsultationInProgress() {
                                 setIsViewerOpen={setIsViewerOpen}
                                 direction={direction}
                                 setInfo={setInfo}
+                                acts={acts}
                                 mutateDoc={mutateDoc}
                                 setState={setState}
                                 dispatch={dispatch}

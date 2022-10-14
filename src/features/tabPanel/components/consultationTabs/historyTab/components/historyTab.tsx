@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { PatientHistoryCard, DocumentCard, HistoryCard, MotifCard } from "@features/card";
-import { Label } from "@features/label";
+import React, {useEffect, useState} from "react";
+import {DocumentCard, HistoryCard, MotifCard, PatientHistoryCard} from "@features/card";
+import {Label} from "@features/label";
 import {
     Box,
     Button,
@@ -15,10 +15,10 @@ import {
     Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { useAppSelector } from "@app/redux/hooks";
-import { AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer } from "@features/dialog";
+import {useAppSelector} from "@app/redux/hooks";
+import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer} from "@features/dialog";
 
-function HistoryTab({ ...props }) {
+function HistoryTab({...props}) {
     const {
         patient,
         appointement,
@@ -28,6 +28,7 @@ function HistoryTab({ ...props }) {
         setInfo,
         mutateDoc,
         setState,
+        acts,
         appuuid,
         dispatch,
         setOpenDialog
@@ -77,10 +78,16 @@ function HistoryTab({ ...props }) {
             icon: 'ic-soura',
             type: 'req-medical-imaging',
 
+        },
+        {
+            id: 5,
+            title: 'actfees',
+            icon: 'ic-text',
+            type: 'act-fees',
         }
     ];
 
-    const { drawer } = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
+    const {drawer} = useAppSelector((state: { dialog: DialogProps; }) => state.dialog);
     const [collapse, setCollapse] = useState<any>('');
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
@@ -104,13 +111,13 @@ function HistoryTab({ ...props }) {
                 {
                     patient?.nextAppointments.slice(0, size).map((data: any, index: number) => (
                         <React.Fragment key={`patient-${index}`}>
-                            <HistoryCard row={data} patient={patient} t={t} />
+                            <HistoryCard row={data} patient={patient} t={t}/>
                         </React.Fragment>
                     ))
                 }
             </Stack>
             {size < patient?.nextAppointments.length &&
-                <Button style={{ marginBottom: 10, marginTop: -10, fontSize: 12 }} onClick={() => {
+                <Button style={{marginBottom: 10, marginTop: -10, fontSize: 12}} onClick={() => {
                     setSize(patient?.nextAppointments.length)
                 }}>{t('showAll')}</Button>}
 
@@ -118,7 +125,7 @@ function HistoryTab({ ...props }) {
                 {apps.map((app: any) => (
                     <PatientHistoryCard t={t} key={app.appointment.uuid} data={app} appuuid={appuuid}>
                         <Stack spacing={2}>
-                            <MotifCard data={app} t={t} />
+                            <MotifCard data={app} t={t}/>
                             <List dense>
                                 {
                                     subMotifCard.map((col: any, idx: number) => (
@@ -140,18 +147,18 @@ function HistoryTab({ ...props }) {
                                                         }
                                                     }}>
                                                     <ListItemIcon>
-                                                        <IconUrl path={col.icon} />
+                                                        <IconUrl path={col.icon}/>
                                                     </ListItemIcon>
                                                     <Typography variant='body2' fontWeight={700}>
                                                         {t(col.title)}
                                                     </Typography>
-                                                    <IconButton size="small" sx={{ ml: 'auto' }}>
-                                                        <IconUrl path="ic-expand-more" />
+                                                    <IconButton size="small" sx={{ml: 'auto'}}>
+                                                        <IconUrl path="ic-expand-more"/>
                                                     </IconButton>
                                                 </ListItem>
 
-                                                <ListItem sx={{ p: 0 }}>
-                                                    <Collapse in={collapse === col.id} sx={{ width: 1 }}>
+                                                <ListItem sx={{p: 0}}>
+                                                    <Collapse in={collapse === col.id} sx={{width: 1}}>
                                                         {col.type === "treatment" && app.appointment.treatments.map((treatment: any, idx: number) => (
                                                             <Box key={`list-treatement-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
@@ -178,11 +185,15 @@ function HistoryTab({ ...props }) {
                                                             </Box>
                                                         ))}
                                                         {col.type === "treatment" && app.appointment.treatments.length == 0 &&
-                                                            <p style={{
-                                                                fontSize: 12,
-                                                                color: "gray",
-                                                                textAlign: "center"
-                                                            }}>Aucun traitement</p>}
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+                                                                <Typography fontSize={12} margin={0} textAlign={"center"} color={"#66696c"}>Aucun traitement</Typography>
+                                                            </Box>
+                                                        }
 
                                                         {col.type === "req-sheet" && app?.appointment.requestedAnalyses.map((reqSheet: any, idx: number) => (
                                                             <Box key={`req-sheet-item-${idx}`} sx={{
@@ -193,14 +204,14 @@ function HistoryTab({ ...props }) {
                                                             }}>
                                                                 {reqSheet.hasAnalysis.map((rs: any, idx: number) => (
                                                                     <p key={`req-sheet-p-${idx}`}
-                                                                        style={{
-                                                                            margin: 0,
-                                                                            fontSize: 12
-                                                                        }}>{rs.analysis.name} : {rs.result ? rs.result : ' --'}</p>
+                                                                       style={{
+                                                                           margin: 0,
+                                                                           fontSize: 12
+                                                                       }}>{rs.analysis.name} : {rs.result ? rs.result : ' --'}</p>
                                                                 ))}
                                                             </Box>
                                                         ))}
-                                                        {col.type === "req-medical-imaging" && app?.appointment.requestedImaging  && app?.appointment.requestedImaging.length > 0 &&
+                                                        {col.type === "req-medical-imaging" && app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging).length > 0 &&
                                                             <Box key={`req-sheet-item-${idx}`} sx={{
                                                                 bgcolor: theme => theme.palette.grey['A100'],
                                                                 mb: 1,
@@ -216,16 +227,30 @@ function HistoryTab({ ...props }) {
                                                                 ))}
                                                             </Box>
                                                         }
+                                                        {col.type === "req-medical-imaging" && app?.appointment.requestedImaging && app?.appointment.requestedImaging.length === 0 &&
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+                                                                <Typography fontSize={12} margin={0} textAlign={"center"} color={"#66696c"}>Aucune demande imagerie</Typography>
+                                                            </Box>
+                                                        }
                                                         {col.type === "req-sheet" && app.appointment.requestedAnalyses.length == 0 &&
-                                                            <p style={{
-                                                                fontSize: 12,
-                                                                color: "gray",
-                                                                textAlign: "center"
-                                                            }}>Aucune demande</p>}
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+                                                                <Typography fontSize={12} margin={0} textAlign={"center"} color={"#66696c"}>Aucune demande</Typography>
+                                                            </Box>
+                                                        }
 
                                                         {
                                                             col.type === "document" && app.documents.length > 0 &&
-                                                            <Box style={{ padding: 20, paddingTop: 25 }}>
+                                                            <Box style={{padding: 20, paddingTop: 25}}>
                                                                 <Grid container spacing={2} sx={{
                                                                     bgcolor: theme => theme.palette.grey['A100'],
                                                                     mb: 1,
@@ -235,10 +260,10 @@ function HistoryTab({ ...props }) {
                                                                     {
                                                                         app.documents.map((card: any) =>
                                                                             <Grid item xs={3}
-                                                                                key={`doc-item-${card.uuid}`}>
+                                                                                  key={`doc-item-${card.uuid}`}>
                                                                                 <DocumentCard
                                                                                     data={card}
-                                                                                    style={{ width: 30 }}
+                                                                                    style={{width: 30}}
                                                                                     onClick={() => {
                                                                                         if (card.documentType === 'photo') {
                                                                                             setIsViewerOpen(card.uri)
@@ -275,7 +300,7 @@ function HistoryTab({ ...props }) {
                                                                                             })
                                                                                             setOpenDialog(true);
                                                                                         }
-                                                                                    }} t={t} />
+                                                                                    }} t={t}/>
                                                                             </Grid>
                                                                         )
                                                                     }
@@ -286,11 +311,68 @@ function HistoryTab({ ...props }) {
 
                                                         {
                                                             col.type === "document" && (app.documents === null || app.documents.length === 0) &&
-                                                            <p style={{
-                                                                fontSize: 12,
-                                                                color: "gray",
-                                                                textAlign: "center"
-                                                            }}>Aucun document</p>
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+                                                                <Typography fontSize={12} margin={0} textAlign={"center"} color={"#66696c"}>Aucun document</Typography>
+                                                            </Box>
+                                                        }
+
+                                                        {col.type === "act-fees" &&
+                                                            <Box key={`req-sheet-item-${idx}`} sx={{
+                                                                bgcolor: theme => theme.palette.grey['A100'],
+                                                                mb: 1,
+                                                                padding: 2,
+                                                                borderRadius: 0.7
+                                                            }}>
+
+                                                                {app?.appointment.acts.map((act: any, idx: number) => (
+                                                                    <Stack
+                                                                        key={`req-sheet-p-${idx}`}
+                                                                        direction="row"
+                                                                        spacing={3}
+                                                                        justifyContent='space-between'>
+                                                                        <Typography fontSize={13}>
+                                                                            {acts.find((a: { uuid: string }) => a.uuid === act.act_uuid)?.act.name}
+                                                                        </Typography>
+                                                                        <p><span
+                                                                            style={{fontWeight: "bold"}}>{act.price}</span> TND
+                                                                        </p>
+                                                                    </Stack>
+                                                                ))}
+                                                                {app?.appointment.acts.length > 0 &&
+                                                                    <Box mt={2} width={"fit-content"} ml={"auto"}>
+                                                                        <Button
+                                                                            variant='contained'
+                                                                            color={"info"}
+                                                                            onClick={() => {
+                                                                                const selectedActs: { act: any; fees: any; }[] = []
+                                                                                app?.appointment.acts.map((act: { act_uuid: string; price: any; }) => {
+                                                                                    let ac = acts.find((a: { uuid: string }) => a.uuid === act.act_uuid)
+                                                                                    ac.fees = act.price
+                                                                                    selectedActs.push(ac)
+                                                                                })
+                                                                                setInfo('document_detail')
+                                                                                setState({
+                                                                                    type: 'fees',
+                                                                                    name: 'note_fees',
+                                                                                    info: selectedActs,
+                                                                                    patient: patient.firstName + ' ' + patient.lastName
+                                                                                })
+                                                                                setOpenDialog(true);
+                                                                            }}
+                                                                            startIcon={
+                                                                                <IconUrl path='ic-imprime'/>
+                                                                            }>
+                                                                            {t("consultationIP.print")}
+                                                                        </Button>
+                                                                    </Box>}
+
+                                                                {app?.appointment.acts.length === 0 && <Typography fontSize={12} margin={0} textAlign={"center"}>Pas de frais</Typography>}
+                                                            </Box>
                                                         }
                                                     </Collapse>
                                                 </ListItem>
@@ -313,7 +395,7 @@ function HistoryTab({ ...props }) {
                     dispatch(DialogOpenDrawer(false))
                 }}
             >
-                <AppointmentDetail />
+                <AppointmentDetail/>
             </Drawer>
         </>
     );

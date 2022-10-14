@@ -392,7 +392,6 @@ function ConsultationIPToolbar({...props}) {
                     console.log(r)
                     dispatch(setTimer({isActive: false}))
                     localStorage.removeItem('Modeldata');
-                    console.log(localStorage.getItem('Modeldata'))
                     mutate();
                 })
             });
