@@ -108,7 +108,7 @@ function ConsultationInProgress() {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
     const {data: httpModelResponse} = useRequest(medical_entity ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
@@ -183,8 +183,11 @@ function ConsultationInProgress() {
     }, [appointement, dispatch, mutate])
 
     useEffect(() => {
-        setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
-        setActs((httpMPResponse as HttpResponse)?.data[0].acts)
+        if (httpMPResponse) {
+            const mpRes = (httpMPResponse as HttpResponse)?.data[0]
+            setMpUuid(mpRes.medical_professional.uuid);
+            setActs(mpRes.acts)
+        }
     }, [httpMPResponse])
 
     useEffect(() => {
@@ -273,22 +276,22 @@ function ConsultationInProgress() {
         <>
             <SubHeader>
                 <ConsultationIPToolbar appuuid={uuind}
-                    mutate={mutate}
-                    mutateDoc={mutateDoc}
-                    pendingDocuments={pendingDocuments}
-                    setPendingDocuments={setPendingDocuments}
-                    dialog={dialog}
-                    appointement={appointement}
-                    selectedAct={selectedAct}
-                    selectedModel={selectedModel}
-                    documents={documents}
-                    agenda={agenda?.uuid}
-                    setDialog={setDialog}
-                    endingDocuments={setPendingDocuments}
-                    selected={(v: string) => setValue(v)} />
+                                       mutate={mutate}
+                                       mutateDoc={mutateDoc}
+                                       pendingDocuments={pendingDocuments}
+                                       setPendingDocuments={setPendingDocuments}
+                                       dialog={dialog}
+                                       appointement={appointement}
+                                       selectedAct={selectedAct}
+                                       selectedModel={selectedModel}
+                                       documents={documents}
+                                       agenda={agenda?.uuid}
+                                       setDialog={setDialog}
+                                       endingDocuments={setPendingDocuments}
+                                       selected={(v: string) => setValue(v)}/>
             </SubHeader>
 
-            <Box className="container">
+            <Box className="container" style={{padding:0}}>
 
                 <TabPanel value={value} index={'patient_history'}>
                     <HistoryTab patient={patient}
@@ -298,6 +301,7 @@ function ConsultationInProgress() {
                                 setIsViewerOpen={setIsViewerOpen}
                                 direction={direction}
                                 setInfo={setInfo}
+                                acts={acts}
                                 mutateDoc={mutateDoc}
                                 setState={setState}
                                 dispatch={dispatch}
@@ -324,7 +328,6 @@ function ConsultationInProgress() {
                                                                     setSM={setSelectedModel}></WidgetForm>}
                         </Grid>
                         <Grid item xs={12} md={7}>
-
                             {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>

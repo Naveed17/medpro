@@ -3,7 +3,6 @@ import moment from "moment/moment";
 
 function Fees({...props}) {
     const {data} = props;
-    console.log(data.info)
     return (
         <table hidden={true} id="fees" style={{backgroundColor: "white"}}>
             <tr>
