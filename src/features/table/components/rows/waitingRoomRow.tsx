@@ -59,7 +59,7 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         )
     }
-    
+
     const getDuration = (time: string) => {
         const duration: any = moment.duration(moment.utc().diff(moment.utc(time, "HH:mm")));
         const hours = duration._data.hours !== 0 ? `${duration._data.hours} heures, ` : '';
@@ -98,7 +98,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 <Icon path="ic-time"/>
-                                {row.arrive_time}
+                                {moment(row.arrive_time, "HH:mm").add(1,"hours").format("HH:mm")}
                             </Typography>
                         </Box>
                     ) : (

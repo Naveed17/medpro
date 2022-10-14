@@ -166,19 +166,20 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        {!roles.includes('ROLE_SECRETARY') && <LoadingButton
-                            {...{loading}}
-                            loadingPosition="start"
-                            variant="contained"
-                            color="warning"
-                            startIcon={<PlayCircleIcon/>}
-                            onClick={() => {
-                                setLoading(true);
-                                data?.extendedProps.status.key === "FINISHED" ? OnConsultationView(data) : OnConsultation(data);
-                            }}
-                        >
-                            {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
-                        </LoadingButton>}
+                        {(!roles.includes('ROLE_SECRETARY') && data?.extendedProps.status.key !== "ON_GOING") &&
+                            <LoadingButton
+                                {...{loading}}
+                                loadingPosition="start"
+                                variant="contained"
+                                color="warning"
+                                startIcon={<PlayCircleIcon/>}
+                                onClick={() => {
+                                    setLoading(true);
+                                    data?.extendedProps.status.key === "FINISHED" ? OnConsultationView(data) : OnConsultation(data);
+                                }}
+                            >
+                                {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
+                            </LoadingButton>}
                     </Stack>
                     {data?.extendedProps.hasErrors?.map((error: string, index: number) => (
                         <Stack key={`error${index}`}
@@ -307,7 +308,7 @@ function AppointmentDetail({...props}) {
                             <Button onClick={() => OnWaiting(data)}
                                     sx={{
                                         display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                            data?.extendedProps.status.key === "WAITING_ROOM") ? "none" : "flex"
+                                            data?.extendedProps.status.key === "WAITING_ROOM" || data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                     }}
                                     fullWidth
                                     variant='contained'
@@ -326,7 +327,9 @@ function AppointmentDetail({...props}) {
                             </Button>
                             <Button
                                 sx={{
-                                    display: (moment().isBefore(data?.extendedProps.time) || data?.extendedProps.status.key === "FINISHED") ? "none" : "flex"
+                                    display: (moment().isBefore(data?.extendedProps.time) ||
+                                        data?.extendedProps.status.key === "FINISHED"||
+                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                 }}
                                 onClick={() => OnPatientNoShow(data)}
                                 fullWidth variant='contained'
