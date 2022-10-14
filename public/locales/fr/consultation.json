@@ -74,6 +74,7 @@
     "document": "Document",
     "report": "Bilan",
     "upload_document": "Télécharger un document",
+    "upload_report": "Upload bilan",
     "enter": "Saisie",
     "review": "Examan",
     "check": "Contrôle",
@@ -184,7 +185,11 @@
     "requested-analysis": "Demande analyse",
     "requested-medical-imaging": "Demande imagerie",
     "years": "Ans",
-    "months": "mois"
+    "months": "mois",
+    "add_vaccin":"Ajouter vaccin",
+    "name_the_vaccination":"Veuiller nomme le Vaccination",
+    "lot_number":"Numero du lot",
+    "date_of_injection":"Date de l' injection"
   },
   "table": {
     "acts": "Actes",

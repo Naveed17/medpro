@@ -264,6 +264,8 @@ function Payment() {
   const { t, ready } = useTranslation("payment");
   const [collapseDate, setCollapseData] = useState<any>(null);
   const handleClose = () => setOpen(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const isOpen = Boolean(anchorEl);
   const handleCloseCollapse = () => setCollapse(false);
   const handleSave = () => setOpen(false);
   const handleEdit = (props: any) => {
