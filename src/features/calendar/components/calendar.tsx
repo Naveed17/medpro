@@ -281,6 +281,13 @@ function Calendar({...props}) {
                                 eventContent={(event) =>
                                     <Event {...{event, openingHours, view}} t={translation}/>
                                 }
+                                eventClassNames={(arg) => {
+                                    if (arg.event._def.extendedProps.filtered) {
+                                        return ['filtered']
+                                    } else {
+                                        return ['normal']
+                                    }
+                                }}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         ev.preventDefault();

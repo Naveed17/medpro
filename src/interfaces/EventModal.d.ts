@@ -13,6 +13,7 @@ interface EventModal {
     id: string;
     dur: number;
     meeting: boolean;
+    filtered: boolean;
     new: boolean;
     hasErrors: Array<string>;
     addRoom: boolean;
