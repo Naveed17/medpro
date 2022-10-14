@@ -52,7 +52,7 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         key: "NOSHOW",
         value: "Raté",
         color: "#7C878E",
-        classColor: "grey",
+        classColor: "back",
         icon: <NoShowCircleIcon/>
     },
 };
