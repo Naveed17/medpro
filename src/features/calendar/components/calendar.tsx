@@ -64,6 +64,7 @@ function Calendar({...props}) {
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(currentDate.date);
+    const [calendarHeight, setCalendarHeight] = useState("80vh");
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -287,6 +288,19 @@ function Calendar({...props}) {
                                         handleContextMenu(ev);
                                     })
                                 }}
+                                moreLinkClick={(event) => {
+                                    const jsEvent = event.jsEvent as any;
+                                    if (jsEvent.screenY > window.innerHeight) {
+                                        setTimeout(() => {
+                                            const popover = document.getElementsByClassName("fc-popover") as HTMLCollectionOf<HTMLElement>;
+                                            if (popover) {
+                                                popover[0].style.bottom = "0";
+                                                popover[0].style.top = "auto";
+                                                popover[0].style.transition = "bottom 4s ease 0s";
+                                            }
+                                        }, 0);
+                                    }
+                                }}
                                 dayHeaderContent={(event) =>
                                     Header({
                                         isGridWeek,
@@ -298,7 +312,7 @@ function Calendar({...props}) {
                                 select={OnSelectDate}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}
-                                height={"80vh"}
+                                height={calendarHeight}
                                 initialDate={date}
                                 slotMinTime={"08:00:00"}
                                 slotMaxTime={"20:00:00"}
