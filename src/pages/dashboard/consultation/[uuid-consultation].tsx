@@ -108,7 +108,7 @@ function ConsultationInProgress() {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
         headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null);
     const {data: httpModelResponse} = useRequest(medical_entity ? {
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
@@ -183,8 +183,9 @@ function ConsultationInProgress() {
     }, [appointement, dispatch, mutate])
 
     useEffect(() => {
-        setMpUuid((httpMPResponse as HttpResponse)?.data[0].medical_professional.uuid);
-        setActs((httpMPResponse as HttpResponse)?.data[0].acts)
+        const mpRes = (httpMPResponse as HttpResponse)?.data[0]
+        setMpUuid(mpRes.medical_professional.uuid);
+        setActs(mpRes.acts)
     }, [httpMPResponse])
 
     useEffect(() => {
