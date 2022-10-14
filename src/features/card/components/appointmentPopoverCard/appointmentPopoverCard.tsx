@@ -45,9 +45,8 @@ function AppointmentPopoverCard({...props}) {
                        direction="row">
                     <Alert
                         sx={{
-                            fontSize: 12,
-                            p: "0 .5rem",
-                            m: "0 .5rem",
+                            p: "0 .4rem",
+                            m: "0 .4rem 0 0",
                             "& .MuiSvgIcon-root": {
                                 width: 8,
                                 height: 8
