@@ -25,6 +25,7 @@
     "patient record": "dossier patient",
     "treatment_in_progress": "traitement en cours",
     "balance_sheet_pending": "Bilan en attente",
+    "medical_imaging_pending": "Imagerie en attente",
     "consultation": "consultation",
     "medical_history": "Antécédent médical",
     "add_treatment": "Ajouter un traitement",
