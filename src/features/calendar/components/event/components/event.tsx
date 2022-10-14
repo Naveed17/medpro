@@ -29,16 +29,6 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(appointment.status.key === "ON_GOING" && {
-                            backgroundColor: "success.light",
-                        }
-                    ), ...(appointment.status.key === "WAITING_ROOM" && {
-                            "& .ic-waiting .MuiSvgIcon-root": {
-                                width: 16,
-                                height: 16
-                            }
-                        }
-                    ),
                     "&:before": {
                         background: event.borderColor,
                     },
@@ -56,14 +46,7 @@ function Event({...props}) {
                             component={"span"}
                             color="text.primary">
                     {!appointment.overlapEvent && appointment?.status.icon}
-                    {appointment.hasErrors.length > 0 && <DangerIcon/>}
-
-                    {/*{!appointment.overlapEvent &&
-                        <span> {appointment.time.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        })}
-                        </span>}*/}
+                    {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                 </Typography>
 
                 <Typography variant="body2" component={"span"} sx={{

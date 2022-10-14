@@ -1,12 +1,10 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Alert} from "@mui/material";
+import {Box, Typography, Stack, Avatar} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
-
 // utils
 import moment from "moment-timezone";
 import CallIcon from "@mui/icons-material/Call";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
@@ -20,7 +18,8 @@ function AppointmentPopoverCard({...props}) {
         if (componentRef.current) {
             setHeight(componentRef.current.clientHeight)
         }
-    }, [])
+    }, []);
+
     return (
         <RootStyled sx={style} ref={componentRef}>
             <Box className={"badge"} sx={{
@@ -39,7 +38,7 @@ function AppointmentPopoverCard({...props}) {
                 </Typography>
             </Box>
 
-            <Stack direction="row" spacing={2} mt={2} pl={4}>
+            <Stack direction="row" spacing={2} mt={.5} pl={4}>
                 <Typography
                     variant="body1"
                     align={"right"}
@@ -67,26 +66,24 @@ function AppointmentPopoverCard({...props}) {
             </Stack>
             <Stack pl={4} direction="row" justifyContent='space-between' alignItems='center'>
                 <Label variant='filled'
-                       color={
-                           data?.status.key === "CONFIRMED"
-                               ? "success"
-                               : data?.status.key === "CANCELED"
-                                   ? "error"
-                                   : "primary"
-                       }>
-                    {data?.status.value}
+                       sx={{
+                           "& .MuiSvgIcon-root": {
+                               width: 16,
+                               height: 16,
+                               pl: 0
+                           }
+                       }}
+                       color={data?.status?.classColor}>
+                    {data?.status?.icon}
+                    <Typography
+                        sx={{
+                            fontSize: 10,
+                            ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
+                        }}
+                    >{data?.status?.value}</Typography>
                 </Label>
             </Stack>
-            {data.motif && <Stack pl={4} direction="row" mt={1} justifyContent='space-between' alignItems='flex-start'>
-                <Alert severity="info"
-                       sx={{
-                           "& .MuiAlert-icon": {
-                               mr: .5
-                           },
-                           p: "0 .5rem"
-                       }}>
-                    {" Motif: "}{data.motif?.name}</Alert>
-            </Stack>}
+
             <Stack
                 direction="row"
                 spacing={1}
@@ -128,6 +125,10 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
             </Stack>
 
+            {data.motif && <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
+                <Typography sx={{fontSize: 12}} color={"back"}>
+                    {" Motif: "}{data.motif?.name}</Typography>
+            </Stack>}
 
         </RootStyled>
     );
