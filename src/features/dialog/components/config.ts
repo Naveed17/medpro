@@ -6,7 +6,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/qualificationDialog/qualificationDialog"
-            ).then((mod) => mod)
+                ).then((mod) => mod)
         ),
     },
     {
@@ -14,7 +14,7 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/assuranceDialog/assuranceDialog"
-            ).then((mod) => mod)
+                ).then((mod) => mod)
         ),
     },
     {
@@ -77,6 +77,14 @@ const dialogData = [
         action: "balance_sheet_pending",
         component: dynamic((): any =>
             import("@features/dialog/components/balanceSheetPending/balanceSheetPending").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "medical_imaging_pending",
+        component: dynamic((): any =>
+            import("@features/dialog/components/medicalImagingPending/medicalImagingPending").then(
                 (mod) => mod
             )
         ),
@@ -148,9 +156,9 @@ const dialogData = [
     {
         action: "document_detail",
         component: dynamic((): any =>
-            import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
-                (mod) => mod
-            ),
+                import("@features/dialog/components/documentDetailDialog/documentDetailDialog").then(
+                    (mod) => mod
+                ),
             {
                 ssr: false
             }
