@@ -136,6 +136,10 @@ function DocumentsPanel({...props}) {
                         },
                         "& .MuiCardContent-root": {
                             background: "white"
+                        },
+                        "& .injected-svg": {
+                            maxWidth: 30,
+                            maxHeight: 30
                         }
                     }}
                 >

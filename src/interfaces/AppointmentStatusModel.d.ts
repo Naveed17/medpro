@@ -2,5 +2,6 @@ interface AppointmentStatusModel {
     key: string;
     value: string;
     color: string;
-    icon?: EmotionJSX.Element
+    classColor?: string;
+    icon?: EmotionJSX.Element;
 }

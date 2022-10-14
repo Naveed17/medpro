@@ -2,7 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Paper } from "@mui/material";
 
 const RootStyled = styled(Paper)(({ theme }) => ({
-    minHeight: 130,
+    minHeight: 120,
     borderRadius: "8px",
     overflow: "auto",
     position: 'relative',
