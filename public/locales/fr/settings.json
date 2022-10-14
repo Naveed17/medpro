@@ -4,7 +4,7 @@
     "profile": "Profil",
     "acts": "Actes",
     "motif": "Motif de consultation",
-    "consultation": "Personnalisé consultation",
+    "consultation": "Fiche consultation",
     "lieu": "Lieux de consultation",
     "agenda": "Agenda",
     "horaire": "Horaire",
@@ -325,7 +325,7 @@
   },
   "templates": {
     "config": {
-      "path": "Paramètres > Personalisé la suivi du consultation",
+      "path": "Paramètres > Personaliser la suivi du consultation",
       "add": "Ajouter un modèle",
       "table": {
         "name": "Nom",
@@ -341,6 +341,7 @@
         "cancel": "Annuler",
         "save": "Enregistrer",
         "named": "Veuillez nommer le modèle",
+        "select": "Veuillez choisir vos variables",
         "info": "Information du modèle"
       }
     }

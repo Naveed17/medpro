@@ -291,7 +291,7 @@ function ConsultationInProgress() {
                                        selected={(v: string) => setValue(v)}/>
             </SubHeader>
 
-            <Box className="container">
+            <Box className="container" style={{padding:0}}>
 
                 <TabPanel value={value} index={'patient_history'}>
                     <HistoryTab patient={patient}
@@ -328,7 +328,6 @@ function ConsultationInProgress() {
                                                                     setSM={setSelectedModel}></WidgetForm>}
                         </Grid>
                         <Grid item xs={12} md={7}>
-
                             {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>

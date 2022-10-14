@@ -116,7 +116,7 @@ function Widget({...props}) {
                            }}
                            sx={{cursor: 'pointer'}}>
                         <ModelDot color={value?.color} selected={false}/>
-                        <Typography fontWeight={500}>
+                        <Typography fontWeight={600}>
                             Données de suivi : {value?.label}
                         </Typography>
                         <IconUrl path="ic-flesh-bas-y"/>

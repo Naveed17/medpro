@@ -201,6 +201,9 @@
     "action": "Action",
     "confirmed": "Confirmé",
     "check": "Contrôle",
+    "quality": "Quantité",
+    "total": "Total",
+    "#": "#",
     "send_the_link": "Envoyer le lien du questionnaire",
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails"

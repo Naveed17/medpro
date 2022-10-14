@@ -116,9 +116,9 @@ function PfTemplateDetail({...props}) {
     }, [data, httpProfessionalsResponse, props.data])
     const validationSchema = Yup.object().shape({
         name: Yup.string()
-            .min(3, t('users.new.ntc'))
-            .max(50, t('users.new.ntl'))
-            .required(t('users.new.nameReq'))
+            .min(3, t('ntc'))
+            .max(50, t('ntl'))
+            .required(t('nameReq'))
     });
 
     const formik = useFormik({
@@ -314,7 +314,7 @@ function PfTemplateDetail({...props}) {
                                 <Stack spacing={2}>
                                     <FormControl size="small" fullWidth>
                                         <Typography variant="body2" marginTop={2} marginBottom={1} gutterBottom>
-                                            {t('named')}
+                                            {t('select')}
                                         </Typography>
 
                                         {sections.length === 0 ? initalData.map((item, index) => (

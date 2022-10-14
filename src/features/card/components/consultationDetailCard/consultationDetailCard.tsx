@@ -40,8 +40,8 @@ function CIPPatientHistoryCard({ ...props }) {
         <ConsultationDetailCardStyled>
             <Stack className="card-header" p={2} direction="row" alignItems="center" borderBottom={1}
                 borderColor="divider">
-                <Typography display='flex' alignItems="center" variant="body2" component="div" color="secondary"
-                    fontWeight={500}>
+                <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
+                    fontWeight={600}>
                     <Icon path='ic-edit-file-pen' />
                     {t("review")}
                 </Typography>

@@ -4,6 +4,7 @@ import { useTheme, alpha, Theme } from "@mui/material/styles";
 import { TableRowStyled } from "@features/table";
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import {pxToRem} from "@themes/formatFontSize";
 
 function CIPMedicalProceduresRow({ ...props }) {
 
@@ -44,6 +45,34 @@ function CIPMedicalProceduresRow({ ...props }) {
             <TableCell>
                 {row.act.name}
             </TableCell>
+            <TableCell align={"center"}>
+                {/*<InputBase
+                    type="number"
+                    size="small"
+                    id={row.uuid}
+                    placeholder={'--'}
+                    sx={{
+                        border: 1,
+                        borderRadius: .5,
+                        paddingLeft: .5,
+                        paddingRight: .5,
+                        maxWidth: 64,
+                        borderColor: theme.palette.divider,
+                        color: theme.palette.text.primary,
+                        mr: 1,
+                        input: {
+                            textAlign: 'center',
+                            padding: theme.spacing(.3),
+                            "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
+                                "-webkit-appearance": 'none',
+                                margin: 0,
+                            }
+
+                        }
+                    }}
+                    autoFocus={selected === row.uuid}/>*/}
+                soon TND
+            </TableCell>
             <TableCell>
                 {isItemSelected ? (
                     <>
@@ -82,9 +111,10 @@ function CIPMedicalProceduresRow({ ...props }) {
                             }}
                             autoFocus={selected === row.uuid}
                             sx={{
-                                backgroundColor: alpha(theme.palette.success.main, 0.1),
+                                backgroundColor: 'rgba(237, 255, 238, 1)',
                                 border: 1,
-                                borderRadius: .5,
+                                height: pxToRem(30),
+                                borderRadius: 2,
                                 paddingLeft: .5,
                                 paddingRight: .5,
                                 maxWidth: 64,
@@ -118,6 +148,9 @@ function CIPMedicalProceduresRow({ ...props }) {
                     </>
                 )}
                 TND
+            </TableCell>
+            <TableCell align={"center"}>
+                -- TND
             </TableCell>
         </TableRowStyled>
     );
