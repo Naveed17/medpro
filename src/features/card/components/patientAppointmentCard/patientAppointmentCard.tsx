@@ -3,9 +3,11 @@ import {Avatar, Box, IconButton, ListItemIcon, ListItemText, Stack, Typography} 
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
+import Icon from "@themes/urlIcon";
+import React from "react";
 
 function PatientAppointmentCard({...props}) {
-    const {item, listing, onReset, ...rest} = props;
+    const {item: patient, listing, onReset, onEdit, ...rest} = props;
 
     return (
         <RootStyled
@@ -13,21 +15,21 @@ function PatientAppointmentCard({...props}) {
             {...rest}
             {...{styleprops: listing?.toString()}}
         >
-            <ListItemIcon key={item.uuid}>
-                <Avatar key={item.uuid}
-                        src={`/static/icons/${item.gender !== "O" ? "men" : "women"}-avatar.svg`}
-                        alt={item.name}/>
+            <ListItemIcon key={patient.uuid}>
+                <Avatar key={patient.uuid}
+                        src={`/static/icons/${patient.gender !== "O" ? "men" : "women"}-avatar.svg`}
+                        alt={patient.name}/>
             </ListItemIcon>
             <Box>
                 <Stack spacing={.5} direction="row" alignItems='center'>
                     <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
-                        {item.firstName} {item.lastName}
+                        {patient.firstName} {patient.lastName}
                     </Typography>
                 </Stack>
-                {item.birthdate && <Stack spacing={.5} direction="row" alignItems='center'>
+                {patient.birthdate && <Stack spacing={.5} direction="row" alignItems='center'>
                     <IconUrl path="ic-anniverssaire"/>
                     <Typography color="text.secondary" variant="body2" sx={{fontWeight: 500, display: 'flex'}}>
-                        {item.birthdate} - {moment().diff(moment(item.birthdate, "DD-MM-YYYY"), 'years')} ans
+                        {patient.birthdate} - {moment().diff(moment(patient.birthdate, "DD-MM-YYYY"), 'years')} ans
                     </Typography>
                 </Stack>}
             </Box>
@@ -42,16 +44,28 @@ function PatientAppointmentCard({...props}) {
                 </Typography>
             </ListItemText>
             {listing && (
-                <IconButton size="small"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onReset(null);
-                            }}
-                >
-                    <CloseIcon/>
-                </IconButton>
-            )
-            }
+                <>
+                    <IconButton
+                        size="small"
+                        sx={{mr: 1}}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(patient);
+                        }}
+                    >
+                        <Icon color={"white"} path="setting/edit"/>
+                    </IconButton>
+                    <IconButton
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onReset(null);
+                        }}
+                    >
+                        <CloseIcon/>
+                    </IconButton>
+                </>
+            )}
         </RootStyled>
     )
 }
