@@ -138,6 +138,21 @@ function FamilyHistoryDialog({...props}) {
                                             }
                                             label={t('mother')}
                                         />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    name={list.uuid}
+                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'both'}
+                                                    onChange={() => {
+                                                        let items = state.map(item => ({...item}));
+                                                        let item = items.find(i => i.uuid === list.uuid)
+                                                        if (item) item.ascendantOf = 'both';
+                                                        setState(items)
+                                                    }}
+                                                />
+                                            }
+                                            label={t('both')}
+                                        />
                                     </Stack>
                                 }
 
