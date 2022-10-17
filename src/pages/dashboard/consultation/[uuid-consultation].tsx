@@ -164,17 +164,20 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (appointement) {
-            console.log(appointement)
             setPatient(appointement.patient);
             dispatch(SetPatient(appointement.patient))
             dispatch(SetMutation(mutate))
 
             if (appointement.acts) {
                 let sAct: any[] = []
-                appointement.acts.map((act: { act_uuid: string, price: number }) => {
+                appointement.acts.map((act: { act_uuid: string; price: any; qte: any; }) => {
                     const actDetect = acts.find((a: { uuid: string }) => a.uuid === act.act_uuid) as any
-                    if (actDetect)
+
+                    if (actDetect) {
+                        actDetect.fees = act.price
+                        actDetect.qte = act.qte
                         sAct.push(actDetect)
+                    }
                 })
                 setSelectedAct(sAct)
             }
@@ -195,7 +198,7 @@ function ConsultationInProgress() {
         let uuids: string[] = [];
         selectedAct.map(act => {
             uuids.push(act.uuid)
-            fees += act.fees
+            act.qte ? fees += act.fees * act.qte : fees += act.fees;
         })
         setTotal(fees)
         setSelectedUuid(uuids)
@@ -213,14 +216,20 @@ function ConsultationInProgress() {
             selectedAct[index] = row
             setSelectedAct([...selectedAct])
 
+        } else if (from === 'changeQte') {
+            const index = selectedAct.findIndex(act => act.uuid === row.uuid)
+            selectedAct[index] = row
+            setSelectedAct([...selectedAct])
         } else if (from === 'checked') {
 
         } else {
             if (from) {
                 const index = selectedAct.findIndex(act => act.uuid === row.uuid)
                 setSelectedAct([...selectedAct.slice(0, index), ...selectedAct.slice(index + 1, selectedAct.length)]);
-            } else
+            } else {
+                row.qte = 1
                 setSelectedAct([...selectedAct, row]);
+            }
         }
 
     }
@@ -291,9 +300,8 @@ function ConsultationInProgress() {
                                        selected={(v: string) => setValue(v)}/>
             </SubHeader>
 
-            <Box className="container" style={{padding:0}}>
-
-                <TabPanel value={value} index={'patient_history'}>
+            <Box className="container" style={{padding: 0}}>
+                <TabPanel padding={1} value={value} index={'patient_history'}>
                     <HistoryTab patient={patient}
                                 appointement={appointement}
                                 t={t}

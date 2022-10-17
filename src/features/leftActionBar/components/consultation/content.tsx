@@ -190,7 +190,7 @@ const Content = ({...props}) => {
                                 id === 3 &&
                                 <Stack spacing={1} alignItems="flex-start">
                                     {<List dense>
-                                        {patient &&
+                                        {patient && patient?.previousAppointments &&
                                             patient?.previousAppointments.map((list: { dayDate: string }, index: number) =>
                                                 <ListItem key={index}>
                                                     <ListItemIcon>
