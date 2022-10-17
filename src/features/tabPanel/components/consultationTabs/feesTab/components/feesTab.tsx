@@ -18,10 +18,10 @@ function FeesTab({...props}) {
 
     const headCells: readonly HeadCell[] = [
         {
-            id: "select-all",
+            id: "select",
             numeric: false,
             disablePadding: true,
-            label: "checkbox",
+            label: "#",
             sortable: false,
             align: "left",
         },
@@ -34,12 +34,28 @@ function FeesTab({...props}) {
             align: "left",
         },
         {
+            id: "qte",
+            numeric: true,
+            disablePadding: true,
+            label: "quality",
+            sortable: true,
+            align: "center",
+        },
+        {
             id: "amount",
             numeric: true,
             disablePadding: false,
             label: "amount",
             sortable: true,
             align: "left",
+        },
+        {
+            id: "total",
+            numeric: true,
+            disablePadding: false,
+            label: "total",
+            sortable: true,
+            align: "center",
         },
 
     ];
@@ -82,14 +98,14 @@ function FeesTab({...props}) {
 
             </Stack>
 
-            <Button
+{/*            <Button
                 onClick={() => setOpenActDialog(true)}
                 size='small' sx={{
                 '& .react-svg svg': {
                     width: theme => theme.spacing(1.5),
                     path: {fill: theme => theme.palette.primary.main}
                 }
-            }} startIcon={<IconUrl path="ic-plus"/>}>{t("consultationIP.add_a_new_act")}</Button>
+            }} startIcon={<IconUrl path="ic-plus"/>}>{t("consultationIP.add_a_new_act")}</Button>*/}
             <Box pt={8}/>
             <SubFooter>
                 <Stack spacing={2} direction="row" alignItems="center" width={1}

@@ -179,16 +179,20 @@ function CalendarRow({...props}) {
                     <TableCell align="center" sx={{py: "0!important"}}>
                         <Label
                             variant="filled"
-                            color={
-                                data?.status.key === "CONFIRMED"
-                                    ? "success"
-                                    : data?.status.key === "CANCELED"
-                                        ? "error"
-                                        : "primary"
-                            }
-                            sx={{height: 21, px: 3}}
-                        >
-                            {data.status.value}
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0
+                                }
+                            }}
+                            color={data?.status?.classColor}>
+                            {data?.status?.icon}
+                            <Typography
+                                sx={{
+                                    fontSize: 10
+                                }}
+                            >{data?.status?.value}</Typography>
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>

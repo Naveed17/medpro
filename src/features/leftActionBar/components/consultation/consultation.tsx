@@ -22,15 +22,15 @@ import Content from "./content";
 import {collapse as collapseData} from "./config";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector, SetPatient} from "@features/toolbar";
+import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
-import {pxToRem} from "@themes/formatFontSize";
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
+import {pxToRem} from "@themes/formatFontSize";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
@@ -38,6 +38,9 @@ function Consultation() {
     const {patient} = useAppSelector(consultationSelector);
     const [loading, setLoading] = useState<boolean>(true);
     const [edit, setEdit] = useState<boolean>(false);
+    const [number, setNumber] = useState<any>(null);
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const {trigger} = useRequestMutation(null, "/patients");
 
     const dispatch = useAppDispatch();
@@ -46,6 +49,9 @@ function Consultation() {
         if (patient) {
             dispatch(toggleSideBar(false));
             console.log(patient);
+            setNumber(patient.contact[0])
+            setEmail(patient.email)
+            setName(patient.firstName + " " + patient.lastName)
             setLoading(false)
         }
     }, [dispatch, patient]);
@@ -92,20 +98,21 @@ function Consultation() {
                                            }}
                                            placeholder={'name'}
                                            onChange={(ev) => {
-                                               if (patient) {
+                                               setName(ev.target.value)
+                                               /*if (patient) {
                                                    let p = {...patient}
                                                    console.log(ev.target.value)
                                                    const res = ev.target.value.split(' ')
                                                    p.firstName = res[0];
                                                    p.lastName = res[1] ? res[1] : '';
                                                    dispatch(SetPatient(p))
-                                               }
+                                               }*/
                                            }}
                                            id={'name'}
                                            onClick={() => {
                                                setEdit(true)
                                            }}
-                                           value={patient?.firstName + " " + patient?.lastName}/>
+                                           value={name}/>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
                                     {patient?.birthdate
@@ -140,7 +147,7 @@ function Consultation() {
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        {patient?.contact && patient?.contact.length > 0 &&
+                        {number &&
                             <TextField variant="standard"
                                        InputProps={{
                                            style: {
@@ -165,12 +172,18 @@ function Consultation() {
                                            readOnly: !edit
 
                                        }}
-
+                                       onChange={(ev) => {
+                                           if (patient) {
+                                               let nm = {...number}
+                                               nm.value = ev.target.value
+                                               setNumber(nm)
+                                           }
+                                       }}
                                        onClick={() => {
                                            setEdit(true)
                                        }}
-                                       placeholder={'Ajouter numéro téléphone'}
-                                       value={(patient?.contact[0].code ? patient?.contact[0].code + ' ' : '') + patient?.contact[0].value}
+                                       placeholder={'Ajouter téléphone'}
+                                       value={(number.code ? number.code + ' ' : '') + number.value}
                             />}
 
                         <TextField variant="standard"
@@ -192,18 +205,13 @@ function Consultation() {
                                        readOnly: !edit
                                    }}
                                    onChange={(ev) => {
-                                       if (patient) {
-                                           let p = {...patient}
-                                           p.email = ev.target.value;
-                                           dispatch(SetPatient(p))
-                                       }
+                                       setEmail(ev.target.value)
                                    }}
                                    onClick={() => {
                                        setEdit(true)
                                    }}
                                    placeholder={'Ajouter adresse e-mail'}
-                                   value={patient?.email}
-                        />
+                                   value={email}/>
                     </Box>
                 </Box>
             </Box>
@@ -218,13 +226,14 @@ function Consultation() {
                                  size='small'
                                  onClick={() => {
                                      console.log(patient)
+                                     const firstLastName = name.split(' ')
                                      if (patient) {
                                          const form = new FormData();
-                                         form.append('first_name', patient.firstName);
-                                         form.append('last_name', patient.lastName);
-                                         form.append('gender', patient.gender);
+                                         form.append('first_name', firstLastName[0]);
+                                         form.append('last_name', firstLastName[1] ? firstLastName[1] : '');
+                                         form.append('gender', patient.gender === 'M' ? '1' : '2');
                                          form.append('phone', JSON.stringify(patient.contact[0]));
-                                         form.append('email', patient.email);
+                                         form.append('email', email);
 
                                          trigger({
                                              method: "PUT",
@@ -233,7 +242,7 @@ function Consultation() {
                                                  ContentType: 'application/x-www-form-urlencoded',
                                                  Authorization: `Bearer ${session?.accessToken}`
                                              },
-                                             data:form,
+                                             data: form,
                                          }, {revalidate: true, populateCache: true}).then((data) => {
                                              console.log(data)
                                          });

@@ -132,23 +132,6 @@ function AppointmentDetail({...props}) {
         <RootStyled>
             <AppBar position="static" color='inherit'>
                 <Toolbar>
-                    {/*<Popover
-                        open={openTooltip}
-                        handleClose={() => setOpenTooltip(false)}
-                        menuList={menuList}
-                        onClickItem={onClickTooltipItem}
-                        button={
-                            <IconButton
-                                onClick={() => {
-                                    setOpenTooltip(true);
-                                }}
-                                sx={{display: "block", ml: "auto"}}
-                                size="small"
-                            >
-                                <Icon path="more-vert"/>
-                            </IconButton>
-                        }
-                    />*/}
                     <IconButton
                         size="small"
                         onClick={() => dispatch(openDrawer({type: "view", open: false}))}
@@ -328,7 +311,7 @@ function AppointmentDetail({...props}) {
                             <Button
                                 sx={{
                                     display: (moment().isBefore(data?.extendedProps.time) ||
-                                        data?.extendedProps.status.key === "FINISHED"||
+                                        data?.extendedProps.status.key === "FINISHED" ||
                                         data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                 }}
                                 onClick={() => OnPatientNoShow(data)}

@@ -99,6 +99,20 @@ const Content = ({...props}) => {
             }, {revalidate: true, populateCache: true}).then(() => {
                 mutate()
             });
+        } else if (info === 'medical_imaging_pending') {
+            form.append('files', JSON.stringify((state as any).files));
+            console.log(JSON.stringify((state as any).files))
+            trigger({
+                method: "PUT",
+                url: "/api/medical-entity/" + medical_entity.uuid + '/appointment/' + router.query['uuid-consultation'] + '/medical-imaging/' + (state as any).uuid + '/' + router.locale,
+                data: form,
+                headers: {
+                    ContentType: 'application/x-www-form-urlencoded',
+                    Authorization: `Bearer ${session?.accessToken}`
+                }
+            }, {revalidate: true, populateCache: true}).then(() => {
+                mutate()
+            });
         }
 
         setOpenDialog(false);
@@ -115,8 +129,6 @@ const Content = ({...props}) => {
         if (patient.antecedents[action])
             setState(patient.antecedents[action])
 
-        console.log(action)
-        console.log(patient.antecedents[action])
         setInfo(action);
         bigDialogs.includes(action) ? setSize('lg') : setSize('sm');
 
@@ -130,7 +142,7 @@ const Content = ({...props}) => {
     return (
         <React.Fragment>
             {
-                id !== 4 && id !== 2 ?
+                id !== 4 && id !== 2 && id !== 5 ?
                     <ContentStyled>
                         <CardContent style={{paddingBottom: pxToRem(15)}}>
                             {id === 1 &&
@@ -283,60 +295,134 @@ const Content = ({...props}) => {
                                     </ContentStyled>
                                 )
                             }
-                        </> :
-                        patient && Object.keys(patient.antecedents).map((antecedent, idx: number) =>
-                            <ContentStyled key={`card-${idx}`} style={{paddingBottom: pxToRem(15)}}>
-                                <CardContent style={{paddingBottom: pxToRem(0), paddingTop: '1rem'}}>
-                                    <Typography fontWeight={600}>
-                                        {t(antecedent)}
-                                    </Typography>
+                        </> : id === 5 ?
+                            <>
 
-                                    <List dense>
-                                        {
-                                            patient.antecedents[antecedent].map((item: { uuid: string, name: string, startDate: string, endDate: string }, index: number) =>
-                                                <ListItem key={`list-${index}`}>
-                                                    <ListItemIcon>
-                                                        <CircleIcon/>
-                                                    </ListItemIcon>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {item.name} {item.startDate ? ' / ' + item.startDate : ''} {item.endDate ? ' - ' + item.endDate : ''}
-                                                    </Typography>
-                                                    <IconButton size="small" onClick={() => {
-                                                        console.log(antecedent, item)
+                                {
+                                    patient?.requestedImaging.map((ri: any, index: number) =>
+                                        <ContentStyled key={index}>
+                                            <CardContent style={{paddingBottom: 5}}>
+                                                <p style={{
+                                                    textAlign: "right",
+                                                    textTransform: "capitalize",
+                                                    margin: '5px 15px',
+                                                    fontSize: 12,
+                                                    color: '#7C878E'
+                                                }}>{moment(ri?.appointment.dayDate, 'DD-MM-YYYY').format('MMM DD/YYYY')}</p>
+                                                <Stack spacing={2} alignItems="flex-start">
+                                                    <List dense>
+                                                        {
+                                                            ri['medical-imaging'].map((list: any, index: number) =>
+                                                                <ListItem key={index}>
+                                                                    <ListItemIcon>
+                                                                        <CircleIcon/>
+                                                                    </ListItemIcon>
+                                                                    <Typography variant="body2" color="text.secondary">
+                                                                        {list['medical-imaging'].name}
+                                                                    </Typography>
+                                                                </ListItem>
+                                                            )
+                                                        }
 
-                                                        trigger({
-                                                                method: "DELETE",
-                                                                url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + item.uuid + '/' + router.locale,
-                                                                headers: {
-                                                                    ContentType: 'multipart/form-data',
-                                                                    Authorization: `Bearer ${session?.accessToken}`
+                                                    </List>
+                                                    <Stack direction="row" spacing={2}>
+                                                        <Button onClick={() => {
+                                                            setState(ri)
+                                                            handleOpen("medical_imaging_pending")
+                                                        }} size="small"
+                                                                startIcon={
+                                                                    <Add/>
+                                                                }>
+                                                            {t('add_result')}
+                                                        </Button>
+                                                        {patient?.requestedImaging.length > 0 &&
+                                                            <Button color="error"
+                                                                    size="small"
+                                                                    onClick={() => {
+                                                                        console.log(ri.uuid)
+                                                                        trigger({
+                                                                            method: "DELETE",
+                                                                            // url: "/api/medical-entity/" + medical_entity.uuid + '/appointments/' + router.query['uuid-consultation'] + '/requested-analysis/' + ra.uuid + '/' + router.locale,
+                                                                            headers: {
+                                                                                ContentType: 'application/x-www-form-urlencoded',
+                                                                                Authorization: `Bearer ${session?.accessToken}`
+                                                                            }
+                                                                        }, {
+                                                                            revalidate: true,
+                                                                            populateCache: true
+                                                                        }).then(() => {
+                                                                            mutate();
+                                                                        })
+                                                                    }}
+                                                                    startIcon={
+                                                                        <Icon path="setting/icdelete"/>
+                                                                    }>
+                                                                {t('ignore')}
+                                                            </Button>}
+                                                    </Stack>
+                                                </Stack>
+                                            </CardContent>
+                                        </ContentStyled>
+                                    )
+                                }
+                                <Button onClick={() => {
+                                    //setState(ra)
+                                    handleOpen("medical_imaging_pending")
+                                }
+                                }>Images</Button>
+                            </> :
+                            patient && Object.keys(patient.antecedents).map((antecedent, idx: number) =>
+                                <ContentStyled key={`card-${idx}`} style={{paddingBottom: pxToRem(15)}}>
+                                    <CardContent style={{paddingBottom: pxToRem(0), paddingTop: '1rem'}}>
+                                        <Typography fontWeight={600}>
+                                            {t(antecedent)}
+                                        </Typography>
+
+                                        <List dense>
+                                            {
+                                                patient.antecedents[antecedent].map((item: { uuid: string, name: string, startDate: string, endDate: string }, index: number) =>
+                                                    <ListItem key={`list-${index}`}>
+                                                        <ListItemIcon>
+                                                            <CircleIcon/>
+                                                        </ListItemIcon>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {item.name} {item.startDate ? ' / ' + item.startDate : ''} {item.endDate ? ' - ' + item.endDate : ''}
+                                                        </Typography>
+                                                        <IconButton size="small" onClick={() => {
+                                                            console.log(antecedent, item)
+
+                                                            trigger({
+                                                                    method: "DELETE",
+                                                                    url: "/api/medical-entity/" + medical_entity.uuid + "/patients/" + patient.uuid + "/antecedents/" + item.uuid + '/' + router.locale,
+                                                                    headers: {
+                                                                        ContentType: 'multipart/form-data',
+                                                                        Authorization: `Bearer ${session?.accessToken}`
+                                                                    }
+                                                                }, {
+                                                                    revalidate: true,
+                                                                    populateCache: true
                                                                 }
-                                                            }, {
-                                                                revalidate: true,
-                                                                populateCache: true
-                                                            }
-                                                        ).then(r => console.log('edit qualification', r))
-                                                        mutate();
-                                                    }} sx={{ml: 'auto'}}>
-                                                        <Icon path="setting/icdelete"/>
-                                                    </IconButton>
-                                                </ListItem>
-                                            )
-                                        }
+                                                            ).then(r => console.log('edit qualification', r))
+                                                            mutate();
+                                                        }} sx={{ml: 'auto'}}>
+                                                            <Icon path="setting/icdelete"/>
+                                                        </IconButton>
+                                                    </ListItem>
+                                                )
+                                            }
 
-                                    </List>
-                                    <Stack mt={2} alignItems="flex-start">
-                                        <Button onClick={() => handleOpen(antecedent)} size="small" startIcon={
-                                            <Add/>
-                                        }>
-                                            {antecedent === "way_of_life" ? t('add') : t("add_history")}
-                                        </Button>
-                                    </Stack>
+                                        </List>
+                                        <Stack mt={2} alignItems="flex-start">
+                                            <Button onClick={() => handleOpen(antecedent)} size="small" startIcon={
+                                                <Add/>
+                                            }>
+                                                {antecedent === "way_of_life" ? t('add') : t("add_history")}
+                                            </Button>
+                                        </Stack>
 
-                                </CardContent>
-                            </ContentStyled>
-                        )
-
+                                    </CardContent>
+                                </ContentStyled>
+                            )
             }
 
             {
@@ -350,17 +436,22 @@ const Content = ({...props}) => {
                         direction={'ltr'}
                         actions={true}
                         title={t(info)}
-                        dialogClose={handleCloseDialog}
+                        dialogClose={() => {
+                            setOpenDialog(false);
+                            setInfo('');
+                        }}
                         actionDialog={
                             <DialogActions>
-                                <Button onClick={handleCloseDialog}
+                                <Button onClick={() => {
+                                    setOpenDialog(false);
+                                    setInfo('');
+                                }}
                                         startIcon={<CloseIcon/>}>
                                     {t('cancel')}
                                 </Button>
                                 <Button variant="contained"
                                         onClick={handleCloseDialog}
-                                        startIcon={<Icon
-                                            path='ic-dowlaodfile'/>}>
+                                        startIcon={<Icon path='ic-dowlaodfile'/>}>
                                     {t('save')}
                                 </Button>
                             </DialogActions>
@@ -371,5 +462,4 @@ const Content = ({...props}) => {
     )
 }
 export default Content
-
 

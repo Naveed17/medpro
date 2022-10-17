@@ -1,6 +1,7 @@
-import { Box } from '@mui/material'
-import { styled } from '@mui/material/styles'
-const QrCodeDialogStyled = styled(Box)(({ theme }) => ({
+import {Box} from '@mui/material'
+import {styled} from '@mui/material/styles'
+
+const QrCodeDialogStyled = styled(Box)(({theme}) => ({
     position: "relative",
     display: "flex",
     justifyContent: "center",
@@ -8,7 +9,6 @@ const QrCodeDialogStyled = styled(Box)(({ theme }) => ({
     borderRadius: theme.spacing(1.5),
     border: `3px solid ${theme.palette.warning.main}`,
     zIndex: 1,
-
     '& .code-wrapper': {
         "&::before": {
             content: "''",
@@ -31,6 +31,5 @@ const QrCodeDialogStyled = styled(Box)(({ theme }) => ({
             zIndex: -1,
         }
     }
-
 }));
 export default QrCodeDialogStyled;
