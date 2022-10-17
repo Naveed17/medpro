@@ -13,6 +13,7 @@ interface PatientModel {
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
     nextAppointments: [];
     documents: [];
+    latestAppointments: [];
     previousAppointments: [];
     requestedAnalyses: [];
     treatment?: [];
