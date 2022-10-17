@@ -41,7 +41,6 @@ function HistoryTab({ ...props }) {
     appuuid,
     dispatch,
     setOpenDialog,
-    loading,
   } = props;
 
   const subMotifCard = [
@@ -140,7 +139,6 @@ function HistoryTab({ ...props }) {
       <Stack spacing={2}>
         {apps.map((app: any) => (
           <PatientHistoryCard
-            loading={loading}
             t={t}
             key={app.appointment.uuid}
             data={app}

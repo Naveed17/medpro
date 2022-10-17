@@ -17,8 +17,20 @@ import { useSession } from "next-auth/react";
 import { useRequest } from "@app/axios";
 import { SWRNoValidateConfig } from "@app/swr/swrProvider";
 import { useTranslation } from "next-i18next";
-import { Box, Button, DialogActions, Drawer, Grid, Stack } from "@mui/material";
-import { ConsultationDetailCard, PendingDocumentCard } from "@features/card";
+import {
+  Box,
+  Button,
+  DialogActions,
+  Drawer,
+  Grid,
+  Stack,
+  useTheme,
+} from "@mui/material";
+import {
+  ConsultationDetailCard,
+  PendingDocumentCard,
+  PatientHistoryNoDataCard,
+} from "@features/card";
 import { CustomStepper } from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
 import { DrawerBottom } from "@features/drawerBottom";
@@ -42,6 +54,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ImageViewer from "react-simple-image-viewer";
 import { Widget } from "@features/widget";
 import { SubHeader } from "@features/subHeader";
+import { SubFooter } from "@features/subFooter";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -56,6 +69,7 @@ const WidgetForm: any = memo(
 WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
+  const theme = useTheme();
   const [filterdrawer, setFilterDrawer] = useState(false);
   const [value, setValue] = useState<string>("consultation_form");
   const [file, setFile] = useState("/static/files/sample.pdf");
@@ -78,6 +92,8 @@ function ConsultationInProgress() {
   const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
   const [isViewerOpen, setIsViewerOpen] = useState<string>("");
   const [sheet, setSheet] = useState<any>(null);
+  const [loading, setLoaing] = useState(true);
+  const [actions, setActions] = useState<boolean>(false);
   const [stateAct, setstateAct] = useState({
     uuid: "",
     isTopAct: true,
@@ -197,6 +213,7 @@ function ConsultationInProgress() {
   }, [httpModelResponse]);
   useEffect(() => {
     setAppointement((httpAppResponse as HttpResponse)?.data);
+    setLoaing(false);
   }, [httpAppResponse]);
 
   useEffect(() => {
@@ -325,8 +342,34 @@ function ConsultationInProgress() {
   const closeImageViewer = () => {
     setIsViewerOpen("");
   };
-
+  const handleClick = () => {
+    setInfo("secretary_consultation_alert");
+    setOpenDialog(true);
+    setActions(true);
+  };
   const { t, ready } = useTranslation("consultation");
+  const DialogAction = () => {
+    return (
+      <DialogActions>
+        <Button
+          variant="text-black"
+          onClick={handleCloseDialog}
+          startIcon={<CloseIcon />}>
+          {t("cancel")}
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            setInfo("end_consultation");
+            setActions(false);
+          }}
+          startIcon={<IconUrl path="ic-check" />}>
+          {t("end_consultation")}
+        </Button>
+      </DialogActions>
+    );
+  };
   if (!ready) return <>consulation translations...</>;
 
   return (
@@ -352,20 +395,29 @@ function ConsultationInProgress() {
 
       <Box className="container" style={{ padding: 0 }}>
         <TabPanel value={value} index={"patient_history"}>
-          <HistoryTab
-            patient={patient}
-            loading={!patient}
-            appointement={appointement}
-            t={t}
-            appuuid={uuind}
-            setIsViewerOpen={setIsViewerOpen}
-            direction={direction}
-            setInfo={setInfo}
-            acts={acts}
-            mutateDoc={mutateDoc}
-            setState={setState}
-            dispatch={dispatch}
-            setOpenDialog={setOpenDialog}></HistoryTab>
+          {loading ? (
+            <Stack spacing={2}>
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <React.Fragment key={idx}>
+                  <PatientHistoryNoDataCard />
+                </React.Fragment>
+              ))}
+            </Stack>
+          ) : (
+            <HistoryTab
+              patient={patient}
+              appointement={appointement}
+              t={t}
+              appuuid={uuind}
+              setIsViewerOpen={setIsViewerOpen}
+              direction={direction}
+              setInfo={setInfo}
+              acts={acts}
+              mutateDoc={mutateDoc}
+              setState={setState}
+              dispatch={dispatch}
+              setOpenDialog={setOpenDialog}></HistoryTab>
+          )}
         </TabPanel>
         <TabPanel value={value} index={"mediktor_report"}>
           <Box
@@ -448,6 +500,19 @@ function ConsultationInProgress() {
             </React.Fragment>
           ))}
         </Stack>
+        <Box pt={8}>
+          <SubFooter>
+            <Stack width={1} alignItems="flex-end">
+              <Button
+                onClick={handleClick}
+                color="error"
+                variant="contained"
+                sx={{ ".react-svg": { mr: 1 } }}>
+                <IconUrl path="ic-check" /> {t("end_consultation_btn")}
+              </Button>
+            </Stack>
+          </SubFooter>
+        </Box>
         <Drawer
           anchor={"right"}
           open={openAddDrawer}
@@ -515,20 +580,25 @@ function ConsultationInProgress() {
         <Dialog
           action={info}
           open={openDialog}
-          data={{ state, setState, setDialog, setOpenDialog }}
+          data={{ state, setState, setDialog, setOpenDialog, t }}
           size={"lg"}
+          color={
+            info === "secretary_consultation_alert" && theme.palette.error.main
+          }
           direction={"ltr"}
           {...(info === "document_detail" && {
             sx: { p: 0 },
           })}
           title={t(info === "document_detail" ? "doc_detail_title" : info)}
-          {...(info === "document_detail" && {
+          {...((info === "document_detail" || info === "end_consultation") && {
             onClose: handleCloseDialog,
           })}
           dialogClose={handleCloseDialog}
+          {...(actions && {
+            actionDialog: <DialogAction />,
+          })}
         />
       )}
-
       {isViewerOpen.length > 0 && (
         <ImageViewer
           src={[isViewerOpen, isViewerOpen]}

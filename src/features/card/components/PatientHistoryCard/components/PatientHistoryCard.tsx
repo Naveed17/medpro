@@ -6,7 +6,6 @@ import Icon from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 
 function PatientHistoryCard({
-  loading,
   data,
   appuuid,
   t,
@@ -16,7 +15,6 @@ function PatientHistoryCard({
   appuuid: string;
   children?: React.ReactNode;
   t: any;
-  loading: boolean;
 }) {
   return (
     <PatientHistoryCardStyled
@@ -37,9 +35,7 @@ function PatientHistoryCard({
           fontWeight={600}>
           <Icon path={"ic-doc"} />
           {capitalize(t("reason_for_consultation"))}{" "}
-          {loading ? (
-            <Skeleton sx={{ ml: 1 }} width={100} />
-          ) : data?.appointment.consultationReason ? (
+          {data?.appointment.consultationReason ? (
             <>: {data?.appointment.consultationReason.name}</>
           ) : (
             <>: --</>

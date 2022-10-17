@@ -299,7 +299,6 @@ function ConsultationIPToolbar({ ...props }) {
   };
 
   const handleCloseAnchor = (action: string) => {
-    console.log(action);
     switch (action) {
       case "balance_sheet_request":
         setInfo("balance_sheet_request");
@@ -307,7 +306,7 @@ function ConsultationIPToolbar({ ...props }) {
         break;
       case "upload_report":
         setInfo("add_a_document");
-        setState({ name: "", description: "", type: "Rapport", files: [] });
+        setState({ name: "", description: "", type: "analyse", files: [] });
         break;
       case "balance_results":
         setInfo("balance_sheet_pending");

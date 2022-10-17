@@ -237,6 +237,7 @@
   "audio": "Audio",
   "name_of_act": "nom de l'acte",
   "price_of_act": "prix de l'acte",
+  "end_consultation_btn":"Terminer la consultation",
   "no-data": {
     "event": {
       "title": "Aucun document ",
@@ -247,6 +248,15 @@
   "prescription": "Ordonnance",
   "requested-analysis": "Demande analyse",
   "requested-medical-imaging": "Demande imagerie",
+  "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
+  "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
+  "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
+  "end_consultation": "Fin de consultation",
+  "secretary_consultation_alert":"Fin de consultation",
+  "end_of_consultation_with": "Fin de consultation avec",
+  "price_of_the_consultation": "Prix de la consultation",
+  "plan_a_meeting":"Planifier un conrole",
+  "day":"Jour",
   "steppers": {
     "tabs": {
       "tab-1": "Type",
