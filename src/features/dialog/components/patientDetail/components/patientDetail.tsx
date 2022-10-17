@@ -146,20 +146,20 @@ function PatientDetail({ ...props }) {
                                 label={t("tabs.personal-info")}
                                 {...a11yProps(0)}
                             />
-                            <Tab
+                            {/*<Tab
                                 disableRipple
                                 label={t("tabs.patient_file")}
+                                {...a11yProps(1)}
+                            />*/}
+                            <Tab
+                                disableRipple
+                                label={t("tabs.appointment")}
                                 {...a11yProps(1)}
                             />
                             <Tab
                                 disableRipple
-                                label={t("tabs.appointment")}
-                                {...a11yProps(2)}
-                            />
-                            <Tab
-                                disableRipple
                                 label={t("tabs.documents")}
-                                {...a11yProps(3)}
+                                {...a11yProps(2)}
                             />
                         </Tabs>
                         <Divider />
@@ -170,10 +170,10 @@ function PatientDetail({ ...props }) {
                                 mutate={mutate}
                             />
                         </TabPanel>
+                        {/*<TabPanel padding={1} value={index} index={1}>
+                            <FilesPanel {...{t, previousAppointments}} />
+                        </TabPanel>*/}
                         <TabPanel padding={1} value={index} index={1}>
-                            <FilesPanel t={t} />
-                        </TabPanel>
-                        <TabPanel padding={1} value={index} index={2}>
 
                             {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
 
@@ -187,7 +187,7 @@ function PatientDetail({ ...props }) {
                                 <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
                             )}
                         </TabPanel>
-                        <TabPanel padding={2} value={index} index={3}>
+                        <TabPanel padding={2} value={index} index={2}>
                             <DocumentsPanel {...{ documents, patient }} />
                         </TabPanel>
 

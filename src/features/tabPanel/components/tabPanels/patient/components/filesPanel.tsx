@@ -66,6 +66,7 @@ const subMotifCard = [
 
     }
 ];
+
 const apps = [
     {
         "appointment": {
@@ -1757,8 +1758,10 @@ const apps = [
         ]
     }
 ]
+
 function FilesPanel({ ...props }) {
-    const { t } = props
+    const { t, previousAppointments} = props
+    console.log(previousAppointments);
     const [filter, setfilter] = useState<any>({});
     const [collapse, setCollapse] = useState<any>('');
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -1797,7 +1800,7 @@ function FilesPanel({ ...props }) {
                 <Stack spacing={2}>
                     {apps.map((app: any) => (
                         <PatientHistoryCard t={t} key={app.appointment.uuid} data={app} appuuid={app.appointment.uuid}>
-                            <MotifCard data={app} />
+                            <MotifCard data={app} {...{t}} />
                             <List dense>
                                 {
                                     subMotifCard.map((col: any, idx: number) => (
