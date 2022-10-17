@@ -33,7 +33,7 @@ const rightActionData = {
           placeholder: "enter-city"
         }
       },
-      {
+   /*   {
         heading: {
           icon: "ic-patient",
           title: "appointment",
@@ -45,7 +45,7 @@ const rightActionData = {
             { text: "appointment", icon: "ic-cabinet" },
           ],
         },
-      },
+      },*/
     ],
   },
   history: {

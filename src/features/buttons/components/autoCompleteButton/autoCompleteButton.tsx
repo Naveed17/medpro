@@ -37,9 +37,9 @@ function AutoCompleteButton({...props}) {
         <RootStyled>
             {!patient ? (
                 <>
-                    <Button variant="outlined" size="large" fullWidth className='btn-add' onClick={handleClick}>
+                    {!focus && <Button variant="outlined" size="large" fullWidth className='btn-add' onClick={handleClick}>
                         <AddIcon/>
-                    </Button>
+                    </Button>}
 
                     {focus &&
                         <ClickAwayListener onClickAway={handleClickAway}>

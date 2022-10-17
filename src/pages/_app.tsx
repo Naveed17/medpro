@@ -40,33 +40,33 @@ function MyApp({Component, pageProps: {...pageProps}}: MyAppProps) {
             <SnackbarProvider className={"snackbar-notification"}
                               maxSnack={3}
                               anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-                <FcmLayout>
-                    <AppThemeProvider>
-                        <GlobleStyles>
-                            <KeycloakSession session={pageProps.session}>
-                                <SwrProvider fallback={pageProps.fallback}>
-                                    <Head>
-                                        <title>Med Pro</title>
-                                        <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
-                                    </Head>
-                                    <AnimatePresence
-                                        exitBeforeEnter
-                                        initial={false}
-                                        onExitComplete={() => window.scrollTo(0, 0)}
-                                    >
-                                        {Component.auth ? (
-                                            <AuthGuard>
+                <AppThemeProvider>
+                    <GlobleStyles>
+                        <KeycloakSession session={pageProps.session}>
+                            <SwrProvider fallback={pageProps.fallback}>
+                                <Head>
+                                    <title>Med Pro</title>
+                                    <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
+                                </Head>
+                                <AnimatePresence
+                                    exitBeforeEnter
+                                    initial={false}
+                                    onExitComplete={() => window.scrollTo(0, 0)}
+                                >
+                                    {Component.auth ? (
+                                        <AuthGuard>
+                                            <FcmLayout>
                                                 {getLayout(<Component {...pageProps} />)}
-                                            </AuthGuard>
-                                        ) : (
-                                            <> {getLayout(<Component {...pageProps} />)}</>
-                                        )}
-                                    </AnimatePresence>
-                                </SwrProvider>
-                            </KeycloakSession>
-                        </GlobleStyles>
-                    </AppThemeProvider>
-                </FcmLayout>
+                                            </FcmLayout>
+                                        </AuthGuard>
+                                    ) : (
+                                        <> {getLayout(<Component {...pageProps} />)}</>
+                                    )}
+                                </AnimatePresence>
+                            </SwrProvider>
+                        </KeycloakSession>
+                    </GlobleStyles>
+                </AppThemeProvider>
             </SnackbarProvider>
         </Provider>
     );

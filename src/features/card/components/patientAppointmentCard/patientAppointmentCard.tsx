@@ -24,12 +24,12 @@ function PatientAppointmentCard({...props}) {
                         {item.firstName} {item.lastName}
                     </Typography>
                 </Stack>
-                <Stack spacing={.5} direction="row" alignItems='center'>
+                {item.birthdate && <Stack spacing={.5} direction="row" alignItems='center'>
                     <IconUrl path="ic-anniverssaire"/>
                     <Typography color="text.secondary" variant="body2" sx={{fontWeight: 500, display: 'flex'}}>
                         {item.birthdate} - {moment().diff(moment(item.birthdate, "DD-MM-YYYY"), 'years')} ans
                     </Typography>
-                </Stack>
+                </Stack>}
             </Box>
             <ListItemText>
                 <Typography
