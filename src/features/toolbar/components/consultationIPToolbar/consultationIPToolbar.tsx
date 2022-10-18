@@ -50,9 +50,7 @@ function ConsultationIPToolbar({...props}) {
         pendingDocuments,
         dialog,
         setDialog,
-        appointement,
-        selectedAct,
-        selectedModel,
+        appointement
     } = props;
     const reportMenu = [
         {
