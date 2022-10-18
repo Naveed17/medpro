@@ -1,6 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    SetEnd, SetExam, SetFiche, SetMutation, SetPatient, SetSubmit
+    SetEnd, SetExam, SetFiche, SetMutation, SetMutationDoc, SetPatient, SetSubmit
 } from './actions';
 
 export type MenuState = {
@@ -9,6 +9,7 @@ export type MenuState = {
     exam: any,
     fiche: any,
     mutate: any,
+    mutateDoc: any,
     patient: PatientModel | null
 };
 
@@ -23,6 +24,7 @@ const initialState: MenuState = {
     },
     fiche: null,
     mutate: null,
+    mutateDoc: null,
     patient: null
 };
 
@@ -45,6 +47,9 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetMutation, (state, action) => {
             state.mutate = action.payload;
+        })
+        .addCase(SetMutationDoc, (state, action) => {
+            state.mutateDoc = action.payload;
         })
 
 });

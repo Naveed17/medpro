@@ -1,18 +1,18 @@
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import {useTranslation} from 'next-i18next'
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {Card, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import FilePresentOutlinedIcon from '@mui/icons-material/FilePresentOutlined';
+import CheckIcon from '@mui/icons-material/Check';
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
 
-    const [images, setImages] = useState<any>(data.state);
+    const [images] = useState<any>(data.state);
     const [files, setFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState('');
 
@@ -20,7 +20,6 @@ function MedicalImagingDialog({...props}) {
     console.log(files.find(file => file.uuid === 'item.uuid'))
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const hiddenFileInput = useRef(null);
     const {trigger} = useRequestMutation(null, "/medicalImaging");
     const {data: session} = useSession();
     const router = useRouter();
@@ -41,7 +40,7 @@ function MedicalImagingDialog({...props}) {
                 },
             },
             {revalidate: true, populateCache: true}
-        ).then((r:any) => {
+        ).then((r: any) => {
             files.push({uuid: uuid, file: r.data.data[0]})
             setFiles([...files])
             console.log(files)
@@ -56,9 +55,13 @@ function MedicalImagingDialog({...props}) {
             {
                 images['medical-imaging'].map((item: any, index: number) => (
                     <Card key={index} sx={{p: 1}}>
-                        <Stack direction='row' alignItems="center" justifyContent='space-between'>
+                        <Stack direction='row'
+                               alignItems="center"
+                               style={{
+                                   opacity: item.uri !== '' || files.find(file => file.uuid === item.uuid) ? 0.5 : 1
+                               }}
+                               justifyContent='space-between'>
                             <Typography>{item['medical-imaging'].name}</Typography>
-                            <Typography>{item.uuid}</Typography>
                             {
                                 loading !== item.uuid && item.uri === '' && files.find(file => file.uuid === item.uuid) === undefined && <>
                                     <IconButton size="small" onClick={() => {
@@ -80,10 +83,8 @@ function MedicalImagingDialog({...props}) {
 
                             {
                                 (item.uri !== '' || files.find(file => file.uuid === item.uuid)) &&
-                                <IconButton size="small"
-                                            onClick={() => {
-                                            }}>
-                                    <FilePresentOutlinedIcon style={{color: '#a6abaf'}}/>
+                                <IconButton size="small">
+                                    <CheckIcon color={"success"}/>
                                 </IconButton>
                             }
 

@@ -38,7 +38,7 @@ const Content = ({...props}) => {
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
-    const {mutate} = useAppSelector(consultationSelector);
+    const {mutate, mutateDoc} = useAppSelector(consultationSelector);
     const {trigger} = useRequestMutation(null, "/antecedent");
     const router = useRouter();
     const {data: session, status} = useSession();
@@ -133,6 +133,7 @@ const Content = ({...props}) => {
             });
         } else if (info === "medical_imaging_pending") {
             mutate();
+            mutateDoc();
         }
 
         setOpenDialog(false);
@@ -405,7 +406,7 @@ const Content = ({...props}) => {
                                                     trigger(
                                                         {
                                                             method: "DELETE",
-                                                             url: "/api/medical-entity/" + medical_entity.uuid + '/appointment/' + router.query['uuid-consultation'] + '/medical-imaging/' + ri.uuid + '/' + router.locale,
+                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointment/' + router.query['uuid-consultation'] + '/medical-imaging/' + ri.uuid + '/' + router.locale,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
