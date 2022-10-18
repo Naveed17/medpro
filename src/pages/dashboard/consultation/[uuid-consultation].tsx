@@ -431,7 +431,7 @@ function ConsultationInProgress() {
               setOpenDialog={setOpenDialog}></HistoryTab>
           )}
         </TabPanel>
-        <TabPanel value={value} index={"mediktor_report"}>
+        <TabPanel padding={1} value={value} index={"mediktor_report"}>
           <Box
             sx={{
               ".react-pdf__Page__canvas": {
@@ -448,7 +448,7 @@ function ConsultationInProgress() {
             </Document>
           </Box>
         </TabPanel>
-        <TabPanel value={value} index={"consultation_form"}>
+        <TabPanel padding={1} value={value} index={"consultation_form"}>
           <Grid container spacing={2}>
             <Grid item xs={12} md={5}>
               {models && selectedModel && (
@@ -463,7 +463,7 @@ function ConsultationInProgress() {
             </Grid>
           </Grid>
         </TabPanel>
-        <TabPanel value={value} index={"medical_procedures"}>
+        <TabPanel padding={1} value={value} index={"medical_procedures"}>
           <FeesTab
             acts={acts}
             selectedUuid={selectedUuid}
@@ -478,7 +478,7 @@ function ConsultationInProgress() {
             total={total}
             t={t}></FeesTab>
         </TabPanel>
-        <TabPanel value={value} index={"documents"}>
+        <TabPanel padding={1} value={value} index={"documents"}>
           <DocumentsTab
             documents={documents}
             setIsViewerOpen={setIsViewerOpen}
@@ -512,7 +512,7 @@ function ConsultationInProgress() {
             </React.Fragment>
           ))}
         </Stack>
-        <Box pt={8}>
+        {/* <Box pt={8}>
           <SubFooter>
             <Stack width={1} alignItems="flex-end">
               <Button
@@ -524,7 +524,7 @@ function ConsultationInProgress() {
               </Button>
             </Stack>
           </SubFooter>
-        </Box>
+        </Box> */}
         <Drawer
           anchor={"right"}
           open={openAddDrawer}

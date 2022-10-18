@@ -27,6 +27,7 @@ import { setTimer } from "@features/card";
 import { Theme } from "@mui/material/styles";
 import { setAppointmentPatient } from "@features/tabPanel";
 import { openDrawer } from "@features/calendar";
+import IconUrl from "@themes/urlIcon";
 
 function ConsultationIPToolbar({ ...props }) {
   const isMobile = useMediaQuery((theme: Theme) =>
@@ -122,7 +123,6 @@ function ConsultationIPToolbar({ ...props }) {
 
   const handleSaveDialog = () => {
     const form = new FormData();
-    console.log(info);
     switch (info) {
       case "medical_prescription":
         form.append("globalNote", "");
@@ -307,7 +307,7 @@ function ConsultationIPToolbar({ ...props }) {
         break;
       case "upload_report":
         setInfo("add_a_document");
-        setState({ name: "", description: "", type: "", files: [] });
+        setState({ name: "", description: "", type: "analyse", files: [] });
         break;
       case "balance_results":
         setInfo("balance_sheet_pending");
@@ -397,7 +397,7 @@ function ConsultationIPToolbar({ ...props }) {
         break;
       case "upload_document":
         setInfo("add_a_document");
-        setState({ name: "", description: "", type: "", files: [] });
+        setState({ name: "", description: "", type: "analyse", files: [] });
         break;
       default:
         setInfo(null);
@@ -506,16 +506,8 @@ function ConsultationIPToolbar({ ...props }) {
   return (
     <>
       <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
-        <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleOpen();
-            }}>
-            {t("RDV")}
-          </Button>
-
-          <Button
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          {/* <Button
             variant="contained"
             onClick={() => {
               setInfo("add_vaccin");
@@ -563,36 +555,7 @@ function ConsultationIPToolbar({ ...props }) {
                 {t(item.value)}
               </MenuItem>
             ))}
-          </Menu>
-          <Button onClick={handleClick} variant="contained" color="warning">
-            {t("document")}
-          </Button>
-          <StyledMenu
-            id="basic-menu"
-            elevation={0}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
-            }}>
-            {documentButtonList.map((item, index) => (
-              <MenuItem
-                key={`document-button-list-${index}`}
-                onClick={() => handleClose(item.label)}>
-                <Icon path={item.icon} />
-                {t(item.label)}
-              </MenuItem>
-            ))}
-          </StyledMenu>
+          </Menu> */}
         </Stack>
         <Stack
           direction="row"
@@ -621,7 +584,7 @@ function ConsultationIPToolbar({ ...props }) {
               />
             ))}
           </Tabs>
-          <LoadingButton
+          {/* <LoadingButton
             loading={loading}
             variant="outlined"
             color="primary"
@@ -648,7 +611,57 @@ function ConsultationIPToolbar({ ...props }) {
             {appointement?.status == 5
               ? t("edit_of_consultation")
               : t("end_of_consultation")}
-          </LoadingButton>
+          </LoadingButton> */}
+          <Stack
+            direction="row"
+            spacing={1}
+            mb={1}
+            justifyContent="flex-end"
+            sx={{ width: { xs: "30%", md: "30%" } }}>
+            <Button
+              variant="contained"
+              sx={{ minWidth: 35 }}
+              size={isMobile ? "small" : "medium"}
+              onClick={() => {
+                handleOpen();
+              }}>
+              {isMobile ? <IconUrl path="ic-agenda" /> : t("RDV")}
+            </Button>
+            <Button
+              sx={{ minWidth: 35 }}
+              size={isMobile ? "small" : "medium"}
+              onClick={handleClick}
+              variant="contained"
+              color="warning">
+              {isMobile ? <IconUrl path="ic-doc" /> : t("document")}
+            </Button>
+            <StyledMenu
+              id="basic-menu"
+              elevation={0}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}>
+              {documentButtonList.map((item, index) => (
+                <MenuItem
+                  key={`document-button-list-${index}`}
+                  onClick={() => handleClose(item.label)}>
+                  <Icon path={item.icon} />
+                  {t(item.label)}
+                </MenuItem>
+              ))}
+            </StyledMenu>
+          </Stack>
         </Stack>
       </ConsultationIPToolbarStyled>
       {info && (

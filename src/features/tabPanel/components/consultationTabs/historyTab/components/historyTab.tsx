@@ -112,20 +112,20 @@ function HistoryTab({ ...props }) {
   }, [appointement, appuuid]);
   return (
     <>
-      <Stack spacing={2} mb={2} alignItems="flex-start">
-        {patient?.nextAppointments.length > 0 && (
+      {patient?.nextAppointments.length > 0 && (
+        <Stack spacing={2} mb={2} alignItems="flex-start">
           <Label variant="filled" color="warning">
             {t("next_meeting")}
           </Label>
-        )}
-        {patient?.nextAppointments
-          .slice(0, size)
-          .map((data: any, index: number) => (
-            <React.Fragment key={`patient-${index}`}>
-              <HistoryCard row={data} patient={patient} t={t} />
-            </React.Fragment>
-          ))}
-      </Stack>
+          {patient?.nextAppointments
+            .slice(0, size)
+            .map((data: any, index: number) => (
+              <React.Fragment key={`patient-${index}`}>
+                <HistoryCard row={data} patient={patient} t={t} />
+              </React.Fragment>
+            ))}
+        </Stack>
+      )}
       {size < patient?.nextAppointments.length && (
         <Button
           style={{ marginBottom: 10, marginTop: -10, fontSize: 12 }}
