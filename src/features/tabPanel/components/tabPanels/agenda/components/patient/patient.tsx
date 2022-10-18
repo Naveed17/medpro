@@ -5,7 +5,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {setStepperIndex} from "@features/calendar";
+import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -26,6 +26,7 @@ function Patient({...props}) {
     const dispatch = useAppDispatch();
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
+    const {currentStepper} = useAppSelector(agendaSelector);
 
     const [addPatient, setAddPatient] = useState<boolean>(false);
     const [query, setQuery] = useState("");
@@ -150,7 +151,7 @@ function Patient({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={onBack}
+                            onClick={() => onBack(currentStepper)}
                         >
                             {t("back")}
                         </Button>
