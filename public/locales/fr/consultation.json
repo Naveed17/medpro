@@ -65,8 +65,6 @@
     "noRequest": "Aucune demande",
     "noDoc": "Aucun document",
     "medical_procedures": "Note d'honoraires",
-    "end_of_consultation": "Fin de consultation",
-    "edit_of_consultation": "Modifier consultation",
     "consultation": "Consultation",
     "seeRes": "Voir le résultat",
     "reason": "Motif",
@@ -263,6 +261,8 @@
   "secretary_consultation_alert": "Fin de consultation",
   "end_of_consultation_with": "Fin de consultation avec",
   "price_of_the_consultation": "Prix de la consultation",
+  "end_of_consultation": "Fin de consultation",
+  "edit_of_consultation": "Terminer",
   "plan_a_meeting": "Planifier un conrole",
   "day": "Jour",
   "steppers": {
