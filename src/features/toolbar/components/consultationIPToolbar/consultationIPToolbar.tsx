@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   DialogActions,
+  Menu,
   MenuItem,
   Stack,
   Tab,
   Tabs,
   useMediaQuery,
-  Menu,
 } from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
@@ -89,20 +89,20 @@ function ConsultationIPToolbar({ ...props }) {
       value: "patient history",
     },
     /* {
-            label: "mediktor_report",
-            value: 'mediktor report',
-        },*/
+                label: "mediktor_report",
+                value: 'mediktor report',
+            },*/
     {
       label: "consultation_form",
       value: "consultation form",
     },
     {
-      label: "medical_procedures",
-      value: "medical procedures",
-    },
-    {
       label: "documents",
       value: "documents",
+    },
+    {
+      label: "medical_procedures",
+      value: "medical procedures",
     },
   ];
   const { trigger } = useRequestMutation(null, "/drugs");
@@ -299,6 +299,7 @@ function ConsultationIPToolbar({ ...props }) {
   };
 
   const handleCloseAnchor = (action: string) => {
+    console.log(action);
     switch (action) {
       case "balance_sheet_request":
         setInfo("balance_sheet_request");
@@ -306,7 +307,7 @@ function ConsultationIPToolbar({ ...props }) {
         break;
       case "upload_report":
         setInfo("add_a_document");
-        setState({ name: "", description: "", type: "analyse", files: [] });
+        setState({ name: "", description: "", type: "", files: [] });
         break;
       case "balance_results":
         setInfo("balance_sheet_pending");
@@ -350,16 +351,16 @@ function ConsultationIPToolbar({ ...props }) {
       case "medical_imagery":
         setImagery(state);
         /*if (state.length > 0) {
-                    if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
-                        pdoc.push({
-                            id: 1,
-                            name: "Demande bilan",
-                            status: "in_progress",
-                            icon: 'ic-analyse'
-                        })
-                } else {
-                    pdoc = pdoc.filter(obj => obj.id !== 1);
-                }*/
+                            if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
+                                pdoc.push({
+                                    id: 1,
+                                    name: "Demande bilan",
+                                    status: "in_progress",
+                                    icon: 'ic-analyse'
+                                })
+                        } else {
+                            pdoc = pdoc.filter(obj => obj.id !== 1);
+                        }*/
         break;
     }
     setOpenDialog(false);
@@ -421,9 +422,9 @@ function ConsultationIPToolbar({ ...props }) {
         setState(checkUp);
         break;
       /*case "medical_imagery":
-                setInfo('medical_imagery')
-                setState(imagery)
-                break;*/
+                      setInfo('medical_imagery')
+                      setState(imagery)
+                      break;*/
     }
     setDialog("");
     setOpenDialog(true);
@@ -431,11 +432,18 @@ function ConsultationIPToolbar({ ...props }) {
   }, [checkUp, dialog, prescription, setDialog]);
 
   useEffect(() => {
-    const acts: { act_uuid: string; price: string }[] = [];
+    const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
     if (end) {
-      selectedAct.map((act: { uuid: string; fees: string }) => {
-        acts.push({ act_uuid: act.uuid, price: act.fees });
-      });
+      selectedAct.map(
+        (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
+          acts.push({
+            act_uuid: act.uuid,
+            name: act.act.name,
+            qte: act.qte,
+            price: act.fees,
+          });
+        }
+      );
       const form = new FormData();
       form.append("acts", JSON.stringify(acts));
       form.append("modal_uuid", selectedModel.default_modal.uuid);
@@ -468,14 +476,14 @@ function ConsultationIPToolbar({ ...props }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [end]);
 
-  useEffect(() => {
-    if (appointement && appointement.latestAppointments.length === 0) {
-      setValue("consultation form");
-      setlabel("consultation_form");
-      setLastTabs("consultation_form");
-      setTabs(2);
-    }
-  }, [appointement]);
+  /* useEffect(() => {
+         if (appointement && appointement.latestAppointments.length === 0) {
+             setValue("consultation form");
+             setlabel("consultation_form");
+             setLastTabs("consultation_form");
+             setTabs(2);
+         }
+     }, [appointement]);*/
   useEffect(() => {
     selected(label);
     if (lastTabs === "consultation_form") {

@@ -88,7 +88,7 @@ function Agenda() {
         action: moveDialogAction
     } = useAppSelector(dialogMoveSelector);
     const {isActive} = useAppSelector(timerSelector);
-    const {config: agenda} = useAppSelector(agendaSelector);
+    const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
 
     const [
         timeRange,
@@ -249,6 +249,13 @@ function Agenda() {
             setLoading(false);
         });
     }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
+
+    useEffect(() => {
+        if (lastUpdateNotification) {
+            console.log(lastUpdateNotification);
+            refreshData();
+        }
+    }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (calendarEl && currentDate) {

@@ -55,7 +55,6 @@ import ImageViewer from "react-simple-image-viewer";
 import { Widget } from "@features/widget";
 import { SubHeader } from "@features/subHeader";
 import { SubFooter } from "@features/subFooter";
-
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const WidgetForm: any = memo(
@@ -92,8 +91,8 @@ function ConsultationInProgress() {
   const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
   const [isViewerOpen, setIsViewerOpen] = useState<string>("");
   const [sheet, setSheet] = useState<any>(null);
-  const [loading, setLoaing] = useState(true);
   const [actions, setActions] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [stateAct, setstateAct] = useState({
     uuid: "",
     isTopAct: true,
@@ -213,7 +212,7 @@ function ConsultationInProgress() {
   }, [httpModelResponse]);
   useEffect(() => {
     setAppointement((httpAppResponse as HttpResponse)?.data);
-    setLoaing(false);
+    setLoading(false);
   }, [httpAppResponse]);
 
   useEffect(() => {
@@ -242,19 +241,25 @@ function ConsultationInProgress() {
 
   useEffect(() => {
     if (appointement) {
-      console.log(appointement);
       setPatient(appointement.patient);
       dispatch(SetPatient(appointement.patient));
       dispatch(SetMutation(mutate));
 
       if (appointement.acts) {
         let sAct: any[] = [];
-        appointement.acts.map((act: { act_uuid: string; price: number }) => {
-          const actDetect = acts.find(
-            (a: { uuid: string }) => a.uuid === act.act_uuid
-          ) as any;
-          if (actDetect) sAct.push(actDetect);
-        });
+        appointement.acts.map(
+          (act: { act_uuid: string; price: any; qte: any }) => {
+            const actDetect = acts.find(
+              (a: { uuid: string }) => a.uuid === act.act_uuid
+            ) as any;
+
+            if (actDetect) {
+              actDetect.fees = act.price;
+              actDetect.qte = act.qte;
+              sAct.push(actDetect);
+            }
+          }
+        );
         setSelectedAct(sAct);
       }
     }
@@ -274,7 +279,7 @@ function ConsultationInProgress() {
     let uuids: string[] = [];
     selectedAct.map((act) => {
       uuids.push(act.uuid);
-      fees += act.fees;
+      act.qte ? (fees += act.fees * act.qte) : (fees += act.fees);
     });
     setTotal(fees);
     setSelectedUuid(uuids);
@@ -291,6 +296,10 @@ function ConsultationInProgress() {
       const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
       selectedAct[index] = row;
       setSelectedAct([...selectedAct]);
+    } else if (from === "changeQte") {
+      const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
+      selectedAct[index] = row;
+      setSelectedAct([...selectedAct]);
     } else if (from === "checked") {
     } else {
       if (from) {
@@ -299,7 +308,10 @@ function ConsultationInProgress() {
           ...selectedAct.slice(0, index),
           ...selectedAct.slice(index + 1, selectedAct.length),
         ]);
-      } else setSelectedAct([...selectedAct, row]);
+      } else {
+        row.qte = 1;
+        setSelectedAct([...selectedAct, row]);
+      }
     }
   };
 
@@ -347,7 +359,6 @@ function ConsultationInProgress() {
     setOpenDialog(true);
     setActions(true);
   };
-  const { t, ready } = useTranslation("consultation");
   const DialogAction = () => {
     return (
       <DialogActions>
@@ -370,6 +381,7 @@ function ConsultationInProgress() {
       </DialogActions>
     );
   };
+  const { t, ready } = useTranslation("consultation");
   if (!ready) return <>consulation translations...</>;
 
   return (
@@ -394,7 +406,7 @@ function ConsultationInProgress() {
       </SubHeader>
 
       <Box className="container" style={{ padding: 0 }}>
-        <TabPanel value={value} index={"patient_history"}>
+        <TabPanel padding={1} value={value} index={"patient_history"}>
           {loading ? (
             <Stack spacing={2}>
               {Array.from({ length: 3 }).map((_, idx) => (
@@ -599,6 +611,7 @@ function ConsultationInProgress() {
           })}
         />
       )}
+
       {isViewerOpen.length > 0 && (
         <ImageViewer
           src={[isViewerOpen, isViewerOpen]}

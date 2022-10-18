@@ -31,10 +31,9 @@ function Fees({...props}) {
             {data.info.map((line: any) => (
                 <tr key={line.uuid}>
                     <td>
-                        <p>- {line.act.name} : {line.fees} TND</p>
+                        <p>- {line.act.name} : {line.qte} x {line.fees} TND</p>
                     </td>
                 </tr>
-
             ))}
         </table>
 
