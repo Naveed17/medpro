@@ -383,11 +383,9 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     };
     const handleClick = () => {
-        router.push("/dashboard/agenda").then(() => {
-            setInfo("secretary_consultation_alert");
-            setOpenDialog(true);
-            setActions(true);
-        })
+        setInfo("secretary_consultation_alert");
+        setOpenDialog(true);
+        setActions(true);
     };
     const DialogAction = () => {
         return (
@@ -402,8 +400,11 @@ function ConsultationInProgress() {
                     variant="contained"
                     color="error"
                     onClick={() => {
-                        setInfo("end_consultation");
-                        setActions(false);
+                        router.push("/dashboard/agenda").then(() => {
+                            setInfo("end_consultation");
+                            setActions(false);
+                        })
+
                     }}
                     startIcon={<IconUrl path="ic-check"/>}>
                     {t("end_consultation")}
