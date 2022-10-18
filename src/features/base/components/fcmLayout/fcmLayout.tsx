@@ -1,7 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
-import "firebase/messaging";
 import {firebaseCloudMessaging} from "@app/firebase";
-import firebase from 'firebase/compat/app';
+import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Button,
     Dialog,
@@ -27,7 +26,7 @@ function PaperComponent(props: PaperProps) {
     );
 }
 
-function FcmLayout({children}: LayoutProps) {
+function FcmLayout({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -59,9 +58,9 @@ function FcmLayout({children}: LayoutProps) {
 
 
     // Get the push notification message and triggers a toast to display it
-    const getMessage = () => {
-        const messaging = firebase.messaging();
-        messaging.onMessage((message) => {
+    const getFcmMessage = () => {
+        const messaging = getMessaging(firebaseCloudMessaging.firebase);
+        onMessage(messaging, (message: any) => {
             switch (message.data.root) {
                 case "agenda":
                     const data = JSON.parse(message.data.detail);
@@ -74,16 +73,22 @@ function FcmLayout({children}: LayoutProps) {
         });
     }
 
-    const subscribeToTopic = useCallback((topicName: string) => {
+    const subscribeToTopic = useCallback(async (topicName: string) => {
         if (fcmToken) {
-            const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FCM_WEB_API_KEY;
+            const {data: fcm_api_key} = await axios({
+                url: "/api/helper/server_env",
+                method: "POST",
+                data: {
+                    key: "FCM_WEB_API_KEY"
+                }
+            });
             // Subscribe to the topic
             const topicURL = `https://iid.googleapis.com/iid/v1/${fcmToken}/rel/topics/${topicName}`;
             return axios({
                 url: topicURL,
                 method: "POST",
                 headers: {
-                    Authorization: `key=${FIREBASE_API_KEY}`
+                    Authorization: `key=${fcm_api_key}`
                 },
             }).catch(() => {
                 console.error(`Can't subscribe to ${topicName} topic`);
@@ -93,7 +98,6 @@ function FcmLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (medical_professional) {
-            console.log(`${general_information.roles[0]}-${medical_professional.uuid}`);
             subscribeToTopic(`${general_information.roles[0]}-${medical_professional.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -114,7 +118,7 @@ function FcmLayout({children}: LayoutProps) {
                 const token = await firebaseCloudMessaging.init();
                 if (token) {
                     setFcmToken(token as string);
-                    getMessage();
+                    getFcmMessage();
                 }
             } catch (error) {
                 console.log(error);
@@ -124,7 +128,7 @@ function FcmLayout({children}: LayoutProps) {
 
     return (
         <>
-            {children}
+            {props.children}
             <Dialog
                 open={open}
                 onClose={handleClose}
