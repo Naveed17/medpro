@@ -1,25 +1,52 @@
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import {useTranslation} from 'next-i18next'
 import React, {useRef, useState} from 'react';
-import {Card, IconButton, Stack, Typography} from "@mui/material";
+import {Card, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Session} from "next-auth";
+import FilePresentOutlinedIcon from '@mui/icons-material/FilePresentOutlined';
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
-    console.log(data)
-    const [images] = useState<any>(data.state);
-    const [files, setFiles] = useState<any>([]);
+
+    const [images, setImages] = useState<any>(data.state);
+    const [files, setFiles] = useState<any[]>([]);
+    const [loading, setLoading] = useState('');
+
+
+    console.log(files.find(file => file.uuid === 'item.uuid'))
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const hiddenFileInput = useRef(null);
-
+    const {trigger} = useRequestMutation(null, "/medicalImaging");
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const handleChange = (ev: any, uuid: string) => {
         const fileUploaded = ev.target.files[0];
-        console.log(fileUploaded)
-        files.push({
-            [uuid]: fileUploaded
-        })
-        setFiles([...files])
-        data.setState({files: [...files], uuid: data.state.uuid})
+        const form = new FormData();
+        form.append("files", fileUploaded, fileUploaded.name);
+        trigger(
+            {
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
+                data: form,
+                headers: {
+                    ContentType: "application/x-www-form-urlencoded",
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            },
+            {revalidate: true, populateCache: true}
+        ).then((r:any) => {
+            files.push({uuid: uuid, file: r.data.data[0]})
+            setFiles([...files])
+            console.log(files)
+            setLoading('')
+        });
 
     };
     if (!ready) return <>loading translations...</>;
@@ -31,29 +58,38 @@ function MedicalImagingDialog({...props}) {
                     <Card key={index} sx={{p: 1}}>
                         <Stack direction='row' alignItems="center" justifyContent='space-between'>
                             <Typography>{item['medical-imaging'].name}</Typography>
+                            <Typography>{item.uuid}</Typography>
+                            {
+                                loading !== item.uuid && item.uri === '' && files.find(file => file.uuid === item.uuid) === undefined && <>
+                                    <IconButton size="small" onClick={() => {
+                                        (document.getElementById(item.uuid + 'file') as HTMLElement).click()
+                                    }}>
+                                        <FileDownloadOutlinedIcon style={{color: '#a6abaf'}}/>
+                                    </IconButton>
+                                    <input
+                                        type="file"
+                                        id={item.uuid + 'file'}
+                                        onChange={(ev) => {
+                                            setLoading(item.uuid)
+                                            handleChange(ev, item.uuid)
+                                        }}
+                                        style={{display: 'none'}}
+                                    />
+                                </>
+                            }
 
-                            <>
-                                <IconButton size="small" onClick={() => {
-                                    if (hiddenFileInput.current) {
-                                        (hiddenFileInput.current as HTMLElement).click()
-                                    }
-                                }}>
-                                    <FileDownloadOutlinedIcon style={{color: '#a6abaf'}}/>
+                            {
+                                (item.uri !== '' || files.find(file => file.uuid === item.uuid)) &&
+                                <IconButton size="small"
+                                            onClick={() => {
+                                            }}>
+                                    <FilePresentOutlinedIcon style={{color: '#a6abaf'}}/>
                                 </IconButton>
-                                <input
-                                    type="file"
-                                    ref={hiddenFileInput}
-                                    onChange={(ev) => {
-                                        handleChange(ev, item.uuid)
-                                    }}
-                                    style={{display: 'none'}}
-                                />
-                            </>
+                            }
 
+                            {loading === item.uuid &&
+                                <CircularProgress style={{width: 20, height: 20, marginRight: 10}}/>}
 
-                            {/*<IconButton size="small">
-                                <PhotoCameraBackOutlinedIcon style={{color:'#a6abaf'}} />
-                            </IconButton>*/}
                         </Stack>
                     </Card>
                 ))}

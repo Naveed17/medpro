@@ -38,7 +38,8 @@
     "add_history": "Ajouter Antécédents",
     "family_history": "Antécédents familiaux",
     "surgical_history": "Antécédents chirurgicaux",
-    "emptyBalance": "Aucun bilan en attente"
+    "emptyBalance": "Aucun bilan en attente",
+    "emptyImaging": "Aucune imagerie médeciale "
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",
