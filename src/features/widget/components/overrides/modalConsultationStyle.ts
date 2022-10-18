@@ -25,6 +25,11 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
     '& .MuiCardContent-root': {
         position: 'relative',
         height: '100%',
+        padding:theme.spacing(0),
+        paddingTop:theme.spacing(1),
+        '.fieldset-body':{
+            margin:0,
+        },
         '.menu-list': {
             position: 'absolute',
             width: '100%',

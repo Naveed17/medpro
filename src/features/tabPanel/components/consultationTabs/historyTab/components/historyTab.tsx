@@ -82,49 +82,50 @@ function HistoryTab({...props}) {
         },
     ];
 
-    const {drawer} = useAppSelector(
-        (state: { dialog: DialogProps }) => state.dialog
-    );
-    const [collapse, setCollapse] = useState<any>("");
-    const [size, setSize] = useState<number>(3);
-    const [apps, setApps] = useState<any>([]);
-    useEffect(() => {
-        if (appointement) {
-            const index = appointement.latestAppointments.findIndex(
-                (app: any) => app.appointment.uuid === appuuid
-            );
-            if (index > -1) {
-                const element = appointement.latestAppointments.splice(index, 1)[0];
-                appointement.latestAppointments.splice(0, 0, element);
-            }
-            setApps([...appointement.latestAppointments]);
-        }
-    }, [appointement, appuuid]);
-    return (
-        <>
-            <Stack spacing={2} mb={2} alignItems="flex-start">
-                {patient?.nextAppointments.length > 0 && (
-                    <Label variant="filled" color="warning">
-                        {t("next_meeting")}
-                    </Label>
-                )}
-                {patient?.nextAppointments
-                    .slice(0, size)
-                    .map((data: any, index: number) => (
-                        <React.Fragment key={`patient-${index}`}>
-                            <HistoryCard row={data} patient={patient} t={t}/>
-                        </React.Fragment>
-                    ))}
-            </Stack>
-            {size < patient?.nextAppointments.length && (
-                <Button
-                    style={{marginBottom: 10, marginTop: -10, fontSize: 12}}
-                    onClick={() => {
-                        setSize(patient?.nextAppointments.length);
-                    }}>
-                    {t("showAll")}
-                </Button>
-            )}
+  const { drawer } = useAppSelector(
+    (state: { dialog: DialogProps }) => state.dialog
+  );
+  const [collapse, setCollapse] = useState<any>("");
+  const [size, setSize] = useState<number>(3);
+  const [apps, setApps] = useState<any>([]);
+  useEffect(() => {
+    if (appointement) {
+      const index = appointement.latestAppointments.findIndex(
+        (app: any) => app.appointment.uuid === appuuid
+      );
+      if (index > -1) {
+        const element = appointement.latestAppointments.splice(index, 1)[0];
+        console.log(element); // ['css']
+        appointement.latestAppointments.splice(0, 0, element);
+      }
+      setApps([...appointement.latestAppointments]);
+    }
+  }, [appointement, appuuid]);
+  return (
+    <>
+      {patient?.nextAppointments.length > 0 && (
+        <Stack spacing={2} mb={2} alignItems="flex-start">
+          <Label variant="filled" color="warning">
+            {t("next_meeting")}
+          </Label>
+          {patient?.nextAppointments
+            .slice(0, size)
+            .map((data: any, index: number) => (
+              <React.Fragment key={`patient-${index}`}>
+                <HistoryCard row={data} patient={patient} t={t} />
+              </React.Fragment>
+            ))}
+        </Stack>
+      )}
+      {size < patient?.nextAppointments.length && (
+        <Button
+          style={{ marginBottom: 10, marginTop: -10, fontSize: 12 }}
+          onClick={() => {
+            setSize(patient?.nextAppointments.length);
+          }}>
+          {t("showAll")}
+        </Button>
+      )}
 
             <Stack spacing={2}>
                 {apps.map((app: any) => (

@@ -426,90 +426,90 @@ function ConsultationInProgress() {
                 />
             </SubHeader>
 
-            <Box className="container" style={{padding: 0}}>
-                <TabPanel padding={1} value={value} index={"patient_history"}>
-                    {loading ? (
-                        <Stack spacing={2}>
-                            {Array.from({length: 3}).map((_, idx) => (
-                                <React.Fragment key={idx}>
-                                    <PatientHistoryNoDataCard/>
-                                </React.Fragment>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <HistoryTab
-                            patient={patient}
-                            appointement={appointement}
-                            t={t}
-                            appuuid={uuind}
-                            setIsViewerOpen={setIsViewerOpen}
-                            direction={direction}
-                            setInfo={setInfo}
-                            acts={acts}
-                            mutateDoc={mutateDoc}
-                            setState={setState}
-                            dispatch={dispatch}
-                            setOpenDialog={setOpenDialog}></HistoryTab>
-                    )}
-                </TabPanel>
-                <TabPanel value={value} index={"mediktor_report"}>
-                    <Box
-                        sx={{
-                            ".react-pdf__Page__canvas": {
-                                mx: "auto",
-                            },
-                        }}>
-                        <Document
-                            loading={<></>}
-                            file={file}
-                            onLoadSuccess={onDocumentLoadSuccess}>
-                            {Array.from(new Array(numPages), (el, index) => (
-                                <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                            ))}
-                        </Document>
-                    </Box>
-                </TabPanel>
-                <TabPanel value={value} index={"consultation_form"}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={5}>
-                            {models && selectedModel && (
-                                <WidgetForm
-                                    modal={selectedModel}
-                                    models={models}
-                                    setSM={setSelectedModel}></WidgetForm>
-                            )}
-                        </Grid>
-                        <Grid item xs={12} md={7}>
-                            {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
-                        </Grid>
-                    </Grid>
-                </TabPanel>
-                <TabPanel value={value} index={"medical_procedures"}>
-                    <FeesTab
-                        acts={acts}
-                        selectedUuid={selectedUuid}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        editAct={editAct}
-                        selectedAct={selectedAct}
-                        setTotal={selectedAct}
-                        setOpenActDialog={setOpenActDialog}
-                        setOpenDialog={setOpenDialog}
-                        total={total}
-                        t={t}></FeesTab>
-                </TabPanel>
-                <TabPanel value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
-                </TabPanel>
+      <Box className="container" style={{ padding: 0 }}>
+        <TabPanel padding={1} value={value} index={"patient_history"}>
+          {loading ? (
+            <Stack spacing={2}>
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <React.Fragment key={idx}>
+                  <PatientHistoryNoDataCard />
+                </React.Fragment>
+              ))}
+            </Stack>
+          ) : (
+            <HistoryTab
+              patient={patient}
+              appointement={appointement}
+              t={t}
+              appuuid={uuind}
+              setIsViewerOpen={setIsViewerOpen}
+              direction={direction}
+              setInfo={setInfo}
+              acts={acts}
+              mutateDoc={mutateDoc}
+              setState={setState}
+              dispatch={dispatch}
+              setOpenDialog={setOpenDialog}></HistoryTab>
+          )}
+        </TabPanel>
+        <TabPanel padding={1} value={value} index={"mediktor_report"}>
+          <Box
+            sx={{
+              ".react-pdf__Page__canvas": {
+                mx: "auto",
+              },
+            }}>
+            <Document
+              loading={<></>}
+              file={file}
+              onLoadSuccess={onDocumentLoadSuccess}>
+              {Array.from(new Array(numPages), (el, index) => (
+                <Page key={`page_${index + 1}`} pageNumber={index + 1} />
+              ))}
+            </Document>
+          </Box>
+        </TabPanel>
+        <TabPanel padding={1} value={value} index={"consultation_form"}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={5}>
+              {models && selectedModel && (
+                <WidgetForm
+                  modal={selectedModel}
+                  models={models}
+                  setSM={setSelectedModel}></WidgetForm>
+              )}
+            </Grid>
+            <Grid item xs={12} md={7}>
+              {sheet && <ConsultationDetailCard exam={sheet.exam} />}
+            </Grid>
+          </Grid>
+        </TabPanel>
+        <TabPanel padding={1} value={value} index={"medical_procedures"}>
+          <FeesTab
+            acts={acts}
+            selectedUuid={selectedUuid}
+            setInfo={setInfo}
+            setState={setState}
+            patient={patient}
+            editAct={editAct}
+            selectedAct={selectedAct}
+            setTotal={selectedAct}
+            setOpenActDialog={setOpenActDialog}
+            setOpenDialog={setOpenDialog}
+            total={total}
+            t={t}></FeesTab>
+        </TabPanel>
+        <TabPanel padding={1} value={value} index={"documents"}>
+          <DocumentsTab
+            documents={documents}
+            setIsViewerOpen={setIsViewerOpen}
+            setInfo={setInfo}
+            setState={setState}
+            patient={patient}
+            mutateDoc={mutateDoc}
+            setOpenDialog={setOpenDialog}
+            t={t}></DocumentsTab>
+        </TabPanel>
 
                 <Stack
                     direction={{md: "row", xs: "column"}}
@@ -592,6 +592,79 @@ function ConsultationInProgress() {
                     title={null}>
                     <ConsultationFilter/>
                 </DrawerBottom>
+        <Stack
+          direction={{ md: "row", xs: "column" }}
+          position="fixed"
+          sx={{ right: 10, bottom: 10, zIndex: 999 }}
+          spacing={2}>
+          {pendingDocuments?.map((item: any) => (
+            <React.Fragment key={item.id}>
+              <PendingDocumentCard
+                data={item}
+                t={t}
+                onClick={() => {
+                  openDialogue(item.id);
+                }}
+                closeDocument={(v: number) =>
+                  setPendingDocuments(
+                    pendingDocuments.filter((card: any) => card.id !== v)
+                  )
+                }
+              />
+            </React.Fragment>
+          ))}
+        </Stack>
+        {/* <Box pt={8}>
+          <SubFooter>
+            <Stack width={1} alignItems="flex-end">
+              <Button
+                onClick={handleClick}
+                color="error"
+                variant="contained"
+                sx={{ ".react-svg": { mr: 1 } }}>
+                <IconUrl path="ic-check" /> {t("end_consultation_btn")}
+              </Button>
+            </Stack>
+          </SubFooter>
+        </Box> */}
+        <Drawer
+          anchor={"right"}
+          open={openAddDrawer}
+          dir={direction}
+          onClose={() => {
+            dispatch(openDrawer({ type: "add", open: false }));
+          }}>
+          <Box height={"100%"}>
+            <CustomStepper
+              {...{ currentStepper, t }}
+              OnTabsChange={handleStepperChange}
+              OnSubmitStepper={submitStepper}
+              stepperData={EventStepper}
+              scroll
+              minWidth={726}
+            />
+          </Box>
+        </Drawer>
+        <Button
+          startIcon={<IconUrl path="ic-filter" />}
+          onClick={() => setFilterDrawer(!drawer)}
+          sx={{
+            position: "fixed",
+            bottom: 50,
+            transform: "translateX(-50%)",
+            left: "50%",
+            zIndex: 999,
+            display: { xs: "flex", md: "none" },
+          }}
+          variant="filter">
+          Filtrer (0)
+        </Button>
+        <DrawerBottom
+          handleClose={() => setFilterDrawer(false)}
+          open={filterdrawer}
+          title={null}>
+          <ConsultationFilter />
+        </DrawerBottom>
 
                 <Dialog
                     action={"add_act"}
