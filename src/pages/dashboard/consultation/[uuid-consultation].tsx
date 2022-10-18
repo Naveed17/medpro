@@ -360,7 +360,11 @@ function ConsultationInProgress() {
         dispatch(setStepperIndex(index));
     };
     const submitStepper = (index: number) => {
-        if (EventStepper.length !== index) EventStepper[index].disabled = false;
+        if (EventStepper.length !== index) {
+            EventStepper[index].disabled = false;
+        } else {
+            mutate();
+        }
     };
     const handleCloseDialogAct = () => {
         setOpenActDialog(false);
