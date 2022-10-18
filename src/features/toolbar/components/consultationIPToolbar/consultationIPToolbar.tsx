@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, DialogActions, Menu, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
+import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
 import {useTranslation} from "next-i18next";
@@ -7,14 +7,12 @@ import {documentButtonList} from "./config";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {LoadingButton} from "@mui/lab";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
-import {setTimer} from "@features/card";
+import {useAppDispatch} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
@@ -39,11 +37,7 @@ function ConsultationIPToolbar({...props}) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [anchorReport, setAnchorReport] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [end, setEnd] = useState(false);
-    const {exam} = useAppSelector(consultationSelector);
     const open = Boolean(anchorEl);
-    const openReport = Boolean(anchorReport);
     const dispatch = useAppDispatch();
 
     const {
@@ -80,9 +74,9 @@ function ConsultationIPToolbar({...props}) {
             value: "patient history",
         },
         /* {
-                label: "mediktor_report",
-                value: 'mediktor report',
-            },*/
+                    label: "mediktor_report",
+                    value: 'mediktor report',
+                },*/
         {
             label: "consultation_form",
             value: "consultation form",
@@ -94,7 +88,7 @@ function ConsultationIPToolbar({...props}) {
         {
             label: "medical_procedures",
             value: "medical procedures",
-        }
+        },
     ];
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
@@ -113,7 +107,6 @@ function ConsultationIPToolbar({...props}) {
 
     const handleSaveDialog = () => {
         const form = new FormData();
-        console.log(info);
         switch (info) {
             case "medical_prescription":
                 form.append("globalNote", "");
@@ -298,7 +291,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_report":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "Rapport", files: []});
+                setState({name: "", description: "", type: "analyse", files: []});
                 break;
             case "balance_results":
                 setInfo("balance_sheet_pending");
@@ -342,16 +335,16 @@ function ConsultationIPToolbar({...props}) {
             case "medical_imagery":
                 setImagery(state);
                 /*if (state.length > 0) {
-                            if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
-                                pdoc.push({
-                                    id: 1,
-                                    name: "Demande bilan",
-                                    status: "in_progress",
-                                    icon: 'ic-analyse'
-                                })
-                        } else {
-                            pdoc = pdoc.filter(obj => obj.id !== 1);
-                        }*/
+                                    if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
+                                        pdoc.push({
+                                            id: 1,
+                                            name: "Demande bilan",
+                                            status: "in_progress",
+                                            icon: 'ic-analyse'
+                                        })
+                                } else {
+                                    pdoc = pdoc.filter(obj => obj.id !== 1);
+                                }*/
                 break;
         }
         setOpenDialog(false);
@@ -388,7 +381,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "", files: []});
+                setState({name: "", description: "", type: "analyse", files: []});
                 break;
             default:
                 setInfo(null);
@@ -412,62 +405,12 @@ function ConsultationIPToolbar({...props}) {
                 setInfo("balance_sheet_request");
                 setState(checkUp);
                 break;
-            /*case "medical_imagery":
-                      setInfo('medical_imagery')
-                      setState(imagery)
-                      break;*/
         }
         setDialog("");
         setOpenDialog(true);
         setactions(true);
     }, [checkUp, dialog, prescription, setDialog]);
 
-    useEffect(() => {
-        const acts: { act_uuid: any; name: string; qte: any; price: any; }[] = [];
-        if (end) {
-            selectedAct.map((act: { uuid: any; act: { name: string; }; qte: any; fees: any; }) => {
-                acts.push({act_uuid: act.uuid, name: act.act.name, qte: act.qte, price: act.fees});
-            });
-            const form = new FormData();
-            form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
-            form.append("modal_data", localStorage.getItem("Modeldata") as string);
-            form.append("notes", exam.notes);
-            form.append("diagnostic", exam.diagnosis);
-            form.append("treatment", exam.treatment);
-            form.append("consultation_reason", exam.motif);
-            form.append("status", "5");
-
-            trigger({
-                method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/data/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }).then((r) => {
-                console.log("end consultation", r);
-                router.push("/dashboard/agenda").then((r) => {
-                    console.log(r);
-                    dispatch(setTimer({isActive: false}));
-                    localStorage.removeItem("Modeldata");
-                    console.log(localStorage.getItem("Modeldata"));
-                    mutate();
-                });
-            });
-        }
-        setEnd(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [end]);
-
-    /* useEffect(() => {
-         if (appointement && appointement.latestAppointments.length === 0) {
-             setValue("consultation form");
-             setlabel("consultation_form");
-             setLastTabs("consultation_form");
-             setTabs(2);
-         }
-     }, [appointement]);*/
     useEffect(() => {
         selected(label);
         if (lastTabs === "consultation_form") {
@@ -490,93 +433,56 @@ function ConsultationIPToolbar({...props}) {
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
-                <Stack direction="row" spacing={1} mt={1.2} justifyContent="flex-end">
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            handleOpen();
-                        }}>
-                        {t("RDV")}
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            setInfo("add_vaccin");
-                            setOpenDialog(true);
-                        }}>
-                        {t("vaccine")}
-                    </Button>
-                    <Button onClick={handleClickReport} variant="contained">
-                        {t("report")}
-                    </Button>
-                    <Menu
-                        id="basic-menu"
-                        anchorEl={anchorReport}
-                        open={openReport}
-                        onClose={handleCloseAnchor}
-                        sx={{
-                            "& .MuiPaper-root": {
-                                borderRadius: 0,
-                                borderBottomLeftRadius: 8,
-                                borderBottomRightRadius: 8,
-                                marginTop: (theme) => theme.spacing(1),
-                                minWidth: 150,
-                                backgroundColor: (theme) => theme.palette.text.primary,
-                            },
-                        }}
-                        MenuListProps={{
-                            "aria-labelledby": "basic-button",
-                        }}>
-                        {reportMenu.map((item, idx) => (
-                            <MenuItem
-                                onClick={() => handleCloseAnchor(item.value)}
-                                key={idx}
-                                sx={{
-                                    color: (theme) => theme.palette.grey[0],
-                                    ".react-svg": {
-                                        mr: 1,
-                                        svg: {
-                                            width: 12,
-                                            height: 12,
-                                            path: {fill: (theme) => theme.palette.grey[0]},
-                                        },
-                                    },
-                                }}>
-                                <Icon path={item.icon}/>
-                                {t(item.value)}
-                            </MenuItem>
-                        ))}
-                    </Menu>
-                    <Button onClick={handleClick} variant="contained" color="warning">
-                        {t("document")}
-                    </Button>
-                    <StyledMenu
-                        id="basic-menu"
-                        elevation={0}
-                        anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
-                        }}
-                        transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
-                        }}
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        MenuListProps={{
-                            "aria-labelledby": "basic-button",
-                        }}>
-                        {documentButtonList.map((item, index) => (
-                            <MenuItem
-                                key={`document-button-list-${index}`}
-                                onClick={() => handleClose(item.label)}>
-                                <Icon path={item.icon}/>
-                                {t(item.label)}
-                            </MenuItem>
-                        ))}
-                    </StyledMenu>
+                <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    {/* <Button
+            variant="contained"
+            onClick={() => {
+              setInfo("add_vaccin");
+              setOpenDialog(true);
+            }}>
+            {t("vaccine")}
+          </Button>
+          <Button onClick={handleClickReport} variant="contained">
+            {t("report")}
+          </Button>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorReport}
+            open={openReport}
+            onClose={handleCloseAnchor}
+            sx={{
+              "& .MuiPaper-root": {
+                borderRadius: 0,
+                borderBottomLeftRadius: 8,
+                borderBottomRightRadius: 8,
+                marginTop: (theme) => theme.spacing(1),
+                minWidth: 150,
+                backgroundColor: (theme) => theme.palette.text.primary,
+              },
+            }}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}>
+            {reportMenu.map((item, idx) => (
+              <MenuItem
+                onClick={() => handleCloseAnchor(item.value)}
+                key={idx}
+                sx={{
+                  color: (theme) => theme.palette.grey[0],
+                  ".react-svg": {
+                    mr: 1,
+                    svg: {
+                      width: 12,
+                      height: 12,
+                      path: { fill: (theme) => theme.palette.grey[0] },
+                    },
+                  },
+                }}>
+                <Icon path={item.icon} />
+                {t(item.value)}
+              </MenuItem>
+            ))}
+          </Menu> */}
                 </Stack>
                 <Stack
                     direction="row"
@@ -605,34 +511,84 @@ function ConsultationIPToolbar({...props}) {
                             />
                         ))}
                     </Tabs>
-                    <LoadingButton
-                        loading={loading}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => {
-                            const btn = document.getElementsByClassName("sub-btn")[1];
-                            const examBtn = document.getElementsByClassName("sub-exam")[0];
+                    {/* <LoadingButton
+            loading={loading}
+            variant="outlined"
+            color="primary"
+            onClick={() => {
+              const btn = document.getElementsByClassName("sub-btn")[1];
+              const examBtn = document.getElementsByClassName("sub-exam")[0];
 
-                            (btn as HTMLElement)?.click();
-                            (examBtn as HTMLElement)?.click();
+              (btn as HTMLElement)?.click();
+              (examBtn as HTMLElement)?.click();
 
-                            setLoading(true);
+              setLoading(true);
 
-                            setTimeout(() => {
-                                setEnd(true);
-                                setLoading(false);
-                            }, 3000);
-                        }}
-                        className="action-button">
-                        {!loading && appointement?.status == 5 ? (
-                            <Icon path="ic-edit"/>
-                        ) : (
-                            <Icon path="ic-check"/>
-                        )}
-                        {appointement?.status == 5
-                            ? t("edit_of_consultation")
-                            : t("end_of_consultation")}
-                    </LoadingButton>
+              setTimeout(() => {
+                setEnd(true);
+                setLoading(false);
+              }, 3000);
+            }}
+            className="action-button">
+            {!loading && appointement?.status == 5 ? (
+              <Icon path="ic-edit" />
+            ) : (
+              <Icon path="ic-check" />
+            )}
+            {appointement?.status == 5
+              ? t("edit_of_consultation")
+              : t("end_of_consultation")}
+          </LoadingButton> */}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        mb={1}
+                        justifyContent="flex-end"
+                        sx={{width: {xs: "30%", md: "30%"}}}>
+                        <Button
+                            variant="contained"
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={() => {
+                                handleOpen();
+                            }}>
+                            {isMobile ? <IconUrl path="ic-agenda"/> : t("RDV")}
+                        </Button>
+                        <Button
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={handleClick}
+                            variant="contained"
+                            color="warning">
+                            {isMobile ? <IconUrl path="ic-doc"/> : t("document")}
+                        </Button>
+                        <StyledMenu
+                            id="basic-menu"
+                            elevation={0}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            MenuListProps={{
+                                "aria-labelledby": "basic-button",
+                            }}>
+                            {documentButtonList.map((item, index) => (
+                                <MenuItem
+                                    key={`document-button-list-${index}`}
+                                    onClick={() => handleClose(item.label)}>
+                                    <Icon path={item.icon}/>
+                                    {t(item.label)}
+                                </MenuItem>
+                            ))}
+                        </StyledMenu>
+                    </Stack>
                 </Stack>
             </ConsultationIPToolbarStyled>
             {info && (

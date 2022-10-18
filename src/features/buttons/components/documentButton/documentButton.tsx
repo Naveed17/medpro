@@ -24,7 +24,6 @@ function DocumentButton({ ...props }) {
     t,
     active,
   } = props;
-
   return (
     <DocumentButtonStyled
       variant="outlined"

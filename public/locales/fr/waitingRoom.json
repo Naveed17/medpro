@@ -60,13 +60,7 @@
       "min": "min",
       "completed": "Effectuée",
       "canceled": "Annulée",
-      "1st consultation": "1ère consultation",
-      "end_consultation": "Fin de consultation",
-      "end_of_consultation_with": "Fin de consultation avec",
-      "price_of_the_consultation": "Prix de la consultation",
-      "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
-      "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
-      "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
+      "1st consultation": "1ère consultation",   
       "cancel": "Annuler",
       "no-data": {
         "event": {
@@ -77,5 +71,10 @@
       }
     }
   },
-  "room": "salle"
+  "room": "salle",
+  "end_consultation": "Fin de consultation",
+  "end_of_consultation_with": "Fin de consultation avec",
+  "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
+  "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
+  "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire"
 }
