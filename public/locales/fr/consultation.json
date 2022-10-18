@@ -38,7 +38,8 @@
     "add_history": "Ajouter Antécédents",
     "family_history": "Antécédents familiaux",
     "surgical_history": "Antécédents chirurgicaux",
-    "emptyBalance": "Aucun bilan en attente"
+    "emptyBalance": "Aucun bilan en attente",
+    "emptyImaging": "Aucune imagerie médeciale "
   },
   "end of consultation": "fin de la consultation",
   "cancel": "annuler",
@@ -58,10 +59,14 @@
     "patient_history": "Fiche d'historique",
     "mediktor_report": "Interrogatoire",
     "consultation_form": "Fiche consultation",
+    "noFees": "Pas de frais",
+    "noTreatment": "Aucun traitement",
+    "noImage": "Aucune demande imagerie",
+    "noRequest": "Aucune demande",
+    "noDoc": "Aucun document",
     "medical_procedures": "Note d'honoraires",
-    "end_of_consultation": "Fin de consultation",
-    "edit_of_consultation": "Modifier consultation",
     "consultation": "Consultation",
+    "seeRes": "Voir le résultat",
     "reason": "Motif",
     "fees": "honoraires",
     "edit": "Modifier",
@@ -189,10 +194,10 @@
     "requested-medical-imaging": "Demande imagerie",
     "years": "Ans",
     "months": "mois",
-    "add_vaccin":"Ajouter vaccin",
-    "name_the_vaccination":"Veuiller nomme le Vaccination",
-    "lot_number":"Numero du lot",
-    "date_of_injection":"Date de l' injection"
+    "add_vaccin": "Ajouter vaccin",
+    "name_the_vaccination": "Veuiller nomme le Vaccination",
+    "lot_number": "Numero du lot",
+    "date_of_injection": "Date de l' injection"
   },
   "table": {
     "acts": "Actes",
@@ -238,6 +243,7 @@
   "audio": "Audio",
   "name_of_act": "nom de l'acte",
   "price_of_act": "prix de l'acte",
+  "end_consultation_btn": "Terminer la consultation",
   "no-data": {
     "event": {
       "title": "Aucun document ",
@@ -248,6 +254,17 @@
   "prescription": "Ordonnance",
   "requested-analysis": "Demande analyse",
   "requested-medical-imaging": "Demande imagerie",
+  "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
+  "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
+  "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire",
+  "end_consultation": "Fin de consultation",
+  "secretary_consultation_alert": "Fin de consultation",
+  "end_of_consultation_with": "Fin de consultation avec",
+  "price_of_the_consultation": "Prix de la consultation",
+  "end_of_consultation": "Fin de consultation",
+  "edit_of_consultation": "Quitter consultation",
+  "plan_a_meeting": "Planifier un conrole",
+  "day": "Jour",
   "steppers": {
     "tabs": {
       "tab-1": "Type",
