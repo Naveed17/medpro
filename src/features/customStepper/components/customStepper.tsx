@@ -5,6 +5,8 @@ import Box from "@mui/material/Box";
 import {RootStyled} from "@features/customStepper";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
+import {setStepperIndex} from "@features/calendar";
+import {useAppDispatch} from "@app/redux/hooks";
 
 function a11yProps(index: number) {
     return {
@@ -25,7 +27,10 @@ function CustomStepper({...props}) {
         OnSubmitStepper = null,
         onBackButton = null,
     } = props;
-    const [value, setValue] = useState<number>(currentIndex);
+
+    const dispatch = useAppDispatch();
+
+    const [index, setIndex] = useState<number>(currentIndex);
     const [last, setLast] = useState<number>(1);
 
 
@@ -37,18 +42,19 @@ function CustomStepper({...props}) {
         }, [OnCustomAction]);
 
     const backAction = useCallback(
-        (index: number) => {
-            if (value > 0) {
-                setValue(value - 1);
+        (currentIndex: number) => {
+            if (currentIndex > 0) {
+                dispatch(setStepperIndex(currentIndex - 1));
+                setIndex(currentIndex - 1);
             }
             if (onBackButton) {
-                onBackButton(value);
+                onBackButton(currentIndex);
             }
         }, [onBackButton]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const tabChange = useCallback(
         (event: SyntheticEvent, currentIndex: number) => {
-            setValue(currentIndex);
+            setIndex(currentIndex);
             if (OnTabsChange) {
                 OnTabsChange(currentIndex);
             }
@@ -59,7 +65,7 @@ function CustomStepper({...props}) {
     const submitStepper = useCallback(
         (currentIndex: number) => {
             if (currentIndex < stepperData.length) {
-                setValue(currentIndex);
+                setIndex(currentIndex);
                 setLast(last < stepperData.length ? last + 1 : last);
             }
             if (OnSubmitStepper) {
@@ -79,7 +85,7 @@ function CustomStepper({...props}) {
                 }}
             >
                 <Tabs
-                    value={value}
+                    value={index}
                     onChange={OnTabsChange ? tabChange : tabChange}
                     variant="scrollable"
                     scrollButtons={false}
@@ -109,7 +115,7 @@ function CustomStepper({...props}) {
                                         <b>{i + 1}.</b> {t(`${v.title}`)}
                                     </Box>
                                 }
-                                className={value > i ? "submitted" : value < i ? "pending" : ""}
+                                className={index > i ? "submitted" : index < i ? "pending" : ""}
                                 {...a11yProps(i)}
                             />
                         )
@@ -118,7 +124,7 @@ function CustomStepper({...props}) {
                 {stepperData.map((v: { key: string; title: string; children: ReactNode; }, i: number) => {
                     const Component: any = v.children;
                     return (
-                        <TabPanel key={i.toString()} value={Number(value)} index={i}>
+                        <TabPanel key={i.toString()} value={index} index={i}>
                             <Component
                                 OnAction={customActions}
                                 onNext={submitStepper}

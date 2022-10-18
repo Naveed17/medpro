@@ -25,16 +25,18 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
-import {IconButton, LinearProgress} from "@mui/material";
+import {IconButton, LinearProgress, useTheme} from "@mui/material";
+import IconUrl from "@themes/urlIcon";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const theme = useTheme();
     const {data: session} = useSession();
 
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
         date: selectedDate,
@@ -50,6 +52,7 @@ function TimeSchedule({...props}) {
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
+    const [moreDate, setMoreDate] = useState(false);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
@@ -159,12 +162,12 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
-        const updatedRecurringDates = [...recurringDates, {
+        const updatedRecurringDates = [{
             id: `${moment(date).format("DD-MM-YYYY")}--${newTime}`,
             time: newTime,
             date: moment(date).format("DD-MM-YYYY"),
             status: "success"
-        }].reduce(
+        }, ...recurringDates].reduce(
             (unique: RecurringDateModel[], item) =>
                 (unique.find(recurringDate => recurringDate.id === item.id) ? unique : [...unique, item]),
             [],
@@ -306,40 +309,45 @@ function TimeSchedule({...props}) {
                         </Select>
                     </FormControl>
                 </>}
-                <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
-                    {t("stepper-1.date-message")}
-                </Typography>
-                <Grid container spacing={2} sx={{height: "330px"}}>
-                    <Grid item md={6} xs={12}>
-                        <StaticDatePicker
-                            views={['day']}
-                            onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
-                            onChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                            value={(location) ? date : null}
-                            loading={!location || !medical_professional}
-                        />
-                    </Grid>
-                    <Grid item md={6} xs={12}>
-                        <Typography variant="body1" align={"center"} color="text.primary" my={2}>
-                            {t("stepper-1.time-message")}
+                {(recurringDates.length === 0 || moreDate) &&
+                    <>
+                        <Typography mt={3} variant="body1" {...(!location && {mt: 5})} color="text.primary" mb={1}>
+                            {t("stepper-1.date-message")}
                         </Typography>
-                        <TimeSlot
-                            sx={{width: 248, margin: "auto"}}
-                            loading={!date || loading}
-                            data={timeSlots}
-                            limit={limit}
-                            onChange={onTimeSlotChange}
-                            OnShowMore={() => setLimit(limit * 2)}
-                            value={time}
-                            seeMore={limit < timeSlots.length}
-                            seeMoreText={t("stepper-1.see-more")}
-                        />
-                    </Grid>
-                </Grid>
+                        <Grid container spacing={2} sx={{height: "auto"}}>
+                            <Grid item md={6} xs={12}>
+                                <StaticDatePicker
+                                    views={['day']}
+                                    onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday())}
+                                    onChange={(newDate: Date) => onChangeDatepicker(newDate)}
+                                    value={(location) ? date : null}
+                                    loading={!location || !medical_professional}
+                                />
+                            </Grid>
+                            <Grid item md={6} xs={12}>
+                                <Typography variant="body1" align={"center"} color="text.primary" my={2}>
+                                    {t("stepper-1.time-message")}
+                                </Typography>
+                                <TimeSlot
+                                    sx={{width: 248, margin: "auto"}}
+                                    loading={!date || loading}
+                                    data={timeSlots}
+                                    limit={limit}
+                                    onChange={onTimeSlotChange}
+                                    OnShowMore={() => setLimit(limit * 2)}
+                                    value={time}
+                                    seeMore={limit < timeSlots.length}
+                                    seeMoreText={t("stepper-1.see-more")}
+                                />
+                            </Grid>
+                        </Grid>
+                    </>
+                }
 
                 {(timeAvailable && recurringDates.length > 0) &&
                     <>
-                        <Typography variant="body1" color="text.primary" mb={1}>
+                        <Typography variant="body1" color="text.primary" mb={1}
+                                    {...(recurringDates.length > 0 && {mt: 2})}>
                             {t("stepper-1.selected-appointment")}
                         </Typography>
                         {recurringDates.map((recurringDate, index) => (
@@ -362,9 +370,20 @@ function TimeSchedule({...props}) {
                                 }
                                 key={Math.random()} item={recurringDate} size="small"/>
                         ))}
+                        {!moreDate &&
+                            <Button
+                                onClick={() => setMoreDate(true)}
+                                startIcon={
+                                    <IconUrl
+                                        width={"16"}
+                                        height={"16"}
+                                        color={theme.palette.primary.main}
+                                        path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
                     </>
+
                 }
             </Box>
+
             <Paper
                 sx={{
                     borderRadius: 0,
@@ -380,7 +399,7 @@ function TimeSchedule({...props}) {
                     sx={{
                         mr: 1,
                     }}
-                    onClick={onBack}
+                    onClick={() => onBack(currentStepper)}
                 >
                     {t("back")}
                 </Button>

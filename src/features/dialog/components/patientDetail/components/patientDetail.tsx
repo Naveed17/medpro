@@ -107,7 +107,7 @@ function PatientDetail({ ...props }) {
             stepperData[index].disabled = false;
         } else {
             stepperData.map((stepper, index) => stepper.disabled = true);
-            setIndex(0);
+            mutate();
         }
     }
 
@@ -166,8 +166,7 @@ function PatientDetail({ ...props }) {
                         <TabPanel padding={1} value={index} index={0}>
                             <PersonalInfoPanel
                                 loading={!patient}
-                                {...{ patient }}
-                                mutate={mutate}
+                                {...{ patient, mutate }}
                             />
                         </TabPanel>
                         {/*<TabPanel padding={1} value={index} index={1}>
