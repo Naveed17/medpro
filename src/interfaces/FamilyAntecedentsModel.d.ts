@@ -3,4 +3,5 @@ interface FamilyAntecedentsModel {
     name: string
     startDate: string
     uuid: string
+    res: string
 }

@@ -3,4 +3,5 @@ interface AntecedentsModel {
     name: string
     startDate: string
     uuid: string
+    res:string
 }

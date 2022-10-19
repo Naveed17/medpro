@@ -1,7 +1,17 @@
 import React, {ChangeEvent, useEffect, useState} from 'react'
 import FamilyHistoryDialogStyled from './overrides/familyHistoryDialogStyle'
 import {useTranslation} from 'next-i18next';
-import {Box, Button, Checkbox, FormControlLabel, FormGroup, InputAdornment, Stack, TextField} from '@mui/material'
+import {
+    Box,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    InputAdornment,
+    Stack,
+    TextField,
+    Typography
+} from '@mui/material'
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -83,7 +93,7 @@ function FamilyHistoryDialog({...props}) {
                     antecedents.filter((item: AntecedentsTypeModel) => {
                         return item.name.toLowerCase().includes(value.toLowerCase());
                     })
-                        .map((list: { uuid: string, name: string, type: number }, idx: number) =>
+                        .map((list: any, idx: number) =>
                             <FormGroup key={idx}>
                                 <FormControlLabel
                                     control={
@@ -94,66 +104,128 @@ function FamilyHistoryDialog({...props}) {
                                 />
                                 {
                                     state?.find(inf => inf.uuid == list.uuid) &&
-                                    <Stack direction='row' spacing={1}>
-                                        <TextField
-                                            placeholder={t('starting_year')}
-                                            name={list.uuid}
-                                            value={state.find(i => i.uuid === list.uuid)?.startDate ? state.find(i => i.uuid === list.uuid)?.startDate : ''}
-                                            onChange={(e) => {
-                                                let items = state.map(item => ({...item}));
-                                                let item = items.find(i => i.uuid === list.uuid)
-                                                if (item) item.startDate = e.target.value
-                                                setState(items)
-                                            }}
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    name={list.uuid}
-                                                    checked={state?.find(inf => inf.uuid == list.uuid)?.ascendantOf === 'father'}
-                                                    onChange={() => {
-                                                        let items = state.map(item => ({...item}));
-                                                        let item = items.find(i => i.uuid === list.uuid)
-                                                        if (item) item.ascendantOf = 'father';
-                                                        setState(items)
-                                                    }}
-                                                />
+                                    <>
+                                        <Stack direction='row' spacing={1}>
+                                            <TextField
+                                                placeholder={t('starting_year')}
+                                                name={list.uuid}
+                                                value={state.find(i => i.uuid === list.uuid)?.startDate ? state.find(i => i.uuid === list.uuid)?.startDate : ''}
+                                                onChange={(e) => {
+                                                    let items = state.map(item => ({...item}));
+                                                    let item = items.find(i => i.uuid === list.uuid)
+                                                    if (item) item.startDate = e.target.value
+                                                    setState(items)
+                                                }}
+                                            />
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        name={list.uuid}
+                                                        checked={state?.find(inf => inf.uuid == list.uuid)?.ascendantOf === 'father'}
+                                                        onChange={() => {
+                                                            let items = state.map(item => ({...item}));
+                                                            let item = items.find(i => i.uuid === list.uuid)
+                                                            if (item) {
+                                                                if (item.ascendantOf === 'father')
+                                                                    item.ascendantOf = '';
+                                                                else
+                                                                    item.ascendantOf = 'father';
+                                                            }
+                                                            setState(items)
+                                                        }}
+                                                    />
 
-                                            }
-                                            label={t('father')}
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    name={list.uuid}
-                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'mother'}
-                                                    onChange={() => {
-                                                        let items = state.map(item => ({...item}));
-                                                        let item = items.find(i => i.uuid === list.uuid)
-                                                        if (item) item.ascendantOf = 'mother';
-                                                        setState(items)
+                                                }
+                                                label={t('father')}
+                                            />
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        name={list.uuid}
+                                                        checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'mother'}
+                                                        onChange={() => {
+                                                            let items = state.map(item => ({...item}));
+                                                            let item = items.find(i => i.uuid === list.uuid)
+                                                            if (item) {
+                                                                if (item.ascendantOf === 'mother')
+                                                                    item.ascendantOf = '';
+                                                                else
+                                                                    item.ascendantOf = 'mother';
+                                                            }
+                                                            setState(items)
 
-                                                    }}
-                                                />
-                                            }
-                                            label={t('mother')}
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    name={list.uuid}
-                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'both'}
-                                                    onChange={() => {
-                                                        let items = state.map(item => ({...item}));
-                                                        let item = items.find(i => i.uuid === list.uuid)
-                                                        if (item) item.ascendantOf = 'both';
-                                                        setState(items)
-                                                    }}
-                                                />
-                                            }
-                                            label={t('both')}
-                                        />
-                                    </Stack>
+                                                        }}
+                                                    />
+                                                }
+                                                label={t('mother')}
+                                            />
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        name={list.uuid}
+                                                        checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'both'}
+                                                        onChange={() => {
+                                                            let items = state.map(item => ({...item}));
+                                                            let item = items.find(i => i.uuid === list.uuid)
+                                                            if (item) {
+                                                                if (item.ascendantOf === 'both')
+                                                                    item.ascendantOf = '';
+                                                                else
+                                                                    item.ascendantOf = 'both';
+                                                            }
+                                                            setState(items)
+                                                        }}
+                                                    />
+                                                }
+                                                label={t('both')}
+                                            />
+                                        </Stack>
+                                        {
+                                            list.value_type === 1 &&
+                                            <TextField
+                                                value={state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.res ? state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.res : ''}
+                                                placeholder={t('note')}
+                                                sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
+                                                onChange={(e) => {
+                                                    let items = state.map((item: FamilyAntecedentsModel) => ({...item}));
+                                                    let item = items.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)
+                                                    if (item) item.res = e.target.value;
+                                                    setState(items)
+                                                }
+                                                }/>
+                                        }
+                                        {
+                                            list.value_type === 2 &&
+                                            <>
+                                                <Typography fontSize={10} color={"text.secondary"} mt={2}
+                                                            ml={1}>{t('selectPlz')}</Typography>
+                                                <Stack direction={'row'} spacing={1} mb={1} ml={1}>
+                                                    {list.values.map((val: { uuid: string; value: string }) => (
+                                                        <FormControlLabel
+                                                            key={val.uuid}
+                                                            control={
+                                                                <Checkbox
+                                                                    name={val.uuid}
+                                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.res === val.uuid}
+                                                                    onChange={() => {
+                                                                        let items = state.map(item => ({...item}));
+                                                                        let item = items.find(i => i.uuid === list.uuid)
+                                                                        if (item) {
+                                                                            if (item.res === val.uuid)
+                                                                                item.res = ''
+                                                                            else
+                                                                                item.res = val.uuid;
+                                                                        }
+                                                                        setState(items)
+                                                                    }}/>
+                                                            }
+                                                            label={val.value}
+                                                        />))}
+                                                </Stack>
+                                            </>
+                                        }
+                                    </>
+
                                 }
 
                             </FormGroup>

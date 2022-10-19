@@ -28,12 +28,14 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [selectedDate, setSelectedDate] = useState('');
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
@@ -228,13 +230,29 @@ const Content = ({...props}) => {
                                     <List dense>
                                         {patient &&
                                             patient?.previousAppointments?.map(
-                                                (list: { dayDate: string }, index: number) => (
-                                                    <ListItem key={index}>
+                                                (list: { uuid: string; status: number; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
+                                                    <ListItem key={index} onClick={() => {
+                                                        const myElement = document.getElementById(list.uuid);
+                                                        const topPos = myElement?.offsetTop;
+                                                        if (topPos) {
+                                                            window.scrollTo(0, topPos - 10)
+                                                            setSelectedDate(list.uuid)
+                                                        }
+                                                    }}>
                                                         <ListItemIcon>
                                                             <CircleIcon/>
                                                         </ListItemIcon>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {list.dayDate}
+                                                        <Typography variant="body2"
+                                                                    color={selectedDate === list.uuid || list.status === 5 ? "" : "text.secondary"}
+                                                                    fontWeight={selectedDate === list.uuid ? "bold" : ""}
+                                                                    textTransform={"capitalize"}>
+                                                            {moment(list.dayDate, 'DD-MM-YYYY').format('ddd DD-MM-YYYY')}
+                                                            <AccessTimeIcon
+                                                                style={{
+                                                                    marginBottom: '-1px',
+                                                                    width: 18,
+                                                                    height: 12
+                                                                }}/> {list.startTime}
                                                         </Typography>
                                                     </ListItem>
                                                 )
