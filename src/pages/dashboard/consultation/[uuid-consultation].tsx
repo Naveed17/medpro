@@ -89,14 +89,16 @@ function ConsultationInProgress() {
 
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {exam} = useAppSelector(consultationSelector);
+
     const {config: agenda} = useAppSelector(agendaSelector);
     const {drawer} = useAppSelector(
         (state: { dialog: DialogProps }) => state.dialog
     );
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
-    const {exam} = useAppSelector(consultationSelector);
     const [end, setEnd] = useState(false);
+    const [onSave, setOnsave] = useState(false);
 
     const EventStepper = [
         {
@@ -556,13 +558,21 @@ function ConsultationInProgress() {
                         <Stack width={1} alignItems="flex-end">
                             <Button
                                 onClick={() => {
+
+                                    const btn = document.getElementsByClassName("sub-btn")[1];
+                                    const examBtn = document.getElementsByClassName("sub-exam")[0];
+
+                                    (btn as HTMLElement)?.click();
+                                    (examBtn as HTMLElement)?.click();
+
+                                    setOnsave(true)
                                     setEnd(true)
                                 }}
                                 color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
                                 <Icon path="ic-check"/>
-                                {appointement?.status == 5
+                                {appointement?.status == 5 && !onSave
                                     ? t("edit_of_consultation")
                                     : t("end_of_consultation")}
                             </Button>
