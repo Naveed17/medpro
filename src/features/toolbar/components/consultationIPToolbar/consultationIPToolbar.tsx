@@ -24,21 +24,6 @@ function ConsultationIPToolbar({...props}) {
     const {t, ready} = useTranslation("consultation", {
         keyPrefix: "consultationIP",
     });
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState("patient history");
-    const [info, setInfo] = useState<null | string>("");
-    const [state, setState] = useState<any>();
-    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
-    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
-    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
-    const [tabs, setTabs] = useState(0);
-    const [label, setlabel] = useState<string>("patient_history");
-    const [lastTabs, setLastTabs] = useState<string>("");
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [anchorReport, setAnchorReport] = useState<null | HTMLElement>(null);
-    const [action, setactions] = useState<boolean>(false);
-    const open = Boolean(anchorEl);
-    const dispatch = useAppDispatch();
 
     const {
         selected,
@@ -50,10 +35,25 @@ function ConsultationIPToolbar({...props}) {
         pendingDocuments,
         dialog,
         setDialog,
-        appointement,
-        selectedAct,
-        selectedModel,
+        appointement
     } = props;
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [value, setValue] = useState(appointement.latestAppointments.length === 0 ? "consultation form" :"patient history");
+    const [info, setInfo] = useState<null | string>("");
+    const [state, setState] = useState<any>();
+    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
+    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
+    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
+    const [tabs, setTabs] = useState(0);
+    const [label, setlabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+    const [lastTabs, setLastTabs] = useState<string>("");
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [anchorReport, setAnchorReport] = useState<null | HTMLElement>(null);
+    const [action, setactions] = useState<boolean>(false);
+    const open = Boolean(anchorEl);
+    const dispatch = useAppDispatch();
+
+
     const reportMenu = [
         {
             value: "balance_sheet_request",
@@ -68,28 +68,39 @@ function ConsultationIPToolbar({...props}) {
             icon: "ic-dowlaodfile",
         },
     ];
-    const tabsData = [
+    let tabsData = [
         {
             label: "patient_history",
-            value: "patient history",
+            value: "patient history"
         },
-        /* {
-                    label: "mediktor_report",
-                    value: 'mediktor report',
-                },*/
         {
             label: "consultation_form",
-            value: "consultation form",
+            value: "consultation form"
         },
         {
             label: "documents",
-            value: "documents",
+            value: "documents"
         },
         {
             label: "medical_procedures",
-            value: "medical procedures",
+            value: "medical procedures"
         },
     ];
+    if (appointement.latestAppointments.length === 0)
+        tabsData = [
+            {
+                label: "consultation_form",
+                value: "consultation form"
+            },
+            {
+                label: "documents",
+                value: "documents"
+            },
+            {
+                label: "medical_procedures",
+                value: "medical procedures"
+            }
+        ];
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
