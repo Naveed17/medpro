@@ -30,6 +30,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {CipCard, setTimer, timerSelector} from "@features/card";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {dashLayoutSelector} from "@features/base";
+import {AppointmentStatus} from "@features/calendar";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
@@ -52,14 +53,6 @@ function TopNavBar({...props}) {
     const settingHas = router.pathname.includes('settings/');
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-
-    const infos = [
-        {name: "En consultation", color: theme.palette.success.light},
-        {name: "Salle d'attende", color: theme.palette.secondary.light},
-        {name: "Effectué", color: theme.palette.success.lighter},
-        {name: "Annulé", color: theme.palette.error.light},
-        {name: "En attende", color: theme.palette.warning.light}
-    ];
 
     useEffect(() => {
         if (ongoing) {
@@ -179,30 +172,34 @@ function TopNavBar({...props}) {
                                 onClose={handleClose}
                                 anchorOrigin={{
                                     vertical: 'bottom',
-                                    horizontal: -180
+                                    horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
                                 }}
                             >
                                 <List
-                                    sx={{width: 200}}
+                                    sx={{
+                                        width: 200,
+                                        "& .MuiSvgIcon-root": {
+                                            fontSize: 16
+                                        },
+                                        "& .MuiTypography-root": {
+                                            fontSize: 12,
+                                            fontStyle: "oblique",
+                                            fontWeight: "bold"
+                                        }
+                                    }}
                                     subheader={
                                         <ListSubheader component="div" id="nested-list-subheader">
                                             Statut du rendez-vous
                                         </ListSubheader>
                                     }>
-                                    {infos.map((info, index) =>
+                                    {Object.values(AppointmentStatus).map((info, index) => info.icon &&
                                         <ListItem key={index} sx={{display: "inline-flex"}}>
-                                            <FiberManualRecordIcon
-                                                fontSize="small"
-                                                sx={{
-                                                    border: .1,
-                                                    borderColor: 'divider',
-                                                    borderRadius: '50%',
-                                                    p: 0.05,
-                                                    mr: 1,
-                                                    color: info.color
-                                                }}
-                                            />
-                                            <Typography>{info.name}</Typography>
+                                            {info.icon}
+                                            <Typography ml={1}>{info.value}</Typography>
                                         </ListItem>)}
                                 </List>
                             </Popover>
