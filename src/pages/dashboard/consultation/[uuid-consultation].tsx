@@ -502,6 +502,17 @@ function ConsultationInProgress() {
                         </Grid>
                     </Grid>
                 </TabPanel>
+                <TabPanel padding={1} value={value} index={"documents"}>
+                    <DocumentsTab
+                        documents={documents}
+                        setIsViewerOpen={setIsViewerOpen}
+                        setInfo={setInfo}
+                        setState={setState}
+                        patient={patient}
+                        mutateDoc={mutateDoc}
+                        setOpenDialog={setOpenDialog}
+                        t={t}></DocumentsTab>
+                </TabPanel>
                 <TabPanel padding={1} value={value} index={"medical_procedures"}>
                     <FeesTab
                         acts={acts}
@@ -516,17 +527,6 @@ function ConsultationInProgress() {
                         setOpenDialog={setOpenDialog}
                         total={total}
                         t={t}></FeesTab>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
                 </TabPanel>
 
                 <Stack
@@ -613,7 +613,7 @@ function ConsultationInProgress() {
                 <Stack
                     direction={{md: "row", xs: "column"}}
                     position="fixed"
-                    sx={{right: 10, bottom: 10, zIndex: 999}}
+                    sx={{right: 10, bottom: 70, zIndex: 999}}
                     spacing={2}>
                     {pendingDocuments?.map((item: any) => (
                         <React.Fragment key={item.id}>

@@ -230,7 +230,7 @@ const Content = ({...props}) => {
                                     <List dense>
                                         {patient &&
                                             patient?.previousAppointments?.map(
-                                                (list: { uuid: string; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
+                                                (list: { uuid: string; status: number; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
                                                     <ListItem key={index} onClick={() => {
                                                         const myElement = document.getElementById(list.uuid);
                                                         const topPos = myElement?.offsetTop;
@@ -243,7 +243,7 @@ const Content = ({...props}) => {
                                                             <CircleIcon/>
                                                         </ListItemIcon>
                                                         <Typography variant="body2"
-                                                                    color={selectedDate === list.uuid ? "" : "text.secondary"}
+                                                                    color={selectedDate === list.uuid || list.status === 5 ? "" : "text.secondary"}
                                                                     fontWeight={selectedDate === list.uuid ? "bold" : ""}
                                                                     textTransform={"capitalize"}>
                                                             {moment(list.dayDate, 'DD-MM-YYYY').format('ddd DD-MM-YYYY')}
