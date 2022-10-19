@@ -35,3 +35,4 @@ export * from './paymentDialogMobileCard'
 export * from './patientContactDetailCard'
 export * from './rdvPreviousCard'
 export * from './appointmentPopoverCard';
+export * from './patientHistoryNoDataCard'

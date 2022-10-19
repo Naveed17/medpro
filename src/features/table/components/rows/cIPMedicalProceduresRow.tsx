@@ -1,24 +1,16 @@
 import TableCell from "@mui/material/TableCell";
-import { Checkbox, Button, InputBase } from "@mui/material";
-import { useTheme, alpha, Theme } from "@mui/material/styles";
-import { TableRowStyled } from "@features/table";
-import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import {Button, Checkbox, InputBase} from "@mui/material";
+import {Theme, useTheme} from "@mui/material/styles";
+import {TableRowStyled} from "@features/table";
+import React, {useState} from "react";
 import {pxToRem} from "@themes/formatFontSize";
 
-function CIPMedicalProceduresRow({ ...props }) {
+function CIPMedicalProceduresRow({...props}) {
 
-    const { row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData } = props;
-
-    /*const {trigger} = useRequestMutation(null, "/actFees");
-    const router = useRouter();*/
-    const { data: session } = useSession();
-    /*const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const form = new FormData();*/
+    const {row, isItemSelected, handleClick, editMotif, selected: s, handleChange, tableHeadData} = props;
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
+
     const [selected, setSelected] = useState<string>('')
     return (
         <TableRowStyled
@@ -40,38 +32,64 @@ function CIPMedicalProceduresRow({ ...props }) {
                     onChange={(e) => {
                         editMotif(row, 'checked')
                     }}
-                    checked={isItemSelected} />
+                    checked={isItemSelected}/>
             </TableCell>
             <TableCell>
                 {row.act.name}
             </TableCell>
             <TableCell align={"center"}>
-                {/*<InputBase
-                    type="number"
-                    size="small"
-                    id={row.uuid}
-                    placeholder={'--'}
-                    sx={{
-                        border: 1,
-                        borderRadius: .5,
-                        paddingLeft: .5,
-                        paddingRight: .5,
-                        maxWidth: 64,
-                        borderColor: theme.palette.divider,
-                        color: theme.palette.text.primary,
-                        mr: 1,
-                        input: {
-                            textAlign: 'center',
-                            padding: theme.spacing(.3),
-                            "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
-                                "-webkit-appearance": 'none',
-                                margin: 0,
-                            }
+                {isItemSelected ? (
+                    <InputBase
+                        placeholder={"1"}
+                        type="number"
+                        value={row.qte}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={() => {
+                            setSelected(row.uuid + 'qte')
+                        }}
+                        onBlur={(ev) => {
+                            setSelected('')
+                        }}
+                        autoFocus={selected === row.uuid + 'qte'}
+                        onChange={(e) => {
+                            row.qte = Number(e.currentTarget.value)
+                            editMotif(row, 'change')
+                        }}
+                        sx={{
+                            backgroundColor: "white",
+                            border: 1,
+                            height: pxToRem(30),
+                            borderRadius: 2,
+                            paddingLeft: .5,
+                            paddingRight: .5,
+                            maxWidth: 64,
+                            borderColor: theme.palette.divider,
+                            color: theme.palette.text.primary,
+                            mr: 1,
+                            input: {
+                                textAlign: 'center',
+                                padding: theme.spacing(.3),
+                                "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
+                                    "-webkit-appearance": 'none',
+                                    margin: 0,
+                                }
 
-                        }
-                    }}
-                    autoFocus={selected === row.uuid}/>*/}
-                soon TND
+                            }
+                        }}
+                    />
+                ) : <>
+                    <Button
+                        disabled
+                        sx={{
+                            backgroundColor: 'transparent !important',
+                            borderColor: 'transparent',
+                            color: theme.palette.text.primary + ' !important',
+                            mr: 1,
+                        }} size="small">
+                        --
+                    </Button>
+                </>}
+
             </TableCell>
             <TableCell>
                 {isItemSelected ? (
@@ -143,14 +161,14 @@ function CIPMedicalProceduresRow({ ...props }) {
                                 color: theme.palette.text.primary + ' !important',
                                 mr: 1,
                             }} size="small">
-                            --
+                            {row.fees}
                         </Button>
                     </>
                 )}
                 TND
             </TableCell>
             <TableCell align={"center"}>
-                -- TND
+                {row.qte ? row.fees * row.qte : row.fees} TND
             </TableCell>
         </TableRowStyled>
     );

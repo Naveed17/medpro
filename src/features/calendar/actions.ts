@@ -9,3 +9,4 @@ export const setConfig = createAction<AgendaConfigurationModel | null>("agenda/s
 export const setAgendas = createAction<AgendaConfigurationModel[]>("agenda/setAgendas");
 export const setSelectedEvent = createAction<EventDef | null>("agenda/setSelectedEvent");
 export const setGroupedByDayAppointments = createAction<GroupEventsModel[]>("agenda/setGroupedByDayAppointments");
+export const setLastUpdate = createAction<{ title: string, body: string } | null>("agenda/setLastUpdate");

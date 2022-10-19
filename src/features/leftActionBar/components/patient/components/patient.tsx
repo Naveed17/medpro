@@ -51,22 +51,23 @@ function Patient() {
                             }}
                             keyPrefix={"filter."}
                             t={t}/>
-                    ) : item.heading.title === "place" ? (
+                    ) : item.heading.title === "place" && (
                         <PlaceFilter
                             OnSearch={(data: { query: ActionBarState }) => {
                                 dispatch(setFilter({patient: data.query}));
                             }}
                             item={item}
                             t={t} keyPrefix={"filter."}/>
-                    ) : (
-                        <AppointmentFilter
-                            OnSearch={(data: { query: ActionBarState }) => {
-                                dispatch(setFilter({patient: data.query}));
-                            }}
-                            item={item}
-                            t={t}
-                            ready={ready} keyPrefix={"filter."}/>
-                    )}
+                    )
+                        // :(
+                        // <AppointmentFilter
+                        //     OnSearch={(data: { query: ActionBarState }) => {
+                        //         dispatch(setFilter({patient: data.query}));
+                        //     }}
+                        //     item={item}
+                        //     t={t}
+                        //     ready={ready} keyPrefix={"filter."}/>)
+                    }
                 </FilterRootStyled>
             ),
         };

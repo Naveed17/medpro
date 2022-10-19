@@ -156,6 +156,18 @@ const TableRowStyled = styled(TableRow)<any>(({ theme, styleprops }) => ({
 
       },
     }
+  },
+  '&.new-row':{ 
+    '.MuiTableCell-root':{
+      borderTop:`1px solid ${theme.palette.divider} !important`,
+    borderBottom:`1px solid ${theme.palette.divider} !important`,
+    '&:first-of-type':{
+    borderLeft:`1px solid ${theme.palette.divider} !important`
+  },
+  '&:last-of-type':{
+    borderRight:`1px solid ${theme.palette.divider} !important`
   }
+}
+}
 }));
 export default TableRowStyled;

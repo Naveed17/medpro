@@ -20,6 +20,10 @@ function AutoCompleteButton({...props}) {
     const onSubmitPatient = (data: PatientWithNextAndLatestAppointment) => {
         dispatch(setAppointmentPatient(data));
     }
+    const onEditPatient = () => {
+        dispatch(setAppointmentPatient(patient as any));
+        OnClickAction(true);
+    }
 
     useEffect(() => {
         setPatient(initData)
@@ -36,45 +40,52 @@ function AutoCompleteButton({...props}) {
     return (
         <RootStyled>
             {!patient ? (
-                <>
-                    <Button variant="outlined" size="large" fullWidth className='btn-add' onClick={handleClick}>
-                        <AddIcon/>
-                    </Button>
+                    <>
+                        {!focus &&
+                            <Button variant="outlined" size="large" fullWidth className='btn-add' onClick={handleClick}>
+                                <AddIcon/>
+                            </Button>}
 
-                    {focus &&
-                        <ClickAwayListener onClickAway={handleClickAway}>
-                            <Box sx={{mb: 4}} className="autocomplete-container">
-                                <AutoComplete
-                                    onSearchChange={onSearchChange}
-                                    data={data}
-                                    loading={loading}
-                                    onSelectData={onSubmitPatient}
-                                />
-                                <Button variant="outlined" size="large"
-                                        fullWidth className='btn-add'
-                                        onClick={OnClickAction}
-                                        sx={{
-                                            borderRadius: 0,
-                                            borderWidth: '1px 0 0 0',
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            left: 0,
-                                            backgroundColor: 'common.white',
-                                            mt: '-10px',
-                                            '&:hover': {
+                        {focus &&
+                            <ClickAwayListener onClickAway={handleClickAway}>
+                                <Box sx={{mb: 4}} className="autocomplete-container">
+                                    <AutoComplete
+                                        onSearchChange={onSearchChange}
+                                        data={data}
+                                        loading={loading}
+                                        onSelectData={onSubmitPatient}
+                                    />
+                                    <Button variant="outlined" size="large"
+                                            fullWidth className='btn-add'
+                                            onClick={OnClickAction}
+                                            sx={{
+                                                borderRadius: 0,
                                                 borderWidth: '1px 0 0 0',
-                                                borderColor: 'divider',
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
                                                 backgroundColor: 'common.white',
-                                            }
-                                        }}>
-                                    {translation('stepper-2.add_button')}
-                                </Button>
-                            </Box>
-                        </ClickAwayListener>
-                    }
+                                                mt: '-10px',
+                                                '&:hover': {
+                                                    borderWidth: '1px 0 0 0',
+                                                    borderColor: 'divider',
+                                                    backgroundColor: 'common.white',
+                                                }
+                                            }}>
+                                        {translation('stepper-2.add_button')}
+                                    </Button>
+                                </Box>
+                            </ClickAwayListener>
+                        }
 
-                </>
-            ) : <PatientAppointmentCard key={patient.uuid} item={patient} listing onReset={onSubmitPatient}/>}
+                    </>
+                ) :
+                <PatientAppointmentCard
+                    key={patient.uuid}
+                    item={patient}
+                    listing
+                    onEdit={onEditPatient}
+                    onReset={onSubmitPatient}/>}
         </RootStyled>
     )
 }

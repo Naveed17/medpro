@@ -317,7 +317,7 @@ function Instruction({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={onBack}
+                            onClick={() => onBack(currentStepper)}
                         >
                             {t("back")}
                         </Button>

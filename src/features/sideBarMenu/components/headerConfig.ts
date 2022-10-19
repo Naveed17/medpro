@@ -4,6 +4,7 @@ export const siteHeader = {
             icon: "ic-notif-lite",
             notifications: 0,
             name: "notif-lite",
+            action: "notification"
         }
     ],
     sidebarItems: [

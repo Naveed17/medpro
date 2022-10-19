@@ -1,24 +1,27 @@
 import TableCell from "@mui/material/TableCell";
-import { InputBase, Skeleton, Button } from "@mui/material";
+import { InputBase, Skeleton, Button, useTheme } from "@mui/material";
 import { TableRowStyled } from "@features/table";
 import React, { useState } from "react";
 
 function ActFeesRow({ ...props }) {
-  const { row, editMotif, t, data } = props;
+  const theme = useTheme();
+  const { row, editMotif, t, data, index } = props;
   const { isNew } = data;
   const [act, setAct] = useState("");
   const [fees, setFees] = useState("");
   const [show, setShow] = useState(false);
-
+  const [isFocus, setIsfocus] = useState(false);
   return (
-    <TableRowStyled hover>
+    <TableRowStyled
+      hover
+      className={row?.uuid === "NEWROW" && index === 0 ? "new-row" : ""}>
       <TableCell>
         {row ? (
           <InputBase
             fullWidth
+            autoFocus={index === 0}
             placeholder={t("name_of_act")}
             inputProps={{ readOnly: !isNew || row?.uuid !== "NEWROW" }}
-            autoFocus
             value={act ? act : row?.act?.name || ""}
             onChange={(e) => {
               setAct(e.target.value);
@@ -33,7 +36,30 @@ function ActFeesRow({ ...props }) {
         {row ? (
           <>
             <InputBase
-              sx={{ maxWidth: 40 }}
+              onFocus={() => setIsfocus(true)}
+              onBlur={() => setIsfocus(false)}
+              sx={{
+                maxWidth: 80,
+                height: 30,
+                borderRadius: 2,
+                paddingLeft: 0.5,
+                paddingRight: 0.5,
+                color: theme.palette.text.primary,
+                mr: 1,
+                input: {
+                  textAlign: "center",
+                  padding: theme.spacing(0.3),
+                  "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
+                    "-webkit-appearance": "none",
+                    margin: 0,
+                  },
+                },
+                ...(isFocus && {
+                  backgroundColor: "rgba(237, 255, 238, 1)",
+                  border: 1,
+                  borderColor: theme.palette.divider,
+                }),
+              }}
               placeholder={t("price_of_act")}
               type="number"
               value={fees ? fees : row?.fees || ""}

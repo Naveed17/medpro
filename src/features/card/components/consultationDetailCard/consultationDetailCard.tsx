@@ -8,6 +8,7 @@ import { ModelDot } from "@features/modelDot";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { SetExam } from "@features/toolbar/components/consultationIPToolbar/actions";
 import { consultationSelector } from "@features/toolbar";
+import {pxToRem} from "@themes/formatFontSize";
 
 function CIPPatientHistoryCard({ ...props }) {
     const { exam: defaultExam } = props
@@ -38,7 +39,7 @@ function CIPPatientHistoryCard({ ...props }) {
     if (!ready) return <>loading translations...</>;
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" p={2} direction="row" alignItems="center" borderBottom={1}
+            <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center" borderBottom={1}
                 borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                     fontWeight={600}>
