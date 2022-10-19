@@ -196,7 +196,9 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
-        setLoading(false);
+        setTimeout(()=>{
+            setLoading(false);
+        },2000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -312,7 +314,12 @@ function ConsultationInProgress() {
                 localStorage.removeItem("Modeldata");
                 console.log(localStorage.getItem("Modeldata"));
                 mutate();
-                handleClick()
+                if (appointement?.status == 5) {
+                    router.push("/dashboard/agenda")
+                } else {
+                    handleClick()
+                }
+
             });
         }
         setEnd(false);
@@ -422,7 +429,7 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar
+                {appointement && <ConsultationIPToolbar
                     appuuid={uuind}
                     mutate={mutate}
                     mutateDoc={mutateDoc}
@@ -437,34 +444,31 @@ function ConsultationInProgress() {
                     setDialog={setDialog}
                     endingDocuments={setPendingDocuments}
                     selected={(v: string) => setValue(v)}
-                />
+                />}
             </SubHeader>
 
             <Box className="container" style={{padding: 0}}>
+                {loading && <Stack spacing={2} padding={2}>
+                    {Array.from({length: 3}).map((_, idx) => (
+                        <React.Fragment key={idx}>
+                            <PatientHistoryNoDataCard/>
+                        </React.Fragment>
+                    ))}
+                </Stack>}
                 <TabPanel padding={1} value={value} index={"patient_history"}>
-                    {loading ? (
-                        <Stack spacing={2}>
-                            {Array.from({length: 3}).map((_, idx) => (
-                                <React.Fragment key={idx}>
-                                    <PatientHistoryNoDataCard/>
-                                </React.Fragment>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <HistoryTab
-                            patient={patient}
-                            appointement={appointement}
-                            t={t}
-                            appuuid={uuind}
-                            setIsViewerOpen={setIsViewerOpen}
-                            direction={direction}
-                            setInfo={setInfo}
-                            acts={acts}
-                            mutateDoc={mutateDoc}
-                            setState={setState}
-                            dispatch={dispatch}
-                            setOpenDialog={setOpenDialog}></HistoryTab>
-                    )}
+                    <HistoryTab
+                        patient={patient}
+                        appointement={appointement}
+                        t={t}
+                        appuuid={uuind}
+                        setIsViewerOpen={setIsViewerOpen}
+                        direction={direction}
+                        setInfo={setInfo}
+                        acts={acts}
+                        mutateDoc={mutateDoc}
+                        setState={setState}
+                        dispatch={dispatch}
+                        setOpenDialog={setOpenDialog}></HistoryTab>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
                     <Box
@@ -486,14 +490,14 @@ function ConsultationInProgress() {
                 <TabPanel padding={1} value={value} index={"consultation_form"}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
-                            {models && selectedModel && (
+                            {!loading && models && selectedModel && (
                                 <WidgetForm
                                     modal={selectedModel}
                                     models={models}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>
-                        <Grid item xs={12} md={7}>
+                        <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
@@ -548,7 +552,7 @@ function ConsultationInProgress() {
                     ))}
                 </Stack>
                 <Box pt={8}>
-                    <SubFooter>
+                    {appointement && value !== 'medical_procedures' && <SubFooter>
                         <Stack width={1} alignItems="flex-end">
                             <Button
                                 onClick={() => {
@@ -566,7 +570,7 @@ function ConsultationInProgress() {
                                 : t("end_of_consultation")}
                             </Button>
                         </Stack>
-                    </SubFooter>
+                    </SubFooter>}
                 </Box>
                 <Drawer
                     anchor={"right"}
@@ -628,19 +632,7 @@ function ConsultationInProgress() {
                         </React.Fragment>
                     ))}
                 </Stack>
-                {/* <Box pt={8}>
-          <SubFooter>
-            <Stack width={1} alignItems="flex-end">
-              <Button
-                onClick={handleClick}
-                color="error"
-                variant="contained"
-                sx={{ ".react-svg": { mr: 1 } }}>
-                <IconUrl path="ic-check" /> {t("end_consultation_btn")}
-              </Button>
-            </Stack>
-          </SubFooter>
-        </Box> */}
+
                 <Drawer
                     anchor={"right"}
                     open={openAddDrawer}
