@@ -199,8 +199,8 @@
     "note": "Notes"
   },
   "notification": {
-    "notification-empty": "Aucune notification pour le moment",
-    "notification-desc": "Lorsque vous recevez des notification, elles apparaissent ici",
-    "notification-button": "Actualiser"
+    "empty": "Aucune notification pour le moment",
+    "desc": "Lorsque vous recevez des notification, elles apparaissent ici",
+    "button": "Actualiser"
   }
 }

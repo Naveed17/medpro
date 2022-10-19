@@ -6,9 +6,9 @@ import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 
 const popoverNotificationData = {
     mainIcon: <NotificationsOffIcon/>,
-    title: "notification-empty",
-    description: "notification-desc",
-    buttonText: "notification-button",
+    title: "notification.empty",
+    description: "notification.desc",
+    buttonText: "notification.button",
     buttonVariant: "primary"
 };
 
@@ -28,7 +28,7 @@ function NotificationPopover() {
             }}>
             <NoDataCard
                 {...{t}}
-                ns={"notification"}
+                ns={"common"}
                 data={popoverNotificationData}/>
         </Box>
     )

@@ -3,6 +3,7 @@ import {RootStyled} from "./overrides";
 import Icon from "@themes/urlIcon";
 
 export default function NoDataCard({...props}) {
+    console.log(props);
     const {data, t, ns = "agenda", onHandleClick = null} = props;
     const {
         mainIcon,
