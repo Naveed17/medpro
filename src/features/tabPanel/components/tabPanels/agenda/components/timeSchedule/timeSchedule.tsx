@@ -27,6 +27,7 @@ import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {IconButton, LinearProgress, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
+import {AnimatePresence, motion} from "framer-motion";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack} = props;
@@ -345,7 +346,12 @@ function TimeSchedule({...props}) {
                 }
 
                 {(timeAvailable && recurringDates.length > 0) &&
-                    <>
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            initial={{opacity: 0}}
+                            animate={{opacity: 1}}
+                            transition={{ease: "easeIn", duration: .5}}
+                        >
                         <Typography variant="body1" color="text.primary" mb={1}
                                     {...(recurringDates.length > 0 && {mt: 2})}>
                             {t("stepper-1.selected-appointment")}
@@ -379,7 +385,8 @@ function TimeSchedule({...props}) {
                                         height={"16"}
                                         color={theme.palette.primary.main}
                                         path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
-                    </>
+                        </motion.div>
+                    </AnimatePresence>
 
                 }
             </Box>
