@@ -1,21 +1,100 @@
 import AddEventIcon from "@themes/overrides/icons/addEventIcon";
-import CodeIcon from "@mui/icons-material/Code";
 import React from "react";
-import RootStyled from "./overrides/rootStyled";
+import StyledMenu from "./overrides/styledMenu";
+import {Box, Button, MenuItem, Typography} from "@mui/material";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 function CalendarAddButton({...props}) {
-    const {onClickEvent} = props;
+    const {onClickEvent, t} = props;
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleAddFullAppointment = () => {
+        handleClose();
+        onClickEvent("full-add");
+    }
+
+    const handleAddQuickAppointment = () => {
+        handleClose();
+        onClickEvent("quick-add");
+    }
+
     return (
-        <RootStyled size="small" onClick={onClickEvent}>
-            <AddEventIcon style={{fontSize: 20}}/>
-            <CodeIcon
-                fontSize="inherit"
-                sx={{
-                    transform: "rotate(90deg)",
-                    color: (theme) => theme.palette.text.primary
+        <Box
+            sx={{
+                "& .MuiButton-startIcon>*:nth-of-type(1)": {
+                    fontSize: 19
+                }
+            }}>
+            <Button
+                color={"warning"}
+                id="demo-customized-button"
+                aria-controls={open ? 'demo-customized-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                variant="contained"
+                disableElevation
+                onClick={handleClick}
+                startIcon={<AddEventIcon/>}
+                endIcon={<KeyboardArrowDownIcon/>}
+            >
+                {t && <Typography>{t("add")}</Typography>}
+            </Button>
+            <StyledMenu
+                id="demo-customized-menu"
+                MenuListProps={{
+                    'aria-labelledby': 'demo-customized-button',
                 }}
-            />
-        </RootStyled>
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        overflow: 'visible',
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        mt: 1.5,
+                        '& .MuiAvatar-root': {
+                            width: 32,
+                            height: 32,
+                            ml: -0.5,
+                            mr: 1,
+                        },
+                        '&:before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            top: 0,
+                            right: 14,
+                            width: 10,
+                            height: 10,
+                            bgcolor: 'background.paper',
+                            transform: 'translateY(-50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
+                <MenuItem onClick={handleAddQuickAppointment} disableRipple>
+                    <FastForwardOutlinedIcon/>
+                    Ajout rapide
+                </MenuItem>
+                <MenuItem onClick={handleAddFullAppointment} disableRipple>
+                    <AddOutlinedIcon/>
+                    Ajout complet
+                </MenuItem>
+            </StyledMenu>
+        </Box>
     )
 }
 

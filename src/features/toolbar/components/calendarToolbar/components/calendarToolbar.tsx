@@ -122,13 +122,10 @@ function CalendarToolbar({...props}) {
                             </ToggleButtonStyled>
                         </Tooltip>
                     ))}
-                    <Button
-                        startIcon={<AddEventIcon/>}
-                        variant="contained"
-                        onClick={OnAddAppointment}
-                        color="warning">
-                        {t("add")}
-                    </Button>
+                    <CalendarAddButton
+                        {...{t}}
+                        onClickEvent={OnAddAppointment}
+                    />
                 </Stack>
             </Hidden>
         </RootStyled>

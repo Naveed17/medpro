@@ -350,7 +350,7 @@ function TimeSchedule({...props}) {
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: .5}}
+                            transition={{ease: "easeIn", duration: .2}}
                         >
                             <Typography variant="body1" color="text.primary" mb={1}
                                         {...(recurringDates.length > 0 && {mt: 2})}>
