@@ -1,6 +1,6 @@
-import {SetStateAction, useEffect, useState} from "react";
 import * as React from "react";
-import {Box, TableBody, TableContainer, Table} from "@mui/material";
+import {SetStateAction, useEffect, useState} from "react";
+import {Box, Table, TableBody, TableContainer} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 import {Pagination} from "@features/pagination";
@@ -64,6 +64,7 @@ function Otable({...props}) {
     const [tableHeadData, setTableHeadData] = useState<any>(null);
     const [active, setActive] = useState([]);
     const [selected, setSelected] = React.useState<readonly string[]>(select);
+    const tableRef = React.useRef<any>(null);
 
     const handleRequestSort = (event: any, property: SetStateAction<string>) => {
         const isAsc = orderBy === property && order === "asc";
@@ -73,10 +74,7 @@ function Otable({...props}) {
 
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelecteds = rows.map((n: {
-                uuid: string;
-                id: any
-            }) => n.uuid);
+            const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
             setSelected(newSelecteds);
             return;
         }
@@ -115,16 +113,19 @@ function Otable({...props}) {
             }
         }
     }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    useEffect(() => {
+        if (rest.isNew)
+            tableRef.current.scrollIntoView();
+    }, [rest?.isNew]);
     return (
         <Box>
             <TableContainer sx={{maxHeight}}>
                 <Table
+                    ref={tableRef}
                     stickyHeader
                     sx={{minWidth: minWidth, ...sx}}
                     aria-labelledby="tableTitle"
-                    size={"medium"}
-                >
+                    size={"medium"}>
                     <OHead
                         {...{
                             order,
@@ -133,7 +134,7 @@ function Otable({...props}) {
                             t,
                             checkedType,
                             handleConfig,
-                            hideHeaderOnMobile
+                            hideHeaderOnMobile,
                         }}
                         onRequestSort={handleRequestSort}
                         data={headers}
@@ -165,7 +166,8 @@ function Otable({...props}) {
                                         checkedType,
                                         labelId,
                                         selected,
-                                        isItemSelected
+                                        isItemSelected,
+                                        index,
                                     }}
                                     tableHeadData={state}
                                     editMotif={edit}

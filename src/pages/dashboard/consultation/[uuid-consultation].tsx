@@ -89,14 +89,16 @@ function ConsultationInProgress() {
 
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {exam} = useAppSelector(consultationSelector);
+
     const {config: agenda} = useAppSelector(agendaSelector);
     const {drawer} = useAppSelector(
         (state: { dialog: DialogProps }) => state.dialog
     );
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
-    const {exam} = useAppSelector(consultationSelector);
     const [end, setEnd] = useState(false);
+    const [onSave, setOnsave] = useState(false);
 
     const EventStepper = [
         {
@@ -196,9 +198,9 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
-        setTimeout(()=>{
+        setTimeout(() => {
             setLoading(false);
-        },2000)
+        }, 2000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -502,6 +504,17 @@ function ConsultationInProgress() {
                         </Grid>
                     </Grid>
                 </TabPanel>
+                <TabPanel padding={1} value={value} index={"documents"}>
+                    <DocumentsTab
+                        documents={documents}
+                        setIsViewerOpen={setIsViewerOpen}
+                        setInfo={setInfo}
+                        setState={setState}
+                        patient={patient}
+                        mutateDoc={mutateDoc}
+                        setOpenDialog={setOpenDialog}
+                        t={t}></DocumentsTab>
+                </TabPanel>
                 <TabPanel padding={1} value={value} index={"medical_procedures"}>
                     <FeesTab
                         acts={acts}
@@ -516,17 +529,6 @@ function ConsultationInProgress() {
                         setOpenDialog={setOpenDialog}
                         total={total}
                         t={t}></FeesTab>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
                 </TabPanel>
 
                 <Stack
@@ -556,18 +558,23 @@ function ConsultationInProgress() {
                         <Stack width={1} alignItems="flex-end">
                             <Button
                                 onClick={() => {
+
+                                    const btn = document.getElementsByClassName("sub-btn")[1];
+                                    const examBtn = document.getElementsByClassName("sub-exam")[0];
+
+                                    (btn as HTMLElement)?.click();
+                                    (examBtn as HTMLElement)?.click();
+
+                                    setOnsave(true)
                                     setEnd(true)
                                 }}
-                                color={appointement?.status == 5 ? "warning" : "error"}
+                                color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
-                                {appointement?.status == 5 ? (
-                                    <Icon path="ic-doc"/>
-                                ) : (
-                                    <Icon path="ic-check"/>
-                                )} {appointement?.status == 5
-                                ? t("edit_of_consultation")
-                                : t("end_of_consultation")}
+                                <Icon path="ic-check"/>
+                                {appointement?.status == 5 && !onSave
+                                    ? t("edit_of_consultation")
+                                    : t("end_of_consultation")}
                             </Button>
                         </Stack>
                     </SubFooter>}
@@ -613,7 +620,7 @@ function ConsultationInProgress() {
                 <Stack
                     direction={{md: "row", xs: "column"}}
                     position="fixed"
-                    sx={{right: 10, bottom: 10, zIndex: 999}}
+                    sx={{right: 10, bottom: 70, zIndex: 999}}
                     spacing={2}>
                     {pendingDocuments?.map((item: any) => (
                         <React.Fragment key={item.id}>

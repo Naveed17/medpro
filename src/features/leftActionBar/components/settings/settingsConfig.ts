@@ -39,7 +39,7 @@ const settingsData = {
         },
         {
             name: "type",
-            icon: "setting/ic-edit-file",
+            icon: "setting/ic-doc",
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
