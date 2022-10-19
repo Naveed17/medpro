@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 
 // utils
 import Icon from "@themes/icon";
@@ -28,12 +28,16 @@ import {useRouter} from "next/router";
 import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {CipCard, setTimer, timerSelector} from "@features/card";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {dashLayoutSelector} from "@features/base";
-import {AppointmentStatus} from "@features/calendar";
+import {AppointmentStatsPopover, NotificationPopover} from "@features/popover";
+import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
+const popovers: { [key: string]: EmotionJSX.Element } = {
+    "appointment-stats": <AppointmentStatsPopover/>,
+    "notification": <NotificationPopover/>
+}
 
 function TopNavBar({...props}) {
     const {dashboard} = props;
@@ -47,7 +51,8 @@ function TopNavBar({...props}) {
 
     const router = useRouter();
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [popoverAction, setPopoverAction] = useState("");
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
     const settingHas = router.pathname.includes('settings/');
@@ -69,8 +74,9 @@ function TopNavBar({...props}) {
         }
     }, [dispatch, ongoing]);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = (event: React.MouseEvent<any>, action: string) => {
         setAnchorEl(event.currentTarget);
+        setPopoverAction(action);
     };
 
     const handleClose = () => {
@@ -151,6 +157,9 @@ function TopNavBar({...props}) {
                                     badgeContent={item.notifications && item.notifications}
                                     className="custom-badge"
                                     color="warning"
+                                    {...(item.action && {
+                                        onClick: (event: React.MouseEvent<HTMLButtonElement>) => handleClick(event, item.action)
+                                    })}
                                     key={`topbar-${index}`}
                                 >
                                     <MenuItem disableRipple>
@@ -160,7 +169,8 @@ function TopNavBar({...props}) {
                                     </MenuItem>
                                 </Badge>
                             ))}
-                            <Badge onClick={handleClick} className="custom-badge badge">
+                            <Badge onClick={(event) => handleClick(event, "appointment-stats")}
+                                   className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
@@ -179,29 +189,7 @@ function TopNavBar({...props}) {
                                     horizontal: 'right',
                                 }}
                             >
-                                <List
-                                    sx={{
-                                        width: 200,
-                                        "& .MuiSvgIcon-root": {
-                                            fontSize: 16
-                                        },
-                                        "& .MuiTypography-root": {
-                                            fontSize: 12,
-                                            fontStyle: "oblique",
-                                            fontWeight: "bold"
-                                        }
-                                    }}
-                                    subheader={
-                                        <ListSubheader component="div" id="nested-list-subheader">
-                                            Statut du rendez-vous
-                                        </ListSubheader>
-                                    }>
-                                    {Object.values(AppointmentStatus).map((info, index) => info.icon &&
-                                        <ListItem key={index} sx={{display: "inline-flex"}}>
-                                            {info.icon}
-                                            <Typography ml={1}>{info.value}</Typography>
-                                        </ListItem>)}
-                                </List>
+                                {popovers[popoverAction]}
                             </Popover>
                             <Badge badgeContent={null} className="custom-badge badge">
                                 <IconButton color="primary" edge="start">

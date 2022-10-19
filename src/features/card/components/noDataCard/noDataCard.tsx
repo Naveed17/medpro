@@ -15,7 +15,7 @@ export default function NoDataCard({...props}) {
 
     return (
         <RootStyled>
-            <Icon path={mainIcon} className="main-icon"/>
+            {typeof mainIcon === "string" ? <Icon path={mainIcon} className="main-icon"/> : mainIcon}
             <Typography
                 variant="subtitle1"
                 color="text.primary"
@@ -31,7 +31,7 @@ export default function NoDataCard({...props}) {
                 variant="contained"
                 {...(onHandleClick && {onClick: onHandleClick})}
                 color={buttonVariant}
-                startIcon={<Icon path={buttonIcon}/>}
+                {...(buttonIcon && {startIcon: <Icon path={buttonIcon}/>})}
             >
                 {t(buttonText, {ns})}
             </Button>}
