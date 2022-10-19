@@ -7,7 +7,7 @@ const nextConfig = withTM({
     reactStrictMode: false,
     i18n,
     images: {
-        domains: ["flagcdn.com", process.env.S3_MED_CORE || '' ]
+        domains: ["flagcdn.com", process.env.S3_URL || '' ]
     },
     webpack: (config, {nextRuntime}) => {
         config.module.rules.push({

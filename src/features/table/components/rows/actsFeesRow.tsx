@@ -5,19 +5,21 @@ import React, { useState } from "react";
 
 function ActFeesRow({ ...props }) {
   const theme = useTheme();
-  const { row, editMotif, t, data } = props;
+  const { row, editMotif, t, data, index } = props;
   const { isNew } = data;
   const [act, setAct] = useState("");
   const [fees, setFees] = useState("");
   const [show, setShow] = useState(false);
   const [isFocus, setIsfocus] = useState(false);
   return (
-    <TableRowStyled hover>
+    <TableRowStyled
+      hover
+      className={row?.uuid === "NEWROW" && index === 0 ? "new-row" : ""}>
       <TableCell>
         {row ? (
           <InputBase
             fullWidth
-            autoFocus={row?.uuid === "NEWROW"}
+            autoFocus={index === 0}
             placeholder={t("name_of_act")}
             inputProps={{ readOnly: !isNew || row?.uuid !== "NEWROW" }}
             value={act ? act : row?.act?.name || ""}
@@ -37,7 +39,8 @@ function ActFeesRow({ ...props }) {
               onFocus={() => setIsfocus(true)}
               onBlur={() => setIsfocus(false)}
               sx={{
-                maxWidth: 64,
+                maxWidth: 80,
+                height: 30,
                 borderRadius: 2,
                 paddingLeft: 0.5,
                 paddingRight: 0.5,

@@ -197,5 +197,10 @@
     "no_show": "Patient ne s'est pas présenté",
     "cancel_patient": "Annulé par le patient",
     "note": "Notes"
+  },
+  "notification": {
+    "empty": "Aucune notification pour le moment",
+    "desc": "Lorsque vous recevez des notification, elles apparaissent ici",
+    "button": "Actualiser"
   }
 }

@@ -12,7 +12,6 @@ import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
 import React from "react";
 import ConfirmCircleIcon from "@themes/overrides/icons/confirmCircleIcon";
 import DefaultCircleIcon from "@themes/overrides/icons/defaultCircleIcon";
-import SalleIcon from "@themes/overrides/icons/salleIcon";
 import FinishedCircleIcon from "@themes/overrides/icons/finishedCircleIcon";
 import ExpiredCircleIcon from "@themes/overrides/icons/expiredCircleIcon";
 import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
@@ -34,7 +33,7 @@ export const IconsTypes: any = {
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {key: "PENDING", value: "En attende", color: "#FFD400", classColor: "warning", icon: <DefaultCircleIcon/>},
     1: {key: "CONFIRMED", value: "Confirmé", color: "#1BC47D", classColor: "success", icon: <ConfirmCircleIcon/>},
-    2: {key: "REFUSED", value: "Refusé", color: "#E83B68", classColor: "error", icon: <DefaultCircleIcon/>},
+    2: {key: "REFUSED", value: "Refusé", color: "#E83B68", classColor: "error"},
     3: {key: "WAITING_ROOM", value: "Salle d'attende", color: "#04618B", classColor: "back", icon: <WaitingCircleIcon/>},
     4: {
         key: "ON_GOING",
