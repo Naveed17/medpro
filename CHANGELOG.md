@@ -1,3 +1,33 @@
+# [2.0.0](https://github.com/SmartMedSA/med-pro/compare/v1.0.1...v2.0.0) (2022-10-19)
+
+
+### Bug Fixes
+
+* .env.local.dist file ([37b412b](https://github.com/SmartMedSA/med-pro/commit/37b412b644e79b1fbf4677c29c4a76ab50f18d92))
+* added missing env variable S3_MED_CORE ([d0e0c0b](https://github.com/SmartMedSA/med-pro/commit/d0e0c0bbc74893785bf854775cba1a966aca4b67))
+* consultation sheet for patient without history ([65330bb](https://github.com/SmartMedSA/med-pro/commit/65330bb90296fb8fe12a5436e549524f1eaecfa0))
+* end of consultation button ([64fb992](https://github.com/SmartMedSA/med-pro/commit/64fb992d82351324e73691c702cf24f9f6ca1c2f))
+* fix popup on edit consultation and loading pages ([f90bb96](https://github.com/SmartMedSA/med-pro/commit/f90bb96da0ce820151f54ef108868af34e2d5840))
+* mutate appointment data in consultation ([6f01880](https://github.com/SmartMedSA/med-pro/commit/6f0188074ce4db32856786cd4f748715f312cbb8))
+* mutate documents from medical imaging results ([2892418](https://github.com/SmartMedSA/med-pro/commit/2892418ab392cbe4c01431a93c43da736584f87b))
+* notification popover translation bug ([925c5de](https://github.com/SmartMedSA/med-pro/commit/925c5de997b25cb2161f61a37edcf10ef1d588c1))
+* result medical imaging in patient hisoty appointements ([e29f7ce](https://github.com/SmartMedSA/med-pro/commit/e29f7cecee56e73568154c8cf219c9e3366721d7))
+* set empty string if S3_MED_CORE env variable is undefined ([14a383c](https://github.com/SmartMedSA/med-pro/commit/14a383c140747b6d82127135cf94dd127394f9d3))
+* stepper back action ([4b23271](https://github.com/SmartMedSA/med-pro/commit/4b2327122e367a0b7d6816403c5794ebebbd2b72))
+* update .env file (FCM PAI KEY) ([68f6176](https://github.com/SmartMedSA/med-pro/commit/68f61760db5b30283b94fd9552666123e13451e1))
+* update local dist next public variable ([6c75b5d](https://github.com/SmartMedSA/med-pro/commit/6c75b5d2cdefa6ecf0c926e894543e08428ad523))
+* update navbar popover behavior ([c4ba947](https://github.com/SmartMedSA/med-pro/commit/c4ba947cb93cd327bcf331df5e23d5788150f2e7))
+
+
+### Features
+
+* add notification layout ([a9ef017](https://github.com/SmartMedSA/med-pro/commit/a9ef0177187938e1f3f98f48df579400bd4fe1aa))
+* add notification popover ([4930db1](https://github.com/SmartMedSA/med-pro/commit/4930db14755a32cfc68d08be04b105a45e958627))
+* edit patient from calendar stepper (add appointment) ([71deb74](https://github.com/SmartMedSA/med-pro/commit/71deb7436b9eead66a6729d21ebc8d5a7a44513d))
+* fees acts quantity ([49d374d](https://github.com/SmartMedSA/med-pro/commit/49d374d18c95e724e92f42e073f7640445d64f7f))
+* stop consultation popup ([41b95fc](https://github.com/SmartMedSA/med-pro/commit/41b95fc512c9765e86ea8cd4ffc83af422b0839e))
+* upload medical imaging result ([452412a](https://github.com/SmartMedSA/med-pro/commit/452412a6add9e6081ab77f1a9fc46f524055f157))
+
 # 1.0.0 (2022-10-13)
 
 
