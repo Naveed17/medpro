@@ -196,7 +196,9 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
-        setLoading(false);
+        setTimeout(()=>{
+            setLoading(false);
+        },2000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -423,7 +425,7 @@ function ConsultationInProgress() {
     return (
         <>
             <SubHeader>
-                <ConsultationIPToolbar
+                {appointement && <ConsultationIPToolbar
                     appuuid={uuind}
                     mutate={mutate}
                     mutateDoc={mutateDoc}
@@ -438,34 +440,31 @@ function ConsultationInProgress() {
                     setDialog={setDialog}
                     endingDocuments={setPendingDocuments}
                     selected={(v: string) => setValue(v)}
-                />
+                />}
             </SubHeader>
 
             <Box className="container" style={{padding: 0}}>
+                {loading && <Stack spacing={2} padding={2}>
+                    {Array.from({length: 3}).map((_, idx) => (
+                        <React.Fragment key={idx}>
+                            <PatientHistoryNoDataCard/>
+                        </React.Fragment>
+                    ))}
+                </Stack>}
                 <TabPanel padding={1} value={value} index={"patient_history"}>
-                    {!appointement ? (
-                        <Stack spacing={2}>
-                            {Array.from({length: 3}).map((_, idx) => (
-                                <React.Fragment key={idx}>
-                                    <PatientHistoryNoDataCard/>
-                                </React.Fragment>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <HistoryTab
-                            patient={patient}
-                            appointement={appointement}
-                            t={t}
-                            appuuid={uuind}
-                            setIsViewerOpen={setIsViewerOpen}
-                            direction={direction}
-                            setInfo={setInfo}
-                            acts={acts}
-                            mutateDoc={mutateDoc}
-                            setState={setState}
-                            dispatch={dispatch}
-                            setOpenDialog={setOpenDialog}></HistoryTab>
-                    )}
+                    <HistoryTab
+                        patient={patient}
+                        appointement={appointement}
+                        t={t}
+                        appuuid={uuind}
+                        setIsViewerOpen={setIsViewerOpen}
+                        direction={direction}
+                        setInfo={setInfo}
+                        acts={acts}
+                        mutateDoc={mutateDoc}
+                        setState={setState}
+                        dispatch={dispatch}
+                        setOpenDialog={setOpenDialog}></HistoryTab>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
                     <Box
@@ -487,14 +486,14 @@ function ConsultationInProgress() {
                 <TabPanel padding={1} value={value} index={"consultation_form"}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
-                            {models && selectedModel && (
+                            {!loading && models && selectedModel && (
                                 <WidgetForm
                                     modal={selectedModel}
                                     models={models}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>
-                        <Grid item xs={12} md={7}>
+                        <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
