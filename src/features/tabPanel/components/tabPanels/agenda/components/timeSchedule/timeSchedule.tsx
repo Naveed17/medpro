@@ -352,39 +352,40 @@ function TimeSchedule({...props}) {
                             animate={{opacity: 1}}
                             transition={{ease: "easeIn", duration: .5}}
                         >
-                        <Typography variant="body1" color="text.primary" mb={1}
-                                    {...(recurringDates.length > 0 && {mt: 2})}>
-                            {t("stepper-1.selected-appointment")}
-                        </Typography>
-                        {recurringDates.map((recurringDate, index) => (
-                            <PatientCardMobile
-                                onAction={(action: string) => onMenuActions(recurringDate, action, index)}
-                                button={
-                                    <IconButton
-                                        onClick={() => {
-                                            onMenuActions(recurringDate, "onRemove", index)
-                                        }}
-                                        sx={{
-                                            p: 0, "& svg": {
-                                                p: "2px"
-                                            }
-                                        }}
-                                        size="small"
-                                    >
-                                        <DeleteIcon color={"error"}/>
-                                    </IconButton>
-                                }
-                                key={Math.random()} item={recurringDate} size="small"/>
-                        ))}
-                        {!moreDate &&
-                            <Button
-                                onClick={() => setMoreDate(true)}
-                                startIcon={
-                                    <IconUrl
-                                        width={"16"}
-                                        height={"16"}
-                                        color={theme.palette.primary.main}
-                                        path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
+                            <Typography variant="body1" color="text.primary" mb={1}
+                                        {...(recurringDates.length > 0 && {mt: 2})}>
+                                {t("stepper-1.selected-appointment")}
+                            </Typography>
+                            {recurringDates.map((recurringDate, index) => (
+                                <PatientCardMobile
+                                    onAction={(action: string) => onMenuActions(recurringDate, action, index)}
+                                    button={
+                                        <IconButton
+                                            onClick={() => {
+                                                onMenuActions(recurringDate, "onRemove", index)
+                                            }}
+                                            sx={{
+                                                p: 0, "& svg": {
+                                                    p: "2px"
+                                                }
+                                            }}
+                                            size="small"
+                                        >
+                                            <DeleteIcon color={"error"}/>
+                                        </IconButton>
+                                    }
+                                    key={Math.random()} item={recurringDate} size="small"/>
+                            ))}
+                            {!moreDate &&
+                                <Button
+                                    sx={{fontSize: 12}}
+                                    onClick={() => setMoreDate(true)}
+                                    startIcon={
+                                        <IconUrl
+                                            width={"14"}
+                                            height={"14"}
+                                            color={theme.palette.primary.main}
+                                            path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
                         </motion.div>
                     </AnimatePresence>
 
