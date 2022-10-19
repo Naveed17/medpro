@@ -627,6 +627,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
+                                    disabled={state.length === 0}
                                     startIcon={<Icon path="ic-dowlaodfile"/>}>
                                     {t("save")}
                                 </Button>

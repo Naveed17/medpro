@@ -36,6 +36,7 @@ function BalanceSheetDialog({...props}) {
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
 
+    console.log(analysis)
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -74,7 +75,7 @@ function BalanceSheetDialog({...props}) {
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        analysis.push(value)
+        analysis.unshift(value)
         setAnalysis([...analysis])
         data.setState([...analysis])
     }
@@ -217,7 +218,7 @@ function BalanceSheetDialog({...props}) {
                                     <List className='items-list'>
                                         {
                                             analysisList?.map(anaylis => (
-                                                    <ListItemButton key={anaylis.uuid} onClick={() => {
+                                                    <ListItemButton disabled={analysis.find(an =>an.uuid ===anaylis.uuid) !== undefined} key={anaylis.uuid} onClick={() => {
                                                         addAnalysis(anaylis)
                                                     }}>
                                                         <ListItemText primary={anaylis.name}/>

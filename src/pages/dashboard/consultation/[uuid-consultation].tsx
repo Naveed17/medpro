@@ -196,9 +196,9 @@ function ConsultationInProgress() {
     }, [httpModelResponse]);
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
-        setTimeout(()=>{
+        setTimeout(() => {
             setLoading(false);
-        },2000)
+        }, 2000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -558,16 +558,13 @@ function ConsultationInProgress() {
                                 onClick={() => {
                                     setEnd(true)
                                 }}
-                                color={appointement?.status == 5 ? "warning" : "error"}
+                                color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
-                                {appointement?.status == 5 ? (
-                                    <Icon path="ic-doc"/>
-                                ) : (
-                                    <Icon path="ic-check"/>
-                                )} {appointement?.status == 5
-                                ? t("edit_of_consultation")
-                                : t("end_of_consultation")}
+                                <Icon path="ic-check"/>
+                                {appointement?.status == 5
+                                    ? t("edit_of_consultation")
+                                    : t("end_of_consultation")}
                             </Button>
                         </Stack>
                     </SubFooter>}
