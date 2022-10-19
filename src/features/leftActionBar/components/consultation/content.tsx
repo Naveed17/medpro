@@ -28,6 +28,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -228,13 +229,25 @@ const Content = ({...props}) => {
                                     <List dense>
                                         {patient &&
                                             patient?.previousAppointments?.map(
-                                                (list: { dayDate: string }, index: number) => (
-                                                    <ListItem key={index}>
+                                                (list: { uuid: string; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
+                                                    <ListItem key={index} onClick={() => {
+                                                        const myElement = document.getElementById(list.uuid);
+                                                        const topPos = myElement?.offsetTop;
+                                                        if (topPos)
+                                                            window.scrollTo(0, topPos - 10)
+                                                    }}>
                                                         <ListItemIcon>
                                                             <CircleIcon/>
                                                         </ListItemIcon>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {list.dayDate}
+                                                        <Typography variant="body2" color="text.secondary"
+                                                                    textTransform={"capitalize"}>
+                                                            {moment(list.dayDate, 'DD-MM-YYYY').format('ddd DD-MM-YYYY')}
+                                                            <AccessTimeIcon
+                                                                style={{
+                                                                    marginBottom: '-1px',
+                                                                    width: 18,
+                                                                    height: 12
+                                                                }}/> {list.startTime}
                                                         </Typography>
                                                     </ListItem>
                                                 )

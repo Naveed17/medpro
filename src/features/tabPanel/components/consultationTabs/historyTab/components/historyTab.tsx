@@ -132,6 +132,7 @@ function HistoryTab({...props}) {
                     <PatientHistoryCard
                         t={t}
                         key={app.appointment.uuid}
+                        keyID={app.appointment.uuid}
                         data={app}
                         appuuid={appuuid}>
                         <Stack spacing={2}>
