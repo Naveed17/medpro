@@ -35,6 +35,7 @@ const Content = ({...props}) => {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [selectedDate, setSelectedDate] = useState('');
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const bigDialogs = ["add_treatment"];
@@ -233,13 +234,17 @@ const Content = ({...props}) => {
                                                     <ListItem key={index} onClick={() => {
                                                         const myElement = document.getElementById(list.uuid);
                                                         const topPos = myElement?.offsetTop;
-                                                        if (topPos)
+                                                        if (topPos) {
                                                             window.scrollTo(0, topPos - 10)
+                                                            setSelectedDate(list.uuid)
+                                                        }
                                                     }}>
                                                         <ListItemIcon>
                                                             <CircleIcon/>
                                                         </ListItemIcon>
-                                                        <Typography variant="body2" color="text.secondary"
+                                                        <Typography variant="body2"
+                                                                    color={selectedDate === list.uuid ? "" : "text.secondary"}
+                                                                    fontWeight={selectedDate === list.uuid ? "bold" : ""}
                                                                     textTransform={"capitalize"}>
                                                             {moment(list.dayDate, 'DD-MM-YYYY').format('ddd DD-MM-YYYY')}
                                                             <AccessTimeIcon
