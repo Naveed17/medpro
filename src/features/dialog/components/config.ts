@@ -195,6 +195,13 @@ const dialogData = [
                 (mod) => mod
             )
         ),
+    }, {
+        action: "quick_add_appointment",
+        component: dynamic((): any =>
+            import("@features/dialog/components/quickAddAppointment/quickAddAppointment").then(
+                (mod) => mod
+            )
+        ),
     },
     {
         action: "payment_dialog",
@@ -220,7 +227,7 @@ const dialogData = [
             )
         ),
     },
-   
+
 ];
 
 export default dialogData;

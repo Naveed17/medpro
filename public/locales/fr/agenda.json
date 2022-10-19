@@ -118,6 +118,7 @@
       "patient": {
         "personal-info": "Information personnelle",
         "additional-information": "Info supplémentaires",
+        "more-detail": "Afficher plus de détails",
         "fin": "Fin",
         "group": "Groupe",
         "gender": "Genre",
@@ -234,6 +235,11 @@
       "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Supprimer"
+    },
+    "quick_add_appointment-dialog": {
+      "title": "Ajouter un rendez vous rapidement",
+      "cancel": "Annuler",
+      "confirm": "Enregister"
     }
   },
   "alert": {

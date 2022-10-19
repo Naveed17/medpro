@@ -97,6 +97,7 @@ function Agenda() {
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -651,19 +652,27 @@ function Agenda() {
         }
     }
 
-    const handleAddAppointment = () => {
-        dispatch(resetAppointment());
-        if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
-            setEventStepper(
-                [...eventStepper.slice(0, 2),
-                    {
-                        title: "steppers.tabs.tab-3",
-                        children: Patient,
-                        disabled: true
-                    },
-                    ...eventStepper.slice(2)]);
+    const handleAddAppointment = (action: string) => {
+        switch (action) {
+            case "full-add":
+                dispatch(resetAppointment());
+                if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
+                    setEventStepper(
+                        [...eventStepper.slice(0, 2),
+                            {
+                                title: "steppers.tabs.tab-3",
+                                children: Patient,
+                                disabled: true
+                            },
+                            ...eventStepper.slice(2)]);
+                }
+                dispatch(openDrawer({type: "add", open: true}));
+                break;
+            case "quick-add":
+                setQuickAddAppointment(true);
+                break;
         }
-        dispatch(openDrawer({type: "add", open: true}));
+
     }
 
     if (!ready) return (<LoadingScreen/>);
@@ -976,6 +985,42 @@ function Agenda() {
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
+                            </Button>
+                        </>
+                    }
+                />
+
+                <Dialog
+                    size={"md"}
+                    sx={{
+                        [theme.breakpoints.down('sm')]: {
+                            "& .MuiDialogContent-root": {
+                                padding: 1
+                            }
+                        }
+                    }}
+                    color={theme.palette.primary.main}
+                    contrastText={theme.palette.primary.contrastText}
+                    dialogClose={() => setQuickAddAppointment(false)}
+                    action={"quick_add_appointment"}
+                    dir={direction}
+                    open={quickAddAppointment}
+                    title={t(`dialogs.quick_add_appointment-dialog.title`)}
+                    actionDialog={
+                        <>
+                            <Button
+                                variant="text-primary"
+                                onClick={() => setQuickAddAppointment(false)}
+                                startIcon={<CloseIcon/>}
+                            >
+                                {t(`dialogs.quick_add_appointment-dialog.cancel`)}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color={"primary"}
+                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
+                            >
+                                {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                             </Button>
                         </>
                     }
