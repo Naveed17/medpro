@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -36,6 +36,7 @@ function TimeSchedule({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
+    const bottomRef = useRef(null);
 
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
@@ -177,6 +178,11 @@ function TimeSchedule({...props}) {
         dispatch(setAppointmentRecurringDates(updatedRecurringDates));
         setTime(newTime);
         setTimeAvailable(true);
+        if (moreDate) {
+            setTimeout(() => {
+                (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            }, 300);
+        }
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
@@ -386,6 +392,7 @@ function TimeSchedule({...props}) {
                                             height={"14"}
                                             color={theme.palette.primary.main}
                                             path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
+                            <div ref={bottomRef}/>
                         </motion.div>
                     </AnimatePresence>
 
