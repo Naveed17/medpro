@@ -3,5 +3,6 @@ interface FamilyAntecedentsModel {
     name: string
     startDate: string
     uuid: string
-    res: string
+    response: any
+    value_type:number
 }
