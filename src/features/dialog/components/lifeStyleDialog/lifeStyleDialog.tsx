@@ -56,12 +56,9 @@ function LifeStyleDialog({...props}) {
 
     useEffect(() => {
         if (state && antecedents.length > 0 ) {
-            console.log(state)
             let items = state.map(item => ({...item}));
-            //let item = items.find(i => i.response === list.uuid)
             items.map(item => {
                 if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !=="string") {
-                    console.log(item)
                     item.response = item.response[0].uuid
                 }
             })
@@ -78,7 +75,6 @@ function LifeStyleDialog({...props}) {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
         if (index === -1) {
             const antecents = antecedents.find((ant: any) => ant.uuid === event.target.name);
-            console.log(antecents);
             const antecendent = {uuid: antecents?.uuid, name: antecents?.name, startDate: '', endDate: '', res: ''}
             setState([...state, antecendent])
         } else {
