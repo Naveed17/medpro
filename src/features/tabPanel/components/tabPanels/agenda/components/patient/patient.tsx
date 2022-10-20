@@ -20,7 +20,7 @@ import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
 function Patient({...props}) {
-    const {onNext, onBack} = props;
+    const {onNext, onBack, select, onPatientSearch} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -54,6 +54,11 @@ function Patient({...props}) {
         setAddPatient(true);
     }
 
+    const handlePatientSearch = () => {
+        if (select) {
+            onPatientSearch(true);
+        }
+    }
     const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
         const search = event.target.value;
         if (search.length >= 3) {
@@ -132,11 +137,12 @@ function Patient({...props}) {
                         <AutoCompleteButton
                             onSearchChange={handleSearchChange}
                             OnClickAction={handleOnClick}
+                            OnOpenSelect={handlePatientSearch}
                             translation={t}
                             loading={isValidating}
                             data={(httpPatientResponse as HttpResponse)?.data}/>
                     </Box>
-                    <Paper
+                    {!select && <Paper
                         sx={{
                             borderRadius: 0,
                             borderWidth: "0px",
@@ -164,7 +170,7 @@ function Patient({...props}) {
                         >
                             {t("next")}
                         </Button>
-                    </Paper>
+                    </Paper>}
                 </>
                 :
                 <OnStepPatient

@@ -2,7 +2,6 @@ import {styled} from "@mui/material/styles";
 import {FormControl} from "@mui/material";
 
 const FormControlStyled = styled(FormControl)<any>(({theme}) => ({
-    padding: "16px 16px 32px 16px",
     "& .MuiFormGroup-root":{
       padding: ".6rem"
     },

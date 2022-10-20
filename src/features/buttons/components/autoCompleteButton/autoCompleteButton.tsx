@@ -9,7 +9,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
 
 function AutoCompleteButton({...props}) {
-    const {translation, data, loading, OnClickAction, onSearchChange} = props;
+    const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
 
     const dispatch = useAppDispatch();
     const {patient: initData} = useAppSelector(appointmentSelector);
@@ -31,6 +31,9 @@ function AutoCompleteButton({...props}) {
 
     const handleClick = () => {
         setFocus(!focus);
+        if (OnOpenSelect) {
+            OnOpenSelect();
+        }
     }
 
     const handleClickAway = () => {
@@ -50,30 +53,13 @@ function AutoCompleteButton({...props}) {
                             <ClickAwayListener onClickAway={handleClickAway}>
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
+                                        onAddPatient={OnClickAction}
+                                        t={translation}
                                         onSearchChange={onSearchChange}
                                         data={data}
                                         loading={loading}
                                         onSelectData={onSubmitPatient}
                                     />
-                                    <Button variant="outlined" size="large"
-                                            fullWidth className='btn-add'
-                                            onClick={OnClickAction}
-                                            sx={{
-                                                borderRadius: 0,
-                                                borderWidth: '1px 0 0 0',
-                                                position: 'absolute',
-                                                bottom: 0,
-                                                left: 0,
-                                                backgroundColor: 'common.white',
-                                                mt: '-10px',
-                                                '&:hover': {
-                                                    borderWidth: '1px 0 0 0',
-                                                    borderColor: 'divider',
-                                                    backgroundColor: 'common.white',
-                                                }
-                                            }}>
-                                        {translation('stepper-2.add_button')}
-                                    </Button>
                                 </Box>
                             </ClickAwayListener>
                         }
