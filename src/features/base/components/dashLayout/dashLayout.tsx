@@ -9,7 +9,7 @@ import {useEffect} from "react";
 import {setAgendas, setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
-import AppLock from "../../../appLock/components/appLock";
+import {AppLock} from "@features/appLock";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 const variants = {

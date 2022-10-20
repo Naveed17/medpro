@@ -12,7 +12,7 @@ import {AgendaReducer} from "@features/calendar";
 import {DialogReducer, dialogMoveAppointmentReducer} from "@features/dialog";
 import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
-import {AppLockReducer} from "@features/appLock/reducer";
+import {AppLockReducer} from "@features/appLock";
 
 export const store = configureStore({
     reducer: {
