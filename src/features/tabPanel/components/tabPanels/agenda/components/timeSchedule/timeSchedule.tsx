@@ -30,7 +30,7 @@ import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
 
 function TimeSchedule({...props}) {
-    const {onNext, onBack} = props;
+    const {onNext, onBack, select} = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -392,7 +392,7 @@ function TimeSchedule({...props}) {
                 }
             </Box>
 
-            <Paper
+            {!select && <Paper
                 sx={{
                     borderRadius: 0,
                     borderWidth: "0px",
@@ -420,7 +420,7 @@ function TimeSchedule({...props}) {
                 >
                     {t("next")}
                 </Button>
-            </Paper>
+            </Paper>}
         </div>
     );
 }

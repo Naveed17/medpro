@@ -211,6 +211,9 @@ function OnStepPatient({...props}) {
                                 </Typography>
                             </Typography>
                             <RadioGroup row aria-label="gender"
+                                        sx={{
+                                            ml: ".2rem"
+                                        }}
                                         {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}

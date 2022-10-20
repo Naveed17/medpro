@@ -79,6 +79,7 @@
     "stepper-0": {
       "title": "Type du créneau horaire",
       "sub-title": "Type",
+      "type-placeholder": "Sélectionner le type du créneau horaire",
       "types": {
         "consultation": "Consultation",
         "clinique": "Clinique",

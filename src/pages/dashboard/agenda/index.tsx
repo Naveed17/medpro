@@ -43,14 +43,14 @@ import {
     Instruction,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates,
+    setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {ActionBarState, AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -74,7 +74,15 @@ function Agenda() {
 
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {submitted} = useAppSelector(appointmentSelector);
+    const {
+        motif,
+        duration,
+        patient,
+        type,
+        instruction,
+        submitted,
+        recurringDates
+    } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {
@@ -142,6 +150,8 @@ function Agenda() {
         data: httpAppointmentResponse,
         trigger
     } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
+
+    const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
 
     const {
         trigger: updateAppointmentTrigger
@@ -653,9 +663,9 @@ function Agenda() {
     }
 
     const handleAddAppointment = (action: string) => {
+        dispatch(resetAppointment());
         switch (action) {
             case "full-add":
-                dispatch(resetAppointment());
                 if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
                     setEventStepper(
                         [...eventStepper.slice(0, 2),
@@ -672,7 +682,33 @@ function Agenda() {
                 setQuickAddAppointment(true);
                 break;
         }
+    }
 
+    const handleAddAppointmentRequest = () => {
+        const params = new FormData();
+        params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
+            "start_date": recurringDate.date,
+            "start_time": recurringDate.time
+        }))));
+        motif && params.append('consultation_reason_uuid', motif);
+        params.append('title', `${patient?.lastName} ${patient?.firstName}`);
+        params.append('patient_uuid', patient?.uuid as string);
+        params.append('type', type);
+        params.append('duration', duration as string);
+
+        addAppointmentTrigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((value: any) => {
+            if (value?.data.status === 'success') {
+                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setStepperIndex(0));
+                setQuickAddAppointment(false);
+                refreshData();
+            }
+        });
     }
 
     if (!ready) return (<LoadingScreen/>);
@@ -1018,6 +1054,8 @@ function Agenda() {
                             <Button
                                 variant="contained"
                                 color={"primary"}
+                                onClick={handleAddAppointmentRequest}
+                                disabled={recurringDates.length === 0 || type === "" || !patient}
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
                                 {t(`dialogs.quick_add_appointment-dialog.confirm`)}

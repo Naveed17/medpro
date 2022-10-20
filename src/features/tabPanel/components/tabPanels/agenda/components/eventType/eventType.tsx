@@ -1,5 +1,5 @@
 import {TextIconRadio} from "@features/buttons";
-import {Box, FormControlLabel, LinearProgress, MenuItem, RadioGroup, Select} from "@mui/material";
+import {Box, FormControlLabel, LinearProgress, MenuItem, RadioGroup, Select, Stack} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -63,7 +63,11 @@ function EventType({...props}) {
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-0.title")}
                 </Typography>
-                <FormControlStyled fullWidth size="small">
+                <FormControlStyled
+                    sx={{
+                        padding: `16px ${!select ? "16px" : "0"} ${!select ? "32px" : "16px"} ${!select ? "16px" : "0"}`,
+                    }}
+                    fullWidth size="small">
                     {!select ?
                         <RadioGroup
                             aria-labelledby="type-group-label"
@@ -92,10 +96,35 @@ function EventType({...props}) {
                             displayEmpty
                             sx={{
                                 "& .MuiSelect-select": {
-                                    color: "text.secondary",
                                     display: "flex",
                                     svg: {mr: 1}
                                 }
+                            }}
+                            onChange={event => {
+                                handleTypeChange(event.target.value as string)
+                            }}
+                            renderValue={selected => {
+                                if (selected.length === 0) {
+                                    return <em>{t("stepper-0.type-placeholder")}</em>;
+                                }
+
+                                const type = types.find(itemType => itemType.uuid === selected);
+                                return (
+                                    <Stack direction={"row"}>
+                                        <FiberManualRecordIcon
+                                            className={'motif-circle'}
+                                            sx={{
+                                                background: "white",
+                                                border: .1,
+                                                borderColor: 'divider',
+                                                borderRadius: '50%',
+                                                p: 0.05,
+                                                color: type?.color
+                                            }}
+                                        />
+                                        {type && IconsTypes[type.icon]}
+                                        <Typography sx={{fontSize: "16px"}}>{type?.name}</Typography>
+                                    </Stack>)
                             }}>
                             {types && types.map((type, index) => (
                                 <MenuItem sx={{display: "flex", svg: {mr: 1}}} className="text-inner" value={type.uuid}
