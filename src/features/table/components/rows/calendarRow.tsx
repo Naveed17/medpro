@@ -190,7 +190,8 @@ function CalendarRow({...props}) {
                             {data?.status?.icon}
                             <Typography
                                 sx={{
-                                    fontSize: 10
+                                    fontSize: 10,
+                                    ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
                                 }}
                             >{data?.status?.value}</Typography>
                         </Label>
@@ -222,7 +223,7 @@ function CalendarRow({...props}) {
                                 {...(sideBarOpened && {sx: {minWidth: 40}})}
                                 onClick={() => handleEventClick("leaveWaitingRoom", data)}
                             >
-                                <Icon color={theme.palette.primary.main} path="ic-salle"/> {!sideBarOpened && <span
+                                <Icon color={theme.palette.primary.main} path="ic-salle-leave"/> {!sideBarOpened && <span
                                 style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
                             </Button>
                         }
