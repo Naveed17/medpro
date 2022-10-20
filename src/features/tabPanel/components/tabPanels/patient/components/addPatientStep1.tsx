@@ -206,7 +206,6 @@ function AddPatientStep1({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.day")}
-                                    value={values.birthdate.day}
                                     displayEmpty
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value: string) => {
@@ -227,8 +226,8 @@ function AddPatientStep1({...props}) {
                                         ).keys()
                                     ).map((v, i) => (
                                         <MenuItem
-                                            key={i}
-                                            value={i > 9 ? `${i}` : `0${i + 1}`}
+                                            key={i + 1}
+                                            value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
                                         >
                                             <Typography>{i + 1}</Typography>
                                         </MenuItem>
@@ -245,22 +244,20 @@ function AddPatientStep1({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.month")}
-                                    value={values.birthdate.month}
                                     displayEmpty={true}
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value) => {
                                         if (value?.length === 0) {
                                             return <em>{t("month")}</em>;
                                         }
-
-                                        return <Typography>{value}</Typography>
+                                        return <Typography>{moment.monthsShort()[parseInt(value) - 1]}</Typography>
                                     }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
                                 >
                                     {moment.monthsShort().map((v, i) => (
                                         <MenuItem
-                                            key={i}
-                                            value={i > 9 ? `${i}` : `0${i + 1}`}
+                                            key={i + 1}
+                                            value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
                                         >
                                             <Typography>{v}</Typography>
                                         </MenuItem>
@@ -277,8 +274,8 @@ function AddPatientStep1({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.year")}
-                                    value={values.birthdate.year}
                                     displayEmpty={true}
+                                    autoFocus
                                     sx={{color: "text.secondary"}}
                                     renderValue={(value) => {
                                         if (value?.length === 0) {
@@ -289,12 +286,12 @@ function AddPatientStep1({...props}) {
                                     }}
                                     error={Boolean(touched.birthdate && errors.birthdate)}
                                 >
-                                    {Array.from(Array(100).keys()).map((v, i) => (
+                                    {Array.from(Array(80).keys()).reverse().map((v, i) => (
                                         <MenuItem
                                             key={i}
-                                            value={`${moment().year() - 100 + i + 1}`}
+                                            value={`${moment().year() - 80 + i + 1}`}
                                         >
-                                            <Typography>{moment().year() - 100 + i + 1}</Typography>
+                                            <Typography>{moment().year() - 80 + i + 1}</Typography>
                                         </MenuItem>
                                     ))}
                                 </Select>

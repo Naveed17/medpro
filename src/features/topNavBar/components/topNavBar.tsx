@@ -12,7 +12,7 @@ import {
     Badge,
     Toolbar,
     IconButton,
-    Box, Popover, Typography, useTheme, List, ListItem, ListSubheader,
+    Box, Popover, useTheme
 } from "@mui/material";
 
 // config
@@ -23,14 +23,14 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
-import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
+import {NavbarStepperStyled, NavbarStyled, LangButton} from "@features/topNavBar";
 import {useRouter} from "next/router";
-import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {CipCard, setTimer, timerSelector} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
+import {setLock} from "@features/appLock";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
@@ -191,7 +191,9 @@ function TopNavBar({...props}) {
                             >
                                 {popovers[popoverAction]}
                             </Popover>
-                            <Badge badgeContent={null} className="custom-badge badge">
+                            <Badge badgeContent={null}
+                                   onClick={() => dispatch(setLock(true))}
+                                   className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-cloc"}/>
                                 </IconButton>

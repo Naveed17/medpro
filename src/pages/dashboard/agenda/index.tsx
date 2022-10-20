@@ -84,7 +84,7 @@ function Agenda() {
         recurringDates
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -200,7 +200,7 @@ function Agenda() {
                         start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
-                        title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
+                        title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: false,
                         editable: AppointmentStatus[appointment.status].key !== "FINISHED",
                         borderColor: appointment.type?.color,
@@ -354,6 +354,7 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                        mutateOnGoing && mutateOnGoing();
                         dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -449,6 +450,7 @@ function Agenda() {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                mutateOnGoing && mutateOnGoing();
                 dispatch(openDrawer({type: "view", open: false}));
                 dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
                 updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
@@ -1056,7 +1058,6 @@ function Agenda() {
                                 color={"primary"}
                                 onClick={handleAddAppointmentRequest}
                                 disabled={recurringDates.length === 0 || type === "" || !patient}
-                                startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
                                 {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                             </Button>

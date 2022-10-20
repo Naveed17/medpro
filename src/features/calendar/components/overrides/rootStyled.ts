@@ -97,7 +97,7 @@ const RootStyled = styled("div")(({theme}) => ({
         display: "inlineBlock",
         position: "absolute",
         top: 14,
-        zIndex: 1000,
+        zIndex: 98,
         "& .MuiButtonBase-root": {
             padding: 2
         }

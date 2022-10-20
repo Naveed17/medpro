@@ -4,7 +4,7 @@ import {styled} from "@mui/material/styles";
 const QuickAddAppointmentStyled = styled(Stack)(({theme}) => ({
     overflow: 'hidden',
     width: "100%",
-    paddingBottom: theme.spacing(2),
+    padding: theme.spacing(2),
     '& .MuiAvatar-root': {
         width: 60,
         height: 60,

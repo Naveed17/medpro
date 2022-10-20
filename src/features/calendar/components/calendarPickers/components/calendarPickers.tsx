@@ -42,7 +42,9 @@ function CalendarPickers({...props}) {
                         return (
                             <PickersDay {...(isSelected && {
                                 sx: {
-                                    backgroundColor: note.events.length > 5 ? theme.palette.error.light : theme.palette.error.lighter
+                                    borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
+                                    borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
+                                    borderTop: note.events.length > 5 ? `thick double ${theme.palette.error.darker}` : `1.5px solid ${theme.palette.error.light}`
                                 }
                             })} {...DayComponentProps} />
                         );
