@@ -18,9 +18,9 @@ const variants = {
     exit: {opacity: 0},
 };
 
-function DashLayout({children, ...props}: LayoutProps) {
+function DashLayout({children}: LayoutProps) {
     const router = useRouter();
-    const {data: session, status} = useSession();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
@@ -66,7 +66,7 @@ function DashLayout({children, ...props}: LayoutProps) {
 
     return (
         <SideBarMenu>
-            <AppLock />
+            <AppLock/>
             <motion.main
                 key={router.route}
                 initial="hidden"
