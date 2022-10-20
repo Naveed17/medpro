@@ -12,7 +12,7 @@ import {AgendaReducer} from "@features/calendar";
 import {DialogReducer, dialogMoveAppointmentReducer} from "@features/dialog";
 import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
-
+import {AppLockReducer} from "@features/appLock/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -32,7 +32,8 @@ export const store = configureStore({
         dialogMove: dialogMoveAppointmentReducer,
         timer: timerReducer,
         leftActionBar: leftActionBarReducer,
-        dashLayout: DashLayoutReducer
+        dashLayout: DashLayoutReducer,
+        appLock: AppLockReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {

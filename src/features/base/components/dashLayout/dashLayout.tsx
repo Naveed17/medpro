@@ -9,6 +9,7 @@ import {useEffect} from "react";
 import {setAgendas, setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
+import AppLock from "../../../appLock/components/appLock";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 const variants = {
@@ -65,6 +66,7 @@ function DashLayout({children, ...props}: LayoutProps) {
 
     return (
         <SideBarMenu>
+            <AppLock />
             <motion.main
                 key={router.route}
                 initial="hidden"
