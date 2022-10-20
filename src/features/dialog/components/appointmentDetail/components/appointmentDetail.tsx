@@ -149,7 +149,7 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        {(!roles.includes('ROLE_SECRETARY') && data?.extendedProps.status.key !== "ON_GOING") &&
+                        {!roles.includes('ROLE_SECRETARY') &&
                             <LoadingButton
                                 {...{loading}}
                                 loadingPosition="start"
@@ -158,10 +158,10 @@ function AppointmentDetail({...props}) {
                                 startIcon={<PlayCircleIcon/>}
                                 onClick={() => {
                                     setLoading(true);
-                                    data?.extendedProps.status.key === "FINISHED" ? OnConsultationView(data) : OnConsultation(data);
+                                    ["FINISHED", "ON_GOING"].includes(data?.extendedProps.status.key) ? OnConsultationView(data) : OnConsultation(data);
                                 }}
                             >
-                                {t(data?.extendedProps.status.key === "FINISHED" ? 'view_the_consultation' : 'event.start')}
+                                {t(["FINISHED", "ON_GOING"].includes(data?.extendedProps.status.key) ? 'view_the_consultation' : 'event.start')}
                             </LoadingButton>}
                     </Stack>
                     {data?.extendedProps.hasErrors?.map((error: string, index: number) => (
