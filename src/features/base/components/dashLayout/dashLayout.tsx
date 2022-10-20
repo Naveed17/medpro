@@ -36,7 +36,7 @@ function DashLayout({children, ...props}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
-    const {data: httpOngoingResponse} = useRequest(agenda ? {
+    const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
@@ -56,11 +56,12 @@ function DashLayout({children, ...props}: LayoutProps) {
     useEffect(() => {
         if (calendarStatus) {
             dispatch(setOngoing({
+                mutate,
                 waiting_room: calendarStatus.waiting_room,
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
             }))
         }
-    }, [calendarStatus, dispatch]);
+    }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>

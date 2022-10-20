@@ -205,7 +205,7 @@ function Calendar({...props}) {
             action === "onWaitingRoom" &&
             (moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                 (eventMenu?.extendedProps.status.key === "WAITING_ROOM" || eventMenu?.extendedProps.status.key === "ON_GOING" || eventMenu?.extendedProps.status.key === "FINISHED")) ||
-            action === "onConsultationView" && (eventMenu?.extendedProps.status.key !== "FINISHED" || roles.includes('ROLE_SECRETARY')) ||
+            action === "onConsultationView" && (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" && (["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
