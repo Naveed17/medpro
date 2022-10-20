@@ -31,7 +31,7 @@ import {CipCard, setTimer, timerSelector} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
-import {setLock} from "@features/appLock/actions";
+import {setLock} from "@features/appLock";
 
 const ProfilMenuIcon = dynamic(() => import('@features/profilMenu/components/profilMenu'));
 
