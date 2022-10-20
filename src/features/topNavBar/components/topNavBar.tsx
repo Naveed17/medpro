@@ -12,7 +12,7 @@ import {
     Badge,
     Toolbar,
     IconButton,
-    Box, Popover, Typography, useTheme, List, ListItem, ListSubheader,
+    Box, Popover, useTheme
 } from "@mui/material";
 
 // config
@@ -23,9 +23,8 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar, toggleSideBar} from "@features/sideBarMenu/actions";
 import dynamic from "next/dynamic";
-import {NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
+import {NavbarStepperStyled, NavbarStyled, LangButton} from "@features/topNavBar";
 import {useRouter} from "next/router";
-import LangButton from "./langButton/langButton";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {CipCard, setTimer, timerSelector} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
