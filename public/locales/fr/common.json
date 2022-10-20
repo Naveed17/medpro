@@ -202,5 +202,10 @@
     "empty": "Aucune notification pour le moment",
     "desc": "Lorsque vous recevez des notification, elles apparaissent ici",
     "button": "Actualiser"
+  },
+  "popover-info": {
+    "title": "Statut du rendez-vous",
+    "picker-status-more": "le jour a plus de 5 rendez-vous",
+    "picker-status-less": "le jour a moins de 5 rendez-vous"
   }
 }
