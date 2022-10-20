@@ -12,7 +12,7 @@ function QuickAddAppointment() {
             <Patient select onPatientSearch={() => {
                 setTimeout(() => {
                     (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
-                }, 300)
+                }, 300);
             }}/>
             <div ref={bottomRef}/>
         </QuickAddAppointmentStyled>

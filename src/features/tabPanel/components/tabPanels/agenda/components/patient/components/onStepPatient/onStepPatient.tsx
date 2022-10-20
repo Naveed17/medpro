@@ -394,8 +394,8 @@ function OnStepPatient({...props}) {
                                             ).keys()
                                         ).map((v, i) => (
                                             <MenuItem
-                                                key={i}
-                                                value={i > 9 ? `${i}` : `0${i + 1}`}
+                                                key={i + 1}
+                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
                                             >
                                                 <Typography>{i + 1}</Typography>
                                             </MenuItem>
@@ -418,15 +418,14 @@ function OnStepPatient({...props}) {
                                             if (value?.length === 0) {
                                                 return <em>{t("month")}</em>;
                                             }
-
-                                            return <Typography>{value}</Typography>
+                                            return <Typography>{moment.monthsShort()[parseInt(value) - 1]}</Typography>
                                         }}
                                         error={Boolean(touched.birthdate && errors.birthdate)}
                                     >
                                         {moment.monthsShort().map((v, i) => (
                                             <MenuItem
-                                                key={i}
-                                                value={i > 9 ? `${i}` : `0${i + 1}`}
+                                                key={i + 1}
+                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
                                             >
                                                 <Typography>{v}</Typography>
                                             </MenuItem>
@@ -454,12 +453,12 @@ function OnStepPatient({...props}) {
                                         }}
                                         error={Boolean(touched.birthdate && errors.birthdate)}
                                     >
-                                        {Array.from(Array(100).keys()).map((v, i) => (
+                                        {Array.from(Array(80).keys()).map((v, i) => (
                                             <MenuItem
                                                 key={i}
-                                                value={`${moment().year() - 100 + i + 1}`}
+                                                value={`${moment().year() - 80 + i + 1}`}
                                             >
-                                                <Typography>{moment().year() - 100 + i + 1}</Typography>
+                                                <Typography>{moment().year() - 80 + i + 1}</Typography>
                                             </MenuItem>
                                         ))}
                                     </Select>
