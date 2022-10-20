@@ -663,9 +663,9 @@ function Agenda() {
     }
 
     const handleAddAppointment = (action: string) => {
+        dispatch(resetAppointment());
         switch (action) {
             case "full-add":
-                dispatch(resetAppointment());
                 if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
                     setEventStepper(
                         [...eventStepper.slice(0, 2),
@@ -682,7 +682,6 @@ function Agenda() {
                 setQuickAddAppointment(true);
                 break;
         }
-
     }
 
     const handleAddAppointmentRequest = () => {
