@@ -26,7 +26,7 @@ import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {setAppointmentPatient} from "@features/tabPanel";
+import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
@@ -144,6 +144,7 @@ const Content = ({...props}) => {
 
     const handleOpen = (action: string) => {
         if (action === "consultation") {
+            dispatch(resetAppointment());
             dispatch(setAppointmentPatient(patient));
             dispatch(openDrawer({type: "add", open: true}));
             return;

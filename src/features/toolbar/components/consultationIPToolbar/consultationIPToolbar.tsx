@@ -14,7 +14,7 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useAppDispatch} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
-import {setAppointmentPatient} from "@features/tabPanel";
+import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 
 function ConsultationIPToolbar({...props}) {
@@ -436,6 +436,7 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]);
 
     const handleOpen = () => {
+        dispatch(resetAppointment());
         dispatch(setAppointmentPatient(appointement?.patient));
         dispatch(openDrawer({type: "add", open: true}));
     };

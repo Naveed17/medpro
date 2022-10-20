@@ -65,7 +65,7 @@ function WaitingRoom() {
                 }}
                 defaultValue={"reson"}
                 data={[
-                    {
+                   /* {
                         heading: {
                             id: "patient",
                             icon: "ic-patient",
@@ -98,7 +98,7 @@ function WaitingRoom() {
                                     }} t={t}/>
                             </FilterRootStyled>
                         ),
-                    },
+                    },*/
                     {
                         heading: {
                             id: "meetingType",

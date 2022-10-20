@@ -8,7 +8,7 @@ import {
     PersonalInfoPanel, setAppointmentPatient,
     TabPanel,
     TimeSchedule,
-    FilesPanel
+    FilesPanel, resetAppointment
 } from "@features/tabPanel";
 import { GroupTable } from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -239,6 +239,7 @@ function PatientDetail({ ...props }) {
                                 width: { md: "auto", sm: "100%", xs: "100%" },
                             }}
                             onClick={() => {
+                                dispatch(resetAppointment());
                                 dispatch(setAppointmentPatient(patient as any));
                                 setIsAdd(!isAdd);
                             }}
