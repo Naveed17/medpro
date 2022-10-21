@@ -16,6 +16,8 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -38,7 +40,7 @@ function ConsultationIPToolbar({...props}) {
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState(appointement.latestAppointments.length === 0 ? "consultation form" :"patient history");
+    const [value, setValue] = useState(appointement.latestAppointments.length === 0 ? "consultation form" : "patient history");
     const [info, setInfo] = useState<null | string>("");
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
@@ -571,8 +573,14 @@ function ConsultationIPToolbar({...props}) {
                             size={isMobile ? "small" : "medium"}
                             onClick={handleClick}
                             variant="contained"
+                            endIcon={<KeyboardArrowDownIcon/>}
                             color="warning">
-                            {isMobile ? <IconUrl path="ic-doc"/> : t("document")}
+                            {
+                                isMobile ? <IconUrl path="ic-doc"/> :
+                                    <>
+                                        <AttachFileIcon style={{marginRight: 5, fontSize: 16}}/> {t("add")}
+                                    </>
+                            }
                         </Button>
                         <StyledMenu
                             id="basic-menu"

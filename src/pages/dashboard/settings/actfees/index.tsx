@@ -151,12 +151,10 @@ function ActFees() {
                     <p style={{margin: 0}}>{t('path')}</p>
                 </RootStyled>
                 {
-                    isNew ? <Button variant="contained" onClick={handleRemove}>{t('cancel')}</Button> :
+                    isNew ? <Button variant="contained" color={"warning"} onClick={handleRemove}>{t('cancel')}</Button> :
                         <Button
                             onClick={() => handleCreate()}
-                            variant="contained"
-                            startIcon={<IconUrl width={"14"} height={"14"} color={"white"}
-                                                path="ic-plus"/>}>{t("add_a_new_act")}</Button>
+                            variant="contained" color={"success"}>{t("add_a_new_act")}</Button>
                 }
             </SubHeader>
             <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, 'table': {tableLayout: 'fixed'}}}>

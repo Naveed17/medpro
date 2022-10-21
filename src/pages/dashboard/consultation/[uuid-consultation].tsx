@@ -40,8 +40,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models} = props;
-        return <Widget modal={modal} setModal={setSM} models={models}></Widget>;
+        const {modal, setSM, models, appuuid} = props;
+        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -212,7 +212,8 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal);
-            localStorage.setItem("Modeldata", JSON.stringify(sheet.modal.data));
+            if (localStorage.getItem('Modeldata'+uuind) === null)
+                localStorage.setItem("Modeldata"+uuind, JSON.stringify(sheet.modal.data));
             const app_data = sheet.exam.appointment_data;
             dispatch(
                 SetExam({
@@ -295,7 +296,7 @@ function ConsultationInProgress() {
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
             form.append("modal_uuid", selectedModel.default_modal.uuid);
-            form.append("modal_data", localStorage.getItem("Modeldata") as string);
+            form.append("modal_data", localStorage.getItem("Modeldata"+uuind) as string);
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
             form.append("treatment", exam.treatment);
@@ -313,8 +314,7 @@ function ConsultationInProgress() {
                 console.log("end consultation", r);
                 console.log(r);
                 dispatch(setTimer({isActive: false}));
-                localStorage.removeItem("Modeldata");
-                console.log(localStorage.getItem("Modeldata"));
+                localStorage.removeItem("Modeldata"+uuind);
                 mutate();
                 if (appointement?.status == 5) {
                     router.push("/dashboard/agenda")
@@ -449,7 +449,7 @@ function ConsultationInProgress() {
                 />}
             </SubHeader>
 
-            <Box className="container" style={{padding: 0}}>
+            <Box className="container" sx={{padding: 0}}>
                 {loading && <Stack spacing={2} padding={2}>
                     {Array.from({length: 3}).map((_, idx) => (
                         <React.Fragment key={idx}>
@@ -496,6 +496,7 @@ function ConsultationInProgress() {
                                 <WidgetForm
                                     modal={selectedModel}
                                     models={models}
+                                    appuuid={uuind}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>

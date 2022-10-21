@@ -6,15 +6,15 @@ function Certificat({...props}) {
     return (
         <table hidden={true} id="certificat" style={{backgroundColor: "white"}}>
             <tr>
-                <td style={{fontWeight: "bold", fontSize: 25, textAlign: "center"}}>
+                <td style={{fontWeight: "bold", fontSize: 20, textAlign: "center"}}>
                     <p>CERTIFICAT MEDICAL</p>
                 </td>
             </tr>
             <tr>
-                <td style={{fontSize: 25}}></td>
+                <td style={{fontSize: 10}}></td>
             </tr>
             <tr>
-                <td style={{fontSize: 20, textAlign: "right", color: "grey"}}>
+                <td style={{fontSize: 15, textAlign: "right", color: "grey"}}>
                     <p>Tunis le: {moment().format('DD MMMM YYYY')}</p>
                 </td>
             </tr>
@@ -23,7 +23,7 @@ function Certificat({...props}) {
             </tr>
 
             <tr>
-                <td style={{color: "grey", fontSize: 20, lineHeight: 3}}>
+                <td style={{color: "grey", fontSize: 16, lineHeight: 3}}>
                     <p>
                         {data.content}
                     </p>

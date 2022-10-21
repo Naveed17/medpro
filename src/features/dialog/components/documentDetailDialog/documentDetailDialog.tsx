@@ -118,7 +118,7 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 70
+                startY: 50
             })
             const uri = doc.output('bloburi').toString()
             setFile(uri)
@@ -128,7 +128,7 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 70
+                startY: 50
             })
             const uri = doc.output('bloburi').toString()
             setFile(uri)
@@ -138,7 +138,7 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 70
+                startY: 50
             })
             const uri = doc.output('bloburi').toString()
             setFile(uri)
@@ -149,7 +149,7 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 70
+                startY: 50
             })
             const uri = doc.output('bloburi').toString()
             setFile(uri)

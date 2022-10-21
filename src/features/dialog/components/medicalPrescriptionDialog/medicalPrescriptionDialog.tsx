@@ -1,28 +1,30 @@
 import {
-    Grid,
-    Stack,
-    Typography,
-    TextField,
-    FormControl,
-    RadioGroup,
-    FormControlLabel,
-    Radio,
+    Autocomplete,
+    Box,
     Button,
-    Divider, Autocomplete, DialogActions,
-    Menu,
-    MenuItem,
     Card,
+    DialogActions,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    Grid,
     List,
     ListItem,
+    Menu,
+    MenuItem,
+    Radio,
+    RadioGroup,
     Skeleton,
-    Box
+    Stack,
+    TextField,
+    Typography
 } from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
 import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
@@ -46,12 +48,14 @@ function MedicalPrescriptionDialog({...props}) {
     const [model, setModel] = useState<string>('');
     const [models, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [errorDrug, setErrorDrug] = useState(false);
+    const [errorDuration, setErrorDuration] = useState(false);
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
     const validationSchema = Yup.object().shape({
-        dosage: Yup.string().required(),
+        dosage: Yup.string().required(t('doseReq')),
         duration: Yup.string().required(),
         durationType: Yup.string().required()
     });
@@ -85,9 +89,11 @@ function MedicalPrescriptionDialog({...props}) {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     const {trigger} = useRequestMutation(null, "/drugs");
 
     const formik = useFormik({
@@ -110,10 +116,15 @@ function MedicalPrescriptionDialog({...props}) {
                 data.setState([...drugs])
                 setDrug(null)
                 resetForm()
+                setErrorDuration(false)
+            } else {
+                setErrorDrug(true)
             }
         },
     });
+
     const router = useRouter();
+
     const {data: httpDrugsResponse} = useRequest({
         method: "GET",
         url: "/api/drugs/" + router.locale,
@@ -122,7 +133,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpModelResponse,mutate} = useRequest({
+    const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -133,18 +144,27 @@ function MedicalPrescriptionDialog({...props}) {
             setModels((httpModelResponse as HttpResponse).data)
     }, [httpModelResponse])
 
-
     useEffect(() => {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])
 
     const {
         values,
+        errors,
+        touched,
         handleSubmit,
         getFieldProps,
         setFieldValue,
         resetForm
     } = formik;
+
+    useEffect(() => {
+        if (drug === null && Object.keys(errors).length !== 0)
+            setErrorDrug(true)
+        if (Object.keys(errors).includes('durationType') || Object.keys(errors).includes('duration'))
+            setErrorDuration(true)
+        else setErrorDuration(false)
+    }, [drug, errors]);
 
     const remove = (ev: PrespectionDrugModel) => {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
@@ -165,9 +185,10 @@ function MedicalPrescriptionDialog({...props}) {
 
     function handleInputChange(value: string) {
         const drg = drugsList.find(drug => drug.commercial_name === value)
-        if (drg !== undefined)
+        if (drg !== undefined) {
             setDrug(drg);
-        else setDrug({uuid: '', commercial_name: value, isVerified: false});
+            setErrorDrug(false)
+        } else setDrug({uuid: '', commercial_name: value, isVerified: false});
     }
 
     if (!ready) return <>loading translations...</>;
@@ -184,7 +205,11 @@ function MedicalPrescriptionDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Stack direction={"row"} alignItems="center">
-                                    <Typography>{t('seeking_to_name_the_drug')}</Typography>
+                                    <Typography>{t('seeking_to_name_the_drug')}
+                                        <Typography component="span" color="error">
+                                            *
+                                        </Typography>
+                                    </Typography>
                                     <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
@@ -194,8 +219,7 @@ function MedicalPrescriptionDialog({...props}) {
                                         aria-controls={open ? 'basic-menu' : undefined}
                                         aria-haspopup="true"
                                         aria-expanded={open ? 'true' : undefined}
-                                        onClick={handleClick}
-                                    >
+                                        onClick={handleClick}>
                                         {t('model_prescription')}
                                     </Button>
                                     <Menu
@@ -231,46 +255,60 @@ function MedicalPrescriptionDialog({...props}) {
                                     </Menu>
                                 </Stack>
                                 {drugsList ? <Autocomplete
-                                    id="cmo"
-                                    value={drug}
-                                    size='small'
-                                    options={drugsList}
-                                    getOptionLabel={(option: DrugModel) => option?.commercial_name}
-                                    isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
-                                    renderInput={(params) => <TextField {...params}
-                                                                        onChange={(ev) => {
-                                                                            if (ev.target.value.length >= 2) {
-                                                                                trigger({
-                                                                                    method: "GET",
-                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
-                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }, {
-                                                                                    revalidate: true,
-                                                                                    populateCache: true
-                                                                                }).then((cnx) => {
-                                                                                    if (cnx?.data as HttpResponse)
-                                                                                        setDrugsList((cnx?.data as HttpResponse).data)
-                                                                                })
-                                                                            }
-                                                                        }}
-                                                                        onBlur={(ev) => handleInputChange(ev.target.value)}
-                                                                        placeholder={t('placeholder_drug_name')}/>}
-                                />: <Autocomplete
-                                    disablePortal
-                                    id="combo-box-demo"
-                                    options={[]}
-                                    size='small'
-                                    renderInput={(params) => <TextField {...params} placeholder={t('placeholder_drug_name')} />}
-                                />
+                                        id="cmo"
+                                        value={drug}
+                                        size='small'
+                                        options={drugsList}
+                                        getOptionLabel={(option: DrugModel) => option?.commercial_name}
+                                        isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
+                                        renderInput={(params) => <TextField {...params}
+                                                                            error={errorDrug}
+                                                                            onChange={(ev) => {
+                                                                                if (ev.target.value.length >= 2) {
+                                                                                    trigger({
+                                                                                        method: "GET",
+                                                                                        url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                        headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                    }, {
+                                                                                        revalidate: true,
+                                                                                        populateCache: true
+                                                                                    }).then((cnx) => {
+                                                                                        if (cnx?.data as HttpResponse)
+                                                                                            setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                    })
+                                                                                }
+                                                                            }}
+                                                                            onBlur={(ev) => handleInputChange(ev.target.value)}
+                                                                            placeholder={t('placeholder_drug_name')}/>}/> :
+                                    <Autocomplete
+                                        disablePortal
+                                        id="combo-box-demo"
+                                        options={[]}
+                                        size='small'
+                                        renderInput={(params) => <TextField {...params}
+                                                                            placeholder={t('placeholder_drug_name')}/>}
+                                    />
                                 }
+
+                                {errorDrug && <Typography fontSize={12}
+                                                          style={{marginLeft: 20}}
+                                                          color={"error"}>{t('nameReq')}</Typography>}
                             </Stack>
                             <Stack spacing={1}>
-                                <Typography>{t('dosage')}</Typography>
+                                <Typography>{t('dosage')}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
                                 <TextField
                                     fullWidth
                                     placeholder={t("enter_your_dosage")}
+                                    helperText={touched.dosage && errors.dosage}
+                                    error={Boolean(touched.dosage && errors.dosage)}
                                     {...getFieldProps("dosage")} />
+
                             </Stack>
+
                             <Stack spacing={1}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} md={3}>
@@ -279,6 +317,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             id={"duration"}
                                             size="small"
                                             type={"number"}
+                                            error={errorDuration}
                                             {...getFieldProps("duration")}
                                             value={values.duration}
                                             InputProps={{inputProps: {min: 1}}}
@@ -286,7 +325,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             sx={{color: "text.secondary"}}/>
                                     </Grid>
                                     <Grid item xs={12} md={9}>
-                                        <FormControl component="fieldset">
+                                        <FormControl  component="fieldset">
                                             <RadioGroup
                                                 row
                                                 aria-label="date"
@@ -309,9 +348,12 @@ function MedicalPrescriptionDialog({...props}) {
                                                 />
                                             </RadioGroup>
                                         </FormControl>
-                                    </Grid>
 
+                                    </Grid>
                                 </Grid>
+                                {errorDuration && <Typography fontSize={12}
+                                                              style={{marginLeft: 20}}
+                                                              color={"error"}>{t('durationReq')}</Typography>}
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('cautionary_note')}</Typography>
@@ -321,29 +363,29 @@ function MedicalPrescriptionDialog({...props}) {
                                     {...getFieldProps("note")}
                                 />
                             </Stack>
-                            {
-                                update > -1 ? <Button className='btn-add' size='small'
-                                                      onClick={() => {
-                                                          if (drug) {
-                                                              values.drugUuid = drug.uuid
-                                                              values.name = drug.commercial_name
+                            <Grid container justifyContent={"flex-end"}>
+                                {
+                                    update > -1 ? <Button variant="contained" color={"warning"}
+                                                          onClick={() => {
+                                                              if (drug) {
+                                                                  values.drugUuid = drug.uuid
+                                                                  values.name = drug.commercial_name
 
-                                                              drugs[update] = values
-                                                              setDrugs([...drugs])
-                                                              data.setState([...drugs])
-                                                              setDrug(null)
-                                                              resetForm()
-                                                              setUpdate(-1)
-                                                          }
-                                                      }
-                                                      }
-                                                      startIcon={<EditIcon/>}>
-                                        {t('updateDrug')}
-                                    </Button> :
-                                    <Button className='btn-add' size='small' type={"submit"} startIcon={<AddIcon/>}>
-                                        {t('add_a_drug')}
-                                    </Button>
-                            }
+                                                                  drugs[update] = values
+                                                                  setDrugs([...drugs])
+                                                                  data.setState([...drugs])
+                                                                  setDrug(null)
+                                                                  resetForm()
+                                                                  setUpdate(-1)
+                                                              }
+                                                          }}>
+                                            {t('updateDrug')}
+                                        </Button> :
+                                        <Button variant="contained" type={"submit"}>
+                                            {t('add_a_drug')}
+                                        </Button>
+                                }
+                            </Grid>
                         </Stack>
                     </FormikProvider>
                     <Divider orientation="vertical"/>

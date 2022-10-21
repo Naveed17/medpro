@@ -18,7 +18,6 @@ import {
 import { alpha } from "@mui/material/styles";
 import { ModelDot } from "@features/modelDot";
 import ConsultationModalStyled from "./overrides/modalConsultationStyle";
-import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import { motion } from "framer-motion";
 
@@ -37,7 +36,7 @@ const variants = {
 
 const WidgetForm: any = memo(({ src, ...props }: any) => {
   let cmp: any[] = [];
-  const { modal } = props;
+  const { modal,appuuid } = props;
   if (modal) {
     cmp = [...modal];
   }
@@ -47,10 +46,10 @@ const WidgetForm: any = memo(({ src, ...props }: any) => {
       <Form
         onChange={(ev: any) => {
           console.log("changes detected", ev.data);
-          localStorage.setItem("Modeldata", JSON.stringify(ev.data));
+          localStorage.setItem("Modeldata"+appuuid, JSON.stringify(ev.data));
         }}
         // @ts-ignore
-        submission={{ data: JSON.parse(localStorage.getItem("Modeldata")) }}
+        submission={{ data: JSON.parse(localStorage.getItem("Modeldata"+appuuid)) }}
         form={{
           display: "form",
           components: cmp,
@@ -62,7 +61,7 @@ const WidgetForm: any = memo(({ src, ...props }: any) => {
 WidgetForm.displayName = "widget-form";
 
 function Widget({ ...props }) {
-  const { modal, setModal, models } = props;
+  const { modal, setModal, models, appuuid } = props;
   const [open, setOpen] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [change, setChange] = useState(false);
@@ -130,7 +129,7 @@ function Widget({ ...props }) {
             {models.map(
               (m: any) =>
                 m.uuid === modal.default_modal.uuid && (
-                  <WidgetForm key={m.uuid} modal={m.structure}></WidgetForm>
+                  <WidgetForm key={m.uuid} modal={m.structure} appuuid={appuuid}></WidgetForm>
                 )
             )}
             {pageLoading &&

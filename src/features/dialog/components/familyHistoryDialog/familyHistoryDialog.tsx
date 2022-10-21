@@ -30,7 +30,6 @@ function FamilyHistoryDialog({...props}) {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
         if (index === -1) {
             const antecents = (httpAntecedentsResponse as HttpResponse).data.find((ant: any) => ant.uuid === event.target.name);
-            console.log(antecents);
             const antecendent = {uuid: antecents.uuid, name: antecents.name, startDate: '', ascendantOf: ''}
             setState([...state, antecendent])
         } else {
@@ -43,6 +42,19 @@ function FamilyHistoryDialog({...props}) {
 
     const {data: session} = useSession();
     const router = useRouter();
+
+    useEffect(() => {
+       if (state && antecedents.length > 0 ) {
+            let items = state.map(item => ({...item}));
+            items.map(item => {
+                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !=="string") {
+                    item.response = item.response[0].uuid
+                }
+            })
+            setState(items)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [antecedents])
 
     const {data: httpAntecedentsResponse} = useRequest({
         method: "GET",
@@ -183,13 +195,13 @@ function FamilyHistoryDialog({...props}) {
                                         {
                                             list.value_type === 1 &&
                                             <TextField
-                                                value={state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.res ? state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.res : ''}
+                                                value={state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)?.response : ''}
                                                 placeholder={t('note')}
                                                 sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
                                                 onChange={(e) => {
                                                     let items = state.map((item: FamilyAntecedentsModel) => ({...item}));
                                                     let item = items.find((i: FamilyAntecedentsModel) => i.uuid === list.uuid)
-                                                    if (item) item.res = e.target.value;
+                                                    if (item) item.response = e.target.value;
                                                     setState(items)
                                                 }
                                                 }/>
@@ -206,15 +218,15 @@ function FamilyHistoryDialog({...props}) {
                                                             control={
                                                                 <Checkbox
                                                                     name={val.uuid}
-                                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.res === val.uuid}
+                                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.response === val.uuid}
                                                                     onChange={() => {
                                                                         let items = state.map(item => ({...item}));
                                                                         let item = items.find(i => i.uuid === list.uuid)
                                                                         if (item) {
-                                                                            if (item.res === val.uuid)
-                                                                                item.res = ''
+                                                                            if (item.response === val.uuid)
+                                                                                item.response = ''
                                                                             else
-                                                                                item.res = val.uuid;
+                                                                                item.response = val.uuid;
                                                                         }
                                                                         setState(items)
                                                                     }}/>
@@ -254,7 +266,8 @@ function FamilyHistoryDialog({...props}) {
                                                        antecedents.push({
                                                            name: value,
                                                            type: 4,
-                                                           uuid: (data?.data as HttpResponse).data.uuid
+                                                           uuid: (data?.data as HttpResponse).data.uuid,
+                                                           value_type: -1
                                                        })
                                                        setAntecedents([...antecedents])
                                                    });

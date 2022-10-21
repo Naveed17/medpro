@@ -297,7 +297,7 @@
   },
   "actfees": {
     "path": "Paramètres > Honoraires",
-    "add_a_new_act": "Ajouter un nouveau acte",
+    "add_a_new_act": "Ajouter",
     "name_of_act": "Nom",
     "price_of_act": "Prix",
     "save": "Enregistrer",
