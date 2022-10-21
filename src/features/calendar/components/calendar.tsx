@@ -275,9 +275,9 @@ function Calendar({...props}) {
                                 slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
-                                allDaySlot={false}
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
+                                allDayContent={(event) => ""}
                                 eventContent={(event) =>
                                     <Event {...{event, openingHours, view}} t={translation}/>
                                 }
