@@ -79,6 +79,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
+    "@svgr/webpack": "^6.5.0",
     "@types/cookie": "^0.5.1",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/leaflet": "^1.7.11",
