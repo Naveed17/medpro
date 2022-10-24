@@ -12,6 +12,7 @@ import {
     ListItem,
     ListItemIcon,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
@@ -138,8 +139,8 @@ function HistoryTab({...props}) {
                             <Stack spacing={2}>
                                 <MotifCard data={app} t={t}/>
                                 <List dense>
-                                    {subMotifCard.map((col: any, idx: number) => (
-                                        <React.Fragment key={`list-item-${idx}`}>
+                                    {subMotifCard.map((col: any, indx: number) => (
+                                        <React.Fragment key={`list-item-${indx}`}>
                                             <>
                                                 <ListItem
                                                     onClick={() =>
@@ -215,7 +216,7 @@ function HistoryTab({...props}) {
                                                         {col.type === "treatment" &&
                                                             app.appointment.treatments.length == 0 && (
                                                                 <Box
-                                                                    key={`req-sheet-item-${idx}`}
+                                                                    key={`req-sheet-item-${indx}`}
                                                                     sx={{
                                                                         bgcolor: (theme) =>
                                                                             theme.palette.grey["A100"],
@@ -246,17 +247,52 @@ function HistoryTab({...props}) {
                                                                             borderRadius: 0.7,
                                                                         }}>
                                                                         {reqSheet.hasAnalysis.map(
-                                                                            (rs: any, idx: number) => (
-                                                                                <p
-                                                                                    key={`req-sheet-p-${idx}`}
-                                                                                    style={{
-                                                                                        margin: 0,
-                                                                                        fontSize: 12,
-                                                                                    }}>
-                                                                                    {rs.analysis.name} :{" "}
-                                                                                    {rs.result ? rs.result : " --"}
-                                                                                </p>
+                                                                            (rs: any, idxh: number) => (
+                                                                                <Stack key={`req-sheet-p-${idxh}`}
+                                                                                       mb={1}
+                                                                                       direction={{
+                                                                                           md: "row",
+                                                                                           xs: "column"
+                                                                                       }}
+                                                                                       alignItems={"center"}
+                                                                                       justifyContent={"space-between"}
+                                                                                       spacing={2}>
+                                                                                    <Typography>
+                                                                                        • {rs.analysis.name}
+                                                                                    </Typography>
+                                                                                    <TextField
+                                                                                        placeholder={"--"}
+                                                                                        size="small"
+                                                                                        type={"number"}
+                                                                                        inputProps={{min: 0, style: { textAlign: 'center', width: 50,borderRadius: 15 }}}
+                                                                                        onChange={(ev)=>{
+                                                                                            rs.result = Number(ev.target.value)
+                                                                                            console.log(rs)
+                                                                                            let capp = {...app}
+                                                                                            //capp.appointment.requestedAnalyses[idx]. = rs
+                                                                                            let capps = [...apps]
+                                                                                            //capps[indx] = capp
+                                                                                            console.log(indx)
+                                                                                        }}
+                                                                                        value={rs.result}/>
+                                                                                </Stack>
                                                                             )
+                                                                        )}
+
+                                                                        {reqSheet.hasAnalysis.length > 0 && (
+                                                                            <Box mt={2} width={"fit-content"}
+                                                                                 ml={"auto"}>
+                                                                                <Button
+                                                                                    variant="contained"
+                                                                                    color={"info"}
+                                                                                    onClick={() => {
+
+                                                                                    }}
+                                                                                    startIcon={<IconUrl
+                                                                                        path="ic-edit-file-pen"/>}>
+                                                                                    {t("consultationIP.save")}
+                                                                                </Button>
+                                                                            </Box>
                                                                         )}
                                                                     </Box>
                                                                 )
@@ -266,7 +302,7 @@ function HistoryTab({...props}) {
                                                             Object.keys(app?.appointment.requestedImaging)
                                                                 .length > 0 && (
                                                                 <Box
-                                                                    key={`req-sheet-item-${idx}`}
+                                                                    key={`req-sheet-item-${indx}`}
                                                                     sx={{
                                                                         bgcolor: (theme) =>
                                                                             theme.palette.grey["A100"],
@@ -274,9 +310,7 @@ function HistoryTab({...props}) {
                                                                         padding: 2,
                                                                         borderRadius: 0.7,
                                                                     }}>
-                                                                    {app?.appointment.requestedImaging[
-                                                                        "medical-imaging"
-                                                                        ].map((rs: any, idx: number) => (
+                                                                    {app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
                                                                         <p
                                                                             key={`req-sheet-p-${idx}`}
                                                                             style={{
@@ -293,7 +327,7 @@ function HistoryTab({...props}) {
                                                             app?.appointment.requestedImaging &&
                                                             app?.appointment.requestedImaging.length === 0 && (
                                                                 <Box
-                                                                    key={`req-sheet-item-${idx}`}
+                                                                    key={`req-sheet-item-${indx}`}
                                                                     sx={{
                                                                         bgcolor: (theme) =>
                                                                             theme.palette.grey["A100"],
@@ -313,7 +347,7 @@ function HistoryTab({...props}) {
                                                         {col.type === "req-sheet" &&
                                                             app.appointment.requestedAnalyses.length == 0 && (
                                                                 <Box
-                                                                    key={`req-sheet-item-${idx}`}
+                                                                    key={`req-sheet-item-${indx}`}
                                                                     sx={{
                                                                         bgcolor: (theme) =>
                                                                             theme.palette.grey["A100"],
@@ -411,7 +445,7 @@ function HistoryTab({...props}) {
                                                             (app.documents === null ||
                                                                 app.documents.length === 0) && (
                                                                 <Box
-                                                                    key={`req-sheet-item-${idx}`}
+                                                                    key={`req-sheet-item-${indx}`}
                                                                     sx={{
                                                                         bgcolor: (theme) =>
                                                                             theme.palette.grey["A100"],
@@ -431,7 +465,7 @@ function HistoryTab({...props}) {
 
                                                         {col.type === "act-fees" && (
                                                             <Box
-                                                                key={`req-sheet-item-${idx}`}
+                                                                key={`req-sheet-item-${indx}`}
                                                                 sx={{
                                                                     bgcolor: (theme) => theme.palette.grey["A100"],
                                                                     mb: 1,
