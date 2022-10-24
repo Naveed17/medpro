@@ -92,9 +92,7 @@ function ConsultationInProgress() {
     const {exam} = useAppSelector(consultationSelector);
 
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {drawer} = useAppSelector(
-        (state: { dialog: DialogProps }) => state.dialog
-    );
+    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [end, setEnd] = useState(false);
@@ -193,9 +191,11 @@ function ConsultationInProgress() {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data);
     }, [httpDocumentResponse]);
+
     useEffect(() => {
         if (httpModelResponse) setModels((httpModelResponse as HttpResponse).data);
     }, [httpModelResponse]);
+
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
         setTimeout(() => {
@@ -226,7 +226,7 @@ function ConsultationInProgress() {
                 })
             );
         }
-    }, [dispatch, sheet]);
+    }, [dispatch, sheet, uuind]);
 
     useEffect(() => {
         if (appointement) {
@@ -351,7 +351,6 @@ function ConsultationInProgress() {
             }
         }
     };
-
     const onDocumentLoadSuccess = ({numPages}: any) => {
         setNumPages(numPages);
     };

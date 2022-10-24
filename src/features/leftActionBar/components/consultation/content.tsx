@@ -29,6 +29,7 @@ import {useSession} from "next-auth/react";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import {SetSelectedApp} from "@features/toolbar";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -233,12 +234,16 @@ const Content = ({...props}) => {
                                             patient?.previousAppointments?.map(
                                                 (list: { uuid: string; status: number; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
                                                     <ListItem key={index} onClick={() => {
-                                                        const myElement = document.getElementById(list.uuid);
-                                                        const topPos = myElement?.offsetTop;
-                                                        if (topPos) {
-                                                            window.scrollTo(0, topPos - 10)
-                                                            setSelectedDate(list.uuid)
-                                                        }
+                                                        dispatch(SetSelectedApp(list.uuid))
+                                                        setTimeout(() => {
+                                                            const myElement = document.getElementById(list.uuid);
+                                                            const topPos = myElement?.offsetTop;
+                                                            if (topPos) {
+                                                                window.scrollTo(0, topPos - 10)
+                                                                setSelectedDate(list.uuid)
+                                                            }
+                                                        }, 1000)
+
                                                     }}>
                                                         <ListItemIcon>
                                                             <CircleIcon/>

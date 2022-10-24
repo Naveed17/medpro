@@ -7,7 +7,6 @@ import {documentButtonList} from "./config";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-import IconUrl from "@themes/urlIcon";
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -16,7 +15,7 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 function ConsultationIPToolbar({...props}) {
@@ -50,26 +49,10 @@ function ConsultationIPToolbar({...props}) {
     const [label, setlabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const [lastTabs, setLastTabs] = useState<string>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [anchorReport, setAnchorReport] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
-
-    const reportMenu = [
-        {
-            value: "balance_sheet_request",
-            icon: "test-tube",
-        },
-        {
-            value: "balance_results",
-            icon: "ic-plus",
-        },
-        {
-            value: "upload_report",
-            icon: "ic-dowlaodfile",
-        },
-    ];
     let tabsData = [
         {
             label: "patient_history",
@@ -88,6 +71,7 @@ function ConsultationIPToolbar({...props}) {
             value: "medical procedures"
         },
     ];
+
     if (appointement.latestAppointments.length === 0)
         tabsData = [
             {
@@ -103,21 +87,17 @@ function ConsultationIPToolbar({...props}) {
                 value: "medical procedures"
             }
         ];
+
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
-    const handleClickReport = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorReport(event.currentTarget);
-    };
-
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
@@ -295,26 +275,6 @@ function ConsultationIPToolbar({...props}) {
         setInfo(null);
     };
 
-    const handleCloseAnchor = (action: string) => {
-        console.log(action);
-        switch (action) {
-            case "balance_sheet_request":
-                setInfo("balance_sheet_request");
-                setState(checkUp);
-                break;
-            case "upload_report":
-                setInfo("add_a_document");
-                setState({name: "", description: "", type: "analyse", files: []});
-                break;
-            case "balance_results":
-                setInfo("balance_sheet_pending");
-                break;
-            default:
-                break;
-        }
-        setAnchorReport(null);
-        setOpenDialog(true);
-    };
     const handleCloseDialog = () => {
         let pdoc = [...pendingDocuments];
         switch (info) {
@@ -347,17 +307,6 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "medical_imagery":
                 setImagery(state);
-                /*if (state.length > 0) {
-                                    if (pdoc.findIndex(pdc => pdc.id === 1) === -1)
-                                        pdoc.push({
-                                            id: 1,
-                                            name: "Demande bilan",
-                                            status: "in_progress",
-                                            icon: 'ic-analyse'
-                                        })
-                                } else {
-                                    pdoc = pdoc.filter(obj => obj.id !== 1);
-                                }*/
                 break;
         }
         setOpenDialog(false);
@@ -395,6 +344,9 @@ function ConsultationIPToolbar({...props}) {
             case "upload_document":
                 setInfo("add_a_document");
                 setState({name: "", description: "", type: "analyse", files: []});
+                break;
+            case "RDV":
+                handleOpen()
                 break;
             default:
                 setInfo(null);
@@ -559,7 +511,7 @@ function ConsultationIPToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
-                        <Button
+                        {/*<Button
                             variant="contained"
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}
@@ -567,7 +519,7 @@ function ConsultationIPToolbar({...props}) {
                                 handleOpen();
                             }}>
                             {isMobile ? <IconUrl path="ic-agenda"/> : t("RDV")}
-                        </Button>
+                        </Button>*/}
                         <Button
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}
@@ -576,9 +528,9 @@ function ConsultationIPToolbar({...props}) {
                             endIcon={<KeyboardArrowDownIcon/>}
                             color="warning">
                             {
-                                isMobile ? <IconUrl path="ic-doc"/> :
+                                isMobile ? <AddIcon/> :
                                     <>
-                                        <AttachFileIcon style={{marginRight: 5, fontSize: 16}}/> {t("add")}
+                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
                                     </>
                             }
                         </Button>
