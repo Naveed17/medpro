@@ -86,6 +86,12 @@ const settingsData = {
             href: "/dashboard/settings/instructions",
             disable: true
         },
+        {
+            name: "app_lock",
+            icon: "ic-cloc",
+            href: "/dashboard/settings/app-lock",
+            disable: false
+        },
 
     ],
 }

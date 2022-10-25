@@ -32,6 +32,9 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
             "& .MuiListItemIcon-root svg": {
                 height: "36px",
                 width: "23px",
+                path:{
+                    fill:theme.palette.primary.main
+                }
             },
             "& .MuiListItemText-root": {
                 "& span": {

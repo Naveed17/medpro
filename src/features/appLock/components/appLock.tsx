@@ -7,7 +7,6 @@ import {appLockSelector} from "@features/appLock/selectors";
 import {setLock} from "@features/appLock/actions";
 import {useTranslation} from "next-i18next";
 
-const password = '123456'
 
 function AppLock() {
     const dispatch = useAppDispatch();
@@ -17,6 +16,8 @@ function AppLock() {
     const {lock} = useAppSelector(appLockSelector);
 
     const [value, setValue] = useState('');
+    const [password, setPassword] = useState(localStorage.getItem("app_lock") ? localStorage.getItem("app_lock") : '123456');
+
     const reactLottieRef = useRef(null);
 
     useEffect(() => {
@@ -25,7 +26,7 @@ function AppLock() {
         } else {
             (reactLottieRef.current as any)?.stop();
         }
-    }, [setValue, value])
+    }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onKeyDown = (e: any) => {
         if (e.keyCode === 13) {
