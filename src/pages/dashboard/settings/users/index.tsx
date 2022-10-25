@@ -33,6 +33,7 @@ function Users() {
   const router = useRouter();
   const { addUser } = useAppSelector(tableActionSelector);
   const [edit, setEdit] = useState(false);
+  const [selected, setSelected] = useState<any>("");
   const [rows, setRows] = useState([
     {
       id: 1,
@@ -68,10 +69,6 @@ function Users() {
       access: "2",
     },
   ]);
-
-  const closeDraw = () => {
-    setEdit(false);
-  };
 
   const headCells = [
     {
@@ -124,13 +121,16 @@ function Users() {
     },
   ];
   useEffect(() => {
-    setRows([...rows, addUser]);
-  }, [addUser]);
-  console.log(rows);
+    setRows([...rows, ...addUser]);
+  }, []);
   const handleChange = (props: any) => {
     const index = rows.findIndex((r) => r.id === props.id);
     rows[index].admin = !props.admin;
     setRows([...rows]);
+  };
+  const onDelete = (props: any) => {
+    const filtered = rows.filter((item: any) => item.id !== props.id);
+    setRows(filtered);
   };
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "users.config",
@@ -171,7 +171,7 @@ function Users() {
           state={null}
           from={"users"}
           t={t}
-          edit={null}
+          edit={onDelete}
           handleConfig={null}
           handleChange={handleChange}
         />

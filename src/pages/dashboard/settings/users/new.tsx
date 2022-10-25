@@ -26,6 +26,7 @@ import * as Yup from "yup";
 import { DashLayout } from "@features/base";
 import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
 import { addUser, tableActionSelector } from "@features/table";
+import { uniqueId } from "lodash";
 const FormStyled = styled(Form)(({ theme }) => ({
   "& .MuiCard-root": {
     border: "none",
@@ -84,7 +85,7 @@ const FormStyled = styled(Form)(({ theme }) => ({
 
 function NewUser() {
   const dispatch = useAppDispatch();
-  const { editUser: user } = useAppSelector(tableActionSelector);
+  const state = useAppSelector(tableActionSelector);
   // from backend
   const agendas = [
     { name: "Clinical" },
@@ -92,7 +93,7 @@ function NewUser() {
     { name: "Place 3" },
     { name: "Place 4" },
   ];
-  console.log(user);
+
   const { t, ready } = useTranslation("settings");
 
   const validationSchema = Yup.object().shape({
@@ -108,15 +109,15 @@ function NewUser() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      professionnel: user.professionnel || false,
-      email: user.email || "",
-      name: user.name || "",
-      message: user.message || "",
-      admin: user.admin || false,
+      professionnel: false,
+      email: "",
+      name: "",
+      message: "",
+      admin: false,
     },
     validationSchema,
     onSubmit: async (values, { setErrors, setSubmitting }) => {
-      dispatch(addUser({ ...values }));
+      dispatch(addUser({ ...values, id: uniqueId() }));
       router.push("/dashboard/settings/users");
     },
   });
@@ -389,6 +390,7 @@ function NewUser() {
             </Card>
 
             <div style={{ paddingBottom: "50px" }}></div>
+
             <Stack
               className="bottom-section"
               justifyContent="flex-end"
@@ -417,12 +419,6 @@ export const getStaticProps: GetStaticProps = async (context) => ({
     ])),
   },
 });
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
-  return {
-    paths: [], //indicates that no page needs be created at build time
-    fallback: "blocking", //indicates the type of fallback
-  };
-};
 export default NewUser;
 
 NewUser.auth = true;
