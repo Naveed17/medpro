@@ -35,19 +35,26 @@ function AppointmentStatsPopover() {
                 <Box
                     sx={{
                         width: "1.5rem",
-                        mr: ".5rem",
-                        borderTop: `thick double ${theme.palette.error.darker}`
+                        mr: "1rem",
+                        "&:after": {
+                            background: `linear-gradient(to right, 
+                                            ${theme.palette.error.lighter} 25%, 
+                                            ${theme.palette.error.light} 25%, 
+                                            ${theme.palette.error.light} 50%, 
+                                            ${theme.palette.error.darker} 50%, 
+                                            ${theme.palette.error.darker} 75%, 
+                                            ${theme.palette.error.dark} 75%)`,
+                            position: "absolute",
+                            content: '""',
+                            height: "4px",
+                            width: 30,
+                            right: 0,
+                            left: 0,
+                            ml: 1.5,
+                            top: "1rem"
+                        }
                     }}></Box>
                 <Typography>{t("picker-status-more")}</Typography>
-            </ListItem>
-            <ListItem>
-                <Box
-                    sx={{
-                        width: "1.5rem",
-                        mr: ".5rem",
-                        borderTop: `1.5px solid ${theme.palette.error.light}`
-                    }}></Box>
-                <Typography>{t("picker-status-less")}</Typography>
             </ListItem>
         </List>
     )
