@@ -1,7 +1,7 @@
 import {TableRowStyled} from "@features/table";
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Button, useTheme} from "@mui/material";
+import {Typography, Box, Button, useTheme, Stack} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import {Label} from "@features/label";
@@ -13,6 +13,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/sideBarMenu";
+import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data} = props;
@@ -198,6 +199,20 @@ function CalendarRow({...props}) {
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
                     <TableCell align="center">{"Agenda "}{config?.name}</TableCell>
+                    <TableCell align="right">
+                        {data?.fees ? <Box>
+                            <Stack direction={"row"}
+                                   sx={{
+                                       textAlign: "right"
+                                   }}
+                                   alignItems="center">
+                                <PlayCircleFilledRoundedIcon color="success"/>
+                                <Typography ml={1} variant="body2">
+                                    {`${data?.fees} TND`}
+                                </Typography>
+                            </Stack>
+                        </Box> : "--"}
+                    </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
                         {data?.status.key !== "WAITING_ROOM" ?
                             <Button
@@ -223,8 +238,9 @@ function CalendarRow({...props}) {
                                 {...(sideBarOpened && {sx: {minWidth: 40}})}
                                 onClick={() => handleEventClick("leaveWaitingRoom", data)}
                             >
-                                <Icon color={theme.palette.primary.main} path="ic-salle-leave"/> {!sideBarOpened && <span
-                                style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
+                                <Icon color={theme.palette.primary.main} path="ic-salle-leave"/> {!sideBarOpened &&
+                                <span
+                                    style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
                             </Button>
                         }
 

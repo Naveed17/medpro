@@ -5,6 +5,7 @@ interface AppointmentModel {
   startTime: string;
   createdAt: string;
   instruction: string;
+  fees: string;
   endTime: string;
   status: number;
   duration: number;
