@@ -266,6 +266,13 @@
       "add": "Ajouter",
       "manageAccess": "Gestion des accès",
       "path": "Paramètres > Utilisateurs",
+      "no-data":{
+        "user":{
+          "title":"ajouter votre premier utilisateur",
+          "description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+          "button-text":"Ajouter un utilisateur"
+        }
+      },
       "table": {
         "accessSetting": "Paramètre",
         "name": "Nom",

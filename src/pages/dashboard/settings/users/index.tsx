@@ -12,6 +12,15 @@ import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { useAppSelector } from "@app/redux/hooks";
 import { tableActionSelector } from "@features/table";
+import { NoDataCard } from "@features/card";
+const CardData = {
+  mainIcon: "ic-agenda-+",
+  title: "no-data.user.title",
+  description: "no-data.user.description",
+  buttonText: "no-data.user.button-text",
+  buttonIcon: "ic-agenda-+",
+  buttonVariant: "warning",
+};
 const ButtonStyled = styled(Button)(({ theme }) => ({
   margin: theme.spacing(1),
   minWidth: 210,
@@ -165,16 +174,20 @@ function Users() {
         </Button>
       </SubHeader>
       <Box className="container">
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"users"}
-          t={t}
-          edit={onDelete}
-          handleConfig={null}
-          handleChange={handleChange}
-        />
+        {rows.length > 0 ? (
+          <Otable
+            headers={headCells}
+            rows={rows}
+            state={null}
+            from={"users"}
+            t={t}
+            edit={onDelete}
+            handleConfig={null}
+            handleChange={handleChange}
+          />
+        ) : (
+          <NoDataCard t={t} ns={"settings"} data={CardData} />
+        )}
       </Box>
     </>
   );
