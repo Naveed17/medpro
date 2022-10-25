@@ -213,5 +213,8 @@
     "sub-title": "Tapez votre code pour afficher l'agenda",
     "text-placeholder": "Tapez votre code ici",
     "button": "Valider"
+  },
+  "app-lock": {
+    "update-pass": "App lock: configurer votre mot de passe"
   }
 }

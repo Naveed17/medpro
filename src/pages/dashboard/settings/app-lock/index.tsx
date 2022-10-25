@@ -19,6 +19,7 @@ import {SubFooter} from "@features/subFooter";
 import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@app/redux/hooks";
+import {toggleSideBar} from "@features/sideBarMenu";
 
 function AppLock() {
     const dispatch = useAppDispatch();
@@ -45,9 +46,11 @@ function AppLock() {
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
             localStorage.setItem("app_lock", values.confirmPassword);
+            localStorage.setItem('lock-on', "true");
             resetForm();
             dispatch(setLock(true));
-        },
+            dispatch(toggleSideBar(true));
+        }
     });
 
     const {
@@ -182,7 +185,11 @@ function AppLock() {
                         </Card>
                         <SubFooter>
                             <Stack width={1} direction="row" justifyContent="flex-end">
-                                <LoadingButton type="submit" variant="contained">
+                                <LoadingButton
+                                    disabled={localStorage.getItem("app_lock") ?
+                                        localStorage.getItem("app_lock") !== values.currentPassword :
+                                        values.confirmPassword.length === 0 || values.confirmPassword !== values.newPassword}
+                                    type="submit" variant="contained">
                                     {t("save")}
                                 </LoadingButton>
                             </Stack>

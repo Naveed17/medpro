@@ -39,7 +39,9 @@ import {
     NotificationPopover,
 } from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
-import {setLock} from "@features/appLock";
+import {appLockSelector, setLock} from "@features/appLock";
+import {useSnackbar} from "notistack";
+import {useTranslation} from "next-i18next";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -54,11 +56,15 @@ function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
+    const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {lock} = useAppSelector(appLockSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
     const {ongoing} = useAppSelector(dashLayoutSelector);
+
+    const {t, ready} = useTranslation("common");
 
     const router = useRouter();
 
@@ -101,10 +107,13 @@ function TopNavBar({...props}) {
         setAnchorEl(null);
     };
 
-    const openAppLock = () =>{
+    const openAppLock = () => {
+        localStorage.setItem('lock-on', "true");
         dispatch(setLock(true));
-        dispatch(toggleSideBar(opened));
+        dispatch(toggleSideBar(true));
     }
+
+    if (!ready) return <>loading translations...</>;
 
     return (
         <>
@@ -136,6 +145,7 @@ function TopNavBar({...props}) {
                         </Hidden>
                         <Hidden smDown>
                             <IconButton
+                                disabled={lock}
                                 color="primary"
                                 edge="start"
                                 className="btn"
@@ -220,9 +230,10 @@ function TopNavBar({...props}) {
                             <Badge
                                 badgeContent={null}
                                 onClick={() => {
-                                    if(localStorage.getItem("app_lock")) {
+                                    if (localStorage.getItem("app_lock")) {
                                         openAppLock()
-                                    }else {
+                                    } else {
+                                        enqueueSnackbar(t("app-lock.update-pass"), {variant: 'info'})
                                         router.push('/dashboard/settings/app-lock');
                                     }
                                 }}
