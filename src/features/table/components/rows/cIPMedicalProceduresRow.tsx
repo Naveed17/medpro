@@ -55,9 +55,7 @@ function CIPMedicalProceduresRow({...props}) {
 
                         <InputBase
                             placeholder={"1"}
-                            inputProps={{
-                                readOnly: true,
-                            }}
+
                             type="number"
                             value={row.qte}
                             onClick={(e) => e.stopPropagation()}

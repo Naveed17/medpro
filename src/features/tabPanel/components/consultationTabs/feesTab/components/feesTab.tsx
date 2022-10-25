@@ -107,40 +107,6 @@ function FeesTab({...props}) {
                 }
             }} startIcon={<IconUrl path="ic-plus"/>}>{t("consultationIP.add_a_new_act")}</Button>*/}
             <Box pt={8}/>
-            <SubFooter>
-                <Stack spacing={2} direction="row" alignItems="center" width={1}
-                       justifyContent="flex-end">
-                    <Typography variant="subtitle1">
-                        <span>{t('total')} : </span>
-                    </Typography>
-                    <Typography fontWeight={600} variant="h6">
-                        {selectedAct.length > 0 ? total : '--'} TND
-                    </Typography>
-                    <Stack direction='row' alignItems="center" spacing={2}>
-                        <span>|</span>
-                        <Button
-                            variant='text-black'
-                            disabled={selectedAct.length == 0}
-                            onClick={() => {
-                                setInfo('document_detail')
-                                setState({
-                                    type: 'fees',
-                                    name: 'note_fees',
-                                    info: selectedAct,
-                                    patient: patient.firstName + ' ' + patient.lastName
-                                })
-                                setOpenDialog(true);
-                            }
-                            }
-                            startIcon={
-                                <IconUrl path='ic-imprime'/>
-                            }>
-
-                            {t("consultationIP.print")}
-                        </Button>
-                    </Stack>
-                </Stack>
-            </SubFooter>
         </>
     );
 }

@@ -35,6 +35,11 @@ function HistoryTab({...props}) {
         appuuid,
         dispatch,
         setOpenDialog,
+        medical_entity,
+        trigger,
+        session,
+        mutate,
+        locale
     } = props;
 
     const subMotifCard = [
@@ -125,7 +130,7 @@ function HistoryTab({...props}) {
             )}
 
             <Stack spacing={2}>
-                {apps.map((app: any) => (
+                {apps.map((app: any, iid: number) => (
                     <PatientHistoryCard
                         t={t}
                         key={app.appointment.uuid}
@@ -264,15 +269,19 @@ function HistoryTab({...props}) {
                                                                                         placeholder={"--"}
                                                                                         size="small"
                                                                                         type={"number"}
-                                                                                        inputProps={{min: 0, style: { textAlign: 'center', width: 50,borderRadius: 15 }}}
-                                                                                        onChange={(ev)=>{
+                                                                                        inputProps={{
+                                                                                            min: 0,
+                                                                                            style: {
+                                                                                                textAlign: 'center',
+                                                                                                width: 50,
+                                                                                                borderRadius: 15
+                                                                                            }
+                                                                                        }}
+                                                                                        onChange={(ev) => {
                                                                                             rs.result = Number(ev.target.value)
-                                                                                            console.log(rs)
-                                                                                            let capp = {...app}
-                                                                                            //capp.appointment.requestedAnalyses[idx]. = rs
                                                                                             let capps = [...apps]
-                                                                                            //capps[indx] = capp
-                                                                                            console.log(indx)
+                                                                                            capps[iid].appointment.requestedAnalyses[idx].hasAnalysis[idxh] = rs
+                                                                                            setApps(capps)
                                                                                         }}
                                                                                         value={rs.result}/>
                                                                                 </Stack>
@@ -286,7 +295,23 @@ function HistoryTab({...props}) {
                                                                                     variant="contained"
                                                                                     color={"info"}
                                                                                     onClick={() => {
-
+                                                                                        const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
+                                                                                        const form = new FormData();
+                                                                                        form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
+                                                                                        trigger(
+                                                                                            {
+                                                                                                method: "PUT",
+                                                                                                url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/requested-analysis/${selectedRA.uuid}/${locale}`,
+                                                                                                data: form,
+                                                                                                headers: {
+                                                                                                    ContentType: "application/x-www-form-urlencoded",
+                                                                                                    Authorization: `Bearer ${session?.accessToken}`,
+                                                                                                },
+                                                                                            },
+                                                                                            {revalidate: true, populateCache: true}
+                                                                                        ).then(() => {
+                                                                                            mutate();
+                                                                                        });
                                                                                     }}
                                                                                     startIcon={<IconUrl
                                                                                         path="ic-edit-file-pen"/>}>
@@ -472,24 +497,80 @@ function HistoryTab({...props}) {
                                                                     padding: 2,
                                                                     borderRadius: 0.7,
                                                                 }}>
+                                                                {app?.appointment.acts.length > 0 &&
+                                                                    <Grid container spacing={2}>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography fontWeight={"bold"}
+                                                                                        fontSize={13}>
+                                                                                Name
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"center"}
+                                                                                        fontWeight={"bold"}
+                                                                                        fontSize={13}>
+                                                                                Qte
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"center"}
+                                                                                        fontWeight={"bold"}
+                                                                                        fontSize={13}>
+                                                                                Price
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"right"}
+                                                                                        fontWeight={"bold"}
+                                                                                        fontSize={13}>
+                                                                                Total
+                                                                            </Typography>
+                                                                        </Grid>
+                                                                    </Grid>}
                                                                 {app?.appointment.acts.map(
                                                                     (act: any, idx: number) => (
-                                                                        <Stack
-                                                                            key={`req-sheet-p-${idx}`}
-                                                                            direction="row"
-                                                                            spacing={3}
-                                                                            justifyContent="space-between">
-                                                                            <Typography fontSize={13}>
-                                                                                {act.name}
-                                                                            </Typography>
-                                                                            <p><span
-                                                                                style={{fontWeight: "bold"}}>{act.price}</span>{" TND"}
-                                                                            </p>
-                                                                        </Stack>
+                                                                        <Grid container key={`req-sheet-p-${idx}`}
+                                                                              spacing={2}>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography
+                                                                                    fontSize={13}>
+                                                                                    {act.name}
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography textAlign={"center"}
+
+                                                                                            fontSize={13}>
+                                                                                    {act.qte}
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography textAlign={"center"}
+
+                                                                                            fontSize={13}>
+                                                                                    {act.price} TND
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography textAlign={"right"}
+
+                                                                                            fontSize={13}>
+                                                                                    {act.price * act.qte} TND
+                                                                                </Typography>
+                                                                            </Grid>
+                                                                        </Grid>
                                                                     )
                                                                 )}
                                                                 {app?.appointment.acts.length > 0 && (
-                                                                    <Box mt={2} width={"fit-content"} ml={"auto"}>
+                                                                    <Stack mt={2} direction={"row"}
+                                                                           alignItems={"center"}
+                                                                           justifyContent={"flex-end"}>
+                                                                        <Typography textAlign={"right"}
+                                                                                    mr={2}
+                                                                                    fontWeight={"bold"}
+                                                                                    fontSize={18}>
+                                                                            Total : -- TND |
+                                                                        </Typography>
                                                                         <Button
                                                                             variant="contained"
                                                                             color={"info"}
@@ -526,7 +607,7 @@ function HistoryTab({...props}) {
                                                                             startIcon={<IconUrl path="ic-imprime"/>}>
                                                                             {t("consultationIP.print")}
                                                                         </Button>
-                                                                    </Box>
+                                                                    </Stack>
                                                                 )}
 
                                                                 {app?.appointment.acts.length === 0 && (
