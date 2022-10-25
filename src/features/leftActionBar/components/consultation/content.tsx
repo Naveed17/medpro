@@ -314,7 +314,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list.analysis.name}
+                                                    {list.analysis.name} {list.result ? '/' + list.result : ''}
                                                 </Typography>
                                             </ListItem>
                                         ))}
@@ -334,7 +334,6 @@ const Content = ({...props}) => {
                                                 color="error"
                                                 size="small"
                                                 onClick={() => {
-                                                    console.log(ra.uuid);
                                                     trigger(
                                                         {
                                                             method: "DELETE",
@@ -473,6 +472,7 @@ const Content = ({...props}) => {
                                             name: string;
                                             startDate: string;
                                             endDate: string;
+                                            response: string | any[]
                                         },
                                         index: number
                                     ) => (
@@ -484,6 +484,7 @@ const Content = ({...props}) => {
                                                 {item.name}{" "}
                                                 {item.startDate ? " / " + item.startDate : ""}{" "}
                                                 {item.endDate ? " - " + item.endDate : ""}
+                                                {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : '(' + item.response[0].value + ')' : ''}
                                             </Typography>
                                             <IconButton
                                                 size="small"

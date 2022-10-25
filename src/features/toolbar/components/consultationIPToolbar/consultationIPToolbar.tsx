@@ -166,7 +166,6 @@ function ConsultationIPToolbar({...props}) {
                     setCheckUp([]);
                     setInfo("document_detail");
                     const res = r.data.data;
-                    console.log(res);
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
@@ -244,7 +243,6 @@ function ConsultationIPToolbar({...props}) {
                 setactions(true);
                 break;
             case "write_certif":
-                console.log("write_certif", state);
                 form.append("content", state.content);
                 trigger({
                     method: "POST",
@@ -329,11 +327,10 @@ function ConsultationIPToolbar({...props}) {
                 setState(imagery);
                 break;
             case "write_certif":
-                console.log(appointement);
                 setInfo("write_certif");
                 setState({
                     name: ginfo.firstName + " " + ginfo.lastName,
-                    days: 19,
+                    days: '....',
                     content: "",
                     patient:
                         appointement.patient.firstName +
