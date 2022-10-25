@@ -74,6 +74,7 @@ function BalanceSheetDialog({...props}) {
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
+        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         analysis.unshift(value)
         setAnalysis([...analysis])
         data.setState([...analysis])

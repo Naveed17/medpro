@@ -71,9 +71,9 @@ export default function HistoryCard({...props}) {
                         className="btn-more-mobile" size="small">
                         <Icon path='ic-edit-file'/>
                     </IconButton>
-                    <IconButton size="small">
+                    {/*<IconButton size="small">
                         <Icon path='ic-duotone'/>
-                    </IconButton>
+                    </IconButton>*/}
                 </Stack>
             </Stack>
         </HistoryCardStyled>
