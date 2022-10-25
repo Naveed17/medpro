@@ -210,7 +210,7 @@
   },
   "appLock": {
     "title": "APP LOCK",
-    "sub-title": "Tapez votre code pour afficher l'agenda (pass: 123456)",
+    "sub-title": "Tapez votre code pour afficher l'agenda",
     "text-placeholder": "Tapez votre code ici",
     "button": "Valider"
   }
