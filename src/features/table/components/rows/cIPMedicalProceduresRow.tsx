@@ -1,9 +1,11 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, Checkbox, InputBase} from "@mui/material";
+import {Box, Button, Checkbox, IconButton, InputBase} from "@mui/material";
 import {Theme, useTheme} from "@mui/material/styles";
 import {TableRowStyled} from "@features/table";
 import React, {useState} from "react";
 import {pxToRem} from "@themes/formatFontSize";
+import RemoveIcon from "@mui/icons-material/Remove";
+import AddIcon from "@mui/icons-material/Add";
 
 function CIPMedicalProceduresRow({...props}) {
 
@@ -39,44 +41,70 @@ function CIPMedicalProceduresRow({...props}) {
             </TableCell>
             <TableCell align={"center"}>
                 {isItemSelected ? (
-                    <InputBase
-                        placeholder={"1"}
-                        type="number"
-                        value={row.qte}
-                        onClick={(e) => e.stopPropagation()}
-                        onFocus={() => {
-                            setSelected(row.uuid + 'qte')
-                        }}
-                        onBlur={(ev) => {
-                            setSelected('')
-                        }}
-                        autoFocus={selected === row.uuid + 'qte'}
-                        onChange={(e) => {
-                            row.qte = Number(e.currentTarget.value)
-                            editMotif(row, 'change')
-                        }}
-                        sx={{
-                            backgroundColor: "white",
-                            border: 1,
-                            height: pxToRem(30),
-                            borderRadius: 2,
-                            paddingLeft: .5,
-                            paddingRight: .5,
-                            maxWidth: 64,
-                            borderColor: theme.palette.divider,
-                            color: theme.palette.text.primary,
-                            mr: 1,
-                            input: {
-                                textAlign: 'center',
-                                padding: theme.spacing(.3),
-                                "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
-                                    "-webkit-appearance": 'none',
-                                    margin: 0,
-                                }
+                    <Box className="counter-btn">
+                        <IconButton
+                            size="small"
+                            disabled={row.qte <= 1}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                row.qte = row.qte-1
+                                editMotif(row, 'change')
+                            }}>
+                            <RemoveIcon width={1} height={1} />
+                        </IconButton>
 
-                            }
-                        }}
-                    />
+                        <InputBase
+                            placeholder={"1"}
+
+                            type="number"
+                            value={row.qte}
+                            onClick={(e) => e.stopPropagation()}
+                            onFocus={() => {
+                                setSelected(row.uuid + 'qte')
+                            }}
+                            onBlur={(ev) => {
+                                setSelected('')
+                            }}
+                            autoFocus={selected === row.uuid + 'qte'}
+                            onChange={(e) => {
+                                row.qte = Number(e.currentTarget.value)
+                                editMotif(row, 'change')
+                            }}
+                            sx={{
+                                backgroundColor: "white",
+                                border: 1,
+                                height: pxToRem(30),
+                                borderRadius: 3,
+                                paddingLeft: .5,
+                                paddingRight: .5,
+                                maxWidth: 64,
+                                borderColor: theme.palette.divider,
+                                color: theme.palette.text.primary,
+                                mr: 1,
+                                ml:1,
+                                input: {
+                                    textAlign: 'center',
+                                    padding: theme.spacing(.3),
+                                    "&::-webkit-outer-spin-button,&::-webkit-inner-spin-button": {
+                                        "-webkit-appearance": 'none',
+                                        margin: 0,
+                                    }
+
+                                }
+                            }}
+                        />
+
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                row.qte = row.qte+1
+                                editMotif(row, 'change')
+                            }}>
+                            <AddIcon />
+                        </IconButton>
+                    </Box>
+
                 ) : <>
                     <Button
                         disabled
