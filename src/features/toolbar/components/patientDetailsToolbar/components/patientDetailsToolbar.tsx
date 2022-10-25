@@ -16,7 +16,7 @@ function PatientDetailsToolbar({ ...props }) {
       <Box className="header">
         <nav>
           <List sx={{ display: "flex" }}>
-            <ListItem disablePadding sx={{ marginRight: "20px" }}>
+            {/*<ListItem disablePadding sx={{ marginRight: "20px" }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -34,7 +34,7 @@ function PatientDetailsToolbar({ ...props }) {
               >
                 <Icon path={"ic-refrech"} />
               </IconButton>
-            </ListItem>
+            </ListItem>*/}
             {/*            <ListItem disablePadding sx={{ marginRight: "20px" }}>
               <IconButton color="primary" edge="start">
                 <Icon path={"ic-autre2"} />

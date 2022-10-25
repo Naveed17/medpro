@@ -206,6 +206,7 @@ function Agenda() {
                         editable: AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
+                        fees: appointment.fees,
                         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                         motif: appointment.consultationReason,
                         instruction: appointment.instruction !== null ? appointment.instruction : "",
