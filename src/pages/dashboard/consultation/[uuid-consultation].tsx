@@ -470,9 +470,8 @@ function ConsultationInProgress() {
                         mutateDoc={mutateDoc}
                         setState={setState}
                         medical_entity={medical_entity}
-                        trigger={trigger}
-                        sessoin={session}
                         mutate={mutate}
+                        session={session}
                         locale={router.locale}
                         dispatch={dispatch}
                         setOpenDialog={setOpenDialog}></HistoryTab>

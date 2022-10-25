@@ -19,6 +19,7 @@ import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@app/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
+import {useRequestMutation} from "@app/axios";
 
 function HistoryTab({...props}) {
 
@@ -36,11 +37,13 @@ function HistoryTab({...props}) {
         dispatch,
         setOpenDialog,
         medical_entity,
-        trigger,
         session,
         mutate,
         locale
     } = props;
+
+    const {trigger} = useRequestMutation(null, "/editRA");
+
 
     const subMotifCard = [
         {
@@ -278,7 +281,7 @@ function HistoryTab({...props}) {
                                                                                             }
                                                                                         }}
                                                                                         onChange={(ev) => {
-                                                                                            rs.result = Number(ev.target.value)
+                                                                                            rs.result = ev.target.value
                                                                                             let capps = [...apps]
                                                                                             capps[iid].appointment.requestedAnalyses[idx].hasAnalysis[idxh] = rs
                                                                                             setApps(capps)
@@ -308,7 +311,10 @@ function HistoryTab({...props}) {
                                                                                                     Authorization: `Bearer ${session?.accessToken}`,
                                                                                                 },
                                                                                             },
-                                                                                            {revalidate: true, populateCache: true}
+                                                                                            {
+                                                                                                revalidate: true,
+                                                                                                populateCache: true
+                                                                                            }
                                                                                         ).then(() => {
                                                                                             mutate();
                                                                                         });
