@@ -4,7 +4,7 @@ import {
 } from './actions';
 
 export type AppLockProps = {
-    lock:boolean;
+    lock: boolean;
 };
 
 const initialState: AppLockProps = {
