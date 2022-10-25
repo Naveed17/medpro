@@ -11,7 +11,7 @@ on:
     branches:
       - 'develop'
     types: [ opened ,synchronize ,reopened, labeled ]
-  
+
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
 
   CD:
     needs: [CI,envmap]
-    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@develop
+    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@v1.0.0
     if: ${{ needs.envmap.outputs.enable_cd == 'true' }}
     strategy:
       matrix: ${{ fromJSON(needs.envmap.outputs.environments) }}

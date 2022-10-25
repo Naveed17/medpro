@@ -1,51 +1,61 @@
-import type { NextPage } from 'next'
 import styles from '@styles/Home.module.scss'
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {useTranslation} from "next-i18next";
 import {
     SelectChangeEvent,
 } from "@mui/material";
-import { setTheme } from "@features/base/actions";
-import { useRouter } from "next/router";
-import { useAppDispatch } from "@app/redux/hooks";
-import dynamic from 'next/dynamic';
-const Footer = dynamic(() => import('@features/base/components/footer/footer'));
-const SignIn = dynamic(() => import('./auth/signin'));
+import {setTheme} from "@features/base/actions";
+import {useRouter} from "next/router";
+import {useAppDispatch} from "@app/redux/hooks";
+import {signIn, useSession} from "next-auth/react";
+import {useEffect} from "react";
 
-const Home: NextPage = () => {
+function Home() {
     const router = useRouter();
+    const {status} = useSession();
     const dispatch = useAppDispatch();
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
-
-    const { t, ready } = useTranslation(['common', 'menu']);
-
-    if (!ready) return (<>loading translations...</>);
+    const {t, ready} = useTranslation(['common', 'menu']);
 
     const currentLang = router.locale;
     const handleChange = (event: SelectChangeEvent) => {
         const lang = event.target.value as string;
-        router.push(router.pathname, router.pathname, { locale: lang });
+        router.push(router.pathname, router.pathname, {locale: lang});
     };
+
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
+
+        } else if (status === "authenticated") {
+            void router.push(router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda');
+        }
+    }, [router, status]);
 
     const toggleTheme = (mode: string) => {
         dispatch(setTheme(mode));
     }
 
+    if (!ready) return (<>loading translations...</>);
+
     return (
         <div className={styles.container} dir={dir}>
-            <main className={styles.main}>
-                <SignIn />
+            {/*<main className={styles.main}>
+                <SignInComponent/>
             </main>
 
-            <Footer />
+            <Footer/>*/}
         </div>
     )
 }
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         ...(await serverSideTranslations(locale as string, ['common', 'menu']))
     }
 })
-export default Home
+export default Home;
+
+Home.auth = true;
