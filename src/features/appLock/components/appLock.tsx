@@ -30,7 +30,9 @@ function AppLock() {
 
     const onKeyDown = (e: any) => {
         if (e.keyCode === 13) {
-            dispatch(setLock(false));
+            if (value === password) {
+                dispatch(setLock(false));
+            }
             setValue('');
         }
     };
