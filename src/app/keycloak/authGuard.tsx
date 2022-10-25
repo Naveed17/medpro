@@ -19,8 +19,9 @@ function AuthGuard({children}: LayoutProps) {
     ];
 
     useEffect(() => {
+        console.log(status);
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
-            // signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')});
+            signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard' : '/dashboard')});
         }
     }, [status, router]);
     // Make sure that you show a loading state for BOTH loading and unauthenticated.

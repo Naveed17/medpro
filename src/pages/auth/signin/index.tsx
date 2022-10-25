@@ -155,4 +155,4 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
     }
 })
 
-export default SignIn
+export default SignIn;
