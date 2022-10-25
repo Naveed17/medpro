@@ -1,8 +1,6 @@
 import React from "react";
-import {Box, CardContent, Stack, Typography} from "@mui/material";
+import {Box, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
-import AddIcon from '@mui/icons-material/Add';
-import DocumentCardStyled from '@features/card/components/documentCard/components/overrides/documentCardStyle';
 import Image from "next/image";
 
 function DocumentsTab({...props}) {
