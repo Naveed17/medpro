@@ -7,7 +7,6 @@ import {
     Divider,
     FormControl,
     FormControlLabel,
-    FormHelperText,
     Grid,
     List,
     ListItem,
@@ -35,6 +34,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -47,6 +47,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [update, setUpdate] = useState<number>(-1);
     const [model, setModel] = useState<string>('');
     const [models, setModels] = useState<any[]>([]);
+    const [selectedModel, setSelectedModel] = useState<string>('');
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [errorDrug, setErrorDrug] = useState(false);
     const [errorDuration, setErrorDuration] = useState(false);
@@ -82,6 +83,27 @@ function MedicalPrescriptionDialog({...props}) {
         setOpenDialog(false);
     }
 
+    const editModel = () => {
+
+        const form = new FormData();
+        form.append('drugs', JSON.stringify(drugs));
+
+        trigger({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modal/'+selectedModel+ router.locale,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then((cnx) => {
+            mutate();
+            setDrugsList((cnx?.data as HttpResponse)?.data)
+            setSelectedModel('')
+        })
+        setOpenDialog(false);
+    }
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
@@ -102,7 +124,7 @@ function MedicalPrescriptionDialog({...props}) {
             name: '',
             dosage: '',
             duration: '',
-            durationType: '',
+            durationType: 'days',
             note: ''
         },
         validationSchema,
@@ -246,6 +268,8 @@ function MedicalPrescriptionDialog({...props}) {
                                             models.map((item, idx) =>
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
                                                           onClick={() => {
+                                                              console.log(item)
+                                                              setSelectedModel(item.uuid)
                                                               setDrugs(item.prescription_modal_has_drugs)
                                                               data.setState(item.prescription_modal_has_drugs)
                                                               setAnchorEl(null);
@@ -290,9 +314,11 @@ function MedicalPrescriptionDialog({...props}) {
                                     />
                                 }
 
+                                {/*
                                 {errorDrug && <Typography fontSize={12}
                                                           style={{marginLeft: 20}}
                                                           color={"error"}>{t('nameReq')}</Typography>}
+*/}
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('dosage')}
@@ -325,7 +351,7 @@ function MedicalPrescriptionDialog({...props}) {
                                             sx={{color: "text.secondary"}}/>
                                     </Grid>
                                     <Grid item xs={12} md={9}>
-                                        <FormControl  component="fieldset">
+                                        <FormControl component="fieldset">
                                             <RadioGroup
                                                 row
                                                 aria-label="date"
@@ -351,9 +377,11 @@ function MedicalPrescriptionDialog({...props}) {
 
                                     </Grid>
                                 </Grid>
+                                {/*
                                 {errorDuration && <Typography fontSize={12}
                                                               style={{marginLeft: 20}}
                                                               color={"error"}>{t('durationReq')}</Typography>}
+*/}
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('cautionary_note')}</Typography>
@@ -393,12 +421,27 @@ function MedicalPrescriptionDialog({...props}) {
                 <Grid item xs={12} md={5}>
                     <Stack direction={'row'} alignItems="center" mb={1}>
                         <Typography gutterBottom>{t('drug_list')}</Typography>
-                        {drugs.length > 0 && <Button className='btn-add' sx={{ml: 'auto'}} size='small' onClick={() => {
-                            setOpenDialog(true)
-                        }}
-                                                     startIcon={<AddIcon/>}>
-                            {t('createAsModel')}
-                        </Button>}
+                        {
+                            drugs.length > 0 && selectedModel === '' &&
+                            <Button className='btn-add' sx={{ml: 'auto'}} size='small' onClick={() => {
+                                setOpenDialog(true)
+                            }}
+                                    startIcon={<AddIcon/>}>
+                                {t('createAsModel')}
+                            </Button>
+                        }
+
+                        {drugs.length > 0 && selectedModel !== '' &&
+                            <Button className='btn-add'
+                                    sx={{ml: 'auto'}}
+                                    size='small'
+                                    onClick={() => {
+                                        //setOpenDialog(true)
+                                        editModel()
+                                    }}
+                                    startIcon={<ModeEditIcon/>}>
+                                {t('editModel')}
+                            </Button>}
                     </Stack>
                     <Box className="list-container">
                         {

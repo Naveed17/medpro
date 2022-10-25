@@ -187,6 +187,7 @@
     "modelName": "Personaliser les modèles de l'ordonnance médicale",
     "namedModel": "Veuiller nommé le modèle",
     "createAsModel": "Enregistrer Modèle",
+    "editModel":"Modifier modèle",
     "updateDrug": "Modifier",
     "model_prescription": "Modèle ordonnance",
     "joint_pain": "Douleur articulaire",
