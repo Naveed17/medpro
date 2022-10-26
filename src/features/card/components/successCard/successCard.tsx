@@ -1,8 +1,9 @@
-import React, {memo} from "react";
-import {Button, Stack, Typography} from "@mui/material";
+import React, {memo, useState} from "react";
+import {Stack, Typography} from "@mui/material";
 import {Player} from "@lottiefiles/react-lottie-player";
 import IconUrl from "@themes/urlIcon";
 import {styled} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
 
 const RootStyle = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.common.white,
@@ -20,6 +21,8 @@ LottiePlayer.displayName = "lottie-player";
 function SuccessCard({...props}) {
     const {onClickTextButton, data} = props;
     const {title, description, buttons} = data;
+    const [loading, setLoading] = useState<boolean>(false);
+
     return (
         <RootStyle key={"success-card"} justifyContent="center" alignItems="center" height={1}>
             <LottiePlayer
@@ -39,18 +42,25 @@ function SuccessCard({...props}) {
                 {description}
             </Typography>
             {buttons &&
-                <Stack direction={{lg: "row", xs: "column"}} spacing={2} mt={5}>
+                <Stack direction={{
+                    lg: (buttons.length > 2 && buttons.find((button: any) => button.disabled) ? "row" : "column"),
+                    xs: "column"
+                }} spacing={2} mt={5}>
                     {buttons.map((button: any, index: number) => (
-                        <Button
+                        <LoadingButton
                             key={`button-${index}`}
+                            {...{loading}}
                             {...(button.variant && {variant: button.variant})}
                             {...(button.color && {color: button.color})}
                             {...(button.disabled && {disabled: button.disabled})}
                             startIcon={button.icon && <IconUrl path={button.icon} color={"white"}/>}
                             sx={button.sx}
-                            onClick={() => onClickTextButton(button.action)}>
+                            onClick={() => {
+                                setLoading(true);
+                                onClickTextButton(button.action);
+                            }}>
                             {button.title}
-                        </Button>))}
+                        </LoadingButton>))}
                 </Stack>
             }
         </RootStyle>

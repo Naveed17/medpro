@@ -34,6 +34,7 @@ const initialState: AppointmentState = {
         smsLang: "fr",
         description: "",
         rappel: "1",
+        rappelType: "2",
         smsRappel: true,
         timeRappel: new Date("2022-01-01T18:00:00.000Z")
     },
