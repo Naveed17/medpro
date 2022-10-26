@@ -42,9 +42,24 @@ function CalendarPickers({...props}) {
                         return (
                             <PickersDay {...(isSelected && {
                                 sx: {
+                                    "&:after": {
+                                        background: !(DayComponentProps.today || DayComponentProps.selected) &&
+                                            `linear-gradient(to right, 
+                                            ${note.events.length > 1 ? theme.palette.error.lighter : theme.palette.common.white} 25%, 
+                                            ${note.events.length > 3 ? theme.palette.error.light : theme.palette.common.white} 25%, 
+                                            ${note.events.length > 3 ? theme.palette.error.light : theme.palette.common.white} 50%, 
+                                            ${note.events.length > 5 ? theme.palette.error.darker : theme.palette.common.white} 50%, 
+                                            ${note.events.length > 5 ? theme.palette.error.darker : theme.palette.common.white} 75%, 
+                                            ${note.events.length > 10 ? theme.palette.error.dark : theme.palette.common.white} 75%)`,
+                                        position: "absolute",
+                                        content: '""',
+                                        height: "4px",
+                                        right: 0,
+                                        left: 0,
+                                        top: "-1px"
+                                    },
                                     borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
-                                    borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
-                                    borderTop: note.events.length > 5 ? `thick double ${theme.palette.error.darker}` : `1.5px solid ${theme.palette.error.light}`
+                                    borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important"
                                 }
                             })} {...DayComponentProps} />
                         );

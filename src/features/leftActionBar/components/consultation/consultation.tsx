@@ -31,11 +31,14 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {pxToRem} from "@themes/formatFontSize";
+import {appLockSelector} from "@features/appLock";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
+    const {lock} = useAppSelector(appLockSelector);
+
     const [loading, setLoading] = useState<boolean>(true);
     const [edit, setEdit] = useState<boolean>(false);
     const [number, setNumber] = useState<any>(null);
@@ -46,7 +49,7 @@ function Consultation() {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (patient) {
+        if (patient && !lock) {
             dispatch(toggleSideBar(false));
             console.log(patient);
             setNumber(patient.contact[0])
@@ -54,7 +57,7 @@ function Consultation() {
             setName(patient.firstName + " " + patient.lastName)
             setLoading(false)
         }
-    }, [dispatch, patient]);
+    }, [dispatch, patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const router = useRouter();
     const {data: session} = useSession();

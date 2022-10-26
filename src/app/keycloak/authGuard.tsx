@@ -4,9 +4,13 @@ import React, {useEffect} from "react";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import LockIcon from "@themes/overrides/icons/lockIcon";
+import {setLock} from "@features/appLock";
+import {toggleSideBar} from "@features/sideBarMenu";
+import {useAppDispatch} from "@app/redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
     const {data: session, status} = useSession();
+    const dispatch = useAppDispatch();
     const router = useRouter();
     const {t} = useTranslation('common');
 
@@ -19,9 +23,15 @@ function AuthGuard({children}: LayoutProps) {
     ];
 
     useEffect(() => {
-        console.log(status);
+        if (localStorage.getItem('lock-on') === 'true') {
+            dispatch(setLock(true));
+            dispatch(toggleSideBar(true));
+        }
+    }, [dispatch]);
+
+    useEffect(() => {
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
-            signIn('keycloak', { callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
+            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
         }
     }, [status, router]);
     // Make sure that you show a loading state for BOTH loading and unauthenticated.

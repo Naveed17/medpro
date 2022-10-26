@@ -193,18 +193,20 @@ function Agenda() {
             const eventsUpdated: EventModal[] = [];
             if (!filter || events.current.length === 0) {
                 appointments?.map((appointment) => {
+                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
                     const hasErrors = [
-                        ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
+                        ...(horsWork ? ["event.hors-opening-hours"] : []),
                         ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
                     eventsUpdated.push({
                         start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
-                        allDay: getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()),
-                        editable: AppointmentStatus[appointment.status].key !== "FINISHED",
+                        allDay: horsWork,
+                        editable: AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
+                        fees: appointment.fees,
                         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                         motif: appointment.consultationReason,
                         instruction: appointment.instruction !== null ? appointment.instruction : "",
