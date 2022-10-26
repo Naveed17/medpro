@@ -212,8 +212,11 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal);
-            if (localStorage.getItem('Modeldata' + uuind) === null)
+            console.log(localStorage.getItem('Modeldata' + uuind))
+            if (!localStorage.getItem('Modeldata' + uuind)) {
+
                 localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
+            }
             const app_data = sheet.exam.appointment_data;
             dispatch(
                 SetExam({
@@ -315,8 +318,11 @@ function ConsultationInProgress() {
                 console.log("end consultation", r);
                 console.log(r);
                 dispatch(setTimer({isActive: false}));
-                localStorage.removeItem("Modeldata" + uuind);
-                mutate();
+                mutate().then(() =>{
+                    //localStorage.removeItem("Modeldata" + uuind);
+                    console.log("remove",localStorage.getItem("Modeldata" + uuind))
+                })
+
                 if (appointement?.status == 5) {
                     router.push("/dashboard/agenda")
                 } else {

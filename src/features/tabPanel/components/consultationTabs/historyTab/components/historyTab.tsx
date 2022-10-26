@@ -20,6 +20,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRequestMutation} from "@app/axios";
+import CircleIcon from "@mui/icons-material/Circle";
 
 function HistoryTab({...props}) {
 
@@ -342,15 +343,87 @@ function HistoryTab({...props}) {
                                                                         borderRadius: 0.7,
                                                                     }}>
                                                                     {app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
-                                                                        <p
-                                                                            key={`req-sheet-p-${idx}`}
-                                                                            style={{
-                                                                                margin: 0,
-                                                                                fontSize: 12,
-                                                                            }}>
-                                                                            {rs["medical-imaging"].name}{" "} {rs.uri &&
-                                                                            <a href={rs.uri}>{t('consultationIP.seeRes')}</a>}
-                                                                        </p>
+                                                                        <Box key={`req-sheet-p-${idx}`}>
+                                                                            <ListItem>
+                                                                                <Typography
+                                                                                    variant="body2" fontWeight={"bold"}>
+                                                                                    • {rs["medical-imaging"].name}
+                                                                                </Typography>
+                                                                            </ListItem>
+
+                                                                            {rs.uri && <Grid
+                                                                                container
+                                                                                spacing={2}
+                                                                                sx={{
+                                                                                    bgcolor: (theme) =>
+                                                                                        theme.palette.grey["A100"],
+                                                                                    mb: 1,
+                                                                                    padding: 2,
+                                                                                    borderRadius: 0.7,
+                                                                                }}>
+                                                                                {app.documents.filter((doc: { uri: any; }) => rs.uri.includes(doc.uri)).map((card: any) => (
+                                                                                    <Grid
+                                                                                        item
+                                                                                        xs={3}
+                                                                                        key={`doc-item-${card.uuid}`}>
+                                                                                        <DocumentCard
+                                                                                            data={card}
+                                                                                            style={{width: 30}}
+                                                                                            onClick={() => {
+                                                                                                if (card.documentType === "photo") {
+                                                                                                    setIsViewerOpen(card.uri);
+                                                                                                } else if (
+                                                                                                    card.documentType ===
+                                                                                                    "medical-certificate"
+                                                                                                ) {
+                                                                                                    setInfo("document_detail");
+                                                                                                    setState({
+                                                                                                        content:
+                                                                                                        card.certificate[0].content,
+                                                                                                        doctor: card.name,
+                                                                                                        patient: card.patient,
+                                                                                                        days: card.days,
+                                                                                                        name: "certif",
+                                                                                                        type: "write_certif",
+                                                                                                    });
+                                                                                                    setOpenDialog(true);
+                                                                                                } else {
+                                                                                                    setInfo("document_detail");
+                                                                                                    let info = card;
+                                                                                                    switch (card.documentType) {
+                                                                                                        case "prescription":
+                                                                                                            info =
+                                                                                                                card.prescription[0]
+                                                                                                                    .prescription_has_drugs;
+                                                                                                            break;
+                                                                                                        case "requested-analysis":
+                                                                                                            info =
+                                                                                                                card.requested_Analyses[0]
+                                                                                                                    .analyses;
+                                                                                                            break;
+                                                                                                    }
+                                                                                                    setState({
+                                                                                                        uuid: card.uuid,
+                                                                                                        uri: card.uri,
+                                                                                                        name: card.title,
+                                                                                                        type: card.documentType,
+                                                                                                        info: info,
+                                                                                                        patient:
+                                                                                                            patient.firstName +
+                                                                                                            " " +
+                                                                                                            patient.lastName,
+                                                                                                        mutate: mutateDoc,
+                                                                                                    });
+                                                                                                    setOpenDialog(true);
+                                                                                                }
+                                                                                            }}
+                                                                                            t={t}
+                                                                                        />
+                                                                                    </Grid>
+                                                                                ))}
+                                                                            </Grid>}
+                                                                        </Box>
+
                                                                     ))}
                                                                 </Box>
                                                             )}

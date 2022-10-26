@@ -78,7 +78,7 @@
     "fees": "honoraires",
     "edit": "Modifier",
     "createAnt": "créer antécédent",
-    "tracking_data": "Donnees de suivi",
+    "tracking_data": "Données de suivi",
     "consultation_reason": "Motif du consultation",
     "diagnostics": "Diagnostique",
     "treatments": "Traitements",
@@ -227,7 +227,7 @@
     "date_of_appointment": "Date du rendez-vous",
     "see_details": "Voir détails"
   },
-  "tracking_data": "Donnees de suivi",
+  "tracking_data": "Données de suivi",
   "consultation_reason": "Motif du consultation",
   "diagnostics": "Diagnostique",
   "treatments": "Traitements",
