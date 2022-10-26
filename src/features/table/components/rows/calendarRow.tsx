@@ -13,7 +13,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/sideBarMenu";
-import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data} = props;
@@ -202,13 +202,14 @@ function CalendarRow({...props}) {
                     <TableCell align="right">
                         {data?.fees ? <Box>
                             <Stack direction={"row"}
+                                   justifyContent={"flex-end"}
                                    sx={{
                                        textAlign: "right"
                                    }}
                                    alignItems="center">
-                                <PlayCircleFilledRoundedIcon color="success"/>
+                                <PointOfSaleIcon color="success"/>
                                 <Typography ml={1} variant="body2">
-                                    {`${data?.fees} TND`}
+                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} TND`}
                                 </Typography>
                             </Stack>
                         </Box> : "--"}

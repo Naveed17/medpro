@@ -7,7 +7,7 @@
     "all": "tous",
     "motif": "Motif de consultation",
     "status": "Statut",
-    "type": "Type RDV"
+    "type": "Type du RDV"
   },
   "filter": {
     "title": "Filtre",
@@ -27,7 +27,7 @@
     "last-appointment": "Dernier rendez-vous",
     "reasons": "Motif de consultation",
     "status": "Statut",
-    "meetingType": "Type RDV",
+    "meetingType": "Type de RDV",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",
@@ -51,6 +51,7 @@
       "status": "Status",
       "patient": "Patient",
       "agenda": "Agenda",
+      "fees": "",
       "action": "Action"
     },
     "body": {
@@ -98,7 +99,7 @@
       "reason-consultation": "Motif de consultation",
       "reason-consultation-placeholder": "Choisissez votre motif de consultation",
       "practitioner": "Praticien",
-      "affect-des": "Choose the practitioner who affects this consultation",
+      "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
       "selected-appointment": "Rendez-vous sélectionnées",
       "date-message": "Veuillez choisir les dates du RDV",
@@ -117,8 +118,8 @@
       "sub-title": "vous devez ajouter un patient",
       "add_button": "Ajouter un nouveau patient",
       "patient": {
-        "personal-info": "Information personnelle",
-        "additional-information": "Info supplémentaires",
+        "personal-info": "Informations personnelles",
+        "additional-information": "Informations supplémentaires",
         "more-detail": "Afficher plus de détails",
         "fin": "Fin",
         "group": "Groupe",
@@ -140,7 +141,7 @@
         "day": "Jour",
         "month": "Mois",
         "year": "Année",
-        "date-error": "Ce champ est obligatoir",
+        "date-error": "Ce champ est obligatoire",
         "telephone": "Numéro de téléphone",
         "telephone-error": "Ce champ est obligatoire",
         "cancel": "Annuler",
@@ -158,7 +159,7 @@
         "email": "Courriel",
         "email-placeholder": "Saisissez l'adresse e-mail du patient",
         "cin": "CIN",
-        "cin-placeholder": "Saisir le CIN du patient",
+        "cin-placeholder": "Saisir la CIN du patient",
         "from": "De",
         "from-placeholder": "Saisir la date de naissance du patient",
         "added": "Patient ajouté",
@@ -191,7 +192,7 @@
     "back": "Retour",
     "added": "RDV ajouté",
     "waiting": "Ajouter le patient à la salle d'attente",
-    "added-description": "rendez-vous ajouté avec succès",
+    "added-description": "Rendez-vous ajouté avec succès",
     "show-patient": "Voir fiche Patient",
     "finish": "Fermer"
   },
@@ -201,39 +202,39 @@
       "title-duration": "Modifier la durée du RDV",
       "sub-title": "Voulez-vous vraiment déplacer le RDV?",
       "sub-title-duration": "Voulez-vous vraiment modifier la durée du rendez-vous ?",
-      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "description": "Vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
       "garde-date": "Gardez la date",
       "time-message": "Veuillez choisir l’heure du RDV",
       "week-day-slot": "Choisir un nouveau créneau",
       "see-more": "Voir plus d’horaires",
       "alert-msg": "le rendez-vous a été déplacé avec succès",
-      "alert-msg-duration": "le rendez-vous a été modifieé avec succès",
+      "alert-msg-duration": "le rendez-vous a été modifié avec succès",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
     "reschedule-dialog": {
       "title": "Replanifier RDV",
       "sub-title": "Voulez-vous vraiment replanifier le RDV?",
-      "description": "vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+      "description": "vous ne perderez pas l'historique et les documents concernant ce rendez-vous",
       "garde-date": "Annuler",
       "time-message": "Veuillez choisir l’heure du RDV",
       "week-day-slot": "Choisir un nouveau créneau",
       "see-more": "Voir plus d’horaires",
-      "alert-msg": "le rendez-vous a été replanifieé avec succès",
+      "alert-msg": "le rendez-vous a été replanifié avec succès",
       "cancel": "Annuler",
       "confirm": "Replanifier"
     },
     "cancel-dialog": {
       "title": "Annuler RDV",
       "sub-title": "Voulez-vous vraiment annuler le RDV?",
-      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
     "delete-dialog": {
       "title": "Supprimer RDV",
       "sub-title": "Voulez-vous vraiment supprimer le RDV?",
-      "description": "vous perdez à jamais l'historique et les documents concernant ce patient",
+      "description": "Vous perderez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Supprimer"
     },
@@ -247,7 +248,7 @@
     "cancel-appointment": "le rendez-vous a été annulé avec succès",
     "delete-appointment": "le rendez-vous a été supprimé avec succès",
     "leave-waiting-room": "le patient a quitté la salle d'attente",
-    "on-waiting-room": "le patient a entré dans la salle d'attente",
+    "on-waiting-room": "le patient est entré dans la salle d'attente",
     "patient-no-show": "le rendez-vous a été modifié avec succès"
   }
 }
