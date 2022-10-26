@@ -60,6 +60,7 @@ function MedicalImageryDialog({...props}) {
 
     const addImage = (value: MIModel) => {
         setName('')
+        setMiList((httpAnalysisResponse as HttpResponse)?.data);
         mi.unshift(value)
         setMi([...mi])
         data.setState([...mi])

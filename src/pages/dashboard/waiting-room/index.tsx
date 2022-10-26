@@ -26,6 +26,7 @@ import moment from "moment-timezone";
 import { useSnackbar } from "notistack";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {useIsMountedRef} from "@app/hooks";
+import {appLockSelector} from "@features/appLock";
 
 export const headCells = [
     {
@@ -98,6 +99,7 @@ function WaitingRoom() {
     const { t, ready } = useTranslation("waitingRoom", { keyPrefix: "config" });
     const { query: filter } = useAppSelector(leftActionBarSelector);
     const { waiting_room } = useAppSelector(dashLayoutSelector);
+    const {lock} = useAppSelector(appLockSelector);
 
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [contextMenu, setContextMenu] = useState<{
@@ -214,10 +216,10 @@ function WaitingRoom() {
     const waitingRooms = (httpWaitingRoomsResponse as HttpResponse)?.data as any;
 
     useEffect(() => {
-        if (isMounted.current) {
+        if (isMounted.current && !lock) {
             dispatch(toggleSideBar(false));
         }
-    }, [dispatch, isMounted]);
+    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (waitingRooms) {

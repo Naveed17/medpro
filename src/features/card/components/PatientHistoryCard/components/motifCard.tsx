@@ -26,7 +26,7 @@ function MotifCard({...props}) {
 
                             <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
                                 {Object.keys(models.data).map((ml, idx) => (
-                                    ml !== "submit" && <ListItem key={'modelData' + idx}>
+                                    ml !== "submit" && models.data[ml]&& <ListItem key={'modelData' + idx}>
                                         <ListItemIcon>
                                             <CircleIcon/>
                                         </ListItemIcon>

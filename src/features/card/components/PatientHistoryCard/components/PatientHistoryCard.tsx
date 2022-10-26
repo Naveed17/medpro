@@ -5,26 +5,32 @@ import {capitalize} from "lodash";
 import Icon from "@themes/urlIcon";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from "moment/moment";
+import {SetSelectedApp} from "@features/toolbar";
 
 function PatientHistoryCard({...props}) {
     const {
         keyID,
         data,
         appuuid,
+        selectedApp,
+        dispatch,
         t,
         children,
     } = props
     return (
-        <div id={keyID}>
+        <div  id={keyID}>
             <PatientHistoryCardStyled
                 style={{
-                    border: data.appointment.uuid === appuuid ? "2px solid #FFD400" : "",
+                    border: data.appointment.uuid === appuuid ? "2px solid #FFD400" : data.appointment.uuid !== selectedApp ? 0 : "",
                 }}>
                 <Stack
                     className="card-header"
                     p={2}
                     direction="row"
                     alignItems="center"
+                    onClick={() => {
+                        keyID === selectedApp ? dispatch(SetSelectedApp('')) : dispatch(SetSelectedApp(keyID))
+                    }}
                     borderBottom={1}
                     borderColor="divider">
                     <Typography
@@ -45,7 +51,7 @@ function PatientHistoryCard({...props}) {
                         style={{marginBottom: '-3px', width: 20, height: 15}}/> {data?.appointment.startTime}
                     </Typography>
                 </Stack>
-                <CardContent>{children}</CardContent>
+                <CardContent style={{padding: data.appointment.uuid !== selectedApp ? 0 : ""}}>{children}</CardContent>
             </PatientHistoryCardStyled>
         </div>
     );

@@ -22,6 +22,10 @@ export const documentButtonList = [
     {
         icon: "ic-dowlaodfile",
         label: "upload_document",
+    },
+    {
+        icon: "ic-agenda",
+        label: "RDV",
     }
    /* {
         icon: "ic-export",
