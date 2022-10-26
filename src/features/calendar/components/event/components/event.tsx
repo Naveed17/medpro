@@ -11,7 +11,7 @@ import {IconsTypes} from "@features/calendar";
 import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
 
 function Event({...props}) {
-    const {event, view, t} = props;
+    const {event, view, t, isMobile} = props;
 
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
@@ -35,8 +35,8 @@ function Event({...props}) {
                 }}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
-                onMouseEnter={handlePopoverOpen}
-                onMouseLeave={handlePopoverClose}
+                {...(!isMobile && {onMouseEnter: handlePopoverOpen})}
+                {...(!isMobile && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
                 <Typography variant="body2"
