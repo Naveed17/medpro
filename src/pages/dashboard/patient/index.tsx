@@ -39,6 +39,7 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/sideBarMenu";
+import {appLockSelector} from "@features/appLock";
 
 const stepperData = [
     {
@@ -139,6 +140,7 @@ function Patient() {
     const {patientId, patientAction} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer} = useAppSelector(agendaSelector);
+    const {lock} = useAppSelector(appLockSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentDetailDrawer, setAppointmentDetailDrawer] = useState<boolean>(false);
@@ -167,10 +169,10 @@ function Patient() {
     }, [filter]);
 
     useEffect(() => {
-        if (isMounted.current) {
+        if (isMounted.current && !lock) {
             dispatch(toggleSideBar(false));
         }
-    }, [dispatch, isMounted]);
+    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const submitStepper = (index: number) => {
         if (index === 2) {

@@ -348,7 +348,6 @@ function PfTemplateDetail({...props}) {
 
                                                     <Collapse
                                                         in={open.find((i: string) => i == section.uuid) !== undefined}>
-
                                                         <Card style={{width: '50%', margin: 5}}>
                                                             <CardContent>
                                                                 {

@@ -92,6 +92,11 @@ export const TableHead = [
         label: "header.agenda",
         align: "center",
         sortable: true,
+    },{
+        id: "fees",
+        label: "header.fees",
+        align: "right",
+        sortable: true,
     },
     {
         id: "action",

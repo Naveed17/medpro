@@ -149,7 +149,7 @@ function AppointmentDetail({...props}) {
                         <Typography variant="h6">
                             {t('appointment_details')}
                         </Typography>
-                        {!roles.includes('ROLE_SECRETARY') &&
+                        {(!roles.includes('ROLE_SECRETARY') && router.pathname !== "/dashboard/patient") &&
                             <LoadingButton
                                 {...{loading}}
                                 loadingPosition="start"

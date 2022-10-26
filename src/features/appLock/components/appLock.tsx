@@ -16,21 +16,21 @@ function AppLock() {
     const {lock} = useAppSelector(appLockSelector);
 
     const [value, setValue] = useState('');
-    const [password, setPassword] = useState(localStorage.getItem("app_lock") ? localStorage.getItem("app_lock") : '123456');
 
     const reactLottieRef = useRef(null);
 
     useEffect(() => {
-        if (value === password) {
+        if (value === localStorage.getItem("app_lock")) {
             (reactLottieRef.current as any)?.play();
         } else {
             (reactLottieRef.current as any)?.stop();
         }
-    }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [value]);
 
     const onKeyDown = (e: any) => {
         if (e.keyCode === 13) {
-            if (value === password) {
+            if (value === localStorage.getItem("app_lock")) {
+                localStorage.setItem('lock-on', "false");
                 dispatch(setLock(false));
             }
             setValue('');
@@ -64,7 +64,7 @@ function AppLock() {
                             dispatch(setLock(false));
                             setValue('');
                         }}
-                        disabled={password !== value}
+                        disabled={localStorage.getItem("app_lock") !== value}
                         variant="contained" color="primary" fullWidth>
                         {t("button")}
                     </Button>

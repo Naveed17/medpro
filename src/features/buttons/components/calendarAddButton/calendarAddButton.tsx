@@ -7,7 +7,7 @@ import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 function CalendarAddButton({...props}) {
-    const {onClickEvent, t} = props;
+    const {onClickEvent, t, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -37,6 +37,7 @@ function CalendarAddButton({...props}) {
                 }
             }}>
             <Button
+                {...rest}
                 color={"warning"}
                 id="demo-customized-button"
                 aria-controls={open ? 'demo-customized-menu' : undefined}

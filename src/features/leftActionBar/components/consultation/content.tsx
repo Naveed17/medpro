@@ -29,6 +29,7 @@ import {useSession} from "next-auth/react";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import {SetSelectedApp} from "@features/toolbar";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -233,12 +234,16 @@ const Content = ({...props}) => {
                                             patient?.previousAppointments?.map(
                                                 (list: { uuid: string; status: number; dayDate: moment.MomentInput; startTime: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
                                                     <ListItem key={index} onClick={() => {
-                                                        const myElement = document.getElementById(list.uuid);
-                                                        const topPos = myElement?.offsetTop;
-                                                        if (topPos) {
-                                                            window.scrollTo(0, topPos - 10)
-                                                            setSelectedDate(list.uuid)
-                                                        }
+                                                        dispatch(SetSelectedApp(list.uuid))
+                                                        setTimeout(() => {
+                                                            const myElement = document.getElementById(list.uuid);
+                                                            const topPos = myElement?.offsetTop;
+                                                            if (topPos) {
+                                                                window.scrollTo(0, topPos - 10)
+                                                                setSelectedDate(list.uuid)
+                                                            }
+                                                        }, 1000)
+
                                                     }}>
                                                         <ListItemIcon>
                                                             <CircleIcon/>
@@ -309,7 +314,7 @@ const Content = ({...props}) => {
                                                     <CircleIcon/>
                                                 </ListItemIcon>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {list.analysis.name}
+                                                    {list.analysis.name} {list.result ? '/' + list.result : ''}
                                                 </Typography>
                                             </ListItem>
                                         ))}
@@ -329,7 +334,6 @@ const Content = ({...props}) => {
                                                 color="error"
                                                 size="small"
                                                 onClick={() => {
-                                                    console.log(ra.uuid);
                                                     trigger(
                                                         {
                                                             method: "DELETE",
@@ -468,6 +472,7 @@ const Content = ({...props}) => {
                                             name: string;
                                             startDate: string;
                                             endDate: string;
+                                            response: string | any[]
                                         },
                                         index: number
                                     ) => (
@@ -479,6 +484,7 @@ const Content = ({...props}) => {
                                                 {item.name}{" "}
                                                 {item.startDate ? " / " + item.startDate : ""}{" "}
                                                 {item.endDate ? " - " + item.endDate : ""}
+                                                {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : '(' + item.response[0].value + ')' : ''}
                                             </Typography>
                                             <IconButton
                                                 size="small"
