@@ -203,7 +203,7 @@ function Agenda() {
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: horsWork,
-                        editable: AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork,
+                        editable: (AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork) && !isMobile,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
@@ -746,39 +746,38 @@ function Agenda() {
                 <LinearProgress sx={{
                     visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <DesktopContainer>
-                    <>
-                        {agenda &&
-                            <AnimatePresence exitBeforeEnter>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "easeIn", duration: .5}}
-                                >
-                                    <Calendar
-                                        {...{
-                                            events: events.current,
-                                            agenda,
-                                            roles,
-                                            spinner: loading,
-                                            t,
-                                            sortedData: sortedData.current
-                                        }}
-                                        OnInit={onLoadCalendar}
-                                        OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                        OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                        OnSelectEvent={onSelectEvent}
-                                        OnEventChange={onEventChange}
-                                        OnMenuActions={onMenuActions}
-                                        OnSelectDate={onSelectDate}
-                                        OnViewChange={onViewChange}
-                                        OnRangeChange={handleOnRangeChange}/>
-                                </motion.div>
-                            </AnimatePresence>
-                        }
-                    </>
-                </DesktopContainer>
-                <MobileContainer>
+                <>
+                    {agenda &&
+                        <AnimatePresence exitBeforeEnter>
+                            <motion.div
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                transition={{ease: "easeIn", duration: .5}}
+                            >
+                                <Calendar
+                                    {...{
+                                        events: events.current,
+                                        agenda,
+                                        roles,
+                                        spinner: loading,
+                                        t,
+                                        sortedData: sortedData.current
+                                    }}
+                                    OnInit={onLoadCalendar}
+                                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                                    OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                                    OnSelectEvent={onSelectEvent}
+                                    OnEventChange={onEventChange}
+                                    OnMenuActions={onMenuActions}
+                                    OnSelectDate={onSelectDate}
+                                    OnViewChange={onViewChange}
+                                    OnRangeChange={handleOnRangeChange}/>
+                            </motion.div>
+                        </AnimatePresence>
+                    }
+                </>
+
+                {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
                         <Container key={index}>
                             <Typography variant={"body1"}
@@ -811,7 +810,7 @@ function Agenda() {
                     <FilterButton>
                         <AgendaFilter/>
                     </FilterButton>
-                </MobileContainer>
+                </>}
 
                 <Drawer
                     anchor={"right"}

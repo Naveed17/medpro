@@ -8,13 +8,16 @@ import Fade from '@mui/material/Fade';
 import RootStyled from './overrides/rootStyled';
 import CodeIcon from "@mui/icons-material/Code";
 import {MouseEvent, useEffect, useRef, useState} from "react";
+import {SvgIcon, useTheme} from "@mui/material";
 
 function CalendarViewButton({...props}) {
-    const {data, onSelect = null, ...rest} = props;
+    const {views, onSelect = null, view, ...rest} = props;
+    const theme = useTheme();
+    const ref = useRef<HTMLButtonElement>(null);
+
     const [width, setWidth] = useState(0);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-    const [selected, setSelected] = useState(data[0]);
-    const ref = useRef<HTMLButtonElement>(null);
+    const [selected, setSelected] = useState(views.find((mode: any) => mode.value === view));
 
     function handleClick(event: MouseEvent<HTMLButtonElement>) {
         if (anchorEl !== event.currentTarget) {
@@ -26,7 +29,7 @@ function CalendarViewButton({...props}) {
         setAnchorEl(null);
         setSelected(props);
         if (onSelect) {
-            onSelect(props?.label);
+            onSelect(props?.value);
         }
     }
 
@@ -35,17 +38,16 @@ function CalendarViewButton({...props}) {
             const element = ref.current.getBoundingClientRect();
             setWidth(element.width);
         }
-        if (onSelect) {
-            onSelect(selected?.label);
-        }
-
-    }, [onSelect, selected.label])
+    }, [])
 
     return (
-        <RootStyled>
+        <RootStyled {...rest}>
             <Button
                 ref={ref}
-                startIcon={selected.icon}
+                startIcon={
+                    <SvgIcon component={selected.icon} width={20} height={20}
+                             htmlColor={theme.palette.text.primary}/>
+                }
                 endIcon={
                     <CodeIcon
                         sx={{
@@ -58,7 +60,7 @@ function CalendarViewButton({...props}) {
                 aria-haspopup="true"
                 onClick={handleClick}
                 onMouseOver={handleClick}>
-                {selected.label}
+                {selected.text}
             </Button>
             <Menu
                 id="simple-menu"
@@ -71,31 +73,33 @@ function CalendarViewButton({...props}) {
                     '& .MuiList-root': {
                         width: width,
                         py: 0,
-                        boxShadow: '0px 5px 12px rgba(0, 0, 0, 0.06)',
                         '& .MuiMenuItem-root': {
                             px: 1,
                             py: 1.44,
                             '& .MuiTypography-root': {
                                 fontSize: 12,
-                                color: '#7C878E'
+                                color: theme.palette.text.secondary
                             },
                             '& .MuiListItemIcon-root': {
                                 minWidth: '20px',
                             },
                             '&:not(:last-of-type)': {
-                                borderBottom: '1px solid #E3EAEF',
+                                borderBottom: `1px solid ${theme.palette.divider}`
                             }
                         },
                         '& svg': {
-                            fontSize: 13,
+                            fontSize: 16,
                         }
                     }
                 }}
             >
-                {data.map((item: { label: string, icon: string }) => (
-                    <MenuItem onClick={() => handleClose(item)} key={item.label}>
-                        {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-                        <ListItemText sx={{fontSize: 12}}>{item.label}</ListItemText>
+                {views.map((item: any) => (
+                    <MenuItem onClick={() => handleClose(item)} key={item.value}>
+                        {item.icon && <ListItemIcon>
+                            <SvgIcon component={item.icon} width={20} height={20}
+                                     htmlColor={theme.palette.text.primary}/>
+                        </ListItemIcon>}
+                        <ListItemText sx={{fontSize: 12}}>{item.text}</ListItemText>
                     </MenuItem>
                 ))}
             </Menu>

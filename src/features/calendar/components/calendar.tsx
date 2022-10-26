@@ -33,6 +33,7 @@ import {useIsMountedRef} from "@app/hooks";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/common";
+import {useSwipeable} from "react-swipeable";
 
 function Calendar({...props}) {
     const {
@@ -56,6 +57,7 @@ function Calendar({...props}) {
     const theme = useTheme();
     const isMounted = useIsMountedRef();
     const calendarRef = useRef(null);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
@@ -217,11 +219,21 @@ function Calendar({...props}) {
         )
     }
 
+    const handlers = useSwipeable({
+        onSwiped: (eventData) => {
+            if (eventData.dir === "Left") {
+                handleClickDatePrev();
+            } else {
+                handleClickDateNext();
+            }
+        }
+    });
+
     return (
         <Box bgcolor="#F0FAFF">
             <RootStyled>
                 <CalendarStyled>
-                    {view === "listWeek" ? (
+                    {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
                                 {...{spinner}}
@@ -239,8 +251,8 @@ function Calendar({...props}) {
                             )}
                         </Box>
                     ) : (
-                        <Box position="relative">
-                            <Box
+                        <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
+                            {!isMobile && <Box
                                 className="action-header-main"
                                 sx={{
                                     svg: {
@@ -262,7 +274,7 @@ function Calendar({...props}) {
                                 >
                                     <ArrowForwardIosIcon fontSize="small"/>
                                 </IconButton>
-                            </Box>
+                            </Box>}
 
                             <FullCalendar
                                 weekends
@@ -278,8 +290,9 @@ function Calendar({...props}) {
                                 datesSet={OnRangeChange}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 allDayContent={(event) => ""}
+                                moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
-                                    <Event {...{event, openingHours, view}} t={translation}/>
+                                    <Event {...{event, openingHours, view, isMobile}} t={translation}/>
                                 }
                                 eventClassNames={(arg) => {
                                     if (arg.event._def.extendedProps.filtered) {
@@ -311,7 +324,8 @@ function Calendar({...props}) {
                                 dayHeaderContent={(event) =>
                                     Header({
                                         isGridWeek,
-                                        event
+                                        event,
+                                        isMobile
                                     })
                                 }
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
