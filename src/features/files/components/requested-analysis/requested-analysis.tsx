@@ -7,33 +7,36 @@ function RequestedAnalysis({...props}) {
     return (
         <table hidden={true} id="requested-analysis" style={{backgroundColor: "white"}}>
             <tr>
-                <td style={{fontWeight: "bold", fontSize: 20, textAlign: "center"}}>
+                <td colSpan={2} style={{fontWeight: "bold", textAlign: "center", fontSize: 14}}>
                     <p>Bilan Biologique</p>
                 </td>
             </tr>
             <tr>
-                <td style={{fontSize: 5}}></td>
+                <td style={{fontSize: 20}}></td>
             </tr>
             <tr>
-                <td style={{fontSize: 15, textAlign: "right", color: "grey"}}>
-                    <p>Tunis le: {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                <td style={{fontWeight: 500, fontSize: 13}}>
+                    <p>{data.patient}</p>
                 </td>
-            </tr>
-            <tr>
-                <td style={{fontSize: 10}}></td>
+                <td style={{fontSize: 9, textAlign: "right"}}>
+                    <p><span style={{fontWeight: "bold"}}>le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                </td>
             </tr>
 
             <tr>
-                <td style={{color: "black", fontSize: 15, lineHeight: 3}}>
-                    <p>Prière, Faire pratiquer à {data.patient}</p><br/>
-                    <p>les analyses suivantes:</p>
+                <td style={{fontSize: 5}}></td>
+            </tr>
+
+            <tr>
+                <td colSpan={2} style={{color: "black", fontSize: 12, lineHeight: 3}}>
+                    <p>Prière, Faire pratiquer à {data.patient} les analyses suivantes:</p>
                 </td>
             </tr>
 
             {
                 data.info.map((line: any) => (
                     <tr key={line.uuid}>
-                        <td style={{color: "black", fontSize: 16}}>
+                        <td style={{color: "#666D81", fontSize: 13}}>
                             <p>• {line.name}</p>
                         </td>
                     </tr>

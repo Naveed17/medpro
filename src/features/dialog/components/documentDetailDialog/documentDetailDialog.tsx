@@ -101,6 +101,19 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
+    const addFooters = (doc:any) => {
+        const pageCount = doc.internal.getNumberOfPages()
+
+        doc.setFont('helvetica', 'italic')
+        doc.setFontSize(8)
+        //for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(pageCount)
+            doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
+                align: 'center'
+            })
+       // }
+    }
+
     useEffect(() => {
         const doc = new jsPDF({
             format: 'a5'
@@ -118,8 +131,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'requested-analysis') {
@@ -128,8 +142,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'requested-medical-imaging') {
@@ -138,8 +153,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'write_certif') {
@@ -149,8 +165,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'fees') {
@@ -159,9 +176,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 60
+                startY: 40
             })
-
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else setFile(state.uri)

@@ -4,18 +4,58 @@ import moment from "moment/moment";
 function Prescription({...props}) {
     const {data} = props;
     return (
-        <table hidden={true} id="prescription" style={{backgroundColor: "white"}}>
+        <table hidden={true} id="prescription" className={"table-style"} style={{backgroundColor: "white"}}>
             <tr>
-                <td style={{fontWeight: "bold", fontSize: 20, textAlign: "center"}}>
-                    <p>ORDONNACE MEDICALE</p>
+                <td colSpan={2} style={{fontWeight: "bold",textAlign:"center", fontSize: 14}}>
+                    <p>ORDONNANCE MEDICALE</p>
                 </td>
             </tr>
             <tr>
+                <td style={{fontSize: 20}}></td>
+            </tr>
+            <tr>
+                <td style={{fontWeight: 500, fontSize: 13}}>
+                    <p>{data.patient}</p>
+                </td>
+                <td style={{fontSize: 9, textAlign: "right"}}>
+                    <p><span style={{fontWeight: "bold"}}>le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                </td>
+            </tr>
+
+            <tr>
+                <td style={{fontSize: 20}}></td>
+            </tr>
+            {data.info.map((line: any) => (
+                <>
+                    <tr>
+                        <td colSpan={2}
+                            style={{fontSize: 11, color: '#1B2746'}}>
+                            {line.standard_drug.commercial_name}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan={2}
+                            style={{fontSize: 10, color: '#666D81'}}>
+                            • {line.dosage}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colSpan={2} style={{fontSize: 10, color: '#666D81'}}>
+                            &emsp;• Durée: {line.duration} {line.duration_type}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style={{fontSize: 5}}></td>
+                    </tr>
+
+                </>
+            ))}
+            {/*<tr>
                 <td style={{fontSize: 5}}></td>
             </tr>
             <tr>
                 <td style={{fontSize: 15, textAlign: "right", color: "grey"}}>
-                    <p>Tunis le: {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                    <p>Tunis </p>
                 </td>
             </tr>
             <tr>
@@ -35,7 +75,7 @@ function Prescription({...props}) {
                         <p>   • Durée: {line.duration} {line.duration_type}</p>
                     </td>
                 </tr>
-            ))}
+            ))}*/}
         </table>
 
 
