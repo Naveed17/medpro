@@ -5,7 +5,7 @@ import {
     Box, Button,
     Checkbox,
     FormControlLabel,
-    FormGroup,
+    FormGroup, Grid,
     InputAdornment,
     Paper,
     Stack,
@@ -54,6 +54,7 @@ function Instruction({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [description, setDescription] = useState(instruction.description);
     const [smsLang, setLang] = useState(instruction.smsLang);
+    const [rappelType, setRappelType] = useState(instruction.rappelType);
     const [smsRappel, setSmsRappel] = useState(instruction.smsRappel);
     const [rappel, setRappel] = useState(instruction.rappel);
     const [timeRappel, setTimeRappel] = useState<Date>(instruction.timeRappel);
@@ -65,6 +66,10 @@ function Instruction({...props}) {
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
+    };
+
+    const handleRappelTypeChange = (event: SelectChangeEvent) => {
+        setRappelType(event.target.value as string);
     };
 
     const handleRappelChange = (event: SelectChangeEvent) => {
@@ -79,6 +84,7 @@ function Instruction({...props}) {
         setLoading(true);
         dispatch(setAppointmentInstruction({
             rappel,
+            rappelType,
             timeRappel,
             description,
             smsLang,
@@ -96,13 +102,16 @@ function Instruction({...props}) {
         form.append('type', type);
         form.append('duration', duration as string);
         form.append('global_instructions', description);
-        form.append('reminder', JSON.stringify([{
-            "type": "1: email, 2: sms, 3: push",
-            "time": moment(timeRappel).format('HH:mm'),
-            "number_of_day": rappel,
-            "reminder_language": smsLang,
-            "reminder_message": smsLang
-        }]));
+        {
+            smsRappel &&
+            form.append('reminder', JSON.stringify([{
+                "type": rappelType,
+                "time": moment(timeRappel).format('HH:mm'),
+                "number_of_day": rappel,
+                "reminder_language": smsLang,
+                "reminder_message": smsLang
+            }]))
+        }
 
         trigger({
             method: "POST",
@@ -153,6 +162,14 @@ function Instruction({...props}) {
                     publicId: submitted?.uuids[0]
                 };
                 break;
+            case "onConsultationStart" :
+                defEvent = {
+                    publicId: submitted?.uuids[0],
+                    extendedProps: {
+                        patient: submitted?.patient
+                    }
+                };
+                break;
         }
         OnAction(action, defEvent);
     }
@@ -179,6 +196,7 @@ function Instruction({...props}) {
                                         action: "onWaitingRoom",
                                         variant: "contained",
                                         sx: {
+                                            display: !isTodayAppointment() ? "none" : "inline-flex",
                                             "& svg": {
                                                 "& path": {fill: !isTodayAppointment() ? "white" : theme.palette.text.primary}
                                             },
@@ -186,6 +204,17 @@ function Instruction({...props}) {
                                         title: t("waiting"),
                                         color: "warning",
                                         disabled: !isTodayAppointment()
+                                    }, {
+                                        icon: "play",
+                                        action: "onConsultationStart",
+                                        variant: "contained",
+                                        sx: {
+                                            "& svg": {
+                                                "& path": {fill: theme.palette.text.primary}
+                                            },
+                                        },
+                                        title: t("start_the_consultation"),
+                                        color: "warning"
                                     }
                                 ]
                             }}
@@ -216,7 +245,7 @@ function Instruction({...props}) {
                             fullWidth
                         />
                         <Typography
-                            variant="body1"
+                            variant="h6"
                             color="text.primary"
                             fontWeight={500}
                             mt={4}
@@ -225,18 +254,35 @@ function Instruction({...props}) {
                         >
                             {t("stepper-3.reminder")}
                         </Typography>
-                        <Stack flexDirection="row" alignItems="center" my={2}>
-                            <Typography variant="body1" color="text.primary" minWidth={150}>
-                                {t("stepper-3.sms-reminder")}
-                            </Typography>
-                            <FormControl fullWidth size="small">
-                                <Select id="demo-simple-select" value={smsLang} onChange={handleLangChange}>
-                                    <MenuItem value="fr">Francais</MenuItem>
-                                    <MenuItem value="ar">Arabic</MenuItem>
-                                    <MenuItem value="en">Anglais</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Stack>
+                        <Grid container spacing={2} mb={2}>
+                            <Grid item md={6} sm={12} xs={12}>
+                                <Typography variant="body1" color="text.primary" mb={1}>
+                                    {t("stepper-3.sms-reminder")}
+                                </Typography>
+                                <FormControl fullWidth size="small">
+                                    <Select id="demo-simple-select" value={smsLang} onChange={handleLangChange}>
+                                        <MenuItem value="fr">Francais</MenuItem>
+                                        <MenuItem value="ar">Arabic</MenuItem>
+                                        <MenuItem value="en">Anglais</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item md={6} sm={12} xs={12}>
+                                <Typography variant="body1" color="text.primary" mb={1}>
+                                    {t("stepper-3.sms-type")}
+                                </Typography>
+                                <FormControl fullWidth size="small">
+                                    <Select id="demo-simple-select" value={rappelType}
+                                            onChange={handleRappelTypeChange}>
+                                        <MenuItem value="2">Sms</MenuItem>
+                                        <MenuItem value="1">E-mail</MenuItem>
+                                        <MenuItem value="3">Notification</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+
+
                         <Stack
                             mt={1}
                             sx={{
@@ -246,7 +292,10 @@ function Instruction({...props}) {
                         >
                             <FormGroup>
                                 <FormControlLabel
-                                    control={<Checkbox defaultChecked={smsRappel}/>}
+                                    control={
+                                        <Checkbox
+                                            checked={smsRappel}
+                                            onChange={event => setSmsRappel(event.target.checked)}/>}
                                     label={t("stepper-3.schedule")}
                                 />
                             </FormGroup>
