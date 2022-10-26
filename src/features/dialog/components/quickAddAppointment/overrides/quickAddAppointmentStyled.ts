@@ -6,11 +6,12 @@ const QuickAddAppointmentStyled = styled(Stack)(({theme}) => ({
     width: "100%",
     padding: theme.spacing(2),
     '& .MuiAvatar-root': {
-        width: 60,
-        height: 60,
+        width: 40,
+        height: 40,
+        marginRight: ".5rem"
     },
     "@media (max-width: 1024px)": {
         minWidth: 0,
-    },
+    }
 }));
 export default QuickAddAppointmentStyled;
