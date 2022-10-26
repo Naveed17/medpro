@@ -45,7 +45,7 @@ function Patient() {
                                     labels: [
                                         {label: "name", placeholder: "name"},
                                         {label: "birthdate", placeholder: "--/--/----"},
-                                        {label: "phone", placeholder: "telephone"},
+                                        {label: "phone", placeholder: "phone"},
                                     ],
                                 },
                             }}
