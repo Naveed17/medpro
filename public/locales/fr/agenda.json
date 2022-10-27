@@ -28,6 +28,7 @@
     "reasons": "Motif de consultation",
     "status": "Statut",
     "meetingType": "Type de RDV",
+    "meetingStatus": "Statut du RDV",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",

@@ -41,6 +41,7 @@ function Calendar({...props}) {
         OnRangeChange,
         spinner,
         roles,
+        refs,
         t: translation,
         sortedData,
         OnInit,
@@ -62,6 +63,7 @@ function Calendar({...props}) {
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
+
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
@@ -74,6 +76,7 @@ function Calendar({...props}) {
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
     const [loading, setLoading] = useState(false);
+
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
@@ -236,7 +239,7 @@ function Calendar({...props}) {
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner}}
+                                {...{spinner, refs}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -252,30 +255,6 @@ function Calendar({...props}) {
                         </Box>
                     ) : (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
-                            {!isMobile && <Box
-                                className="action-header-main"
-                                sx={{
-                                    svg: {
-                                        transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
-                                    },
-                                }}
-                            >
-                                <IconButton
-                                    onClick={handleClickDatePrev}
-                                    size="small"
-                                    aria-label="back"
-                                >
-                                    <ArrowBackIosNewIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton
-                                    onClick={handleClickDateNext}
-                                    size="small"
-                                    aria-label="next"
-                                >
-                                    <ArrowForwardIosIcon fontSize="small"/>
-                                </IconButton>
-                            </Box>}
-
                             <FullCalendar
                                 weekends
                                 editable
