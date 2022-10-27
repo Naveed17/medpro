@@ -42,6 +42,5 @@ const SidebarCheckboxStyled = styled(ListItem)(({ theme }: Props) => ({
             textTransform: 'capitalize',
         }
     }
-
 }));
 export default SidebarCheckboxStyled;

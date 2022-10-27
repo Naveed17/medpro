@@ -85,7 +85,7 @@ const AddWaitingRoomCardData = {
     description: "desc",
     buttonText: "table.no-data.event.title",
     buttonIcon: "ic-salle",
-    buttonVariant: "warning",
+    buttonVariant: "primary",
 };
 
 function WaitingRoom() {

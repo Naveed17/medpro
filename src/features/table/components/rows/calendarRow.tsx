@@ -16,7 +16,7 @@ import {sideBarSelector} from "@features/sideBarMenu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 
 function CalendarRow({...props}) {
-    const {row, handleEvent, data} = props;
+    const {row, handleEvent, data, refHeader} = props;
     const {spinner} = data;
     const dispatch = useAppDispatch();
     const theme = useTheme();
@@ -60,7 +60,8 @@ function CalendarRow({...props}) {
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
                     "Tomorrow"
                 ) : (
-                    <td>
+                    <td style={{textTransform: "capitalize", position: "relative"}}>
+                        {refHeader}
                         {moment(row.date, "DD-MM-YYYY").format("MMMM")}{" "}
                         {moment(row.date, "DD-MM-YYYY").format("DD")}
                     </td>

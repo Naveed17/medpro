@@ -5,8 +5,8 @@ import {
     Hidden,
     IconButton,
     Stack,
-    SvgIcon,
-    Tooltip, Typography,
+    SvgIcon, Theme,
+    Tooltip, Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 
@@ -23,11 +23,16 @@ import {agendaSelector, setView} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 function CalendarToolbar({...props}) {
-    const {OnToday, OnAddAppointment} = props;
+    const {OnToday, OnAddAppointment, OnClickDatePrev, OnClickDateNext} = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isRTL = theme.direction === "rtl";
+
     const {view, currentDate} = useAppSelector(agendaSelector);
 
     const VIEW_OPTIONS = [
@@ -48,20 +53,51 @@ function CalendarToolbar({...props}) {
         <RootStyled {...props}>
             <Box>
                 <Hidden smDown>
-                    <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
-                        <IconButton
-                            onClick={OnToday}
-                            aria-label="Calendar"
-                            sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
-                            <CalendarIcon/>
-                        </IconButton>
-                    </Tooltip>
+                    <Box sx={{
+                        display: "flex",
+                        alignItems: "center"
+                    }}>
+                        <Tooltip title={t("today", {ns: "common"})} TransitionComponent={Zoom}>
+                            <IconButton
+                                onClick={OnToday}
+                                aria-label="Calendar"
+                                sx={{border: "1px solid", mr: 1, color: "primary.main"}}>
+                                <CalendarIcon/>
+                            </IconButton>
+                        </Tooltip>
 
-                    <Button className="Current-date" variant="text-transparent">
-                        <Typography variant="body2" component={"span"}>
-                            {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
-                        </Typography>
-                    </Button>
+                        {!isMobile && <Box
+                            className="action-header-main"
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16
+                                },
+                                svg: {
+                                    transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
+                                },
+                            }}
+                        >
+                            <IconButton
+                                onClick={OnClickDatePrev}
+                                aria-label="back"
+                            >
+                                <ArrowBackIosNewIcon fontSize="small"/>
+                            </IconButton>
+                            <IconButton
+                                onClick={OnClickDateNext}
+                                aria-label="next"
+                            >
+                                <ArrowForwardIosIcon fontSize="small"/>
+                            </IconButton>
+                        </Box>}
+
+                        <Button className="Current-date" variant="text-transparent">
+                            <Typography variant="body2" component={"span"}>
+                                {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                            </Typography>
+                        </Button>
+                    </Box>
                 </Hidden>
 
                 <Hidden smUp>
