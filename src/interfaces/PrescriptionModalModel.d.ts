@@ -2,5 +2,6 @@
 interface PrescriptionModalModel {
   uuid: string;
   globalNote: string;
+  name:string;
   prescriptionModalHasDrugs: PrescriptionModalHasDrugsModel[];
 }

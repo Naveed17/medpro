@@ -47,7 +47,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [update, setUpdate] = useState<number>(-1);
     const [model, setModel] = useState<string>('');
     const [models, setModels] = useState<any[]>([]);
-    const [selectedModel, setSelectedModel] = useState<string>('');
+    const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [errorDrug, setErrorDrug] = useState(false);
     const [errorDuration, setErrorDuration] = useState(false);
@@ -77,31 +77,55 @@ function MedicalPrescriptionDialog({...props}) {
             revalidate: true,
             populateCache: true
         }).then((cnx) => {
-            mutate();
-            setDrugsList((cnx?.data as HttpResponse)?.data)
+            mutate().then(() => {
+                setDrugsList((cnx?.data as HttpResponse)?.data)
+            });
         })
         setOpenDialog(false);
     }
 
     const editModel = () => {
+        if (selectedModel) {
+            const form = new FormData();
+            form.append('drugs', JSON.stringify(drugs));
+            form.append('name', selectedModel.name);
 
-        const form = new FormData();
-        form.append('drugs', JSON.stringify(drugs));
+            trigger({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                data: form,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }, {
+                revalidate: true,
+                populateCache: true
+            }).then((cnx) => {
+                mutate().then(() => {
+                    setDrugsList((cnx?.data as HttpResponse)?.data)
+                    setSelectedModel(null)
+                });
+            })
+            setOpenDialog(false);
+        }
+    }
 
-        trigger({
-            method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/'+selectedModel+'/'+ router.locale,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }, {
-            revalidate: true,
-            populateCache: true
-        }).then((cnx) => {
-            mutate();
-            setDrugsList((cnx?.data as HttpResponse)?.data)
-            setSelectedModel('')
-        })
-        setOpenDialog(false);
+    const removeModel = () => {
+        if (selectedModel) {
+            trigger({
+                method: "DELETE",
+                url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
+                headers: {Authorization: `Bearer ${session?.accessToken}`}
+            }, {
+                revalidate: true,
+                populateCache: true
+            }).then((cnx) => {
+                mutate().then(() => {
+                    setDrugsList((cnx?.data as HttpResponse)?.data)
+                    setDrugs([]);
+                    setSelectedModel(null)
+                });
+            })
+            setOpenDialog(false);
+        }
     }
 
     const handleCloseDialog = () => {
@@ -133,7 +157,7 @@ function MedicalPrescriptionDialog({...props}) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
 
-                drugs.push(values)
+                drugs.unshift(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
@@ -144,6 +168,16 @@ function MedicalPrescriptionDialog({...props}) {
             }
         },
     });
+
+    const {
+        values,
+        errors,
+        touched,
+        handleSubmit,
+        getFieldProps,
+        setFieldValue,
+        resetForm
+    } = formik;
 
     const router = useRouter();
 
@@ -169,16 +203,6 @@ function MedicalPrescriptionDialog({...props}) {
     useEffect(() => {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])
-
-    const {
-        values,
-        errors,
-        touched,
-        handleSubmit,
-        getFieldProps,
-        setFieldValue,
-        resetForm
-    } = formik;
 
     useEffect(() => {
         if (drug === null && Object.keys(errors).length !== 0)
@@ -269,7 +293,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
                                                           onClick={() => {
                                                               console.log(item)
-                                                              setSelectedModel(item.uuid)
+                                                              setSelectedModel(item)
                                                               setDrugs(item.prescription_modal_has_drugs)
                                                               data.setState(item.prescription_modal_has_drugs)
                                                               setAnchorEl(null);
@@ -420,9 +444,9 @@ function MedicalPrescriptionDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={5}>
                     <Stack direction={'row'} alignItems="center" mb={1}>
-                        <Typography gutterBottom>{t('drug_list')}</Typography>
+                        <Typography gutterBottom>{t('drug_list')} {selectedModel && selectedModel.name}</Typography>
                         {
-                            drugs.length > 0 && selectedModel === '' &&
+                            drugs.length > 0 && selectedModel === null &&
                             <Button className='btn-add' sx={{ml: 'auto'}} size='small' onClick={() => {
                                 setOpenDialog(true)
                             }}
@@ -430,18 +454,29 @@ function MedicalPrescriptionDialog({...props}) {
                                 {t('createAsModel')}
                             </Button>
                         }
+                        {
+                            drugs.length > 0 && selectedModel !== null &&
+                            <Box sx={{ml: "auto"}}>
+                                <Button className='btn-add'
+                                        size='small'
+                                        onClick={() => {
+                                            editModel()
+                                        }}
+                                        endIcon={<ModeEditIcon/>}>
+                                    {t('editModel')}
+                                </Button>
+                                <Button className='btn-add'
+                                        size='small'
+                                        color={"error"}
+                                        onClick={() => {
+                                            removeModel()
+                                        }}
+                                        endIcon={<Icon path="setting/icdelete"/>}>
+                                    {t('removeModel')}
+                                </Button>
 
-                        {drugs.length > 0 && selectedModel !== '' &&
-                            <Button className='btn-add'
-                                    sx={{ml: 'auto'}}
-                                    size='small'
-                                    onClick={() => {
-                                        //setOpenDialog(true)
-                                        editModel()
-                                    }}
-                                    startIcon={<ModeEditIcon/>}>
-                                {t('editModel')}
-                            </Button>}
+                            </Box>
+                        }
                     </Stack>
                     <Box className="list-container">
                         {

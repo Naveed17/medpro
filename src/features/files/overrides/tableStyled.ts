@@ -43,6 +43,20 @@ const TableStyled = styled("table")(({theme}) => ({
     "& .feesLine": {
         fontSize: 12,
         color: theme.palette.back.dark
+    },
+    "& .docInfo":{
+        fontSize: 9,
+        color: theme.palette.grey[600]
+    },
+    "& .docName":{
+        fontSize: 11,
+        fontWeight: "bold",
+        color: theme.palette.grey[600]
+    },
+    "& .subInfo":{
+        fontSize: 9,
+        color: theme.palette.grey[600],
+        textAlign: "right"
     }
 }));
 

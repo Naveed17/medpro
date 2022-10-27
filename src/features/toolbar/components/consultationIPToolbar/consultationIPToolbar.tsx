@@ -365,6 +365,8 @@ function ConsultationIPToolbar({...props}) {
     useEffect(()=>{
         if (selectedDialog){
             console.log(selectedDialog)
+            //setInfo("ftyyttyyt");
+            setState(selectedDialog.state)
             //handleOpen()
             /*setInfo("medical_prescription");
             setState(selectedDialog.state)
@@ -373,9 +375,8 @@ function ConsultationIPToolbar({...props}) {
             setOpenDialog(true);
             setactions(true);*/
 
-            dispatch(SetSelectedDialog(null))
         }
-    },[dispatch, selectedDialog])
+    },[selectedDialog])
 
     useEffect(() => {
         switch (dialog) {
@@ -604,7 +605,7 @@ function ConsultationIPToolbar({...props}) {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveDialog}
-                                    disabled={state.length === 0}
+                                    //disabled={state.length === 0}
                                     startIcon={<Icon path="ic-dowlaodfile"/>}>
                                     {t("save")}
                                 </Button>

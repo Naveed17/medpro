@@ -9,7 +9,7 @@ import {
     ListItemText,
     Stack,
     TextField,
-    Typography
+    Typography, useTheme
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
@@ -39,7 +39,7 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-
+    const theme = useTheme();
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
     const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
@@ -215,9 +215,7 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                console.log(state.info)
                 dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
-                //setDialog('draw_up_an_order')
                 break;
             case "hide":
                 sethide(!hide)
@@ -249,11 +247,14 @@ function DocumentDetailDialog({...props}) {
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
-            <Header name={ginfo.firstName + ' ' + ginfo.lastName} speciality={speciality}></Header>
-            <Certificat data={state}></Certificat>
+            <Header name={ginfo.firstName + ' ' + ginfo.lastName} {...{speciality,theme}}></Header>
+
+
+            {state.type === 'write_certif' &&<Certificat data={state}></Certificat>}
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
             {state.type ==='requested-medical-imaging' && <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
+
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
