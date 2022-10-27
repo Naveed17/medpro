@@ -223,13 +223,13 @@ function Calendar({...props}) {
     }
 
     const handlers = useSwipeable({
-        onSwiped: (eventData) => {
-            if (eventData.dir === "Left") {
-                handleClickDatePrev();
-            } else {
-                handleClickDateNext();
-            }
-        }
+        onSwipedLeft: (eventData) => {
+            handleClickDatePrev();
+        },
+        onSwipedRight:(eventData) => {
+            handleClickDateNext();
+        },
+        preventScrollOnSwipe: true
     });
 
     return (
