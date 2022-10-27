@@ -11,12 +11,13 @@ import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 
 function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -52,6 +53,7 @@ function ConsultationIPToolbar({...props}) {
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
+    const {selectedDialog} = useAppSelector(consultationSelector);
 
     let tabsData = [
         {
@@ -98,6 +100,7 @@ function ConsultationIPToolbar({...props}) {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleSaveDialog = () => {
         const form = new FormData();
         switch (info) {
@@ -317,6 +320,7 @@ function ConsultationIPToolbar({...props}) {
             case "draw_up_an_order":
                 setInfo("medical_prescription");
                 setState(prescription);
+                console.log(prescription)
                 break;
             case "balance_sheet_request":
                 setInfo("balance_sheet_request");
@@ -357,6 +361,21 @@ function ConsultationIPToolbar({...props}) {
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setValue(newValue);
     };
+
+    useEffect(()=>{
+        if (selectedDialog){
+            console.log(selectedDialog)
+            //handleOpen()
+            /*setInfo("medical_prescription");
+            setState(selectedDialog.state)
+            setState(selectedDialog.state)
+            setAnchorEl(null);
+            setOpenDialog(true);
+            setactions(true);*/
+
+            dispatch(SetSelectedDialog(null))
+        }
+    },[dispatch, selectedDialog])
 
     useEffect(() => {
         switch (dialog) {

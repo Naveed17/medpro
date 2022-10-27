@@ -175,9 +175,11 @@ main {
     margin: 0;
   }
 }
-.collapse-row{
+
+.collapse-row {
   position: relative;
-  &::before{
+
+  &::before {
     content: '';
     position: absolute;
     width: 18px;
@@ -186,14 +188,21 @@ main {
     left: -15px;
     z-index: -1;
     border-right: none;
-    top:-55%;
+    top: -55%;
     border-radius: 6px;
   }
 }
+
 .snackbar-notification #notistack-snackbar {
   font-family: "Poppins", serif;
 }
 
 #ReactSimpleImageViewer {
   z-index: 9999;
+}
+
+.container-scroll {
+  padding: 0;
+  height: 80vh;
+  overflow-y: scroll
 }

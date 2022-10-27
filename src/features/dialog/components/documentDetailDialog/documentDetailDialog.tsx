@@ -27,6 +27,8 @@ import autoTable from 'jspdf-autotable';
 import {Certificat, Fees, Header, Prescription, RequestedAnalysis} from "@features/files";
 import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
+import {useAppDispatch} from "@app/redux/hooks";
+import {SetSelectedDialog} from "@features/toolbar";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -36,6 +38,7 @@ function DocumentDetailDialog({...props}) {
     const {data: {state, setOpenDialog}} = props
     const router = useRouter();
     const {data: session} = useSession();
+    const dispatch = useAppDispatch();
 
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
@@ -212,7 +215,8 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                console.log(state.info[0])
+                console.log(state.info)
+                dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
                 //setDialog('draw_up_an_order')
                 break;
             case "hide":

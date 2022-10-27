@@ -455,7 +455,7 @@ function ConsultationInProgress() {
                 />}
             </SubHeader>
 
-            <Box className="container" sx={{padding: 0}}>
+            <Box className="container container-scroll">
                 {loading && <Stack spacing={2} padding={2}>
                     {Array.from({length: 3}).map((_, idx) => (
                         <React.Fragment key={idx}>

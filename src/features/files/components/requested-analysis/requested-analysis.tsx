@@ -1,26 +1,23 @@
 import React from "react";
 import moment from "moment/moment";
+import TableStyled from "../../overrides/tableStyled";
 
 function RequestedAnalysis({...props}) {
     const {data} = props;
 
     return (
-        <table hidden={true} id="requested-analysis" style={{backgroundColor: "white"}}>
+        <TableStyled hidden={true} id="requested-analysis">
             <tr>
-                <td colSpan={2} style={{fontWeight: "bold", textAlign: "center", fontSize: 14}}>
-                    <p>Bilan Biologique</p>
+                <td colSpan={2} className={"title"}>
+                    Bilan Biologique
                 </td>
             </tr>
             <tr>
                 <td style={{fontSize: 20}}></td>
             </tr>
             <tr>
-                <td style={{fontWeight: 500, fontSize: 13}}>
-                    <p>{data.patient}</p>
-                </td>
-                <td style={{fontSize: 9, textAlign: "right"}}>
-                    <p><span style={{fontWeight: "bold"}}>le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
-                </td>
+                <td className={"patientName"}>{data.patient}</td>
+                <td className={"docDate"}>le {moment(data.createdAt).format('DD MMMM YYYY')}</td>
             </tr>
 
             <tr>
@@ -28,7 +25,7 @@ function RequestedAnalysis({...props}) {
             </tr>
 
             <tr>
-                <td colSpan={2} style={{color: "black", fontSize: 12, lineHeight: 3}}>
+                <td colSpan={2} className={"subTitle"}>
                     <p>Prière, Faire pratiquer à {data.patient} les analyses suivantes:</p>
                 </td>
             </tr>
@@ -36,7 +33,7 @@ function RequestedAnalysis({...props}) {
             {
                 data.info.map((line: any) => (
                     <tr key={line.uuid}>
-                        <td style={{color: "#666D81", fontSize: 13}}>
+                        <td className={"line"}>
                             <p>• {line.name}</p>
                         </td>
                     </tr>
@@ -44,7 +41,7 @@ function RequestedAnalysis({...props}) {
                 ))
             }
 
-        </table>
+        </TableStyled>
 
 
     )

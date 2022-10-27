@@ -20,7 +20,6 @@ import {useAppSelector} from "@app/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRequestMutation} from "@app/axios";
-import CircleIcon from "@mui/icons-material/Circle";
 
 function HistoryTab({...props}) {
 

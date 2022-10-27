@@ -1,13 +1,14 @@
 import React from "react";
 import moment from "moment/moment";
+import TableStyled from "../../overrides/tableStyled";
 
 function RequestedMedicalImaging({...props}) {
     const {data} = props;
 
     return (
-        <table hidden={true} id="requested-medical-imaging" style={{backgroundColor: "white"}}>
+        <TableStyled hidden={true} id="requested-medical-imaging">
             <tr>
-                <td colSpan={2} style={{fontWeight: "bold", textAlign: "center", fontSize: 14}}>
+                <td colSpan={2} className={"title"}>
                     <p>Imagerie médicale</p>
                 </td>
             </tr>
@@ -15,11 +16,11 @@ function RequestedMedicalImaging({...props}) {
                 <td style={{fontSize: 20}}></td>
             </tr>
             <tr>
-                <td style={{fontWeight: 500, fontSize: 13}}>
+                <td className={"patientName"}>
                     <p>{data.patient}</p>
                 </td>
-                <td style={{fontSize: 9, textAlign: "right"}}>
-                    <p><span style={{fontWeight: "bold"}}>le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                <td className={"docDate"}>
+                    le {moment(data.createdAt).format('DD MMMM YYYY')}
                 </td>
             </tr>
 
@@ -28,7 +29,7 @@ function RequestedMedicalImaging({...props}) {
             </tr>
 
             <tr>
-                <td colSpan={2} style={{color: "black", fontSize: 12, lineHeight: 3}}>
+                <td colSpan={2} className={"subTitle"}>
                     <p>Prière, Faire pratiquer à {data.patient} les imageries médicales suivantes:</p>
                 </td>
             </tr>
@@ -36,7 +37,7 @@ function RequestedMedicalImaging({...props}) {
             {
                 data.info.map((line: any) => (
                     <tr key={line.uuid}>
-                        <td style={{color: "#666D81", fontSize: 13}}>
+                        <td className={"line"}>
                             <p>• {line['medical-imaging'].name}</p>
                         </td>
                     </tr>
@@ -44,7 +45,7 @@ function RequestedMedicalImaging({...props}) {
                 ))
             }
 
-        </table>
+        </TableStyled>
 
 
     )

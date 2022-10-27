@@ -90,7 +90,7 @@ function MedicalPrescriptionDialog({...props}) {
 
         trigger({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modal/'+selectedModel+ router.locale,
+            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/'+selectedModel+'/'+ router.locale,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
@@ -124,7 +124,7 @@ function MedicalPrescriptionDialog({...props}) {
             name: '',
             dosage: '',
             duration: '',
-            durationType: 'days',
+            durationType: 'day',
             note: ''
         },
         validationSchema,
@@ -358,17 +358,17 @@ function MedicalPrescriptionDialog({...props}) {
                                                 {...getFieldProps("durationType")}
                                             >
                                                 <FormControlLabel
-                                                    value="days"
+                                                    value="day"
                                                     control={<Radio size="small"/>}
                                                     label={t("day")}
                                                 />
                                                 <FormControlLabel
-                                                    value="months"
+                                                    value="month"
                                                     control={<Radio size="small"/>}
                                                     label={t("month")}
                                                 />
                                                 <FormControlLabel
-                                                    value="years"
+                                                    value="year"
                                                     control={<Radio size="small"/>}
                                                     label={t("year")}
                                                 />
