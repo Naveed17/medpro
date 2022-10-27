@@ -1,10 +1,21 @@
 import React, { useState } from "react";
-import { Box, Typography, Paper, TextField, MenuItem } from "@mui/material";
-import Icon from "@themes/urlIcon";
-import { Select } from "@features/forms";
+
+import {
+  Box,
+  Typography,
+  Paper,
+  FormControl,
+  TextField,
+  MenuItem,
+} from "@mui/material";
 import RootStyled from "./overrides/rootStyle";
+import { useTheme } from "@mui/material/styles";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+
+//Component
+import { Select } from "@features/forms";
+
 const names = [
   "Oliver Hansen",
   "Van Henry",
@@ -17,8 +28,9 @@ const names = [
   "Virginia Andrews",
   "Kelly Snyder",
 ];
-function PractitionerForm({ ...props }) {
+function EquipmentForm({ ...props }) {
   const { t } = props;
+  const theme = useTheme();
   const [checked, setChecked] = useState<boolean>(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
@@ -26,7 +38,7 @@ function PractitionerForm({ ...props }) {
   return (
     <RootStyled>
       <Typography variant="body2" mb={1} mt={2}>
-        {t("practitioner")}
+        {t("equipment")}
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Box
@@ -34,38 +46,37 @@ function PractitionerForm({ ...props }) {
           sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
           <Typography
             sx={{ minWidth: 140, textAlign: "right" }}
-            mr={2}
+            mr="14.5px"
             variant="caption"
             color="text.secondary">
-            {t("practitionerSpecialty")}
+            {t("speciality")}
           </Typography>
-          <Select placeholder={t("placeholderSpecialty")} list={names} />
+          <Select placeholder={t("select-equipment-1")} list={names} />
         </Box>
         <Box
           className="form-label-main"
           sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
           <Typography
             sx={{ minWidth: 140, textAlign: "right" }}
-            mr={2}
+            mr="14.5px"
             variant="caption"
             color="text.secondary">
-            {t("practitioner")}
+            {t("type")}
           </Typography>
-          <Select placeholder="Veuillez choisir le praticien" list={names} />
+          <Select placeholder={t("select-equipment-2")} list={names} />
         </Box>
         <Box
           className="form-label-main"
           sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
           <Typography
             sx={{ minWidth: 140, textAlign: "right" }}
-            mr={2}
+            mr="14.5px"
             variant="caption"
             color="text.secondary">
-            {t("location")}
+            {t("place")}
           </Typography>
-          <Select placeholder={t("placeOfConsultation")} list={names} />
+          <Select placeholder={t("consultationPlace")} list={names} />
         </Box>
-
         <Box
           className="form-label-main"
           sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
@@ -85,12 +96,15 @@ function PractitionerForm({ ...props }) {
         </Box>
         <Box
           className="form-label-main"
-          sx={{ display: "flex", alignItems: "center", mb: "9.5px" }}>
+          sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
           <Typography
-            sx={{ minWidth: 132, width: 132, textAlign: "right" }}
+            sx={{ maxWidth: { lg: 140, xs: "100%" }, textAlign: "right" }}
             mr="14.5px"
             variant="caption"
-          />
+            color="text.secondary">
+            {t("pattern")}
+          </Typography>
+          <Select placeholder={t("select-equipment-3")} list={names} />
         </Box>
       </Paper>
       <Typography variant="body2" mb={1} mt={4}>
@@ -101,7 +115,7 @@ function PractitionerForm({ ...props }) {
           className="form-label-main"
           sx={{ display: "flex", alignItems: "center", mb: "1.25rem" }}>
           <Typography
-            sx={{ minWidth: 140, textAlign: "right" }}
+            sx={{ maxWidth: { lg: 140, xs: "100%" }, textAlign: "right" }}
             mr="14.5px"
             variant="caption"
             color="text.secondary">
@@ -196,4 +210,4 @@ function PractitionerForm({ ...props }) {
   );
 }
 
-export default PractitionerForm;
+export default EquipmentForm;

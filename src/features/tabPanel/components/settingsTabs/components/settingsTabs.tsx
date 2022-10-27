@@ -7,7 +7,7 @@ import Icon from "@themes/urlIcon";
 //component style
 import TabsStyled from "./overrides/tabsStyle";
 export default function SettingsTabs({ ...props }) {
-  const { data, getIndex } = props;
+  const { data, getIndex, t } = props;
   const [state, setstate] = React.useState({
     tabIndex: null,
   });
@@ -25,9 +25,12 @@ export default function SettingsTabs({ ...props }) {
         alignItems: "center",
         justifyContent: "center",
         m: -1,
+        flexWrap: { lg: "nowrap", xs: "wrap" },
       }}>
       {data?.map((item: any, index: number) => (
-        <Box sx={{ maxWidth: 328, p: 1 }} key={`tab-${index}`}>
+        <Box
+          sx={{ maxWidth: { lg: 328, xs: "100%" }, width: "100%", p: 1 }}
+          key={`tab-${index}`}>
           <TabsStyled
             className={`${state.tabIndex === index ? "active" : ""}`}
             onClick={() => handleClick(index)}
@@ -53,7 +56,7 @@ export default function SettingsTabs({ ...props }) {
                     mb: 1,
                     mt: "6px",
                   }}>
-                  {item.label}
+                  {t(item.label)}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -61,7 +64,7 @@ export default function SettingsTabs({ ...props }) {
                   color={
                     state.tabIndex === index ? "common.white" : "text.secondary"
                   }>
-                  {item.content}
+                  {t(item.content)}
                 </Typography>
               </Box>
             </CardContent>
