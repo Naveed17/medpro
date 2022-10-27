@@ -1,4 +1,4 @@
-import {Avatar, Box, Button, Typography, useTheme} from "@mui/material";
+import {Box, Button, Theme, Typography, useMediaQuery} from "@mui/material";
 import {RootStyled} from "@features/loadingScreen";
 import {motion} from "framer-motion";
 import IconUrl from "@themes/urlIcon";
@@ -9,6 +9,7 @@ import {useRouter} from "next/router";
 
 function LoadingScreen({...props}) {
     const router = useRouter();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {text = "loading", iconNote = null, button = null} = props
     const {t, ready} = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
@@ -45,7 +46,7 @@ function LoadingScreen({...props}) {
                     viewBox="0 0 54 54"
                     className="item"
                     sx={{
-                        width: "120px",
+                        width: isMobile ? 80 : 120,
                         overflow: "visible",
                         // stroke: theme.palette.primary.main,
                         strokeWidth: 0.5,

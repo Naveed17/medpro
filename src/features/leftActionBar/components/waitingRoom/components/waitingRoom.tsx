@@ -63,42 +63,8 @@ function WaitingRoom() {
                     t: t,
                     ready: ready,
                 }}
-                defaultValue={"reson"}
+                defaultValue={"meetingType"}
                 data={[
-                   /* {
-                        heading: {
-                            id: "patient",
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        children: (
-                            <FilterRootStyled>
-                                <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => {
-                                        dispatch(setView("listWeek"));
-                                        dispatch(setFilter({patient: data.query}));
-                                    }}
-                                    item={{
-                                        heading: {
-                                            icon: "ic-patient",
-                                            title: "patient",
-                                        },
-
-                                        gender: {
-                                            heading: "gender",
-                                            genders: ["male", "female"],
-                                        },
-                                        textField: {
-                                            labels: [
-                                                {label: "name", placeholder: "name"},
-                                                {label: "date-of-birth", placeholder: "--/--/----"},
-                                                {label: "telephone", placeholder: "telephone"},
-                                            ],
-                                        },
-                                    }} t={t}/>
-                            </FilterRootStyled>
-                        ),
-                    },*/
                     {
                         heading: {
                             id: "meetingType",
