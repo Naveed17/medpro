@@ -215,9 +215,7 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                console.log(state.info)
                 dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
-                //setDialog('draw_up_an_order')
                 break;
             case "hide":
                 sethide(!hide)
@@ -250,10 +248,13 @@ function DocumentDetailDialog({...props}) {
     return (
         <DocumentDetailDialogStyled>
             <Header name={ginfo.firstName + ' ' + ginfo.lastName} speciality={speciality}></Header>
-            <Certificat data={state}></Certificat>
+
+
+            {state.type === 'write_certif' &&<Certificat data={state}></Certificat>}
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
             {state.type ==='requested-medical-imaging' && <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
+
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>

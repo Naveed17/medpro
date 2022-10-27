@@ -7,6 +7,8 @@ function RequestedAnalysis({...props}) {
 
     return (
         <TableStyled hidden={true} id="requested-analysis">
+            <tbody>
+
             <tr>
                 <td colSpan={2} className={"title"}>
                     Bilan Biologique
@@ -40,7 +42,7 @@ function RequestedAnalysis({...props}) {
 
                 ))
             }
-
+            </tbody>
         </TableStyled>
 
 

@@ -6,6 +6,7 @@ function Fees({...props}) {
     const {data} = props;
     return (
         <TableStyled hidden={true} id="fees">
+            <tbody>
             <tr>
                 <td colSpan={4} className={"title"}>
                     <p>Note d&apos;honoraires</p>
@@ -42,6 +43,7 @@ function Fees({...props}) {
                     <td className={"feesLine"} style={{textAlign: "right"}}>{line.qte * line.fees} TND</td>
                 </tr>
             ))}
+            </tbody>
         </TableStyled>
 
 

@@ -7,6 +7,7 @@ function RequestedMedicalImaging({...props}) {
 
     return (
         <TableStyled hidden={true} id="requested-medical-imaging">
+            <tbody>
             <tr>
                 <td colSpan={2} className={"title"}>
                     <p>Imagerie médicale</p>
@@ -44,7 +45,7 @@ function RequestedMedicalImaging({...props}) {
 
                 ))
             }
-
+            </tbody>
         </TableStyled>
 
 

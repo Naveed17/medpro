@@ -7,6 +7,7 @@ function Certificat({...props}) {
 
     return (
         <TableStyled hidden={true} id="certificat">
+            <tbody>
             <tr>
                 <td colSpan={2} className={"title"}>
                     <p>CERTIFICAT MEDICAL</p>
@@ -29,10 +30,8 @@ function Certificat({...props}) {
                     <p>{data.content}</p>
                 </td>
             </tr>
-
+            </tbody>
         </TableStyled>
-
-
     )
 }
 

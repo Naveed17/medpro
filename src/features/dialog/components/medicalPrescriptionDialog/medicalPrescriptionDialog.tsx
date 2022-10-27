@@ -157,7 +157,7 @@ function MedicalPrescriptionDialog({...props}) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
 
-                drugs.push(values)
+                drugs.unshift(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
@@ -168,6 +168,16 @@ function MedicalPrescriptionDialog({...props}) {
             }
         },
     });
+
+    const {
+        values,
+        errors,
+        touched,
+        handleSubmit,
+        getFieldProps,
+        setFieldValue,
+        resetForm
+    } = formik;
 
     const router = useRouter();
 
@@ -193,16 +203,6 @@ function MedicalPrescriptionDialog({...props}) {
     useEffect(() => {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])
-
-    const {
-        values,
-        errors,
-        touched,
-        handleSubmit,
-        getFieldProps,
-        setFieldValue,
-        resetForm
-    } = formik;
 
     useEffect(() => {
         if (drug === null && Object.keys(errors).length !== 0)
