@@ -27,6 +27,8 @@ import autoTable from 'jspdf-autotable';
 import {Certificat, Fees, Header, Prescription, RequestedAnalysis} from "@features/files";
 import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
+import {useAppDispatch} from "@app/redux/hooks";
+import {SetSelectedDialog} from "@features/toolbar";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -36,6 +38,7 @@ function DocumentDetailDialog({...props}) {
     const {data: {state, setOpenDialog}} = props
     const router = useRouter();
     const {data: session} = useSession();
+    const dispatch = useAppDispatch();
 
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
@@ -101,6 +104,19 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
+    const addFooters = (doc:any) => {
+        const pageCount = doc.internal.getNumberOfPages()
+
+        doc.setFont('helvetica', 'italic')
+        doc.setFontSize(8)
+        //for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(pageCount)
+            doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
+                align: 'center'
+            })
+       // }
+    }
+
     useEffect(() => {
         const doc = new jsPDF({
             format: 'a5'
@@ -118,8 +134,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'requested-analysis') {
@@ -128,8 +145,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'requested-medical-imaging') {
@@ -138,8 +156,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'write_certif') {
@@ -149,8 +168,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 50
+                startY: 40
             })
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else if (state.type === 'fees') {
@@ -159,9 +179,9 @@ function DocumentDetailDialog({...props}) {
                 useCss: true,
                 includeHiddenHtml: true,
                 styles: {fillColor: [255, 255, 255]},
-                startY: 60
+                startY: 40
             })
-
+            addFooters(doc)
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else setFile(state.uri)
@@ -195,7 +215,8 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                console.log(state.info[0])
+                console.log(state.info)
+                dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
                 //setDialog('draw_up_an_order')
                 break;
             case "hide":

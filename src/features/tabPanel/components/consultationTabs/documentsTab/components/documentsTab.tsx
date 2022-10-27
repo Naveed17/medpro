@@ -106,7 +106,12 @@ function DocumentsTab({...props}) {
                 {
                     documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
-                            <Stack justifyContent={"center"} alignItems="center" className="document-detail">
+                            <Stack onClick={() => {
+                                setIsViewerOpen(card.uri)
+                            }}
+                                   justifyContent={"center"}
+                                   alignItems="center"
+                                   className="document-detail">
                                 <Image src={card.uri}
                                        width={250}
                                        height={250}
