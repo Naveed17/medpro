@@ -90,9 +90,23 @@ function PatientFilter({...props}) {
                                     {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
                                 <TextField
-                                    onChange={(e) =>
-                                        setQueryState({...queryState, [lab.label]: e.target.value})
-                                    }
+                                    onChange={(e) => {
+                                        setQueryState({...queryState, [lab.label]: e.target.value});
+                                        if (e.target.value.length >= 3) {
+                                            OnSearch({
+                                                query: {
+                                                    ...queryState,
+                                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                    [lab.label]: (e.target as HTMLInputElement).value,
+                                                },
+                                            });
+                                        } else if (e.target.value.length === 0) {
+                                            const query = _.omit(queryState, [lab.label]);
+                                            OnSearch({
+                                                query,
+                                            });
+                                        }
+                                    }}
                                     value={queryState[lab.label]}
                                     onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                                         if (e.key === "Enter") {

@@ -630,9 +630,14 @@ function Agenda() {
             case "onDetailPatient":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
+                dispatch(openDrawer({type: "add", open: false}));
                 break;
             case "onWaitingRoom":
                 onOpenWaitingRoom(event);
+                dispatch(openDrawer({type: "add", open: false}));
+                break;
+            case "onConsultationStart":
+                onConsultationDetail(event);
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
         }

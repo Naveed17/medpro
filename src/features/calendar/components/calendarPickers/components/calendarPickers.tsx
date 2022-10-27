@@ -56,7 +56,7 @@ function CalendarPickers({...props}) {
                                         height: "4px",
                                         right: 0,
                                         left: 0,
-                                        top: "-1px"
+                                        bottom: 0
                                     },
                                     borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
                                     borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important"
