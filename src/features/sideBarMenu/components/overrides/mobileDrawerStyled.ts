@@ -31,6 +31,7 @@ const MobileDrawerStyled = styled(Drawer)(({ theme }) => ({
                     },
                 },
                 "& .MuiListItemText-root": {
+                    textAlign: "left",
                     "& span": {
                         fontFamily: "Poppins-Light",
                         fontSize: 12,
