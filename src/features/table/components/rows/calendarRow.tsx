@@ -210,7 +210,7 @@ function CalendarRow({...props}) {
                                    alignItems="center">
                                 <PointOfSaleIcon color="success"/>
                                 <Typography ml={1} variant="body2">
-                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} TND`}
+                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${process.env.devise}`}
                                 </Typography>
                             </Stack>
                         </Box> : "--"}

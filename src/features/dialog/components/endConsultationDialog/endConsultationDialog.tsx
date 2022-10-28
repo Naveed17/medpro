@@ -7,7 +7,7 @@ function EndConsultationDialog({ ...props }) {
   const {
     data: { t },
   } = props;
-
+  const devise = process.env.devise;
   const imgUrl = null;
   return (
     <RootStyled>
@@ -41,7 +41,7 @@ function EndConsultationDialog({ ...props }) {
               mr={0.3}>
               120
             </Typography>
-            TND
+            {devise}
           </Label>
         </Typography>
         <TextField

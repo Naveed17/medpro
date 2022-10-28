@@ -34,7 +34,6 @@ function HistoryTab({...props}) {
         setInfo,
         mutateDoc,
         setState,
-        acts,
         appuuid,
         dispatch,
         setOpenDialog,
@@ -46,6 +45,7 @@ function HistoryTab({...props}) {
 
     const {trigger} = useRequestMutation(null, "/editRA");
 
+    const devise = process.env.devise;
 
     const subMotifCard = [
         {
@@ -106,10 +106,11 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
+        console.log(appointement.latestAppointments)
         dispatch(SetSelectedApp(appuuid))
     }, [appointement, appuuid, dispatch]);
 
-    const printFees = (app: { appointment: { acts: any[] } }) => {
+    const printFees = (app: { appointment: { acts: any[],consultation_fees: string} }) => {
         const selectedActs: {
             uuid: string,
             act: { name: string }
@@ -130,6 +131,7 @@ function HistoryTab({...props}) {
             type: "fees",
             name: "note_fees",
             info: selectedActs,
+            consultationFees:app.appointment.consultation_fees,
             patient: `${patient.firstName}   ${patient.lastName}`,
         });
         setOpenDialog(true);
@@ -418,81 +420,91 @@ function HistoryTab({...props}) {
                                                             }
                                                         </>}
 
-                                                        {col.type === "act-fees" && <>
+                                                        {col.type === "act-fees" && <BoxFees>
+                                                            <Grid container spacing={2}>
+                                                                <Grid item xs={3}>
+                                                                    <Typography className={"feesContent"}
+                                                                    >{t('consultationIP.consultation')}</Typography>
+                                                                </Grid>
+                                                                <Grid item xs={3}></Grid>
+                                                                <Grid item xs={3}></Grid>
+                                                                <Grid item xs={3}>
+                                                                    <Typography textAlign={"right"}
+                                                                                className={"feesContent"}>{app?.appointment.consultation_fees
+                                                                        ? app?.appointment.consultation_fees
+                                                                        : "--"}</Typography>
+                                                                </Grid>
+                                                            </Grid>
                                                             {
-                                                                app?.appointment.acts.length > 0 ?
-                                                                    <BoxFees>
-                                                                        <Grid container spacing={2}>
-                                                                            <Grid item xs={3}>
-                                                                                <Typography
-                                                                                    className={"header"}>Name</Typography>
-                                                                            </Grid>
-                                                                            <Grid item xs={3}>
-                                                                                <Typography textAlign={"center"}
-                                                                                            className={"header"}>Qte</Typography>
-                                                                            </Grid>
-                                                                            <Grid item xs={3}>
-                                                                                <Typography textAlign={"center"}
-                                                                                            className={"header"}>Price</Typography>
-                                                                            </Grid>
-                                                                            <Grid item xs={3}>
-                                                                                <Typography textAlign={"right"}
-                                                                                            className={"header"}>Total</Typography>
-                                                                            </Grid>
+                                                                app?.appointment.acts.length > 0 &&
+                                                                <BoxFees>
+                                                                    <Grid container spacing={2}>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography
+                                                                                className={"header"}>{t('consultationIP.name')}</Typography>
                                                                         </Grid>
-                                                                        {app?.appointment.acts.map(
-                                                                            (act: any, idx: number) => (
-                                                                                <Grid container key={`fees-${idx}`}
-                                                                                      spacing={2}>
-                                                                                    <Grid item xs={3}>
-                                                                                        <Typography
-                                                                                            className={"feesContent"}>{act.name}</Typography>
-                                                                                    </Grid>
-                                                                                    <Grid item xs={3}>
-                                                                                        <Typography
-                                                                                            textAlign={"center"}
-                                                                                            className={"feesContent"}>{act.qte}</Typography>
-                                                                                    </Grid>
-                                                                                    <Grid item xs={3}>
-                                                                                        <Typography
-                                                                                            textAlign={"center"}
-                                                                                            className={"feesContent"}>{act.price} TND</Typography>
-                                                                                    </Grid>
-                                                                                    <Grid item xs={3}>
-                                                                                        <Typography
-                                                                                            textAlign={"right"}
-                                                                                            className={"feesContent"}>{act.price * act.qte} TND</Typography>
-                                                                                    </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"center"}
+                                                                                        className={"header"}>{t('consultationIP.qte')}</Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"center"}
+                                                                                        className={"header"}>{t('consultationIP.price')}</Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"right"}
+                                                                                        className={"header"}>{t('consultationIP.total')}</Typography>
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                    {app?.appointment.acts.map(
+                                                                        (act: any, idx: number) => (
+                                                                            <Grid container key={`fees-${idx}`}
+                                                                                  spacing={2}>
+                                                                                <Grid item xs={3}>
+                                                                                    <Typography
+                                                                                        className={"feesContent"}>{act.name}</Typography>
                                                                                 </Grid>
-                                                                            )
-                                                                        )}
+                                                                                <Grid item xs={3}>
+                                                                                    <Typography
+                                                                                        textAlign={"center"}
+                                                                                        className={"feesContent"}>{act.qte}</Typography>
+                                                                                </Grid>
+                                                                                <Grid item xs={3}>
+                                                                                    <Typography
+                                                                                        textAlign={"center"}
+                                                                                        className={"feesContent"}>{act.price} {devise}</Typography>
+                                                                                </Grid>
+                                                                                <Grid item xs={3}>
+                                                                                    <Typography
+                                                                                        textAlign={"right"}
+                                                                                        className={"feesContent"}>{act.price * act.qte} {devise}</Typography>
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        )
+                                                                    )}
 
-                                                                        <Stack mt={2} direction={"row"}
-                                                                               alignItems={"center"}
-                                                                               justifyContent={"flex-end"}>
-                                                                            <Typography textAlign={"right"} mr={2}
-                                                                                        fontWeight={"bold"}
-                                                                                        fontSize={18}>
-                                                                                Total : {app.appointment.fees} TND |
-                                                                            </Typography>
-                                                                            <Button
-                                                                                variant="contained"
-                                                                                color={"info"}
-                                                                                onClick={() => {
-                                                                                    printFees(app)
-                                                                                }}
-                                                                                startIcon={<IconUrl
-                                                                                    path="ic-imprime"/>}>
-                                                                                {t("consultationIP.print")}
-                                                                            </Button>
-                                                                        </Stack>
-                                                                    </BoxFees> :
-                                                                    <Box className={'boxHisto'}>
-                                                                        <Typography
-                                                                            className={"empty"}>{t('consultationIP.noFees')}</Typography>
-                                                                    </Box>
+                                                                    <Stack mt={2} direction={"row"}
+                                                                           alignItems={"center"}
+                                                                           justifyContent={"flex-end"}>
+                                                                        <Typography textAlign={"right"} mr={2}
+                                                                                    fontWeight={"bold"}
+                                                                                    fontSize={18}>
+                                                                            Total : {app.appointment.fees} {devise} |
+                                                                        </Typography>
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            color={"info"}
+                                                                            onClick={() => {
+                                                                                printFees(app)
+                                                                            }}
+                                                                            startIcon={<IconUrl
+                                                                                path="ic-imprime"/>}>
+                                                                            {t("consultationIP.print")}
+                                                                        </Button>
+                                                                    </Stack>
+                                                                </BoxFees>
                                                             }
-                                                        </>}
+                                                        </BoxFees>}
                                                     </ListItemDetailsStyled>
 
                                                 </Collapse>

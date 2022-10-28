@@ -208,7 +208,7 @@ function WaitingRoomRow({...props}) {
                                 </> : " -- "}
                             <PlayCircleRoundedIcon color="success"/>
                             <Typography variant="body2">
-                                120 TND
+                                120
                             </Typography>
                         </Stack>
                     ) : (

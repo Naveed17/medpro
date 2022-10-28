@@ -88,7 +88,7 @@ function FeesTab({...props}) {
                            value={consultationFees}
                            size="small"
                            InputProps={{
-                               endAdornment: <InputAdornment position="end">TND</InputAdornment>,
+                               endAdornment: <InputAdornment position="end">{process.env.devise}</InputAdornment>,
                                style: {width: 120, backgroundColor: "white"}
                            }}
                            onChange={(ev) => {

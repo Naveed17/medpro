@@ -4,6 +4,7 @@ import TableStyled from "../../overrides/tableStyled";
 
 function Fees({...props}) {
     const {data} = props;
+    const devise = process.env.devise
     return (
         <TableStyled hidden={true} id="fees">
             <tbody>
@@ -33,7 +34,7 @@ function Fees({...props}) {
                     <td className={"feesLine"}>Consultation</td>
                     <td className={"feesLine"} style={{textAlign: "center"}}></td>
                     <td className={"feesLine"} style={{textAlign: "center"}}></td>
-                    <td className={"feesLine"} style={{textAlign: "right"}}>{data.consultationFees} TND</td>
+                    <td className={"feesLine"} style={{textAlign: "right"}}>{data.consultationFees} {devise}</td>
                 </tr>
                 <tr>
                     <td style={{fontSize: 5}}></td>
@@ -52,8 +53,8 @@ function Fees({...props}) {
                 <tr key={line.uuid}>
                     <td className={"feesLine"}>{line.act.name}</td>
                     <td className={"feesLine"} style={{textAlign: "center"}}>{line.qte}</td>
-                    <td className={"feesLine"} style={{textAlign: "center"}}>{line.fees} TND</td>
-                    <td className={"feesLine"} style={{textAlign: "right"}}>{line.qte * line.fees} TND</td>
+                    <td className={"feesLine"} style={{textAlign: "center"}}>{line.fees} {devise}</td>
+                    <td className={"feesLine"} style={{textAlign: "right"}}>{line.qte * line.fees} {devise}</td>
                 </tr>
             ))}
             </tbody>

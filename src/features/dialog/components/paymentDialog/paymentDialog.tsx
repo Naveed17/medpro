@@ -95,6 +95,7 @@ function PaymentDialog({ ...props }) {
     const { data: { t, selected } } = props
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const img = null;
+    const devise = process.env.devise;
     const [state, setState] = React.useState<any>({
         species: false,
         card: false,
@@ -176,7 +177,7 @@ function PaymentDialog({ ...props }) {
                         >
                             {t("btn_remain")}
                             <Typography fontWeight={700} component='strong' mx={1}>{selected.pending - selected.amount}</Typography>
-                            TND
+                            {devise}
                         </Button>
                     }
 
@@ -187,7 +188,7 @@ function PaymentDialog({ ...props }) {
                     >
                         {t("total")}
                         <Typography fontWeight={700} component='strong' mx={1}>{selected ? selected.pending : 0}</Typography>
-                        TND
+                        {devise}
                     </Button>
                 </Stack>
             </Stack>
@@ -263,7 +264,7 @@ function PaymentDialog({ ...props }) {
 
                                     />
                                     <Typography>
-                                        TND
+                                        {devise}
                                     </Typography>
                                 </Stack>
 
@@ -286,7 +287,7 @@ function PaymentDialog({ ...props }) {
 
                                     />
                                     <Typography>
-                                        TND
+                                        {devise}
                                     </Typography>
                                 </Stack>
 

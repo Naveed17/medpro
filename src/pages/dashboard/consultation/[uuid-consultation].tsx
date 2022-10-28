@@ -575,7 +575,7 @@ function ConsultationInProgress() {
                                     <span>{t('total')} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {total} TND
+                                    {total} {process.env.devise}
                                 </Typography>
                                 <Stack direction='row' alignItems="center" spacing={2}>
                                     <span>|</span>
@@ -623,7 +623,6 @@ function ConsultationInProgress() {
                             </Button>
                         </Stack>
                     </SubFooter>
-
                 </Box>
                 <Drawer
                     anchor={"right"}

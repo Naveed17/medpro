@@ -32,7 +32,7 @@ function PaymentMobileCard({ ...props }) {
                             </Typography>
                         </Stack>
                         <Link underline="none">
-                            {data.amount} TND
+                            {data.amount} {process.env.devise}
                         </Link>
 
                     </Stack>
