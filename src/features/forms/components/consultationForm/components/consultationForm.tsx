@@ -29,14 +29,12 @@ const names = [
 ];
 function ConsultationForm({ ...props }) {
   const theme = useTheme();
-  const { t } = props;
+  const { t, formik } = props;
+  const { values, getFieldProps, setFieldValue } = formik;
   const [state, setstate] = React.useState({
     value: "",
   });
-  const [checked, setChecked] = useState<boolean>(false);
-  const handleChangeSwitch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
+  const { consultationRoom } = values;
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setstate({ ...state, value: event.target.value });
   };
@@ -87,7 +85,17 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("number_of_rooms")}
                 </Typography>
-                <Select placeholder={t("selectSpecialty")} list={names} />
+                <Select
+                  placeholder={t("selectSpecialty")}
+                  value={consultationRoom.practitioner.numberOfRooms}
+                  list={names}
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.numberOfRooms",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -100,6 +108,9 @@ function ConsultationForm({ ...props }) {
                   {t("perRoom")}
                 </Typography>
                 <TextField
+                  {...getFieldProps(
+                    "consultationRoom.practitioner.numberOfAccessesPerRoom"
+                  )}
                   variant="outlined"
                   size="small"
                   fullWidth
@@ -116,7 +127,17 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("specialties")}
                 </Typography>
-                <Select placeholder={t("selectConcerned")} list={names} />
+                <Select
+                  value={consultationRoom.practitioner.specialties}
+                  placeholder={t("selectConcerned")}
+                  list={names}
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.specialties",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -128,7 +149,14 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("type")}
                 </Typography>
-                <Select placeholder={t("typeRoom")} list={names} />
+                <Select
+                  placeholder={t("typeRoom")}
+                  value={consultationRoom.practitioner.type}
+                  list={names}
+                  getData={(v: any) =>
+                    setFieldValue("consultationRoom.practitioner.type", v)
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -140,7 +168,14 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("location")}
                 </Typography>
-                <Select placeholder={t("placeOfConsultation")} list={names} />
+                <Select
+                  placeholder={t("placeOfConsultation")}
+                  value={consultationRoom.practitioner.location}
+                  list={names}
+                  getData={(v: any) =>
+                    setFieldValue("consultationRoom.practitioner.location", v)
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -153,6 +188,9 @@ function ConsultationForm({ ...props }) {
                   {t("patientBase")}
                 </Typography>
                 <TextField
+                  {...getFieldProps(
+                    "consultationRoom.practitioner.patientBase"
+                  )}
                   variant="outlined"
                   size="small"
                   fullWidth
@@ -175,6 +213,7 @@ function ConsultationForm({ ...props }) {
                   {t("name")}
                 </Typography>
                 <TextField
+                  {...getFieldProps("consultationRoom.practitioner.agenda")}
                   variant="outlined"
                   size="small"
                   fullWidth
@@ -198,7 +237,17 @@ function ConsultationForm({ ...props }) {
                 </Typography>
                 <Select
                   placeholder={t("clone_existing_rights_placeholder")}
+                  value={
+                    consultationRoom.practitioner.rightsOnAgenda
+                      .cloneExistingRights
+                  }
                   list={names}
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.rightsOnAgenda.cloneExistingRights",
+                      v
+                    )
+                  }
                 />
               </Box>
               <Box
@@ -210,15 +259,32 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
-                        inputProps={{ "aria-label": "controlled" }}
+                        {...getFieldProps(
+                          "consultationRoom.practitioner.rightsOnAgenda.lamiaBarnat.status"
+                        )}
+                        checked={
+                          consultationRoom.practitioner.rightsOnAgenda
+                            .lamiaBarnat.status
+                        }
                       />
                     }
                     label={t("lamia_barnat")}
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.practitioner.rightsOnAgenda.lamiaBarnat
+                      .value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.rightsOnAgenda.lamiaBarnat.value",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -229,15 +295,33 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
+                        {...getFieldProps(
+                          "consultationRoom.practitioner.rightsOnAgenda.medicalSecretary.status"
+                        )}
                         inputProps={{ "aria-label": "controlled" }}
+                        checked={
+                          consultationRoom.practitioner.rightsOnAgenda
+                            .medicalSecretary.status
+                        }
                       />
                     }
                     label={t("medical_secretary")}
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.practitioner.rightsOnAgenda
+                      .medicalSecretary.value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.rightsOnAgenda.medicalSecretary.value",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -248,15 +332,32 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
+                        {...getFieldProps(
+                          "consultationRoom.practitioner.rightsOnAgenda.aliTounsi.status"
+                        )}
                         inputProps={{ "aria-label": "controlled" }}
+                        checked={
+                          consultationRoom.practitioner.rightsOnAgenda.aliTounsi
+                            .status
+                        }
                       />
                     }
                     label="Ali Tounsi"
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.practitioner.rightsOnAgenda.aliTounsi.value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.practitioner.rightsOnAgenda.aliTounsi.value",
+                      v
+                    )
+                  }
+                />
               </Box>
             </Paper>
           </>
@@ -277,7 +378,17 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("specialty_of_practitioner")}
                 </Typography>
-                <Select placeholder={t("specialty_concerned")} list={names} />
+                <Select
+                  placeholder={t("specialty_concerned")}
+                  list={names}
+                  value={consultationRoom.assistant.specialtyOfPractitioner}
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.assistant.specialtyOfPractitioner",
+                      v
+                    )
+                  }
+                />
               </Box>
 
               <Box
@@ -290,7 +401,14 @@ function ConsultationForm({ ...props }) {
                   color="text.secondary">
                   {t("place")}
                 </Typography>
-                <Select placeholder={t("consultationPlace")} list={names} />
+                <Select
+                  placeholder={t("consultationPlace")}
+                  list={names}
+                  value={consultationRoom.assistant.place}
+                  getData={(v: any) =>
+                    setFieldValue("consultationRoom.assistant.place", v)
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -303,6 +421,7 @@ function ConsultationForm({ ...props }) {
                   {t("patientBase")}
                 </Typography>
                 <TextField
+                  {...getFieldProps("consultationRoom.assistant.patientBase")}
                   variant="outlined"
                   size="small"
                   fullWidth
@@ -325,6 +444,7 @@ function ConsultationForm({ ...props }) {
                   {t("name")}
                 </Typography>
                 <TextField
+                  {...getFieldProps("consultationRoom.assistant.agenda")}
                   variant="outlined"
                   size="small"
                   fullWidth
@@ -349,6 +469,16 @@ function ConsultationForm({ ...props }) {
                 <Select
                   placeholder={t("clone_existing_rights_placeholder")}
                   list={names}
+                  value={
+                    consultationRoom.assistant.rightsOnAgenda
+                      .cloneExistingRights
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.assistant.rightsOnAgenda.cloneExistingRights",
+                      v
+                    )
+                  }
                 />
               </Box>
               <Box
@@ -360,15 +490,31 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
-                        inputProps={{ "aria-label": "controlled" }}
+                        {...getFieldProps(
+                          "consultationRoom.assistant.rightsOnAgenda.lamiaBarnat.status"
+                        )}
+                        checked={
+                          consultationRoom.assistant.rightsOnAgenda.lamiaBarnat
+                            .status
+                        }
                       />
                     }
                     label={t("lamia_barnat")}
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.assistant.rightsOnAgenda.lamiaBarnat.value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.assistant.rightsOnAgenda.lamiaBarnat.value",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -379,15 +525,33 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
+                        {...getFieldProps(
+                          "consultationRoom.assistant.rightsOnAgenda.medicalSecretary.status"
+                        )}
                         inputProps={{ "aria-label": "controlled" }}
+                        checked={
+                          consultationRoom.assistant.rightsOnAgenda
+                            .medicalSecretary.status
+                        }
                       />
                     }
                     label={t("medical_secretary")}
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.assistant.rightsOnAgenda.medicalSecretary
+                      .value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.assistant.rightsOnAgenda.medicalSecretary.value",
+                      v
+                    )
+                  }
+                />
               </Box>
               <Box
                 className="form-label-main"
@@ -398,15 +562,32 @@ function ConsultationForm({ ...props }) {
                   <FormControlLabel
                     control={
                       <Switch
-                        onChange={handleChangeSwitch}
-                        checked={checked}
+                        {...getFieldProps(
+                          "consultationRoom.assistant.rightsOnAgenda.aliTounsi.status"
+                        )}
                         inputProps={{ "aria-label": "controlled" }}
+                        checked={
+                          consultationRoom.assistant.rightsOnAgenda.aliTounsi
+                            .status
+                        }
                       />
                     }
                     label="Ali Tounsi"
                   />
                 </Box>
-                <Select placeholder={t("no_access")} list={names} />
+                <Select
+                  placeholder={t("no_access")}
+                  list={names}
+                  value={
+                    consultationRoom.assistant.rightsOnAgenda.aliTounsi.value
+                  }
+                  getData={(v: any) =>
+                    setFieldValue(
+                      "consultationRoom.assistant.rightsOnAgenda.aliTounsi.value",
+                      v
+                    )
+                  }
+                />
               </Box>
             </Paper>
           </>

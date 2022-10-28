@@ -52,7 +52,7 @@ function Agenda() {
   const dialogSave = () => {
     setOpen(false);
   };
-
+  console.log(rows);
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "agenda.config",
   });

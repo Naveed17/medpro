@@ -4,8 +4,8 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 export default function SelectCustom({ ...props }) {
-  const { placeholder, list } = props;
-  const [data, setData] = React.useState("");
+  const { placeholder, list, getData, value } = props;
+  const [data, setData] = React.useState(value);
   const handleChange = (event: any) => {
     const {
       target: { value },
@@ -15,6 +15,7 @@ export default function SelectCustom({ ...props }) {
       // On autofill we get a the stringified value.
       value
     );
+    getData(value);
   };
   return (
     <>

@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { Box, Typography, Paper, TextField, MenuItem } from "@mui/material";
-import Icon from "@themes/urlIcon";
+import { Box, Typography, Paper, TextField } from "@mui/material";
 import { Select } from "@features/forms";
 import RootStyled from "./overrides/rootStyle";
 import Switch from "@mui/material/Switch";
@@ -18,11 +16,10 @@ const names = [
   "Kelly Snyder",
 ];
 function PractitionerForm({ ...props }) {
-  const { t } = props;
-  const [checked, setChecked] = useState<boolean>(false);
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
+  const { t, formik } = props;
+  const { values, getFieldProps, setFieldValue } = formik;
+  const { practitioner } = values;
+
   return (
     <RootStyled>
       <Typography variant="body2" mb={1} mt={2}>
@@ -39,7 +36,12 @@ function PractitionerForm({ ...props }) {
             color="text.secondary">
             {t("practitionerSpecialty")}
           </Typography>
-          <Select placeholder={t("placeholderSpecialty")} list={names} />
+          <Select
+            value={practitioner.specialty}
+            placeholder={t("placeholderSpecialty")}
+            list={names}
+            getData={(v: any) => setFieldValue("practitioner.specialty", v)}
+          />
         </Box>
         <Box
           className="form-label-main"
@@ -51,7 +53,12 @@ function PractitionerForm({ ...props }) {
             color="text.secondary">
             {t("practitioner")}
           </Typography>
-          <Select placeholder="Veuillez choisir le praticien" list={names} />
+          <Select
+            placeholder={t("selectPractitioner")}
+            value={practitioner.practitioner}
+            list={names}
+            getData={(v: any) => setFieldValue("practitioner.practitioner", v)}
+          />
         </Box>
         <Box
           className="form-label-main"
@@ -63,7 +70,12 @@ function PractitionerForm({ ...props }) {
             color="text.secondary">
             {t("location")}
           </Typography>
-          <Select placeholder={t("placeOfConsultation")} list={names} />
+          <Select
+            placeholder={t("placeOfConsultation")}
+            value={practitioner.location}
+            list={names}
+            getData={(v: any) => setFieldValue("practitioner.location", v)}
+          />
         </Box>
 
         <Box
@@ -77,6 +89,7 @@ function PractitionerForm({ ...props }) {
             {t("patientBase")}
           </Typography>
           <TextField
+            {...getFieldProps("practitioner.patientBase")}
             variant="outlined"
             size="small"
             fullWidth
@@ -108,6 +121,7 @@ function PractitionerForm({ ...props }) {
             {t("name")}
           </Typography>
           <TextField
+            {...getFieldProps("practitioner.agenda")}
             variant="outlined"
             size="small"
             fullWidth
@@ -131,7 +145,14 @@ function PractitionerForm({ ...props }) {
           </Typography>
           <Select
             placeholder={t("clone_existing_rights_placeholder")}
+            value={practitioner.rightsOnAgenda.cloneExistingRights}
             list={names}
+            getData={(v: any) =>
+              setFieldValue(
+                "practitioner.rightsOnAgenda.cloneExistingRights",
+                v
+              )
+            }
           />
         </Box>
         <Box
@@ -143,15 +164,23 @@ function PractitionerForm({ ...props }) {
             <FormControlLabel
               control={
                 <Switch
-                  onChange={handleChange}
-                  checked={checked}
-                  inputProps={{ "aria-label": "controlled" }}
+                  {...getFieldProps(
+                    "practitioner.rightsOnAgenda.lamiaBarnat.status"
+                  )}
+                  checked={practitioner.rightsOnAgenda.lamiaBarnat.status}
                 />
               }
               label={t("lamia_barnat")}
             />
           </Box>
-          <Select placeholder={t("no_access")} list={names} />
+          <Select
+            placeholder={t("no_access")}
+            list={names}
+            value={practitioner.rightsOnAgenda.lamiaBarnat.value}
+            getData={(v: any) =>
+              setFieldValue("practitioner.rightsOnAgenda.lamiaBarnat.value", v)
+            }
+          />
         </Box>
         <Box
           className="form-label-main"
@@ -162,15 +191,27 @@ function PractitionerForm({ ...props }) {
             <FormControlLabel
               control={
                 <Switch
-                  onChange={handleChange}
-                  checked={checked}
+                  {...getFieldProps(
+                    "practitioner.rightsOnAgenda.medicalSecretary.status"
+                  )}
+                  checked={practitioner.rightsOnAgenda.medicalSecretary.status}
                   inputProps={{ "aria-label": "controlled" }}
                 />
               }
               label={t("medical_secretary")}
             />
           </Box>
-          <Select placeholder={t("no_access")} list={names} />
+          <Select
+            placeholder={t("no_access")}
+            list={names}
+            value={practitioner.rightsOnAgenda.medicalSecretary.value}
+            getData={(v: any) =>
+              setFieldValue(
+                "practitioner.rightsOnAgenda.medicalSecretary.value",
+                v
+              )
+            }
+          />
         </Box>
         <Box
           className="form-label-main"
@@ -181,15 +222,24 @@ function PractitionerForm({ ...props }) {
             <FormControlLabel
               control={
                 <Switch
-                  onChange={handleChange}
-                  checked={checked}
+                  {...getFieldProps(
+                    "practitioner.rightsOnAgenda.aliTounsi.status"
+                  )}
+                  checked={practitioner.rightsOnAgenda.aliTounsi.status}
                   inputProps={{ "aria-label": "controlled" }}
                 />
               }
               label="Ali Tounsi"
             />
           </Box>
-          <Select placeholder={t("no_access")} list={names} />
+          <Select
+            placeholder={t("no_access")}
+            value={practitioner.rightsOnAgenda.aliTounsi.value}
+            list={names}
+            getData={(v: any) =>
+              setFieldValue("practitioner.rightsOnAgenda.aliTounsi.value", v)
+            }
+          />
         </Box>
       </Paper>
     </RootStyled>
