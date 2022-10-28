@@ -235,7 +235,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (appointement) {
             setPatient(appointement.patient);
--            setFree(appointement.type.code === 3)
+            setFree(appointement.type.code === 3)
             if (appointement.type.code !== 3) setTotal(consultationFees)
             dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
@@ -271,7 +271,7 @@ function ConsultationInProgress() {
     }, [httpMPResponse]);
 
     useEffect(() => {
-        let fees = free ? 0 :consultationFees;
+        let fees = free ? 0 : consultationFees;
         let uuids: string[] = [];
         selectedAct.map((act) => {
             uuids.push(act.uuid);
@@ -588,7 +588,7 @@ function ConsultationInProgress() {
                                                 type: 'fees',
                                                 name: 'note_fees',
                                                 info: selectedAct,
-                                                consultationFees : free ? 0: consultationFees,
+                                                consultationFees: free ? 0 : consultationFees,
                                                 patient: patient.firstName + ' ' + patient.lastName
                                             })
                                             setOpenDialog(true);
