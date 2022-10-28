@@ -28,12 +28,25 @@ function Fees({...props}) {
                 <td style={{fontSize: 5}}></td>
             </tr>
 
-            <tr>
+            {data.consultationFees > 0 && <>
+                <tr key={"consult"}>
+                    <td className={"feesLine"}>Consultation</td>
+                    <td className={"feesLine"} style={{textAlign: "center"}}></td>
+                    <td className={"feesLine"} style={{textAlign: "center"}}></td>
+                    <td className={"feesLine"} style={{textAlign: "right"}}>{data.consultationFees} TND</td>
+                </tr>
+                <tr>
+                    <td style={{fontSize: 5}}></td>
+                </tr>
+            </>
+            }
+
+            {data.info.length > 0 && <tr>
                 <td className={"feesHeader"}>Acte</td>
                 <td className={"feesHeader"} style={{textAlign: "center"}}>Qte</td>
                 <td className={"feesHeader"} style={{textAlign: "center"}}>PU</td>
                 <td className={"feesHeader"} style={{textAlign: "right"}}>Total</td>
-            </tr>
+            </tr>}
 
             {data.info.map((line: any) => (
                 <tr key={line.uuid}>

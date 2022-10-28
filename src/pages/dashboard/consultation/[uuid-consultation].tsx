@@ -86,7 +86,8 @@ function ConsultationInProgress() {
         },
     });
     const [selectedModel, setSelectedModel] = useState<any>(null);
-
+    const [consultationFees, setConsultationFees] = useState(0);
+    const [free, setFree] = useState(false);
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
@@ -200,7 +201,7 @@ function ConsultationInProgress() {
         setAppointement((httpAppResponse as HttpResponse)?.data);
         setTimeout(() => {
             setLoading(false);
-        }, 2000)
+        }, 3000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -212,7 +213,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal);
-            console.log(localStorage.getItem('Modeldata' + uuind))
+            //console.log(localStorage.getItem('Modeldata' + uuind))
             if (!localStorage.getItem('Modeldata' + uuind)) {
 
                 localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
@@ -234,6 +235,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (appointement) {
             setPatient(appointement.patient);
+            if (!free) setTotal(consultationFees)
             dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
@@ -261,13 +263,14 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (httpMPResponse) {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
+            setConsultationFees(Number(mpRes.consultation_fees))
             setMpUuid(mpRes.medical_professional.uuid);
             setActs(mpRes.acts);
         }
     }, [httpMPResponse]);
 
     useEffect(() => {
-        let fees = 0;
+        let fees = free ? 0 :consultationFees;
         let uuids: string[] = [];
         selectedAct.map((act) => {
             uuids.push(act.uuid);
@@ -275,7 +278,7 @@ function ConsultationInProgress() {
         });
         setTotal(fees);
         setSelectedUuid(uuids);
-    }, [selectedAct, appointement]);
+    }, [selectedAct, appointement, consultationFees, free]);
 
     useEffect(() => {
         if (patientId) {
@@ -305,6 +308,7 @@ function ConsultationInProgress() {
             form.append("treatment", exam.treatment);
             form.append("consultation_reason", exam.motif);
             form.append("fees", total.toString());
+            form.append("consultation_fees", consultationFees.toString());
             form.append("status", "5");
 
             trigger({
@@ -318,9 +322,9 @@ function ConsultationInProgress() {
                 console.log("end consultation", r);
                 console.log(r);
                 dispatch(setTimer({isActive: false}));
-                mutate().then(() =>{
+                mutate().then(() => {
                     //localStorage.removeItem("Modeldata" + uuind);
-                    console.log("remove",localStorage.getItem("Modeldata" + uuind))
+                    console.log("remove", localStorage.getItem("Modeldata" + uuind))
                 })
 
                 if (appointement?.status == 5) {
@@ -528,18 +532,16 @@ function ConsultationInProgress() {
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"medical_procedures"}>
                     <FeesTab
-                        acts={acts}
-                        selectedUuid={selectedUuid}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        editAct={editAct}
-                        selectedAct={selectedAct}
-                        setTotal={selectedAct}
-                        setOpenActDialog={setOpenActDialog}
-                        setOpenDialog={setOpenDialog}
-                        total={total}
-                        t={t}></FeesTab>
+                        {...{
+                            acts,
+                            selectedUuid,
+                            consultationFees,
+                            setConsultationFees,
+                            free, setFree,
+                            editAct,
+                            setTotal,
+                            t
+                        }}></FeesTab>
                 </TabPanel>
 
                 <Stack
@@ -566,25 +568,26 @@ function ConsultationInProgress() {
                 </Stack>
                 <Box pt={8}>
                     <SubFooter>
-                        <Stack width={1} direction={"row"} alignItems="flex-end" justifyContent={value === 'medical_procedures'? "space-between":"flex-end"}>
-                            {value === 'medical_procedures' &&<Stack direction='row' alignItems={"center"}>
+                        <Stack width={1} direction={"row"} alignItems="flex-end"
+                               justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
+                            {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
                                 <Typography variant="subtitle1">
                                     <span>{t('total')} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {selectedAct.length > 0 ? total : '--'} TND
+                                    {total} TND
                                 </Typography>
                                 <Stack direction='row' alignItems="center" spacing={2}>
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
-                                        disabled={selectedAct.length == 0}
                                         onClick={() => {
                                             setInfo('document_detail')
                                             setState({
                                                 type: 'fees',
                                                 name: 'note_fees',
                                                 info: selectedAct,
+                                                consultationFees : free ? 0: consultationFees,
                                                 patient: patient.firstName + ' ' + patient.lastName
                                             })
                                             setOpenDialog(true);
