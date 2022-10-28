@@ -1,9 +1,17 @@
 import React from "react";
 // hook
 import {useTranslation} from "next-i18next";
-
+import {useFormik, Form, FormikProvider} from "formik";
+import MaskedInput from "react-text-mask";
 // material
-import {Box, Typography, Paper, Grid, Skeleton} from "@mui/material";
+import {
+    Box,
+    Typography,
+    Paper,
+    Grid,
+    Skeleton,
+    InputBase
+} from "@mui/material";
 
 // dumy data
 const data = {
@@ -21,31 +29,31 @@ const data = {
         //   value: "Mr",
         // },
         {
-            name: "address"
+            name: "address",
         },
         {
-            name: "name"
+            name: "name",
         },
         // {
         //   name: "zip",
         //   value: "1004",
         // },
         {
-            name: "birthdate"
+            name: "birthdate",
         },
         // {
         //   name: "assurance",
         //   value: "",
         // },
         {
-            name: "telephone"
+            name: "telephone",
         },
         // {
         //   name: "cin",
         //   value: "",
         // },
         {
-            name: "email"
+            name: "email",
         },
         // {
         //   name: "from",
@@ -56,63 +64,173 @@ const data = {
 
 function PersonalInfo({...props}) {
     const {patient, loading} = props;
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
+    const {t, ready} = useTranslation("patient", {
+        keyPrefix: "config.add-patient",
+    });
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            name: !loading ? `${patient.firstName} ${patient.lastName}` : "-",
+            birthdate: !loading ? patient.birthdate : "-",
+            address:
+                !loading && patient.address.length > 0
+                    ? patient.address[0].city.name + ", " + patient.address[0].street
+                    : "-",
+            telephone:
+                !loading && patient.contact.length > 0
+                    ? `${patient.contact[0].code ? patient.contact[0].code : ""}${
+                        patient.contact[0].value
+                    }`
+                    : "-",
+            email: !loading && patient.email ? patient.email : "-",
+        },
+        onSubmit: async (values) => {
+            console.log("ok", values);
+        },
+    });
 
+    const {handleSubmit, values, getFieldProps} = formik;
     if (!ready) return <div>Loading...</div>;
     return (
-        <Box sx={{
-            "& .MuiPaper-root .MuiTypography-root": {
-                fontSize: 12
-            }
-        }}>
-            <Typography
-                variant="body1"
-                color="text.primary"
-                fontFamily="Poppins"
-                gutterBottom
-
-            >
-                {loading ? (
-                    <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                ) : (
-                    t("personal-info")
-                )}
-            </Typography>
-            <Paper sx={{p: 1.5, borderWidth: 0}}>
-                <Grid container spacing={1.2}>
-                    {data.personal.map((v) => (
-                        <React.Fragment key={Math.random()}>
+        <FormikProvider value={formik}>
+            <Form autoComplete="off" noValidate>
+                <Box
+                    sx={{
+                        "& .MuiPaper-root .MuiTypography-root": {
+                            fontSize: 12,
+                        },
+                    }}>
+                    <Typography
+                        variant="body1"
+                        color="text.primary"
+                        fontFamily="Poppins"
+                        gutterBottom>
+                        {loading ? (
+                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                        ) : (
+                            t("personal-info")
+                        )}
+                    </Typography>
+                    <Paper sx={{p: 1.5, borderWidth: 0}}>
+                        <Grid container spacing={1.2}>
                             <Grid item md={3} sm={6} xs={6}>
                                 <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t(v.name)}
+                                    {t("address")}
                                 </Typography>
                             </Grid>
                             <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.primary" noWrap>
-                                    {loading ? (
-                                        <Skeleton variant="text"/>
-                                    ) : v.name === "name" ? (
-                                        <>
-                                            {patient.firstName} {patient.lastName}
-                                        </>
-                                    ) : v.name === "telephone" ? (
-                                        <>
-                                            {(patient.contact.length > 0 && `${patient.contact[0].code ? patient.contact[0].code : ""}${patient.contact[0].value}`) || "-"}
-                                        </>
-                                    ) : v.name === "address" ? (
-                                        <>
-                                            {patient.address[0] ? patient.address[0].city.name + ', ' + patient.address[0].street : "-"}
-                                        </>
-                                    ) : (
-                                        patient[v.name]
-                                    )}
+                                {loading ? (
+                                    <Skeleton variant="text"/>
+                                ) : (
+                                    <InputBase
+                                        inputProps={{
+                                            style: {
+                                                background: "white",
+                                                fontSize: 14,
+                                            },
+                                        }}
+                                        {...getFieldProps("address")}
+                                    />
+                                )}
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                <Typography variant="body1" color="text.secondary" noWrap>
+                                    {t("name")}
                                 </Typography>
                             </Grid>
-                        </React.Fragment>
-                    ))}
-                </Grid>
-            </Paper>
-        </Box>
+                            <Grid item md={3} sm={6} xs={6}>
+                                {loading ? (
+                                    <Skeleton variant="text"/>
+                                ) : (
+                                    <InputBase
+                                        inputProps={{
+                                            style: {
+                                                background: "white",
+                                                fontSize: 14,
+                                            },
+                                        }}
+                                        {...getFieldProps("name")}
+                                    />
+                                )}
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                <Typography variant="body1" color="text.secondary" noWrap>
+                                    {t("telephone")}
+                                </Typography>
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                {loading ? (
+                                    <Skeleton variant="text"/>
+                                ) : (
+                                    <InputBase
+                                        inputProps={{
+                                            style: {
+                                                background: "white",
+                                                fontSize: 14,
+                                            },
+                                        }}
+                                        {...getFieldProps("telephone")}
+                                    />
+                                )}
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                <Typography variant="body1" color="text.secondary" noWrap>
+                                    {t("birthdate")}
+                                </Typography>
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                {loading ? (
+                                    <Skeleton variant="text"/>
+                                ) : (
+                                    <MaskedInput
+                                        style={{
+                                            border: "none",
+                                            outline: "none",
+                                            width: 75,
+                                        }}
+                                        mask={[
+                                            /\d/,
+                                            /\d/,
+                                            "-",
+                                            /\d/,
+                                            /\d/,
+                                            "-",
+                                            /\d/,
+                                            /\d/,
+                                            /\d/,
+                                            /\d/,
+                                        ]}
+                                        placeholderChar={"\u2000"}
+                                        {...getFieldProps("birthdate")}
+                                        showMask
+                                    />
+                                )}
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                <Typography variant="body1" color="text.secondary" noWrap>
+                                    {t("email")}
+                                </Typography>
+                            </Grid>
+                            <Grid item md={3} sm={6} xs={6}>
+                                {loading ? (
+                                    <Skeleton variant="text"/>
+                                ) : (
+                                    <InputBase
+                                        inputProps={{
+                                            style: {
+                                                background: "white",
+                                                fontSize: 14,
+                                            },
+                                        }}
+                                        {...getFieldProps("email")}
+                                    />
+                                )}
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Box>
+            </Form>
+        </FormikProvider>
     );
 }
 
