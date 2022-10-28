@@ -11,33 +11,34 @@ function MotifCard({...props}) {
     return (
         <RootStled>
             <Grid container spacing={2}>
-                {models && models.data && Object.keys(models.data).length > 0 && <Grid item xs={12} md={6}>
-                    <Card className="motif-card">
-                        <CardContent>
-                            <Stack direction="row" alignItems="center" justifyContent="space-between"
-                                   textTransform={"capitalize"}>
-                                <Typography variant="body2" fontWeight={700} marginBottom={1}>
-                                    {t('tracking_data')}
-                                </Typography>
-                                {/*
+                {models && models.data && Object.keys(models.data).length > 0 && Object.keys(models.data).filter(ml => models.data[ml]).length > 0 &&
+                    <Grid item xs={12} md={6}>
+                        <Card className="motif-card">
+                            <CardContent>
+                                <Stack direction="row" alignItems="center" justifyContent="space-between"
+                                       textTransform={"capitalize"}>
+                                    <Typography variant="body2" fontWeight={700} marginBottom={1}>
+                                        {t('tracking_data')}
+                                    </Typography>
+                                    {/*
                                 <Button size="small" sx={{ml: 'auto'}}>{t('see_the_curve')}</Button>
 */}
-                            </Stack>
+                                </Stack>
 
-                            <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
-                                {Object.keys(models.data).map((ml, idx) => (
-                                    ml !== "submit" && models.data[ml]&& <ListItem key={'modelData' + idx}>
-                                        <ListItemIcon>
-                                            <CircleIcon/>
-                                        </ListItemIcon>
-                                        {ml} : {models.data[ml] ? models.data[ml] : '--'}
-                                    </ListItem>
-                                ))}
-                            </List>
+                                <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
+                                    {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
+                                        ml !== "submit" && <ListItem key={'modelData' + idx}>
+                                            <ListItemIcon>
+                                                <CircleIcon/>
+                                            </ListItemIcon>
+                                            {ml} : {models.data[ml] ? models.data[ml] : '--'}
+                                        </ListItem>
+                                    ))}
+                                </List>
 
-                        </CardContent>
-                    </Card>
-                </Grid>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 }
 
                 {notmodels && <Grid item xs={12} md={6}>

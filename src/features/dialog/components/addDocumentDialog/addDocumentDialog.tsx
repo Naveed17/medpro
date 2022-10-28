@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Grid, Stack, TextField, Typography} from "@mui/material";
+import {Grid, Stack, Typography} from "@mui/material";
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {UploadFile} from "@features/uploadFile";
@@ -13,9 +13,7 @@ function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
     const [type, setType] = useState("");
     const [types, setTypes] = useState([]);
-    const [name, setName] = useState("");
     const [loading, setLoading] = useState(true);
-    const [description, setDescription] = useState("");
     const {data} = props;
     const router = useRouter();
     const {data: session} = useSession();
@@ -37,9 +35,9 @@ function AddDocumentDialog({...props}) {
     }, [httpTypeResponse]);
 
     const handleDrop = React.useCallback(
-        (acceptedFiles:File[]) => {
+        (acceptedFiles: File[]) => {
             console.log(acceptedFiles)
-            setFiles([...files,...acceptedFiles]);
+            setFiles([...files, ...acceptedFiles]);
         },
         [files]
     );
@@ -154,6 +152,9 @@ function AddDocumentDialog({...props}) {
                     <Grid item xs={12} lg={12}>
                         <UploadFile
                             files={files}
+                            accept={{
+                                'image/jpeg': ['.pdf','.png','.jpeg', '.jpg']
+                            }}
                             onDrop={handleDrop}
                             singleFile={false}
                         />

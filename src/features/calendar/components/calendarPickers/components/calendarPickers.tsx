@@ -5,7 +5,7 @@ import {configSelector} from "@features/base";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Badge, TextField, useTheme} from "@mui/material";
+import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
@@ -45,18 +45,18 @@ function CalendarPickers({...props}) {
                                     "&:after": {
                                         background: !(DayComponentProps.today || DayComponentProps.selected) &&
                                             `linear-gradient(to right, 
-                                            ${note.events.length > 1 ? theme.palette.error.lighter : theme.palette.common.white} 25%, 
-                                            ${note.events.length > 3 ? theme.palette.error.light : theme.palette.common.white} 25%, 
-                                            ${note.events.length > 3 ? theme.palette.error.light : theme.palette.common.white} 50%, 
-                                            ${note.events.length > 5 ? theme.palette.error.darker : theme.palette.common.white} 50%, 
-                                            ${note.events.length > 5 ? theme.palette.error.darker : theme.palette.common.white} 75%, 
-                                            ${note.events.length > 10 ? theme.palette.error.dark : theme.palette.common.white} 75%)`,
+                                            ${note.events.length > 1 ? theme.palette.info.lighter : theme.palette.common.white} 25%, 
+                                            ${note.events.length > 3 ? theme.palette.info.light : theme.palette.common.white} 25%, 
+                                            ${note.events.length > 3 ? theme.palette.info.light : theme.palette.common.white} 50%, 
+                                            ${note.events.length > 5 ? theme.palette.info.dark : theme.palette.common.white} 50%, 
+                                            ${note.events.length > 5 ? theme.palette.info.dark : theme.palette.common.white} 75%, 
+                                            ${note.events.length > 10 ? theme.palette.info.darker : theme.palette.common.white} 75%)`,
                                         position: "absolute",
                                         content: '""',
                                         height: "4px",
                                         right: 0,
                                         left: 0,
-                                        top: "-1px"
+                                        bottom: 0
                                     },
                                     borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
                                     borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important"

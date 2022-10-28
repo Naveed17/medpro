@@ -1,5 +1,14 @@
 //material-ui
-import {Box, Button, Typography, Badge, Skeleton} from "@mui/material";
+import {
+    Box,
+    Button,
+    Typography,
+    Badge,
+    Skeleton,
+    InputBase,
+    Stack,
+    useTheme,
+} from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 // styled
 import {RootStyled} from "./overrides";
@@ -11,163 +20,215 @@ import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
-import MenIcon from "@themes/overrides/icons/menIcon";
-import WomenIcon from "@themes/overrides/icons/womenIcon";
-import {QrCodeScanner} from '@features/qrCodeScanner'
+import {QrCodeScanner} from "@features/qrCodeScanner";
+import {useFormik, Form, FormikProvider} from "formik";
+import MaskedInput from "react-text-mask";
 
 function PatientDetailsCard({...props}) {
+    const theme = useTheme();
     const {patient, onConsultation, loading} = props;
     const {isActive} = useAppSelector(timerSelector);
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            name: !loading && `${patient.firstName} ${patient.lastName}`,
+            birthdate: !loading ? patient.birthdate : "",
+        },
+        onSubmit: async (values) => {
+            console.log("ok", values);
+        },
+    });
+    const {handleSubmit, values, getFieldProps} = formik;
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
-
     if (!ready) return <>loading translations...</>;
-    return (
-        <RootStyled>
-            <Badge
-                color="success"
-                variant="dot"
-                invisible={patient?.nextAppointments.length === 0}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right",
-                }}
-            >
-                {loading ? (
-                    <Skeleton
-                        variant="rectangular"
-                        width={pxToRem(59)}
-                        height={pxToRem(59)}
-                        sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
-                    />
-                ) : (
-                    <Box
-                        component="img"
-                        src={patient?.gender === "M"
-                            ? "/static/icons/men-avatar.svg"
-                            : "/static/icons/women-avatar.svg"}
-                        width={pxToRem(59)}
-                        height={pxToRem(59)}
-                        sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
-                    />
-                )}
-            </Badge>
-            <Box mx={1}>
-                <Typography
-                    color="text.primary"
-                    sx={{
-                        fontFamily: "Poppins",
-                        fontSize: 19,
-                        mb: 1,
-                        textAlign: {md: "left", sm: "center", xs: "center"},
-                    }}
-                >
-                    {loading ? (
-                        <Skeleton variant="text" width={150}/>
-                    ) : (
-                        `${patient?.firstName} ${patient?.lastName}`
-                    )}
-                </Typography>
-                <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    component="span"
-                    className="date-birth"
-                >
-                    {loading ? (
-                        <Skeleton variant="text" width={150}/>
-                    ) : (
-                        <>
-                            <Icon path="ic-anniverssaire"/>
-                            {patient?.birthdate} -{" "}
-                            {patient?.birthdate &&
-                                (`${moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")} ${t("years")}`)}
-                        </>
-                    )}
-                </Typography>
-            </Box>
-            <div>
-                {loading ? (
-                    <Skeleton variant="text" width={150}/>
-                ) : (
-                    <Typography
-                        visibility={"hidden"}
-                        variant="body2" component="span" className="alert">
-                        <Icon path="danger"/>
-                        {t("duplicate")}
-                    </Typography>
-                )}
 
-                <Typography
-                    variant="body2"
-                    color="primary"
-                    component="span"
-                    className="email-link"
-                >
-                    {loading ? (
-                        <Skeleton variant="text" width={100}/>
-                    ) : (
-                        patient?.email && <>
-                            <Icon path="ic-message-contour"/>
-                            {patient?.email}
-                        </>
-                    )}
-                </Typography>
-            </div>
-            <Box
-                display="flex"
-                alignItems="center"
-                sx={{ml: {md: 1, sm: 0, xs: 0}, mt: {md: 4, sm: 1, xs: 1}}}
-            >
-                {loading ? (
-                    <Skeleton variant="text" width={100}/>
-                ) : (
-                    <>
-                        {patient?.telephone && (
+    return (
+        <FormikProvider value={formik}>
+            <Form autoComplete="off" noValidate>
+                <RootStyled>
+                    <Badge
+                        color="success"
+                        variant="dot"
+                        invisible={patient?.nextAppointments.length === 0}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                        }}>
+                        {loading ? (
+                            <Skeleton
+                                variant="rectangular"
+                                width={pxToRem(59)}
+                                height={pxToRem(59)}
+                                sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                            />
+                        ) : (
+                            <Box
+                                component="img"
+                                src={
+                                    patient?.gender === "M"
+                                        ? "/static/icons/men-avatar.svg"
+                                        : "/static/icons/women-avatar.svg"
+                                }
+                                width={pxToRem(59)}
+                                height={pxToRem(59)}
+                                sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
+                            />
+                        )}
+                    </Badge>
+                    <Box mx={1}>
+                        {loading ? (
+                            <Skeleton variant="text" width={150}/>
+                        ) : (
+                            <InputBase
+                                inputProps={{
+                                    style: {
+                                        background: "white",
+                                        fontSize: pxToRem(14),
+                                    },
+                                }}
+                                {...getFieldProps("name")}
+                            />
+                        )}
+
+                        {loading ? (
+                            <Skeleton variant="text" width={150}/>
+                        ) : (
+                            <Stack direction={"row"} alignItems="center">
+                                <Icon path="ic-anniverssaire"/>
+                                <Box
+                                    sx={{
+                                        input: {
+                                            color: theme.palette.text.secondary,
+                                        },
+                                    }}>
+                                    <MaskedInput
+                                        style={{
+                                            border: "none",
+                                            outline: "none",
+                                            width: 75,
+                                        }}
+                                        mask={[
+                                            /\d/,
+                                            /\d/,
+                                            "-",
+                                            /\d/,
+                                            /\d/,
+                                            "-",
+                                            /\d/,
+                                            /\d/,
+                                            /\d/,
+                                            /\d/,
+                                        ]}
+                                        placeholderChar={"\u2000"}
+                                        {...getFieldProps("birthdate")}
+                                        showMask
+                                    />
+                                </Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    component="span">
+                                    -{" "}
+                                    {patient?.birthdate &&
+                                        `${moment().diff(
+                                            moment(patient?.birthdate, "DD-MM-YYYY"),
+                                            "years"
+                                        )} ${t("years")}`}
+                                </Typography>
+                            </Stack>
+                        )}
+                    </Box>
+                    <div>
+                        {loading ? (
+                            <Skeleton variant="text" width={150}/>
+                        ) : (
+                            <Typography
+                                visibility={"hidden"}
+                                variant="body2"
+                                component="span"
+                                className="alert">
+                                <Icon path="danger"/>
+                                {t("duplicate")}
+                            </Typography>
+                        )}
+
+                        <Typography
+                            variant="body2"
+                            color="primary"
+                            component="span"
+                            className="email-link">
+                            {loading ? (
+                                <Skeleton variant="text" width={100}/>
+                            ) : (
+                                patient?.email && (
+                                    <>
+                                        <Icon path="ic-message-contour"/>
+                                        {patient?.email}
+                                    </>
+                                )
+                            )}
+                        </Typography>
+                    </div>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        sx={{ml: {md: 1, sm: 0, xs: 0}, mt: {md: 4, sm: 1, xs: 1}}}>
+                        {loading ? (
+                            <Skeleton variant="text" width={100}/>
+                        ) : (
                             <>
-                                <Icon path="ic-tel"/>
-                                <Typography variant="body2">{patient?.telephone}</Typography>
+                                {patient?.telephone && (
+                                    <>
+                                        <Icon path="ic-tel"/>
+                                        <Typography variant="body2">
+                                            {patient?.telephone}
+                                        </Typography>
+                                    </>
+                                )}
                             </>
                         )}
-                    </>
-                )}
-            </Box>
-            {onConsultation &&
-                <>{loading ? (
-                    <Skeleton
-                        variant="rectangular"
-                        sx={{
-                            ml: {md: "auto", xs: 0},
-                            maxWidth: {md: 193, xs: "100%"},
-                            minHeight: {md: 60, xs: 40},
-                            width: 153,
-                            my: 2,
-                            borderRadius: "4px",
-                        }}
-                    />
-                ) : (
-                    <Button
-                        onClick={onConsultation}
-                        variant="contained"
-                        color="warning"
-                        startIcon={<PlayCircleIcon/>}
-                        sx={{
-                            ml: {md: "auto", sm: 0, xs: 0},
-                            maxWidth: {md: 193, xs: "100%"},
-                            my: 2,
-                            display: isActive ? "none" : "inline-flex"
-                        }}
-                    >
-                        {t("start-consultation")}
-                    </Button>
-                )}
-                </>
-            }
-            {patient && <Box ml={{lg: 'auto', xs: 0}}>
-                <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
-            </Box>}
-        </RootStyled>
+                    </Box>
+                    {onConsultation && (
+                        <>
+                            {loading ? (
+                                <Skeleton
+                                    variant="rectangular"
+                                    sx={{
+                                        ml: {md: "auto", xs: 0},
+                                        maxWidth: {md: 193, xs: "100%"},
+                                        minHeight: {md: 60, xs: 40},
+                                        width: 153,
+                                        my: 2,
+                                        borderRadius: "4px",
+                                    }}
+                                />
+                            ) : (
+                                <Button
+                                    onClick={onConsultation}
+                                    variant="contained"
+                                    color="warning"
+                                    startIcon={<PlayCircleIcon/>}
+                                    sx={{
+                                        ml: {md: "auto", sm: 0, xs: 0},
+                                        maxWidth: {md: 193, xs: "100%"},
+                                        my: 2,
+                                        display: isActive ? "none" : "inline-flex",
+                                    }}>
+                                    {t("start-consultation")}
+                                </Button>
+                            )}
+                        </>
+                    )}
+                    {patient && (
+                        <Box ml={{lg: "1rem", xs: 0}}>
+                            <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
+                        </Box>
+                    )}
+                </RootStyled>
+            </Form>
+        </FormikProvider>
     );
 }
 

@@ -13,8 +13,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover,
-    useTheme,
+    Popover
 } from "@mui/material";
 
 // config
@@ -57,7 +56,6 @@ function TopNavBar({...props}) {
     const {topBar} = siteHeader;
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
-    const theme = useTheme();
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);

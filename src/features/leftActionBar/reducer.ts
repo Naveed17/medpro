@@ -4,6 +4,7 @@ import {setFilter, resetFilterPatient} from "./actions";
 export type ActionBarState = {
     query: {
         type?: string;
+        status?: string;
         patient?: {
             gender?: string;
             birthdate?: string;

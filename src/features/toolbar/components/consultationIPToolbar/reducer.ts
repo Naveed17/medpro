@@ -1,6 +1,14 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    SetEnd, SetExam, SetFiche, SetMutation, SetMutationDoc, SetPatient, SetSelectedApp, SetSubmit
+    SetEnd,
+    SetExam,
+    SetFiche,
+    SetMutation,
+    SetMutationDoc,
+    SetPatient,
+    SetSelectedApp,
+    SetSelectedDialog,
+    SetSubmit
 } from './actions';
 
 export type MenuState = {
@@ -11,6 +19,7 @@ export type MenuState = {
     mutate: any,
     mutateDoc: any,
     patient: PatientModel | null
+    selectedDialog: any
     selectedApp: string
 };
 
@@ -27,7 +36,8 @@ const initialState: MenuState = {
     mutate: null,
     mutateDoc: null,
     patient: null,
-    selectedApp:''
+    selectedApp: '',
+    selectedDialog: null
 };
 
 export const ConsultationReducer = createReducer(initialState, builder => {
@@ -55,6 +65,9 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetSelectedApp, (state, action) => {
             state.selectedApp = action.payload;
+        })
+        .addCase(SetSelectedDialog, (state, action) => {
+            state.selectedDialog = action.payload;
         })
 
 });

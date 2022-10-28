@@ -1,6 +1,6 @@
 import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
 
-import {Box, IconButton, Menu, Theme, useMediaQuery, useTheme} from "@mui/material";
+import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
@@ -9,9 +9,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import interactionPlugin, {DateClickArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
@@ -34,6 +32,9 @@ import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/common";
 import {useSwipeable} from "react-swipeable";
+import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {StyledMenu} from "@features/buttons";
 
 function Calendar({...props}) {
     const {
@@ -41,12 +42,14 @@ function Calendar({...props}) {
         OnRangeChange,
         spinner,
         roles,
+        refs,
         t: translation,
         sortedData,
         OnInit,
         OnLeaveWaitingRoom,
         OnWaitingRoom,
         OnViewChange = null,
+        OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
         OnEventChange,
@@ -62,18 +65,22 @@ function Calendar({...props}) {
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
+
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
     const [date, setDate] = useState(currentDate.date);
     const [calendarHeight, setCalendarHeight] = useState("80vh");
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
+    const [slotInfo, setSlotInfo] = useState<DateClickArg | null>(null);
+    const [slotInfoPopover, setSlotInfoPopover] = useState(false);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
     const [loading, setLoading] = useState(false);
+
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
@@ -220,13 +227,13 @@ function Calendar({...props}) {
     }
 
     const handlers = useSwipeable({
-        onSwiped: (eventData) => {
-            if (eventData.dir === "Left") {
-                handleClickDatePrev();
-            } else {
-                handleClickDateNext();
-            }
-        }
+        onSwipedLeft: (eventData) => {
+            handleClickDatePrev();
+        },
+        onSwipedRight: (eventData) => {
+            handleClickDateNext();
+        },
+        preventScrollOnSwipe: true
     });
 
     return (
@@ -236,7 +243,7 @@ function Calendar({...props}) {
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner}}
+                                {...{spinner, refs}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -252,30 +259,6 @@ function Calendar({...props}) {
                         </Box>
                     ) : (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
-                            {!isMobile && <Box
-                                className="action-header-main"
-                                sx={{
-                                    svg: {
-                                        transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
-                                    },
-                                }}
-                            >
-                                <IconButton
-                                    onClick={handleClickDatePrev}
-                                    size="small"
-                                    aria-label="back"
-                                >
-                                    <ArrowBackIosNewIcon fontSize="small"/>
-                                </IconButton>
-                                <IconButton
-                                    onClick={handleClickDateNext}
-                                    size="small"
-                                    aria-label="next"
-                                >
-                                    <ArrowForwardIosIcon fontSize="small"/>
-                                </IconButton>
-                            </Box>}
-
                             <FullCalendar
                                 weekends
                                 editable
@@ -330,7 +313,10 @@ function Calendar({...props}) {
                                 }
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => OnEventChange(info)}
-                                select={OnSelectDate}
+                                dateClick={(info) => {
+                                    setSlotInfo(info);
+                                    setSlotInfoPopover(true);
+                                }}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}
                                 height={calendarHeight}
@@ -351,6 +337,70 @@ function Calendar({...props}) {
                                 slotLabelFormat={SlotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
+
+                            {slotInfo &&
+                                <StyledMenu
+                                    open={slotInfoPopover}
+                                    anchorReference="anchorPosition"
+                                    onClose={() => {
+                                        setSlotInfoPopover(false);
+                                    }}
+                                    anchorPosition={{
+                                        top: slotInfo?.jsEvent.pageY as number,
+                                        left: slotInfo?.jsEvent.pageX as number
+                                    }}
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'left',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'left',
+                                    }}
+                                    PaperProps={{
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                            mt: 1.5,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'background.paper',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <MenuItem onClick={() => {
+                                        setSlotInfoPopover(false);
+                                        OnAddAppointment("quick-add");
+                                        OnSelectDate(slotInfo);
+                                    }} disableRipple>
+                                        <FastForwardOutlinedIcon/>
+                                        Ajout rapide
+                                    </MenuItem>
+                                    <MenuItem onClick={() => {
+                                        setSlotInfoPopover(false);
+                                        OnAddAppointment("full-add");
+                                        OnSelectDate(slotInfo);
+                                    }} disableRipple>
+                                        <AddOutlinedIcon/>
+                                        Ajout complet
+                                    </MenuItem>
+                                </StyledMenu>}
 
                             <Menu
                                 open={contextMenu !== null}
