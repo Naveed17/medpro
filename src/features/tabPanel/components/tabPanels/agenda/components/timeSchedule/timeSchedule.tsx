@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import {useTranslation} from "next-i18next";
 import Box from "@mui/material/Box";
@@ -30,12 +30,14 @@ import IconUrl from "@themes/urlIcon";
 import {AnimatePresence, motion} from "framer-motion";
 
 function TimeSchedule({...props}) {
-    const {onNext, onBack} = props;
+    const {onNext, onBack, select} = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
+    const bottomRef = useRef(null);
+    const moreDateRef = useRef(false);
 
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
@@ -53,7 +55,7 @@ function TimeSchedule({...props}) {
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
-    const [moreDate, setMoreDate] = useState(false);
+    const [moreDate, setMoreDate] = useState(moreDateRef.current);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
@@ -99,7 +101,7 @@ function TimeSchedule({...props}) {
                 if (onTimeAvailable(slots, time)) {
                     setTimeAvailable(true);
                 } else {
-                    setRecurringDates([]);
+                    // setRecurringDates([]);
                     setTimeAvailable(false);
                 }
             }
@@ -177,6 +179,11 @@ function TimeSchedule({...props}) {
         dispatch(setAppointmentRecurringDates(updatedRecurringDates));
         setTime(newTime);
         setTimeAvailable(true);
+        if (moreDate) {
+            setTimeout(() => {
+                (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            }, 300);
+        }
     }
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
@@ -345,53 +352,58 @@ function TimeSchedule({...props}) {
                     </>
                 }
 
-                {(timeAvailable && recurringDates.length > 0) &&
+                {(timeAvailable || recurringDates.length > 0) &&
                     <AnimatePresence exitBeforeEnter>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: .5}}
+                            transition={{ease: "easeIn", duration: .2}}
                         >
-                        <Typography variant="body1" color="text.primary" mb={1}
-                                    {...(recurringDates.length > 0 && {mt: 2})}>
-                            {t("stepper-1.selected-appointment")}
-                        </Typography>
-                        {recurringDates.map((recurringDate, index) => (
-                            <PatientCardMobile
-                                onAction={(action: string) => onMenuActions(recurringDate, action, index)}
-                                button={
-                                    <IconButton
-                                        onClick={() => {
-                                            onMenuActions(recurringDate, "onRemove", index)
-                                        }}
-                                        sx={{
-                                            p: 0, "& svg": {
-                                                p: "2px"
-                                            }
-                                        }}
-                                        size="small"
-                                    >
-                                        <DeleteIcon color={"error"}/>
-                                    </IconButton>
-                                }
-                                key={Math.random()} item={recurringDate} size="small"/>
-                        ))}
-                        {!moreDate &&
-                            <Button
-                                onClick={() => setMoreDate(true)}
-                                startIcon={
-                                    <IconUrl
-                                        width={"16"}
-                                        height={"16"}
-                                        color={theme.palette.primary.main}
-                                        path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
+                            <Typography variant="body1" color="text.primary" mb={1}
+                                        {...(recurringDates.length > 0 && {mt: 2})}>
+                                {t("stepper-1.selected-appointment")}
+                            </Typography>
+                            {recurringDates.map((recurringDate, index) => (
+                                <PatientCardMobile
+                                    onAction={(action: string) => onMenuActions(recurringDate, action, index)}
+                                    button={
+                                        <IconButton
+                                            onClick={() => {
+                                                onMenuActions(recurringDate, "onRemove", index)
+                                            }}
+                                            sx={{
+                                                p: 0, "& svg": {
+                                                    p: "2px"
+                                                }
+                                            }}
+                                            size="small"
+                                        >
+                                            <DeleteIcon color={"error"}/>
+                                        </IconButton>
+                                    }
+                                    key={Math.random()} item={recurringDate} size="small"/>
+                            ))}
+                            {!moreDate &&
+                                <Button
+                                    sx={{fontSize: 12}}
+                                    onClick={() => {
+                                        moreDateRef.current = true;
+                                        setMoreDate(true);
+                                    }}
+                                    startIcon={
+                                        <IconUrl
+                                            width={"14"}
+                                            height={"14"}
+                                            color={theme.palette.primary.main}
+                                            path="ic-plus"/>} variant="text">{t("stepper-1.add-more-date")}</Button>}
+                            <div ref={bottomRef}/>
                         </motion.div>
                     </AnimatePresence>
 
                 }
             </Box>
 
-            <Paper
+            {!select && <Paper
                 sx={{
                     borderRadius: 0,
                     borderWidth: "0px",
@@ -414,12 +426,12 @@ function TimeSchedule({...props}) {
                     size="medium"
                     variant="contained"
                     color="primary"
-                    disabled={!timeSlots.find(timeSlot => timeSlot.start === time) || recurringDates.length === 0}
+                    disabled={recurringDates.length === 0}
                     onClick={onNextStep}
                 >
                     {t("next")}
                 </Button>
-            </Paper>
+            </Paper>}
         </div>
     );
 }

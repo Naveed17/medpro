@@ -10,6 +10,7 @@ interface EventModal {
     motif: ConsultationReasonModel;
     type: AppointmentTypeModel;
     instruction: string;
+    fees: string;
     id: string;
     dur: number;
     meeting: boolean;

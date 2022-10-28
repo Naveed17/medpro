@@ -10,7 +10,8 @@ import {
     InputAdornment,
     Skeleton,
     Stack,
-    TextField
+    TextField,
+    Typography
 } from '@mui/material'
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
@@ -53,6 +54,19 @@ function LifeStyleDialog({...props}) {
             setAntecedents((httpAntecedentsResponse as HttpResponse).data)
     }, [httpAntecedentsResponse])
 
+    useEffect(() => {
+        if (state && antecedents.length > 0 ) {
+            let items = state.map(item => ({...item}));
+            items.map(item => {
+                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !=="string") {
+                    item.response = item.response[0].uuid
+                }
+            })
+            setState(items)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [antecedents])
+
     const handleChangeSearch = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         setValue(e.target.value);
     };
@@ -61,7 +75,7 @@ function LifeStyleDialog({...props}) {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
         if (index === -1) {
             const antecents = antecedents.find((ant: any) => ant.uuid === event.target.name);
-            const antecendent = {uuid: antecents?.uuid, name: antecents?.name, startDate: '', endDate: ''}
+            const antecendent = {uuid: antecents?.uuid, name: antecents?.name, startDate: '', endDate: '', res: ''}
             setState([...state, antecendent])
         } else {
             setState([
@@ -116,7 +130,7 @@ function LifeStyleDialog({...props}) {
                         antecedents.filter((item: AntecedentsTypeModel) => {
                             return item.name.toLowerCase().includes(value.toLowerCase());
                         })
-                            .map((list: AntecedentsTypeModel, idx: number) =>
+                            .map((list: any, idx: number) =>
                                 <FormGroup row key={idx}>
                                     <FormControlLabel
                                         control={
@@ -127,32 +141,79 @@ function LifeStyleDialog({...props}) {
                                     />
                                     {
                                         state?.find((inf: AntecedentsModel) => inf.uuid == list.uuid) &&
-                                        <Stack spacing={1} direction={'row'}>
-                                            <TextField
-                                                name={`${list.uuid}`}
-                                                value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
-                                                placeholder={t('starting_year')}
-                                                sx={{width: 130}}
-                                                onChange={(e) => {
-                                                    let items = state.map((item: AntecedentsModel) => ({...item}));
-                                                    let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
-                                                    if (item) item.startDate = e.target.value;
-                                                    setState(items)
-                                                }
-                                                }/>
-                                            <TextField
-                                                name={`${list.uuid}`}
-                                                sx={{width: 130}}
-                                                value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
-                                                placeholder={t('ending_year')}
-                                                onChange={(e) => {
-                                                    let items = state.map(item => ({...item}));
-                                                    let item = items.find(i => i.uuid === list.uuid)
-                                                    if (item) item.endDate = e.target.value;
-                                                    setState(items)
-                                                }
-                                                }/>
-                                        </Stack>
+                                        <>
+
+                                            <Stack spacing={1} direction={'row'}>
+                                                <TextField
+                                                    name={`${list.uuid}`}
+                                                    value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.startDate : ''}
+                                                    placeholder={t('starting_year')}
+                                                    sx={{width: 130}}
+                                                    onChange={(e) => {
+                                                        let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                        let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                        if (item) item.startDate = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                                <TextField
+                                                    name={`${list.uuid}`}
+                                                    sx={{width: 130}}
+                                                    value={state.find(i => i.uuid === list.uuid)?.endDate ? state.find(i => i.uuid === list.uuid)?.endDate : ''}
+                                                    placeholder={t('ending_year')}
+                                                    onChange={(e) => {
+                                                        let items = state.map(item => ({...item}));
+                                                        let item = items.find(i => i.uuid === list.uuid)
+                                                        if (item) item.endDate = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                            </Stack>
+                                            {
+                                                list.value_type === 1 &&
+                                                <TextField
+                                                    value={state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response ? state.find((i: AntecedentsModel) => i.uuid === list.uuid)?.response : ''}
+                                                    placeholder={t('note')}
+                                                    sx={{width: '100%', mt: 1, mb: 2, ml: 2}}
+                                                    onChange={(e) => {
+                                                        let items = state.map((item: AntecedentsModel) => ({...item}));
+                                                        let item = items.find((i: AntecedentsModel) => i.uuid === list.uuid)
+                                                        if (item) item.response = e.target.value;
+                                                        setState(items)
+                                                    }
+                                                    }/>
+                                            }
+                                            {
+                                                list.value_type === 2 &&
+                                                <>
+                                                    <Typography fontSize={10} color={"text.secondary"} mt={2}
+                                                                ml={1}>{t('selectPlz')}</Typography>
+                                                    <Stack direction={'row'} spacing={1} mb={1} ml={1}>
+                                                        {list.values.map((val: { uuid: string; value: string }) => (
+                                                            <FormControlLabel
+                                                                key={val.uuid}
+                                                                control={
+                                                                    <Checkbox
+                                                                        name={val.uuid}
+                                                                        checked={state?.find(inf => inf.uuid === list.uuid)?.response === val.uuid}
+                                                                        onChange={() => {
+                                                                            let items = state.map(item => ({...item}));
+                                                                            let item = items.find(i => i.uuid === list.uuid)
+                                                                            if (item) {
+                                                                                if (item.response === val.uuid)
+                                                                                    item.response = ''
+                                                                                else
+                                                                                    item.response = val.uuid;
+                                                                            }
+                                                                            setState(items)
+                                                                        }}/>
+                                                                }
+                                                                label={val.value}
+                                                            />))}
+                                                    </Stack>
+                                                </>
+                                            }
+                                        </>
                                     }
                                 </FormGroup>
                             )
@@ -165,15 +226,23 @@ function LifeStyleDialog({...props}) {
                             size='small'
                             onClick={() => {
                                 const form = new FormData();
-                                form.append('type',codes[action]);
+                                form.append('type', codes[action]);
                                 form.append('name', value);
                                 trigger({
                                     method: "POST",
                                     url: `/api/private/antecedents/${router.locale}`,
                                     data: form,
-                                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+                                    headers: {
+                                        ContentType: 'multipart/form-data',
+                                        Authorization: `Bearer ${session?.accessToken}`
+                                    }
                                 }, {revalidate: true, populateCache: true}).then((data) => {
-                                    antecedents.push({name: value, type: codes[action], uuid: (data?.data as HttpResponse).data.uuid})
+                                    antecedents.push({
+                                        name: value,
+                                        type: codes[action],
+                                        uuid: (data?.data as HttpResponse).data.uuid,
+                                        value_type: -1
+                                    })
                                     setAntecedents([...antecedents])
                                 });
 

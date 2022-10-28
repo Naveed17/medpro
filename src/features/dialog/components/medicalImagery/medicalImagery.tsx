@@ -60,7 +60,8 @@ function MedicalImageryDialog({...props}) {
 
     const addImage = (value: MIModel) => {
         setName('')
-        mi.push(value)
+        setMiList((httpAnalysisResponse as HttpResponse)?.data);
+        mi.unshift(value)
         setMi([...mi])
         data.setState([...mi])
     }
@@ -146,7 +147,7 @@ function MedicalImageryDialog({...props}) {
                                     <List className='items-list'>
                                         {
                                             miList?.map(anaylis => (
-                                                    <ListItemButton key={anaylis.uuid} onClick={() => {
+                                                    <ListItemButton disabled={mi.find(an =>an.uuid ===anaylis.uuid) !== undefined}  key={anaylis.uuid} onClick={() => {
                                                         addImage(anaylis)
                                                     }}>
                                                         <ListItemText primary={anaylis.name}/>

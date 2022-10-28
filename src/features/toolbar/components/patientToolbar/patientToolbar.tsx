@@ -1,6 +1,7 @@
 import {useTranslation} from "next-i18next";
 import {Typography, Button, Stack} from "@mui/material";
 import {useCallback} from "react";
+import AddIcon from '@mui/icons-material/Add';
 
 function PatientToolbar({...props}) {
     const {onAddPatient} = props;
@@ -27,6 +28,7 @@ function PatientToolbar({...props}) {
                     variant="contained"
                     color="success"
                     sx={{ml: "auto"}}
+                    startIcon={<AddIcon/>}
                 >
                     {t("sub-header.add-patient")}
                 </Button>

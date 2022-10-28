@@ -10,7 +10,7 @@ import {
 } from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
-import {SidebarCheckbox} from "@features/sidebarCheckbox";
+import {SidebarCheckbox, SidebarCheckboxStyled} from "@features/sidebarCheckbox";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -18,8 +18,9 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, DayOfWeek, setView} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, DayOfWeek, setView} from "@features/calendar";
 import moment from "moment-timezone";
+import {Checkbox, Typography} from "@mui/material";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -32,13 +33,12 @@ function Agenda() {
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
-    const [reason, reasonSet] = useState<ConsultationReasonTypeModel[]>([]);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
+    const {data: httpAppointmentTypesResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -69,6 +69,7 @@ function Agenda() {
     });
 
     if (!ready) return (<>loading translations...</>);
+
     return (
         <BoxStyled>
             <CalendarPickers
@@ -147,6 +148,50 @@ function Agenda() {
                                     }}/>
                             </React.Fragment>
                         ))
+                    },
+                    {
+                        heading: {
+                            id: "meetingStatus",
+                            icon: "ic-agenda-jour-color",
+                            title: "meetingStatus",
+                        },
+                        children: Object.values(AppointmentStatus).map((status) =>
+                            status.icon &&
+                            <React.Fragment key={status.key}>
+                                <SidebarCheckboxStyled
+                                    component='label' htmlFor={status.key}
+                                    sx={{
+                                        "& .MuiSvgIcon-root": {
+                                            width: 16,
+                                            height: 16
+                                        }
+                                    }} styleprops={""}>
+                                    <Checkbox
+                                        size="small"
+                                        id={status.key}
+                                        onChange={event => {
+                                            const selected = event.target.checked;
+                                            const statusKey = Object.entries(AppointmentStatus).find((value, index) => value[1].key === status.key);
+                                            if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
+                                                dispatch(setFilter({
+                                                    status:
+                                                        (statusKey && statusKey[0]) as string + (query?.status ? `,${query.status}` : "")
+                                                }));
+                                            } else {
+                                                const sp = query?.status?.split(",") as string[];
+                                                dispatch(setFilter({
+                                                    status:
+                                                        sp.length > 1 ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "") : undefined
+                                                }))
+                                            }
+                                        }}
+                                        name={status.key}
+                                    />
+                                    {status.icon}
+                                    <Typography ml={1}>{status.value}</Typography>
+                                </SidebarCheckboxStyled>
+                            </React.Fragment>
+                        )
                     }
                 ]}
             />}

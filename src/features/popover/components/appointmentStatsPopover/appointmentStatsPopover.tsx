@@ -1,9 +1,14 @@
-import {List, ListItem, ListSubheader, Typography} from "@mui/material";
+import {Box, List, ListItem, ListSubheader, Typography, useTheme} from "@mui/material";
 import {AppointmentStatus} from "@features/calendar";
 import React from "react";
+import {useTranslation} from "next-i18next";
 
-function AppointmentStatsPopover(){
-    return(
+function AppointmentStatsPopover() {
+    const theme = useTheme();
+    const {t, ready} = useTranslation('common', {keyPrefix: "popover-info"});
+    if (!ready) return <>loading translations...</>;
+
+    return (
         <List
             sx={{
                 width: 200,
@@ -18,7 +23,7 @@ function AppointmentStatsPopover(){
             }}
             subheader={
                 <ListSubheader component="div" id="nested-list-subheader">
-                    Statut du rendez-vous
+                    {t("title")}
                 </ListSubheader>
             }>
             {Object.values(AppointmentStatus).map((info, index) => info.icon &&
@@ -26,6 +31,31 @@ function AppointmentStatsPopover(){
                     {info.icon}
                     <Typography ml={1}>{info.value}</Typography>
                 </ListItem>)}
+            <ListItem>
+                <Box
+                    sx={{
+                        width: "1.5rem",
+                        mr: "1rem",
+                        "&:after": {
+                            background: `linear-gradient(to right, 
+                                            ${theme.palette.info.lighter} 25%, 
+                                            ${theme.palette.info.light} 25%, 
+                                            ${theme.palette.info.light} 50%, 
+                                            ${theme.palette.info.dark} 50%, 
+                                            ${theme.palette.info.dark} 75%, 
+                                            ${theme.palette.info.darker} 75%)`,
+                            position: "absolute",
+                            content: '""',
+                            height: "4px",
+                            width: 30,
+                            right: 0,
+                            left: 0,
+                            ml: 1.5,
+                            top: "1rem"
+                        }
+                    }}></Box>
+                <Typography>{t("picker-status-more")}</Typography>
+            </ListItem>
         </List>
     )
 }

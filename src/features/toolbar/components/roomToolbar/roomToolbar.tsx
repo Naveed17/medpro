@@ -56,7 +56,7 @@ function RoomToolbar({...props}) {
                     }}
                     startIcon={<SalleIcon/>}
                     variant="contained"
-                    color="warning">
+                    color="primary">
                     {t("add")}
                 </Button>
 

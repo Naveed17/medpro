@@ -39,7 +39,7 @@ const settingsData = {
         },
         {
             name: "type",
-            icon: "setting/ic-edit-file",
+            icon: "setting/ic-doc",
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
@@ -85,6 +85,12 @@ const settingsData = {
             icon: "setting/ic-messagerie",
             href: "/dashboard/settings/instructions",
             disable: true
+        },
+        {
+            name: "app_lock",
+            icon: "ic-cloc",
+            href: "/dashboard/settings/app-lock",
+            disable: false
         },
 
     ],

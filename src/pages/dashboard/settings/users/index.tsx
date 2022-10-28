@@ -127,7 +127,6 @@ function Users() {
   const handleChange = (props: any) => {
     const index = rows.findIndex((r) => r.id === props.id);
     rows[index].settings = !props.settings;
-    console.log(props);
     setRows([...rows]);
   };
   const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });

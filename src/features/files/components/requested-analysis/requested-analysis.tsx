@@ -1,47 +1,49 @@
 import React from "react";
 import moment from "moment/moment";
+import TableStyled from "../../overrides/tableStyled";
 
 function RequestedAnalysis({...props}) {
     const {data} = props;
 
     return (
-        <table hidden={true} id="requested-analysis" style={{backgroundColor: "white"}}>
+        <TableStyled hidden={true} id="requested-analysis">
+            <tbody>
+
             <tr>
-                <td style={{fontWeight: "bold", fontSize: 25, textAlign: "center"}}>
-                    <p>Bilan Biologique</p>
+                <td colSpan={2} className={"title"}>
+                    Bilan Biologique
                 </td>
             </tr>
             <tr>
-                <td style={{fontSize: 25}}></td>
+                <td style={{fontSize: 20}}></td>
             </tr>
             <tr>
-                <td style={{fontSize: 20, textAlign: "right", color: "grey"}}>
-                    <p>Tunis le: {moment(data.createdAt).format('DD MMMM YYYY')}</p>
-                </td>
-            </tr>
-            <tr>
-                <td style={{fontSize: 25}}></td>
+                <td className={"patientName"}>{data.patient}</td>
+                <td className={"docDate"}>le {moment(data.createdAt).format('DD MMMM YYYY')}</td>
             </tr>
 
             <tr>
-                <td style={{color: "black", fontSize: 15, lineHeight: 3}}>
-                    <p>Prière, Faire pratiquer à {data.patient}</p><br/>
-                    <p>les analyses suivantes:</p>
+                <td style={{fontSize: 5}}></td>
+            </tr>
+
+            <tr>
+                <td colSpan={2} className={"subTitle"}>
+                    <p>Prière, Faire pratiquer à {data.patient} les analyses suivantes:</p>
                 </td>
             </tr>
 
             {
                 data.info.map((line: any) => (
                     <tr key={line.uuid}>
-                        <td style={{color: "black", fontSize: 20}}>
+                        <td className={"line"}>
                             <p>• {line.name}</p>
                         </td>
                     </tr>
 
                 ))
             }
-
-        </table>
+            </tbody>
+        </TableStyled>
 
 
     )

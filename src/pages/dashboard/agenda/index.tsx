@@ -9,7 +9,7 @@ import {
     Button,
     Container,
     Drawer,
-    LinearProgress,
+    LinearProgress, Paper,
     Theme,
     Typography,
     useMediaQuery,
@@ -18,8 +18,6 @@ import {
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -33,7 +31,7 @@ import {
     agendaSelector,
     AppointmentStatus,
     DayOfWeek,
-    openDrawer, setGroupedByDayAppointments,
+    openDrawer, setCurrentDate, setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -43,14 +41,17 @@ import {
     Instruction,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
-    setAppointmentRecurringDates,
+    setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
+import {
+    AppointmentDetail, QuickAddAppointment,
+    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime
+} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {ActionBarState, AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -58,6 +59,7 @@ import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
 import {prepareSearchKeys} from "@app/hooks";
+import {DateClickArg} from "@fullcalendar/interaction";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -69,14 +71,22 @@ function Agenda() {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
+    const refs = useRef([]);
 
     const {t, ready} = useTranslation(['agenda', 'common']);
 
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {submitted} = useAppSelector(appointmentSelector);
+    const {
+        motif,
+        duration,
+        patient,
+        type,
+        submitted,
+        recurringDates
+    } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
@@ -90,13 +100,11 @@ function Agenda() {
     const {isActive} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
 
-    const [
-        timeRange,
-        setTimeRange
-    ] = useState({start: "", end: ""});
-
+    const [timeRange, setTimeRange] = useState({start: "", end: ""});
+    const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -142,6 +150,8 @@ function Agenda() {
         trigger
     } = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
+    const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
+
     const {
         trigger: updateAppointmentTrigger
     } = useRequestMutation(null, "/agenda/update/appointment",
@@ -168,8 +178,11 @@ function Agenda() {
         return true;
     }, [openingHours]);
 
-    const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean) => {
+    const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
+        if (query.includes("format=list")) {
+            dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
+        }
         trigger({
             method: "GET",
             url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
@@ -182,18 +195,20 @@ function Agenda() {
             const eventsUpdated: EventModal[] = [];
             if (!filter || events.current.length === 0) {
                 appointments?.map((appointment) => {
+                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
                     const hasErrors = [
-                        ...(getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate()) ? ["event.hors-opening-hours"] : []),
+                        ...(horsWork ? ["event.hors-opening-hours"] : []),
                         ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
                     eventsUpdated.push({
                         start: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         time: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate(),
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
-                        title: appointment.patient.lastName + ' ' + appointment.patient.firstName,
-                        allDay: false,
-                        editable: AppointmentStatus[appointment.status].key !== "FINISHED",
+                        title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
+                        allDay: horsWork,
+                        editable: (AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork) && !isMobile,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
+                        fees: appointment.fees,
                         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
                         motif: appointment.consultationReason,
                         instruction: appointment.instruction !== null ? appointment.instruction : "",
@@ -216,9 +231,13 @@ function Agenda() {
                     })
                 })
             }
-            events.current = eventsUpdated;
+            if (!history) {
+                events.current = eventsUpdated;
+            } else {
+                events.current = [...eventsUpdated, ...events.current];
+            }
             // this gives an object with dates as keys
-            const groups: any = eventsUpdated.reduce(
+            const groups: any = events.current.reduce(
                 (groups: any, data: any) => {
                     const date = moment(data.time, "ddd MMM DD YYYY HH:mm:ss")
                         .format('DD-MM-YYYY');
@@ -265,7 +284,7 @@ function Agenda() {
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -332,6 +351,39 @@ function Agenda() {
         setMoveDialog(true);
     }
 
+    const scrollToView = (ref: HTMLElement, nextIndex: number) => {
+        setTimeout(() => {
+            if (nextRefCalendar <= sortedData.current.length) {
+                (ref as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+                setNextRefCalendar(nextIndex);
+            }
+        }, 300);
+    }
+
+    const handleClickDatePrev = () => {
+        if (view !== 'listWeek') {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.prev();
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        } else {
+            scrollToView(refs.current[0], 1);
+            const prevDate = moment(currentDate.date).clone().subtract(1, "days");
+            getAppointments(`format=list&page=1&limit=50&start_date=${prevDate.format("DD-MM-YYYY")}`,
+                view, false, true);
+            dispatch(setCurrentDate({date: prevDate.toDate(), fallback: false}));
+        }
+    };
+
+    const handleClickDateNext = () => {
+        if (view !== 'listWeek') {
+            const calendarApi = (calendarEl as FullCalendar).getApi();
+            calendarApi.next();
+            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+        } else {
+            scrollToView(refs.current[nextRefCalendar], nextRefCalendar + 1);
+        }
+    }
+
     const onMenuActions = (action: string, event: EventDef) => {
         switch (action) {
             case "onCancel":
@@ -343,6 +395,7 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                        mutateOnGoing && mutateOnGoing();
                         dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -438,6 +491,7 @@ function Agenda() {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                mutateOnGoing && mutateOnGoing();
                 dispatch(openDrawer({type: "view", open: false}));
                 dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
                 updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
@@ -583,13 +637,13 @@ function Agenda() {
         });
     }
 
-    const onSelectDate = (eventArg: DateSelectArg) => {
-        dispatch(resetAppointment());
-        dispatch(setAppointmentDate(eventArg.start));
+    const onSelectDate = (eventArg: DateClickArg) => {
+        // dispatch(resetAppointment());
+        dispatch(setAppointmentDate(eventArg.date));
         dispatch(setAppointmentRecurringDates([{
-            id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
-            time: moment(eventArg.start).format("HH:mm"),
-            date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
+            id: `${moment(eventArg.date).format("DD-MM-YYYY")}--${moment(eventArg.date).format("HH:mm")}`,
+            time: moment(eventArg.date).format("HH:mm"),
+            date: moment(eventArg.date).format("DD-MM-YYYY"),
             status: "success"
         }]));
 
@@ -603,7 +657,7 @@ function Agenda() {
                     },
                     ...eventStepper.slice(2)]);
         }
-        dispatch(openDrawer({type: "add", open: true}));
+        // dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
@@ -615,9 +669,14 @@ function Agenda() {
             case "onDetailPatient":
                 setEvent(event);
                 dispatch(openDrawer({type: "patient", open: true}));
+                dispatch(openDrawer({type: "add", open: false}));
                 break;
             case "onWaitingRoom":
                 onOpenWaitingRoom(event);
+                dispatch(openDrawer({type: "add", open: false}));
+                break;
+            case "onConsultationStart":
+                onConsultationDetail(event);
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
         }
@@ -651,19 +710,53 @@ function Agenda() {
         }
     }
 
-    const handleAddAppointment = () => {
+    const handleAddAppointment = (action: string) => {
         dispatch(resetAppointment());
-        if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
-            setEventStepper(
-                [...eventStepper.slice(0, 2),
-                    {
-                        title: "steppers.tabs.tab-3",
-                        children: Patient,
-                        disabled: true
-                    },
-                    ...eventStepper.slice(2)]);
+        switch (action) {
+            case "full-add":
+                if (!eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
+                    setEventStepper(
+                        [...eventStepper.slice(0, 2),
+                            {
+                                title: "steppers.tabs.tab-3",
+                                children: Patient,
+                                disabled: true
+                            },
+                            ...eventStepper.slice(2)]);
+                }
+                dispatch(openDrawer({type: "add", open: true}));
+                break;
+            case "quick-add":
+                setQuickAddAppointment(true);
+                break;
         }
-        dispatch(openDrawer({type: "add", open: true}));
+    }
+
+    const handleAddAppointmentRequest = () => {
+        const params = new FormData();
+        params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
+            "start_date": recurringDate.date,
+            "start_time": recurringDate.time
+        }))));
+        motif && params.append('consultation_reason_uuid', motif);
+        params.append('title', `${patient?.lastName} ${patient?.firstName}`);
+        params.append('patient_uuid', patient?.uuid as string);
+        params.append('type', type);
+        params.append('duration', duration as string);
+
+        addAppointmentTrigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((value: any) => {
+            if (value?.data.status === 'success') {
+                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setStepperIndex(0));
+                setQuickAddAppointment(false);
+                refreshData();
+            }
+        });
     }
 
     if (!ready) return (<LoadingScreen/>);
@@ -680,6 +773,8 @@ function Agenda() {
                 }}>
                 <CalendarToolbar
                     OnToday={handleOnToday}
+                    OnClickDateNext={handleClickDateNext}
+                    OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
                     <AnimatePresence exitBeforeEnter>
@@ -697,39 +792,40 @@ function Agenda() {
                 <LinearProgress sx={{
                     visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <DesktopContainer>
-                    <>
-                        {agenda &&
-                            <AnimatePresence exitBeforeEnter>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "easeIn", duration: .5}}
-                                >
-                                    <Calendar
-                                        {...{
-                                            events: events.current,
-                                            agenda,
-                                            roles,
-                                            spinner: loading,
-                                            t,
-                                            sortedData: sortedData.current
-                                        }}
-                                        OnInit={onLoadCalendar}
-                                        OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                        OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                        OnSelectEvent={onSelectEvent}
-                                        OnEventChange={onEventChange}
-                                        OnMenuActions={onMenuActions}
-                                        OnSelectDate={onSelectDate}
-                                        OnViewChange={onViewChange}
-                                        OnRangeChange={handleOnRangeChange}/>
-                                </motion.div>
-                            </AnimatePresence>
-                        }
-                    </>
-                </DesktopContainer>
-                <MobileContainer>
+                <>
+                    {agenda &&
+                        <AnimatePresence exitBeforeEnter>
+                            <motion.div
+                                initial={{opacity: 0}}
+                                animate={{opacity: 1}}
+                                transition={{ease: "easeIn", duration: .5}}
+                            >
+                                <Calendar
+                                    {...{
+                                        events: events.current,
+                                        agenda,
+                                        roles,
+                                        refs,
+                                        spinner: loading,
+                                        t,
+                                        sortedData: sortedData.current
+                                    }}
+                                    OnInit={onLoadCalendar}
+                                    OnAddAppointment={handleAddAppointment}
+                                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                                    OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                                    OnSelectEvent={onSelectEvent}
+                                    OnEventChange={onEventChange}
+                                    OnMenuActions={onMenuActions}
+                                    OnSelectDate={onSelectDate}
+                                    OnViewChange={onViewChange}
+                                    OnRangeChange={handleOnRangeChange}/>
+                            </motion.div>
+                        </AnimatePresence>
+                    }
+                </>
+
+                {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
                         <Container key={index}>
                             <Typography variant={"body1"}
@@ -762,7 +858,7 @@ function Agenda() {
                     <FilterButton>
                         <AgendaFilter/>
                     </FilterButton>
-                </MobileContainer>
+                </>}
 
                 <Drawer
                     anchor={"right"}
@@ -849,6 +945,45 @@ function Agenda() {
                                 onConsultation={() => onMenuActions('onConsultationDetail', event)}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
+                </Drawer>
+
+                <Drawer
+                    anchor={"right"}
+                    open={quickAddAppointment}
+                    dir={direction}
+                    onClose={() => {
+                        setQuickAddAppointment(false);
+                    }}
+                >
+                    <QuickAddAppointment/>
+                    <Paper
+                        sx={{
+                            borderRadius: 0,
+                            borderWidth: 0,
+                            textAlign: "right",
+                            p: "1rem"
+                        }}
+                        className="action"
+                    >
+                        <Button
+                            sx={{
+                                mr: 1
+                            }}
+                            variant="text-primary"
+                            onClick={() => setQuickAddAppointment(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t(`dialogs.quick_add_appointment-dialog.cancel`)}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"primary"}
+                            onClick={handleAddAppointmentRequest}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}
+                        >
+                            {t(`dialogs.quick_add_appointment-dialog.confirm`)}
+                        </Button>
+                    </Paper>
                 </Drawer>
 
                 <Dialog

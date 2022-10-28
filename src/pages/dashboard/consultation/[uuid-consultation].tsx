@@ -19,7 +19,7 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
-import {Box, Button, DialogActions, Drawer, Grid, Stack, useTheme,} from "@mui/material";
+import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {ConsultationDetailCard, PatientHistoryNoDataCard, PendingDocumentCard, setTimer,} from "@features/card";
 import {CustomStepper} from "@features/customStepper";
 import IconUrl from "@themes/urlIcon";
@@ -40,8 +40,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models} = props;
-        return <Widget modal={modal} setModal={setSM} models={models}></Widget>;
+        const {modal, setSM, models, appuuid} = props;
+        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -89,14 +89,14 @@ function ConsultationInProgress() {
 
     const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const {exam} = useAppSelector(consultationSelector);
+
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {drawer} = useAppSelector(
-        (state: { dialog: DialogProps }) => state.dialog
-    );
+    const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
-    const {exam} = useAppSelector(consultationSelector);
     const [end, setEnd] = useState(false);
+    const [onSave, setOnsave] = useState(false);
 
     const EventStepper = [
         {
@@ -191,14 +191,16 @@ function ConsultationInProgress() {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data);
     }, [httpDocumentResponse]);
+
     useEffect(() => {
         if (httpModelResponse) setModels((httpModelResponse as HttpResponse).data);
     }, [httpModelResponse]);
+
     useEffect(() => {
         setAppointement((httpAppResponse as HttpResponse)?.data);
-        setTimeout(()=>{
+        setTimeout(() => {
             setLoading(false);
-        },2000)
+        }, 2000)
     }, [httpAppResponse]);
 
     useEffect(() => {
@@ -210,7 +212,11 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal);
-            localStorage.setItem("Modeldata", JSON.stringify(sheet.modal.data));
+            console.log(localStorage.getItem('Modeldata' + uuind))
+            if (!localStorage.getItem('Modeldata' + uuind)) {
+
+                localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
+            }
             const app_data = sheet.exam.appointment_data;
             dispatch(
                 SetExam({
@@ -223,7 +229,7 @@ function ConsultationInProgress() {
                 })
             );
         }
-    }, [dispatch, sheet]);
+    }, [dispatch, sheet, uuind]);
 
     useEffect(() => {
         if (appointement) {
@@ -293,11 +299,12 @@ function ConsultationInProgress() {
             const form = new FormData();
             form.append("acts", JSON.stringify(acts));
             form.append("modal_uuid", selectedModel.default_modal.uuid);
-            form.append("modal_data", localStorage.getItem("Modeldata") as string);
+            form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
             form.append("notes", exam.notes);
             form.append("diagnostic", exam.diagnosis);
             form.append("treatment", exam.treatment);
             form.append("consultation_reason", exam.motif);
+            form.append("fees", total.toString());
             form.append("status", "5");
 
             trigger({
@@ -311,9 +318,11 @@ function ConsultationInProgress() {
                 console.log("end consultation", r);
                 console.log(r);
                 dispatch(setTimer({isActive: false}));
-                localStorage.removeItem("Modeldata");
-                console.log(localStorage.getItem("Modeldata"));
-                mutate();
+                mutate().then(() =>{
+                    //localStorage.removeItem("Modeldata" + uuind);
+                    console.log("remove",localStorage.getItem("Modeldata" + uuind))
+                })
+
                 if (appointement?.status == 5) {
                     router.push("/dashboard/agenda")
                 } else {
@@ -349,7 +358,6 @@ function ConsultationInProgress() {
             }
         }
     };
-
     const onDocumentLoadSuccess = ({numPages}: any) => {
         setNumPages(numPages);
     };
@@ -447,7 +455,7 @@ function ConsultationInProgress() {
                 />}
             </SubHeader>
 
-            <Box className="container" style={{padding: 0}}>
+            <Box className="container container-scroll">
                 {loading && <Stack spacing={2} padding={2}>
                     {Array.from({length: 3}).map((_, idx) => (
                         <React.Fragment key={idx}>
@@ -467,6 +475,10 @@ function ConsultationInProgress() {
                         acts={acts}
                         mutateDoc={mutateDoc}
                         setState={setState}
+                        medical_entity={medical_entity}
+                        mutate={mutate}
+                        session={session}
+                        locale={router.locale}
                         dispatch={dispatch}
                         setOpenDialog={setOpenDialog}></HistoryTab>
                 </TabPanel>
@@ -494,6 +506,7 @@ function ConsultationInProgress() {
                                 <WidgetForm
                                     modal={selectedModel}
                                     models={models}
+                                    appuuid={uuind}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>
@@ -501,6 +514,17 @@ function ConsultationInProgress() {
                             {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
+                </TabPanel>
+                <TabPanel padding={1} value={value} index={"documents"}>
+                    <DocumentsTab
+                        documents={documents}
+                        setIsViewerOpen={setIsViewerOpen}
+                        setInfo={setInfo}
+                        setState={setState}
+                        patient={patient}
+                        mutateDoc={mutateDoc}
+                        setOpenDialog={setOpenDialog}
+                        t={t}></DocumentsTab>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"medical_procedures"}>
                     <FeesTab
@@ -516,17 +540,6 @@ function ConsultationInProgress() {
                         setOpenDialog={setOpenDialog}
                         total={total}
                         t={t}></FeesTab>
-                </TabPanel>
-                <TabPanel padding={1} value={value} index={"documents"}>
-                    <DocumentsTab
-                        documents={documents}
-                        setIsViewerOpen={setIsViewerOpen}
-                        setInfo={setInfo}
-                        setState={setState}
-                        patient={patient}
-                        mutateDoc={mutateDoc}
-                        setOpenDialog={setOpenDialog}
-                        t={t}></DocumentsTab>
                 </TabPanel>
 
                 <Stack
@@ -552,25 +565,62 @@ function ConsultationInProgress() {
                     ))}
                 </Stack>
                 <Box pt={8}>
-                    {appointement && value !== 'medical_procedures' && <SubFooter>
-                        <Stack width={1} alignItems="flex-end">
+                    <SubFooter>
+                        <Stack width={1} direction={"row"} alignItems="flex-end" justifyContent={value === 'medical_procedures'? "space-between":"flex-end"}>
+                            {value === 'medical_procedures' &&<Stack direction='row' alignItems={"center"}>
+                                <Typography variant="subtitle1">
+                                    <span>{t('total')} : </span>
+                                </Typography>
+                                <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
+                                    {selectedAct.length > 0 ? total : '--'} TND
+                                </Typography>
+                                <Stack direction='row' alignItems="center" spacing={2}>
+                                    <span>|</span>
+                                    <Button
+                                        variant='text-black'
+                                        disabled={selectedAct.length == 0}
+                                        onClick={() => {
+                                            setInfo('document_detail')
+                                            setState({
+                                                type: 'fees',
+                                                name: 'note_fees',
+                                                info: selectedAct,
+                                                patient: patient.firstName + ' ' + patient.lastName
+                                            })
+                                            setOpenDialog(true);
+                                        }
+                                        }
+                                        startIcon={
+                                            <IconUrl path='ic-imprime'/>
+                                        }>
+
+                                        {t("consultationIP.print")}
+                                    </Button>
+                                </Stack>
+                            </Stack>}
                             <Button
                                 onClick={() => {
+
+                                    const btn = document.getElementsByClassName("sub-btn")[1];
+                                    const examBtn = document.getElementsByClassName("sub-exam")[0];
+
+                                    (btn as HTMLElement)?.click();
+                                    (examBtn as HTMLElement)?.click();
+
+                                    setOnsave(true)
                                     setEnd(true)
                                 }}
-                                color={appointement?.status == 5 ? "warning" : "error"}
+                                color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
-                                {appointement?.status == 5 ? (
-                                    <Icon path="ic-doc"/>
-                                ) : (
-                                    <Icon path="ic-check"/>
-                                )} {appointement?.status == 5
-                                ? t("edit_of_consultation")
-                                : t("end_of_consultation")}
+                                <Icon path="ic-check"/>
+                                {appointement?.status == 5 && !onSave
+                                    ? t("edit_of_consultation")
+                                    : t("end_of_consultation")}
                             </Button>
                         </Stack>
-                    </SubFooter>}
+                    </SubFooter>
+
                 </Box>
                 <Drawer
                     anchor={"right"}
@@ -613,7 +663,7 @@ function ConsultationInProgress() {
                 <Stack
                     direction={{md: "row", xs: "column"}}
                     position="fixed"
-                    sx={{right: 10, bottom: 10, zIndex: 999}}
+                    sx={{right: 10, bottom: 70, zIndex: 999}}
                     spacing={2}>
                     {pendingDocuments?.map((item: any) => (
                         <React.Fragment key={item.id}>

@@ -16,7 +16,6 @@ const RootStyled = styled('div')(({ theme }) => ({
         borderRadius: 8,
         padding: 10,
         position: 'relative',
-        paddingBottom: 48,
         overflowY: 'hidden',
     }
 }))

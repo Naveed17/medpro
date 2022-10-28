@@ -21,6 +21,7 @@ function ActFeesRow({ ...props }) {
             fullWidth
             autoFocus={index === 0}
             placeholder={t("name_of_act")}
+            style={{fontSize: 13}}
             inputProps={{ readOnly: !isNew || row?.uuid !== "NEWROW" }}
             value={act ? act : row?.act?.name || ""}
             onChange={(e) => {
@@ -55,12 +56,12 @@ function ActFeesRow({ ...props }) {
                   },
                 },
                 ...(isFocus && {
-                  backgroundColor: "rgba(237, 255, 238, 1)",
+                  backgroundColor: "white",
                   border: 1,
                   borderColor: theme.palette.divider,
                 }),
               }}
-              placeholder={t("price_of_act")}
+              placeholder={'--'}
               type="number"
               value={fees ? fees : row?.fees || ""}
               onChange={(e) => {

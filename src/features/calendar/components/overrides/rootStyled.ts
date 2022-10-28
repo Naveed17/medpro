@@ -92,14 +92,25 @@ const RootStyled = styled("div")(({theme}) => ({
             fontSize: 22,
             fontWeight: 400,
         },
+        [theme.breakpoints.down('sm')]: {
+            minHeight: 26,
+            display: "block",
+            "& .MuiTypography-root":{
+                fontSize: 14,
+                margin: "auto",
+                "& *:nth-of-type(1)":{
+                    fontSize: 12
+                }
+            }
+        }
     },
     "& .action-header-main": {
         display: "inlineBlock",
         position: "absolute",
         top: 14,
-        zIndex: 1000,
+        zIndex: 98,
         "& .MuiButtonBase-root": {
-            padding: 2
+            padding: 4
         }
     },
     "& .fc .fc-timegrid-slot-minor": {
@@ -109,7 +120,7 @@ const RootStyled = styled("div")(({theme}) => ({
         /* avec plusieurs longueurs pour les points d'arrêt */
         backgroundImage: "repeating-linear-gradient(-45deg, transparent 0 20px, rgba(132, 132, 142, 0.1) 20px 40px)"
     },
-    "& .filtered":{
+    "& .filtered": {
         opacity: .4
     }
 }));

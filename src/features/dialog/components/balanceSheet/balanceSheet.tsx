@@ -74,7 +74,8 @@ function BalanceSheetDialog({...props}) {
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
-        analysis.push(value)
+        setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+        analysis.unshift(value)
         setAnalysis([...analysis])
         data.setState([...analysis])
     }
@@ -217,7 +218,7 @@ function BalanceSheetDialog({...props}) {
                                     <List className='items-list'>
                                         {
                                             analysisList?.map(anaylis => (
-                                                    <ListItemButton key={anaylis.uuid} onClick={() => {
+                                                    <ListItemButton disabled={analysis.find(an =>an.uuid ===anaylis.uuid) !== undefined} key={anaylis.uuid} onClick={() => {
                                                         addAnalysis(anaylis)
                                                     }}>
                                                         <ListItemText primary={anaylis.name}/>

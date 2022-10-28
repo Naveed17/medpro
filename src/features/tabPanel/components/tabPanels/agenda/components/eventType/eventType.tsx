@@ -1,5 +1,5 @@
 import {TextIconRadio} from "@features/buttons";
-import {Box, FormControlLabel, LinearProgress, RadioGroup} from "@mui/material";
+import {Box, FormControlLabel, LinearProgress, MenuItem, RadioGroup, Select, Stack} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -14,10 +14,11 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 
 function EventType({...props}) {
-    const {onNext, OnAction} = props;
+    const {onNext, OnAction, select} = props;
 
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -62,32 +63,93 @@ function EventType({...props}) {
                 <Typography variant="h6" color="text.primary">
                     {t("stepper-0.title")}
                 </Typography>
-                <FormControlStyled fullWidth size="small">
-                    <RadioGroup
-                        aria-labelledby="type-group-label"
-                        defaultValue="female"
-                        name="radio-buttons-group"
-                    >
-                        {types && types.map((type, index) => (
-                            <FormControlLabel
-                                key={index}
-                                value={type.uuid}
-                                control={
-                                    <TextIconRadio
-                                        item={type}
-                                        color={type.color}
-                                        selectedValue={typeEvent}
-                                        onChangeValue={(event: string) => handleTypeChange(event)}
-                                        title={type.name}
-                                        icon={IconsTypes[type.icon]}
-                                    />}
-                                label=""/>)
-                        )}
-                    </RadioGroup>
+                <FormControlStyled
+                    sx={{
+                        padding: `16px ${!select ? "16px" : "0"} ${!select ? "32px" : "16px"} ${!select ? "16px" : "0"}`,
+                    }}
+                    fullWidth size="small">
+                    {!select ?
+                        <RadioGroup
+                            aria-labelledby="type-group-label"
+                            defaultValue="female"
+                            name="radio-buttons-group">
+                            {types && types.map((type, index) => (
+                                <FormControlLabel
+                                    key={index}
+                                    value={type.uuid}
+                                    control={
+                                        <TextIconRadio
+                                            item={type}
+                                            color={type.color}
+                                            selectedValue={typeEvent}
+                                            onChangeValue={(event: string) => handleTypeChange(event)}
+                                            title={type.name}
+                                            icon={IconsTypes[type.icon]}
+                                        />}
+                                    label=""/>)
+                            )}
+                        </RadioGroup>
+                        :
+                        <Select
+                            id={"duration"}
+                            value={type}
+                            displayEmpty
+                            sx={{
+                                "& .MuiSelect-select": {
+                                    display: "flex",
+                                    svg: {mr: 1}
+                                }
+                            }}
+                            onChange={event => {
+                                handleTypeChange(event.target.value as string)
+                            }}
+                            renderValue={selected => {
+                                if (selected.length === 0) {
+                                    return <em>{t("stepper-0.type-placeholder")}</em>;
+                                }
+
+                                const type = types.find(itemType => itemType.uuid === selected);
+                                return (
+                                    <Stack direction={"row"} alignItems={'center'}>
+                                        <FiberManualRecordIcon
+                                            className={'motif-circle'}
+                                            sx={{
+                                                background: "white",
+                                                border: .1,
+                                                borderColor: 'divider',
+                                                borderRadius: '50%',
+                                                p: 0.05,
+                                                color: type?.color
+                                            }}
+                                        />
+                                        {type && IconsTypes[type.icon]}
+                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
+                                    </Stack>)
+                            }}>
+                            {types && types.map((type, index) => (
+                                <MenuItem sx={{display: "flex", svg: {mr: 1}}} className="text-inner" value={type.uuid}
+                                          key={type.uuid}>
+                                    <FiberManualRecordIcon
+                                        className={'motif-circle'}
+                                        sx={{
+                                            background: "white",
+                                            border: .1,
+                                            borderColor: 'divider',
+                                            borderRadius: '50%',
+                                            p: 0.05,
+                                            color: type.color
+                                        }}
+                                    />
+                                    {IconsTypes[type.icon]}
+                                    <Typography sx={{fontSize: "16px"}}>{type.name}</Typography>
+                                </MenuItem>)
+                            )}
+                        </Select>
+                    }
                 </FormControlStyled>
             </Box>
 
-            <Paper
+            {!select && <Paper
                 sx={{
                     borderRadius: 0,
                     borderWidth: "0px",
@@ -120,7 +182,7 @@ function EventType({...props}) {
                 >
                     {t("next")}
                 </Button>
-            </Paper>
+            </Paper>}
         </>
     )
 }

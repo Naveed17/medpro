@@ -14,7 +14,8 @@
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
     "type": "Types de consultation",
-    "actfees": "Honoraires"
+    "actfees": "Honoraires",
+    "app_lock":"verrouillage des applications"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -297,7 +298,7 @@
   },
   "actfees": {
     "path": "Paramètres > Honoraires",
-    "add_a_new_act": "Ajouter un nouveau acte",
+    "add_a_new_act": "Ajouter",
     "name_of_act": "Nom",
     "price_of_act": "Prix",
     "save": "Enregistrer",
@@ -313,6 +314,15 @@
       "name": "Nom d'acte",
       "price": "Prix"
     }
+  },
+  "appLock":{
+    "path":"Paramètres > verrouillage des applications",
+    "tittle":"réglage du mot de passe",
+    "current":"mot de passe actuel",
+    "new":"nouveau mot de passe",
+    "confirm":"confirmer le mot de passe",
+    "save":"Enregistrer"
+
   },
   "days": {
     "MON": "Lundi",

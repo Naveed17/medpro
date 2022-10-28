@@ -1,8 +1,8 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Box, Button,
+    Box, Button, Collapse,
     FormControl,
-    FormControlLabel, FormHelperText, Grid, IconButton, InputAdornment, MenuItem,
+    FormControlLabel, FormHelperText, Grid, IconButton, IconButtonProps, InputAdornment, MenuItem,
     Radio,
     RadioGroup,
     Select,
@@ -11,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo} from "react";
+import React, {memo, useEffect, useRef} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -25,14 +25,37 @@ import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import {styled} from "@mui/material/styles";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+
+interface ExpandMoreProps extends IconButtonProps {
+    expand: boolean;
+}
+
 export const MyTextInput: any = memo(({...props}) => {
     return (
         <TextField {...props} />
     );
 })
 MyTextInput.displayName = "TextField";
+
+const ExpandMore = styled((props: ExpandMoreProps) => {
+    const {expand, ...other} = props;
+    return <IconButton {...other} />;
+})(({theme, expand}) => ({
+    "& .MuiTypography-root": {
+        fontSize: 12
+    },
+    "& .MuiSvgIcon-root": {
+        width: 20,
+        transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+        transition: theme.transitions.create('transform', {
+            duration: theme.transitions.duration.shortest,
+        }),
+    }
+}));
 
 function OnStepPatient({...props}) {
     const {
@@ -43,6 +66,7 @@ function OnStepPatient({...props}) {
         translationPrefix = "add-patient",
     } = props;
     const router = useRouter();
+    const topRef = useRef(null);
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
@@ -132,6 +156,7 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
+    const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry, setSelectedCountry] = React.useState<any>({
         code: "TN",
         label: "Tunisia",
@@ -141,6 +166,10 @@ function OnStepPatient({...props}) {
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
+
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    };
 
     const handleAddInsurance = () => {
         const insurance = [...values.insurance, {insurance_uuid: "", insurance_number: ""}];
@@ -152,6 +181,15 @@ function OnStepPatient({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
+
+    useEffect(() => {
+        if (errors.hasOwnProperty("firstName") ||
+            errors.hasOwnProperty("lastName") ||
+            errors.hasOwnProperty("phone") ||
+            errors.hasOwnProperty("gender")) {
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+        }
+    }, [errors, touched]);
 
     if (!ready) return (<>loading translations...</>);
 
@@ -171,6 +209,7 @@ function OnStepPatient({...props}) {
                 onSubmit={handleSubmit}
             >
                 <Stack spacing={2} className="inner-section">
+                    <div ref={topRef}/>
                     <Box>
                         <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
                             {t("personal-info")}
@@ -183,6 +222,9 @@ function OnStepPatient({...props}) {
                                 </Typography>
                             </Typography>
                             <RadioGroup row aria-label="gender"
+                                        sx={{
+                                            ml: ".2rem"
+                                        }}
                                         {...getFieldProps("gender")}>
                                 <FormControlLabel
                                     value={1}
@@ -199,7 +241,7 @@ function OnStepPatient({...props}) {
                                 <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                         </FormControl>
                     </Box>
-                    <Box>
+                    <Box className={"inner-box"}>
                         <Grid container spacing={2}>
                             <Grid item md={6} xs={12}>
                                 <Typography
@@ -255,119 +297,7 @@ function OnStepPatient({...props}) {
                             </Grid>
                         </Grid>
                     </Box>
-                    <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("date-of-birth")}
-                        </Typography>
-                        <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id={"day"}
-                                    {...getFieldProps("birthdate.day")}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}
-                                    renderValue={(value: string) => {
-                                        if (value?.length === 0) {
-                                            return <em>{t("day")}</em>;
-                                        }
-
-                                        return <Typography>{value}</Typography>
-                                    }}
-                                    error={Boolean(touched.birthdate && errors.birthdate)}
-                                >
-                                    {Array.from(
-                                        Array(
-                                            moment(
-                                                `1970-01`,
-                                                "YYYY-MM"
-                                            ).daysInMonth()
-                                        ).keys()
-                                    ).map((v, i) => (
-                                        <MenuItem
-                                            key={i}
-                                            value={i > 9 ? `${i}` : `0${i + 1}`}
-                                        >
-                                            <Typography>{i + 1}</Typography>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {touched.birthdate.day && errors.birthdate.day}
-                                    </FormHelperText>
-                                )}
-                            </FormControl>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id={"day"}
-                                    {...getFieldProps("birthdate.month")}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}
-                                    renderValue={(value) => {
-                                        if (value?.length === 0) {
-                                            return <em>{t("month")}</em>;
-                                        }
-
-                                        return <Typography>{value}</Typography>
-                                    }}
-                                    error={Boolean(touched.birthdate && errors.birthdate)}
-                                >
-                                    {moment.monthsShort().map((v, i) => (
-                                        <MenuItem
-                                            key={i}
-                                            value={i > 9 ? `${i}` : `0${i + 1}`}
-                                        >
-                                            <Typography>{v}</Typography>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {touched.birthdate.month && errors.birthdate.month}
-                                    </FormHelperText>
-                                )}
-                            </FormControl>
-                            <FormControl size="small" fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id={"day"}
-                                    {...getFieldProps("birthdate.year")}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}
-                                    renderValue={(value) => {
-                                        if (value?.length === 0) {
-                                            return <em>{t("year")}</em>;
-                                        }
-
-                                        return <Typography>{value}</Typography>
-                                    }}
-                                    error={Boolean(touched.birthdate && errors.birthdate)}
-                                >
-                                    {Array.from(Array(100).keys()).map((v, i) => (
-                                        <MenuItem
-                                            key={i}
-                                            value={`${moment().year() - 100 + i + 1}`}
-                                        >
-                                            <Typography>{moment().year() - 100 + i + 1}</Typography>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {touched.birthdate && errors.birthdate && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {touched.birthdate.year && errors.birthdate.year}
-                                    </FormHelperText>
-                                )}
-                            </FormControl>
-                        </Stack>
-                    </Box>
-                    <Box>
+                    <Box className={"inner-box"}>
                         <Typography
                             variant="body2"
                             color="text.secondary"
@@ -418,252 +348,385 @@ function OnStepPatient({...props}) {
                             </FormHelperText>
                         )}
                     </Box>
-
                     <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
+                        <ExpandMore
+                            disableFocusRipple
+                            size={"small"}
+                            expand={expanded}
+                            color={"primary"}
+                            onClick={handleExpandClick}
+                            aria-expanded={expanded}
+                            aria-label="show more"
                         >
-                            {t("country")}
-                        </Typography>
-                        <FormControl fullWidth>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id={"country"}
-                                size="small"
-                                {...getFieldProps("country")}
-                                displayEmpty
-                                sx={{color: "text.secondary"}}
-                                renderValue={selected => {
-                                    if (selected.length === 0) {
-                                        return <em>{t("country-placeholder")}</em>;
-                                    }
-
-                                    const country = countries?.find(country => country.uuid === selected);
-                                    return <Typography>{country?.name}</Typography>
-                                }}
-                            >
-                                {countries?.map((country) => (
-                                    <MenuItem
-                                        key={country.uuid}
-                                        value={country.uuid}>
-                                        <Image
-                                            width={20}
-                                            alt={"flags"}
-                                            height={14}
-                                            src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
-                                        <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                    </MenuItem>)
-                                )}
-                            </Select>
-                        </FormControl>
+                            <ExpandMoreIcon/>
+                            <Typography>{t("more-detail")}</Typography>
+                        </ExpandMore>
                     </Box>
-                    <Box>
-                        <Grid container spacing={2}>
-                            <Grid item md={6} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                >
-                                    {t("region")}
-                                </Typography>
-                                <FormControl fullWidth>
+
+                    <Collapse
+                        sx={{
+                            "& .MuiBox-root": {
+                                mb: 1.5
+                            }
+                        }}
+                        in={expanded} timeout="auto" unmountOnExit>
+                        <Box>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                                component="span"
+                            >
+                                {t("date-of-birth")}
+                            </Typography>
+                            <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
+                                <FormControl size="small" fullWidth>
                                     <Select
                                         labelId="demo-simple-select-label"
-                                        id={"region"}
-                                        disabled={!values.country}
-                                        size="small"
-                                        {...getFieldProps("region")}
-                                        displayEmpty={true}
+                                        id={"day"}
+                                        {...getFieldProps("birthdate.day")}
+                                        displayEmpty
                                         sx={{color: "text.secondary"}}
-                                        renderValue={selected => {
-                                            if (selected.length === 0) {
-                                                return <em>{t("region-placeholder")}</em>;
+                                        renderValue={(value: string) => {
+                                            if (value?.length === 0) {
+                                                return <em>{t("day")}</em>;
                                             }
 
-                                            const state = states?.find(state => state.uuid === selected);
-                                            return <Typography>{state?.name}</Typography>
+                                            return <Typography>{value}</Typography>
                                         }}
+                                        error={Boolean(touched.birthdate && errors.birthdate)}
                                     >
-                                        {states?.map((state) => (
+                                        {Array.from(
+                                            Array(
+                                                moment(
+                                                    `1970-01`,
+                                                    "YYYY-MM"
+                                                ).daysInMonth()
+                                            ).keys()
+                                        ).map((v, i) => (
                                             <MenuItem
-                                                key={state.uuid}
-                                                value={state.uuid}>
-                                                {state.name}
-                                            </MenuItem>)
-                                        )}
+                                                key={i + 1}
+                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
+                                            >
+                                                <Typography>{i + 1}</Typography>
+                                            </MenuItem>
+                                        ))}
                                     </Select>
+                                    {touched.birthdate && errors.birthdate && (
+                                        <FormHelperText error sx={{px: 2, mx: 0}}>
+                                            {touched.birthdate.day && errors.birthdate.day}
+                                        </FormHelperText>
+                                    )}
                                 </FormControl>
-                            </Grid>
-                            <Grid item md={6} xs={12}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                >
-                                    {t("zip")}
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder="10004"
-                                    size="small"
-                                    fullWidth
-                                    {...getFieldProps("zip_code")}
-                                />
-                            </Grid>
-                        </Grid>
-                    </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("address")}
-                        </Typography>
-                        <TextField
-                            variant="outlined"
-                            multiline
-                            rows={3}
-                            placeholder={t("address-placeholder")}
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("address")}
-                        />
-                    </Box>
-                    <Box>
-                        <Typography sx={{mt: 1.5, textTransform: "capitalize"}}>
-                            <IconButton
-                                onClick={handleAddInsurance}
-                                className="success-light"
-                                sx={{
-                                    mr: 1.5,
-                                    "& svg": {
-                                        width: 20,
-                                        height: 20,
-                                    },
-                                }}
-                            >
-                                <Icon path="ic-plus"/>
-                            </IconButton>
-                            {t("assurance")}
-                        </Typography>
-                        <Box sx={{mb: 1.5}}>
-                            <FieldArray
-                                name={"insurance"}
-                                render={arrayHelpers => (
-                                    values.insurance.map((val, index: number) => (
-                                        <Grid
-                                            key={index}
-                                            container
-                                            spacing={2}
-                                            sx={{mt: index > 0 ? 0.5 : 0}}
-                                        >
-                                            <Grid item xs={12} md={4}>
-                                                <FormControl fullWidth>
-                                                    <Select
-                                                        id={"assurance"}
-                                                        size="small"
-                                                        {...getFieldProps(`insurance[${index}].insurance_uuid`)}
-                                                        displayEmpty
-                                                        sx={{color: "text.secondary"}}
-                                                        renderValue={(selected) => {
-                                                            if (selected.length === 0) {
-                                                                return <em>{t("assurance-placeholder")}</em>;
-                                                            }
+                                <FormControl size="small" fullWidth>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id={"day"}
+                                        {...getFieldProps("birthdate.month")}
+                                        displayEmpty
+                                        sx={{color: "text.secondary"}}
+                                        renderValue={(value) => {
+                                            if (value?.length === 0) {
+                                                return <em>{t("month")}</em>;
+                                            }
+                                            return <Typography>{moment.monthsShort()[parseInt(value) - 1]}</Typography>
+                                        }}
+                                        error={Boolean(touched.birthdate && errors.birthdate)}
+                                    >
+                                        {moment.monthsShort().map((v, i) => (
+                                            <MenuItem
+                                                key={i + 1}
+                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
+                                            >
+                                                <Typography>{v}</Typography>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {touched.birthdate && errors.birthdate && (
+                                        <FormHelperText error sx={{px: 2, mx: 0}}>
+                                            {touched.birthdate.month && errors.birthdate.month}
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+                                <FormControl size="small" fullWidth>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id={"day"}
+                                        {...getFieldProps("birthdate.year")}
+                                        displayEmpty
+                                        sx={{color: "text.secondary"}}
+                                        renderValue={(value) => {
+                                            if (value?.length === 0) {
+                                                return <em>{t("year")}</em>;
+                                            }
 
-                                                            const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                            return <Typography>{insurance?.name}</Typography>
-                                                        }}
-                                                    >
-                                                        {insurances.map(insurance => (
-                                                            <MenuItem
-                                                                key={insurance.uuid}
-                                                                value={insurance.uuid}>
-                                                                <Box key={insurance.uuid}
-                                                                     component="img" width={30} height={30}
-                                                                     src={insurance.logoUrl}/>
-                                                                <Typography
-                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
-                                                            </MenuItem>)
-                                                        )}
-                                                    </Select>
-                                                </FormControl>
-                                            </Grid>
-                                            <Grid item xs={12} md={8}>
-                                                <Stack direction="row" spacing={2} key={`stack-${index}`}>
-                                                    <MyTextInput
-                                                        variant="outlined"
-                                                        placeholder={t("assurance-phone-error")}
-                                                        size="small"
-                                                        fullWidth
-                                                        {...getFieldProps(`insurance[${index}].insurance_number`)}
-                                                    />
-                                                    <IconButton
-                                                        onClick={() => handleRemoveInsurance(index)}
-                                                        className="error-light"
-                                                        sx={{
-                                                            mr: 1.5,
-                                                            "& svg": {
-                                                                width: 20,
-                                                                height: 20,
-                                                                "& path": {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        }}
-                                                    >
-                                                        <Icon path="ic-moin"/>
-                                                    </IconButton>
-                                                </Stack>
-                                            </Grid>
-                                        </Grid>
-                                    )))}
+                                            return <Typography>{value}</Typography>
+                                        }}
+                                        error={Boolean(touched.birthdate && errors.birthdate)}
+                                    >
+                                        {Array.from(Array(80).keys()).map((v, i) => (
+                                            <MenuItem
+                                                key={i}
+                                                value={`${moment().year() - 80 + i + 1}`}
+                                            >
+                                                <Typography>{moment().year() - 80 + i + 1}</Typography>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {touched.birthdate && errors.birthdate && (
+                                        <FormHelperText error sx={{px: 2, mx: 0}}>
+                                            {touched.birthdate.year && errors.birthdate.year}
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+                            </Stack>
+                        </Box>
+                        <Box>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                            >
+                                {t("country")}
+                            </Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"country"}
+                                    size="small"
+                                    {...getFieldProps("country")}
+                                    displayEmpty
+                                    sx={{color: "text.secondary"}}
+                                    renderValue={selected => {
+                                        if (selected.length === 0) {
+                                            return <em>{t("country-placeholder")}</em>;
+                                        }
+
+                                        const country = countries?.find(country => country.uuid === selected);
+                                        return <Typography>{country?.name}</Typography>
+                                    }}
+                                >
+                                    {countries?.map((country) => (
+                                        <MenuItem
+                                            key={country.uuid}
+                                            value={country.uuid}>
+                                            <Image
+                                                width={20}
+                                                alt={"flags"}
+                                                height={14}
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                        </MenuItem>)
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                        <Box>
+                            <Grid container spacing={2}>
+                                <Grid item md={6} xs={12}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                    >
+                                        {t("region")}
+                                    </Typography>
+                                    <FormControl fullWidth>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id={"region"}
+                                            disabled={!values.country}
+                                            size="small"
+                                            {...getFieldProps("region")}
+                                            displayEmpty={true}
+                                            sx={{color: "text.secondary"}}
+                                            renderValue={selected => {
+                                                if (selected.length === 0) {
+                                                    return <em>{t("region-placeholder")}</em>;
+                                                }
+
+                                                const state = states?.find(state => state.uuid === selected);
+                                                return <Typography>{state?.name}</Typography>
+                                            }}
+                                        >
+                                            {states?.map((state) => (
+                                                <MenuItem
+                                                    key={state.uuid}
+                                                    value={state.uuid}>
+                                                    {state.name}
+                                                </MenuItem>)
+                                            )}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item md={6} xs={12}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                    >
+                                        {t("zip")}
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder="10004"
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("zip_code")}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("address")}
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                rows={3}
+                                placeholder={t("address-placeholder")}
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("address")}
                             />
                         </Box>
-                    </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("email")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("email-placeholder")}
-                            type="email"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("email")}
-                            error={Boolean(touched.email && errors.email)}
-                            helperText={
-                                Boolean(touched.email && errors.email)
-                                    ? String(errors.email)
-                                    : undefined
-                            }
-                        />
-                    </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("cin")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("cin-placeholder")}
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("cin")}
-                        />
-                    </Box>
-                    <Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            {t("family_doctor")}
-                        </Typography>
-                        <TextField
-                            placeholder={t("family_doctor-placeholder")}
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("family_doctor")}
-                        />
-                    </Box>
+                        <Box>
+                            <Typography sx={{mt: 1.5, textTransform: "capitalize"}}>
+                                <IconButton
+                                    onClick={handleAddInsurance}
+                                    className="success-light"
+                                    sx={{
+                                        mr: 1.5,
+                                        "& svg": {
+                                            width: 20,
+                                            height: 20,
+                                        },
+                                    }}
+                                >
+                                    <Icon path="ic-plus"/>
+                                </IconButton>
+                                {t("assurance")}
+                            </Typography>
+                            <Box sx={{mb: 1.5}}>
+                                <FieldArray
+                                    name={"insurance"}
+                                    render={arrayHelpers => (
+                                        values.insurance.map((val, index: number) => (
+                                            <Grid
+                                                key={index}
+                                                container
+                                                spacing={2}
+                                                sx={{mt: index > 0 ? 0.5 : 0}}
+                                            >
+                                                <Grid item xs={12} md={4}>
+                                                    <FormControl fullWidth>
+                                                        <Select
+                                                            id={"assurance"}
+                                                            size="small"
+                                                            {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                            displayEmpty
+                                                            sx={{color: "text.secondary"}}
+                                                            renderValue={(selected) => {
+                                                                if (selected.length === 0) {
+                                                                    return <em>{t("assurance-placeholder")}</em>;
+                                                                }
+
+                                                                const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                                return <Typography>{insurance?.name}</Typography>
+                                                            }}
+                                                        >
+                                                            {insurances.map(insurance => (
+                                                                <MenuItem
+                                                                    key={insurance.uuid}
+                                                                    value={insurance.uuid}>
+                                                                    <Box key={insurance.uuid}
+                                                                         component="img" width={30} height={30}
+                                                                         src={insurance.logoUrl}/>
+                                                                    <Typography
+                                                                        sx={{ml: 1}}>{insurance.name}</Typography>
+                                                                </MenuItem>)
+                                                            )}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12} md={8}>
+                                                    <Stack direction="row" spacing={2} key={`stack-${index}`}>
+                                                        <MyTextInput
+                                                            variant="outlined"
+                                                            placeholder={t("assurance-phone-error")}
+                                                            size="small"
+                                                            fullWidth
+                                                            {...getFieldProps(`insurance[${index}].insurance_number`)}
+                                                        />
+                                                        <IconButton
+                                                            onClick={() => handleRemoveInsurance(index)}
+                                                            className="error-light"
+                                                            sx={{
+                                                                mr: 1.5,
+                                                                "& svg": {
+                                                                    width: 20,
+                                                                    height: 20,
+                                                                    "& path": {
+                                                                        fill: (theme) => theme.palette.text.primary,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Icon path="ic-moin"/>
+                                                        </IconButton>
+                                                    </Stack>
+                                                </Grid>
+                                            </Grid>
+                                        )))}
+                                />
+                            </Box>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("email")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("email-placeholder")}
+                                type="email"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("email")}
+                                error={Boolean(touched.email && errors.email)}
+                                helperText={
+                                    Boolean(touched.email && errors.email)
+                                        ? String(errors.email)
+                                        : undefined
+                                }
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("cin")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("cin-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("cin")}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("family_doctor")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("family_doctor-placeholder")}
+                                type="text"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("family_doctor")}
+                            />
+                        </Box>
+                    </Collapse>
                 </Stack>
 
                 <Stack

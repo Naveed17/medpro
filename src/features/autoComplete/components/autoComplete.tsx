@@ -1,14 +1,13 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import MenuList from "@mui/material/MenuList";
-import {InputAdornment, LinearProgress} from "@mui/material";
-import CodeIcon from "@mui/icons-material/Code";
+import {Button, Divider, InputBase, LinearProgress, Paper} from "@mui/material";
 import {PatientAppointmentCard} from "@features/card";
+import AddIcon from '@mui/icons-material/Add';
 
 function AutoComplete({...props}) {
-    const {data, loading, onSelectData, onSearchChange} = props;
+    const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;
     const [focus, setFocus] = useState(true);
 
     const handleListItemClick = ({...props}) => {
@@ -23,29 +22,29 @@ function AutoComplete({...props}) {
 
     return (
         <RootStyled>
-            <TextField
-                id="standard-basic"
-                variant="outlined"
-                placeholder="Chercher un patient"
-                autoFocus
-                onFocus={() => setFocus(true)}
-                onKeyDown={onKeyDown}
-                onChange={onSearchChange}
-                fullWidth
-                InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end" sx={{justifyContent: "center"}}>
-                            <CodeIcon
-                                sx={{
-                                    transform: "rotate(90deg)",
-                                    color: "text.secondary",
-                                    fontSize: "1rem",
-                                }}
-                            />
-                        </InputAdornment>
-                    ),
-                }}
-            />
+            <Paper
+                component="form"
+                sx={{p: '2px 4px', display: 'flex', alignItems: 'center', width: 400}}
+            >
+                <InputBase
+                    sx={{ml: 1, flex: 1}}
+                    placeholder="Chercher un patient"
+                    autoFocus
+                    onFocus={() => setFocus(true)}
+                    onKeyDown={onKeyDown}
+                    onChange={onSearchChange}
+                    inputProps={{'aria-label': 'Chercher un patient'}}
+                />
+                <Divider sx={{height: 28, m: 0.5}} orientation="vertical"/>
+                <Button
+                    onClick={onAddPatient}
+                    size={"small"}
+                    color="primary"
+                    sx={{m: .5}} aria-label="directions">
+                    <AddIcon/>
+                    {t('stepper-2.add_button')}
+                </Button>
+            </Paper>
             <Box className="scroll-main">
                 <MenuList
                     id={"item-list"}

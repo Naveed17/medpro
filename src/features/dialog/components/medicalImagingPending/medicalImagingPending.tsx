@@ -1,13 +1,12 @@
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
 import {useTranslation} from 'next-i18next'
-import React, {useState} from 'react';
-import {Card, CircularProgress, IconButton, Stack, Typography} from "@mui/material";
+import React, {useEffect, useState} from 'react';
+import {Badge, Card, CircularProgress, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import CheckIcon from '@mui/icons-material/Check';
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
@@ -16,8 +15,13 @@ function MedicalImagingDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState('');
 
-
-    console.log(files.find(file => file.uuid === 'item.uuid'))
+    useEffect(() => {
+        const file: React.SetStateAction<any[]> = [];
+        images['medical-imaging'].map((img: { uuid: any; uri: string | any[]; }) => {
+            file.push({uuid: img.uuid, nb: img.uri.length})
+        })
+        setFiles(file)
+    }, [images])
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {trigger} = useRequestMutation(null, "/medicalImaging");
@@ -41,9 +45,9 @@ function MedicalImagingDialog({...props}) {
             },
             {revalidate: true, populateCache: true}
         ).then((r: any) => {
-            files.push({uuid: uuid, file: r.data.data[0]})
+            let selectedFile = files.findIndex(f => f.uuid === uuid)
+            files[selectedFile].nb += 1
             setFiles([...files])
-            console.log(files)
             setLoading('')
         });
 
@@ -57,21 +61,21 @@ function MedicalImagingDialog({...props}) {
                     <Card key={index} sx={{p: 1}}>
                         <Stack direction='row'
                                alignItems="center"
-                               style={{
-                                   opacity: item.uri !== '' || files.find(file => file.uuid === item.uuid) ? 0.5 : 1
-                               }}
                                justifyContent='space-between'>
                             <Typography>{item['medical-imaging'].name}</Typography>
                             {
-                                loading !== item.uuid && item.uri === '' && files.find(file => file.uuid === item.uuid) === undefined && <>
-                                    <IconButton size="small" onClick={() => {
-                                        (document.getElementById(item.uuid + 'file') as HTMLElement).click()
-                                    }}>
+                                loading !== item.uuid && <>
+                                    <Badge badgeContent={files?.find(f => f.uuid === item.uuid)?.nb} color="primary"
+                                           style={{marginRight: 10, marginTop: 10}}
+                                           onClick={() => {
+                                               (document.getElementById(item.uuid + 'file') as HTMLElement).click()
+                                           }}>
                                         <FileDownloadOutlinedIcon style={{color: '#a6abaf'}}/>
-                                    </IconButton>
+                                    </Badge>
                                     <input
                                         type="file"
                                         id={item.uuid + 'file'}
+                                        accept="image/png, image/jpeg,image/jpg, .pdf"
                                         onChange={(ev) => {
                                             setLoading(item.uuid)
                                             handleChange(ev, item.uuid)
@@ -79,13 +83,6 @@ function MedicalImagingDialog({...props}) {
                                         style={{display: 'none'}}
                                     />
                                 </>
-                            }
-
-                            {
-                                (item.uri !== '' || files.find(file => file.uuid === item.uuid)) &&
-                                <IconButton size="small">
-                                    <CheckIcon color={"success"}/>
-                                </IconButton>
                             }
 
                             {loading === item.uuid &&
