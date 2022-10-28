@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { DashLayout } from "@features/base";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
@@ -10,7 +10,17 @@ import { Otable } from "@features/table";
 import IconUrl from "@themes/urlIcon";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
-
+import { useAppSelector } from "@app/redux/hooks";
+import { tableActionSelector } from "@features/table";
+import { NoDataCard } from "@features/card";
+const CardData = {
+  mainIcon: "ic-agenda-+",
+  title: "no-data.user.title",
+  description: "no-data.user.description",
+  buttonText: "no-data.user.button-text",
+  buttonIcon: "ic-agenda-+",
+  buttonVariant: "warning",
+};
 const ButtonStyled = styled(Button)(({ theme }) => ({
   margin: theme.spacing(1),
   minWidth: 210,
@@ -30,48 +40,44 @@ const ButtonStyled = styled(Button)(({ theme }) => ({
 }));
 function Users() {
   const router = useRouter();
-
+  const { addUser } = useAppSelector(tableActionSelector);
   const [edit, setEdit] = useState(false);
+  const [selected, setSelected] = useState<any>("");
   const [rows, setRows] = useState([
     {
       id: 1,
-      name: 'Rhouma BHA',
-      email: 'rhoumabhat@mail.com',
-      fonction: 'Practitioner',
-      speciality: 'Dermatologist',
-      status: 'En attente',
-      bg: 'warning',
-      settings: false,
-      access: '2',
+      name: "Rhouma BHA",
+      email: "rhoumabhat@mail.com",
+      fonction: "Practitioner",
+      speciality: "Dermatologist",
+      status: "En attente",
+      bg: "warning",
+      admin: false,
+      access: "2",
     },
     {
       id: 2,
-      name: 'Hassen Ounelli',
-      email: 'houssemouelli@mail.com',
-      fonction: 'Practitioner',
-      speciality: 'Dermatologist',
-      status: 'Accepté',
-      bg: 'success',
-      settings: true,
-      access: '1',
+      name: "Hassen Ounelli",
+      email: "houssemouelli@mail.com",
+      fonction: "Practitioner",
+      speciality: "Dermatologist",
+      status: "Accepté",
+      bg: "success",
+      admin: true,
+      access: "1",
     },
     {
       id: 3,
-      name: 'Sarra Bent',
-      email: 'sarrabent@mail.com',
-      fonction: 'Secretary',
-      speciality: '',
-      status: 'Accepté',
-      bg: 'success',
-      settings: false,
-      access: '2',
+      name: "Sarra Bent",
+      email: "sarrabent@mail.com",
+      fonction: "Secretary",
+      speciality: "",
+      status: "Accepté",
+      bg: "success",
+      admin: false,
+      access: "2",
     },
   ]);
-
-
-  const closeDraw = () => {
-    setEdit(false);
-  };
 
   const headCells = [
     {
@@ -91,7 +97,7 @@ function Users() {
       sortable: true,
     },
     {
-      id: "resquest",
+      id: "status",
       numeric: false,
       disablePadding: false,
       label: "request",
@@ -99,7 +105,7 @@ function Users() {
       sortable: true,
     },
     {
-      id: "accessSettings",
+      id: "admin",
       numeric: false,
       disablePadding: false,
       label: "accessSetting",
@@ -123,14 +129,22 @@ function Users() {
       sortable: false,
     },
   ];
-
+  useEffect(() => {
+    setRows([...rows, ...addUser]);
+  }, []);
   const handleChange = (props: any) => {
     const index = rows.findIndex((r) => r.id === props.id);
-    rows[index].settings = !props.settings;
+    rows[index].admin = !props.admin;
     setRows([...rows]);
   };
-  const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
-  if (!ready) return (<>loading translations...</>);
+  const onDelete = (props: any) => {
+    const filtered = rows.filter((item: any) => item.id !== props.id);
+    setRows(filtered);
+  };
+  const { t, ready } = useTranslation("settings", {
+    keyPrefix: "users.config",
+  });
+  if (!ready) return <>loading translations...</>;
 
   return (
     <>
@@ -146,8 +160,7 @@ function Users() {
           onClick={() => {
             setEdit(true);
           }}
-          color="primary"
-        >
+          color="primary">
           <span className="txt">{t("manageAccess")}</span>
         </ButtonStyled>
         <Button
@@ -156,28 +169,34 @@ function Users() {
           onClick={() => {
             router.push(`/dashboard/settings/users/new`);
           }}
-          color="success"
-        >
+          color="success">
           {t("add")}
         </Button>
       </SubHeader>
       <Box className="container">
-        <Otable headers={headCells}
-          rows={rows}
-          state={null}
-          from={'users'}
-          t={t}
-          edit={null}
-          handleConfig={null}
-          handleChange={handleChange} />
+        {rows.length > 0 ? (
+          <Otable
+            headers={headCells}
+            rows={rows}
+            state={null}
+            from={"users"}
+            t={t}
+            edit={onDelete}
+            handleConfig={null}
+            handleChange={handleChange}
+          />
+        ) : (
+          <NoDataCard t={t} ns={"settings"} data={CardData} />
+        )}
       </Box>
     </>
-  )
+  );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
   props: {
-    ...(await serverSideTranslations(locale as string, [
+    fallback: false,
+    ...(await serverSideTranslations(context.locale as string, [
       "common",
       "menu",
       "settings",
