@@ -235,7 +235,8 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (appointement) {
             setPatient(appointement.patient);
-            if (!free) setTotal(consultationFees)
+-            setFree(appointement.type.code === 3)
+            if (appointement.type.code !== 3) setTotal(consultationFees)
             dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
