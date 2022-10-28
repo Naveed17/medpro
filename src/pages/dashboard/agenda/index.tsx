@@ -9,7 +9,7 @@ import {
     Button,
     Container,
     Drawer,
-    LinearProgress,
+    LinearProgress, Paper,
     Theme,
     Typography,
     useMediaQuery,
@@ -45,7 +45,10 @@ import {
     TimeSchedule
 } from "@features/tabPanel";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime} from "@features/dialog";
+import {
+    AppointmentDetail, QuickAddAppointment,
+    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime
+} from "@features/dialog";
 import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
@@ -56,6 +59,7 @@ import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
 import {prepareSearchKeys} from "@app/hooks";
+import {DateClickArg} from "@fullcalendar/interaction";
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -633,13 +637,13 @@ function Agenda() {
         });
     }
 
-    const onSelectDate = (eventArg: DateSelectArg) => {
-        dispatch(resetAppointment());
-        dispatch(setAppointmentDate(eventArg.start));
+    const onSelectDate = (eventArg: DateClickArg) => {
+        // dispatch(resetAppointment());
+        dispatch(setAppointmentDate(eventArg.date));
         dispatch(setAppointmentRecurringDates([{
-            id: `${moment(eventArg.start).format("DD-MM-YYYY")}--${moment(eventArg.start).format("HH:mm")}`,
-            time: moment(eventArg.start).format("HH:mm"),
-            date: moment(moment(eventArg.start)).format("DD-MM-YYYY"),
+            id: `${moment(eventArg.date).format("DD-MM-YYYY")}--${moment(eventArg.date).format("HH:mm")}`,
+            time: moment(eventArg.date).format("HH:mm"),
+            date: moment(eventArg.date).format("DD-MM-YYYY"),
             status: "success"
         }]));
 
@@ -653,7 +657,7 @@ function Agenda() {
                     },
                     ...eventStepper.slice(2)]);
         }
-        dispatch(openDrawer({type: "add", open: true}));
+        // dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
@@ -807,6 +811,7 @@ function Agenda() {
                                         sortedData: sortedData.current
                                     }}
                                     OnInit={onLoadCalendar}
+                                    OnAddAppointment={handleAddAppointment}
                                     OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
                                     OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
                                     OnSelectEvent={onSelectEvent}
@@ -942,6 +947,45 @@ function Agenda() {
                     </Box>
                 </Drawer>
 
+                <Drawer
+                    anchor={"right"}
+                    open={quickAddAppointment}
+                    dir={direction}
+                    onClose={() => {
+                        setQuickAddAppointment(false);
+                    }}
+                >
+                    <QuickAddAppointment/>
+                    <Paper
+                        sx={{
+                            borderRadius: 0,
+                            borderWidth: 0,
+                            textAlign: "right",
+                            p: "1rem"
+                        }}
+                        className="action"
+                    >
+                        <Button
+                            sx={{
+                                mr: 1
+                            }}
+                            variant="text-primary"
+                            onClick={() => setQuickAddAppointment(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t(`dialogs.quick_add_appointment-dialog.cancel`)}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color={"primary"}
+                            onClick={handleAddAppointmentRequest}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}
+                        >
+                            {t(`dialogs.quick_add_appointment-dialog.confirm`)}
+                        </Button>
+                    </Paper>
+                </Drawer>
+
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
@@ -1067,43 +1111,6 @@ function Agenda() {
                                 startIcon={<Icon height={"18"} width={"18"} color={"white"} path="iconfinder"></Icon>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
-                            </Button>
-                        </>
-                    }
-                />
-
-                <Dialog
-                    size={"md"}
-                    sx={{
-                        [theme.breakpoints.down('sm')]: {
-                            "& .MuiDialogContent-root": {
-                                padding: 1
-                            }
-                        }
-                    }}
-                    color={theme.palette.primary.main}
-                    contrastText={theme.palette.primary.contrastText}
-                    dialogClose={() => setQuickAddAppointment(false)}
-                    action={"quick_add_appointment"}
-                    dir={direction}
-                    open={quickAddAppointment}
-                    title={t(`dialogs.quick_add_appointment-dialog.title`)}
-                    actionDialog={
-                        <>
-                            <Button
-                                variant="text-primary"
-                                onClick={() => setQuickAddAppointment(false)}
-                                startIcon={<CloseIcon/>}
-                            >
-                                {t(`dialogs.quick_add_appointment-dialog.cancel`)}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color={"primary"}
-                                onClick={handleAddAppointmentRequest}
-                                disabled={recurringDates.length === 0 || type === "" || !patient}
-                            >
-                                {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                             </Button>
                         </>
                     }
