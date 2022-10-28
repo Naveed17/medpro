@@ -5,7 +5,7 @@ import {configSelector} from "@features/base";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {LocaleFnsProvider} from "@app/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Badge, TextField, useTheme} from "@mui/material";
+import {TextField, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";

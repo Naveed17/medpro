@@ -37,6 +37,7 @@ function TimeSchedule({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const bottomRef = useRef(null);
+    const moreDateRef = useRef(false);
 
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
@@ -54,7 +55,7 @@ function TimeSchedule({...props}) {
     const [date, setDate] = useState<Date | null>(selectedDate);
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
-    const [moreDate, setMoreDate] = useState(false);
+    const [moreDate, setMoreDate] = useState(moreDateRef.current);
     const [time, setTime] = useState("");
     const [limit, setLimit] = useState(16);
     const [timeAvailable, setTimeAvailable] = useState(false);
@@ -100,7 +101,7 @@ function TimeSchedule({...props}) {
                 if (onTimeAvailable(slots, time)) {
                     setTimeAvailable(true);
                 } else {
-                    setRecurringDates([]);
+                    // setRecurringDates([]);
                     setTimeAvailable(false);
                 }
             }
@@ -351,7 +352,7 @@ function TimeSchedule({...props}) {
                     </>
                 }
 
-                {(timeAvailable && recurringDates.length > 0) &&
+                {(timeAvailable || recurringDates.length > 0) &&
                     <AnimatePresence exitBeforeEnter>
                         <motion.div
                             initial={{opacity: 0}}
@@ -385,7 +386,10 @@ function TimeSchedule({...props}) {
                             {!moreDate &&
                                 <Button
                                     sx={{fontSize: 12}}
-                                    onClick={() => setMoreDate(true)}
+                                    onClick={() => {
+                                        moreDateRef.current = true;
+                                        setMoreDate(true);
+                                    }}
                                     startIcon={
                                         <IconUrl
                                             width={"14"}
@@ -422,7 +426,7 @@ function TimeSchedule({...props}) {
                     size="medium"
                     variant="contained"
                     color="primary"
-                    disabled={!timeSlots.find(timeSlot => timeSlot.start === time) || recurringDates.length === 0}
+                    disabled={recurringDates.length === 0}
                     onClick={onNextStep}
                 >
                     {t("next")}

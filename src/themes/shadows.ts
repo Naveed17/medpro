@@ -58,6 +58,7 @@ const createCustomShadow = (): CustomShadowType => {
     filterButton: `0px 0px 7px rgba(0, 0, 0, 0.32)`,
     ListingPageFilter: "0px 2px 4px rgba(0, 0, 0, 0.06)",
     drawer: "-5px 14px 26px rgba(0, 150, 214, 0.37)",
+    popover: "0px 2px 8px rgba(0,0,0,0.32)",
     textField: "0px 0px 4px rgba(0, 150, 214, 0.25)",
     calendarPicker: "0px 0.5px 0px rgba(0, 0, 0, 0.12)",
     fab1: "0px 2px 20px rgba(156, 155, 155, 0.46)",
