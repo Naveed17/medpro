@@ -221,14 +221,6 @@ function PatientDetail({ ...props }) {
                             display: { md: "block", xs: "none" },
                         }}
                     >
-                        {/* <Button
-                                size="medium"
-                                variant="text-primary"
-                                startIcon={<Icon path="ic-dowlaodfile" />}
-                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
-                            >
-                                {t("tabs.import")}
-                            </Button> */}
                         <Button
                             size="medium"
                             variant="contained"
@@ -260,7 +252,7 @@ function PatientDetail({ ...props }) {
                                 dispatch(onOpenPatientDrawer({ patientId: "" }));
                                 onCloseDialog(false);
                             }
-                            mutatePatientList();
+                            mutatePatientList && mutatePatientList();
                         }
                     }}
                     onBackButton={(index: number) => {
