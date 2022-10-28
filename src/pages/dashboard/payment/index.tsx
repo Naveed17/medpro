@@ -266,6 +266,7 @@ function Payment() {
   const handleClose = () => setOpen(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isOpen = Boolean(anchorEl);
+  const devise = process.env.NEXT_PUBLIC_DEVISE;
   const handleCloseCollapse = () => setCollapse(false);
   const handleSave = () => setOpen(false);
   const handleEdit = (props: any) => {
@@ -288,7 +289,7 @@ function Payment() {
           <Typography>{t("path")}</Typography>
           <Stack direction="row" spacing={3} alignItems="center">
             <Typography variant="subtitle2">{t("total")}</Typography>
-            <Typography variant="h6">1 140 TND</Typography>
+            <Typography variant="h6">1 140 {devise}</Typography>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="h6">I</Typography>
               <Button

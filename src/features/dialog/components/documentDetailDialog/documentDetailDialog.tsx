@@ -215,7 +215,7 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
+               // dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
                 break;
             case "hide":
                 sethide(!hide)

@@ -1,9 +1,7 @@
 import React from "react";
-import {Box, Button, Stack, Typography} from "@mui/material";
+import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from "@features/card";
-import IconUrl from "@themes/urlIcon";
-import {SubFooter} from "@features/subFooter";
 
 function FeesTab({...props}) {
 
@@ -63,19 +61,42 @@ function FeesTab({...props}) {
     const {
         acts,
         selectedUuid,
-        setInfo,
-        setState,
-        patient,
         editAct,
-        selectedAct,
         setTotal,
-        setOpenActDialog,
-        setOpenDialog,
-        total,
+        setConsultationFees,
+        consultationFees,
+        free,setFree,
         t
     } = props
     return (
         <>
+            <Stack direction={"row"} alignItems={"center"}
+                   style={{
+                       background: "white",
+                       padding: '10px 15px',
+                       borderRadius: 10
+                   }} spacing={2} mb={2}>
+                <Checkbox
+                    color="primary"
+                    onChange={(ev) => {
+                        console.log(ev.target.checked)
+                        setFree(!ev.target.checked)
+                    }}
+                    checked={!free}/>
+                <Typography>Consultation</Typography>
+                <TextField id="outlined-basic"
+                           value={consultationFees}
+                           size="small"
+                           InputProps={{
+                               endAdornment: <InputAdornment position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
+                               style: {width: 120, backgroundColor: "white"}
+                           }}
+                           onChange={(ev) => {
+                               setConsultationFees(Number(ev.target.value))
+                           }}
+                           variant="outlined"/>
+            </Stack>
+
             <Box display={{xs: 'none', md: 'block'}}>
                 <Otable
                     headers={headCells}
@@ -98,7 +119,7 @@ function FeesTab({...props}) {
 
             </Stack>
 
-{/*            <Button
+            {/*            <Button
                 onClick={() => setOpenActDialog(true)}
                 size='small' sx={{
                 '& .react-svg svg': {
