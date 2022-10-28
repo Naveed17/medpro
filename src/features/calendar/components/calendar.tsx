@@ -361,7 +361,7 @@ function Calendar({...props}) {
                                         elevation: 0,
                                         sx: {
                                             overflow: 'visible',
-                                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
                                             mt: 1.5,
                                             '& .MuiAvatar-root': {
                                                 width: 32,
