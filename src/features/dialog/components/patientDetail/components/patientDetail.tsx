@@ -3,12 +3,15 @@ import { PatientDetailsToolbar } from "@features/toolbar";
 import { onOpenPatientDrawer } from "@features/table";
 import { NoDataCard, PatientDetailsCard } from "@features/card";
 import {
-    DocumentsPanel, EventType,
-    Instruction,
-    PersonalInfoPanel, setAppointmentPatient,
-    TabPanel,
-    TimeSchedule,
-    FilesPanel, resetAppointment
+  DocumentsPanel,
+  EventType,
+  Instruction,
+  PersonalInfoPanel,
+  setAppointmentPatient,
+  TabPanel,
+  TimeSchedule,
+  FilesPanel,
+  resetAppointment,
 } from "@features/tabPanel";
 import { GroupTable } from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -26,171 +29,170 @@ import { SyntheticEvent, useState } from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 
 function a11yProps(index: number) {
-    return {
-        id: `simple-tab-${index}`,
-        "aria-controls": `simple-tabpanel-${index}`,
-    };
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
 }
 
 // add patient details RDV for not data
 const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
-    title: "no-data.appointment.title",
-    description: "no-data.appointment.description",
-    buttonText: "no-data.appointment.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
+  mainIcon: "ic-agenda-+",
+  title: "no-data.appointment.title",
+  description: "no-data.appointment.description",
+  buttonText: "no-data.appointment.button-text",
+  buttonIcon: "ic-agenda-+",
+  buttonVariant: "warning",
 };
 
 const stepperData = [
-    {
-        title: "tabs.time-slot",
-        children: EventType,
-        disabled: false
-    },
-    {
-        title: "tabs.time-slot",
-        children: TimeSchedule,
-        disabled: false
-    },
-    {
-        title: "tabs.advice",
-        children: Instruction,
-        disabled: true
-    },
+  {
+    title: "tabs.time-slot",
+    children: EventType,
+    disabled: false,
+  },
+  {
+    title: "tabs.time-slot",
+    children: TimeSchedule,
+    disabled: false,
+  },
+  {
+    title: "tabs.advice",
+    children: Instruction,
+    disabled: true,
+  },
 ];
 
 function PatientDetail({ ...props }) {
-    const {
-        patientId,
-        isAddAppointment = false,
-        currentStepper = 0,
-        onCloseDialog,
-        onChangeStepper,
-        onAddAppointment,
-        onConsultation = null,
-        mutate: mutatePatientList
-    } = props;
+  const {
+    patientId,
+    isAddAppointment = false,
+    currentStepper = 0,
+    onCloseDialog,
+    onChangeStepper,
+    onAddAppointment,
+    onConsultation = null,
+    mutate: mutatePatientList,
+  } = props;
 
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const { data: session } = useSession();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { data: session } = useSession();
 
-    // state hook for tabs
-    const [index, setIndex] = useState<number>(currentStepper);
-    const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
+  // state hook for tabs
+  const [index, setIndex] = useState<number>(currentStepper);
+  const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
 
-    const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
+  const { t, ready } = useTranslation("patient", { keyPrefix: "config" });
 
-    const { data: user } = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    // mutate for patient details
-    const { data: httpPatientDetailsResponse, mutate } = useRequest(patientId ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
-        headers: {
+  const { data: user } = session as Session;
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+  // mutate for patient details
+  const { data: httpPatientDetailsResponse, mutate } = useRequest(
+    patientId
+      ? {
+          method: "GET",
+          url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
+          headers: {
             Authorization: `Bearer ${session?.accessToken}`,
-        },
-    } : null);
-
-    // handle tab change
-    const handleStepperIndexChange = (
-        event: SyntheticEvent,
-        newValue: number
-    ) => {
-        setIndex(newValue);
-    };
-
-    const submitStepper = (index: number) => {
-        if (stepperData.length !== index) {
-            stepperData[index].disabled = false;
-        } else {
-            stepperData.map((stepper, index) => stepper.disabled = true);
-            mutate();
+          },
         }
+      : null
+  );
+
+  // handle tab change
+  const handleStepperIndexChange = (
+    event: SyntheticEvent,
+    newValue: number
+  ) => {
+    setIndex(newValue);
+  };
+
+  const submitStepper = (index: number) => {
+    if (stepperData.length !== index) {
+      stepperData[index].disabled = false;
+    } else {
+      stepperData.map((stepper, index) => (stepper.disabled = true));
+      mutate();
     }
+  };
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
-    const nextAppointments = (patient ? patient.nextAppointments : []);
-    const previousAppointments = (patient ? patient.previousAppointments : []);
-    const documents = (patient ? patient.documents : []);
+  const patient = (httpPatientDetailsResponse as HttpResponse)
+    ?.data as PatientModel;
+  const nextAppointments = patient ? patient.nextAppointments : [];
+  const previousAppointments = patient ? patient.previousAppointments : [];
+  const documents = patient ? patient.documents : [];
 
-    if (!ready) return <>loading translations...</>;
+  if (!ready) return <>loading translations...</>;
 
-    return (
-        <>
-            {!isAdd ? (
-                <PatientDetailStyled height={!isAdd ? "100%" : 0}>
-                    {" "}
-                    <PatientDetailsToolbar
-                        onClose={() => {
-                            dispatch(onOpenPatientDrawer({ patientId: "" }));
-                            onCloseDialog(false);
-                        }}
-                    />
-                    <PatientDetailsCard
-                        loading={!patient}
-                        {...{ patient, onConsultation}}
-                    />
-                    <Box className={"container"} sx={{ width: { md: 726, xs: "100%" } }}>
-                        <Tabs
-                            value={index}
-                            onChange={handleStepperIndexChange}
-                            variant="scrollable"
-                            aria-label="basic tabs example"
-                            className="tabs-bg-white"
-                        >
-                            <Tab
-                                disableRipple
-                                label={t("tabs.personal-info")}
-                                {...a11yProps(0)}
-                            />
-                            {/*<Tab
+  return (
+    <>
+      {!isAdd ? (
+        <PatientDetailStyled height={!isAdd ? "100%" : 0}>
+          {" "}
+          <PatientDetailsToolbar
+            onClose={() => {
+              dispatch(onOpenPatientDrawer({ patientId: "" }));
+              onCloseDialog(false);
+            }}
+          />
+          <PatientDetailsCard
+            loading={!patient}
+            {...{ patient, onConsultation }}
+          />
+          <Box className={"container"} sx={{ width: { md: 726, xs: "100%" } }}>
+            <Tabs
+              value={index}
+              onChange={handleStepperIndexChange}
+              variant="scrollable"
+              aria-label="basic tabs example"
+              className="tabs-bg-white">
+              <Tab
+                disableRipple
+                label={t("tabs.personal-info")}
+                {...a11yProps(0)}
+              />
+              {/*<Tab
                                 disableRipple
                                 label={t("tabs.patient_file")}
                                 {...a11yProps(1)}
                             />*/}
-                            <Tab
-                                disableRipple
-                                label={t("tabs.appointment")}
-                                {...a11yProps(1)}
-                            />
-                            <Tab
-                                disableRipple
-                                label={t("tabs.documents")}
-                                {...a11yProps(2)}
-                            />
-                        </Tabs>
-                        <Divider />
-                        <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel
-                                loading={!patient}
-                                {...{ patient, mutate }}
-                            />
-                        </TabPanel>
-                        {/*<TabPanel padding={1} value={index} index={1}>
+              <Tab
+                disableRipple
+                label={t("tabs.appointment")}
+                {...a11yProps(1)}
+              />
+              <Tab
+                disableRipple
+                label={t("tabs.documents")}
+                {...a11yProps(2)}
+              />
+            </Tabs>
+            <Divider />
+            <TabPanel padding={1} value={index} index={0}>
+              <PersonalInfoPanel loading={!patient} {...{ patient, mutate }} />
+            </TabPanel>
+            {/*<TabPanel padding={1} value={index} index={1}>
                             <FilesPanel {...{t, previousAppointments}} />
                         </TabPanel>*/}
-                        <TabPanel padding={1} value={index} index={1}>
+            <TabPanel padding={1} value={index} index={1}>
+              {previousAppointments.length > 0 ||
+              nextAppointments.length > 0 ? (
+                <GroupTable from="patient" loading={!patient} data={patient} />
+              ) : (
+                <NoDataCard
+                  t={t}
+                  ns={"patient"}
+                  data={AddAppointmentCardData}
+                />
+              )}
+            </TabPanel>
+            <TabPanel padding={2} value={index} index={2}>
+              <DocumentsPanel {...{ documents, patient }} />
+            </TabPanel>
 
-                            {previousAppointments.length > 0 || nextAppointments.length > 0 ? (
-
-                                <GroupTable
-                                    from="patient"
-                                    loading={!patient}
-                                    data={patient}
-                                />
-
-                            ) : (
-                                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData} />
-                            )}
-                        </TabPanel>
-                        <TabPanel padding={2} value={index} index={2}>
-                            <DocumentsPanel {...{ documents, patient }} />
-                        </TabPanel>
-
-                        <SpeedDial
+<SpeedDial
                             sx={{
                                 position: "fixed",
                                 bottom: 16,

@@ -222,7 +222,7 @@ function PatientDetailsCard({...props}) {
                         </>
                     )}
                     {patient && (
-                        <Box ml={{lg: "1rem", xs: 0}}>
+                        <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
                             <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
                         </Box>
                     )}
