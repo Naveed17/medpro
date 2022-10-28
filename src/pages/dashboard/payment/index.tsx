@@ -266,7 +266,7 @@ function Payment() {
   const handleClose = () => setOpen(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isOpen = Boolean(anchorEl);
-  const devise = process.env.devise;
+  const devise = process.env.NEXT_PUBLIC_DEVISE;
   const handleCloseCollapse = () => setCollapse(false);
   const handleSave = () => setOpen(false);
   const handleEdit = (props: any) => {

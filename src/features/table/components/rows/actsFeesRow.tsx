@@ -10,7 +10,7 @@ function ActFeesRow({...props}) {
     const [act] = useState("");
     const [fees, setFees] = useState("");
     const [edit, setEdit] = useState('');
-    const devise = process.env.devise;
+    const devise = process.env.NEXT_PUBLIC_DEVISE;
     return (
         <TableRowStyled>
             <TableCell>

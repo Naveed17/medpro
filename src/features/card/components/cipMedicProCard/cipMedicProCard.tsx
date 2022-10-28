@@ -2,7 +2,7 @@ import { Typography, Button, Grid } from "@mui/material";
 import CipMedicProCardStyled from './overrides/cipMedicProCardStyle';
 function CipMedicProCard({ ...props }) {
     const { row, t } = props
-    const devise = process.env.devise
+    const devise = process.env.NEXT_PUBLIC_DEVISE
     return (
         <CipMedicProCardStyled>
             <Grid container spacing={3}>

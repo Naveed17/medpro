@@ -4,7 +4,7 @@ import TableStyled from "../../overrides/tableStyled";
 
 function Fees({...props}) {
     const {data} = props;
-    const devise = process.env.devise
+    const devise = process.env.NEXT_PUBLIC_DEVISE
     return (
         <TableStyled hidden={true} id="fees">
             <tbody>

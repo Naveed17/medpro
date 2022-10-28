@@ -11,7 +11,7 @@ function CIPMedicalProceduresRow({...props}) {
     const {row, isItemSelected, handleClick, editMotif} = props;
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
-    const devise= process.env.devise
+    const devise= process.env.NEXT_PUBLIC_DEVISE
 
     const [selected, setSelected] = useState<string>('')
     return (

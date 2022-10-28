@@ -6,9 +6,6 @@ const nextConfig = withTM({
     output: 'standalone',
     reactStrictMode: false,
     i18n,
-    env: {
-        devise: process.env.devise
-    },
     images: {
         domains: ["flagcdn.com", process.env.S3_URL || '' ]
     },

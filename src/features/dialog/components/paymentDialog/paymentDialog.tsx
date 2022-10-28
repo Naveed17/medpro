@@ -95,7 +95,7 @@ function PaymentDialog({ ...props }) {
     const { data: { t, selected } } = props
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const img = null;
-    const devise = process.env.devise;
+    const devise = process.env.NEXT_PUBLIC_DEVISE;
     const [state, setState] = React.useState<any>({
         species: false,
         card: false,

@@ -54,7 +54,7 @@ const headCells: readonly HeadCell[] = [
 function ActFees() {
     const {data: session} = useSession();
     const theme = useTheme();
-    const devise = process.env.devise;
+    const devise = process.env.NEXT_PUBLIC_DEVISE;
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false)
     const [create, setCreate] = useState(false)

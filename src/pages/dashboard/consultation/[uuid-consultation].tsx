@@ -576,7 +576,7 @@ function ConsultationInProgress() {
                                     <span>{t('total')} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {total} {process.env.devise}
+                                    {total} {process.env.NEXT_PUBLIC_DEVISE}
                                 </Typography>
                                 <Stack direction='row' alignItems="center" spacing={2}>
                                     <span>|</span>

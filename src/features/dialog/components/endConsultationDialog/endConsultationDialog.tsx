@@ -7,7 +7,7 @@ function EndConsultationDialog({ ...props }) {
   const {
     data: { t },
   } = props;
-  const devise = process.env.devise;
+  const devise = process.env.NEXT_PUBLIC_DEVISE;
   const imgUrl = null;
   return (
     <RootStyled>

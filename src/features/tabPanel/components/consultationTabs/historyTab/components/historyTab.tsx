@@ -45,7 +45,7 @@ function HistoryTab({...props}) {
 
     const {trigger} = useRequestMutation(null, "/editRA");
 
-    const devise = process.env.devise;
+    const devise = process.env.NEXT_PUBLIC_DEVISE;
 
     const subMotifCard = [
         {
