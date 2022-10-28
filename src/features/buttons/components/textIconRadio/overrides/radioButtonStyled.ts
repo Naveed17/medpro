@@ -30,7 +30,7 @@ const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
                     background: theme.palette.grey["A700"],
                     boxShadow: "none",
                     "& .text-inner path": {
-                        fill: theme.palette.primary.main,
+                       // fill: theme.palette.primary.main,
                     },
                 },
                 "&:focus, &:focus": {
@@ -63,7 +63,7 @@ const RadioButtonStyled = styled(Button)(({theme, ...props}: any) => {
                 boxShadow: "none",
                 color: theme.palette.primary.main,
                 "& svg path": {
-                    fill: theme.palette.primary.main
+                    // fill: theme.palette.primary.main
                 }
             }
         }),

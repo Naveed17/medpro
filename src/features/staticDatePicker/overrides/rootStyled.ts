@@ -27,24 +27,26 @@ const RootStyled = styled(Box)(({ theme }) => ({
   "& .MuiPickersDay-root": {
     borderRadius: "8px",
     "&.MuiPickersDay-today": {
-      border: "1px solid transparent",
+      border: `1px solid ${theme.palette.warning.main}`
     },
     "&.Mui-selected": {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.text.primary,
       border: `1px solid ${theme.palette.warning.main}`,
+      color: theme.palette.text.primary,
+      backgroundColor: theme.palette.warning.main,
       borderRadius: "8px",
       "&:hover, &:focus": {
-        backgroundColor: theme.palette.common.white,
-        border: `1px solid ${theme.palette.warning.main}`,
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.warning.main,
+      },
+      "&.Mui-disabled": {
+        color: theme.palette.text.primary,
       },
     },
     "&:hover, &:focus": {
-      backgroundColor: theme.palette.common.white,
-      border: `1px solid ${theme.palette.warning.main}`,
+      backgroundColor: theme.palette.grey["A700"],
     },
     "&.Mui-disabled": {
-      color: theme.palette.grey[200],
+      color: theme.palette.divider,
     },
   },
   "& .MuiCalendarPicker-root > div:first-of-type": {

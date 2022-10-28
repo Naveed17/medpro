@@ -4,6 +4,8 @@ import CheckedRadioIcon from "@themes/overrides/icons/checkedRadioIcon";
 import RadioButtonStyled from "./overrides/radioButtonStyled";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import React from "react";
+import {IconsTypes} from "@features/calendar";
+import {ModelDot} from "@features/modelDot";
 
 function TextIconRadio({...props}) {
     const {item, title, color, icon, disabled, selectedValue, onChangeValue} = props;
@@ -33,19 +35,11 @@ function TextIconRadio({...props}) {
                 />
             }
         >
-            <Box sx={{display: "flex", svg: {mr: 1}}} className="text-inner">
-                <FiberManualRecordIcon
-                    className={'motif-circle'}
-                    sx={{
-                        background: "white",
-                        border: .1,
-                        borderColor: 'divider',
-                        borderRadius: '50%',
-                        p: 0.05,
-                        color: color
-                    }}
-                />
-                {icon}
+            <Box sx={{display: "flex"}} className="text-inner">
+                <ModelDot
+                    {...{color, icon}}
+                    selected={false}
+                    marginRight={10}></ModelDot>
                 <Typography sx={{fontSize: "16px"}}>{title}</Typography>
             </Box>
         </RadioButtonStyled>
