@@ -11,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo} from "react";
+import React, {memo, useEffect, useRef} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -66,6 +66,7 @@ function OnStepPatient({...props}) {
         translationPrefix = "add-patient",
     } = props;
     const router = useRouter();
+    const topRef = useRef(null);
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
@@ -181,6 +182,15 @@ function OnStepPatient({...props}) {
         formik.setFieldValue("insurance", insurance);
     };
 
+    useEffect(() => {
+        if (errors.hasOwnProperty("firstName") ||
+            errors.hasOwnProperty("lastName") ||
+            errors.hasOwnProperty("phone") ||
+            errors.hasOwnProperty("gender")) {
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+        }
+    }, [errors, touched]);
+
     if (!ready) return (<>loading translations...</>);
 
     return (
@@ -199,6 +209,7 @@ function OnStepPatient({...props}) {
                 onSubmit={handleSubmit}
             >
                 <Stack spacing={2} className="inner-section">
+                    <div ref={topRef}/>
                     <Box>
                         <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
                             {t("personal-info")}

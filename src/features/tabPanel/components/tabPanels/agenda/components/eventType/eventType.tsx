@@ -110,7 +110,7 @@ function EventType({...props}) {
 
                                 const type = types.find(itemType => itemType.uuid === selected);
                                 return (
-                                    <Stack direction={"row"}>
+                                    <Stack direction={"row"} alignItems={'center'}>
                                         <FiberManualRecordIcon
                                             className={'motif-circle'}
                                             sx={{
@@ -123,7 +123,7 @@ function EventType({...props}) {
                                             }}
                                         />
                                         {type && IconsTypes[type.icon]}
-                                        <Typography sx={{fontSize: "16px"}}>{type?.name}</Typography>
+                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
                                     </Stack>)
                             }}>
                             {types && types.map((type, index) => (

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {SetStateAction, useEffect, useState} from "react";
+import {LegacyRef, SetStateAction, useEffect, useRef, useState} from "react";
 import {Box, Table, TableBody, TableContainer} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
@@ -43,6 +43,7 @@ function Otable({...props}) {
         handleChange,
         t,
         from,
+        refs = null,
         select = [],
         edit,
         handleConfig,
@@ -113,10 +114,12 @@ function Otable({...props}) {
             }
         }
     }, [tableHeadData?.active]); // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         if (rest.isNew)
             tableRef.current.scrollIntoView();
     }, [rest?.isNew]);
+
     return (
         <Box>
             <TableContainer sx={{maxHeight}}>
@@ -167,8 +170,16 @@ function Otable({...props}) {
                                         labelId,
                                         selected,
                                         isItemSelected,
-                                        index,
+                                        index
                                     }}
+                                    refHeader={
+                                        <div
+                                            style={{position: "absolute", marginTop: -45}}
+                                            {...(refs && {
+                                                ref: (element: any) => {
+                                                    (refs.current as any)[index] = element
+                                                }
+                                            })}/>}
                                     tableHeadData={state}
                                     editMotif={edit}
                                     data={rest}

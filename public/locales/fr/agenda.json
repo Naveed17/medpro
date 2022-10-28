@@ -28,6 +28,7 @@
     "reasons": "Motif de consultation",
     "status": "Statut",
     "meetingType": "Type de RDV",
+    "meetingStatus": "Statut du RDV",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",
@@ -181,7 +182,8 @@
       "sub-title": "Instruction pour le patient",
       "instruction-placeholder": "Tapez instruction pour le patient",
       "reminder": "Rappel",
-      "sms-reminder": "SMS de rappel en ",
+      "sms-reminder": "Texte du rappel en",
+      "sms-type": "Type de rappel",
       "schedule": "Programmer un SMS de rappel pour le patient",
       "to": "à",
       "day": "Jour",
@@ -192,6 +194,7 @@
     "back": "Retour",
     "added": "RDV ajouté",
     "waiting": "Ajouter le patient à la salle d'attente",
+    "start_the_consultation": "Commencer la consultation",
     "added-description": "Rendez-vous ajouté avec succès",
     "show-patient": "Voir fiche Patient",
     "finish": "Fermer"
