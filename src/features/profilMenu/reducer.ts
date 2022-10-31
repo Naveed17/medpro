@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit';
+import {createReducer} from '@reduxjs/toolkit';
 import {
     logout,
     openMenu
@@ -20,10 +20,11 @@ export const ProfileMenuReducer = createReducer(initialState, builder => {
         .addCase(openMenu, (state, action) => {
             state.opened = action.payload;
         }).addCase(logout, (state, action) => {
-            if(action.payload.redirect === undefined) {
-                signOut({callbackUrl: action.payload === 'rtl' ? '/ar' : '/'});
-            }else{
-                signOut({redirect: false});
-            }
-        });
+        if (action.payload.redirect) {
+            // signOut({redirect: true, callbackUrl: action.payload.path});
+            window.location.href = action.payload.path;
+        } else {
+            signOut({redirect: false});
+        }
+    });
 });
