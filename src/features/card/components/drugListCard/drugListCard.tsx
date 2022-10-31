@@ -39,8 +39,8 @@ function DrugListCard({...props}) {
                             <Icon path="ic-duotone"/>
                         </IconButton>
                         <IconButton disabled={disabled} size="small" onClick={(e) => {
-                            remove(data)
                             e.stopPropagation()
+                            remove(data)
                         }}>
                             <Icon path="setting/icdelete"/>
                         </IconButton>

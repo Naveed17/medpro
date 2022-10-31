@@ -98,6 +98,7 @@ function ConsultationInProgress() {
     const dispatch = useAppDispatch();
     const [end, setEnd] = useState(false);
     const [onSave, setOnsave] = useState(false);
+    const {selectedDialog} = useAppSelector(consultationSelector);
 
     const EventStepper = [
         {
@@ -449,9 +450,12 @@ function ConsultationInProgress() {
                     pendingDocuments={pendingDocuments}
                     setPendingDocuments={setPendingDocuments}
                     dialog={dialog}
+                    info={info}
+                    setInfo={setInfo}
                     appointement={appointement}
                     selectedAct={selectedAct}
                     selectedModel={selectedModel}
+                    selectedDialog={selectedDialog}
                     documents={documents}
                     agenda={agenda?.uuid}
                     setDialog={setDialog}
@@ -526,6 +530,7 @@ function ConsultationInProgress() {
                         setIsViewerOpen={setIsViewerOpen}
                         setInfo={setInfo}
                         setState={setState}
+                        selectedDialog={selectedDialog}
                         patient={patient}
                         mutateDoc={mutateDoc}
                         setOpenDialog={setOpenDialog}

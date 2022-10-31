@@ -9,7 +9,8 @@ import {
     ListItemText,
     Stack,
     TextField,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
@@ -104,17 +105,17 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
-    const addFooters = (doc:any) => {
+    const addFooters = (doc: any) => {
         const pageCount = doc.internal.getNumberOfPages()
 
         doc.setFont('helvetica', 'italic')
         doc.setFontSize(8)
         //for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(pageCount)
-            doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
-                align: 'center'
-            })
-       // }
+        doc.setPage(pageCount)
+        doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
+            align: 'center'
+        })
+        // }
     }
 
     useEffect(() => {
@@ -197,7 +198,6 @@ function DocumentDetailDialog({...props}) {
 
     const {trigger} = useRequestMutation(null, "/documents");
 
-
     const handleActions = (action: string) => {
         switch (action) {
             case "print":
@@ -215,7 +215,24 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-               // dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
+                console.log(state)
+                switch (state.type){
+                    case "prescription":
+                        const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
+                        state.info.map((drug: { dosage: any; standard_drug: { uuid: any; commercial_name: any; }; duration: any; duration_type: any; note: any; }) => {
+                            prescriptions.push({
+                                dosage: drug.dosage,
+                                drugUuid: drug.standard_drug.uuid,
+                                duration: drug.duration,
+                                durationType: drug.duration_type,
+                                name: drug.standard_drug.commercial_name,
+                                note: drug.note
+                            })
+                        })
+                        dispatch(SetSelectedDialog({action: 'medical_prescription', state: prescriptions, uuid: state.uuid}))
+                        break;
+                }
+
                 break;
             case "hide":
                 sethide(!hide)
@@ -247,13 +264,14 @@ function DocumentDetailDialog({...props}) {
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
-            <Header name={ginfo.firstName + ' ' + ginfo.lastName} {...{speciality,theme}}></Header>
+            <Header name={ginfo.firstName + ' ' + ginfo.lastName} {...{speciality, theme}}></Header>
 
 
-            {state.type === 'write_certif' &&<Certificat data={state}></Certificat>}
+            {state.type === 'write_certif' && <Certificat data={state}></Certificat>}
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
-            {state.type ==='requested-medical-imaging' && <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
+            {state.type === 'requested-medical-imaging' &&
+                <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
 
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
