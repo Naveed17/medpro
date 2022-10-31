@@ -81,8 +81,7 @@ function ProfilMenu() {
                     url: "/api/auth/logout",
                     method: "GET"
                 });
-                dispatch(logout({redirect: false}));
-                window.location.href = path;
+                dispatch(logout({redirect: true, path}));
                 break;
             case 'profile':
                 isMobile ? router.push("/dashboard/settings") :
