@@ -307,9 +307,9 @@ function Instruction({...props}) {
                                         onChange={handleRappelChange}
                                     >
                                         <MenuItem value={"0"}>{t("stepper-3.day")} 0</MenuItem>
-                                        <MenuItem value={"1"}>{t("stepper-3.day")} 1</MenuItem>
-                                        <MenuItem value={"2"}>{t("stepper-3.day")} 2</MenuItem>
-                                        <MenuItem value={"3"}>{t("stepper-3.day")} 3</MenuItem>
+                                        <MenuItem value={"1"}>{t("stepper-3.day")} -1</MenuItem>
+                                        <MenuItem value={"2"}>{t("stepper-3.day")} -2</MenuItem>
+                                        <MenuItem value={"3"}>{t("stepper-3.day")} -3</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
