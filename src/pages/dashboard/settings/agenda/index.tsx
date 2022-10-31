@@ -15,16 +15,25 @@ import { useRequest } from "@app/axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Theme } from "@mui/material/styles";
+import { MobileContainer } from "@themes/mobileContainer";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { SettingAgendaMobileCard, NoDataCard } from "@features/card";
 
 function Agenda() {
+  const CardData = {
+    mainIcon: "ic-agenda-+",
+    title: "no-data.title",
+    description: "no-data.description",
+    buttonText: "no-data.button-text",
+    buttonIcon: "ic-agenda-+",
+    buttonVariant: "warning",
+  };
   const { data: session, status } = useSession();
   const router = useRouter();
   const [selected, setSelected] = useState<any>();
   const [open, setOpen] = useState(false);
-  const [rows, setRows] = useState([]);
-
+  const [rows, setRows] = useState<any>([]);
   const { direction } = useAppSelector(configSelector);
-
   const { data: user } = session as Session;
   const medical_entity = (user as UserDataResponse)
     .medical_entity as MedicalEntityModel;
@@ -40,9 +49,10 @@ function Agenda() {
   const agenda = httpAgendasResponse
     ? (httpAgendasResponse as HttpResponse).data
     : undefined;
-  //setRows(agenda);
   useEffect(() => {
-    if (agenda !== undefined) setRows(agenda);
+    if (agenda !== undefined) {
+      setRows(agenda);
+    }
   }, [agenda]);
 
   const dialogClose = () => {
@@ -52,7 +62,6 @@ function Agenda() {
   const dialogSave = () => {
     setOpen(false);
   };
-  console.log(rows);
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "agenda.config",
   });
@@ -154,15 +163,34 @@ function Agenda() {
       </SubHeader>
 
       <Box className="container">
-        <Otable
-          headers={headCells}
-          rows={rows}
-          state={null}
-          from={"agenda"}
-          t={t}
-          edit={null}
-          handleChange={handleChange}
-        />
+        {rows.length > 0 ? (
+          <>
+            <DesktopContainer>
+              <Otable
+                headers={headCells}
+                rows={rows}
+                state={null}
+                from={"agenda"}
+                t={t}
+                edit={null}
+                handleChange={handleChange}
+              />
+            </DesktopContainer>
+            <MobileContainer>
+              {rows.map((item: any, idx: number) => (
+                <React.Fragment key={idx}>
+                  <SettingAgendaMobileCard
+                    data={item}
+                    t={t}
+                    handleChange={handleChange}
+                  />
+                </React.Fragment>
+              ))}
+            </MobileContainer>
+          </>
+        ) : (
+          <NoDataCard t={t} data={CardData} ns={"settings"} />
+        )}
       </Box>
 
       <Dialog
