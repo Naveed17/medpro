@@ -210,7 +210,6 @@ function NewUser() {
                         variant="outlined"
                         placeholder={t("exemple@mail.com")}
                         fullWidth
-                        helperText={touched.email && errors.email}
                         error={Boolean(touched.email && errors.email)}
                         required
                         {...getFieldProps("email")}
@@ -241,7 +240,6 @@ function NewUser() {
                         placeholder={t("users.new.tname")}
                         fullWidth
                         required
-                        helperText={touched.name && errors.name}
                         error={Boolean(touched.name && errors.name)}
                         {...getFieldProps("name")}
                       />

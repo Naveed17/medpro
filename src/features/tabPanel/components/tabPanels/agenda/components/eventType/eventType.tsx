@@ -15,6 +15,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {ModelDot} from "@features/modelDot";
 
 
 function EventType({...props}) {
@@ -96,8 +97,7 @@ function EventType({...props}) {
                             displayEmpty
                             sx={{
                                 "& .MuiSelect-select": {
-                                    display: "flex",
-                                    svg: {mr: 1}
+                                    display: "flex"
                                 }
                             }}
                             onChange={event => {
@@ -111,36 +111,22 @@ function EventType({...props}) {
                                 const type = types.find(itemType => itemType.uuid === selected);
                                 return (
                                     <Stack direction={"row"} alignItems={'center'}>
-                                        <FiberManualRecordIcon
-                                            className={'motif-circle'}
-                                            sx={{
-                                                background: "white",
-                                                border: .1,
-                                                borderColor: 'divider',
-                                                borderRadius: '50%',
-                                                p: 0.05,
-                                                color: type?.color
-                                            }}
-                                        />
-                                        {type && IconsTypes[type.icon]}
+                                        <ModelDot
+                                            icon={type && IconsTypes[type.icon]}
+                                            color={type?.color}
+                                            selected={false}
+                                            marginRight={10}></ModelDot>
                                         <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
                                     </Stack>)
                             }}>
                             {types && types.map((type, index) => (
-                                <MenuItem sx={{display: "flex", svg: {mr: 1}}} className="text-inner" value={type.uuid}
+                                <MenuItem sx={{display: "flex"}} className="text-inner" value={type.uuid}
                                           key={type.uuid}>
-                                    <FiberManualRecordIcon
-                                        className={'motif-circle'}
-                                        sx={{
-                                            background: "white",
-                                            border: .1,
-                                            borderColor: 'divider',
-                                            borderRadius: '50%',
-                                            p: 0.05,
-                                            color: type.color
-                                        }}
-                                    />
-                                    {IconsTypes[type.icon]}
+                                    <ModelDot
+                                        icon={type && IconsTypes[type.icon]}
+                                        color={type?.color}
+                                        selected={false}
+                                        marginRight={10}></ModelDot>
                                     <Typography sx={{fontSize: "16px"}}>{type.name}</Typography>
                                 </MenuItem>)
                             )}

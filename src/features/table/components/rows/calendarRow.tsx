@@ -1,5 +1,5 @@
 import {TableRowStyled} from "@features/table";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import TableCell from "@mui/material/TableCell";
 import {Typography, Box, Button, useTheme, Stack} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
@@ -14,6 +14,7 @@ import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/sideBarMenu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import {LoadingButton} from "@mui/lab";
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader} = props;
@@ -22,6 +23,8 @@ function CalendarRow({...props}) {
     const theme = useTheme();
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
     const {config} = useAppSelector(agendaSelector);
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
@@ -39,6 +42,12 @@ function CalendarRow({...props}) {
         dispatch(setView("timeGridDay"));
         dispatch(setCurrentDate({date, fallback: true}));
     }
+
+    useEffect(() => {
+        if (!spinner) {
+            setLoading(spinner)
+        }
+    }, [spinner]);
 
     return (
         <>
@@ -210,40 +219,50 @@ function CalendarRow({...props}) {
                                    alignItems="center">
                                 <PointOfSaleIcon color="success"/>
                                 <Typography ml={1} variant="body2">
-                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} TND`}
+                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${process.env.NEXT_PUBLIC_DEVISE}`}
                                 </Typography>
                             </Stack>
                         </Box> : "--"}
                     </TableCell>
                     <TableCell align="right" sx={{p: "0px 12px!important"}}>
-                        {data?.status.key !== "WAITING_ROOM" ?
-                            <Button
-                                variant="text"
-                                color="primary"
-                                disabled={spinner}
-                                size="small"
-                                sx={{mr: 1}}
-                                {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                onClick={() => handleEventClick("waitingRoom", data)}
-                            >
-                                <Icon color={spinner ? "white" : theme.palette.primary.main}
-                                      path="ic-salle"/> {!sideBarOpened && <span
-                                style={{marginLeft: "5px"}}>Ajouter à la salle d’attente</span>}
-                            </Button>
-                            :
-                            <Button
-                                disabled={spinner}
-                                variant="text"
-                                color="primary"
-                                size="small"
-                                sx={{mr: 1}}
-                                {...(sideBarOpened && {sx: {minWidth: 40}})}
-                                onClick={() => handleEventClick("leaveWaitingRoom", data)}
-                            >
-                                <Icon color={theme.palette.primary.main} path="ic-salle-leave"/> {!sideBarOpened &&
-                                <span
-                                    style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
-                            </Button>
+                        {moment(data?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
+                            <>
+                                {data?.status.key !== "WAITING_ROOM" ?
+                                    <LoadingButton
+                                        variant="text"
+                                        color="primary"
+                                        {...{loading}}
+                                        size="small"
+                                        sx={{mr: 1}}
+                                        {...(sideBarOpened && {sx: {minWidth: 40}})}
+                                        onClick={() => {
+                                            setLoading(true);
+                                            handleEventClick("waitingRoom", data)
+                                        }}
+                                    >
+                                        <Icon color={spinner ? "white" : theme.palette.primary.main}
+                                              path="ic-salle"/> {!sideBarOpened && <span
+                                        style={{marginLeft: "5px"}}>Ajouter à la salle d’attente</span>}
+                                    </LoadingButton>
+                                    :
+                                    <LoadingButton
+                                        {...{loading}}
+                                        variant="text"
+                                        color="primary"
+                                        size="small"
+                                        sx={{mr: 1}}
+                                        {...(sideBarOpened && {sx: {minWidth: 40}})}
+                                        onClick={() => {
+                                            setLoading(true);
+                                            handleEventClick("leaveWaitingRoom", data)
+                                        }}
+                                    >
+                                        <Icon color={theme.palette.primary.main}
+                                              path="ic-salle-leave"/> {!sideBarOpened &&
+                                        <span
+                                            style={{marginLeft: "5px"}}>Quitter la salle d’attente</span>}
+                                    </LoadingButton>}
+                            </>
                         }
 
                         <Button onClick={() => handleEventClick("showEvent", data)}

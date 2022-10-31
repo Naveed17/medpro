@@ -11,8 +11,7 @@ function CIPMedicalProceduresRow({...props}) {
     const {row, isItemSelected, handleClick, editMotif} = props;
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
-
-
+    const devise= process.env.NEXT_PUBLIC_DEVISE
 
     const [selected, setSelected] = useState<string>('')
     return (
@@ -138,10 +137,10 @@ function CIPMedicalProceduresRow({...props}) {
                         </Button>
                     </>
                 )}
-                TND
+                {devise}
             </TableCell>
             <TableCell align={"center"}>
-                {row.qte ? row.fees * row.qte : row.fees} TND
+                {row.qte ? row.fees * row.qte : row.fees} {devise}
             </TableCell>
         </TableRowStyled>
     );

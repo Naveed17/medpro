@@ -192,88 +192,82 @@ function PatientDetail({ ...props }) {
               <DocumentsPanel {...{ documents, patient }} />
             </TabPanel>
 
-            <SpeedDial
-              sx={{
-                position: "fixed",
-                bottom: 16,
-                right: 16,
-                display: { md: "none", xs: "flex" },
-              }}
-              onClick={() => {
-                dispatch(setAppointmentPatient(patient as any));
-                setIsAdd(!isAdd);
-              }}
-              actions={[
-                { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
-                { icon: <CloudUploadIcon />, name: t("tabs.import") },
-              ]}
-            />
-          </Box>
-          <Paper
-            className={"action-buttons"}
-            sx={{
-              position: "sticky",
-              bottom: 0,
-              width: "100%",
-              borderRadius: 0,
-              borderWidth: "0px",
-              p: 2,
-              mt: "auto",
-              textAlign: "right",
-              display: { md: "block", xs: "none" },
-            }}>
-            {/* <Button
-                                size="medium"
-                                variant="text-primary"
-                                startIcon={<Icon path="ic-dowlaodfile" />}
-                                sx={{ width: { md: "auto", sm: "100%", xs: "100%" }, mr: 1 }}
-                            >
-                                {t("tabs.import")}
-                            </Button> */}
-            <Button
-              size="medium"
-              variant="contained"
-              color="primary"
-              startIcon={<Icon path="ic-agenda-+" />}
-              sx={{
-                mr: 1,
-                width: { md: "auto", sm: "100%", xs: "100%" },
-              }}
-              onClick={() => {
-                dispatch(resetAppointment());
-                dispatch(setAppointmentPatient(patient as any));
-                setIsAdd(!isAdd);
-              }}>
-              {t("tabs.add-appo")}
-            </Button>
-          </Paper>
-        </PatientDetailStyled>
-      ) : (
-        <CustomStepper
-          stepperData={stepperData}
-          OnSubmitStepper={submitStepper}
-          OnAction={(action: string) => {
-            if (action === "close") {
-              if (patientId) {
-                setIsAdd(false);
-              } else {
-                dispatch(onOpenPatientDrawer({ patientId: "" }));
-                onCloseDialog(false);
-              }
-              mutatePatientList();
-            }
-          }}
-          onBackButton={(index: number) => {
-            return index === 0 && setIsAdd(false);
-          }}
-          scroll
-          t={t}
-          minWidth={726}
-          onClickCancel={() => setIsAdd(false)}
-        />
-      )}
-    </>
-  );
+<SpeedDial
+                            sx={{
+                                position: "fixed",
+                                bottom: 16,
+                                right: 16,
+                                display: { md: "none", xs: "flex" },
+                            }}
+                            onClick={() => {
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd)
+                            }}
+                            actions={[
+                                { icon: <SpeedDialIcon />, name: t("tabs.add-appo") },
+                                { icon: <CloudUploadIcon />, name: t("tabs.import") },
+                            ]}
+                        />
+                    </Box>
+                    <Paper
+                        className={"action-buttons"}
+                        sx={{
+                            position: "sticky",
+                            bottom: 0,
+                            width: "100%",
+                            borderRadius: 0,
+                            borderWidth: "0px",
+                            p: 2,
+                            mt: 'auto',
+                            textAlign: "right",
+                            display: { md: "block", xs: "none" },
+                        }}
+                    >
+                        <Button
+                            size="medium"
+                            variant="contained"
+                            color="primary"
+                            startIcon={<Icon path="ic-agenda-+" />}
+                            sx={{
+                                mr: 1,
+                                width: { md: "auto", sm: "100%", xs: "100%" },
+                            }}
+                            onClick={() => {
+                                dispatch(resetAppointment());
+                                dispatch(setAppointmentPatient(patient as any));
+                                setIsAdd(!isAdd);
+                            }}
+                        >
+                            {t("tabs.add-appo")}
+                        </Button>
+                    </Paper>
+                </PatientDetailStyled>
+            ) : (
+                <CustomStepper
+                    stepperData={stepperData}
+                    OnSubmitStepper={submitStepper}
+                    OnAction={(action: string) => {
+                        if (action === "close") {
+                            if (patientId) {
+                                setIsAdd(false);
+                            } else {
+                                dispatch(onOpenPatientDrawer({ patientId: "" }));
+                                onCloseDialog(false);
+                            }
+                            mutatePatientList && mutatePatientList();
+                        }
+                    }}
+                    onBackButton={(index: number) => {
+                        return index === 0 && setIsAdd(false)
+                    }}
+                    scroll
+                    t={t}
+                    minWidth={726}
+                    onClickCancel={() => setIsAdd(false)}
+                />
+            )}
+        </>
+    );
 }
 
 export default PatientDetail;

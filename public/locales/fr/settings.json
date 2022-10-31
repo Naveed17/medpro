@@ -361,11 +361,14 @@
     "name_of_act": "Nom",
     "price_of_act": "Prix",
     "save": "Enregistrer",
+    "newAct": "Nouveau act",
+    "name": "Nom",
+    "price": "Prix",
     "cancel": "Annuler",
     "table": {
       "actions": "Actions",
       "acts": "Actes",
-      "amount": "Amount"
+      "amount": "prix"
     },
     "dialog": {
       "editAct": "Modifier acte",
