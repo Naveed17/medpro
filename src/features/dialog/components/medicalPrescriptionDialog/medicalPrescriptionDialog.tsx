@@ -41,7 +41,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const {data} = props
-    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(data.state);
+    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>([...data.state]);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
     const [update, setUpdate] = useState<number>(-1);
@@ -157,6 +157,7 @@ function MedicalPrescriptionDialog({...props}) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
 
+                console.log(values)
                 drugs.unshift(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
@@ -201,7 +202,7 @@ function MedicalPrescriptionDialog({...props}) {
     }, [httpModelResponse])
 
     useEffect(() => {
-        setDrugsList((httpDrugsResponse as HttpResponse)?.data)
+        //setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])
 
     useEffect(() => {
@@ -213,6 +214,7 @@ function MedicalPrescriptionDialog({...props}) {
     }, [drug, errors]);
 
     const remove = (ev: PrespectionDrugModel) => {
+
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         drugs.splice(selected, 1);
         setDrugs([...drugs])
@@ -302,11 +304,12 @@ function MedicalPrescriptionDialog({...props}) {
                                         }
                                     </Menu>
                                 </Stack>
-                                {drugsList ? <Autocomplete
+                                {drugsList && <Autocomplete
                                         id="cmo"
                                         value={drug}
                                         size='small'
                                         options={drugsList}
+                                        noOptionsText={t('startWriting')}
                                         getOptionLabel={(option: DrugModel) => option?.commercial_name}
                                         isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
                                         renderInput={(params) => <TextField {...params}
@@ -327,15 +330,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                                                 }
                                                                             }}
                                                                             onBlur={(ev) => handleInputChange(ev.target.value)}
-                                                                            placeholder={t('placeholder_drug_name')}/>}/> :
-                                    <Autocomplete
-                                        disablePortal
-                                        id="combo-box-demo"
-                                        options={[]}
-                                        size='small'
-                                        renderInput={(params) => <TextField {...params}
-                                                                            placeholder={t('placeholder_drug_name')}/>}
-                                    />
+                                                                            placeholder={t('placeholder_drug_name')}/>}/>
                                 }
 
                                 {/*
@@ -422,7 +417,6 @@ function MedicalPrescriptionDialog({...props}) {
                                                               if (drug) {
                                                                   values.drugUuid = drug.uuid
                                                                   values.name = drug.commercial_name
-
                                                                   drugs[update] = values
                                                                   setDrugs([...drugs])
                                                                   data.setState([...drugs])

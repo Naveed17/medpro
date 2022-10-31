@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Box, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
@@ -20,8 +20,14 @@ function DocumentsTab({...props}) {
         patient,
         mutateDoc,
         setOpenDialog,
+        selectedDialog,
         t
     } = props
+
+    useEffect(()=>{
+        setInfo(null);
+        setOpenDialog(true)
+    },[selectedDialog, setInfo, setOpenDialog])
     return (
         <>
             <Box display='grid' sx={{
