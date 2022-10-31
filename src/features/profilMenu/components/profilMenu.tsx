@@ -19,7 +19,7 @@ import {
 import Icon from "@themes/icon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
@@ -33,6 +33,7 @@ import {Session} from "next-auth";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
 import Link from "next/link";
+import Image from "next/image";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -87,6 +88,9 @@ function ProfilMenu() {
                 isMobile ? router.push("/dashboard/settings") :
                     router.push(`/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
                 dispatch(toggleMobileBar(true));
+                break;
+            case 'rooting':
+                window.location.href = "https://www.med.tn/";
                 break;
         }
     };
@@ -165,6 +169,22 @@ function ProfilMenu() {
                                             </MenuItem>
                                         </MenuList>
                                     </MenuItem>
+
+                                    <MenuItem
+                                        onClick={() => handleMenuItem("rooting")}
+                                        className={`item-list`}
+                                        disableRipple>
+                                        <Image height={18}
+                                               width={18}
+                                               alt="company logo"
+                                               src="/static/icons/Med-logo_.svg"
+                                               priority
+                                        />
+                                        <Typography variant="body1" className="item-name">
+                                            {"Go to Med.tn"}
+                                        </Typography>
+                                    </MenuItem>
+
                                     {ProfileMenuConfig.map((item: any, index) => (
                                         <MenuItem
                                             key={`menu-${index}`}

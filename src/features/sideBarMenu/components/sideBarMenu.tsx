@@ -72,8 +72,8 @@ function SideBarMenu({children}: LayoutProps) {
 
     const drawer = (
         <div>
-            <Link href='/'>
-                <Box sx={{textAlign: "center", marginTop: 1}}>
+            <Link href='https://www.med.tn/'>
+                <Box className={"med-logo"} sx={{marginTop: 1}}>
                     <Image height={38}
                            width={38}
                            alt="company logo"

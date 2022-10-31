@@ -66,7 +66,7 @@
     "no-data": {
       "event": {
         "title": "Ajouter votre premier rendez-vous",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "description": "",
         "button-text": "Ajouter un RDV"
       }
     }
@@ -164,7 +164,7 @@
         "from": "De",
         "from-placeholder": "Saisir la date de naissance du patient",
         "added": "Patient ajouté",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
+        "description": "",
         "add-new": "Ajouter un autre patient",
         "add-appo": "Ajouter RDV",
         "register": "Enregistrer",
@@ -188,7 +188,7 @@
       "to": "à",
       "day": "Jour",
       "added": "RDV ajouté",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor"
+      "description": ""
     },
     "next": "Suivant",
     "back": "Retour",
@@ -251,7 +251,7 @@
     "cancel-appointment": "le rendez-vous a été annulé avec succès",
     "delete-appointment": "le rendez-vous a été supprimé avec succès",
     "leave-waiting-room": "le patient a quitté la salle d'attente",
-    "on-waiting-room": "le patient est entré dans la salle d'attente",
+    "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
     "patient-no-show": "le rendez-vous a été modifié avec succès"
   }
 }
