@@ -51,7 +51,7 @@ function PaymentDialogRow({ ...props }) {
         {loading ? (
           <Skeleton width={80} />
         ) : (
-          <Link underline="none">{row.amount} TND</Link>
+          <Link underline="none">{row.amount} {process.env.NEXT_PUBLIC_DEVISE}</Link>
         )}
       </TableCell>
       <TableCell align="right">
