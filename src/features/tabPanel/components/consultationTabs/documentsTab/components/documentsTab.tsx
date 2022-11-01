@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Box, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
@@ -20,14 +20,8 @@ function DocumentsTab({...props}) {
         patient,
         mutateDoc,
         setOpenDialog,
-        selectedDialog,
         t
     } = props
-
-    useEffect(()=>{
-        setInfo(null);
-        setOpenDialog(true)
-    },[selectedDialog, setInfo, setOpenDialog])
     return (
         <>
             <Box display='grid' sx={{
@@ -45,22 +39,27 @@ function DocumentsTab({...props}) {
                                 if (card.documentType === 'photo') {
                                     setIsViewerOpen(card.uri)
                                 } else if (card.documentType === 'medical-certificate') {
+                                    console.log(card)
                                     setInfo('document_detail');
                                     setState({
+                                        uuid: card.uuid,
                                         content: card.certificate[0].content,
                                         doctor: card.name,
                                         patient: card.patient,
                                         days: card.days,
                                         name: 'certif',
-                                        type: 'write_certif'
+                                        type: 'write_certif',
+                                        mutate: mutateDoc,
                                     })
                                     setOpenDialog(true);
                                 } else {
                                     setInfo('document_detail')
                                     let info = card
+                                    let uuidDoc = "";
                                     switch (card.documentType) {
                                         case "prescription":
                                             info = card.prescription[0].prescription_has_drugs;
+                                            uuidDoc = card.prescription[0].uuid
                                             break;
                                         case "requested-analysis":
                                             info = card.requested_Analyses[0].analyses;
@@ -75,6 +74,7 @@ function DocumentsTab({...props}) {
                                         name: card.title,
                                         type: card.documentType,
                                         info: info,
+                                        uuidDoc: uuidDoc,
                                         patient: patient.firstName + ' ' + patient.lastName,
                                         mutate: mutateDoc
                                     })
@@ -123,6 +123,10 @@ function DocumentsTab({...props}) {
                                        height={250}
                                        style={{borderRadius: 10}}
                                        alt={card.title}/>
+                                <Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
+                                            fontSize={11}>
+                                    {t(card.title)}
+                                </Typography>
                             </Stack>
                         </React.Fragment>
                     )

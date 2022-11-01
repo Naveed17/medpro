@@ -15,7 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
-    "app_lock":"verrouillage des applications"
+    "app_lock": "Verrouillage"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -266,11 +266,11 @@
       "add": "Ajouter",
       "manageAccess": "Gestion des accès",
       "path": "Paramètres > Utilisateurs",
-      "no-data":{
-        "user":{
-          "title":"ajouter votre premier utilisateur",
-          "description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
-          "button-text":"Ajouter un utilisateur"
+      "no-data": {
+        "user": {
+          "title": "ajouter votre premier utilisateur",
+          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+          "button-text": "Ajouter un utilisateur"
         }
       },
       "table": {
@@ -325,14 +325,13 @@
       "price": "Prix"
     }
   },
-  "appLock":{
-    "path":"Paramètres > verrouillage des applications",
-    "tittle":"réglage du mot de passe",
-    "current":"mot de passe actuel",
-    "new":"nouveau mot de passe",
-    "confirm":"confirmer le mot de passe",
-    "save":"Enregistrer"
-
+  "appLock": {
+    "path": "Paramètres > verrouillage des applications",
+    "tittle": "réglage du mot de passe",
+    "current": "mot de passe actuel",
+    "new": "nouveau mot de passe",
+    "confirm": "confirmer le mot de passe",
+    "save": "Enregistrer"
   },
   "days": {
     "MON": "Lundi",
@@ -364,6 +363,18 @@
         "select": "Veuillez choisir vos variables",
         "info": "Information du modèle"
       }
+    }
+  },
+  "documents": {
+    "config": {
+      "path": "Paramètres > Configuration ",
+      "name": "Dr ...",
+      "header": "En-tête",
+      "speciality": "dermatologue",
+      "diplome": "Faculté de Médecine...",
+      "tel": "Tél : +216 00 000 000",
+      "fax": "Fax : +216 00 000 000",
+      "email": "doctor@email.com"
     }
   }
 }

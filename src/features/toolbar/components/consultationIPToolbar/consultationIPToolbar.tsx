@@ -18,6 +18,7 @@ import {openDrawer} from "@features/calendar";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -38,6 +39,8 @@ function ConsultationIPToolbar({...props}) {
         dialog,
         selectedDialog,
         setDialog,
+        changes,
+        setChanges,
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -272,6 +275,16 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
+        const item = changes.find((change: { name: string }) => change.name === info)
+        if (item) {
+            item.checked = true
+            setChanges([...changes])
+        }
+
+        setlabel("documents");
+        selected("documents")
+        setValue("documents")
+
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
@@ -366,8 +379,8 @@ function ConsultationIPToolbar({...props}) {
     };
 
     useEffect(() => {
-        if (selectedDialog){
-            switch (selectedDialog.action){
+        if (selectedDialog) {
+            switch (selectedDialog.action) {
                 case "medical_prescription":
                     setInfo("medical_prescription");
                     setState(selectedDialog.state);
@@ -576,6 +589,8 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
                                 </MenuItem>
                             ))}
                         </StyledMenu>

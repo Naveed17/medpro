@@ -106,7 +106,6 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
-        console.log(appointement.latestAppointments)
         dispatch(SetSelectedApp(appuuid))
     }, [appointement, appuuid, dispatch]);
 
@@ -168,7 +167,7 @@ function HistoryTab({...props}) {
         setApps(capps)
     }
 
-    const showDoc = (card: { documentType: string; uri: any; certificate: { content: any; }[]; name: any; patient: any; days: any; prescription: { prescription_has_drugs: any; }[]; requested_Analyses: { analyses: any; }[]; uuid: any; title: any; }) => {
+    const showDoc = (card: any) => {
         if (card.documentType === "photo") {
             setIsViewerOpen(card.uri);
         } else if (
@@ -177,23 +176,25 @@ function HistoryTab({...props}) {
         ) {
             setInfo("document_detail");
             setState({
-                content:
-                card.certificate[0].content,
+                uuid: card.uuid,
+                content:card.certificate[0].content,
                 doctor: card.name,
                 patient: card.patient,
                 days: card.days,
                 name: "certif",
                 type: "write_certif",
+                mutate: mutateDoc,
             });
             setOpenDialog(true);
         } else {
             setInfo("document_detail");
-            let info = card;
+            let info = card; let uuidDoc = ""
             switch (card.documentType) {
                 case "prescription":
                     info =
                         card.prescription[0]
                             .prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid
                     break;
                 case "requested-analysis":
                     info =
@@ -207,6 +208,7 @@ function HistoryTab({...props}) {
                 name: card.title,
                 type: card.documentType,
                 info: info,
+                uuidDoc:uuidDoc,
                 patient:
                     patient.firstName +
                     " " +

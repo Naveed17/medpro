@@ -99,6 +99,14 @@ function ConsultationInProgress() {
     const [end, setEnd] = useState(false);
     const [onSave, setOnsave] = useState(false);
     const {selectedDialog} = useAppSelector(consultationSelector);
+    const [changes, setChanges] = useState([
+        {name: "patientInfo", icon: "ic-text", checked: false},
+        {name: "fiche", icon: "ic-text", checked: false},
+        {index: 0, name: "medical_prescription", icon: "ic-traitement", checked: false},
+        {index: 3, name: "balance_sheet_request", icon: "ic-analyse", checked: false},
+        {index: 2, name: "medical_imagery", icon: "ic-soura", checked: false},
+        {index: 1, name: "write_certif", icon: "ic-text", checked: false},
+    ]);
 
     const EventStepper = [
         {
@@ -204,6 +212,11 @@ function ConsultationInProgress() {
             setLoading(false);
         }, 3000)
     }, [httpAppResponse]);
+
+    useEffect(() => {
+        setInfo(null);
+        setOpenDialog(true)
+    }, [selectedDialog, setInfo, setOpenDialog])
 
     useEffect(() => {
         if (httpSheetResponse) {
@@ -403,6 +416,8 @@ function ConsultationInProgress() {
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
+        setActions(false);
+
     };
     const closeImageViewer = () => {
         setIsViewerOpen("");
@@ -452,6 +467,8 @@ function ConsultationInProgress() {
                     dialog={dialog}
                     info={info}
                     setInfo={setInfo}
+                    changes={changes}
+                    setChanges={setChanges}
                     appointement={appointement}
                     selectedAct={selectedAct}
                     selectedModel={selectedModel}
@@ -520,7 +537,8 @@ function ConsultationInProgress() {
                             )}
                         </Grid>
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
-                            {sheet && <ConsultationDetailCard exam={sheet.exam}/>}
+                            {sheet &&
+                                <ConsultationDetailCard exam={sheet.exam} changes={changes} setChanges={setChanges}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>
@@ -618,6 +636,7 @@ function ConsultationInProgress() {
 
                                     setOnsave(true)
                                     setEnd(true)
+                                    handleClick()
                                 }}
                                 color={"error"}
                                 variant="contained"
@@ -758,7 +777,7 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, setDialog, setOpenDialog, t}}
+                    data={{state, setState, setDialog, setOpenDialog, t, changes, total}}
                     size={"lg"}
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
