@@ -102,10 +102,10 @@ function ConsultationInProgress() {
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
-        {name: "medical_prescription", icon: "ic-traitement", checked: false},
-        {name: "balance_sheet_request", icon: "ic-analyse", checked: false},
-        {name: "medical_imagery", icon: "ic-soura", checked: false},
-        {name: "write_certif", icon: "ic-text", checked: false},
+        {index: 0, name: "medical_prescription", icon: "ic-traitement", checked: false},
+        {index: 3, name: "balance_sheet_request", icon: "ic-analyse", checked: false},
+        {index: 2, name: "medical_imagery", icon: "ic-soura", checked: false},
+        {index: 1, name: "write_certif", icon: "ic-text", checked: false},
     ]);
 
     const EventStepper = [
@@ -213,10 +213,10 @@ function ConsultationInProgress() {
         }, 3000)
     }, [httpAppResponse]);
 
-    useEffect(()=>{
+    useEffect(() => {
         setInfo(null);
         setOpenDialog(true)
-    },[selectedDialog, setInfo, setOpenDialog])
+    }, [selectedDialog, setInfo, setOpenDialog])
 
     useEffect(() => {
         if (httpSheetResponse) {
@@ -537,7 +537,8 @@ function ConsultationInProgress() {
                             )}
                         </Grid>
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
-                            {sheet && <ConsultationDetailCard exam={sheet.exam} changes={changes} setChanges={setChanges}/>}
+                            {sheet &&
+                                <ConsultationDetailCard exam={sheet.exam} changes={changes} setChanges={setChanges}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>
@@ -627,14 +628,14 @@ function ConsultationInProgress() {
                             <Button
                                 onClick={() => {
 
-                                    /*const btn = document.getElementsByClassName("sub-btn")[1];
+                                    const btn = document.getElementsByClassName("sub-btn")[1];
                                     const examBtn = document.getElementsByClassName("sub-exam")[0];
 
                                     (btn as HTMLElement)?.click();
                                     (examBtn as HTMLElement)?.click();
 
                                     setOnsave(true)
-                                    setEnd(true)*/
+                                    setEnd(true)
                                     handleClick()
                                 }}
                                 color={"error"}
@@ -776,7 +777,7 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, setDialog, setOpenDialog, t, changes}}
+                    data={{state, setState, setDialog, setOpenDialog, t, changes, total}}
                     size={"lg"}
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main

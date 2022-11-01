@@ -19,12 +19,13 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CheckIcon from '@mui/icons-material/Check';
 import IconUrl from "@themes/urlIcon";
+import {Label} from "@features/label";
 
 const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {t, changes},
+        data: {t, changes, total},
     } = props;
     const [value, setvalue] = useState("");
     const [checked, setChecked] = useState(false);
@@ -62,6 +63,26 @@ function SecretaryConsultationDialog({...props}) {
                                 ),
                             }}
                         />
+                        <Stack direction={"row"} alignItems={"center"}>
+                            <Typography mr={1}>Montant a payé : </Typography>
+
+                            <Label
+                                variant="filled"
+                                color="success"
+                                sx={{ color: (theme) => theme.palette.text.primary }}>
+                                <Typography
+                                    color="text.primary"
+                                    variant="subtitle1"
+                                    mr={0.3}
+                                    fontWeight={600}>
+                                    {total}
+                                </Typography>
+                                {process.env.NEXT_PUBLIC_DEVISE}
+                            </Label>
+
+                        </Stack>
+
+
                         <Button
                             className="counter-btn"
                             disableRipple
@@ -136,7 +157,7 @@ function SecretaryConsultationDialog({...props}) {
                                                 <IconUrl path={item.icon}/>
                                                 <Typography variant='subtitle2' textAlign={"center"}
                                                             whiteSpace={"nowrap"} fontSize={11}>
-                                                    {t("consultationIP."+item.name)}
+                                                    {t("consultationIP." + item.name)}
                                                 </Typography>
                                             </Stack>
                                         </CardContent>

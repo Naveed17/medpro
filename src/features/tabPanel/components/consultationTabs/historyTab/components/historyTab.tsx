@@ -106,7 +106,6 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
-        console.log(appointement.latestAppointments)
         dispatch(SetSelectedApp(appuuid))
     }, [appointement, appuuid, dispatch]);
 

@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Box, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
@@ -39,6 +39,7 @@ function DocumentsTab({...props}) {
                                 if (card.documentType === 'photo') {
                                     setIsViewerOpen(card.uri)
                                 } else if (card.documentType === 'medical-certificate') {
+                                    console.log(card)
                                     setInfo('document_detail');
                                     setState({
                                         uuid: card.uuid,
@@ -73,7 +74,7 @@ function DocumentsTab({...props}) {
                                         name: card.title,
                                         type: card.documentType,
                                         info: info,
-                                        uuidDoc:uuidDoc,
+                                        uuidDoc: uuidDoc,
                                         patient: patient.firstName + ' ' + patient.lastName,
                                         mutate: mutateDoc
                                     })
@@ -122,6 +123,10 @@ function DocumentsTab({...props}) {
                                        height={250}
                                        style={{borderRadius: 10}}
                                        alt={card.title}/>
+                                <Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
+                                            fontSize={11}>
+                                    {t(card.title)}
+                                </Typography>
                             </Stack>
                         </React.Fragment>
                     )

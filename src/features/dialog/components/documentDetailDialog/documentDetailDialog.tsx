@@ -9,8 +9,7 @@ import {
     ListItemText,
     Stack,
     TextField,
-    Typography,
-    useTheme
+    Typography
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
@@ -78,7 +77,6 @@ function DocumentDetailDialog({...props}) {
     const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
 
-    console.log(state)
     const actionButtons = [
         {
             title: 'print',
@@ -94,7 +92,8 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: 'edit',
-            icon: "ic-edit-gray"
+            icon: "ic-edit-gray",
+            disabled: state.type !== 'prescription'
         },
         {
             title: 'download',
@@ -223,7 +222,6 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                console.log(state)
                 switch (state.type) {
                     case "prescription":
                         const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
@@ -325,7 +323,8 @@ function DocumentDetailDialog({...props}) {
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
+                                    <ListItemButton disabled={button.disabled}
+                                                    className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
