@@ -58,9 +58,11 @@ function DocumentsTab({...props}) {
                                 } else {
                                     setInfo('document_detail')
                                     let info = card
+                                    let uuidDoc = "";
                                     switch (card.documentType) {
                                         case "prescription":
                                             info = card.prescription[0].prescription_has_drugs;
+                                            uuidDoc = card.prescription[0].uuid
                                             break;
                                         case "requested-analysis":
                                             info = card.requested_Analyses[0].analyses;
@@ -75,6 +77,7 @@ function DocumentsTab({...props}) {
                                         name: card.title,
                                         type: card.documentType,
                                         info: info,
+                                        uuidDoc:uuidDoc,
                                         patient: patient.firstName + ' ' + patient.lastName,
                                         mutate: mutateDoc
                                     })

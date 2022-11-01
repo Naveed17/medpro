@@ -110,11 +110,18 @@ function DocumentDetailDialog({...props}) {
 
         doc.setFont('helvetica', 'italic')
         doc.setFontSize(8)
-        //for (let i = 1; i <= pageCount; i++) {
         doc.setPage(pageCount)
+        //for (let i = 1; i <= pageCount; i++) {
         doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
             align: 'center'
         })
+
+        /*for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i)
+            doc.text('footer', 15, doc.internal.pageSize.height - 20, {
+                align: 'center'
+            })
+        }*/
         // }
     }
 
@@ -216,7 +223,7 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "edit":
                 console.log(state)
-                switch (state.type){
+                switch (state.type) {
                     case "prescription":
                         const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
                         state.info.map((drug: { dosage: any; standard_drug: { uuid: any; commercial_name: any; }; duration: any; duration_type: any; note: any; }) => {
@@ -229,7 +236,11 @@ function DocumentDetailDialog({...props}) {
                                 note: drug.note
                             })
                         })
-                        dispatch(SetSelectedDialog({action: 'medical_prescription', state: prescriptions, uuid: state.uuid}))
+                        dispatch(SetSelectedDialog({
+                            action: 'medical_prescription',
+                            state: prescriptions,
+                            uuid: state.uuidDoc
+                        }))
                         break;
                 }
 
@@ -264,7 +275,12 @@ function DocumentDetailDialog({...props}) {
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
-            <Header name={ginfo.firstName + ' ' + ginfo.lastName} {...{speciality, theme}}></Header>
+            <Header name={'Dr ' + ginfo.firstName + ' ' + ginfo.lastName}
+                    diplome={'Echo Doppler vasculaire'}
+                    tel={'Tel: +216 71 22 22 22'}
+                    fax={'Fax: +216 71 22 22 22'}
+                    email={'foulen@mail.com'}
+                    {...{speciality}}></Header>
 
 
             {state.type === 'write_certif' && <Certificat data={state}></Certificat>}

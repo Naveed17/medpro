@@ -2,23 +2,23 @@ import React from "react";
 import TableStyled from "../../overrides/tableStyled";
 
 function Header({...props}) {
-    const {name, speciality} = props;
+    const {name, speciality,tel,fax,email,diplome} = props;
     return (
         <TableStyled hidden={true} id="header">
             <tbody>
             <tr>
-                <td className={"docName"}>Dr {name}</td>
-                <td className={"subInfo"}>Tel: +216 71 22 22 22</td>
+                <td className={"docName"}>{name}</td>
+                <td className={"subInfo"}>{tel}</td>
             </tr>
             <tr>
                 <td className={"docInfo"}><p>{speciality}</p></td>
-                <td className={"subInfo"}>Fax: +216 71 22 22 22</td>
+                <td className={"subInfo"}>{fax}</td>
 
             </tr>
 
             <tr>
-                <td className={"docInfo"}>Echo Doppler vasculaire</td>
-                <td className={"subInfo"}>foulen@mail.com</td>
+                <td className={"docInfo"}>{diplome}</td>
+                <td className={"subInfo"}>{email}</td>
 
             </tr>
             </tbody>
