@@ -205,7 +205,7 @@ function Agenda() {
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: horsWork,
-                        editable: (AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork) && !isMobile,
+                        editable: AppointmentStatus[appointment.status].key !== "FINISHED" && !horsWork,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
