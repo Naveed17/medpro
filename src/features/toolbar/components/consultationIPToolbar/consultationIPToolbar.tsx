@@ -589,7 +589,7 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
-                                    {changes.find(ch => ch.index === index) && changes.find(ch => ch.index === index).checked &&
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find(ch => ch.index === index).checked &&
                                         <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
                                 </MenuItem>
                             ))}
