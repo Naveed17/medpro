@@ -13,12 +13,9 @@ import {
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef} from "react";
 import {useAppSelector} from "@app/redux/hooks";
-import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
+import {addPatientSelector, appointmentSelector, PhoneRegExp} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
-import {
-    PhoneRegExp
-} from "./config";
 import Icon from "@themes/urlIcon";
 import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";

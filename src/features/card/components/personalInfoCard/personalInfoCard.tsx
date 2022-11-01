@@ -1,8 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
-import MaskedInput from "react-text-mask";
 // material
 import {
     Box,
@@ -10,100 +9,203 @@ import {
     Paper,
     Grid,
     Skeleton,
-    InputBase
+    InputBase, Button, AppBar, Toolbar, IconButton, Divider, MenuItem, TextField
 } from "@mui/material";
-
-// dumy data
-const data = {
-    personal: [
-        // {
-        //   name: "group",
-        //   value: "groupe x",
-        // },
-        // {
-        //   name: "region",
-        //   value: "Ariana",
-        // },
-        // {
-        //   name: "civility",
-        //   value: "Mr",
-        // },
-        {
-            name: "address",
-        },
-        {
-            name: "name",
-        },
-        // {
-        //   name: "zip",
-        //   value: "1004",
-        // },
-        {
-            name: "birthdate",
-        },
-        // {
-        //   name: "assurance",
-        //   value: "",
-        // },
-        {
-            name: "telephone",
-        },
-        // {
-        //   name: "cin",
-        //   value: "",
-        // },
-        {
-            name: "email",
-        },
-        // {
-        //   name: "from",
-        //   value: "",
-        // },
-    ],
-};
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import {Stack} from "@mui/system";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import * as Yup from "yup";
+import {PhoneRegExp} from "@features/tabPanel";
+import {useSnackbar} from "notistack";
+import IconUrl from "@themes/urlIcon";
+import Select from '@mui/material/Select';
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import {DatePicker} from "@mui/x-date-pickers";
+import moment from "moment-timezone";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import Icon from "@themes/urlIcon";
 
 function PersonalInfo({...props}) {
-    const {patient, loading} = props;
+    const {patient, mutate: mutatePatientData, loading} = props;
+
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar();
+
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/insurances/" + router.locale
+    }, SWRNoValidateConfig);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const [editable, setEditable] = useState(false);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
+
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+
+    const RegisterPatientSchema = Yup.object().shape({
+        name: Yup.string()
+            .min(3, t("name-error"))
+            .max(50, t("name-error"))
+            .required(t("name-error")),
+        address: Yup.string()
+            .min(3, t("name-error"))
+            .max(50, t("name-error")),
+        email: Yup.string()
+            .email('Invalid email format'),
+        birthdate: Yup.string()
+        ,
+        telephone: Yup.string()
+            .min(8, t("telephone-error"))
+            .matches(PhoneRegExp, t("telephone-error"))
+            .required(t("telephone-error")),
+        insurances: Yup.array()
+            .of(
+                Yup.object().shape({
+                    insurance_number: Yup.string().min(3, t("telephone-error")),
+                    insurance_uuid: Yup.string().min(3, t("telephone-error"))
+                })
+            )
+    });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: !loading ? `${patient.firstName} ${patient.lastName}` : "-",
-            birthdate: !loading ? patient.birthdate : "-",
+            gender: !loading && patient.gender
+                ? patient.gender === "M" ? "1" : "2"
+                : "",
+            name: !loading ? `${patient.firstName} ${patient.lastName}` : "",
+            birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
                     ? patient.address[0].city.name + ", " + patient.address[0].street
-                    : "-",
+                    : "",
             telephone:
                 !loading && patient.contact.length > 0
                     ? `${patient.contact[0].code ? patient.contact[0].code : ""}${
                         patient.contact[0].value
                     }`
-                    : "-",
-            email: !loading && patient.email ? patient.email : "-",
+                    : "",
+            email: !loading && patient.email ? patient.email : "",
+            cin: !loading && patient.idCard ? patient.idCard : "",
+            insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
+                insurance_number: insurance.insuranceNumber,
+                insurance_uuid: insurance.insurance.uuid
+            })) : [{
+                insurance_number: "",
+                insurance_uuid: ""
+            }] as {
+                insurance_number: string;
+                insurance_uuid: string;
+            }[]
         },
+        validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
-            console.log("ok", values);
+            handleUpdatePatient();
         },
     });
 
-    const {handleSubmit, values, getFieldProps} = formik;
+    const handleAddInsurance = () => {
+        const insurance = [...values.insurances, {insurance_uuid: "", insurance_number: ""}];
+        setFieldValue("insurances", insurance);
+    }
+
+    const handleRemoveInsurance = (index: number) => {
+        const insurance = [...values.insurances];
+        insurance.splice(index, 1);
+        formik.setFieldValue("insurances", insurance);
+    };
+
+    const handleUpdatePatient = () => {
+        const params = new FormData();
+        params.append('first_name', values.name.split(' ').slice(0, -1).join(' '));
+        params.append('last_name', values.name.split(' ').slice(-1).join(' '));
+        params.append('gender', patient.gender === 'M' ? '1' : '2');
+        params.append('phone', JSON.stringify({
+            code: patient.contact[0].code,
+            value: values.telephone,
+            type: "phone",
+            "contact_type": patient.contact[0].uuid,
+            "is_public": false,
+            "is_support": false
+        }));
+        params.append('email', values.email);
+        params.append('id_card', values.cin);
+        params.append('insurance', JSON.stringify(values.insurances));
+        values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
+        params.append('address', JSON.stringify({
+            fr: values.address
+        }));
+
+        triggerPatientUpdate({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: params,
+        }).then(() => {
+            setEditable(false);
+            mutatePatientData();
+            enqueueSnackbar(t(`alert.patient-edit`, {ns: 'common'}), {variant: "success"});
+        });
+    }
+
+    const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
     if (!ready) return <div>Loading...</div>;
+
     return (
         <FormikProvider value={formik}>
-            <Form autoComplete="off" noValidate>
+            <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                 <Box
                     sx={{
-                        "& .MuiPaper-root .MuiTypography-root": {
-                            fontSize: 12,
+                        mt: "0.5rem",
+                        "& .MuiSelect-select": {
+                            padding: "0 2rem 0 1rem"
                         },
+                        "& .MuiInputBase-root": {
+                            background: "no-repeat!important",
+                            "&:hover": {
+                                backgroundColor: "none"
+                            },
+                        },
+                        "& fieldset": {
+                            border: "none!important",
+                            boxShadow: "none!important"
+                        },
+                        "& .MuiPaper-root": {
+                            pt: 0
+                        },
+                        "& .MuiAppBar-root": {
+                            border: "none",
+                            borderBottom: "1px solid #E0E0E0",
+                            height: 46,
+                            mb: 2,
+                            "& .MuiTypography-root": {
+                                fontSize: 14,
+                                pt: 0
+                            }
+                        },
+                        "& .MuiToolbar-root": {
+                            float: "right",
+                            padding: 0
+                        }
                     }}>
                     <Typography
                         variant="body1"
+                        sx={{
+                            fontSize: 14
+                        }}
                         color="text.primary"
-                        fontFamily="Poppins"
                         gutterBottom>
                         {loading ? (
                             <Skeleton variant="text" sx={{maxWidth: 200}}/>
@@ -111,124 +213,268 @@ function PersonalInfo({...props}) {
                             t("personal-info")
                         )}
                     </Typography>
-                    <Paper sx={{p: 1.5, borderWidth: 0}}>
+                    <Paper
+                        sx={{
+                            "& .MuiTypography-root": {
+                                fontSize: 12,
+                                pt: 0
+                            },
+                            p: 1.5, borderWidth: 0
+                        }}>
+                        <AppBar position="static" color={"transparent"}>
+                            <Toolbar variant="dense">
+                                <Box sx={{flexGrow: 1}}/>
+                                <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+                                    {editable ?
+                                        <Stack mt={1} justifyContent='flex-end'>
+                                            <Button onClick={() => handleUpdatePatient()}
+                                                    className='btn-add'
+                                                    sx={{margin: 'auto'}}
+                                                    size='small'
+                                                    startIcon={<SaveAsIcon/>}>
+                                                {t('register')}
+                                            </Button>
+                                        </Stack>
+                                        :
+                                        <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
+                                            <IconUrl path={"setting/edit"}/>
+                                        </IconButton>
+                                    }
+                                </Box>
+                            </Toolbar>
+                        </AppBar>
                         <Grid container spacing={1.2}>
-                            <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t("address")}
-                                </Typography>
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={2.5} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("gender")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={7.5} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <Select
+                                                sx={{
+                                                    "& .MuiSvgIcon-root": {
+                                                        display: !editable ? "none" : "inline-block"
+                                                    }
+                                                }}
+                                                size="small"
+                                                readOnly={!editable}
+                                                error={Boolean(touched.gender && errors.gender)}
+                                                {...getFieldProps("gender")}
+                                            >
+                                                <MenuItem value={1}>Mr</MenuItem>
+                                                <MenuItem value={2}>Mrs</MenuItem>
+                                            </Select>
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                {loading ? (
-                                    <Skeleton variant="text"/>
-                                ) : (
-                                    <InputBase
-                                        inputProps={{
-                                            style: {
-                                                background: "white",
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                        {...getFieldProps("address")}
-                                    />
-                                )}
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={2.5} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("name")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={7.5} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("name-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.name && errors.name)}
+                                                {...getFieldProps("name")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t("name")}
-                                </Typography>
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={2.5} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("birthdate")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={7.5} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                <DatePicker
+                                                    readOnly={!editable}
+                                                    disableOpenPicker
+                                                    inputFormat={"dd/MM/yyyy"}
+                                                    mask="__/__/____"
+                                                    value={moment(values.birthdate, "DD-MM-YYYY")}
+                                                    onChange={date => {
+                                                        const dateInput = moment(date)
+                                                        if (dateInput.isValid()) {
+                                                            setFieldValue("birthdate", dateInput.format("DD-MM-YYYY"))
+                                                        }
+                                                    }}
+                                                    renderInput={(params) => <TextField {...params} />}
+                                                />
+                                            </LocalizationProvider>
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                {loading ? (
-                                    <Skeleton variant="text"/>
-                                ) : (
-                                    <InputBase
-                                        inputProps={{
-                                            style: {
-                                                background: "white",
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                        {...getFieldProps("name")}
-                                    />
-                                )}
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={2.5} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("email")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={7.5} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("email-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.email && errors.email)}
+                                                {...getFieldProps("email")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t("telephone")}
-                                </Typography>
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={2.5} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("cin")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={7.5} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("cin-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.cin && errors.cin)}
+                                                {...getFieldProps("cin")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
                             </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                {loading ? (
-                                    <Skeleton variant="text"/>
-                                ) : (
-                                    <InputBase
-                                        inputProps={{
-                                            style: {
-                                                background: "white",
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                        {...getFieldProps("telephone")}
-                                    />
-                                )}
-                            </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t("birthdate")}
-                                </Typography>
-                            </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                {loading ? (
-                                    <Skeleton variant="text"/>
-                                ) : (
-                                    <MaskedInput
-                                        style={{
-                                            border: "none",
-                                            outline: "none",
-                                            width: 75,
-                                        }}
-                                        mask={[
-                                            /\d/,
-                                            /\d/,
-                                            "-",
-                                            /\d/,
-                                            /\d/,
-                                            "-",
-                                            /\d/,
-                                            /\d/,
-                                            /\d/,
-                                            /\d/,
-                                        ]}
-                                        placeholderChar={"\u2000"}
-                                        {...getFieldProps("birthdate")}
-                                        showMask
-                                    />
-                                )}
-                            </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                <Typography variant="body1" color="text.secondary" noWrap>
-                                    {t("email")}
-                                </Typography>
-                            </Grid>
-                            <Grid item md={3} sm={6} xs={6}>
-                                {loading ? (
-                                    <Skeleton variant="text"/>
-                                ) : (
-                                    <InputBase
-                                        inputProps={{
-                                            style: {
-                                                background: "white",
-                                                fontSize: 14,
-                                            },
-                                        }}
-                                        {...getFieldProps("email")}
-                                    />
-                                )}
-                            </Grid>
+                            {values.insurances.map((insurance: any, index: number) => (
+                                <Grid item md={6} sm={6} xs={6} key={`${index}-${insurance.insurance_uuid}`}>
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        alignItems="center">
+                                        <Grid item md={2.5} sm={6} xs={6}>
+                                            <Typography variant="body1" color="text.secondary" noWrap>
+                                                {t("assurance")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item md={10} sm={6} xs={6}>
+                                            {loading ? (
+                                                <Skeleton variant="text"/>
+                                            ) : (
+                                                <Stack
+                                                    direction="row"
+                                                    alignItems="center">
+                                                    <Select
+                                                        readOnly={!editable}
+                                                        id={"assurance"}
+                                                        size="small"
+                                                        {...getFieldProps(`insurances[${index}].insurance_uuid`)}
+                                                        displayEmpty
+                                                        renderValue={(selected) => {
+                                                            if (!selected) {
+                                                                return <em>{t("assurance-placeholder")}</em>;
+                                                            }
+
+                                                            const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                            return <Box key={insurance?.uuid}
+                                                                        component="img" width={20} height={20}
+                                                                        src={insurance?.logoUrl}/>
+                                                        }}
+                                                    >
+                                                        {insurances?.map(insurance => (
+                                                            <MenuItem
+                                                                key={insurance.uuid}
+                                                                value={insurance.uuid}>
+                                                                <Box key={insurance.uuid}
+                                                                     component="img" width={20} height={20}
+                                                                     src={insurance.logoUrl}/>
+                                                                <Typography
+                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
+                                                            </MenuItem>)
+                                                        )}
+                                                    </Select>
+                                                    <InputBase
+                                                        fullWidth
+                                                        placeholder={t("assurance-phone-error")}
+                                                        readOnly={!editable}
+                                                        {...getFieldProps(`insurances[${index}].insurance_number`)}
+                                                    />
+                                                </Stack>
+
+                                            )}
+                                        </Grid>
+                                        {(editable && index === 0) ? <IconButton
+                                            onClick={handleAddInsurance}
+                                            className="success-light"
+                                            sx={{
+                                                mr: 1.5,
+                                                p: "3px 5px",
+                                                "& svg": {
+                                                    width: 14,
+                                                    height: 14
+                                                },
+                                            }}
+                                        >
+                                            <Icon path="ic-plus"/>
+                                        </IconButton> : (editable && <IconButton
+                                            onClick={() => handleRemoveInsurance(index)}
+                                            className="error-light"
+                                            sx={{
+                                                mr: 1.5,
+                                                p: "3px 5px",
+                                                "& svg": {
+                                                    width: 14,
+                                                    height: 14,
+                                                    "& path": {
+                                                        fill: (theme) => theme.palette.text.primary,
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            <Icon path="ic-moin"/>
+                                        </IconButton>)}
+                                    </Stack>
+                                </Grid>))}
                         </Grid>
                     </Paper>
                 </Box>
+
             </Form>
         </FormikProvider>
     );

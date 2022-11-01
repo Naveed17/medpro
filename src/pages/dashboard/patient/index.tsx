@@ -207,6 +207,7 @@ function Patient() {
             <SubHeader>
                 <PatientToolbar
                     onAddPatient={() => {
+                        dispatch(onResetPatient());
                         setSelectedPatient(null);
                         setPatientDrawer(true);
                     }}
