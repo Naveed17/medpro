@@ -20,14 +20,8 @@ function DocumentsTab({...props}) {
         patient,
         mutateDoc,
         setOpenDialog,
-        selectedDialog,
         t
     } = props
-
-    useEffect(()=>{
-        setInfo(null);
-        setOpenDialog(true)
-    },[selectedDialog, setInfo, setOpenDialog])
     return (
         <>
             <Box display='grid' sx={{
@@ -47,12 +41,14 @@ function DocumentsTab({...props}) {
                                 } else if (card.documentType === 'medical-certificate') {
                                     setInfo('document_detail');
                                     setState({
+                                        uuid: card.uuid,
                                         content: card.certificate[0].content,
                                         doctor: card.name,
                                         patient: card.patient,
                                         days: card.days,
                                         name: 'certif',
-                                        type: 'write_certif'
+                                        type: 'write_certif',
+                                        mutate: mutateDoc,
                                     })
                                     setOpenDialog(true);
                                 } else {

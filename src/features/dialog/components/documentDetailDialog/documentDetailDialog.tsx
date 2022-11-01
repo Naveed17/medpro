@@ -40,7 +40,6 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const theme = useTheme();
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
     const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
@@ -79,6 +78,7 @@ function DocumentDetailDialog({...props}) {
     const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
 
+    console.log(state)
     const actionButtons = [
         {
             title: 'print',
@@ -105,6 +105,7 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
+
     const addFooters = (doc: any) => {
         const pageCount = doc.internal.getNumberOfPages()
 

@@ -38,6 +38,8 @@ function ConsultationIPToolbar({...props}) {
         dialog,
         selectedDialog,
         setDialog,
+        changes,
+        setChanges,
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -270,6 +272,12 @@ function ConsultationIPToolbar({...props}) {
                 });
 
                 break;
+        }
+
+        const item = changes.find((change: { name: string }) => change.name === info)
+        if (item){
+            item.checked = true
+            setChanges([...changes])
         }
 
         setOpenDialog(false);
