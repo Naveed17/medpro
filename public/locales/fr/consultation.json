@@ -113,6 +113,8 @@
     "write_mail": "Rédiger courrier",
     "write_certif": "Certificat médical",
     "balance_sheet_request": "Demande bilan",
+    "write_report": "Rédiger un rapport",
+    "reportPlaceholder": "Rédiger votre rapport ici...",
     "medical_imagery": "Imagerie médicale",
     "print_documents": "Imprimer documents",
     "medical_prescription": "Ordonnance médicale",

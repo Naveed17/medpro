@@ -356,6 +356,18 @@ function ConsultationIPToolbar({...props}) {
                         appointement.patient.lastName,
                 });
                 break;
+            case "write_report":
+                setInfo("write_report");
+                setState({
+                    name: ginfo.firstName + " " + ginfo.lastName,
+                    days: '....',
+                    content: "",
+                    patient:
+                        appointement.patient.firstName +
+                        " " +
+                        appointement.patient.lastName,
+                });
+                break;
             case "upload_document":
                 setInfo("add_a_document");
                 setState({name: "", description: "", type: "analyse", files: []});
