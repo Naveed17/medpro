@@ -11,7 +11,7 @@ function SignIn() {
     const loading = status === 'loading'
     const router = useRouter();
     const [error, setError] = useState(router.asPath.includes("&error="));
-    const [errorText, setErrorText] = useState(router.asPath.includes("&error=") && "une erreur s'est produite pendant la phase d'initialisation. cliquez sur re login pour réessayer");
+    const [errorText, setErrorText] = useState(router.asPath.includes("&error=") && "une erreur s'est produite pendant la phase d'initialisation. cliquez sur le login pour réessayer");
     const {token} = router.query;
 
     useEffect(() => {
