@@ -34,14 +34,12 @@ function CIPPatientHistoryCard({...props}) {
 
     const {handleSubmit, values, getFieldProps} = formik;
 
-/*    useEffect(() => {
-        console.log(values)
+
+    useEffect(() => {
         const item = changes.find((change: { name: string }) => change.name === "fiche")
-        if (item) {
-            item.checked = true
-            setChanges([...changes])
-        }
-    }, [setChanges, values])*/
+        item.checked = Object.values(values).filter(val => val !== '').length > 0;
+        setChanges([...changes])
+    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
