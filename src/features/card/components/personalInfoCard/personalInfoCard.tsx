@@ -91,9 +91,7 @@ function PersonalInfo({...props}) {
                     : "",
             telephone:
                 !loading && patient.contact.length > 0
-                    ? `${patient.contact[0].code ? patient.contact[0].code : ""}${
-                        patient.contact[0].value
-                    }`
+                    ? patient.contact[0].value
                     : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
@@ -173,6 +171,7 @@ function PersonalInfo({...props}) {
                             padding: "0 2rem 0 1rem"
                         },
                         "& .MuiInputBase-root": {
+                            width: "100%",
                             background: "no-repeat!important",
                             "&:hover": {
                                 backgroundColor: "none"
@@ -344,7 +343,7 @@ function PersonalInfo({...props}) {
                                             {t("email")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={7.5} sm={6} xs={6}>
+                                    <Grid item md={8.5} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -363,12 +362,12 @@ function PersonalInfo({...props}) {
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={2.5} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("cin")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={7.5} sm={6} xs={6}>
+                                    <Grid item md={9} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (

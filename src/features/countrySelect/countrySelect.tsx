@@ -24,10 +24,12 @@ function CountrySelect({...props}) {
             id="country-select-demo"
             sx={{
                 ...(small && {
+                    ...rest.sx,
                     "& .MuiAutocomplete-input": {
                         display: "none"
                     },
                     "& .MuiAutocomplete-inputRoot": {
+                        paddingLeft: "2px!important",
                         paddingRight: "1.6rem!important"
                     }
                 })
