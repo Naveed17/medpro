@@ -131,7 +131,6 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo("document_detail");
                     const res = r.data.data;
-
                     setState({
                         uri: res[1],
                         name: "prescription",
@@ -335,7 +334,6 @@ function ConsultationIPToolbar({...props}) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo("medical_prescription");
-                console.log(prescription)
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -390,7 +388,6 @@ function ConsultationIPToolbar({...props}) {
                     break;
             }
         }
-        //console.log(selectedDialog)
     }, [selectedDialog])
 
     useEffect(() => {
