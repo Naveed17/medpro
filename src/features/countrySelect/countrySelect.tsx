@@ -1,6 +1,5 @@
 import React, {useCallback} from "react";
 import Image from "next/image";
-import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -8,7 +7,7 @@ import {countries} from "./countries";
 import {MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
-    const {onSelect, initCountry} = props;
+    const {onSelect, initCountry, small} = props;
 
     const [state, setstate] = React.useState(initCountry);
 
@@ -58,6 +57,7 @@ function CountrySelect({...props}) {
                         />
                     </InputAdornment>
                 );
+
                 return <TextField {...params} variant="outlined" fullWidth/>;
             }}
         />
