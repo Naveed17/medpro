@@ -62,8 +62,8 @@ function PersonalInfo({...props}) {
             .max(50, t("name-error")),
         email: Yup.string()
             .email('Invalid email format'),
-        birthdate: Yup.string()
-        ,
+        birthdate: Yup.string(),
+        cin: Yup.number(),
         telephone: Yup.string()
             .min(8, t("telephone-error"))
             .matches(PhoneRegExp, t("telephone-error"))
@@ -71,8 +71,8 @@ function PersonalInfo({...props}) {
         insurances: Yup.array()
             .of(
                 Yup.object().shape({
-                    insurance_number: Yup.string().min(3, t("telephone-error")),
-                    insurance_uuid: Yup.string().min(3, t("telephone-error"))
+                    insurance_number: Yup.string().min(3, t("insurances-error")),
+                    insurance_uuid: Yup.string().min(3, t("insurances-error"))
                 })
             )
     });
@@ -83,7 +83,7 @@ function PersonalInfo({...props}) {
             gender: !loading && patient.gender
                 ? patient.gender === "M" ? "1" : "2"
                 : "",
-            name: !loading ? `${patient.firstName} ${patient.lastName}` : "",
+            name: !loading ? `${patient.firstName.trim()} ${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
@@ -99,7 +99,7 @@ function PersonalInfo({...props}) {
             cin: !loading && patient.idCard ? patient.idCard : "",
             insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
                 insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance.uuid
+                insurance_uuid: insurance.insurance?.uuid
             })) : [{
                 insurance_number: "",
                 insurance_uuid: ""

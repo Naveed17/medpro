@@ -18,6 +18,8 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
+import dynamic from "next/dynamic";
+const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
     const {patient, mutate: mutatePatientData, loading} = props;
@@ -147,12 +149,22 @@ function PatientContactDetailCard({...props}) {
                                                     direction="row"
                                                     spacing={1}
                                                     alignItems="center">
-                                                    {patient?.contact[0]?.code && <Box
+                                                    {/*{patient?.contact[0]?.code && <Box
                                                         component="img"
                                                         src={`https://flagcdn.com/w20/tn.png`}
                                                         srcSet={`https://flagcdn.com/w40/tn.png 2x`}
                                                         sx={{width: 22}}
-                                                    />}
+                                                    />}*/}
+                                                    <CountrySelect
+                                                        small
+                                                        initCountry={{
+                                                            code: "TN",
+                                                            label: "Tunisia",
+                                                            phone: "+216"
+                                                        }}
+                                                        onSelect={(state: any) => {
+                                                            console.log(state);
+                                                        }}/>
                                                     <InputBase
                                                         error={Boolean(touched.telephone && errors.telephone)}
                                                         readOnly={!editable}
