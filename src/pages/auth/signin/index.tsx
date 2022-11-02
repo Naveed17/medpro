@@ -11,22 +11,14 @@ function SignIn() {
     const loading = status === 'loading'
     const router = useRouter();
     const [error, setError] = useState(router.asPath.includes("&error="));
-    const [errorText, setErrorText] = useState(router.asPath.includes("&error=") && "une erreur s'est produite pendant la phase d'initialisation. cliquez sur le login pour réessayer");
     const {token} = router.query;
 
     useEffect(() => {
         if (status === "unauthenticated" && !error) {
-            if (router.asPath.includes("?token=")) {
-                signIn('credentials', {
-                    token,
-                    callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
-                });
-            } else {
-                signIn('keycloak',
-                    {
-                        callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
-                    });
-            }
+            signIn(router.asPath.includes("?token=") ? 'credentials' : 'keycloak', {
+                ...(router.asPath.includes("?token=") && {token}),
+                callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
+            });
         }
     });
 
@@ -35,7 +27,7 @@ function SignIn() {
     return (
         status === "unauthenticated" ?
             <LoadingScreen
-                {...{error, ...(error && {text: errorText})}}
+                {...{error, ...(error && {text: "loading-error"})}}
             /> :
             <Redirect to='/dashboard/agenda'/>)
 }
