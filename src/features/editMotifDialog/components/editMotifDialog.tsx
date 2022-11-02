@@ -268,7 +268,6 @@ function EditMotifDialog({ ...props }) {
                   labelId="demo-simple-select-label"
                   id={"duration"}
                   {...getFieldProps("duration")}
-                  value={values.duration}
                   displayEmpty={true}
                   sx={{ color: "text.secondary" }}>
                   <MenuItem key={"0"} value={0}>
@@ -325,7 +324,6 @@ function EditMotifDialog({ ...props }) {
                       labelId="demo-simple-select-label"
                       id={"maximumDelay"}
                       {...getFieldProps("maximumDelay")}
-                      value={values.maximumDelay}
                       displayEmpty={true}
                       sx={{ color: "text.secondary" }}>
                       <MenuItem key={"0"} value={0}>
