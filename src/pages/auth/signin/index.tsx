@@ -3,17 +3,19 @@ import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {LoadingScreen} from "@features/loadingScreen";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 
 function SignIn() {
     const {status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
+    const [error, setError] = useState(router.asPath.includes("&error="));
+    const [errorText, setErrorText] = useState(router.asPath.includes("&error=") && "une erreur s'est produite pendant la phase d'initialisation. cliquez sur re login pour réessayer");
     const {token} = router.query;
 
     useEffect(() => {
-        if (status === "unauthenticated") {
+        if (status === "unauthenticated" && !error) {
             if (router.asPath.includes("?token=")) {
                 signIn('credentials', {
                     token,
@@ -32,7 +34,9 @@ function SignIn() {
 
     return (
         status === "unauthenticated" ?
-            <LoadingScreen/> :
+            <LoadingScreen
+                {...{error, ...(error && {text: errorText})}}
+            /> :
             <Redirect to='/dashboard/agenda'/>)
 }
 

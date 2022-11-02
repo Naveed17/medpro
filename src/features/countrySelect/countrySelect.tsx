@@ -7,7 +7,7 @@ import {countries} from "./countries";
 import {MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
-    const {onSelect, initCountry, small} = props;
+    const {onSelect, initCountry = "", small, ...rest} = props;
 
     const [state, setstate] = React.useState(initCountry);
 
@@ -20,8 +20,18 @@ function CountrySelect({...props}) {
 
     return (
         <Autocomplete
+            {...rest}
             id="country-select-demo"
-            sx={{width: "100%"}}
+            sx={{
+                ...(small && {
+                    "& .MuiAutocomplete-input": {
+                        display: "none"
+                    },
+                    "& .MuiAutocomplete-inputRoot": {
+                        paddingRight: "1.6rem!important"
+                    }
+                })
+            }}
             size="small"
             onChange={(e, v) => {
                 setstate(v);
@@ -46,7 +56,7 @@ function CountrySelect({...props}) {
                 </MenuItem>
             )}
             renderInput={(params) => {
-                params.InputProps.startAdornment = (
+                params.InputProps.startAdornment = initCountry && (
                     <InputAdornment position="start">
                         <Image
                             loading="lazy"

@@ -1,11 +1,12 @@
 import {createSvgIcon} from "@mui/material";
 import React from "react";
 
-function MedProIcon() {
+function MedProIcon({...props}) {
+    const {color = "#0096d6"} = props;
     const CustomIcon = createSvgIcon(
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
              width="24" height="24" viewBox="0 0 192.000000 192.000000"
-             preserveAspectRatio="xMidYMid meet" fill="#0096d6">
+             preserveAspectRatio="xMidYMid meet" fill={color}>
             <g transform="translate(0.000000,192.000000) scale(0.100000,-0.100000)"
                stroke="none">
                 <path d="M149 1905 c-25 -8 -61 -31 -82 -52 -69 -69 -68 -47 -65 -914 3 -856

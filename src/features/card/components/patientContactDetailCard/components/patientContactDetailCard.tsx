@@ -19,6 +19,8 @@ import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
+import {countries} from "@features/countrySelect/countries";
+
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
@@ -28,6 +30,7 @@ function PatientContactDetailCard({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const [editable, setEditable] = useState(false);
+    const [country, setCountry] = useState(countries.find(country => country.phone === patient?.contact[0]?.code));
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -149,18 +152,14 @@ function PatientContactDetailCard({...props}) {
                                                     direction="row"
                                                     spacing={1}
                                                     alignItems="center">
-                                                    {/*{patient?.contact[0]?.code && <Box
-                                                        component="img"
-                                                        src={`https://flagcdn.com/w20/tn.png`}
-                                                        srcSet={`https://flagcdn.com/w40/tn.png 2x`}
-                                                        sx={{width: 22}}
-                                                    />}*/}
                                                     <CountrySelect
+                                                        disablePortal
                                                         small
+                                                        readOnly={!editable}
                                                         initCountry={{
-                                                            code: "TN",
-                                                            label: "Tunisia",
-                                                            phone: "+216"
+                                                            code: country ? country.code : "TN",
+                                                            label: country ? country.label : "Tunisia",
+                                                            phone: country ? country?.phone : "+216"
                                                         }}
                                                         onSelect={(state: any) => {
                                                             console.log(state);

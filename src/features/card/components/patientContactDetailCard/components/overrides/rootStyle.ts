@@ -32,6 +32,9 @@ const RootStyled = styled(Card)(({theme}) => ({
     "& .MuiToolbar-root": {
         float: "right",
         padding: 0
+    },
+    "& .MuiAutocomplete-popperDisablePortal": {
+        minWidth: "200px"
     }
 }));
 export default RootStyled
