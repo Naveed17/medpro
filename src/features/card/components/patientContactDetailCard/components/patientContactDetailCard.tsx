@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import RootStyled from "./overrides/rootStyle";
 import {
     Typography,
@@ -7,13 +7,36 @@ import {
     Grid,
     Stack,
     Box,
-    InputBase,
+    InputBase, AppBar, Toolbar, Button, IconButton,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import IconUrl from "@themes/urlIcon";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {useSnackbar} from "notistack";
+import {Session} from "next-auth";
+import dynamic from "next/dynamic";
+import {countries} from "@features/countrySelect/countries";
+
+const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
-    const {patient, loading} = props;
+    const {patient, mutate: mutatePatientData, loading} = props;
+    const {data: session} = useSession();
+    const router = useRouter();
+    const {enqueueSnackbar} = useSnackbar();
+
+    const [editable, setEditable] = useState(false);
+    const [country, setCountry] = useState(countries.find(country => country.phone === patient?.contact[0]?.code));
+
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -35,7 +58,37 @@ function PatientContactDetailCard({...props}) {
             console.log("ok", values);
         },
     });
-    const {handleSubmit, values, getFieldProps} = formik;
+
+    const handleUpdatePatient = () => {
+        const params = new FormData();
+        params.append('phone', JSON.stringify({
+            code: patient.contact[0].code,
+            value: values.telephone,
+            type: "phone",
+            "contact_type": patient.contact[0].uuid,
+            "is_public": false,
+            "is_support": false
+        }));
+        params.append('email', values.email);
+        params.append('address', JSON.stringify({
+            fr: values.address
+        }));
+
+        triggerPatientUpdate({
+            method: "PUT",
+            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: params,
+        }).then(() => {
+            setEditable(false);
+            mutatePatientData();
+            enqueueSnackbar(t(`alert.patient-edit`, {ns: 'common'}), {variant: "success"});
+        });
+    }
+
+    const {handleSubmit, values, touched, errors, getFieldProps} = formik;
 
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
@@ -59,49 +112,69 @@ function PatientContactDetailCard({...props}) {
                 <RootStyled>
                     <CardContent>
                         <Grid container>
-                            <Grid item xs={12} md={6}>
-                                <Stack spacing={2}>
-                                    {patient?.contact.map(
-                                        (contact: ContactModel, index: number) => (
-                                            <Stack
-                                                direction="row"
-                                                key={index}
-                                                alignItems="flex-start">
-                                                <Typography
-                                                    className="label"
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    width="50%">
-                                                    {t("telephone")}
-                                                </Typography>
-                                                {loading ? (
-                                                    <Skeleton width={100}/>
-                                                ) : (
-                                                    <Stack
-                                                        direction="row"
-                                                        spacing={1}
-                                                        alignItems="center">
-                                                        <Box
-                                                            component="img"
-                                                            src={`https://flagcdn.com/w20/tn.png`}
-                                                            srcSet={`https://flagcdn.com/w40/tn.png 2x`}
-                                                            sx={{width: 22}}
-                                                        />
-                                                        <InputBase
-                                                            sx={{width: "50%"}}
-                                                            inputProps={{
-                                                                style: {
-                                                                    background: "white",
-                                                                    fontSize: 14,
-                                                                },
-                                                            }}
-                                                            {...getFieldProps("telephone")}
-                                                        />
-                                                    </Stack>
-                                                )}
+                            <AppBar position="static" color={"transparent"}>
+                                <Toolbar variant="dense">
+                                    <Box sx={{flexGrow: 1}}/>
+                                    <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+                                        {editable ?
+                                            <Stack mt={1} justifyContent='flex-end'>
+                                                <Button onClick={() => handleUpdatePatient()}
+                                                        className='btn-add'
+                                                        sx={{margin: 'auto'}}
+                                                        size='small'
+                                                        startIcon={<SaveAsIcon/>}>
+                                                    {t('register')}
+                                                </Button>
                                             </Stack>
-                                        )
-                                    )}
+                                            :
+                                            <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
+                                                <IconUrl path={"setting/edit"}/>
+                                            </IconButton>
+                                        }
+                                    </Box>
+                                </Toolbar>
+                            </AppBar>
+                            <Grid container spacing={1.2}>
+                                <Grid item md={6} sm={6} xs={6}>
+                                    <Stack direction="row"
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={2.5} sm={6} xs={6}>
+                                            <Typography variant="body1" color="text.secondary" noWrap>
+                                                {t("telephone")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item md={8} sm={6} xs={6}>
+                                            {loading ? (
+                                                <Skeleton variant="text"/>
+                                            ) : (
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={1}
+                                                    alignItems="center">
+                                                    <CountrySelect
+                                                        disablePortal
+                                                        small
+                                                        readOnly={!editable}
+                                                        initCountry={{
+                                                            code: country ? country.code : "TN",
+                                                            label: country ? country.label : "Tunisia",
+                                                            phone: country ? country?.phone : "+216"
+                                                        }}
+                                                        onSelect={(state: any) => {
+                                                            console.log(state);
+                                                        }}/>
+                                                    <InputBase
+                                                        error={Boolean(touched.telephone && errors.telephone)}
+                                                        readOnly={!editable}
+                                                        {...getFieldProps("telephone")}
+                                                    />
+                                                </Stack>
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row" alignItems="flex-start">
                                         <Typography
                                             className="label"
@@ -125,10 +198,8 @@ function PatientContactDetailCard({...props}) {
                                             />
                                         )}
                                     </Stack>
-                                </Stack>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Stack spacing={2}>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row" alignItems="flex-start">
                                         <Typography
                                             className="label"
@@ -152,6 +223,8 @@ function PatientContactDetailCard({...props}) {
                                             />
                                         )}
                                     </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row" alignItems="flex-start">
                                         <Typography
                                             className="label"
@@ -175,6 +248,8 @@ function PatientContactDetailCard({...props}) {
                                             />
                                         )}
                                     </Stack>
+                                </Grid>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row" alignItems="flex-start">
                                         <Typography
                                             className="label"
@@ -198,30 +273,7 @@ function PatientContactDetailCard({...props}) {
                                             />
                                         )}
                                     </Stack>
-                                    {patient?.insurances?.map(
-                                        (data: { insurance: InsuranceModel }, index: number) => (
-                                            <Stack
-                                                direction="row"
-                                                key={index}
-                                                alignItems="flex-start">
-                                                <Typography
-                                                    className="label"
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    width="50%">
-                                                    {t("assurance")}
-                                                </Typography>
-                                                {loading ? (
-                                                    <Skeleton width={100}/>
-                                                ) : (
-                                                    <Typography width="50%">
-                                                        {data.insurance?.name}
-                                                    </Typography>
-                                                )}
-                                            </Stack>
-                                        )
-                                    )}
-                                </Stack>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </CardContent>

@@ -3,28 +3,22 @@ import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {LoadingScreen} from "@features/loadingScreen";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 
 function SignIn() {
     const {status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
+    const [error, setError] = useState(router.asPath.includes("&error="));
     const {token} = router.query;
 
     useEffect(() => {
-        if (status === "unauthenticated") {
-            if (router.asPath.includes("?token=")) {
-                signIn('credentials', {
-                    token,
-                    callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
-                });
-            } else {
-                signIn('keycloak',
-                    {
-                        callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
-                    });
-            }
+        if (status === "unauthenticated" && !error) {
+            signIn(router.asPath.includes("?token=") ? 'credentials' : 'keycloak', {
+                ...(router.asPath.includes("?token=") && {token}),
+                callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
+            });
         }
     });
 
@@ -32,7 +26,9 @@ function SignIn() {
 
     return (
         status === "unauthenticated" ?
-            <LoadingScreen/> :
+            <LoadingScreen
+                {...{error, ...(error && {text: "loading-error"})}}
+            /> :
             <Redirect to='/dashboard/agenda'/>)
 }
 

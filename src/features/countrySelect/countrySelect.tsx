@@ -1,6 +1,5 @@
 import React, {useCallback} from "react";
 import Image from "next/image";
-import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -8,7 +7,7 @@ import {countries} from "./countries";
 import {MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
-    const {onSelect, initCountry} = props;
+    const {onSelect, initCountry = "", small, ...rest} = props;
 
     const [state, setstate] = React.useState(initCountry);
 
@@ -21,8 +20,18 @@ function CountrySelect({...props}) {
 
     return (
         <Autocomplete
+            {...rest}
             id="country-select-demo"
-            sx={{width: "100%"}}
+            sx={{
+                ...(small && {
+                    "& .MuiAutocomplete-input": {
+                        display: "none"
+                    },
+                    "& .MuiAutocomplete-inputRoot": {
+                        paddingRight: "1.6rem!important"
+                    }
+                })
+            }}
             size="small"
             onChange={(e, v) => {
                 setstate(v);
@@ -47,7 +56,7 @@ function CountrySelect({...props}) {
                 </MenuItem>
             )}
             renderInput={(params) => {
-                params.InputProps.startAdornment = (
+                params.InputProps.startAdornment = initCountry && (
                     <InputAdornment position="start">
                         <Image
                             loading="lazy"
@@ -58,6 +67,7 @@ function CountrySelect({...props}) {
                         />
                     </InputAdornment>
                 );
+
                 return <TextField {...params} variant="outlined" fullWidth/>;
             }}
         />

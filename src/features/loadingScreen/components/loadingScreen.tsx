@@ -1,4 +1,4 @@
-import {Box, Button, Theme, Typography, useMediaQuery} from "@mui/material";
+import {Box, Button, Theme, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {RootStyled} from "@features/loadingScreen";
 import {motion} from "framer-motion";
 import IconUrl from "@themes/urlIcon";
@@ -8,9 +8,11 @@ import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 
 function LoadingScreen({...props}) {
+    const {text = "loading", iconNote = null, button = null, error = false} = props
+
     const router = useRouter();
+    const theme = useTheme();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
-    const {text = "loading", iconNote = null, button = null} = props
     const {t, ready} = useTranslation('common');
     if (!ready) return (<>loading translations...</>);
 
@@ -55,7 +57,7 @@ function LoadingScreen({...props}) {
                         mb: 3,
                     }}
                 >
-                    <MedProIcon/>
+                    <MedProIcon color={error ? theme.palette.error.main : theme.palette.primary.main}/>
                 </Box>
                 <Box
                     display="flex"

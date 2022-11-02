@@ -76,6 +76,8 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
         width: "100%",
         left: 0,
         padding: "0px 20px",
+        paddingBottom:theme.spacing(5),
+        overflow:'scroll',
         "& .heading": {
             marginTop: "30px",
         },
