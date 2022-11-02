@@ -40,8 +40,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models, appuuid} = props;
-        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid}></Widget>;
+        const {modal, setSM, models, appuuid,changes,setChanges} = props;
+        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes} setChanges={setChanges}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -533,6 +533,7 @@ function ConsultationInProgress() {
                                     modal={selectedModel}
                                     models={models}
                                     appuuid={uuind}
+                                    changes={changes} setChanges={setChanges}
                                     setSM={setSelectedModel}></WidgetForm>
                             )}
                         </Grid>

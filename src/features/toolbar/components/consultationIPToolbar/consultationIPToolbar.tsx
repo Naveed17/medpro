@@ -131,7 +131,6 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo("document_detail");
                     const res = r.data.data;
-
                     setState({
                         uri: res[1],
                         name: "prescription",
@@ -335,7 +334,6 @@ function ConsultationIPToolbar({...props}) {
         switch (action) {
             case "draw_up_an_order":
                 setInfo("medical_prescription");
-                console.log(prescription)
                 setState(prescription);
                 break;
             case "balance_sheet_request":
@@ -348,6 +346,18 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 setInfo("write_certif");
+                setState({
+                    name: ginfo.firstName + " " + ginfo.lastName,
+                    days: '....',
+                    content: "",
+                    patient:
+                        appointement.patient.firstName +
+                        " " +
+                        appointement.patient.lastName,
+                });
+                break;
+            case "write_report":
+                setInfo("write_report");
                 setState({
                     name: ginfo.firstName + " " + ginfo.lastName,
                     days: '....',
@@ -390,7 +400,6 @@ function ConsultationIPToolbar({...props}) {
                     break;
             }
         }
-        //console.log(selectedDialog)
     }, [selectedDialog])
 
     useEffect(() => {

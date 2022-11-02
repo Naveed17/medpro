@@ -11,7 +11,6 @@ import {
     TextField,
     Typography
 } from '@mui/material'
-import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useReactToPrint} from 'react-to-print'
 import {useTranslation} from 'next-i18next'
@@ -29,6 +28,8 @@ import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
+import {Session} from "next-auth";
+import {useSnackbar} from "notistack";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -42,14 +43,10 @@ function DocumentDetailDialog({...props}) {
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
     const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
-    const formik = useFormik({
-        initialValues: {
-            name: state.name,
-        },
-        onSubmit: async (values) => {
-            console.log(values)
-        },
-    });
+    const [name, setName] = useState(state.name);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {enqueueSnackbar} = useSnackbar();
 
     const list = [
         {
@@ -74,7 +71,6 @@ function DocumentDetailDialog({...props}) {
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
-    const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
 
     const actionButtons = [
@@ -213,7 +209,7 @@ function DocumentDetailDialog({...props}) {
             case "delete":
                 trigger({
                     method: "DELETE",
-                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
+                    url: `/api/medical-entity/agendas/appointments/documents/${state.uuid}/${router.locale}`,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
                     state.mutate()
@@ -270,7 +266,22 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-    const {handleSubmit, getFieldProps} = formik;
+
+    const rename = () => {
+        const form = new FormData();
+        form.append('attribute', "name");
+        form.append('value', name);
+        trigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/documents/${state.uuid}/${router.locale}`,
+            data: form,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(() => {
+            state.mutate()
+            enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+
+        });
+    }
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
@@ -291,32 +302,25 @@ function DocumentDetailDialog({...props}) {
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
-                    <FormikProvider value={formik}>
-                        <Stack
-                            spacing={2}
-                            component={Form}
-                            autoComplete="off"
-                            noValidate
-                            onSubmit={handleSubmit}>
-                            <Box sx={{
-                                '.react-pdf__Page': {
-                                    marginBottom: 1,
-                                    '.react-pdf__Page__canvas': {
-                                        mx: 'auto',
-                                    }
+                    <Stack spacing={2}>
+                        <Box sx={{
+                            '.react-pdf__Page': {
+                                marginBottom: 1,
+                                '.react-pdf__Page__canvas': {
+                                    mx: 'auto',
                                 }
-                            }}>
-                                <Document ref={
-                                    componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
-                                >
-                                    {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                    ))}
+                            }
+                        }}>
+                            <Document ref={
+                                componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
+                            >
+                                {Array.from(new Array(numPages), (el, index) => (
+                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                ))}
 
-                                </Document>
-                            </Box>
-                        </Stack>
-                    </FormikProvider>
+                            </Document>
+                        </Box>
+                    </Stack>
                 </Grid>
                 <Grid item xs={12} md={4} className="sidebar">
                     <List>
@@ -339,17 +343,12 @@ function DocumentDetailDialog({...props}) {
                                     {t('document_name')}
                                 </Typography>
                                 <TextField
-                                    {...getFieldProps('name')}
-                                    inputProps={{
-                                        readOnly: readonly
-                                    }}
+                                    value={name}
+                                    onChange={(ev) => setName(ev.target.value)}
                                     inputRef={input => input && input.focus()}
 
                                 />
-                                <Button size='small' className='btn-modi' onClick={
-                                    () => setreadonly(!readonly)
-
-                                }>
+                                <Button size='small' className='btn-modi' onClick={() => rename()}>
                                     <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>

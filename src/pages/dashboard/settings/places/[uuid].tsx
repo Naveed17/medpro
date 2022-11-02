@@ -511,8 +511,9 @@ function PlacesDetail() {
     setFieldValue("phone", phones);
   };
   const handleRemovePhone = (props: number) => {
-    const phones = values.phone.filter((item, index) => index !== props);
-    setFieldValue("phone", phones);
+    console.log(props)
+    /*const phones = values.phone.filter((item, index) => index !== props);
+    setFieldValue("phone", phones);*/
   };
   return (
     <>
@@ -766,12 +767,12 @@ function PlacesDetail() {
                               }}
                             />
                             {index !== 0 && (
-                              <IconButton
+                              /*<IconButton
                                 onClick={() => handleRemovePhone(index)}
                                 sx={{ position: "absolute", right: -40 }}
                                 size="small">
                                 <IconUrl path="setting/icdelete" />
-                              </IconButton>
+                              </IconButton>*/<></>
                             )}
                           </Stack>
                         </Grid>
