@@ -1,8 +1,7 @@
-import {styled, alpha} from "@mui/material/styles";
-import {Card} from "@mui/material";
+import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-const RootStyled = styled(Card)(({theme}) => ({
-    border: "none",
+const PersonalInfoStyled = styled(Box)(({ theme }) => ({
     "& .MuiSelect-select": {
         padding: "0 2rem 0 1rem"
     },
@@ -16,14 +15,14 @@ const RootStyled = styled(Card)(({theme}) => ({
         border: "none!important",
         boxShadow: "none!important"
     },
-    "& .MuiCardContent-root": {
-        paddingTop: 0
+    "& .MuiPaper-root": {
+        pt: 0
     },
     "& .MuiAppBar-root": {
         border: "none",
         borderBottom: "1px solid #E0E0E0",
         height: 46,
-        marginBottom: 12,
+        mb: 2,
         "&.MuiTypography-root": {
             fontSize: 12,
             pt: 0
@@ -32,9 +31,7 @@ const RootStyled = styled(Card)(({theme}) => ({
     "& .MuiToolbar-root": {
         float: "right",
         padding: 0
-    },
-    "& .MuiAutocomplete-popperDisablePortal": {
-        minWidth: "200px"
     }
 }));
-export default RootStyled
+
+export default PersonalInfoStyled
