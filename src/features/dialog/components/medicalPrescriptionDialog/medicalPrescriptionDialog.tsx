@@ -35,6 +35,7 @@ import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import {useSnackbar} from "notistack";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -52,6 +53,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
     const {data: session} = useSession();
     const {data: user} = session as Session;
+    const {enqueueSnackbar} = useSnackbar();
 
     const validationSchema = Yup.object().shape({
         dosage: Yup.string().required(),
@@ -100,6 +102,7 @@ function MedicalPrescriptionDialog({...props}) {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
                     setSelectedModel(null)
+                    enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
                 });
             })
             setOpenDialog(false);
@@ -120,6 +123,7 @@ function MedicalPrescriptionDialog({...props}) {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
                     setDrugs([]);
                     setSelectedModel(null)
+                    enqueueSnackbar(t("removeWithsuccess"), {variant: 'success'})
                 });
             })
             setOpenDialog(false);

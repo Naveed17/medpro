@@ -29,6 +29,7 @@ import RequestedMedicalImaging from "@features/files/components/requested-medica
 import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
+import {useSnackbar} from "notistack";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -45,6 +46,7 @@ function DocumentDetailDialog({...props}) {
     const [name, setName] = useState(state.name);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {enqueueSnackbar} = useSnackbar();
 
     const list = [
         {
@@ -276,6 +278,8 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
+            enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+
         });
     }
     if (!ready) return <>loading translations...</>;
