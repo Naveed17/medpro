@@ -163,7 +163,8 @@
       "adreq": "Adresse est obligatoire",
       "emsc": "em seance",
       "firstsc": "1er seance",
-      "timeshedule": "horaire d'ouverture"
+      "timeshedule": "horaire d'ouverture",
+      "applyforWeek":"Appliquer pour toute la semaine"
     }
   },
   "agenda": {
