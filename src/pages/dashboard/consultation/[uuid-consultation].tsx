@@ -34,14 +34,16 @@ import ImageViewer from "react-simple-image-viewer";
 import {Widget} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models, appuuid,changes,setChanges} = props;
-        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes} setChanges={setChanges}></Widget>;
+        const {modal, setSM, models, appuuid, changes, setChanges} = props;
+        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes}
+                       setChanges={setChanges}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -251,9 +253,11 @@ function ConsultationInProgress() {
             setPatient(appointement.patient);
             setFree(appointement.type.code === 3)
             if (appointement.type.code !== 3) setTotal(consultationFees)
+
             dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
+
             if (appointement.acts) {
                 let sAct: any[] = [];
                 appointement.acts.map(
@@ -340,14 +344,10 @@ function ConsultationInProgress() {
                 mutate().then(() => {
                     //localStorage.removeItem("Modeldata" + uuind);
                     console.log("remove", localStorage.getItem("Modeldata" + uuind))
+                    router.push("/dashboard/agenda").then(() => {
+                        setActions(false);
+                    })
                 })
-
-                if (appointement?.status == 5) {
-                    router.push("/dashboard/agenda")
-                } else {
-                    handleClick()
-                }
-
             });
         }
         setEnd(false);
@@ -419,9 +419,26 @@ function ConsultationInProgress() {
         setActions(false);
 
     };
+    const leave = ()=>{
+        router.push("/dashboard/agenda").then(() => {
+            dispatch(setTimer({isActive: false}));
+            setActions(false);
+        })
+    }
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
+
+    const saveConsultation = () =>{
+        const btn = document.getElementsByClassName("sub-btn")[1];
+        const examBtn = document.getElementsByClassName("sub-exam")[0];
+
+        (btn as HTMLElement)?.click();
+        (examBtn as HTMLElement)?.click();
+
+        setOnsave(true)
+        setEnd(true)
+    }
     const handleClick = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
@@ -429,26 +446,32 @@ function ConsultationInProgress() {
     };
     const DialogAction = () => {
         return (
-            <DialogActions>
-                <Button
-                    variant="text-black"
-                    onClick={handleCloseDialog}
-                    startIcon={<CloseIcon/>}>
-                    {t("cancel")}
-                </Button>
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => {
-                        router.push("/dashboard/agenda").then(() => {
-                            setInfo("end_consultation");
-                            setActions(false);
-                        })
+            <DialogActions style={{justifyContent: 'space-between',width:'100%'}}>
+                    <Button
+                        variant="text-black"
+                        onClick={leave}
+                        startIcon={<LogoutRoundedIcon/>}>
+                        {t("withoutSave")}
+                    </Button>
+                    <Stack direction={"row"} spacing={2}>
+                        <Button
+                            variant="text-black"
+                            onClick={handleCloseDialog}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => {
+                                saveConsultation()
 
-                    }}
-                    startIcon={<IconUrl path="ic-check"/>}>
-                    {t("end_consultation")}
-                </Button>
+
+                            }}
+                            startIcon={<IconUrl path="ic-check"/>}>
+                            {t("end_consultation")}
+                        </Button>
+                    </Stack>
             </DialogActions>
         );
     };
@@ -629,15 +652,18 @@ function ConsultationInProgress() {
                             <Button
                                 onClick={() => {
 
-                                    const btn = document.getElementsByClassName("sub-btn")[1];
+                                    /*const btn = document.getElementsByClassName("sub-btn")[1];
                                     const examBtn = document.getElementsByClassName("sub-exam")[0];
 
                                     (btn as HTMLElement)?.click();
                                     (examBtn as HTMLElement)?.click();
 
                                     setOnsave(true)
-                                    setEnd(true)
-                                    handleClick()
+                                    setEnd(true)*/
+
+                                    if (appointement?.status == 5){
+                                        saveConsultation()
+                                    } else handleClick()
                                 }}
                                 color={"error"}
                                 variant="contained"
