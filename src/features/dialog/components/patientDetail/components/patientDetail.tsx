@@ -170,7 +170,7 @@ function PatientDetail({...props}) {
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel loading={!patient} {...{patient, mutate}} />
+                            <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
                         </TabPanel>
                         {/*<TabPanel padding={1} value={index} index={1}>
                             <FilesPanel {...{t, previousAppointments}} />
