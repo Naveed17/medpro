@@ -172,7 +172,7 @@ function PatientContactDetailCard({...props}) {
                             </AppBar>
                             <Grid container spacing={1.2}>
                                 {values.telephone.map((phone: any, index: number) => (
-                                        <Grid item md={6} sm={6} xs={6}
+                                        <Grid item md={5} sm={6} xs={6}
                                               key={`${index}`}>
                                             <Stack direction="row"
                                                    spacing={1}
@@ -228,7 +228,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     )
                                 )}
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={7} sm={6} xs={6}>
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
@@ -294,7 +294,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={5} sm={6} xs={6}>
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
@@ -351,7 +351,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={7} sm={6} xs={6}>
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
@@ -384,7 +384,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={6} sm={6} xs={6}>
+                                <Grid item md={5} sm={6} xs={6}>
                                     <Stack direction="row"
                                            sx={{
                                                "& .MuiInputBase-root": {

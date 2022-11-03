@@ -252,7 +252,7 @@ function PersonalInfo({...props}) {
                             </Toolbar>
                         </AppBar>
                         <Grid container spacing={1.2}>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={5} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
@@ -284,7 +284,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={7} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -313,7 +313,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={5} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
@@ -347,7 +347,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={7} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -376,7 +376,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={6} sm={6} xs={6}>
+                            <Grid item md={5} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -406,7 +406,7 @@ function PersonalInfo({...props}) {
                                 </Stack>
                             </Grid>
                             {values.insurances.map((insurance: any, index: number) => (
-                                <Grid item md={6} sm={6} xs={6} key={`${index}-${insurance.insurance_uuid}`}>
+                                <Grid item md={7} sm={6} xs={6} key={`${index}-${insurance.insurance_uuid}`}>
                                     <Stack
                                         direction="row"
                                         spacing={1}
@@ -424,6 +424,11 @@ function PersonalInfo({...props}) {
                                                     direction="row"
                                                     alignItems="center">
                                                     <Select
+                                                        sx={{
+                                                            "& .MuiSvgIcon-root": {
+                                                                display: !editable ? "none" : "inline-block"
+                                                            }
+                                                        }}
                                                         readOnly={!editable}
                                                         id={"assurance"}
                                                         size="small"
