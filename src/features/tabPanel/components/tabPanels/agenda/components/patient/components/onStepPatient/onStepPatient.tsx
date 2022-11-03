@@ -118,7 +118,7 @@ function OnStepPatient({...props}) {
             family_doctor: selectedPatient ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => ({
                 insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance.uuid
+                insurance_uuid: insurance.insurance?.uuid
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;

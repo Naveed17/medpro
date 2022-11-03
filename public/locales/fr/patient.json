@@ -15,8 +15,9 @@
     "place": "Lieu",
     "city": "Ville",
     "city-placeholder": "ville",
-    "country": "Nationalité",
-    "country-placeholder": "Nationalité",
+    "country": "Pays",
+    "country-placeholder": "pays",
+    "country-placeholder-error": "Veuillez choisir le pays.",
     "search": "Recherche",
     "appointment": "Rendez-vous",
     "type": "Type",
@@ -169,8 +170,9 @@
       "birthdate": "Date de naissance",
       "family_doctor": "Médecin traitant",
       "family_doctor-placeholder": "Tapez le nom du médecin traitant",
-      "country": "Nationalité",
-      "country-placeholder": "nationalité",
+      "country": "Pays",
+      "country-placeholder": "pays",
+      "country-placeholder-error": "Veuillez choisir le pays.",
       "day": "Jour",
       "month": "Mois",
       "year": "Année",
@@ -181,6 +183,7 @@
       "next": "Suivant",
       "region": "Région",
       "region-placeholder": "Région",
+      "region-placeholder-error": "Veuillez sélectionner la région",
       "zip": "Code postal",
       "address": "Adresse",
       "address-placeholder": "Entrez l'adresse du patient",
@@ -202,11 +205,15 @@
       "return": "Retourner à",
       "contact": "Contact",
       "zip_code": "Zip code",
+      "zip_code-placeholder": "Saisir le zip code",
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",
         "no-duplicates": "Ces patients ne sont pas doublons ",
         "selected": "Patient sélectionné"
+      },
+      "alert": {
+        "patient-edit": "le patient a été modifié avec succès"
       }
     }
   },

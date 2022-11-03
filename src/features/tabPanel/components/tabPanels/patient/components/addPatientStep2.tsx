@@ -53,7 +53,7 @@ function AddPatientStep2({...props}) {
             family_doctor: selectedPatient ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => ({
                 insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance.uuid
+                insurance_uuid: insurance.insurance?.uuid
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
@@ -320,7 +320,7 @@ function AddPatientStep2({...props}) {
                                                     displayEmpty={true}
                                                     sx={{color: "text.secondary"}}
                                                     renderValue={(selected) => {
-                                                        if (selected.length === 0) {
+                                                        if (selected?.length === 0) {
                                                             return <em>{t("add-patient.assurance-placeholder")}</em>;
                                                         }
                                                         const insurance = insurances?.find(insurance => insurance.uuid === selected);

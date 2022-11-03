@@ -252,7 +252,6 @@
     "delete-appointment": "le rendez-vous a été supprimé avec succès",
     "leave-waiting-room": "le patient a quitté la salle d'attente",
     "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
-    "patient-no-show": "le rendez-vous a été modifié avec succès",
-    "patient-edit": "le patient a été modifié avec succès"
+    "patient-no-show": "le rendez-vous a été modifié avec succès"
   }
 }
