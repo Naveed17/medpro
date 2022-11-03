@@ -32,6 +32,7 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {pxToRem} from "@themes/formatFontSize";
 import {appLockSelector} from "@features/appLock";
+import {onOpenPatientDrawer} from "@features/table";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
@@ -113,7 +114,8 @@ function Consultation() {
                                            }}
                                            id={'name'}
                                            onClick={() => {
-                                               setEdit(true)
+                                               // setEdit(true)
+                                               dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
                                            }}
                                            value={name}/>
                                 <Typography variant="body2" color="text.secondary">
@@ -126,11 +128,13 @@ function Consultation() {
                     </Box>
 
                     <Box onClick={() => {
-                        setEdit(true)
-                        document.getElementById('name')?.focus()
-                    }}
-                         style={{position: "absolute", top: 20, right: 10}}>
-                        <Icon path={'ic-duotone'}/>
+                        // setEdit(true)
+                        // document.getElementById('name')?.focus()
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                    }}>
+                        <IconButton size={"small"} sx={{position: "absolute", top: 20, right: 10}}>
+                            <Icon path={'ic-duotone'}/>
+                        </IconButton>
                     </Box>
                 </Box>
                 <Box className="contact" ml={2}>

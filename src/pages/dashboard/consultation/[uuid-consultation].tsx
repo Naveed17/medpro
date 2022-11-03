@@ -12,8 +12,8 @@ import {
     SetPatient,
 } from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {tableActionSelector} from "@features/table";
-import {Dialog, DialogProps} from "@features/dialog";
+import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
+import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -64,6 +64,7 @@ function ConsultationInProgress() {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [appointement, setAppointement] = useState<any>();
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
@@ -74,6 +75,7 @@ function ConsultationInProgress() {
     const [sheet, setSheet] = useState<any>(null);
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [stateAct, setstateAct] = useState({
         uuid: "",
         isTopAct: true,
@@ -298,6 +300,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (patientId) {
             setopen(true);
+            setPatientDetailDrawer(true);
         }
     }, [patientId]);
 
@@ -798,6 +801,26 @@ function ConsultationInProgress() {
                 />
             )}
 
+            <Drawer
+                anchor={"right"}
+                open={patientDetailDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    setPatientDetailDrawer(false);
+                }}
+            >
+                <PatientDetail
+                    {...{isAddAppointment, mutate}}
+                    onCloseDialog={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                    patientId={patientId}
+                />
+            </Drawer>
+
             {isViewerOpen.length > 0 && (
                 <ImageViewer
                     src={[isViewerOpen, isViewerOpen]}
@@ -823,6 +846,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
                 "menu",
                 "common",
                 "agenda",
+                "patient"
             ])),
         },
     };

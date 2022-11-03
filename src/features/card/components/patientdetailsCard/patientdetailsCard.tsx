@@ -137,9 +137,9 @@ function PatientDetailsCard({...props}) {
                                         color="text.secondary"
                                         component="span">
                                         -{" "}
-                                        {moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
+                                        ({moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
                                         {" "}
-                                        ({t("years").toLowerCase()})
+                                        {t("years").toLowerCase()})
                                     </Typography>}
                             </Stack>
                         )}
