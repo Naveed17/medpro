@@ -198,14 +198,14 @@ function Actes() {
                         }}
                     >
                         {t("main")}{" "}
-                        {!alert && (
+                        {/*{!alert && (
                             <IconUrl
                                 onChange={() => {
                                     setAlert(true);
                                 }}
                                 path="danger"
                             />
-                        )}
+                        )}*/}
                         {alert && (
                             <BasicAlert
                                 icon="danger"
@@ -258,7 +258,7 @@ function Actes() {
                         }}
                     >
                         {t("secondary")}{" "}
-                        {!secAlert && (
+                        {/*{!secAlert && (
                             <IconUrl
                                 onChange={() => {
                                     setSecAlert(true);
@@ -282,7 +282,7 @@ function Actes() {
                             >
                                 info
                             </BasicAlert>
-                        )}
+                        )}*/}
                     </Typography>
 
                     <MultiSelect

@@ -369,12 +369,12 @@ function Profil() {
                                             </Typography>
                                         )}
                                     </Stack>
-                                    <IconButton
+                                    {/*<IconButton
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("qualification")}>
                                         <IconUrl path="ic-edit"/>
-                                    </IconButton>
+                                    </IconButton>*/}
                                 </Stack>
                             </ListItem>
                             <ListItem>

@@ -13,6 +13,7 @@ import {SubHeader} from "@features/subHeader";
 import {Otable} from '@features/table';
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {useSnackbar} from "notistack";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -62,6 +63,7 @@ function ActFees() {
     const [setselected] = useState<any>({});
     const [consultationFees, setConsultationFees] = useState(0);
     const [newFees, setNewFees] = useState({name: '', fees: ''});
+    const {enqueueSnackbar} = useSnackbar();
 
 
     const {data: user} = session as Session;
@@ -116,7 +118,8 @@ function ActFees() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, TriggerWithoutValidation).then((r) => console.log(r));
+        }, TriggerWithoutValidation).then(() => enqueueSnackbar(t("feesupdated"), {variant: 'success'})
+        );
     }
 
     const removeFees = (uuid: string) => {
@@ -126,7 +129,11 @@ function ActFees() {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
-        }, TriggerWithoutValidation).then(() => mutate());
+        }, TriggerWithoutValidation).then(() => {
+            mutate().then(() => {
+                enqueueSnackbar(t("removed"), {variant: 'success'})
+            });
+        });
     }
 
     const saveFees = () => {
@@ -147,6 +154,7 @@ function ActFees() {
                 mutate().then(() => {
                     setCreate(false)
                     setNewFees({name: '', fees: ''})
+                    enqueueSnackbar(t("addedfees"), {variant: 'success'})
                 })
             })
         }
