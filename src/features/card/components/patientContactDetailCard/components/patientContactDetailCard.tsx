@@ -26,13 +26,14 @@ import Image from "next/image";
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
-    const {patient, mutate: mutatePatientData, mutatePatientList, loading} = props;
+    const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
 
     const [editable, setEditable] = useState(false);
     const [country, setCountry] = useState(countries.find(country => country.phone === patient?.contact[0]?.code));
+    const [loadingRequest, setLoadingRequest] = useState(false);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -82,7 +83,7 @@ function PatientContactDetailCard({...props}) {
 
     const handleUpdatePatient = () => {
         setEditable(false);
-        console.log(values);
+        setLoadingRequest(true);
         const params = new FormData();
         params.append('first_name', patient.firstName.trim());
         params.append('last_name', patient.lastName.trim());
@@ -112,9 +113,13 @@ function PatientContactDetailCard({...props}) {
             },
             data: params,
         }).then(() => {
+            setLoadingRequest(false);
             setEditable(false);
-            mutatePatientList();
-            enqueueSnackbar(t(`alert.patient-edit`, {ns: 'common'}), {variant: "success"});
+            mutatePatientData();
+            if(mutatePatientList) {
+                mutatePatientList();
+            }
+            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
     }
 
@@ -261,7 +266,7 @@ function PatientContactDetailCard({...props}) {
                                                     }}
                                                     renderValue={selected => {
                                                         if (selected?.length === 0) {
-                                                            return <em>{t("country-placeholder")}</em>;
+                                                            return <em>{t("country-placeholder-error")}</em>;
                                                         }
 
                                                         const country = countries_api?.find(country => country.uuid === selected);
@@ -327,7 +332,7 @@ function PatientContactDetailCard({...props}) {
                                                     }}
                                                     renderValue={selected => {
                                                         if (selected?.length === 0) {
-                                                            return <em>{t("region-placeholder")}</em>;
+                                                            return <em>{t("region-placeholder-error")}</em>;
                                                         }
 
                                                         const state = states?.find(state => state.uuid === selected);
@@ -350,7 +355,7 @@ function PatientContactDetailCard({...props}) {
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={2.5} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -366,6 +371,7 @@ function PatientContactDetailCard({...props}) {
                                                 <InputBase
                                                     readOnly={!editable}
                                                     sx={{width: "50%"}}
+                                                    placeholder={t("address-placeholder")}
                                                     inputProps={{
                                                         style: {
                                                             background: "white",
@@ -380,9 +386,14 @@ function PatientContactDetailCard({...props}) {
                                 </Grid>
                                 <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row"
+                                           sx={{
+                                               "& .MuiInputBase-root": {
+                                                   width: "100%"
+                                               }
+                                           }}
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={2.5} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -398,6 +409,7 @@ function PatientContactDetailCard({...props}) {
                                                 <InputBase
                                                     readOnly={!editable}
                                                     sx={{width: "50%"}}
+                                                    placeholder={t("zip_code-placeholder")}
                                                     inputProps={{
                                                         style: {
                                                             background: "white",

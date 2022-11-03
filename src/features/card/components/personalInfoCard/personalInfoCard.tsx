@@ -9,7 +9,7 @@ import {
     Paper,
     Grid,
     Skeleton,
-    InputBase, Button, AppBar, Toolbar, IconButton, Divider, MenuItem, TextField
+    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {Stack} from "@mui/system";
@@ -28,9 +28,11 @@ import {DatePicker} from "@mui/x-date-pickers";
 import moment from "moment-timezone";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Icon from "@themes/urlIcon";
+import {LoadingButton} from "@mui/lab";
+import PersonalInfoStyled from "./overrides/personalInfoStyled";
 
 function PersonalInfo({...props}) {
-    const {patient, mutate: mutatePatientData, loading} = props;
+    const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
 
     const {data: session} = useSession();
     const router = useRouter();
@@ -45,6 +47,7 @@ function PersonalInfo({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const [editable, setEditable] = useState(false);
+    const [loadingRequest, setLoadingRequest] = useState(false);
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
@@ -124,6 +127,7 @@ function PersonalInfo({...props}) {
     };
 
     const handleUpdatePatient = () => {
+        setLoadingRequest(true);
         const params = new FormData();
         params.append('first_name', values.name.split(' ').slice(0, -1).join(' '));
         params.append('last_name', values.name.split(' ').slice(-1).join(' '));
@@ -152,9 +156,13 @@ function PersonalInfo({...props}) {
             },
             data: params,
         }).then(() => {
+            setLoadingRequest(false);
             setEditable(false);
             mutatePatientData();
-            enqueueSnackbar(t(`alert.patient-edit`, {ns: 'common'}), {variant: "success"});
+            if (mutatePatientList) {
+                mutatePatientList();
+            }
+            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
     }
 
@@ -164,14 +172,13 @@ function PersonalInfo({...props}) {
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-                <Box
+                <PersonalInfoStyled
                     sx={{
                         mt: "0.5rem",
                         "& .MuiSelect-select": {
                             padding: "0 2rem 0 1rem"
                         },
                         "& .MuiInputBase-root": {
-                            width: "100%",
                             background: "no-repeat!important",
                             "&:hover": {
                                 backgroundColor: "none"
@@ -226,13 +233,15 @@ function PersonalInfo({...props}) {
                                 <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                                     {editable ?
                                         <Stack mt={1} justifyContent='flex-end'>
-                                            <Button onClick={() => handleUpdatePatient()}
-                                                    className='btn-add'
-                                                    sx={{margin: 'auto'}}
-                                                    size='small'
-                                                    startIcon={<SaveAsIcon/>}>
+                                            <LoadingButton
+                                                onClick={() => handleUpdatePatient()}
+                                                loading={loadingRequest}
+                                                className='btn-add'
+                                                sx={{margin: 'auto'}}
+                                                size='small'
+                                                startIcon={<SaveAsIcon/>}>
                                                 {t('register')}
-                                            </Button>
+                                            </LoadingButton>
                                         </Stack>
                                         :
                                         <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
@@ -277,15 +286,20 @@ function PersonalInfo({...props}) {
                             </Grid>
                             <Grid item md={6} sm={6} xs={6}>
                                 <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={2.5} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("name")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={7.5} sm={6} xs={6}>
+                                    <Grid item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -319,7 +333,7 @@ function PersonalInfo({...props}) {
                                                     disableOpenPicker
                                                     inputFormat={"dd/MM/yyyy"}
                                                     mask="__/__/____"
-                                                    value={moment(values.birthdate, "DD-MM-YYYY")}
+                                                    value={values.birthdate && moment(values.birthdate, "DD-MM-YYYY")}
                                                     onChange={date => {
                                                         const dateInput = moment(date)
                                                         if (dateInput.isValid()) {
@@ -335,10 +349,15 @@ function PersonalInfo({...props}) {
                             </Grid>
                             <Grid item md={6} sm={6} xs={6}>
                                 <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={2.5} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("email")}
                                         </Typography>
@@ -359,6 +378,11 @@ function PersonalInfo({...props}) {
                             </Grid>
                             <Grid item md={6} sm={6} xs={6}>
                                 <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
@@ -472,7 +496,7 @@ function PersonalInfo({...props}) {
                                 </Grid>))}
                         </Grid>
                     </Paper>
-                </Box>
+                </PersonalInfoStyled>
 
             </Form>
         </FormikProvider>
