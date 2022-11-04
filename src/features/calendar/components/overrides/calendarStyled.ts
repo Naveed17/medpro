@@ -147,7 +147,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
         ...theme.typography.body2
     },
 
-    // Agenda View
+    // Payment View
     '& .fc-direction-ltr .fc-list-day-text, .fc-direction-rtl .fc-list-day-side-text, .fc-direction-ltr .fc-list-day-side-text, .fc-direction-rtl .fc-list-day-text':
         {
             ...theme.typography.subtitle2

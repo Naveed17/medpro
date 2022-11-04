@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { ModelDot } from "@features/modelDot";
 function PaymentMobileCard({ ...props }) {
     const { data, t, edit, getCollapseData } = props
-    console.log(data)
+    //console.log(data)
     const theme = useTheme() as Theme
     return (
         <PaymentMobileCardStyled sx={{

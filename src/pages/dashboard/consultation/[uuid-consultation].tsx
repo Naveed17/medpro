@@ -1,7 +1,7 @@
 import React, {memo, ReactElement, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {Document, Page, pdfjs} from "react-pdf";
+import {pdfjs} from "react-pdf";
 import {configSelector, DashLayout} from "@features/base";
 import {
     ConsultationIPToolbar,
@@ -34,14 +34,16 @@ import ImageViewer from "react-simple-image-viewer";
 import {Widget} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 
 const WidgetForm: any = memo(
     ({src, ...props}: any) => {
-        const {modal, setSM, models, appuuid,changes,setChanges} = props;
-        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes} setChanges={setChanges}></Widget>;
+        const {modal, setSM, models, appuuid, changes, setChanges} = props;
+        return <Widget modal={modal} setModal={setSM} models={models} appuuid={appuuid} changes={changes}
+                       setChanges={setChanges}></Widget>;
     },
     // NEVER UPDATE
     () => true
@@ -52,11 +54,10 @@ function ConsultationInProgress() {
     const theme = useTheme();
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
-    const [file, setFile] = useState("/static/files/sample.pdf");
+    //const [file, setFile] = useState("/static/files/sample.pdf");
     const [acts, setActs] = useState<any>("");
     const [total, setTotal] = useState<number>(0);
-    const [numPages, setNumPages] = useState<number | null>(null);
-    const [open, setopen] = useState(false);
+    //const [numPages, setNumPages] = useState<number | null>(null);
     const [documents, setDocuments] = useState([]);
     const [models, setModels] = useState<ModalModel[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -90,16 +91,15 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
-    const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
-
     const {config: agenda} = useAppSelector(agendaSelector);
+    const {patientId} = useAppSelector(tableActionSelector);
+
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [end, setEnd] = useState(false);
-    const [onSave, setOnsave] = useState(false);
     const {selectedDialog} = useAppSelector(consultationSelector);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
@@ -253,9 +253,13 @@ function ConsultationInProgress() {
             setPatient(appointement.patient);
             setFree(appointement.type.code === 3)
             if (appointement.type.code !== 3) setTotal(consultationFees)
+            if (appointement.consultation_fees)
+                setConsultationFees(Number(appointement.consultation_fees))
+
             dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
+
             if (appointement.acts) {
                 let sAct: any[] = [];
                 appointement.acts.map(
@@ -299,7 +303,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (patientId) {
-            setopen(true);
+            //setopen(true);
             setPatientDetailDrawer(true);
         }
     }, [patientId]);
@@ -343,14 +347,10 @@ function ConsultationInProgress() {
                 mutate().then(() => {
                     //localStorage.removeItem("Modeldata" + uuind);
                     console.log("remove", localStorage.getItem("Modeldata" + uuind))
+                    router.push("/dashboard/agenda").then(() => {
+                        setActions(false);
+                    })
                 })
-
-                if (appointement?.status == 5) {
-                    router.push("/dashboard/agenda")
-                } else {
-                    handleClick()
-                }
-
             });
         }
         setEnd(false);
@@ -380,9 +380,9 @@ function ConsultationInProgress() {
             }
         }
     };
-    const onDocumentLoadSuccess = ({numPages}: any) => {
-        setNumPages(numPages);
-    };
+    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
+            setNumPages(numPages);
+        };*/
     const openDialogue = (id: number) => {
         switch (id) {
             case 1:
@@ -422,9 +422,24 @@ function ConsultationInProgress() {
         setActions(false);
 
     };
+    const leave = () => {
+        router.push("/dashboard/agenda").then(() => {
+            dispatch(setTimer({isActive: false}));
+            setActions(false);
+        })
+    }
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
+
+    const saveConsultation = () => {
+        const btn = document.getElementsByClassName("sub-btn")[1];
+        const examBtn = document.getElementsByClassName("sub-exam")[0];
+
+        (btn as HTMLElement)?.click();
+        (examBtn as HTMLElement)?.click();
+        setEnd(true)
+    }
     const handleClick = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
@@ -432,26 +447,32 @@ function ConsultationInProgress() {
     };
     const DialogAction = () => {
         return (
-            <DialogActions>
+            <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
                 <Button
                     variant="text-black"
-                    onClick={handleCloseDialog}
-                    startIcon={<CloseIcon/>}>
-                    {t("cancel")}
+                    onClick={leave}
+                    startIcon={<LogoutRoundedIcon/>}>
+                    {t("withoutSave")}
                 </Button>
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => {
-                        router.push("/dashboard/agenda").then(() => {
-                            setInfo("end_consultation");
-                            setActions(false);
-                        })
+                <Stack direction={"row"} spacing={2}>
+                    <Button
+                        variant="text-black"
+                        onClick={handleCloseDialog}
+                        startIcon={<CloseIcon/>}>
+                        {t("cancel")}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => {
+                            saveConsultation()
 
-                    }}
-                    startIcon={<IconUrl path="ic-check"/>}>
-                    {t("end_consultation")}
-                </Button>
+
+                        }}
+                        startIcon={<IconUrl path="ic-check"/>}>
+                        {t("end_consultation")}
+                    </Button>
+                </Stack>
             </DialogActions>
         );
     };
@@ -511,6 +532,7 @@ function ConsultationInProgress() {
                         dispatch={dispatch}
                         setOpenDialog={setOpenDialog}></HistoryTab>
                 </TabPanel>
+                {/*
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
                     <Box
                         sx={{
@@ -528,6 +550,7 @@ function ConsultationInProgress() {
                         </Document>
                     </Box>
                 </TabPanel>
+*/}
                 <TabPanel padding={1} value={value} index={"consultation_form"}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={5}>
@@ -632,21 +655,24 @@ function ConsultationInProgress() {
                             <Button
                                 onClick={() => {
 
-                                    const btn = document.getElementsByClassName("sub-btn")[1];
+                                    /*const btn = document.getElementsByClassName("sub-btn")[1];
                                     const examBtn = document.getElementsByClassName("sub-exam")[0];
 
                                     (btn as HTMLElement)?.click();
                                     (examBtn as HTMLElement)?.click();
 
                                     setOnsave(true)
-                                    setEnd(true)
-                                    handleClick()
+                                    setEnd(true)*/
+
+                                    if (appointement?.status == 5) {
+                                        saveConsultation()
+                                    } else handleClick()
                                 }}
                                 color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
                                 <Icon path="ic-check"/>
-                                {appointement?.status == 5 && !onSave
+                                {appointement?.status == 5
                                     ? t("edit_of_consultation")
                                     : t("end_of_consultation")}
                             </Button>

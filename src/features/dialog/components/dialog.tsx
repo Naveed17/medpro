@@ -76,7 +76,7 @@ function Dialogs({ ...props }) {
           <DialogContentText id="scroll-dialog-description" tabIndex={-1} />
           <Component data={data} />
         </DialogContent>
-        {actionDialog ? <DialogActions>{actionDialog}</DialogActions> : null}
+        {actionDialog ? <DialogActions style={{width:'100%'}}>{actionDialog}</DialogActions> : null}
       </Dialog>
     </>
   );

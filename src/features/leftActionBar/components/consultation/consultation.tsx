@@ -4,16 +4,13 @@ import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
     Box,
-    Button,
     Collapse,
     IconButton,
-    InputAdornment,
     List,
     ListItem,
     ListItemIcon,
     Skeleton,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -25,12 +22,6 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
-import SaveAsIcon from '@mui/icons-material/SaveAs';
-import {useRequestMutation} from "@app/axios";
-import {Session} from "next-auth";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {pxToRem} from "@themes/formatFontSize";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 
@@ -41,11 +32,9 @@ function Consultation() {
     const {lock} = useAppSelector(appLockSelector);
 
     const [loading, setLoading] = useState<boolean>(true);
-    const [edit, setEdit] = useState<boolean>(false);
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
-    const {trigger} = useRequestMutation(null, "/patients");
 
     const dispatch = useAppDispatch();
 
@@ -55,15 +44,11 @@ function Consultation() {
             console.log(patient);
             setNumber(patient.contact[0])
             setEmail(patient.email)
-            setName(patient.firstName + " " + patient.lastName)
+            setName(`${patient.firstName} ${patient.lastName}`)
             setLoading(false)
         }
     }, [dispatch, patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const router = useRouter();
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     if (!ready) return <>loading translations...</>;
     return (
@@ -76,48 +61,16 @@ function Consultation() {
                             patient?.gender === "M"
                                 ? "/static/icons/men-avatar.svg"
                                 : "/static/icons/women-avatar.svg"
-                        }
-                    />
+                        }/>
                     <Box>
                         {loading ?
                             <>
                                 <Skeleton width={130} variant="text"/>
                                 <Skeleton variant="text"/>
                             </> : <>
-                                <TextField variant="standard"
-                                           InputProps={{
-                                               style: {
-                                                   background: "white",
-                                                   width: '120%'
-                                               },
-                                               disableUnderline: true,
-                                           }}
-                                           inputProps={{
-                                               style: {
-                                                   background: "white",
-                                                   fontSize: pxToRem(14),
-                                                   color: '#0696D6'
-                                               },
-                                               readOnly: !edit
-                                           }}
-                                           placeholder={'name'}
-                                           onChange={(ev) => {
-                                               setName(ev.target.value)
-                                               /*if (patient) {
-                                                   let p = {...patient}
-                                                   console.log(ev.target.value)
-                                                   const res = ev.target.value.split(' ')
-                                                   p.firstName = res[0];
-                                                   p.lastName = res[1] ? res[1] : '';
-                                                   dispatch(SetPatient(p))
-                                               }*/
-                                           }}
-                                           id={'name'}
-                                           onClick={() => {
-                                               // setEdit(true)
-                                               dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                                           }}
-                                           value={name}/>
+
+                                <Typography variant="body1" color='primary.main'
+                                            sx={{fontFamily: 'Poppins'}}>{name}</Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} (
                                     {patient?.birthdate
@@ -128,97 +81,36 @@ function Consultation() {
                     </Box>
 
                     <Box onClick={() => {
-                        // setEdit(true)
-                        // document.getElementById('name')?.focus()
                         dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
                     }}>
                         <IconButton size={"small"} sx={{position: "absolute", top: 20, right: 10}}>
                             <Icon path={'ic-duotone'}/>
                         </IconButton>
                     </Box>
+
                 </Box>
                 <Box className="contact" ml={2}>
-                    <Typography
-                        component="div"
-                        textTransform="capitalize"
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            "& .react-svg": {mr: 1},
-                            mb: 1.5,
-                        }}
-                        variant="body1"
-                        color="text.primary"
-                    >
-                        <Icon path="ic-doc"/>
+                    <Typography component="div" textTransform="capitalize"
+                                sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 1}, mb: (1.5)}}
+                                variant="body1" color="text.primary"><Icon path="ic-doc"/>
                         {upperFirst(t("contact details"))}
                     </Typography>
                     <Box sx={{pl: 1}}>
-                        {number &&
-                            <TextField variant="standard"
-                                       InputProps={{
-                                           style: {
-                                               background: "white",
-                                               width: '120%'
-                                           },
-                                           disableUnderline: true,
-                                           startAdornment: (
-                                               <InputAdornment
-                                                   position="start">
-                                                   <Icon
-                                                       path="ic-phone"/>
-                                               </InputAdornment>
-                                           )
-                                       }}
-                                       inputProps={{
-                                           style: {
-                                               background: "white",
-                                               fontSize: 12,
-                                               color: '#7C878E'
-                                           },
-                                           readOnly: !edit
-
-                                       }}
-                                       onChange={(ev) => {
-                                           if (patient) {
-                                               let nm = {...number}
-                                               nm.value = ev.target.value
-                                               setNumber(nm)
-                                           }
-                                       }}
-                                       onClick={() => {
-                                           setEdit(true)
-                                       }}
-                                       placeholder={'Ajouter téléphone'}
-                                       value={(number.code ? number.code + ' ' : '') + number.value}
-                            />}
-
-                        <TextField variant="standard"
-                                   InputProps={{
-                                       style: {background: "white", width: '120%'},
-                                       disableUnderline: true,
-                                       startAdornment: (
-                                           <InputAdornment position="start">
-                                               <Icon path="ic-message-contour"/>
-                                           </InputAdornment>
-                                       )
-                                   }}
-                                   inputProps={{
-                                       style: {
-                                           background: "white",
-                                           fontSize: 12,
-                                           color: '#7C878E'
-                                       },
-                                       readOnly: !edit
-                                   }}
-                                   onChange={(ev) => {
-                                       setEmail(ev.target.value)
-                                   }}
-                                   onClick={() => {
-                                       setEdit(true)
-                                   }}
-                                   placeholder={'Ajouter adresse e-mail'}
-                                   value={email}/>
+                        {number && <Typography component="div"
+                                               sx={{
+                                                   display: 'flex',
+                                                   alignItems: 'center',
+                                                   '& .react-svg': {mr: 0.8},
+                                                   mb: (0.3)
+                                               }}
+                                               variant="body2" color="text.secondary"><Icon path="ic-phone"/>
+                            {(number.code ? number.code + ' ' : '') + number.value}
+                        </Typography>}
+                        <Typography component="div"
+                                    sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 0.8}}}
+                                    variant="body2" color="text.secondary"><Icon path="ic-message-contour"/>
+                            {email ? email : t('addMail')}
+                        </Typography>
                     </Box>
                 </Box>
             </Box>
@@ -228,49 +120,17 @@ function Consultation() {
                 marginLeft: '-30px',
                 justifyContent: "center"
             }}>
-                {edit && <Button className='btn-add'
-                                 sx={{ml: 'auto', margin: 'auto'}}
-                                 size='small'
-                                 onClick={() => {
-                                     console.log(patient)
-                                     const firstLastName = name.split(' ')
-                                     if (patient) {
-                                         const form = new FormData();
-                                         form.append('first_name', firstLastName[0]);
-                                         form.append('last_name', firstLastName[1] ? firstLastName[1] : '');
-                                         form.append('gender', patient.gender === 'M' ? '1' : '2');
-                                         form.append('phone', JSON.stringify(patient.contact[0]));
-                                         form.append('email', email);
-
-                                         trigger({
-                                             method: "PUT",
-                                             url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
-                                             headers: {
-                                                 ContentType: 'application/x-www-form-urlencoded',
-                                                 Authorization: `Bearer ${session?.accessToken}`
-                                             },
-                                             data: form,
-                                         }, {revalidate: true, populateCache: true}).then((data) => {
-                                             console.log(data)
-                                         });
-
-                                         setEdit(false)
-                                     }
-                                 }}
-                                 startIcon={<SaveAsIcon/>}>
-                    {t('save')}
-                </Button>}
             </Box>
 
-            {/* <Stack spacing={1} mb={1}>
-                <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
+            <Stack spacing={1} mb={1}>
+                {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
                     <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
-                </Alert>
-                <Button variant="consultationIP" startIcon={<PlayCircleFilledRoundedIcon/>}
+                </Alert>}*/}
+                {/*<Button variant="consultationIP" startIcon={<PlayCircleFilledRoundedIcon/>}
                         sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
                     {upperFirst(t('consultation in progress'))}
-                </Button>
-            </Stack>*/}
+                </Button>*/}
+            </Stack>
             <Stack ml={-1.25}>
                 <List dense>
                     {collapseData?.map((col, idx: number) => (
