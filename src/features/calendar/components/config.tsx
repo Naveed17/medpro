@@ -17,6 +17,7 @@ import ExpiredCircleIcon from "@themes/overrides/icons/expiredCircleIcon";
 import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
 import NoShowCircleIcon from "@themes/overrides/icons/noShowCircleIcon";
 import WaitingCircleIcon from "@themes/overrides/icons/waitingCircleIcon";
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 
 export const IconsTypes: any = {
   "ic-consultation": <EventOutlinedIcon />,
@@ -182,6 +183,10 @@ export const CalendarContextMenu = [
     title: "start_the_consultation",
     icon: <PlayCircleIcon />,
     action: "onConsultationDetail",
+  },{
+    title: "confirm_appointment",
+    icon: <CheckCircleOutlineRoundedIcon />,
+    action: "onConfirmAppointment",
   },
   {
     title: "view_the_consultation",
@@ -222,7 +227,7 @@ export const CalendarContextMenu = [
   },
   {
     title: "cancel_appointment",
-    icon: <Icon color={"white"} width={"18"} height={"18"} path="close" />,
+    icon: <Icon color={"white"} width={"16"} height={"16"} path="close" />,
     action: "onCancel",
   },
   {

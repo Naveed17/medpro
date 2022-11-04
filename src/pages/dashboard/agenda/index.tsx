@@ -463,6 +463,9 @@ function Agenda() {
                 setActionDialog('delete');
                 setCancelDialog(true);
                 break;
+            case "onConfirmAppointment":
+                onConfirmAppointment(event);
+                break;
         }
     }
 
@@ -491,6 +494,15 @@ function Agenda() {
         router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             dispatch(openDrawer({type: "view", open: false}));
         })
+    }
+
+    const onConfirmAppointment = (event: EventDef) => {
+        setLoading(true);
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "1").then(() => {
+            setLoading(false);
+            refreshData();
+            enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+        });
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -880,6 +892,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
