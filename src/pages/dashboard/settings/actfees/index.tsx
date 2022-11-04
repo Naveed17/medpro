@@ -163,7 +163,8 @@ function ActFees() {
     const handleEdit = (v: any, fees: string) => {
         console.log(v)
         const form = new FormData();
-        form.append("attribute", JSON.stringify({attribute: "price", value: fees}));
+        form.append("attribute", "price");
+        form.append("value", fees);
 
         trigger({
             method: "PATCH",
