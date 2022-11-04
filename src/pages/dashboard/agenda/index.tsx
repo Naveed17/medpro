@@ -459,6 +459,10 @@ function Agenda() {
                 dispatch(setAppointmentPatient(event.extendedProps.patient as any));
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
+            case "onDelete":
+                setActionDialog('delete');
+                setCancelDialog(true);
+                break;
         }
     }
 

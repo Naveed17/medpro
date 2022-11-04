@@ -222,7 +222,12 @@ export const CalendarContextMenu = [
   },
   {
     title: "cancel_appointment",
-    icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete" />,
+    icon: <Icon color={"white"} width={"18"} height={"18"} path="close" />,
     action: "onCancel",
   },
+  {
+    title: "delete_appointment",
+    icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete" />,
+    action: "onDelete",
+  }
 ];
