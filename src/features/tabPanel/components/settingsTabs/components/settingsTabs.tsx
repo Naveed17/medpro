@@ -17,7 +17,7 @@ export default function SettingsTabs({ ...props }) {
   };
   React.useEffect(() => {
     getIndex((pre: any) => ({ ...pre, activeTab: state.tabIndex }));
-  }, [state.tabIndex]);
+  }, [getIndex, state.tabIndex]);
   return (
     <Box
       sx={{

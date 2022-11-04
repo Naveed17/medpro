@@ -334,7 +334,7 @@ function PlacesDetail() {
             setHoraires([...horaires])
             setAllDays(false)
         }
-    }, [alldays])
+    }, [alldays])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (row !== undefined && check) {
