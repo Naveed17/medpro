@@ -37,5 +37,9 @@
         "credit_card": "Carte bancaire",
         "cheque": "Chéque",
         "method": "Méthode"
+    },
+    "no-data": {
+        "title": "Aucune transaction",
+        "description": ""
     }
 }
