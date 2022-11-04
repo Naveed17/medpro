@@ -214,15 +214,25 @@ function Calendar({...props}) {
             action === "onWaitingRoom" &&
             (moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                 (eventMenu?.extendedProps.status.key === "WAITING_ROOM" || eventMenu?.extendedProps.status.key === "ON_GOING" || eventMenu?.extendedProps.status.key === "FINISHED")) ||
-            action === "onConsultationView" && (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            action === "onConsultationDetail" && (["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
+            action === "onConsultationView" &&
+                (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            action === "onConsultationDetail" &&
+                (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            action === "onLeaveWaitingRoom" &&
+                eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
-            action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
-            action === "onPatientNoShow" && ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
+                (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            action === "onDelete" &&
+                (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            action === "onMove" &&
+                moment().isAfter(eventMenu?.extendedProps.time) ||
+            action === "onPatientNoShow" &&
+            ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
                 eventMenu?.extendedProps.status.key === "FINISHED") ||
-            action === "onReschedule" && moment().isBefore(eventMenu?.extendedProps.time)
+            action === "onConfirmAppointment" &&
+                eventMenu?.extendedProps.status.key !== "PENDING" ||
+            action === "onReschedule" &&
+                moment().isBefore(eventMenu?.extendedProps.time)
         )
     }
 
