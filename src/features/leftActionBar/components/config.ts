@@ -19,6 +19,14 @@ const LeftActionsData = [
     ),
   },
   {
+    pathname: path(ROOTS.app, "/payment"),
+    component: dynamic((): any =>
+        import(
+            "@features/leftActionBar/components/payment/payment"
+            ).then((mod) => mod)
+    ),
+  },
+  {
     pathname: path(ROOTS.app, "/consultation"),
     component: dynamic((): any =>
       import(

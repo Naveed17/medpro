@@ -9,7 +9,7 @@ const rows = [
         type: 'cabinet',
         status: "completed",
         patient: "John Doe",
-        agenda: "Agenda cabinet",
+        agenda: "Payment cabinet",
 
     },
     {
@@ -21,7 +21,7 @@ const rows = [
         type: 'teleconsultation',
         status: "canceled",
         patient: "John Doe",
-        agenda: "Agenda cabinet",
+        agenda: "Payment cabinet",
 
     },
 

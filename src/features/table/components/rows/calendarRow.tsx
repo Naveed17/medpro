@@ -208,7 +208,7 @@ function CalendarRow({...props}) {
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
-                    <TableCell align="center">{"Agenda "}{config?.name}</TableCell>
+                    <TableCell align="center">{"Payment "}{config?.name}</TableCell>
                     <TableCell align="right">
                         {data?.fees ? <Box>
                             <Stack direction={"row"}
