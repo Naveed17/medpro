@@ -88,16 +88,13 @@ function ConsultationInProgress() {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [consultationFees, setConsultationFees] = useState(0);
     const [free, setFree] = useState(false);
-    //const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {exam} = useAppSelector(consultationSelector);
-
     const {config: agenda} = useAppSelector(agendaSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
     const [end, setEnd] = useState(false);
-    const [onSave, setOnsave] = useState(false);
     const {selectedDialog} = useAppSelector(consultationSelector);
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
@@ -253,9 +250,8 @@ function ConsultationInProgress() {
             if (appointement.type.code !== 3) setTotal(consultationFees)
             if (appointement.consultation_fees)
                 setConsultationFees(Number(appointement.consultation_fees))
-            else
 
-                dispatch(SetPatient(appointement.patient));
+            dispatch(SetPatient(appointement.patient));
             dispatch(SetMutation(mutate));
             dispatch(SetMutationDoc(mutateDoc));
 
@@ -372,9 +368,9 @@ function ConsultationInProgress() {
             }
         }
     };
-/*    const onDocumentLoadSuccess = ({numPages}: any) => {
-        setNumPages(numPages);
-    };*/
+    /*    const onDocumentLoadSuccess = ({numPages}: any) => {
+            setNumPages(numPages);
+        };*/
     const openDialogue = (id: number) => {
         switch (id) {
             case 1:
@@ -430,8 +426,6 @@ function ConsultationInProgress() {
 
         (btn as HTMLElement)?.click();
         (examBtn as HTMLElement)?.click();
-
-        setOnsave(true)
         setEnd(true)
     }
     const handleClick = () => {
