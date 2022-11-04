@@ -79,6 +79,15 @@ function Consultation() {
                                     {t("year")})
                                 </Typography></>}
                     </Box>
+
+                    <Box onClick={() => {
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                    }}>
+                        <IconButton size={"small"} sx={{position: "absolute", top: 20, right: 10}}>
+                            <Icon path={'ic-duotone'}/>
+                        </IconButton>
+                    </Box>
+
                 </Box>
                 <Box className="contact" ml={2}>
                     <Typography component="div" textTransform="capitalize"
