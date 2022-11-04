@@ -219,6 +219,8 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" && eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
             (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            action === "onDelete" &&
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onMove" && moment().isAfter(eventMenu?.extendedProps.time) ||
             action === "onPatientNoShow" && ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
                 eventMenu?.extendedProps.status.key === "FINISHED") ||
