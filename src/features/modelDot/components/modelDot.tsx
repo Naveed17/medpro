@@ -43,7 +43,7 @@ function ModelDot({...DotProps}) {
                         width: 14,
                         height: 14,
                         path: {
-                            fill: theme.palette.grey[0],
+                            fill: theme.palette.common.white
                         },
                     },
                 }}

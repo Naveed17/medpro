@@ -23,6 +23,7 @@ import {consultationSelector} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
+import {onOpenPatientDrawer} from "@features/table";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);

@@ -48,7 +48,7 @@ const settingsData = {
             name: "agenda",
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",
-            disable: false
+            disable: true
         },
         /* {
              name: "timeSchedule",

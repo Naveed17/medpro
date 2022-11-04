@@ -14,7 +14,6 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ModelDot} from "@features/modelDot";
 
 
@@ -42,6 +41,9 @@ function EventType({...props}) {
     const handleTypeChange = (type: string) => {
         setTypeEvent(type);
         dispatch(setAppointmentType(type));
+        if(!select) {
+            onNextStep();
+        }
     }
 
     const {t, ready} = useTranslation("agenda", {
