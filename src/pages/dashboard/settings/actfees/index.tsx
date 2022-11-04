@@ -60,7 +60,7 @@ function ActFees() {
     const [loading, setLoading] = useState<boolean>(false)
     const [create, setCreate] = useState(false)
     const router = useRouter();
-    const [setselected] = useState<any>({});
+    const [selected, setselected] = useState<any>({});
     const [consultationFees, setConsultationFees] = useState(0);
     const [newFees, setNewFees] = useState({name: '', fees: ''});
     const {enqueueSnackbar} = useSnackbar();
@@ -160,6 +160,27 @@ function ActFees() {
         }
     }
 
+    const handleEdit = (v: any, fees: string) => {
+        console.log(v)
+        const form = new FormData();
+        form.append("attribute", JSON.stringify({attribute: "price", value: fees}));
+
+        trigger({
+            method: "PATCH",
+            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + '/acts/' + v.act.uuid + "/" + router.locale,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+        }, TriggerWithoutValidation).then(() => {
+            mutate().then(() => {
+                enqueueSnackbar(t("updated"), {variant: 'success'})
+            });
+        });
+        //setselected(v)
+        //setEdit(true)
+    };
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
     if (!ready) return <>loading translations...</>;
 
@@ -247,7 +268,7 @@ function ActFees() {
                     headers={headCells}
                     rows={mainActes}
                     from={"actfees"}
-                    edit={setselected}
+                    edit={handleEdit}
                     remove={removeFees}
                     {...{t, loading}}
                 />

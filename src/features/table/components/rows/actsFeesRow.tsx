@@ -35,14 +35,7 @@ function ActFeesRow({...props}) {
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
                         {edit === row.uuid ? <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
                                 setEdit('')
-                                editMotif(
-                                    (prev: { uuid: string; act: string; fees: number }) => ({
-                                        ...prev,
-                                        uuid: row.act.uuid,
-                                        act,
-                                        fees: +fees,
-                                    })
-                                );
+                                editMotif(row,fees);
                             }}>
                                 <SaveRoundedIcon color={"primary"}/>
                             </IconButton> :
