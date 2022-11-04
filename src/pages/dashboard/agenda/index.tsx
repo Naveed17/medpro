@@ -380,6 +380,8 @@ function Agenda() {
             calendarApi.next();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         } else {
+            const nextDate = moment(currentDate.date).clone().add(1, "days");
+            dispatch(setCurrentDate({date: nextDate.toDate(), fallback: false}));
             scrollToView(refs.current[nextRefCalendar], nextRefCalendar + 1);
         }
     }
