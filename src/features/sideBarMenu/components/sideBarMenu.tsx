@@ -29,12 +29,14 @@ import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {sideBarSelector} from "@features/sideBarMenu/selectors";
 import {toggleMobileBar} from "@features/sideBarMenu/actions";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {ListItemTextStyled, MainMenuStyled, MobileDrawerStyled} from "@features/sideBarMenu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
+import {agendaSelector} from "@features/calendar";
+import moment from "moment-timezone";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -46,12 +48,23 @@ function SideBarMenu({children}: LayoutProps) {
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {sortedData} = useAppSelector(agendaSelector);
+
     let container: any = useRef<HTMLDivElement>(null);
-    const path = router.asPath.split("/");
+
+    const [menuItems, setMenuItems] = useState(sidebarItems);
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
-    })
+        setMenuItems([...menuItems.slice(0, 1), {...menuItems[1], badge: waiting_room}, ...menuItems.slice(2)])
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const currentDay = sortedData.find(event => event.date === moment().format("DD-MM-YYYY"));
+        if (currentDay) {
+            setMenuItems([{...menuItems[0], badge: currentDay.events.length}, ...menuItems.slice(1)])
+        }
+    }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -84,7 +97,7 @@ function SideBarMenu({children}: LayoutProps) {
             </Link>
 
             <List>
-                {sidebarItems.map((item) => (
+                {menuItems?.map((item) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
                         <a onClick={() => handleRouting(item.href)}>
                             <ListItem
@@ -99,8 +112,9 @@ function SideBarMenu({children}: LayoutProps) {
                                         vertical: 'bottom',
                                         horizontal: 'right',
                                     }}
-                                    invisible={item.name !== "room"}
-                                    color="warning" {...(waiting_room > 0 && {badgeContent: waiting_room})}>
+                                    invisible={item.badge === undefined}
+                                    color="warning"
+                                    badgeContent={item.badge}>
                                     <ListItemIcon>
                                         <Icon path={item.icon}/>
                                     </ListItemIcon>

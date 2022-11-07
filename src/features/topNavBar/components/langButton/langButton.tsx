@@ -14,7 +14,7 @@ function LangButton() {
   const { locale } = useAppSelector(configSelector);
   const [anchorEl, setAnchorEl] = useState(null);
   const lang = Langs[locale];
-  const [selected, setselected] = useState(lang);
+  const [selected, setSelected] = useState(lang);
 
   const handleClick = (event: any) => {
     if (anchorEl !== event.currentTarget) {
@@ -24,8 +24,8 @@ function LangButton() {
 
   const handleClose = ({ ...props }) => {
     setAnchorEl(null);
-    if (props.locale !== undefined && selected.locale !== props.locale) {
-      setselected(props);
+    if (props.locale !== undefined && selected?.locale !== props.locale) {
+      setSelected(props);
       router.push(router.pathname, router.pathname, { locale: props.locale });
     }
   };
@@ -39,7 +39,7 @@ function LangButton() {
         aria-owns={anchorEl ? "simple-menu" : undefined}
         aria-haspopup="true"
         onClick={handleClick}>
-        {selected.label}
+        {selected?.label}
       </Button>
       <MenuStyled
         id="simple-menu"
