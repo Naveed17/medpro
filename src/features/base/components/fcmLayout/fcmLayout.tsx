@@ -9,7 +9,7 @@ import {
     DialogContentText,
     DialogTitle,
     Paper,
-    PaperProps
+    PaperProps, useTheme
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
@@ -17,8 +17,10 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import {agendaSelector, setLastUpdate} from "@features/calendar";
+import {agendaSelector, openDrawer, setLastUpdate, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
+import {setAppointmentType} from "@features/tabPanel";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -29,12 +31,11 @@ function PaperComponent(props: PaperProps) {
 function FcmLayout({...props}) {
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
 
     const [open, setOpen] = useState(false);
     const [fcmToken, setFcmToken] = useState("");
-
-    const {lastUpdateNotification} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -45,6 +46,13 @@ function FcmLayout({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
+    const {data: httpAppointmentTypesResponse} = useRequest({
+        method: "GET",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    }, SWRNoValidateConfig);
+
+    const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const medical_professional = (httpProfessionalsResponse as HttpResponse)?.data[0]?.medical_professional as MedicalProfessionalModel;
     const general_information = (session?.data as UserDataResponse).general_information;
 
@@ -102,6 +110,7 @@ function FcmLayout({...props}) {
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
     useEffect(() => {
         setToken();
 
@@ -139,25 +148,41 @@ function FcmLayout({...props}) {
                         position: "absolute",
                         right: 0,
                         bottom: 0,
-                        minWidth: "40vw"
+                        minWidth: "40vw",
+                        "& .MuiPaper-root": {
+                            borderRadius: 0,
+                            border: 0
+                        },
+                        "& .MuiDialogContent-root": {
+                            padding: 0
+                        }
                     }
                 }}
                 aria-labelledby="draggable-dialog-title"
             >
-                <DialogTitle style={{cursor: 'move'}} id="draggable-dialog-title">
-                    {lastUpdateNotification?.title}
+                <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
+                    Fin de consultation
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        {lastUpdateNotification?.body}
-                    </DialogContentText>
+                    <ConsultationPopupAction
+                        data={{
+                            id: 1,
+                            name: "Khadija EHA",
+                            phone: "+216 22 469 495",
+                            date: "22/12/2020",
+                            time: "14:00",
+                            fees: "50",
+                            instruction: "test oedo d,eo e,doe,oe ",
+                            control: 4
+                        }}
+                        OnSchedule={() => {
+                            console.log("OnSchedule");
+                            handleClose();
+                            dispatch(setStepperIndex(1));
+                            dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                            dispatch(openDrawer({type: "add", open: true}));
+                        }}/>
                 </DialogContent>
-                <DialogActions>
-                    <Button autoFocus onClick={handleClose}>
-                        Annuler
-                    </Button>
-                    <Button onClick={handleClose}>Valider</Button>
-                </DialogActions>
             </Dialog>
         </>
     );

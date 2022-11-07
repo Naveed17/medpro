@@ -15,6 +15,7 @@ declare global {
 declare module "@mui/material/Button" {
     interface ButtonPropsVariantOverrides {
         google: true;
+        white: true;
         "text-transparent": true;
         "text-black": true;
         "contained-white": true
@@ -38,6 +39,7 @@ declare module "@mui/material" {
         "500_32": string;
         "500_16": string;
         A0: string;
+        A10: string;
         A50: string;
         A60: string;
         A200: string;
