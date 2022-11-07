@@ -88,7 +88,7 @@ function Agenda() {
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer,
+        openViewDrawer,currentStepper,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -938,6 +938,7 @@ function Agenda() {
                 >
                     <Box height={"100%"}>
                         <CustomStepper
+                            currentIndex={currentStepper}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             stepperData={eventStepper}

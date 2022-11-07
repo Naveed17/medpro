@@ -238,10 +238,10 @@ function Calendar({...props}) {
 
     const handlers = useSwipeable({
         onSwipedLeft: (eventData) => {
-            handleClickDatePrev();
+            handleClickDateNext();
         },
         onSwipedRight: (eventData) => {
-            handleClickDateNext();
+            handleClickDatePrev();
         },
         preventScrollOnSwipe: true
     });

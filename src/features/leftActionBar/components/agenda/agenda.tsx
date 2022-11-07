@@ -18,7 +18,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, AppointmentStatus, DayOfWeek, setView} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, DayOfWeek, setAppointmentTypes, setView} from "@features/calendar";
 import moment from "moment-timezone";
 import {Checkbox, Typography} from "@mui/material";
 
@@ -65,7 +65,7 @@ function Agenda() {
             Object.assign(type, {
                 checked: query?.type?.split(',').find(typeObject => type.uuid === typeObject) !== undefined
             })
-        })
+        });
     });
 
     if (!ready) return (<>loading translations...</>);
