@@ -56,14 +56,19 @@ function SideBarMenu({children}: LayoutProps) {
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
-        setMenuItems([...menuItems.slice(0, 1), {...menuItems[1], badge: waiting_room}, ...menuItems.slice(2)])
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    });
 
     useEffect(() => {
         const currentDay = sortedData.find(event => event.date === moment().format("DD-MM-YYYY"));
         if (currentDay) {
-            setMenuItems([{...menuItems[0], badge: currentDay.events.length}, ...menuItems.slice(1)])
+            setMenuItems([{...menuItems[0], badge: currentDay.events.length}, {
+                ...menuItems[1],
+                badge: waiting_room
+            }, ...menuItems.slice(2)])
+        } else {
+            setMenuItems([...menuItems.slice(0, 1), {...menuItems[1], badge: waiting_room}, ...menuItems.slice(2)])
         }
+
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleRouting = (path: string) => {
