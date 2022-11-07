@@ -24,7 +24,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {PaymentMobileCard} from "@features/card";
+import {NoDataCard, PaymentMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -151,6 +151,12 @@ function Payment() {
         setOpen(true);
     };
 
+    const noCardData = {
+        mainIcon: "ic-payment",
+        title: "no-data.title",
+        description: "no-data.description"
+    };
+
     const handleCollapse = (props: any) => {
         setCollapseData(props);
         setCollapse(true);
@@ -237,6 +243,7 @@ function Payment() {
     }, [agenda, medical_entity.uuid, router, session, trigger, dispatch]);
 
     useEffect(() => {
+        console.log(currentDate.date)
         setDay(moment(currentDate.date).format('DD-MM-YYYY'))
     }, [currentDate])
     useEffect(() => {
@@ -254,7 +261,7 @@ function Payment() {
                     width={1}
                     justifyContent="space-between"
                     alignItems="center">
-                    <Typography textTransform={"capitalize"}>{t("path")} {'>'} {moment(day).format('ddd DD.MM.YYYY')}</Typography>
+                    <Typography textTransform={"capitalize"}>{t("path")} {'>'} {moment(day,'DD-MM-YYYY').format('ddd DD.MM.YYYY')}</Typography>
                     {/*<Stack direction="row" spacing={3} alignItems="center">
                         <Typography variant="subtitle2">{t("total")}</Typography>
                         <Typography variant="h6">{total} {devise}</Typography>
@@ -289,13 +296,13 @@ function Payment() {
 
             <Box className="container">
                 <DesktopContainer>
-                    <Otable
+                    {rows.length > 0 ?  <Otable
                         headers={headCells}
                         rows={rows}
                         from={"payment"}
                         t={t}
                         edit={handleEdit}
-                    />
+                    />:<NoDataCard t={t} ns={"payment"} data={noCardData}/>}
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack spacing={2}>
