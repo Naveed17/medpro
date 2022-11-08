@@ -64,7 +64,6 @@ function FcmLayout({...props}) {
         setOpen(false);
     };
 
-
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudMessaging.firebase);

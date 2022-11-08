@@ -51,6 +51,7 @@ Open `http://localhost:3000` with your browser to see the result.
 | KEYCLOAK_ID                |               |
 | KEYCLOAK_SECRET            |               |
 | KEYCLOAK_ISSUER            |               |
+| KEYCLOAK_AUTH_TOKEN_URL            |               |
 | NEXT_PUBLIC_API_URL        |               |
 | NEXT_PUBLIC_FCM_API_KEY        |               |
 | NEXT_PUBLIC_FCM_AUTH_DOMAIN        |               |
