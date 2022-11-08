@@ -88,7 +88,7 @@ function Agenda() {
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer,
+        openViewDrawer,currentStepper,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -380,6 +380,8 @@ function Agenda() {
             calendarApi.next();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         } else {
+            const nextDate = moment(currentDate.date).clone().add(1, "days");
+            dispatch(setCurrentDate({date: nextDate.toDate(), fallback: false}));
             scrollToView(refs.current[nextRefCalendar], nextRefCalendar + 1);
         }
     }
@@ -457,6 +459,13 @@ function Agenda() {
                 dispatch(setAppointmentPatient(event.extendedProps.patient as any));
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
+            case "onDelete":
+                setActionDialog('delete');
+                setCancelDialog(true);
+                break;
+            case "onConfirmAppointment":
+                onConfirmAppointment(event);
+                break;
         }
     }
 
@@ -485,6 +494,15 @@ function Agenda() {
         router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             dispatch(openDrawer({type: "view", open: false}));
         })
+    }
+
+    const onConfirmAppointment = (event: EventDef) => {
+        setLoading(true);
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "1").then(() => {
+            setLoading(false);
+            refreshData();
+            enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+        });
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -874,6 +892,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
@@ -919,6 +938,7 @@ function Agenda() {
                 >
                     <Box height={"100%"}>
                         <CustomStepper
+                            currentIndex={currentStepper}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             stepperData={eventStepper}

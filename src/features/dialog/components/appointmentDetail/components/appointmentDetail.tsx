@@ -26,6 +26,7 @@ import moment from "moment-timezone";
 import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
@@ -48,6 +49,7 @@ function AppointmentDetail({...props}) {
         OnConsultation,
         OnConsultationView,
         OnEditDetail,
+        OnConfirmAppointment,
         OnDataUpdated = null,
         OnPatientNoShow,
         OnWaiting,
@@ -288,27 +290,45 @@ function AppointmentDetail({...props}) {
                 {router.pathname !== "/dashboard/patient" &&
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
-                            <Button onClick={() => OnWaiting(data)}
-                                    sx={{
-                                        display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                            data?.extendedProps.status.key === "WAITING_ROOM" || data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
-                                    }}
-                                    fullWidth
-                                    variant='contained'
-                                    startIcon={<Icon path='ic-salle'/>}>
+                            <LoadingButton
+                                {...{loading}}
+                                sx={{
+                                    display: data?.extendedProps.status.key !== "PENDING" ? "none" : "flex"
+                                }}
+                                onClick={() => {
+                                    OnConfirmAppointment(data);
+                                }}
+                                color={"success"}
+                                fullWidth variant='contained'
+                                startIcon={<CheckCircleOutlineRoundedIcon/>}>
+                                {t('event.confirm')}
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => OnWaiting(data)}
+                                sx={{
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        ["PENDING", "WAITING_ROOM", "ON_GOING"].includes(data?.extendedProps.status.key)) ? "none" : "flex"
+                                }}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
                                 {t('waiting')}
-                            </Button>
-                            <Button onClick={() => OnLeaveWaiting(data)}
-                                    sx={{
-                                        display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
-                                            data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
-                                    }}
-                                    fullWidth
-                                    variant='contained'
-                                    startIcon={<Icon path='ic-salle'/>}>
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => OnLeaveWaiting(data)}
+                                sx={{
+                                    display: (moment().format("DD-MM-YYYY") !== moment(data?.extendedProps.time).format("DD-MM-YYYY") ||
+                                        data?.extendedProps.status.key !== "WAITING_ROOM") ? "none" : "flex"
+                                }}
+                                fullWidth
+                                variant='contained'
+                                startIcon={<Icon path='ic-salle'/>}>
                                 {t('leave_waiting_room')}
-                            </Button>
-                            <Button
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
                                 sx={{
                                     display: (moment().isBefore(data?.extendedProps.time) ||
                                         data?.extendedProps.status.key === "FINISHED" ||
@@ -318,8 +338,9 @@ function AppointmentDetail({...props}) {
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl width={"16"} height={"16"} path='ic-user1'/>}>
                                 {t('event.missPatient')}
-                            </Button>
-                            <Button
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
                                 sx={{
                                     display: moment().isBefore(data?.extendedProps.time) ? "none" : "flex"
                                 }}
@@ -335,8 +356,9 @@ function AppointmentDetail({...props}) {
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl width={"16"} height={"16"} path='ic-agenda'/>}>
                                 {t('event.reschedule')}
-                            </Button>
-                            <Button
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
                                 sx={{
                                     display: moment().isAfter(data?.extendedProps.time) ? "none" : "flex"
                                 }}
@@ -352,34 +374,38 @@ function AppointmentDetail({...props}) {
                                 fullWidth variant='contained'
                                 startIcon={<IconUrl path='iconfinder'/>}>
                                 {t('event.move')}
-                            </Button>
-                            <Button onClick={() => SetCancelDialog(true)}
-                                    fullWidth
-                                    variant='contained-white'
-                                    color="error"
-                                    sx={{
-                                        display: (data?.extendedProps.status.key === "CANCELED" ||
-                                            data?.extendedProps.status.key === "FINISHED") ? "none" : "flex",
-                                        '& svg': {
-                                            width: 16,
-                                            height: 16
-                                        }
-                                    }}
-                                    startIcon={<IconUrl path='icdelete'
-                                                        color={data?.extendedProps.status.key === "CANCELED" ?
-                                                            'white' : theme.palette.error.main}/>}>
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => SetCancelDialog(true)}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
+                                sx={{
+                                    display: (data?.extendedProps.status.key === "CANCELED" ||
+                                        data?.extendedProps.status.key === "FINISHED") ? "none" : "flex",
+                                    '& svg': {
+                                        width: 16,
+                                        height: 16
+                                    }
+                                }}
+                                startIcon={<IconUrl path='icdelete'
+                                                    color={data?.extendedProps.status.key === "CANCELED" ?
+                                                        'white' : theme.palette.error.main}/>}>
                                 {t('event.cancel')}
-                            </Button>
-                            <Button onClick={() => SetDeleteDialog(true)}
-                                    sx={{
-                                        display: data?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
-                                    }}
-                                    fullWidth
-                                    variant='contained-white'
-                                    color="error"
-                                    startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
+                            </LoadingButton>
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => SetDeleteDialog(true)}
+                                sx={{
+                                    display: data?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
+                                }}
+                                fullWidth
+                                variant='contained-white'
+                                color="error"
+                                startIcon={<HighlightOffRoundedIcon color={"error"}/>}>
                                 {t('event.delete')}
-                            </Button>
+                            </LoadingButton>
                         </Stack>
                     </CardActions>}
             </Box>

@@ -77,9 +77,9 @@ function CalendarRow({...props}) {
                 )}
             </Typography>
 
-            {row.events.map((data: EventModal) => (
+            {row.events.map((data: EventModal, index: number) => (
                 <TableRowStyled
-                    key={data.id}
+                    key={`${index}-${data.id}`}
                     sx={{
                         bgcolor: (theme: Theme) => theme.palette.background.paper,
                         "&:last-child td, &:last-child th": {borderWidth: 0},
