@@ -20,7 +20,7 @@ import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 
 function Patient({...props}) {
-    const {onNext, onBack, select, onPatientSearch} = props;
+    const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -52,6 +52,7 @@ function Patient({...props}) {
 
     const handleOnClick = () => {
         setAddPatient(true);
+        handleAddPatient && handleAddPatient(true);
     }
 
     const handlePatientSearch = () => {
@@ -113,6 +114,7 @@ function Patient({...props}) {
                     dispatch(setAppointmentPatient(patient.data));
                 }
                 setAddPatient(false);
+                handleAddPatient && handleAddPatient(false);
                 mutate().then(value => {
                     const {data} = value?.data as HttpResponse;
                     if (selectedPatient) {
@@ -146,7 +148,7 @@ function Patient({...props}) {
                         sx={{
                             borderRadius: 0,
                             borderWidth: "0px",
-                            textAlign: "right",
+                            textAlign: "right"
                         }}
                         className="action"
                     >
@@ -174,9 +176,13 @@ function Patient({...props}) {
                 </>
                 :
                 <OnStepPatient
+                    {...{handleAddPatient}}
                     translationKey={"agenda"}
                     translationPrefix={"steppers.stepper-2.patient"}
-                    onClose={() => setAddPatient(false)}
+                    onClose={() => {
+                        handleAddPatient && handleAddPatient(false);
+                        setAddPatient(false);
+                    }}
                     OnSubmit={submitNewPatient}/>
             }
         </div>
