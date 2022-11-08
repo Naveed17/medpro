@@ -65,7 +65,6 @@ function DashLayout({children}: LayoutProps) {
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        console.log(session);
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
                 callbackUrl: `${router.locale}/dashboard/agenda`,
