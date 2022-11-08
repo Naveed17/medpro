@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {motion} from "framer-motion";
-import {useSession} from "next-auth/react";
+import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -63,6 +63,15 @@ function DashLayout({children}: LayoutProps) {
             }))
         }
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        console.log(session);
+        if (session?.error === "RefreshAccessTokenError") {
+            signIn('keycloak', {
+                callbackUrl: `${router.locale}/dashboard/agenda`,
+            }); // Force sign in to hopefully resolve error
+        }
+    }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>

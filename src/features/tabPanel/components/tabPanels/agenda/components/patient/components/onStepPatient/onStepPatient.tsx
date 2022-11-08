@@ -327,6 +327,7 @@ function OnStepPatient({...props}) {
                             <Grid item md={6} lg={8} xs={12}>
                                 <TextField
                                     variant="outlined"
+                                    type={"number"}
                                     size="small"
                                     {...getFieldProps("phone")}
                                     error={Boolean(touched.phone && errors.phone)}
@@ -635,7 +636,7 @@ function OnStepPatient({...props}) {
                                                                 return <Typography>{insurance?.name}</Typography>
                                                             }}
                                                         >
-                                                            {insurances.map(insurance => (
+                                                            {insurances?.map(insurance => (
                                                                 <MenuItem
                                                                     key={insurance.uuid}
                                                                     value={insurance.uuid}>

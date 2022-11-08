@@ -158,6 +158,9 @@ export const authOptions: NextAuthOptions = {
             // Send properties to the client, like an access_token from a provider.
             (session as any).accessToken = token.accessToken;
             session.data = token.data as UserDataResponse;
+            if (token.error) {
+                (session as any).error = token.error;
+            }
             return session;
         },
         async jwt({token, user, account, profile, isNewUser}) {

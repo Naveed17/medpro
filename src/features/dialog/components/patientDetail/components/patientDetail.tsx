@@ -10,7 +10,7 @@ import {
     setAppointmentPatient,
     TabPanel,
     TimeSchedule,
-    resetAppointment,
+    resetAppointment, Patient,
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
@@ -44,24 +44,6 @@ const AddAppointmentCardData = {
     buttonVariant: "warning",
 };
 
-const stepperData = [
-    {
-        title: "tabs.time-slot",
-        children: EventType,
-        disabled: false,
-    },
-    {
-        title: "tabs.time-slot",
-        children: TimeSchedule,
-        disabled: false,
-    },
-    {
-        title: "tabs.advice",
-        children: Instruction,
-        disabled: true,
-    },
-];
-
 function PatientDetail({...props}) {
     const {
         patientId,
@@ -81,7 +63,23 @@ function PatientDetail({...props}) {
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
-
+    const [stepperData, setStepperData] = useState([
+        {
+            title: "tabs.time-slot",
+            children: EventType,
+            disabled: false,
+        },
+        {
+            title: "tabs.time-slot",
+            children: TimeSchedule,
+            disabled: false,
+        },
+        {
+            title: "tabs.advice",
+            children: Instruction,
+            disabled: true,
+        }
+    ]);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
     const {data: user} = session as Session;
@@ -109,10 +107,12 @@ function PatientDetail({...props}) {
     };
 
     const submitStepper = (index: number) => {
+        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
         if (stepperData.length !== index) {
-            stepperData[index].disabled = false;
+            steps[index].disabled = false;
+            setStepperData(steps);
         } else {
-            stepperData.map((stepper, index) => (stepper.disabled = true));
+            setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
             mutate();
         }
     };
@@ -243,7 +243,7 @@ function PatientDetail({...props}) {
                 </PatientDetailStyled>
             ) : (
                 <CustomStepper
-                    stepperData={stepperData}
+                    {...{stepperData, t}}
                     OnSubmitStepper={submitStepper}
                     OnAction={(action: string) => {
                         if (action === "close") {
@@ -260,7 +260,6 @@ function PatientDetail({...props}) {
                         return index === 0 && setIsAdd(false)
                     }}
                     scroll
-                    t={t}
                     minWidth={726}
                     onClickCancel={() => setIsAdd(false)}
                 />
