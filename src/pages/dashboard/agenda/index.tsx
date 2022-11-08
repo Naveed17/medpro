@@ -460,6 +460,8 @@ function Agenda() {
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
             case "onDelete":
+                dispatch(setSelectedEvent(event));
+                setEvent(event);
                 setActionDialog('delete');
                 setCancelDialog(true);
                 break;
