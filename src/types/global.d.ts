@@ -14,8 +14,9 @@ declare global {
 
 declare module "next-auth"{
     interface Session {
-        data: any,
-        accessToken: string
+        data: any;
+        accessToken: string;
+        error: string;
     }
 }
 declare module "@mui/material/Button" {

@@ -102,7 +102,7 @@ function CustomStepper({...props}) {
                             i: number
                         ) => (
                             <Tab
-                                key={Math.random()}
+                                key={i}
                                 disabled={v.disabled}
                                 label={
                                     <Box
@@ -124,7 +124,7 @@ function CustomStepper({...props}) {
                 {stepperData.map((v: { key: string; title: string; children: ReactNode; }, i: number) => {
                     const Component: any = v.children;
                     return (
-                        <TabPanel key={i.toString()} value={index} index={i}>
+                        <TabPanel key={i} value={index} index={i}>
                             <Component
                                 OnAction={customActions}
                                 onNext={submitStepper}

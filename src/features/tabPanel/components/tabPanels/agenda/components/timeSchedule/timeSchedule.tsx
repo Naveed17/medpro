@@ -140,6 +140,7 @@ function TimeSchedule({...props}) {
                 const updatedDates = [...recurringDates];
                 updatedDates.splice(index, 1);
                 setRecurringDates([...updatedDates]);
+                dispatch(setAppointmentRecurringDates([...updatedDates]));
                 break;
         }
     }
