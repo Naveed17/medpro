@@ -30,6 +30,7 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
+import Image from "next/image";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -76,7 +77,8 @@ function DocumentDetailDialog({...props}) {
     const actionButtons = [
         {
             title: 'print',
-            icon: "ic-imprime"
+            icon: "ic-imprime",
+            disabled: state.type === 'photo'
         },
         /* {
              title: 'share',
@@ -84,7 +86,8 @@ function DocumentDetailDialog({...props}) {
          },*/
         {
             title: hide ? 'show' : 'hide',
-            icon: "ic-menu2"
+            icon: "ic-menu2",
+            disabled: state.type === 'photo'
         },
         {
             title: 'edit',
@@ -303,7 +306,7 @@ function DocumentDetailDialog({...props}) {
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
-                        <Box sx={{
+                        {state.type !== 'photo' && <Box sx={{
                             '.react-pdf__Page': {
                                 marginBottom: 1,
                                 '.react-pdf__Page__canvas': {
@@ -319,7 +322,9 @@ function DocumentDetailDialog({...props}) {
                                 ))}
 
                             </Document>
-                        </Box>
+                        </Box>}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {state.type === 'photo' &&  <img src={state.uri} style={{marginLeft:20}} alt={"img"}/>}
                     </Stack>
                 </Grid>
                 <Grid item xs={12} md={4} className="sidebar">
