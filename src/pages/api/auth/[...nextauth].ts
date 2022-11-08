@@ -2,20 +2,69 @@ import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
 import requestAxios, {setAxiosToken} from "@app/axios/config";
 import CredentialsProvider from "next-auth/providers/credentials";
+import {JWT} from "next-auth/jwt";
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 
+const refreshAccessToken = async (token: JWT) => {
+    try {
+        if (Date.now() > (token as any).refreshTokenExpired) {
+            console.log('Error thrown');
+            throw Error;
+        }
+        const details = {
+            client_id: process.env.KEYCLOAK_ID,
+            client_secret: process.env.KEYCLOAK_SECRET,
+            grant_type: 'refresh_token',
+            refresh_token: token.refreshToken
+        };
+        const formBody: string[] = [];
+        Object.entries(details).forEach(([key, value]: [string, any]) => {
+            const encodedKey = encodeURIComponent(key);
+            const encodedValue = encodeURIComponent(value);
+            formBody.push(encodedKey + '=' + encodedValue);
+        });
+        const formData = formBody.join('&');
+        const url = process.env.KEYCLOAK_AUTH_TOKEN_URL || '';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body: formData
+        });
+        const refreshedTokens = await response.json();
+        if (!response.ok) throw refreshedTokens;
+        return {
+            ...token,
+            accessToken: refreshedTokens.access_token,
+            accessTokenExpired: Date.now() + refreshedTokens.expires_in * 1000,
+            refreshTokenExpired: Date.now() + refreshedTokens.refresh_expires_in * 1000,
+            refreshToken: refreshedTokens.refresh_token ?? token.refreshToken
+        };
+    } catch (error) {
+        console.log('Token expired');
+        console.log(error);
+        return {
+            ...token,
+            error: 'RefreshAccessTokenError'
+        };
+    }
+};
+
 export const authOptions: NextAuthOptions = {
     // https://next-auth.js.org/configuration/providers
-
     providers: [
         KeycloakProvider({
             clientId: process.env.KEYCLOAK_ID!,
             clientSecret: process.env.KEYCLOAK_SECRET!,
             issuer: process.env.KEYCLOAK_ISSUER,
+            requestTokenUrl: process.env.KEYCLOAK_AUTH_TOKEN_URL
         }),
         CredentialsProvider({
+            id: "credentials",
+            type: "credentials",
             // The name to display on the sign in form (e.g. "Sign in with...")
             name: "Credentials",
             // `credentials` is used to generate a form on the sign in page.
@@ -23,6 +72,7 @@ export const authOptions: NextAuthOptions = {
             // e.g. domain, username, password, 2FA token, etc.
             // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {},
+            // @ts-ignore
             async authorize(credentials, req) {
                 if (req) {
                     // Any object returned will be saved in `user` property of the JWT
@@ -85,7 +135,7 @@ export const authOptions: NextAuthOptions = {
     // https://next-auth.js.org/configuration/pages
     pages: {
         signIn: '/auth/signin',  // Displays signin buttons
-        // signOut: '/auth/signout', // Displays form with sign out button
+        signOut: '/auth/signout', // Displays form with sign out button
         error: '/auth/error', // Error code passed in query string as ?error=
         // verifyRequest: '/auth/verify-request', // Used for check email page
         //newUser: null // If set, new users will be directed here on first sign in
@@ -106,36 +156,50 @@ export const authOptions: NextAuthOptions = {
         },
         async session({session, token, user}) {
             // Send properties to the client, like an access_token from a provider.
-            session.accessToken = token.accessToken;
+            (session as any).accessToken = token.accessToken;
             session.data = token.data as UserDataResponse;
             return session;
         },
         async jwt({token, user, account, profile, isNewUser}) {
             // Persist the OAuth access_token to the token right after signin
-            if (account) {
+            if (account && user) {
                 // Send properties to the client, like an access_token from a provider.
                 if (account.provider === "credentials") {
-                    token.accessToken = user?.access_token;
+                    token.accessToken = (user as any)?.access_token;
                 } else {
+                    // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
+                    token.refreshToken = account.refresh_token;
+                    token.accessTokenExpired = (account.expires_at as number) * 1000;
+                    token.refreshTokenExpired = Date.now() + (account.refresh_expires_in as number) * 1000;
+                    token.user = user;
                 }
+                setAxiosToken(<string>token.accessToken);
+
+                const res = await requestAxios({
+                    url: "/api/private/users/fr",
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token.accessToken}`
+                    }
+                });
+
+                Object.assign(res?.data.data, {
+                    medical_entity: res?.data.data.medical_entities?.find((entity: MedicalEntityDefault) =>
+                        entity.is_default)?.medical_entity
+                })
+                token.data = res?.data.data;
+
+                return token
             }
-            setAxiosToken(<string>token.accessToken);
 
-            const res = await requestAxios({
-                url: "/api/private/users/fr",
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token.accessToken}`
-                }
-            });
+            // Return previous token if the access token has not expired yet
+            if (Date.now() < (token as any).accessTokenExpired) {
+                return token;
+            }
 
-            Object.assign(res?.data.data, {
-                medical_entity: res?.data.data.medical_entities.find((entity: MedicalEntityDefault) =>
-                    entity.is_default)?.medical_entity
-            })
-            token.data = res?.data.data;
-            return token
+            // Access token has expired, try to update it
+            return refreshAccessToken(token);
         }
     },
 
