@@ -9,19 +9,19 @@ const settingsData = {
         },
         {
             name: "acts",
-            icon: "setting/ic-edit-file",
+            icon: "ic-generaliste",
             href: "/dashboard/settings/actes",
             disable: false
         },
         {
             name: "actfees",
-            icon: "setting/ic-edit-file",
+            icon: "ic-argent",
             href: "/dashboard/settings/actfees",
             disable: false
         },
         {
             name: "motif",
-            icon: "setting/ic-edit-file",
+            icon: "ic-door",
             href: "/dashboard/settings/motif",
             disable: false
         },

@@ -308,6 +308,21 @@ function ConsultationInProgress() {
         }
     }, [patientId]);
 
+    const sendNotification = ()=>{
+        const form = new FormData();
+        form.append("action", "end_consultation");
+        form.append("content",JSON.stringify({fees:total,instruction:"sans controle",nextApp: 15,patient}))
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${mpUuid}/notification/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r: any) => {
+
+        })
+    }
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
@@ -350,6 +365,7 @@ function ConsultationInProgress() {
                     router.push("/dashboard/agenda").then(() => {
                         setActions(false);
                     })
+                    sendNotification()
                 })
             });
         }
@@ -466,8 +482,6 @@ function ConsultationInProgress() {
                         color="error"
                         onClick={() => {
                             saveConsultation()
-
-
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
                         {t("end_consultation")}
@@ -570,6 +584,9 @@ function ConsultationInProgress() {
                     </Grid>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"documents"}>
+{/*
+                    <Button onClick={sendNotification}>send</Button>
+*/}
                     <DocumentsTab
                         documents={documents}
                         setIsViewerOpen={setIsViewerOpen}
