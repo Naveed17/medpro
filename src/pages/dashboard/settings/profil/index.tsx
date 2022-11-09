@@ -85,8 +85,7 @@ function Profil() {
     useEffect(() => {
         if (httpMedicalProfessionalResponse !== undefined) {
             const infoData = (httpMedicalProfessionalResponse as any).data[0];
-            const medical_professional = (user as UserDataResponse)
-                .medical_professional as MedicalProfessionalModel;
+            const medical_professional = infoData.medical_professional as MedicalProfessionalModel;
             setName(medical_professional?.publicName);
             let lngs: LanguageModel[] = [];
             medical_professional?.languages.map((lang) => lngs.push(lang.language));
@@ -97,12 +96,10 @@ function Profil() {
             );
             setLoading(false);
             setMedicalProfessionalUuid(medical_professional?.uuid);
-            if (infoData !== undefined) {
-                setInsurances(infoData.insurances);
-                setPaymentMeans(infoData.payments);
-                setQualifications(infoData.qualification);
-                setActs(infoData.acts);
-            }
+            setInsurances(infoData.insurances);
+            setPaymentMeans(infoData.payments);
+            setQualifications(infoData.qualification);
+            setActs(infoData.acts);
         }
         if (errorHttpMedicalProfessional !== undefined) {
             console.log(errorHttpMedicalProfessional);

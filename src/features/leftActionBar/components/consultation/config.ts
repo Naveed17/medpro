@@ -23,12 +23,12 @@ export const collapse = [
     {
         id: 6,
         title: 'riskFactory',
-        icon: 'ic-doc',
+        icon: 'ic-recherche',
     },
     {
         id: 7,
         title: 'allergic',
-        icon: 'ic-doc',
+        icon: 'allergies',
     },
     {
         id: 4,
