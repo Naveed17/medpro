@@ -10,8 +10,8 @@ import {setAgendas, setConfig} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
-
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
+
 const variants = {
     hidden: {opacity: 0},
     enter: {opacity: 1},
@@ -65,6 +65,7 @@ function DashLayout({children}: LayoutProps) {
     }, [calendarStatus, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        //console.log(navigator.brave);
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
                 callbackUrl: `${router.locale}/dashboard/agenda`,
