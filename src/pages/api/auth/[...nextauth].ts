@@ -76,9 +76,8 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials, req) {
                 if (req) {
                     // Any object returned will be saved in `user` property of the JWT
-                    return {
-                        access_token: req.body?.token
-                    }
+                    return refreshAccessToken({refreshToken: req.body?.token});
+
                 } else {
                     // If you return null then an error will be displayed advising the user to check their details.
                     return null
@@ -168,7 +167,7 @@ export const authOptions: NextAuthOptions = {
             if (account && user) {
                 // Send properties to the client, like an access_token from a provider.
                 if (account.provider === "credentials") {
-                    token.accessToken = (user as any)?.access_token;
+                    token = user as any;
                 } else {
                     // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
