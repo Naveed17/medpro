@@ -15,7 +15,7 @@ import {Header} from "@features/files";
 import {useFormik} from "formik";
 import dynamic from "next/dynamic";
 
-const ReportEditor = dynamic(() => import("@features/reportEditor/reportEditor"), {
+const ReportEditor = dynamic(() => import("@features/editor/editor"), {
     ssr: false,
 });
 
