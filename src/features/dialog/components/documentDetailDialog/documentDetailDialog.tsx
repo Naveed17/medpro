@@ -30,7 +30,6 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
-import Image from "next/image";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -145,6 +144,8 @@ function DocumentDetailDialog({...props}) {
             })
             addFooters(doc)
             const uri = doc.output('bloburi').toString()
+            console.log(uri)
+
             setFile(uri)
         } else if (state.type === 'requested-analysis') {
             autoTable(doc, {
@@ -192,6 +193,8 @@ function DocumentDetailDialog({...props}) {
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else setFile(state.uri)
+
+        // doc.save()
     }, [state, hide])
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -324,7 +327,7 @@ function DocumentDetailDialog({...props}) {
                             </Document>
                         </Box>}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {state.type === 'photo' &&  <img src={state.uri} style={{marginLeft:20}} alt={"img"}/>}
+                        {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
                     </Stack>
                 </Grid>
                 <Grid item xs={12} md={4} className="sidebar">

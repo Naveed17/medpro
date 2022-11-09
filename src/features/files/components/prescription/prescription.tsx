@@ -21,7 +21,7 @@ function Prescription({...props}) {
                     <p>{data.patient}</p>
                 </td>
                 <td className={"docDate"}>
-                    <p><span>le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
+                    <p><span>Le</span> {moment(data.createdAt).format('DD MMMM YYYY')}</p>
                 </td>
             </tr>
 

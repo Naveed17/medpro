@@ -645,7 +645,7 @@ function ConsultationInProgress() {
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
                                     {total} {process.env.NEXT_PUBLIC_DEVISE}
                                 </Typography>
-                                <Stack direction='row' alignItems="center" spacing={2}>
+                                <Stack direction='row' alignItems="center" display={{xs: 'none',md:"block"}} spacing={2}>
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
@@ -714,20 +714,7 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
-                <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
-                    onClick={() => setFilterDrawer(!drawer)}
-                    sx={{
-                        position: "fixed",
-                        bottom: 50,
-                        transform: "translateX(-50%)",
-                        left: "50%",
-                        zIndex: 999,
-                        display: {xs: "flex", md: "none"},
-                    }}
-                    variant="filter">
-                    Filtrer (0)
-                </Button>
+
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
@@ -780,14 +767,14 @@ function ConsultationInProgress() {
                     onClick={() => setFilterDrawer(!drawer)}
                     sx={{
                         position: "fixed",
-                        bottom: 50,
+                        bottom: 70,
                         transform: "translateX(-50%)",
                         left: "50%",
                         zIndex: 999,
                         display: {xs: "flex", md: "none"},
                     }}
                     variant="filter">
-                    Filtrer (0)
+                    {t('Filtrer')}
                 </Button>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
