@@ -345,7 +345,8 @@ function Agenda() {
                 oldDate: oldStartDate,
                 duration,
                 oldDuration,
-                onDurationChanged: oldDuration !== duration
+                onDurationChanged: oldDuration !== duration,
+                revert: info.revert
             }
         };
         setEvent(defEvent);
@@ -1046,7 +1047,10 @@ function Agenda() {
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setMoveDialog(false)}
+                                onClick={() => {
+                                    event?.extendedProps.revert && event?.extendedProps.revert();
+                                    setMoveDialog(false)
+                                }}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
