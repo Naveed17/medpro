@@ -64,7 +64,6 @@ function FcmLayout({...props}) {
         setOpen(false);
     };
 
-
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudMessaging.firebase);
@@ -106,7 +105,7 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}-${medical_professional.uuid}`);
+            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -8,6 +8,7 @@ import {signOut} from "next-auth/react";
 export type MenuState = {
     opened: boolean;
     mobileOpened: boolean;
+    logout?: string;
 };
 
 const initialState: MenuState = {
@@ -21,8 +22,9 @@ export const ProfileMenuReducer = createReducer(initialState, builder => {
             state.opened = action.payload;
         }).addCase(logout, (state, action) => {
         if (action.payload.redirect) {
-            // signOut({redirect: true, callbackUrl: action.payload.path});
-            window.location.href = action.payload.path;
+            state.logout = action.payload.path;
+            signOut({redirect: true, callbackUrl: "/api/auth/signout"});
+            // window.location.href = action.payload.path;
         } else {
             signOut({redirect: false});
         }

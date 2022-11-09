@@ -22,6 +22,8 @@ import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Image from "next/image";
+import * as Yup from "yup";
+import {PhoneRegExp} from "@features/tabPanel";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -31,10 +33,26 @@ function PatientContactDetailCard({...props}) {
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
 
+    const {t, ready} = useTranslation("patient", {
+        keyPrefix: "config.add-patient",
+    });
+
     const [editable, setEditable] = useState(false);
     const [country, setCountry] = useState(countries.find(country => country.phone === patient?.contact[0]?.code));
     const [loadingRequest, setLoadingRequest] = useState(false);
 
+    const RegisterPatientSchema = Yup.object().shape({
+        country: Yup.string()
+            .required(t("name-error")),
+        region: Yup.string()
+            .required(t("name-error")),
+        zip_code: Yup.string()
+            .required(t("name-error")),
+        address: Yup.string()
+            .required(t("name-error")),
+        telephone: Yup.array()
+            .required(t("telephone-error"))
+    });
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -54,6 +72,7 @@ function PatientContactDetailCard({...props}) {
                         value: ""
                     }]
         },
+        validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             console.log("ok", values);
         },
@@ -88,6 +107,12 @@ function PatientContactDetailCard({...props}) {
         params.append('first_name', patient.firstName.trim());
         params.append('last_name', patient.lastName.trim());
         params.append('gender', patient.gender === 'M' ? '1' : '2');
+        params.append('insurance', JSON.stringify(patient.insurances.map(
+            (insurance: {
+                insurance: InsuranceModel,
+                insuranceNumber: string,
+                uuid: string
+            }) => ({insurance_uuid: insurance.insurance?.uuid, insurance_number: insurance.insuranceNumber}))));
         params.append('country', values.country);
         params.append('region', values.region);
         params.append('zip_code', values.zip_code);
@@ -116,7 +141,7 @@ function PatientContactDetailCard({...props}) {
             setLoadingRequest(false);
             setEditable(false);
             mutatePatientData();
-            if(mutatePatientList) {
+            if (mutatePatientList) {
                 mutatePatientList();
             }
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
@@ -126,9 +151,6 @@ function PatientContactDetailCard({...props}) {
     const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config.add-patient",
-    });
     if (!ready) return <div>Loading...</div>;
 
     return (
@@ -155,6 +177,7 @@ function PatientContactDetailCard({...props}) {
                                         {editable ?
                                             <Stack mt={1} justifyContent='flex-end'>
                                                 <Button onClick={() => handleUpdatePatient()}
+                                                        disabled={Object.keys(errors).length > 0}
                                                         className='btn-add'
                                                         sx={{margin: 'auto'}}
                                                         size='small'

@@ -88,7 +88,7 @@ function Agenda() {
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer,currentStepper,
+        openViewDrawer, currentStepper,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -105,6 +105,7 @@ function Agenda() {
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
+    const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -460,6 +461,8 @@ function Agenda() {
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
             case "onDelete":
+                dispatch(setSelectedEvent(event));
+                setEvent(event);
                 setActionDialog('delete');
                 setCancelDialog(true);
                 break;
@@ -751,6 +754,7 @@ function Agenda() {
     }
 
     const handleAddAppointmentRequest = () => {
+        setLoading(true);
         const params = new FormData();
         params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
             "start_date": recurringDate.date,
@@ -774,6 +778,7 @@ function Agenda() {
                 setQuickAddAppointment(false);
                 refreshData();
             }
+            setLoading(false);
         });
     }
 
@@ -975,9 +980,11 @@ function Agenda() {
                         setQuickAddAppointment(false);
                     }}
                 >
-                    <QuickAddAppointment/>
+                    <QuickAddAppointment
+                        handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
+                            display: quickAddPatient ? "none" : "inline-block",
                             borderRadius: 0,
                             borderWidth: 0,
                             textAlign: "right",
@@ -995,14 +1002,15 @@ function Agenda() {
                         >
                             {t(`dialogs.quick_add_appointment-dialog.cancel`)}
                         </Button>
-                        <Button
+                        <LoadingButton
+                            {...{loading}}
                             variant="contained"
                             color={"primary"}
                             onClick={handleAddAppointmentRequest}
                             disabled={recurringDates.length === 0 || type === "" || !patient}
                         >
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
-                        </Button>
+                        </LoadingButton>
                     </Paper>
                 </Drawer>
 

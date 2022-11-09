@@ -1,7 +1,7 @@
 import {TextIconRadio} from "@features/buttons";
 import {Box, FormControlLabel, LinearProgress, MenuItem, RadioGroup, Select, Stack} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
 import Paper from "@mui/material/Paper";
@@ -18,7 +18,7 @@ import {ModelDot} from "@features/modelDot";
 
 
 function EventType({...props}) {
-    const {onNext, OnAction, select} = props;
+    const {onNext, OnAction, select, defaultType = null} = props;
 
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -38,10 +38,18 @@ function EventType({...props}) {
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const [typeEvent, setTypeEvent] = useState(type);
 
+    useEffect(() => {
+        if (types && defaultType !== null) {
+            const type = types[defaultType];
+            setTypeEvent(type.uuid);
+            dispatch(setAppointmentType(type.uuid));
+        }
+    }, [types, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleTypeChange = (type: string) => {
         setTypeEvent(type);
         dispatch(setAppointmentType(type));
-        if(!select) {
+        if (!select) {
             onNextStep();
         }
     }
@@ -118,7 +126,8 @@ function EventType({...props}) {
                                             color={type?.color}
                                             selected={false}
                                             marginRight={10}></ModelDot>
-                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
+                                        <Typography
+                                            sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
                                     </Stack>)
                             }}>
                             {types && types.map((type, index) => (

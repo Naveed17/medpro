@@ -10,6 +10,7 @@ function SignIn() {
     const {status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
+
     const [error, setError] = useState(router.asPath.includes("&error="));
     const {token} = router.query;
 

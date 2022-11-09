@@ -2,7 +2,7 @@ import {Stack} from "@mui/material";
 import {styled} from "@mui/material/styles";
 
 const QuickAddAppointmentStyled = styled(Stack)(({theme}) => ({
-    height: 'calc(100% - 64px)',
+    height: '100vh',
     minWidth: "45vw",
     overflowY: 'scroll',
     padding: theme.spacing(3),

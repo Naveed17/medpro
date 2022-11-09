@@ -8,7 +8,7 @@ import {
     Select,
     Stack,
     TextField,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef} from "react";
@@ -58,11 +58,13 @@ function OnStepPatient({...props}) {
     const {
         onNext,
         onClose,
+        handleAddPatient = null,
         OnSubmit = null,
         translationKey = "patient",
         translationPrefix = "add-patient",
     } = props;
     const router = useRouter();
+    const theme = useTheme();
     const topRef = useRef(null);
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
@@ -325,6 +327,7 @@ function OnStepPatient({...props}) {
                             <Grid item md={6} lg={8} xs={12}>
                                 <TextField
                                     variant="outlined"
+                                    type={"number"}
                                     size="small"
                                     {...getFieldProps("phone")}
                                     error={Boolean(touched.phone && errors.phone)}
@@ -633,7 +636,7 @@ function OnStepPatient({...props}) {
                                                                 return <Typography>{insurance?.name}</Typography>
                                                             }}
                                                         >
-                                                            {insurances.map(insurance => (
+                                                            {insurances?.map(insurance => (
                                                                 <MenuItem
                                                                     key={insurance.uuid}
                                                                     value={insurance.uuid}>
@@ -727,6 +730,14 @@ function OnStepPatient({...props}) {
                 </Stack>
 
                 <Stack
+                    {...(handleAddPatient && {
+                        sx: {
+                            position: "sticky",
+                            bottom: "-1.5rem",
+                            backgroundColor: theme.palette.common.white,
+                            paddingBottom: "1rem"
+                        }
+                    })}
                     spacing={3}
                     direction="row"
                     justifyContent="flex-end"
