@@ -165,10 +165,7 @@ export const DayOfWeek = (day: string, start = 1) => {
 export const AddAppointmentCardData = {
   mainIcon: "ic-agenda-+",
   title: "table.no-data.event.title",
-  description: "table.no-data.event.description",
-  buttonText: "table.no-data.event.button-text",
-  buttonIcon: "ic-agenda-+",
-  buttonVariant: "warning",
+  description: "table.no-data.event.description"
 };
 
 export const SlotFormat = {
