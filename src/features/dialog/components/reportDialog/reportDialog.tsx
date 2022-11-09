@@ -28,15 +28,15 @@ function ReportDialog({...props}) {
         format: 'a5'
     });
 
-    useEffect(() => {
-        setEditorLoaded(true);
-    }, []);
+    /* useEffect(() => {
+         setEditorLoaded(true);
+     }, []);
 
-    useEffect(()=>{
-        (document?.getElementById("xx") as HTMLElement).innerHTML = data;
-        console.log(data)
+     useEffect(()=>{
+         (document?.getElementById("xx") as HTMLElement).innerHTML = data;
+         console.log(data)
 
-    },[data])
+     },[data])*/
     const {t, ready} = useTranslation("consultation");
     if (!ready) return (<>loading translations...</>);
 
