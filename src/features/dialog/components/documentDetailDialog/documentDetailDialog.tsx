@@ -30,7 +30,7 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
-
+import printJS from 'print-js'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
@@ -201,9 +201,13 @@ function DocumentDetailDialog({...props}) {
         setNumPages(numPages);
     }
 
-    const handlePrint = useReactToPrint({
+    /*const handlePrint = useReactToPrint({
         content: () => componentRef.current,
-    });
+    });*/
+
+    const handlePrint = ()=>{
+        printJS({printable:file, type:'pdf', showModal:true})
+    }
 
     const {trigger} = useRequestMutation(null, "/documents");
 

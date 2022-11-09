@@ -30,6 +30,8 @@
     "medical_imaging_pending": "Imagerie en attente",
     "consultation": "consultation",
     "medical_history": "Antécédent médical",
+    "antecedent": "Antécédents",
+    "riskFactory": "Facteur de risque",
     "add_treatment": "Ajouter un traitement",
     "cancel": "Annuler",
     "save": "Enregistrer",
