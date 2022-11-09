@@ -15,10 +15,10 @@ export const documentButtonList = [
         icon: "ic-analyse",
         label: "balance_sheet_request",
     },
-    {
+    /*{
         icon: "ic-color-edit-file",
         label: "write_report",
-    },
+    },*/
     {
         icon: "ic-dowlaodfile",
         label: "upload_document",
