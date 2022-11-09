@@ -8,7 +8,7 @@ function CipMedicProCard({ ...props }) {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Typography fontWeight={600}>
-                        {row.acts}
+                        {row.act.name}
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -18,10 +18,10 @@ function CipMedicProCard({ ...props }) {
                     {devise}
                 </Grid>
                 <Grid item xs={6}>
-                    {row.amount > 0 ? (
+                    {row.fees > 0 ? (
                         <>
                             <Button className="btn-amount" size="small" variant="outlined" color="success">
-                                {row.amount}
+                                {row.fees}
                             </Button>
                         </>
                     ) : (

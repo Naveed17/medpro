@@ -28,7 +28,7 @@ export default function HistoryCard({...props}) {
                         {row.consultationReason.name}
                     </Typography>
                 </Stack>}
-                <Box display={{xs: 'none', md: 'block'}}>
+                <Box display={{ md: 'block'}}>
                     <Typography fontWeight={400}>
                         {t("appointment_date")}
                     </Typography>

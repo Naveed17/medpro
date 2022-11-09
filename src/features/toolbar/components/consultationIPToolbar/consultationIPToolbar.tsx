@@ -210,6 +210,7 @@ function ConsultationIPToolbar({...props}) {
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
+                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],

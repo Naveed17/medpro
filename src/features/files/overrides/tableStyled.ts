@@ -5,22 +5,24 @@ const TableStyled = styled("table")(({theme}) => ({
     "& .title": {
         fontWeight: "bold",
         textAlign: "center",
-        fontSize: 14
+        fontSize: 16,
+        fontFamily:"Poppins-Bold",
+        letterSpacing:20
     },
     "& .drugName": {
-        fontSize: 11,
+        fontSize: 14,
         color: theme.palette.grey["600"]
     },
     "& .detail": {
-        fontSize: 10,
+        fontSize: 12,
         color: theme.palette.back.dark
     },
     "& .patientName": {
         fontWeight: 500,
-        fontSize: 13
+        fontSize: 15
     },
     "& .docDate": {
-        fontSize: 9,
+        fontSize: 13,
         textAlign: "right"
     },
     "& .certifContent": {

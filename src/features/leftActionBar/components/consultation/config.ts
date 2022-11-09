@@ -21,8 +21,18 @@ export const collapse = [
 
     },
     {
+        id: 6,
+        title: 'riskFactory',
+        icon: 'ic-doc',
+    },
+    {
+        id: 7,
+        title: 'allergic',
+        icon: 'ic-doc',
+    },
+    {
         id: 4,
-        title: 'medical_history',
+        title: 'antecedent',
         icon: 'ic-doc',
     }
 ];
