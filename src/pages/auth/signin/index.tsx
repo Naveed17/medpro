@@ -5,16 +5,12 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {LoadingScreen} from "@features/loadingScreen";
 import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
-import {useAppSelector} from "@app/redux/hooks";
-import {profileMenuSelector} from "@features/profilMenu";
-import axios from "axios";
 
 function SignIn() {
     const {status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
 
-    const {logout} = useAppSelector(profileMenuSelector);
     const [error, setError] = useState(router.asPath.includes("&error="));
     const {token} = router.query;
 
