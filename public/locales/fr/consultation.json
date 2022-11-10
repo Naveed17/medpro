@@ -301,5 +301,17 @@
       "tab-3": "Patient",
       "tab-4": "Instruction"
     }
+  },
+  "background": {
+    "title": "Antécédents",
+    "way_of_life": "Mode de vie",
+    "allergic": "Allergies",
+    "family_antecedents": "Antécédents familiaux",
+    "medical_antecedents": "Antécédents médicaux",
+    "surgical_antecedents": "Antécédents chirurgicaux",
+    "add-background": "Ajouter Antécédents",
+    "register": "Enregistrer",
+    "cancel": "Annuler"
   }
 }
+

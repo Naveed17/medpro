@@ -20,7 +20,8 @@ import {Session} from "next-auth";
 import {agendaSelector, openDrawer, setLastUpdate, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
-import {setAppointmentType} from "@features/tabPanel";
+import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
+import {useSnackbar} from "notistack";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -33,8 +34,9 @@ function FcmLayout({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const [open, setOpen] = useState(false);
+    const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
 
     const {data: user} = session as Session;
@@ -68,14 +70,19 @@ function FcmLayout({...props}) {
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudMessaging.firebase);
         onMessage(messaging, (message: any) => {
-            switch (message.data.root) {
-                case "agenda":
-                    const data = JSON.parse(message.data.detail);
-                    dispatch(setLastUpdate(data));
-                    if (data.type === "popup") {
-                        setOpen(true);
-                    }
-                    break;
+            const data = JSON.parse(message.data.detail);
+            if (data.type === "no_action" && data.mode === "foreground") {
+                enqueueSnackbar(message.notification.body, {variant: "info"});
+            } else {
+                switch (message.data.root) {
+                    case "agenda":
+                        dispatch(setLastUpdate(data));
+                        if (data.type === "popup") {
+                            setOpen(true);
+                            setNotificationData(data.body);
+                        }
+                        break;
+                }
             }
         });
     }
@@ -165,21 +172,21 @@ function FcmLayout({...props}) {
                 <DialogContent>
                     <ConsultationPopupAction
                         data={{
-                            id: 1,
-                            name: "Khadija EHA",
-                            phone: "+216 22 469 495",
-                            date: "22/12/2020",
-                            time: "14:00",
-                            fees: "50",
-                            instruction: "test oedo d,eo e,doe,oe ",
-                            control: 4
+                            id: notificationData?.patient.uuid,
+                            name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
+                            phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
+                            fees: notificationData?.fees,
+                            instruction: notificationData?.instruction,
+                            control: notificationData?.nextApp
                         }}
                         OnSchedule={() => {
-                            console.log("OnSchedule");
                             handleClose();
-                            dispatch(setStepperIndex(1));
-                            dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
-                            dispatch(openDrawer({type: "add", open: true}));
+                            router.push("/dashboard/agenda").then(() => {
+                                dispatch(setStepperIndex(1));
+                                dispatch(setAppointmentPatient(notificationData?.patient));
+                                dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                                dispatch(openDrawer({type: "add", open: true}));
+                            });
                         }}/>
                 </DialogContent>
             </Dialog>

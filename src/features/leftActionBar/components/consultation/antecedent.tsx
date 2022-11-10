@@ -3,7 +3,7 @@ import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Ty
 import CircleIcon from "@mui/icons-material/Circle";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
-import ContentStyled from "@features/leftActionBar/components/consultation/overrides/contantStyle";
+import ContentStyled from "./overrides/contantStyle";
 import React from "react";
 
 function Antecedent({...props}) {
