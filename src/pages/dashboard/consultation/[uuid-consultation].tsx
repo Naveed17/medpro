@@ -76,7 +76,7 @@ function ConsultationInProgress() {
     const [sheet, setSheet] = useState<any>(null);
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [instruction, setInstruction] = useState("hello");
+    const [instruction, setInstruction] = useState("");
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
     const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState({
