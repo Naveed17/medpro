@@ -15,7 +15,7 @@ function LieuxRow({...props}) {
             <TableCell>
                 {row ? (
                     <Typography className="name" variant="body1" color="text.primary">
-                        {row.address.location.name}
+                        {row.address.location.name ? row.address.location.name : "Cabinet"}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
