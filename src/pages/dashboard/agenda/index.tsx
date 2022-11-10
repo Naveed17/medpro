@@ -102,7 +102,9 @@ function Agenda() {
     const {isActive} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
 
-    const [timeRange, setTimeRange] = useState({start: "", end: ""});
+    const [timeRange, setTimeRange] = useState({
+        start: moment().startOf('week').format('DD-MM-YYYY'),
+        end: moment().endOf('week').format('DD-MM-YYYY')});
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
@@ -1160,7 +1162,8 @@ function Agenda() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda', 'patient']))
+        ...(await serverSideTranslations(context.locale as string,
+            ['common', 'menu', 'agenda', 'patient', 'consultation']))
     }
 })
 

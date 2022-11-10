@@ -145,7 +145,7 @@ const Content = ({...props}) => {
 
     return (
         <React.Fragment>
-            { id ===1 || id === 3 ? (
+            {id === 1 || id === 3 ? (
                 <ContentStyled>
                     <CardContent style={{paddingBottom: pxToRem(15)}}>
                         {id === 1 && (
@@ -332,24 +332,24 @@ const Content = ({...props}) => {
                 </>
             ) : id === 6 ? (
                 patient && <Antecedent antecedent={"way_of_life"}
-                            t={t}
-                            patient={patient}
-                            trigger={trigger}
-                            mutate={mutate}
-                            session={session}
-                            handleOpen={handleOpen}
-                            router={router}
-                            medical_entity={medical_entity}></Antecedent>
+                                       t={t}
+                                       patient={patient}
+                                       trigger={trigger}
+                                       mutate={mutate}
+                                       session={session}
+                                       handleOpen={handleOpen}
+                                       router={router}
+                                       medical_entity={medical_entity}></Antecedent>
             ) : id === 7 ? (
                 patient && <Antecedent antecedent={"allergic"}
-                            t={t}
-                            patient={patient}
-                            trigger={trigger}
-                            mutate={mutate}
-                            session={session}
-                            handleOpen={handleOpen}
-                            router={router}
-                            medical_entity={medical_entity}></Antecedent>
+                                       t={t}
+                                       patient={patient}
+                                       trigger={trigger}
+                                       mutate={mutate}
+                                       session={session}
+                                       handleOpen={handleOpen}
+                                       router={router}
+                                       medical_entity={medical_entity}></Antecedent>
             ) : id === 5 ? (
                 <>
                     {patient?.requestedImaging.length === 0 && (
@@ -439,18 +439,20 @@ const Content = ({...props}) => {
                 </>
             ) : (
                 patient &&
-                Object.keys(patient.antecedents).map((antecedent,index) => (
+                Object.keys(patient.antecedents).map((antecedent, index) => (
                     antecedent !== "way_of_life" && antecedent !== "allergic" &&
-                    <Antecedent antecedent={antecedent}
-                                t={t}
-                                patient={patient}
-                                trigger={trigger}
-                                mutate={mutate}
-                                session={session}
-                                index={index}
-                                key={`card-content-${antecedent}${index}`}                                handleOpen={handleOpen}
-                                router={router}
-                                medical_entity={medical_entity}></Antecedent>
+                    <Antecedent
+                        antecedent={antecedent}
+                        t={t}
+                        patient={patient}
+                        trigger={trigger}
+                        mutate={mutate}
+                        session={session}
+                        index={index}
+                        key={`card-content-${antecedent}${index}`}
+                        handleOpen={handleOpen}
+                        router={router}
+                        medical_entity={medical_entity}></Antecedent>
                 ))
             )}
 
