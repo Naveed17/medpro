@@ -101,7 +101,7 @@ function TimeSchedule({...props}) {
                 if (onTimeAvailable(slots, time)) {
                     setTimeAvailable(true);
                 } else {
-                    // setRecurringDates([]);
+                    setRecurringDates([]);
                     setTimeAvailable(false);
                 }
             }
