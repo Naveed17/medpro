@@ -69,19 +69,22 @@ function LocationMarker({...props}) {
 }
 
 function Maps({...props}) {
+    const {data, outerBounds,draggable,editCords} = props
     return (
         <>
-            {props && props.outerBounds.length > 0 &&
+            {props && outerBounds.length > 0 &&
                 <MapContainer
-                    bounds={props.outerBounds}
+                    bounds={outerBounds}
                     style={{height: '70vh'}}
                     attributionControl={false}
                     scrollWheelZoom={false}
                     id="mapId">
                     <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"/>
-                    {props.draggable && <LocationMarker cords={props.data} editCords={props.editCords}
-                    />}
-                    {!props.draggable && <PlacesMarker cords={props.data}/>}
+
+                    {draggable && data.points !== null && <LocationMarker cords={data} editCords={editCords}/>}
+
+                    {!draggable && data.points !== null && <PlacesMarker cords={data}/>}
+
                 </MapContainer>
             }
         </>

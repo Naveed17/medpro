@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {
     Badge,
     Box,
@@ -25,14 +25,13 @@ const limit = 255;
 
 function SecretaryConsultationDialog({...props}) {
     const {
-        data: {t, changes, total},
+        data: {t, changes, total, instruction, setInstruction, meeting, setMeeting, checkedNext, setCheckedNext},
     } = props;
-    const [value, setvalue] = useState("");
-    const [checked, setChecked] = useState(false);
-    const [meeting, setMeeting] = useState<number>(15);
+
+    console.log(instruction)
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setvalue(event.target.value.slice(0, limit));
+        setInstruction(event.target.value.slice(0, limit));
     };
     return (
         <RootStyled>
@@ -51,14 +50,14 @@ function SecretaryConsultationDialog({...props}) {
                         <TextField
                             fullWidth
                             multiline
-                            value={value}
+                            value={instruction}
                             onChange={handleChange}
                             placeholder={t("type_instruction_for_the_secretary")}
                             rows={4}
                             InputProps={{
                                 endAdornment: (
-                                    <InputAdornment position="end">
-                                        {value.length} / {limit}
+                                    <InputAdornment defaultValue={instruction} position="end">
+                                        {instruction.length} / {limit}
                                     </InputAdornment>
                                 ),
                             }}
@@ -69,7 +68,7 @@ function SecretaryConsultationDialog({...props}) {
                             <Label
                                 variant="filled"
                                 color="success"
-                                sx={{ color: (theme) => theme.palette.text.primary }}>
+                                sx={{color: (theme) => theme.palette.text.primary}}>
                                 <Typography
                                     color="text.primary"
                                     variant="subtitle1"
@@ -88,10 +87,10 @@ function SecretaryConsultationDialog({...props}) {
                             disableRipple
                             color="info"
                             variant="outlined"
-                            onClick={() => setChecked(!checked)}>
-                            <Checkbox checked={checked}/>
+                            onClick={() => setCheckedNext(!checkedNext)}>
+                            <Checkbox checked={checkedNext}/>
                             {t("plan_a_meeting")}
-                            {checked && (
+                            {checkedNext && (
                                 <>
                                     <InputBase
                                         inputProps={{
