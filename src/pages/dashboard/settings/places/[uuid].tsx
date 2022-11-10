@@ -258,6 +258,7 @@ function PlacesDetail() {
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
+                setCords([{name: "name", points: [position.coords.latitude, position.coords.longitude]}]);
             });
             setHoraires([
                 {
@@ -387,7 +388,7 @@ function PlacesDetail() {
         }
     }, [check, initialCites, row]);
 
-    // useEffect(() => {
+   // useEffect(() => {
     //     if (row !== undefined && check) {
     //         /*row.openingHours.map((ohours: any, index: number) => {
     //             horaires[index].isMain = ohours.isMain;
@@ -410,7 +411,6 @@ function PlacesDetail() {
     //             });
     //         });
     //         setContacts([...contacts])
-    //         console.log('loop')
     //
     //     }
     // }, [check, contacts, row])
@@ -429,8 +429,6 @@ function PlacesDetail() {
                   access: 1
               }
           ]);*/
-
-    if (!ready) return <>loading translations...</>;
 
     /*
           // access array not exit in backend
@@ -503,11 +501,13 @@ function PlacesDetail() {
         ];
         setFieldValue("phone", phones);
     };
+
     const handleRemovePhone = (props: number) => {
         console.log(values.phone.filter((item, index) => index !== props))
         const phones = values.phone.filter((item, index) => index !== props);
         setFieldValue("phone", phones);
     };
+
     return (
         <>
             <SubHeader>

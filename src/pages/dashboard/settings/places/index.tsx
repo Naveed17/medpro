@@ -63,7 +63,6 @@ function Lieux() {
     useEffect(() => {
         if (data !== undefined) {
             setRows((data as any).data);
-            console.log((data as any).data)
         }
     }, [data])
 
@@ -75,7 +74,9 @@ function Lieux() {
             if ((cord.address as any).location.point)
                 bounds.push((cord.address as any).location.point);
         });
-        console.log(bounds)
+        navigator.geolocation.getCurrentPosition(function (position) {
+            bounds.push([position.coords.latitude, position.coords.longitude]);
+        });
         setOuterBounds(bounds);
         setCords([...actives]);
     }, [rows])
