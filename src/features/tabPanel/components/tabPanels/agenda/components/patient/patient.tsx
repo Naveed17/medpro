@@ -77,7 +77,7 @@ function Patient({...props}) {
         form.append('first_name', patient.firstName)
         form.append('last_name', patient.lastName);
         form.append('phone', JSON.stringify({
-            // code: patient.countryCode.phone,
+            code: patient.countryCode.phone,
             value: patient.phone.toString(),
             type: "phone",
             "contact_type": patient.contact.uuid,

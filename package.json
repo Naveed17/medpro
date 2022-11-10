@@ -47,6 +47,7 @@
     "firebase": "^9.10.0",
     "formik": "^2.2.9",
     "framer-motion": "^6.3.4",
+    "humanize-duration": "^3.27.3",
     "jsonwebtoken": "^8.5.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
