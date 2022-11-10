@@ -220,6 +220,14 @@ const dialogData = [
         ),
     },
     {
+        action: "write_report",
+        component: dynamic((): any =>
+            import("@features/dialog/components/reportDialog/reportDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "add_vaccin",
         component: dynamic((): any =>
             import("@features/dialog/components/addVaccineDialog/addVaccineDialog").then(

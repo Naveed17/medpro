@@ -1,13 +1,12 @@
-import {CardContent, IconButton, Stack, Typography} from '@mui/material'
+import {CardContent, Stack, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React, {ReactElement, useState} from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
-import {Popover} from "@features/popover";
-import Icon from "@themes/urlIcon";
+import moment from "moment/moment";
 
 function DocumentCard({...props}) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick,t} = props;
+    const {data, onClick, t} = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -81,8 +80,12 @@ function DocumentCard({...props}) {
                         data.documentType === "video" && "ic-video-outline" ||
                         data.documentType !== "prescription" && "ic-pdf" || ""
                     }/>
-                    <Typography variant='subtitle2'  textAlign={"center"} whiteSpace={"nowrap"} fontSize={11}>
+                    <Typography variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={11}>
                         {t(data.title)}
+                    </Typography>
+                    <Typography textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}
+                                style={{marginTop: 0,color:"grey"}}>
+                        {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
                     </Typography>
                 </Stack>
             </CardContent>

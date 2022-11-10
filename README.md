@@ -46,11 +46,25 @@ Open `http://localhost:3000` with your browser to see the result.
 | Variable                   | Default Value |
 |----------------------------|---------------|
 | NEXTAUTH_URL               |               |
+| NEXTAUTH_LOGOUT_URL        |               |
 | NEXTAUTH_SECRET            |               |
 | KEYCLOAK_ID                |               |
 | KEYCLOAK_SECRET            |               |
 | KEYCLOAK_ISSUER            |               |
+| KEYCLOAK_AUTH_TOKEN_URL            |               |
 | NEXT_PUBLIC_API_URL        |               |
+| NEXT_PUBLIC_FCM_API_KEY        |               |
+| NEXT_PUBLIC_FCM_AUTH_DOMAIN        |               |
+| NEXT_PUBLIC_FCM_DATABASE_URL        |               |
+| NEXT_PUBLIC_FCM_PROJECT_ID        |               |
+| NEXT_PUBLIC_FCM_STORAGE_BUCKET        |               |
+| NEXT_PUBLIC_FCM_MESSAGING_SENDER_ID        |               |
+| NEXT_PUBLIC_FCM_APP_ID        |               |
+| NEXT_PUBLIC_FCM_MEASUREMENT_ID        |               |
+| FCM_KEY_PAIR        |               |
+| FCM_WEB_API_KEY        |               |
+| S3_URL        |               |
+| NEXT_PUBLIC_DEVISE        |               |
 
 ## API
 - [useRequest](#userequestrequest-config)

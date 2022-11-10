@@ -25,8 +25,9 @@ import {useFormik, Form, FormikProvider} from "formik";
 import MaskedInput from "react-text-mask";
 
 function PatientDetailsCard({...props}) {
-    const theme = useTheme();
     const {patient, onConsultation, loading} = props;
+
+    const theme = useTheme();
     const {isActive} = useAppSelector(timerSelector);
     const formik = useFormik({
         enableReinitialize: true,
@@ -82,6 +83,7 @@ function PatientDetailsCard({...props}) {
                             <Skeleton variant="text" width={150}/>
                         ) : (
                             <InputBase
+                                readOnly
                                 inputProps={{
                                     style: {
                                         background: "white",
@@ -95,7 +97,9 @@ function PatientDetailsCard({...props}) {
                         {loading ? (
                             <Skeleton variant="text" width={150}/>
                         ) : (
-                            <Stack direction={"row"} alignItems="center">
+                            <Stack
+                                className={"date-birth"}
+                                direction={"row"} alignItems="center">
                                 <Icon path="ic-anniverssaire"/>
                                 <Box
                                     sx={{
@@ -104,6 +108,7 @@ function PatientDetailsCard({...props}) {
                                         },
                                     }}>
                                     <MaskedInput
+                                        readOnly
                                         style={{
                                             border: "none",
                                             outline: "none",
@@ -126,17 +131,16 @@ function PatientDetailsCard({...props}) {
                                         showMask
                                     />
                                 </Box>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    component="span">
-                                    -{" "}
-                                    {patient?.birthdate &&
-                                        `${moment().diff(
-                                            moment(patient?.birthdate, "DD-MM-YYYY"),
-                                            "years"
-                                        )} ${t("years")}`}
-                                </Typography>
+                                {patient?.birthdate &&
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        component="span">
+                                        -{" "}
+                                        ({moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
+                                        {" "}
+                                        {t("years").toLowerCase()})
+                                    </Typography>}
                             </Stack>
                         )}
                     </Box>
@@ -144,32 +148,35 @@ function PatientDetailsCard({...props}) {
                         {loading ? (
                             <Skeleton variant="text" width={150}/>
                         ) : (
-                            <Typography
-                                visibility={"hidden"}
-                                variant="body2"
-                                component="span"
-                                className="alert">
-                                <Icon path="danger"/>
-                                {t("duplicate")}
-                            </Typography>
+                            <Stack direction={"row"} alignItems="center">
+                                <Typography
+                                    visibility={"hidden"}
+                                    variant="body2"
+                                    component="span"
+                                    className="alert">
+                                    <Icon path="danger"/>
+                                    {t("duplicate")}
+                                </Typography>
+                            </Stack>
                         )}
-
-                        <Typography
-                            variant="body2"
-                            color="primary"
-                            component="span"
-                            className="email-link">
-                            {loading ? (
-                                <Skeleton variant="text" width={100}/>
-                            ) : (
-                                patient?.email && (
-                                    <>
-                                        <Icon path="ic-message-contour"/>
-                                        {patient?.email}
-                                    </>
-                                )
-                            )}
-                        </Typography>
+                        <Stack direction={"row"} alignItems="flex-start" mt={0}>
+                            <Typography
+                                variant="body2"
+                                color="primary"
+                                component="span"
+                                className="email-link">
+                                {loading ? (
+                                    <Skeleton variant="text" width={100}/>
+                                ) : (
+                                    patient?.email && (
+                                        <>
+                                            <Icon path="ic-message-contour"/>
+                                            {patient?.email}
+                                        </>
+                                    )
+                                )}
+                            </Typography>
+                        </Stack>
                     </div>
                     <Box
                         display="flex"
@@ -222,7 +229,7 @@ function PatientDetailsCard({...props}) {
                         </>
                     )}
                     {patient && (
-                        <Box ml={{lg: "1rem", xs: 0}}>
+                        <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
                             <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
                         </Box>
                     )}

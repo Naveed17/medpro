@@ -1,4 +1,5 @@
 import axios, {AxiosRequestConfig} from "axios";
+import {signIn} from "next-auth/react";
 
 const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -23,6 +24,14 @@ instanceAxios.interceptors.response.use((response) => response, (error) => {
     // const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     // whatever you want to do with the error
     // enqueueSnackbar('Oups, une erreur s’est produite. Veuillez réessayer plus tard', { variant: "error" });
+    switch (error.response.data.code) {
+        case 4000:
+            console.log("fin session");
+            signIn('keycloak', {
+                callbackUrl: `/dashboard/agenda`,
+            }); // Force sign in to hopefully resolve error
+            break;
+    }
     throw error;
 });
 export default instanceAxios;

@@ -11,7 +11,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 
 // material components
-import {Box, Drawer, Zoom} from "@mui/material";
+import {Box, Drawer} from "@mui/material";
 
 // redux
 import {useAppSelector, useAppDispatch} from "@app/redux/hooks";
@@ -207,6 +207,7 @@ function Patient() {
             <SubHeader>
                 <PatientToolbar
                     onAddPatient={() => {
+                        dispatch(onResetPatient());
                         setSelectedPatient(null);
                         setPatientDrawer(true);
                     }}
@@ -292,12 +293,10 @@ function Patient() {
                 <CustomStepper
                     translationKey="patient"
                     prefixKey="add-patient"
-                    stepperData={stepperData}
                     OnSubmitStepper={submitStepper}
                     scroll
-                    t={t}
+                    {...{stepperData, t, selectedPatient}}
                     minWidth={648}
-                    selectedPatient={selectedPatient}
                     onClose={() => {
                         setPatientDrawer(false);
                     }}

@@ -1,13 +1,24 @@
 const {i18n} = require("./next-i18next.config");
 const {withTM} = require("./next-fullcalendar.config");
+const withPWA = require("next-pwa")({
+    dest: "public",
+    register: true,
+    disable: process.env.NODE_ENV === 'development',
+    skipWaiting: true
+});
 
-/** @type {{}} */
+const plugins = []
+
+plugins.push(withPWA)
+
+/**
+ * @type {{}}
+ */
 const nextConfig = withTM({
     output: 'standalone',
-    reactStrictMode: false,
     i18n,
     images: {
-        domains: ["flagcdn.com", process.env.S3_URL || '' ]
+        domains: ["flagcdn.com", process.env.S3_URL || '']
     },
     webpack: (config, {nextRuntime}) => {
         config.module.rules.push({
@@ -18,4 +29,5 @@ const nextConfig = withTM({
     }
 });
 
-module.exports = nextConfig;
+module.exports = () => plugins.reduce((acc, next) => next(acc), nextConfig)
+

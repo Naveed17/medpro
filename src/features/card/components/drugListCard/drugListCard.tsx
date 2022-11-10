@@ -1,5 +1,5 @@
 import React from "react";
-import {Stack, Typography, List, ListItem, ListItemIcon, IconButton} from "@mui/material";
+import {IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
 import CircleIcon from '@mui/icons-material/Circle';
 import DrugListCardStyled from "./overrides/drugListCardStyle";
 import Icon from '@themes/urlIcon'
@@ -8,7 +8,9 @@ function DrugListCard({...props}) {
     const {data, t, list, remove, edit, disabled} = props;
     return (
         <DrugListCardStyled sx={{mb: list && "8px !important"}}>
-            <Stack onClick={(ev)=>{edit(data)}} direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
+            <Stack onClick={(ev) => {
+                edit(data)
+            }} direction='row' style={{opacity: disabled ? 0.4 : 1}} alignItems="center">
                 <Stack spacing={1}>
                     <Typography variant="body2" textTransform="uppercase">{data.name}</Typography>
                     <List
@@ -17,8 +19,7 @@ function DrugListCard({...props}) {
                                 display: 'flex',
                                 '& .MuiListItem-root': {width: 'auto', '&:not(:first-child)': {ml: 1.8}},
                             }
-                        } : {})}
-                    >
+                        } : {})}>
                         <ListItem>
                             <ListItemIcon>
                                 <CircleIcon/>
@@ -29,6 +30,12 @@ function DrugListCard({...props}) {
                                 <CircleIcon/>
                             </ListItemIcon>
                             {t('duration')} {data.duration} {t(data.durationType)}</ListItem>
+                        {data.note && <ListItem>
+                            <ListItemIcon>
+                                <CircleIcon/>
+                            </ListItemIcon>
+                            {data.note}
+                        </ListItem>}
                     </List>
                 </Stack>
                 {!list &&
@@ -39,8 +46,8 @@ function DrugListCard({...props}) {
                             <Icon path="ic-duotone"/>
                         </IconButton>
                         <IconButton disabled={disabled} size="small" onClick={(e) => {
-                            remove(data)
                             e.stopPropagation()
+                            remove(data)
                         }}>
                             <Icon path="setting/icdelete"/>
                         </IconButton>

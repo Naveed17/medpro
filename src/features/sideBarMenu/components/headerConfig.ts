@@ -12,22 +12,24 @@ export const siteHeader = {
             icon: "ic-agenda",
             name: "agenda",
             href: '/dashboard/agenda',
+            badge: 0
         },
         {
             icon: "ic-salle-sidenav",
             name: "room",
             href: '/dashboard/waiting-room',
+            badge: 0
         },
         {
             icon: "ic-user2",
             name: "patient",
-            href: '/dashboard/patient',
+            href: '/dashboard/patient'
         },
-        // {
-        //     icon: "ic-payment",
-        //     name: "payment",
-        //     href: '/dashboard/payment',
-        // },
+        {
+            icon: "ic-payment",
+            name: "payment",
+            href: '/dashboard/payment'
+        },
         // {
         //     icon: "ic-messanger-lite",
         //     name: "message",

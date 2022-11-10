@@ -22,6 +22,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
     marginRight: "5px",
   },
   "& .date-birth": {
+    marginTop: theme.spacing(.2),
     display: "flex",
     alignItems: "center",
     svg: { marginRight: theme.spacing(0.5) },
@@ -51,7 +52,6 @@ const RootStyled = styled(Box)(({ theme }) => ({
     },
   },
   "& .email-link": {
-    marginTop: theme.spacing(1.5),
     alignItems: "center",
     display: "flex",
     [theme.breakpoints.up("md")]: {

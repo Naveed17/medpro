@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit';
+import {createReducer} from '@reduxjs/toolkit';
 import {
     logout,
     openMenu
@@ -8,6 +8,7 @@ import {signOut} from "next-auth/react";
 export type MenuState = {
     opened: boolean;
     mobileOpened: boolean;
+    logout?: string;
 };
 
 const initialState: MenuState = {
@@ -20,10 +21,12 @@ export const ProfileMenuReducer = createReducer(initialState, builder => {
         .addCase(openMenu, (state, action) => {
             state.opened = action.payload;
         }).addCase(logout, (state, action) => {
-            if(action.payload.redirect === undefined) {
-                signOut({callbackUrl: action.payload === 'rtl' ? '/ar' : '/'});
-            }else{
-                signOut({redirect: false});
-            }
-        });
+        if (action.payload.redirect) {
+            state.logout = action.payload.path;
+            signOut({redirect: true, callbackUrl: "/api/auth/signout"});
+            // window.location.href = action.payload.path;
+        } else {
+            signOut({redirect: false});
+        }
+    });
 });

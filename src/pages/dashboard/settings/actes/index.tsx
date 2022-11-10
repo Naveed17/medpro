@@ -8,7 +8,6 @@ import AddIcon from "@mui/icons-material/Add";
 import {Box} from "@mui/system";
 import {Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import IconUrl from "@themes/urlIcon";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -28,7 +27,7 @@ function Actes() {
     const [edit, setEdit] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [isProfil, setIsProfil] = useState<boolean>(false);
-    const [secAlert, setSecAlert] = useState<boolean>(false);
+    //const [secAlert, setSecAlert] = useState<boolean>(false);
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
     const router = useRouter();
@@ -39,17 +38,17 @@ function Actes() {
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data: httpProfessionalsResponse, error: errorProfil} = useRequest({
+    const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
     const {trigger} = useRequestMutation(null, "/settings/acts");
 
-    const {data, error} = useRequest(isProfil ? {
+    const {data} = useRequest(isProfil ? {
         method: "GET",
-        url: "/api/public/acts/" + router.locale,
+        url: `/api/public/acts/${router.locale}`,
         params: specialities,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
@@ -61,6 +60,7 @@ function Actes() {
         secondaryActes.map(ms => secondaryAct += ms.uuid + ',');
         topAct = topAct.substring(0, topAct.length - 1);
         secondaryAct = secondaryAct.substring(0, secondaryAct.length - 1);
+        console.log(topAct)
         setEdit(false);
         const form = new FormData();
         form.append('topAct', topAct)
@@ -198,14 +198,14 @@ function Actes() {
                         }}
                     >
                         {t("main")}{" "}
-                        {!alert && (
+                        {/*{!alert && (
                             <IconUrl
                                 onChange={() => {
                                     setAlert(true);
                                 }}
                                 path="danger"
                             />
-                        )}
+                        )}*/}
                         {alert && (
                             <BasicAlert
                                 icon="danger"
@@ -258,7 +258,7 @@ function Actes() {
                         }}
                     >
                         {t("secondary")}{" "}
-                        {!secAlert && (
+                        {/*{!secAlert && (
                             <IconUrl
                                 onChange={() => {
                                     setSecAlert(true);
@@ -282,7 +282,7 @@ function Actes() {
                             >
                                 info
                             </BasicAlert>
-                        )}
+                        )}*/}
                     </Typography>
 
                     <MultiSelect

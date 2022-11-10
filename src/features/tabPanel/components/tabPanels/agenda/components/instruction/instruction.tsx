@@ -275,8 +275,8 @@ function Instruction({...props}) {
                                     <Select id="demo-simple-select" value={rappelType}
                                             onChange={handleRappelTypeChange}>
                                         <MenuItem value="2">Sms</MenuItem>
-                                        <MenuItem value="1">E-mail</MenuItem>
-                                        <MenuItem value="3">Notification</MenuItem>
+                                        {/*<MenuItem value="1">E-mail</MenuItem>
+                                        <MenuItem value="3">Notification</MenuItem>*/}
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -299,7 +299,7 @@ function Instruction({...props}) {
                                     label={t("stepper-3.schedule")}
                                 />
                             </FormGroup>
-                            <Stack alignItems="center" flexDirection="row">
+                            {smsRappel && <Stack alignItems="center" flexDirection="row">
                                 <FormControl size="small" sx={{minWidth: 130}}>
                                     <Select
                                         id="demo-simple-select"
@@ -307,9 +307,9 @@ function Instruction({...props}) {
                                         onChange={handleRappelChange}
                                     >
                                         <MenuItem value={"0"}>{t("stepper-3.day")} 0</MenuItem>
-                                        <MenuItem value={"1"}>{t("stepper-3.day")} 1</MenuItem>
-                                        <MenuItem value={"2"}>{t("stepper-3.day")} 2</MenuItem>
-                                        <MenuItem value={"3"}>{t("stepper-3.day")} 3</MenuItem>
+                                        <MenuItem value={"1"}>{t("stepper-3.day")} -1</MenuItem>
+                                        <MenuItem value={"2"}>{t("stepper-3.day")} -2</MenuItem>
+                                        <MenuItem value={"3"}>{t("stepper-3.day")} -3</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <Typography variant="body1" color="text.primary" px={1.2} mt={0}>
@@ -344,7 +344,7 @@ function Instruction({...props}) {
                                         />
                                     </LocalizationProvider>
                                 </Box>
-                            </Stack>
+                            </Stack>}
                         </Stack>
                     </>
                 }

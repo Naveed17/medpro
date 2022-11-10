@@ -35,13 +35,14 @@ import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import {useSnackbar} from "notistack";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const {data} = props
-    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>(data.state);
+    const [drugs, setDrugs] = useState<PrespectionDrugModel[]>([...data.state]);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
     const [update, setUpdate] = useState<number>(-1);
@@ -49,14 +50,13 @@ function MedicalPrescriptionDialog({...props}) {
     const [models, setModels] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [errorDrug, setErrorDrug] = useState(false);
-    const [errorDuration, setErrorDuration] = useState(false);
-
+    const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
     const {data: session} = useSession();
     const {data: user} = session as Session;
+    const {enqueueSnackbar} = useSnackbar();
 
     const validationSchema = Yup.object().shape({
-        dosage: Yup.string().required(t('doseReq')),
+        dosage: Yup.string().required(),
         duration: Yup.string().required(),
         durationType: Yup.string().required()
     });
@@ -102,6 +102,7 @@ function MedicalPrescriptionDialog({...props}) {
                 mutate().then(() => {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
                     setSelectedModel(null)
+                    enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
                 });
             })
             setOpenDialog(false);
@@ -122,6 +123,7 @@ function MedicalPrescriptionDialog({...props}) {
                     setDrugsList((cnx?.data as HttpResponse)?.data)
                     setDrugs([]);
                     setSelectedModel(null)
+                    enqueueSnackbar(t("removeWithsuccess"), {variant: 'success'})
                 });
             })
             setOpenDialog(false);
@@ -152,19 +154,24 @@ function MedicalPrescriptionDialog({...props}) {
             note: ''
         },
         validationSchema,
+
         onSubmit: async (values) => {
             if (drug) {
                 values.drugUuid = drug.uuid
                 values.name = drug.commercial_name
-
                 drugs.unshift(values)
                 setDrugs([...drugs])
                 data.setState([...drugs])
                 setDrug(null)
-                resetForm()
-                setErrorDuration(false)
+                resetForm();
+
+                setTimeout(() => {
+                    setTouchedFileds({name: false, duration: false})
+                }, 0)
             } else {
-                setErrorDrug(true)
+                touchedFileds.name = true;
+                setTouchedFileds({...touchedFileds});
+
             }
         },
     });
@@ -173,6 +180,7 @@ function MedicalPrescriptionDialog({...props}) {
         values,
         errors,
         touched,
+        setFieldTouched,
         handleSubmit,
         getFieldProps,
         setFieldValue,
@@ -191,7 +199,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {data: httpModelResponse, mutate} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -200,19 +208,17 @@ function MedicalPrescriptionDialog({...props}) {
             setModels((httpModelResponse as HttpResponse).data)
     }, [httpModelResponse])
 
-    useEffect(() => {
+    /*useEffect(() => {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
-    }, [httpDrugsResponse])
+    }, [httpDrugsResponse])*/
 
     useEffect(() => {
-        if (drug === null && Object.keys(errors).length !== 0)
-            setErrorDrug(true)
-        if (Object.keys(errors).includes('durationType') || Object.keys(errors).includes('duration'))
-            setErrorDuration(true)
-        else setErrorDuration(false)
-    }, [drug, errors]);
+        if (Object.keys(errors).length > 0)
+            setTouchedFileds({name: true, duration: true})
+    }, [errors]);
 
     const remove = (ev: PrespectionDrugModel) => {
+
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         drugs.splice(selected, 1);
         setDrugs([...drugs])
@@ -222,6 +228,7 @@ function MedicalPrescriptionDialog({...props}) {
     const edit = (ev: PrespectionDrugModel) => {
         const selected = drugs.findIndex(drug => drug.drugUuid === ev.drugUuid)
         setUpdate(selected)
+
         setDrug({uuid: ev.drugUuid, commercial_name: ev.name, isVerified: true})
         setFieldValue('dosage', drugs[selected].dosage)
         setFieldValue('duration', drugs[selected].duration)
@@ -230,10 +237,11 @@ function MedicalPrescriptionDialog({...props}) {
     }
 
     function handleInputChange(value: string) {
+        touchedFileds.name = true;
+        setTouchedFileds({...touchedFileds});
         const drg = drugsList.find(drug => drug.commercial_name === value)
         if (drg !== undefined) {
             setDrug(drg);
-            setErrorDrug(false)
         } else setDrug({uuid: '', commercial_name: value, isVerified: false});
     }
 
@@ -292,7 +300,6 @@ function MedicalPrescriptionDialog({...props}) {
                                             models.map((item, idx) =>
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
                                                           onClick={() => {
-                                                              console.log(item)
                                                               setSelectedModel(item)
                                                               setDrugs(item.prescription_modal_has_drugs)
                                                               data.setState(item.prescription_modal_has_drugs)
@@ -302,47 +309,34 @@ function MedicalPrescriptionDialog({...props}) {
                                         }
                                     </Menu>
                                 </Stack>
-                                {drugsList ? <Autocomplete
-                                        id="cmo"
-                                        value={drug}
-                                        size='small'
-                                        options={drugsList}
-                                        getOptionLabel={(option: DrugModel) => option?.commercial_name}
-                                        isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
-                                        renderInput={(params) => <TextField {...params}
-                                                                            error={errorDrug}
-                                                                            onChange={(ev) => {
-                                                                                if (ev.target.value.length >= 2) {
-                                                                                    trigger({
-                                                                                        method: "GET",
-                                                                                        url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
-                                                                                        headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                    }, {
-                                                                                        revalidate: true,
-                                                                                        populateCache: true
-                                                                                    }).then((cnx) => {
-                                                                                        if (cnx?.data as HttpResponse)
-                                                                                            setDrugsList((cnx?.data as HttpResponse).data)
-                                                                                    })
-                                                                                }
-                                                                            }}
-                                                                            onBlur={(ev) => handleInputChange(ev.target.value)}
-                                                                            placeholder={t('placeholder_drug_name')}/>}/> :
-                                    <Autocomplete
-                                        disablePortal
-                                        id="combo-box-demo"
-                                        options={[]}
-                                        size='small'
-                                        renderInput={(params) => <TextField {...params}
-                                                                            placeholder={t('placeholder_drug_name')}/>}
-                                    />
+                                {drugsList && <Autocomplete
+                                    id="cmo"
+                                    value={drug}
+                                    size='small'
+                                    options={drugsList}
+                                    noOptionsText={t('startWriting')}
+                                    getOptionLabel={(option: DrugModel) => option?.commercial_name}
+                                    isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
+                                    renderInput={(params) => <TextField {...params}
+                                                                        error={touchedFileds.name && drug === null}
+                                                                        onChange={(ev) => {
+                                                                            if (ev.target.value.length >= 2) {
+                                                                                trigger({
+                                                                                    method: "GET",
+                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
+                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                                                                                }, {
+                                                                                    revalidate: true,
+                                                                                    populateCache: true
+                                                                                }).then((cnx) => {
+                                                                                    if (cnx?.data as HttpResponse)
+                                                                                        setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                })
+                                                                            }
+                                                                        }}
+                                                                        onBlur={(ev) => handleInputChange(ev.target.value)}
+                                                                        placeholder={t('placeholder_drug_name')}/>}/>
                                 }
-
-                                {/*
-                                {errorDrug && <Typography fontSize={12}
-                                                          style={{marginLeft: 20}}
-                                                          color={"error"}>{t('nameReq')}</Typography>}
-*/}
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('dosage')}
@@ -353,7 +347,7 @@ function MedicalPrescriptionDialog({...props}) {
                                 <TextField
                                     fullWidth
                                     placeholder={t("enter_your_dosage")}
-                                    helperText={touched.dosage && errors.dosage}
+                                    //helperText={touched.dosage && errors.dosage}
                                     error={Boolean(touched.dosage && errors.dosage)}
                                     {...getFieldProps("dosage")} />
 
@@ -367,10 +361,14 @@ function MedicalPrescriptionDialog({...props}) {
                                             id={"duration"}
                                             size="small"
                                             type={"number"}
-                                            error={errorDuration}
+                                            error={touchedFileds.duration && values.duration === ''}
                                             {...getFieldProps("duration")}
                                             value={values.duration}
                                             InputProps={{inputProps: {min: 1}}}
+                                            onBlur={() => {
+                                                touchedFileds.duration = true;
+                                                setTouchedFileds({...touchedFileds});
+                                            }}
                                             placeholder={t("duration")}
                                             sx={{color: "text.secondary"}}/>
                                     </Grid>
@@ -401,11 +399,6 @@ function MedicalPrescriptionDialog({...props}) {
 
                                     </Grid>
                                 </Grid>
-                                {/*
-                                {errorDuration && <Typography fontSize={12}
-                                                              style={{marginLeft: 20}}
-                                                              color={"error"}>{t('durationReq')}</Typography>}
-*/}
                             </Stack>
                             <Stack spacing={1}>
                                 <Typography>{t('cautionary_note')}</Typography>
@@ -422,12 +415,17 @@ function MedicalPrescriptionDialog({...props}) {
                                                               if (drug) {
                                                                   values.drugUuid = drug.uuid
                                                                   values.name = drug.commercial_name
-
                                                                   drugs[update] = values
                                                                   setDrugs([...drugs])
                                                                   data.setState([...drugs])
                                                                   setDrug(null)
                                                                   resetForm()
+
+                                                                  setTimeout(() => {
+                                                                      setFieldTouched("dosage", false, true)
+                                                                      setTouchedFileds({name: false, duration: false})
+                                                                  }, 0)
+
                                                                   setUpdate(-1)
                                                               }
                                                           }}>

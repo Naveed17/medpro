@@ -27,14 +27,14 @@ export default function NoDataCard({...props}) {
             <Typography variant="body2" color="#00234B" mb={3}>
                 {t(description, {ns})}
             </Typography>
-            {buttonText && <Button
+            {/*{buttonText && <Button
                 variant="contained"
                 {...(onHandleClick && {onClick: onHandleClick})}
                 color={buttonVariant}
                 {...(buttonIcon && {startIcon: <Icon path={buttonIcon}/>})}
             >
                 {t(buttonText, {ns})}
-            </Button>}
+            </Button>}*/}
         </RootStyled>
     );
 }

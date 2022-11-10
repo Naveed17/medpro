@@ -25,6 +25,8 @@ import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment from "moment-timezone";
+
+const humanizeDuration = require("humanize-duration");
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
@@ -88,7 +90,7 @@ function Agenda() {
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer,
+        openViewDrawer, currentStepper,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -100,11 +102,14 @@ function Agenda() {
     const {isActive} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification} = useAppSelector(agendaSelector);
 
-    const [timeRange, setTimeRange] = useState({start: "", end: ""});
+    const [timeRange, setTimeRange] = useState({
+        start: moment().startOf('week').format('DD-MM-YYYY'),
+        end: moment().endOf('week').format('DD-MM-YYYY')});
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
+    const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
@@ -205,7 +210,7 @@ function Agenda() {
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: horsWork,
-                        editable: (AppointmentStatus[appointment.status].key !== "FINISHED" || !horsWork) && !isMobile,
+                        editable: AppointmentStatus[appointment.status].key !== "FINISHED" && !horsWork,
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
@@ -344,7 +349,8 @@ function Agenda() {
                 oldDate: oldStartDate,
                 duration,
                 oldDuration,
-                onDurationChanged: oldDuration !== duration
+                onDurationChanged: oldDuration !== duration,
+                revert: info.revert
             }
         };
         setEvent(defEvent);
@@ -380,6 +386,8 @@ function Agenda() {
             calendarApi.next();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         } else {
+            const nextDate = moment(currentDate.date).clone().add(1, "days");
+            dispatch(setCurrentDate({date: nextDate.toDate(), fallback: false}));
             scrollToView(refs.current[nextRefCalendar], nextRefCalendar + 1);
         }
     }
@@ -457,6 +465,15 @@ function Agenda() {
                 dispatch(setAppointmentPatient(event.extendedProps.patient as any));
                 dispatch(openDrawer({type: "add", open: true}));
                 break;
+            case "onDelete":
+                dispatch(setSelectedEvent(event));
+                setEvent(event);
+                setActionDialog('delete');
+                setCancelDialog(true);
+                break;
+            case "onConfirmAppointment":
+                onConfirmAppointment(event);
+                break;
         }
     }
 
@@ -485,6 +502,15 @@ function Agenda() {
         router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
             dispatch(openDrawer({type: "view", open: false}));
         })
+    }
+
+    const onConfirmAppointment = (event: EventDef) => {
+        setLoading(true);
+        updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "1").then(() => {
+            setLoading(false);
+            refreshData();
+            enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+        });
     }
 
     const onConsultationDetail = (event: EventDef) => {
@@ -733,6 +759,7 @@ function Agenda() {
     }
 
     const handleAddAppointmentRequest = () => {
+        setLoading(true);
         const params = new FormData();
         params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
             "start_date": recurringDate.date,
@@ -756,6 +783,7 @@ function Agenda() {
                 setQuickAddAppointment(false);
                 refreshData();
             }
+            setLoading(false);
         });
     }
 
@@ -874,6 +902,7 @@ function Agenda() {
                     {(event && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
+                            OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
@@ -919,6 +948,7 @@ function Agenda() {
                 >
                     <Box height={"100%"}>
                         <CustomStepper
+                            currentIndex={currentStepper}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             stepperData={eventStepper}
@@ -955,9 +985,11 @@ function Agenda() {
                         setQuickAddAppointment(false);
                     }}
                 >
-                    <QuickAddAppointment/>
+                    <QuickAddAppointment
+                        handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
+                            display: quickAddPatient ? "none" : "inline-block",
                             borderRadius: 0,
                             borderWidth: 0,
                             textAlign: "right",
@@ -975,21 +1007,25 @@ function Agenda() {
                         >
                             {t(`dialogs.quick_add_appointment-dialog.cancel`)}
                         </Button>
-                        <Button
+                        <LoadingButton
+                            {...{loading}}
                             variant="contained"
                             color={"primary"}
                             onClick={handleAddAppointmentRequest}
                             disabled={recurringDates.length === 0 || type === "" || !patient}
                         >
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
-                        </Button>
+                        </LoadingButton>
                     </Paper>
                 </Drawer>
 
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
-                    dialogClose={() => setMoveDialog(false)}
+                    dialogClose={() => {
+                        event?.extendedProps.revert && event?.extendedProps.revert();
+                        setMoveDialog(false);
+                    }}
                     dir={direction}
                     action={() => {
                         return (
@@ -1002,8 +1038,8 @@ function Agenda() {
                                         {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
                                         {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                     </> : <>
-                                        {event?.extendedProps.oldDuration} {t("times.minutes", {ns: "common"})} {" => "}
-                                        {event?.extendedProps.duration} {t("times.minutes", {ns: "common"})}
+                                        {humanizeDuration(event?.extendedProps.oldDuration * 60000)} {" => "}
+                                        {humanizeDuration(event?.extendedProps.duration * 60000)}
                                     </>
                                     }
 
@@ -1018,7 +1054,10 @@ function Agenda() {
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setMoveDialog(false)}
+                                onClick={() => {
+                                    event?.extendedProps.revert && event?.extendedProps.revert();
+                                    setMoveDialog(false)
+                                }}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t("dialogs.move-dialog.garde-date")}
@@ -1123,7 +1162,8 @@ function Agenda() {
 export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(context.locale as string, ['common', 'menu', 'agenda', 'patient']))
+        ...(await serverSideTranslations(context.locale as string,
+            ['common', 'menu', 'agenda', 'patient', 'consultation']))
     }
 })
 

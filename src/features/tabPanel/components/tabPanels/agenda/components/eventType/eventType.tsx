@@ -1,7 +1,7 @@
 import {TextIconRadio} from "@features/buttons";
 import {Box, FormControlLabel, LinearProgress, MenuItem, RadioGroup, Select, Stack} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import FormControlStyled from "./overrides/FormControlStyled";
 import Paper from "@mui/material/Paper";
@@ -14,11 +14,11 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {ModelDot} from "@features/modelDot";
 
 
 function EventType({...props}) {
-    const {onNext, OnAction, select} = props;
+    const {onNext, OnAction, select, defaultType = null} = props;
 
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -38,9 +38,20 @@ function EventType({...props}) {
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const [typeEvent, setTypeEvent] = useState(type);
 
+    useEffect(() => {
+        if (types && defaultType !== null) {
+            const type = types[defaultType];
+            setTypeEvent(type.uuid);
+            dispatch(setAppointmentType(type.uuid));
+        }
+    }, [types, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleTypeChange = (type: string) => {
         setTypeEvent(type);
         dispatch(setAppointmentType(type));
+        if (!select) {
+            onNextStep();
+        }
     }
 
     const {t, ready} = useTranslation("agenda", {
@@ -96,8 +107,7 @@ function EventType({...props}) {
                             displayEmpty
                             sx={{
                                 "& .MuiSelect-select": {
-                                    display: "flex",
-                                    svg: {mr: 1}
+                                    display: "flex"
                                 }
                             }}
                             onChange={event => {
@@ -111,36 +121,23 @@ function EventType({...props}) {
                                 const type = types.find(itemType => itemType.uuid === selected);
                                 return (
                                     <Stack direction={"row"} alignItems={'center'}>
-                                        <FiberManualRecordIcon
-                                            className={'motif-circle'}
-                                            sx={{
-                                                background: "white",
-                                                border: .1,
-                                                borderColor: 'divider',
-                                                borderRadius: '50%',
-                                                p: 0.05,
-                                                color: type?.color
-                                            }}
-                                        />
-                                        {type && IconsTypes[type.icon]}
-                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
+                                        <ModelDot
+                                            icon={type && IconsTypes[type.icon]}
+                                            color={type?.color}
+                                            selected={false}
+                                            marginRight={10}></ModelDot>
+                                        <Typography
+                                            sx={{fontSize: "14px", fontWeight: "bold"}}>{type?.name}</Typography>
                                     </Stack>)
                             }}>
                             {types && types.map((type, index) => (
-                                <MenuItem sx={{display: "flex", svg: {mr: 1}}} className="text-inner" value={type.uuid}
+                                <MenuItem sx={{display: "flex"}} className="text-inner" value={type.uuid}
                                           key={type.uuid}>
-                                    <FiberManualRecordIcon
-                                        className={'motif-circle'}
-                                        sx={{
-                                            background: "white",
-                                            border: .1,
-                                            borderColor: 'divider',
-                                            borderRadius: '50%',
-                                            p: 0.05,
-                                            color: type.color
-                                        }}
-                                    />
-                                    {IconsTypes[type.icon]}
+                                    <ModelDot
+                                        icon={type && IconsTypes[type.icon]}
+                                        color={type?.color}
+                                        selected={false}
+                                        marginRight={10}></ModelDot>
                                     <Typography sx={{fontSize: "16px"}}>{type.name}</Typography>
                                 </MenuItem>)
                             )}

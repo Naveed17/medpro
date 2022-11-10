@@ -11,13 +11,14 @@ import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
+import {SetSelectedDialog} from "@features/toolbar";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 function ConsultationIPToolbar({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -36,7 +37,10 @@ function ConsultationIPToolbar({...props}) {
         setPendingDocuments,
         pendingDocuments,
         dialog,
+        selectedDialog,
         setDialog,
+        changes,
+        setChanges,
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -53,7 +57,6 @@ function ConsultationIPToolbar({...props}) {
     const [action, setactions] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
-    const {selectedDialog} = useAppSelector(consultationSelector);
 
     let tabsData = [
         {
@@ -108,16 +111,16 @@ function ConsultationIPToolbar({...props}) {
                 form.append("globalNote", "");
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
+                let method = "POST"
+                let url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${router.locale}`;
+                if (selectedDialog && selectedDialog.action === "medical_prescription") {
+                    method = "PUT"
+                    url = `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
+                }
 
                 trigger({
-                    method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointments/" +
-                        appuuid +
-                        "/prescriptions/" +
-                        router.locale,
+                    method: method,
+                    url: url,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -128,7 +131,6 @@ function ConsultationIPToolbar({...props}) {
                     mutate();
                     setInfo("document_detail");
                     const res = r.data.data;
-
                     setState({
                         uri: res[1],
                         name: "prescription",
@@ -208,6 +210,7 @@ function ConsultationIPToolbar({...props}) {
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
+                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
@@ -272,8 +275,19 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
+        const item = changes.find((change: { name: string }) => change.name === info)
+        if (item) {
+            item.checked = true
+            setChanges([...changes])
+        }
+
+        setlabel("documents");
+        selected("documents")
+        setValue("documents")
+
         setOpenDialog(false);
         setInfo(null);
+        dispatch(SetSelectedDialog(null))
     };
 
     const handleCloseDialog = () => {
@@ -313,6 +327,8 @@ function ConsultationIPToolbar({...props}) {
         setOpenDialog(false);
         setInfo(null);
         setPendingDocuments(pdoc);
+        dispatch(SetSelectedDialog(null))
+
     };
 
     const handleClose = (action: string) => {
@@ -320,7 +336,6 @@ function ConsultationIPToolbar({...props}) {
             case "draw_up_an_order":
                 setInfo("medical_prescription");
                 setState(prescription);
-                console.log(prescription)
                 break;
             case "balance_sheet_request":
                 setInfo("balance_sheet_request");
@@ -332,6 +347,18 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 setInfo("write_certif");
+                setState({
+                    name: ginfo.firstName + " " + ginfo.lastName,
+                    days: '....',
+                    content: "",
+                    patient:
+                        appointement.patient.firstName +
+                        " " +
+                        appointement.patient.lastName,
+                });
+                break;
+            case "write_report":
+                setInfo("write_report");
                 setState({
                     name: ginfo.firstName + " " + ginfo.lastName,
                     days: '....',
@@ -362,21 +389,19 @@ function ConsultationIPToolbar({...props}) {
         setValue(newValue);
     };
 
-    useEffect(()=>{
-        if (selectedDialog){
-            console.log(selectedDialog)
-            //setInfo("ftyyttyyt");
-            setState(selectedDialog.state)
-            //handleOpen()
-            /*setInfo("medical_prescription");
-            setState(selectedDialog.state)
-            setState(selectedDialog.state)
-            setAnchorEl(null);
-            setOpenDialog(true);
-            setactions(true);*/
-
+    useEffect(() => {
+        if (selectedDialog) {
+            switch (selectedDialog.action) {
+                case "medical_prescription":
+                    setInfo("medical_prescription");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setactions(true);
+                    break;
+            }
         }
-    },[selectedDialog])
+    }, [selectedDialog])
 
     useEffect(() => {
         switch (dialog) {
@@ -574,6 +599,8 @@ function ConsultationIPToolbar({...props}) {
                                     onClick={() => handleClose(item.label)}>
                                     <Icon path={item.icon}/>
                                     {t(item.label)}
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
                                 </MenuItem>
                             ))}
                         </StyledMenu>

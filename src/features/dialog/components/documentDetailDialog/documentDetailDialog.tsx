@@ -9,9 +9,8 @@ import {
     ListItemText,
     Stack,
     TextField,
-    Typography, useTheme
+    Typography
 } from '@mui/material'
-import {Form, FormikProvider, useFormik} from "formik";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useReactToPrint} from 'react-to-print'
 import {useTranslation} from 'next-i18next'
@@ -29,7 +28,9 @@ import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
-
+import {Session} from "next-auth";
+import {useSnackbar} from "notistack";
+import printJS from 'print-js'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
@@ -39,18 +40,13 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const theme = useTheme();
     const ginfo = (session?.data as UserDataResponse).general_information
     const medical_professional = (session?.data as UserDataResponse).medical_professional
     const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
-    const formik = useFormik({
-        initialValues: {
-            name: state.name,
-        },
-        onSubmit: async (values) => {
-            console.log(values)
-        },
-    });
+    const [name, setName] = useState(state.name);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {enqueueSnackbar} = useSnackbar();
 
     const list = [
         {
@@ -75,13 +71,13 @@ function DocumentDetailDialog({...props}) {
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
-    const [readonly, setreadonly] = useState<boolean>(true);
     const [hide, sethide] = useState<boolean>(false);
 
     const actionButtons = [
         {
             title: 'print',
-            icon: "ic-imprime"
+            icon: "ic-imprime",
+            disabled: state.type === 'photo'
         },
         /* {
              title: 'share',
@@ -89,11 +85,13 @@ function DocumentDetailDialog({...props}) {
          },*/
         {
             title: hide ? 'show' : 'hide',
-            icon: "ic-menu2"
+            icon: "ic-menu2",
+            disabled: state.type === 'photo'
         },
         {
             title: 'edit',
-            icon: "ic-edit-gray"
+            icon: "ic-edit-gray",
+            disabled: state.type !== 'prescription'
         },
         {
             title: 'download',
@@ -104,17 +102,25 @@ function DocumentDetailDialog({...props}) {
             icon: "icdelete"
         }
     ];
-    const addFooters = (doc:any) => {
+
+    const addFooters = (doc: any) => {
         const pageCount = doc.internal.getNumberOfPages()
 
         doc.setFont('helvetica', 'italic')
         doc.setFontSize(8)
+        doc.setPage(pageCount)
         //for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(pageCount)
-            doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
+        doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
+            align: 'center'
+        })
+
+        /*for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i)
+            doc.text('footer', 15, doc.internal.pageSize.height - 20, {
                 align: 'center'
             })
-       // }
+        }*/
+        // }
     }
 
     useEffect(() => {
@@ -138,6 +144,8 @@ function DocumentDetailDialog({...props}) {
             })
             addFooters(doc)
             const uri = doc.output('bloburi').toString()
+            console.log(uri)
+
             setFile(uri)
         } else if (state.type === 'requested-analysis') {
             autoTable(doc, {
@@ -185,18 +193,23 @@ function DocumentDetailDialog({...props}) {
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else setFile(state.uri)
+
+        // doc.save()
     }, [state, hide])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
 
-    const handlePrint = useReactToPrint({
+    /*const handlePrint = useReactToPrint({
         content: () => componentRef.current,
-    });
+    });*/
+
+    const handlePrint = ()=>{
+        printJS({printable:file, type:'pdf', showModal:true})
+    }
 
     const {trigger} = useRequestMutation(null, "/documents");
-
 
     const handleActions = (action: string) => {
         switch (action) {
@@ -206,7 +219,7 @@ function DocumentDetailDialog({...props}) {
             case "delete":
                 trigger({
                     method: "DELETE",
-                    url: "/api/medical-entity/agendas/appointments/documents/" + state.uuid + '/' + router.locale,
+                    url: `/api/medical-entity/agendas/appointments/documents/${state.uuid}/${router.locale}`,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
                     state.mutate()
@@ -215,7 +228,27 @@ function DocumentDetailDialog({...props}) {
 
                 break;
             case "edit":
-                dispatch(SetSelectedDialog({action:'medical_prescription',state:state.info}))
+                switch (state.type) {
+                    case "prescription":
+                        const prescriptions: { dosage: any; drugUuid: any; duration: any; durationType: any; name: any; note: any; }[] = []
+                        state.info.map((drug: { dosage: any; standard_drug: { uuid: any; commercial_name: any; }; duration: any; duration_type: any; note: any; }) => {
+                            prescriptions.push({
+                                dosage: drug.dosage,
+                                drugUuid: drug.standard_drug.uuid,
+                                duration: drug.duration,
+                                durationType: drug.duration_type,
+                                name: drug.standard_drug.commercial_name,
+                                note: drug.note
+                            })
+                        })
+                        dispatch(SetSelectedDialog({
+                            action: 'medical_prescription',
+                            state: prescriptions,
+                            uuid: state.uuidDoc
+                        }))
+                        break;
+                }
+
                 break;
             case "hide":
                 sethide(!hide)
@@ -243,54 +276,71 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
-    const {handleSubmit, getFieldProps} = formik;
+
+    const rename = () => {
+        const form = new FormData();
+        form.append('attribute', "name");
+        form.append('value', name);
+        trigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/documents/${state.uuid}/${router.locale}`,
+            data: form,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(() => {
+            state.mutate()
+            enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+
+        });
+    }
     if (!ready) return <>loading translations...</>;
     return (
         <DocumentDetailDialogStyled>
-            <Header name={ginfo.firstName + ' ' + ginfo.lastName} {...{speciality,theme}}></Header>
+            <Header name={'Dr ' + ginfo.firstName + ' ' + ginfo.lastName}
+                    diplome={'Echo Doppler vasculaire'}
+                    tel={'Tel: +216 71 22 22 22'}
+                    fax={'Fax: +216 71 22 22 22'}
+                    email={'foulen@mail.com'}
+                    {...{speciality}}></Header>
 
 
-            {state.type === 'write_certif' &&<Certificat data={state}></Certificat>}
+            {state.type === 'write_certif' && <Certificat data={state}></Certificat>}
             {state.type === 'prescription' && <Prescription data={state}></Prescription>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
-            {state.type ==='requested-medical-imaging' && <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
+            {state.type === 'requested-medical-imaging' &&
+                <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
 
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
-                    <FormikProvider value={formik}>
-                        <Stack
-                            spacing={2}
-                            component={Form}
-                            autoComplete="off"
-                            noValidate
-                            onSubmit={handleSubmit}>
-                            <Box sx={{
-                                '.react-pdf__Page': {
-                                    marginBottom: 1,
-                                    '.react-pdf__Page__canvas': {
-                                        mx: 'auto',
-                                    }
+                    <Stack spacing={2}>
+                        {state.type !== 'photo' && <Box sx={{
+                            '.react-pdf__Page': {
+                                marginBottom: 1,
+                                '.react-pdf__Page__canvas': {
+                                    mx: 'auto',
                                 }
-                            }}>
-                                <Document ref={
-                                    componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
-                                >
-                                    {Array.from(new Array(numPages), (el, index) => (
-                                        <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                    ))}
+                            }
+                        }}>
+                            <Document ref={
+                                componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
+                            >
+                                {Array.from(new Array(numPages), (el, index) => (
+                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+                                ))}
 
-                                </Document>
-                            </Box>
-                        </Stack>
-                    </FormikProvider>
+                            </Document>
+                        </Box>}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
+                    </Stack>
                 </Grid>
                 <Grid item xs={12} md={4} className="sidebar">
                     <List>
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    <ListItemButton className={button.title === "delete" ? "btn-delete" : ""}>
+                                    <ListItemButton disabled={button.disabled}
+                                                    className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
@@ -305,17 +355,12 @@ function DocumentDetailDialog({...props}) {
                                     {t('document_name')}
                                 </Typography>
                                 <TextField
-                                    {...getFieldProps('name')}
-                                    inputProps={{
-                                        readOnly: readonly
-                                    }}
+                                    value={name}
+                                    onChange={(ev) => setName(ev.target.value)}
                                     inputRef={input => input && input.focus()}
 
                                 />
-                                <Button size='small' className='btn-modi' onClick={
-                                    () => setreadonly(!readonly)
-
-                                }>
+                                <Button size='small' className='btn-modi' onClick={() => rename()}>
                                     <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>

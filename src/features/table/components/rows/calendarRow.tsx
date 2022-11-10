@@ -77,9 +77,9 @@ function CalendarRow({...props}) {
                 )}
             </Typography>
 
-            {row.events.map((data: EventModal) => (
+            {row.events.map((data: EventModal, index: number) => (
                 <TableRowStyled
-                    key={data.id}
+                    key={`${index}-${data.id}`}
                     sx={{
                         bgcolor: (theme: Theme) => theme.palette.background.paper,
                         "&:last-child td, &:last-child th": {borderWidth: 0},
@@ -208,7 +208,7 @@ function CalendarRow({...props}) {
                         </Label>
                     </TableCell>
                     <TableCell align="center">{data.title}</TableCell>
-                    <TableCell align="center">{"Agenda "}{config?.name}</TableCell>
+                    <TableCell align="center">{"Payment "}{config?.name}</TableCell>
                     <TableCell align="right">
                         {data?.fees ? <Box>
                             <Stack direction={"row"}
@@ -219,7 +219,7 @@ function CalendarRow({...props}) {
                                    alignItems="center">
                                 <PointOfSaleIcon color="success"/>
                                 <Typography ml={1} variant="body2">
-                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} TND`}
+                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${process.env.NEXT_PUBLIC_DEVISE}`}
                                 </Typography>
                             </Stack>
                         </Box> : "--"}

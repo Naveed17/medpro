@@ -2,25 +2,26 @@ import { Typography, Button, Grid } from "@mui/material";
 import CipMedicProCardStyled from './overrides/cipMedicProCardStyle';
 function CipMedicProCard({ ...props }) {
     const { row, t } = props
+    const devise = process.env.NEXT_PUBLIC_DEVISE
     return (
         <CipMedicProCardStyled>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Typography fontWeight={600}>
-                        {row.acts}
+                        {row.act.name}
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
                     <Button sx={{ mr: 1 }} size="small" variant="outlined" color="info">
                         {row.defaultAmount}
                     </Button>
-                    TND
+                    {devise}
                 </Grid>
                 <Grid item xs={6}>
-                    {row.amount > 0 ? (
+                    {row.fees > 0 ? (
                         <>
                             <Button className="btn-amount" size="small" variant="outlined" color="success">
-                                {row.amount}
+                                {row.fees}
                             </Button>
                         </>
                     ) : (
@@ -34,7 +35,7 @@ function CipMedicProCard({ ...props }) {
 
 
                     )}
-                    TND
+                    {devise}
                 </Grid>
             </Grid>
         </CipMedicProCardStyled>

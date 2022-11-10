@@ -30,7 +30,7 @@ type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
 };
 
-function MyApp({Component, pageProps: {...pageProps}}: MyAppProps) {
+function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
 

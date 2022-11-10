@@ -30,6 +30,7 @@ import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
+import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -65,15 +66,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/patients/" +
-                        patient.uuid +
-                        "/antecedents/" +
-                        codes[info] +
-                        "/" +
-                        router.locale,
+                    url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${codes[info]}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "multipart/form-data",
@@ -92,13 +85,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "POST",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointments/" +
-                        router.query["uuid-consultation"] +
-                        "/prescriptions/" +
-                        router.locale,
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -115,15 +102,7 @@ const Content = ({...props}) => {
             trigger(
                 {
                     method: "PUT",
-                    url:
-                        "/api/medical-entity/" +
-                        medical_entity.uuid +
-                        "/appointments/" +
-                        router.query["uuid-consultation"] +
-                        "/requested-analysis/" +
-                        (state as any).uuid +
-                        "/" +
-                        router.locale,
+                    url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${(state as any).uuid}/${router.locale}`,
                     data: form,
                     headers: {
                         ContentType: "application/x-www-form-urlencoded",
@@ -166,7 +145,7 @@ const Content = ({...props}) => {
 
     return (
         <React.Fragment>
-            {id !== 4 && id !== 2 && id !== 5 ? (
+            {id === 1 || id === 3 ? (
                 <ContentStyled>
                     <CardContent style={{paddingBottom: pxToRem(15)}}>
                         {id === 1 && (
@@ -191,15 +170,7 @@ const Content = ({...props}) => {
                                                     trigger(
                                                         {
                                                             method: "PATCH",
-                                                            url:
-                                                                "/api/medical-entity/" +
-                                                                medical_entity.uuid +
-                                                                "/appointments/" +
-                                                                router.query["uuid-consultation"] +
-                                                                "/prescription-has-drugs/" +
-                                                                list.uuid +
-                                                                "/" +
-                                                                router.locale,
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -337,15 +308,7 @@ const Content = ({...props}) => {
                                                     trigger(
                                                         {
                                                             method: "DELETE",
-                                                            url:
-                                                                "/api/medical-entity/" +
-                                                                medical_entity.uuid +
-                                                                "/appointments/" +
-                                                                router.query["uuid-consultation"] +
-                                                                "/requested-analysis/" +
-                                                                ra.uuid +
-                                                                "/" +
-                                                                router.locale,
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -367,6 +330,26 @@ const Content = ({...props}) => {
                         </ContentStyled>
                     ))}
                 </>
+            ) : id === 6 ? (
+                patient && <Antecedent antecedent={"way_of_life"}
+                                       t={t}
+                                       patient={patient}
+                                       trigger={trigger}
+                                       mutate={mutate}
+                                       session={session}
+                                       handleOpen={handleOpen}
+                                       router={router}
+                                       medical_entity={medical_entity}></Antecedent>
+            ) : id === 7 ? (
+                patient && <Antecedent antecedent={"allergic"}
+                                       t={t}
+                                       patient={patient}
+                                       trigger={trigger}
+                                       mutate={mutate}
+                                       session={session}
+                                       handleOpen={handleOpen}
+                                       router={router}
+                                       medical_entity={medical_entity}></Antecedent>
             ) : id === 5 ? (
                 <>
                     {patient?.requestedImaging.length === 0 && (
@@ -429,7 +412,7 @@ const Content = ({...props}) => {
                                                     trigger(
                                                         {
                                                             method: "DELETE",
-                                                            url: "/api/medical-entity/" + medical_entity.uuid + '/appointment/' + router.query['uuid-consultation'] + '/medical-imaging/' + ri.uuid + '/' + router.locale,
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query['uuid-consultation']}/medical-imaging/${ri.uuid}/${router.locale}`,
                                                             headers: {
                                                                 ContentType:
                                                                     "application/x-www-form-urlencoded",
@@ -456,82 +439,20 @@ const Content = ({...props}) => {
                 </>
             ) : (
                 patient &&
-                Object.keys(patient.antecedents).map((antecedent, idx: number) => (
-                    <ContentStyled
-                        key={`card-${idx}`}
-                        style={{paddingBottom: pxToRem(15)}}>
-                        <CardContent
-                            style={{paddingBottom: pxToRem(0), paddingTop: "1rem"}}>
-                            <Typography fontWeight={600}>{t(antecedent)}</Typography>
-
-                            <List dense>
-                                {patient.antecedents[antecedent].map(
-                                    (
-                                        item: {
-                                            uuid: string;
-                                            name: string;
-                                            startDate: string;
-                                            endDate: string;
-                                            response: string | any[]
-                                        },
-                                        index: number
-                                    ) => (
-                                        <ListItem key={`list-${index}`}>
-                                            <ListItemIcon>
-                                                <CircleIcon/>
-                                            </ListItemIcon>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {item.name}{" "}
-                                                {item.startDate ? " / " + item.startDate : ""}{" "}
-                                                {item.endDate ? " - " + item.endDate : ""}
-                                                {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : '(' + item.response[0].value + ')' : ''}
-                                            </Typography>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => {
-                                                    console.log(antecedent, item);
-
-                                                    trigger(
-                                                        {
-                                                            method: "DELETE",
-                                                            url:
-                                                                "/api/medical-entity/" +
-                                                                medical_entity.uuid +
-                                                                "/patients/" +
-                                                                patient.uuid +
-                                                                "/antecedents/" +
-                                                                item.uuid +
-                                                                "/" +
-                                                                router.locale,
-                                                            headers: {
-                                                                ContentType: "multipart/form-data",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
-                                                        },
-                                                        {
-                                                            revalidate: true,
-                                                            populateCache: true,
-                                                        }
-                                                    ).then((r) => console.log("edit qualification", r));
-                                                    mutate();
-                                                }}
-                                                sx={{ml: "auto"}}>
-                                                <Icon path="setting/icdelete"/>
-                                            </IconButton>
-                                        </ListItem>
-                                    )
-                                )}
-                            </List>
-                            <Stack mt={2} alignItems="flex-start">
-                                <Button
-                                    onClick={() => handleOpen(antecedent)}
-                                    size="small"
-                                    startIcon={<Add/>}>
-                                    {antecedent === "way_of_life" ? t("add") : t("add_history")}
-                                </Button>
-                            </Stack>
-                        </CardContent>
-                    </ContentStyled>
+                Object.keys(patient.antecedents).map((antecedent, index) => (
+                    antecedent !== "way_of_life" && antecedent !== "allergic" &&
+                    <Antecedent
+                        antecedent={antecedent}
+                        t={t}
+                        patient={patient}
+                        trigger={trigger}
+                        mutate={mutate}
+                        session={session}
+                        index={index}
+                        key={`card-content-${antecedent}${index}`}
+                        handleOpen={handleOpen}
+                        router={router}
+                        medical_entity={medical_entity}></Antecedent>
                 ))
             )}
 

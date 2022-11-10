@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { Stack, Typography, Box, CardContent, Select, MenuItem, TextField } from "@mui/material";
+import React, {useEffect, useState} from 'react'
+import {Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
-import { useTranslation } from 'next-i18next'
-import { useFormik, Form, FormikProvider } from "formik";
-import { ModelDot } from "@features/modelDot";
-import { useAppDispatch, useAppSelector } from "@app/redux/hooks";
-import { SetExam } from "@features/toolbar/components/consultationIPToolbar/actions";
-import { consultationSelector } from "@features/toolbar";
+import {useTranslation} from 'next-i18next'
+import {Form, FormikProvider, useFormik} from "formik";
+import {ModelDot} from "@features/modelDot";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {consultationSelector} from "@features/toolbar";
 import {pxToRem} from "@themes/formatFontSize";
 
-function CIPPatientHistoryCard({ ...props }) {
-    const { exam: defaultExam } = props
-    const { exam } = useAppSelector(consultationSelector);
+function CIPPatientHistoryCard({...props}) {
+    const {exam: defaultExam, changes, setChanges} = props
+    const {exam} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const dispatch = useAppDispatch();
 
@@ -32,22 +32,29 @@ function CIPPatientHistoryCard({ ...props }) {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
 
-    const { handleSubmit, values, getFieldProps } = formik;
+    const {handleSubmit, values, getFieldProps} = formik;
 
-    const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
+
+    useEffect(() => {
+        const item = changes.find((change: { name: string }) => change.name === "fiche")
+        item.checked = Object.values(values).filter(val => val !== '').length > 0;
+        setChanges([...changes])
+    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     if (!ready) return <>loading translations...</>;
     return (
         <ConsultationDetailCardStyled>
             <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center" borderBottom={1}
-                borderColor="divider">
+                   borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
-                    fontWeight={600}>
-                    <Icon path='ic-edit-file-pen' />
+                            fontWeight={600}>
+                    <Icon path='ic-edit-file-pen'/>
                     {t("review")}
                 </Typography>
             </Stack>
-            <CardContent style={{ padding: 20 }}>
+            <CardContent style={{padding: 20}}>
                 <button hidden={true} className={'sub-exam'} onClick={() => {
                     dispatch(SetExam(values))
                 }}></button>
@@ -86,7 +93,7 @@ function CIPPatientHistoryCard({ ...props }) {
                                 }}>
                                 {
                                     cReason?.map(cr => (
-                                        <MenuItem key={'xyq'+cr.uuid} value={cr.uuid}>
+                                        <MenuItem key={'xyq' + cr.uuid} value={cr.uuid}>
                                             <ModelDot color={cr.color} selected={false} size={21} sizedot={13}
                                                       padding={3} marginRight={15}></ModelDot>
                                             {cr.name}

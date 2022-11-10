@@ -3,7 +3,7 @@ import React from "react";
 
 function ExpiredCircleIcon() {
     const CustomIcon = createSvgIcon(
-        <svg viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg">
             <rect width="11" height="11" rx="5.5" fill="#E78F29"/>
             <g clipPath="url(#clip0_14320_146559)">
                 <path
@@ -11,7 +11,7 @@ function ExpiredCircleIcon() {
                     fill="white"/>
             </g>
             <defs>
-                <clipPath id="clip0_14320_146559">
+                <clipPath id="clip0_14320_14655">
                     <rect width="7" height="7" fill="white" transform="translate(2 2)"/>
                 </clipPath>
             </defs>

@@ -9,7 +9,7 @@ import {QsSidebarReducer, leftActionBarReducer} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
-import {DialogReducer, dialogMoveAppointmentReducer} from "@features/dialog";
+import {DialogReducer, dialogMoveAppointmentReducer, dialogPatientDetailReducer} from "@features/dialog";
 import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
 import {AppLockReducer} from "@features/appLock";
@@ -33,7 +33,8 @@ export const store = configureStore({
         timer: timerReducer,
         leftActionBar: leftActionBarReducer,
         dashLayout: DashLayoutReducer,
-        appLock: AppLockReducer
+        appLock: AppLockReducer,
+        patientDetail: dialogPatientDetailReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
