@@ -275,8 +275,8 @@ function Instruction({...props}) {
                                     <Select id="demo-simple-select" value={rappelType}
                                             onChange={handleRappelTypeChange}>
                                         <MenuItem value="2">Sms</MenuItem>
-                                        <MenuItem value="1">E-mail</MenuItem>
-                                        <MenuItem value="3">Notification</MenuItem>
+                                        {/*<MenuItem value="1">E-mail</MenuItem>
+                                        <MenuItem value="3">Notification</MenuItem>*/}
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -299,7 +299,7 @@ function Instruction({...props}) {
                                     label={t("stepper-3.schedule")}
                                 />
                             </FormGroup>
-                            <Stack alignItems="center" flexDirection="row">
+                            {smsRappel && <Stack alignItems="center" flexDirection="row">
                                 <FormControl size="small" sx={{minWidth: 130}}>
                                     <Select
                                         id="demo-simple-select"
@@ -344,7 +344,7 @@ function Instruction({...props}) {
                                         />
                                     </LocalizationProvider>
                                 </Box>
-                            </Stack>
+                            </Stack>}
                         </Stack>
                     </>
                 }

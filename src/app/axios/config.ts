@@ -23,6 +23,11 @@ instanceAxios.interceptors.response.use((response) => response, (error) => {
     // const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     // whatever you want to do with the error
     // enqueueSnackbar('Oups, une erreur s’est produite. Veuillez réessayer plus tard', { variant: "error" });
+    switch (error.response.status) {
+        case 400:
+            console.log("fin session");
+            break;
+    }
     throw error;
 });
 export default instanceAxios;

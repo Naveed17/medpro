@@ -25,6 +25,8 @@ import {useRequestMutation} from "@app/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment from "moment-timezone";
+
+const humanizeDuration = require("humanize-duration");
 import FullCalendar, {DateSelectArg, DatesSetArg, EventChangeArg, EventDef} from "@fullcalendar/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {
@@ -1018,7 +1020,10 @@ function Agenda() {
                 <Dialog
                     color={theme.palette.warning.main}
                     contrastText={theme.palette.warning.contrastText}
-                    dialogClose={() => setMoveDialog(false)}
+                    dialogClose={() => {
+                        event?.extendedProps.revert && event?.extendedProps.revert();
+                        setMoveDialog(false);
+                    }}
                     dir={direction}
                     action={() => {
                         return (
@@ -1031,8 +1036,8 @@ function Agenda() {
                                         {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
                                         {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                     </> : <>
-                                        {event?.extendedProps.oldDuration} {t("times.minutes", {ns: "common"})} {" => "}
-                                        {event?.extendedProps.duration} {t("times.minutes", {ns: "common"})}
+                                        {humanizeDuration(event?.extendedProps.oldDuration * 60000)} {" => "}
+                                        {humanizeDuration(event?.extendedProps.duration * 60000)}
                                     </>
                                     }
 
