@@ -12,7 +12,6 @@ import {
     Typography
 } from '@mui/material'
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
-import {useReactToPrint} from 'react-to-print'
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
@@ -31,6 +30,7 @@ import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
 import printJS from 'print-js'
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
@@ -73,6 +73,7 @@ function DocumentDetailDialog({...props}) {
     const componentRef = useRef<any>(null)
     const [hide, sethide] = useState<boolean>(false);
 
+    console.log(state)
     const actionButtons = [
         {
             title: 'print',
@@ -89,17 +90,18 @@ function DocumentDetailDialog({...props}) {
             disabled: state.type === 'photo'
         },
         {
-            title: 'edit',
-            icon: "ic-edit-gray",
-            disabled: state.type !== 'prescription'
-        },
-        {
             title: 'download',
             icon: "ic-dowlaodfile"
         },
         {
+            title: 'edit',
+            icon: "ic-edit-gray",
+            disabled: state.type !== 'prescription' || !state.uuid
+        },
+        {
             title: 'delete',
-            icon: "icdelete"
+            icon: "icdelete",
+            disabled: !state.uuid
         }
     ];
 
@@ -205,8 +207,8 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
     });*/
 
-    const handlePrint = ()=>{
-        printJS({printable:file, type:'pdf', showModal:true})
+    const handlePrint = () => {
+        printJS({printable: file, type: 'pdf', showModal: true})
     }
 
     const {trigger} = useRequestMutation(null, "/documents");
@@ -292,7 +294,9 @@ function DocumentDetailDialog({...props}) {
 
         });
     }
+
     if (!ready) return <>loading translations...</>;
+
     return (
         <DocumentDetailDialogStyled>
             <Header name={'Dr ' + ginfo.firstName + ' ' + ginfo.lastName}
