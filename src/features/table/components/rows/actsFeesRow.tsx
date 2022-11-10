@@ -26,7 +26,8 @@ function ActFeesRow({...props}) {
                     }}
                     InputProps={{
                         endAdornment: <InputAdornment position="end">{devise}</InputAdornment>,
-                        style: {width: 150, backgroundColor: "white"}
+                        style: {width: 150, backgroundColor: "white"},
+                        inputProps: {min: 0}
                     }}
                 /> : <Typography fontSize={14} letterSpacing={1}>{row?.fees} <span style={{fontSize:9}}>{devise}</span></Typography>}
             </TableCell>
@@ -34,8 +35,10 @@ function ActFeesRow({...props}) {
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
                         {edit === row.uuid ? <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                            editMotif(row,fees);
+                            setTimeout(()=>{
                                 setEdit('')
-                                editMotif(row,fees);
+                            },1000)
                             }}>
                                 <SaveRoundedIcon color={"primary"}/>
                             </IconButton> :

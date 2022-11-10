@@ -234,7 +234,7 @@ function PlacesDetail() {
         setFieldValue,
     } = formik;
 
-    const {data,mutate} = useRequest(
+    const {data, mutate} = useRequest(
         uuind !== "new"
             ? {
                 method: "GET",
@@ -338,7 +338,8 @@ function PlacesDetail() {
 
     useEffect(() => {
         if (row !== undefined && check) {
-            setOuterBounds([row.address.location.point]);
+            if (row.address.location.point)
+                setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
             const cnts: any[] = [
@@ -515,7 +516,7 @@ function PlacesDetail() {
                         {uuind === "new"
                             ? t("lieux.new.path")
                             : t("lieux.config.path") +
-                            (row ? " > " + row.address.location.name : "")}
+                            (row && row.address.location.name ? " > " + row.address.location.name : "")}
                     </p>
                 </RootStyled>
             </SubHeader>
@@ -697,7 +698,7 @@ function PlacesDetail() {
                             </CardContent>
                         </Card>
 
-                         <Maps
+                        <Maps
                             data={uuind === "new" ? null : cords}
                             outerBounds={outerBounds}
                             editCords={(c: { lat: number; lng: number }) => {
@@ -1007,9 +1008,9 @@ function PlacesDetail() {
                                                 </Grid>
 
                                                 {day == "MON" && (
-                                                        <Button  onClick={apply}>
-                                                            {t('lieux.new.applyforWeek')}
-                                                        </Button>
+                                                    <Button onClick={apply}>
+                                                        {t('lieux.new.applyforWeek')}
+                                                    </Button>
                                                 )}
                                             </Paper>
                                         </Collapse>

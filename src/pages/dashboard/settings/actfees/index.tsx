@@ -60,7 +60,7 @@ function ActFees() {
     const [loading, setLoading] = useState<boolean>(false)
     const [create, setCreate] = useState(false)
     const router = useRouter();
-    const [selected, setselected] = useState<any>({});
+    //const [selected, setselected] = useState<any>({});
     const [consultationFees, setConsultationFees] = useState(0);
     const [newFees, setNewFees] = useState({name: '', fees: ''});
     const {enqueueSnackbar} = useSnackbar();
@@ -113,7 +113,7 @@ function ActFees() {
         form.append("consultation_fees", consultationFees.toString());
         trigger({
             method: "PATCH",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + '/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
@@ -125,7 +125,7 @@ function ActFees() {
     const removeFees = (uuid: string) => {
         trigger({
             method: "DELETE",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/acts/" + uuid + '/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             }
@@ -168,7 +168,7 @@ function ActFees() {
 
         trigger({
             method: "PATCH",
-            url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional.uuid + '/acts/' + v.act.uuid + "/" + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${medical_professional.uuid}/acts/${v.act.uuid}/${router.locale}`,
             data: form,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`

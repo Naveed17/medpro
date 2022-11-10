@@ -63,6 +63,7 @@ function Lieux() {
     useEffect(() => {
         if (data !== undefined) {
             setRows((data as any).data);
+            console.log((data as any).data)
         }
     }, [data])
 
@@ -71,8 +72,10 @@ function Lieux() {
         const bounds: any[] = []
         rows.filter((row: MedicalEntityLocationModel) => row.isActive).map((cord) => {
             actives.push({name: (cord.address as any).location.name, points: (cord.address as any).location.point});
-            bounds.push((cord.address as any).location.point);
+            if ((cord.address as any).location.point)
+                bounds.push((cord.address as any).location.point);
         });
+        console.log(bounds)
         setOuterBounds(bounds);
         setCords([...actives]);
     }, [rows])
@@ -165,7 +168,8 @@ function Lieux() {
         } else if (event === 'edit') {
             router.push({
                 pathname: `/dashboard/settings/places/${props.uuid}`,
-            }).then(()=>{});
+            }).then(() => {
+            });
         }
     };
 
@@ -184,7 +188,8 @@ function Lieux() {
                         variant="contained"
                         color="success"
                         onClick={() => {
-                            router.push(`/dashboard/settings/places/new`).then(()=>{});
+                            router.push(`/dashboard/settings/places/new`).then(() => {
+                            });
                         }}
                         sx={{ml: "auto"}}>
                         {t("add")}
