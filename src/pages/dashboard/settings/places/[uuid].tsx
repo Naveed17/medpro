@@ -122,8 +122,7 @@ function PlacesDetail() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [row, setRow] = useState<any>();
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
     const [cords, setCords] = useState<any[]>([]);
@@ -352,13 +351,14 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = [
+            const cnts: any[] = row.contacts.length > 0 ? [] : [
                 {
                     countryCode: "",
                     phone: "",
                     hidden: false,
                 },
             ];
+            console.log(row.contacts)
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
                     countryCode: "",
