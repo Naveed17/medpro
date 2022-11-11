@@ -2,24 +2,21 @@ import {useCallback, useEffect, useState} from "react";
 import {firebaseCloudMessaging} from "@app/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
-    Button,
     Dialog,
-    DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     Paper,
     PaperProps, useTheme
 } from "@mui/material";
-import axios, {Axios} from "axios";
+import axios from "axios";
 import {useSession} from "next-auth/react";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import {agendaSelector, openDrawer, setLastUpdate, setStepperIndex} from "@features/calendar";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
+import {openDrawer, setLastUpdate, setStepperIndex} from "@features/calendar";
+import {useAppDispatch} from "@app/redux/hooks";
+import {ConsultationPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 
@@ -34,7 +31,7 @@ function FcmLayout({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const [open, setOpen] = useState(false);
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
