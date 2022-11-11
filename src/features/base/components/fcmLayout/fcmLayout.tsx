@@ -11,7 +11,7 @@ import {
     Paper,
     PaperProps, useTheme
 } from "@mui/material";
-import axios from "axios";
+import axios, {Axios} from "axios";
 import {useSession} from "next-auth/react";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -87,6 +87,35 @@ function FcmLayout({...props}) {
         });
     }
 
+    const setToken = async () => {
+        try {
+            const token = await firebaseCloudMessaging.init();
+            if (token) {
+                setFcmToken(token as string);
+                getFcmMessage();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const setRefreshToken = async (topicName: string, fcm_api_key: string) => {
+        localStorage.removeItem("fcm_token");
+        const refreshToken = await firebaseCloudMessaging.init();
+        if (refreshToken) {
+            localStorage.setItem("fcm_token", refreshToken);
+            setFcmToken(refreshToken as string);
+            const topicURL = `https://iid.googleapis.com/iid/v1/${refreshToken}/rel/topics/${topicName}`;
+            return axios({
+                url: topicURL,
+                method: "POST",
+                headers: {
+                    Authorization: `key=${fcm_api_key}`
+                },
+            })
+        }
+    }
+
     const subscribeToTopic = useCallback(async (topicName: string) => {
         if (fcmToken) {
             const {data: fcm_api_key} = await axios({
@@ -105,10 +134,12 @@ function FcmLayout({...props}) {
                     Authorization: `key=${fcm_api_key}`
                 },
             }).catch(() => {
+                setRefreshToken(topicName, fcm_api_key);
                 console.error(`Can't subscribe to ${topicName} topic`);
             });
         }
-    }, [fcmToken]);
+    }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     useEffect(() => {
         if (medical_professional) {
@@ -125,19 +156,6 @@ function FcmLayout({...props}) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 console.log("event for the service worker", event);
             });
-        }
-
-        // Calls the getMessage() function if the token is there
-        async function setToken() {
-            try {
-                const token = await firebaseCloudMessaging.init();
-                if (token) {
-                    setFcmToken(token as string);
-                    getFcmMessage();
-                }
-            } catch (error) {
-                console.log(error);
-            }
         }
     });
 
