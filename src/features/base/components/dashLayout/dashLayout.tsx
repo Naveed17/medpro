@@ -50,7 +50,7 @@ function DashLayout({children}: LayoutProps) {
     useEffect(() => {
         if (agenda) {
             dispatch(setConfig(agenda));
-            dispatch(setAgendas(agendas));
+            dispatch( setAgendas(agendas));
         }
     }, [agenda, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
 
