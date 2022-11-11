@@ -44,7 +44,7 @@ function ProfilMenu() {
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
     const {t, ready} = useTranslation('menu');
-    console.log(agendas);
+
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
     const [loading, setLoading] = useState<boolean>(false);
 
