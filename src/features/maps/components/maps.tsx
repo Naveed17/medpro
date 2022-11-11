@@ -81,9 +81,9 @@ function Maps({...props}) {
                     id="mapId">
                     <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"/>
 
-                    {draggable && data.points !== null && <LocationMarker cords={data} editCords={editCords}/>}
+                    {draggable && data?.points !== null && <LocationMarker cords={data} editCords={editCords}/>}
 
-                    {!draggable && data.points !== null && <PlacesMarker cords={data}/>}
+                    {!draggable && data?.points !== null && <PlacesMarker cords={data}/>}
 
                 </MapContainer>
             }
