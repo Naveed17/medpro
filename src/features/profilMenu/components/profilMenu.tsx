@@ -201,7 +201,7 @@ function ProfilMenu() {
                                                     {dir === "rtl" ? <Icon path="ic-retour"/> :
                                                         <Icon path="ic-flesh-droite"/>}
                                                     <MenuList className="sub-items">
-                                                        {agendas?.map((subItem: any, subIndex: any) => (
+                                                        {agendas?.map((subItem: any, subIndex: any) => ( subItem.locations[0] &&
                                                             <MenuItem
                                                                 onClick={() => switchAgenda(subItem)}
                                                                 key={`sub-${subIndex}`}
