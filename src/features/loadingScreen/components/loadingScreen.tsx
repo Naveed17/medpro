@@ -97,7 +97,7 @@ function LoadingScreen({...props}) {
                 </Typography>
                 {button &&
                     <Button onClick={() => router.push("/dashboard/agenda")}
-                            color={"primary"} variant="contained">
+                            color={error ? "error" : "primary"} variant="contained">
                         <Typography>{t(button)}</Typography>
                     </Button>}
             </Box>
