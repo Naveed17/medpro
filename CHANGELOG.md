@@ -1,3 +1,25 @@
+# [4.1.0](https://github.com/SmartMedSA/med-pro/compare/v4.0.0...v4.1.0) (2022-11-14)
+
+
+### Bug Fixes
+
+* clean code ([9117df3](https://github.com/SmartMedSA/med-pro/commit/9117df3025de30fc923e4bd3a40a2a2f810bef0c))
+* create location error ([a939e61](https://github.com/SmartMedSA/med-pro/commit/a939e61faf24643038125e4f5f984c05dc4253d2))
+* current location and phone number ([3f6ec31](https://github.com/SmartMedSA/med-pro/commit/3f6ec31346fa76b524a62bbcb84050688b9f0188))
+* location deleted bug ([849dd0e](https://github.com/SmartMedSA/med-pro/commit/849dd0eabc638919c33a24671694b6a36f5867ef))
+* location deleted bug ([f6d4700](https://github.com/SmartMedSA/med-pro/commit/f6d47002e297b50f582d0f40b440196a4c4de617))
+* location deleted bug ([3a623d7](https://github.com/SmartMedSA/med-pro/commit/3a623d7e9b9aca2c28387de7e3e8ec78a703aa43))
+* location deleted bug ([befd7f3](https://github.com/SmartMedSA/med-pro/commit/befd7f3a368fb08457bf2f3ba03d7137e6a80893))
+* place cors location ([5820cc1](https://github.com/SmartMedSA/med-pro/commit/5820cc10ed7f0ba95e49c1a968a4d0b853edc1bc))
+* risk factory ([2c073bf](https://github.com/SmartMedSA/med-pro/commit/2c073bfae14580fe0760a24a36cd2de423af0c0d))
+* send notification to secretary ([040c5b6](https://github.com/SmartMedSA/med-pro/commit/040c5b66281e71b657fed4cb9e80ffec0bcd9cc1))
+
+
+### Features
+
+* fcm refresh token ([a9004fa](https://github.com/SmartMedSA/med-pro/commit/a9004fa05686993beda056e577ea07caf1fc36a6))
+* send notification to secretary ([7da486f](https://github.com/SmartMedSA/med-pro/commit/7da486fa7205a0c44740432512700a07226cdbba))
+
 # [4.0.0](https://github.com/SmartMedSA/med-pro/compare/v3.0.0...v4.0.0) (2022-11-10)
 
 
