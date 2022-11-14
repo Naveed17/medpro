@@ -8,4 +8,5 @@ interface AgendaConfigurationModel {
     isAutoConfirm: boolean;
     hasOnlineAppointment: boolean;
     locations: AgendaLocationModel[];
+    mutate: Function;
 }
