@@ -76,7 +76,9 @@ function ConsultationInProgress() {
     const [sheet, setSheet] = useState<any>(null);
     const [actions, setActions] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
+    const [instruction, setInstruction] = useState("");
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
+    const [secretary, setSecretary] = useState("");
     const [stateAct, setstateAct] = useState({
         uuid: "",
         isTopAct: true,
@@ -95,6 +97,8 @@ function ConsultationInProgress() {
     const {exam} = useAppSelector(consultationSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {patientId} = useAppSelector(tableActionSelector);
+    const [meeting, setMeeting] = useState<number>(15);
+    const [checkedNext, setCheckedNext] = useState(false);
 
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -161,6 +165,21 @@ function ConsultationInProgress() {
             : null,
         SWRNoValidateConfig
     );
+
+    const {data: httpUsersResponse} = useRequest(
+        medical_entity
+            ? {
+                method: "GET",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/users/",
+                headers: {
+                    ContentType: "multipart/form-data",
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }
+            : null,
+        SWRNoValidateConfig
+    );
+
     const {data: httpAppResponse, mutate} = useRequest(
         mpUuid && agenda
             ? {
@@ -203,6 +222,13 @@ function ConsultationInProgress() {
         if (httpDocumentResponse)
             setDocuments((httpDocumentResponse as HttpResponse).data);
     }, [httpDocumentResponse]);
+
+    useEffect(() => {
+        if (httpUsersResponse) {
+            if ((httpUsersResponse as HttpResponse).data.length > 0)
+                setSecretary((httpUsersResponse as HttpResponse).data[0]?.uuid)
+        }
+    }, [httpUsersResponse]);
 
     useEffect(() => {
         if (httpModelResponse) setModels((httpModelResponse as HttpResponse).data);
@@ -308,20 +334,41 @@ function ConsultationInProgress() {
         }
     }, [patientId]);
 
-    const sendNotification = ()=>{
-        const form = new FormData();
-        form.append("action", "end_consultation");
-        form.append("content",JSON.stringify({fees:total,instruction:"sans controle",nextApp: 15,patient}))
-        trigger({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/professionals/${mpUuid}/notification/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then((r: any) => {
+    const sendNotification = () => {
+        if (secretary.length > 0) {
+            const form = new FormData();
+            form.append("action", "end_consultation");
+            form.append("content", JSON.stringify(
+                {
+                    fees: total,
+                    instruction: instruction,
+                    control: checkedNext,
+                    nextApp: meeting,
+                    patient: {
+                        uuid: patient.uuid,
+                        email: patient.email,
+                        birthdate: patient.birthdate,
+                        firstName: patient.firstName,
+                        lastName: patient.lastName,
+                        gender: patient.gender,
+                        account: patient.account,
+                        address: patient.address,
+                        contact: patient.contact,
+                        hasAccount: patient.hasAccount,
+                        idCard: patient.idCard
+                    }
+                }))
+            trigger({
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then((r: any) => {
 
-        })
+            })
+        }
     }
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
@@ -584,7 +631,7 @@ function ConsultationInProgress() {
                     </Grid>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"documents"}>
-{/*
+                    {/*
                     <Button onClick={sendNotification}>send</Button>
 */}
                     <DocumentsTab
@@ -645,7 +692,8 @@ function ConsultationInProgress() {
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
                                     {total} {process.env.NEXT_PUBLIC_DEVISE}
                                 </Typography>
-                                <Stack direction='row' alignItems="center" display={{xs: 'none',md:"block"}} spacing={2}>
+                                <Stack direction='row' alignItems="center" display={{xs: 'none', md: "block"}}
+                                       spacing={2}>
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
@@ -811,7 +859,21 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, setDialog, setOpenDialog, t, changes, total}}
+                    data={{
+                        state,
+                        setState,
+                        setDialog,
+                        setOpenDialog,
+                        t,
+                        changes,
+                        total,
+                        instruction,
+                        setInstruction,
+                        meeting,
+                        setMeeting,
+                        checkedNext,
+                        setCheckedNext
+                    }}
                     size={"lg"}
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main

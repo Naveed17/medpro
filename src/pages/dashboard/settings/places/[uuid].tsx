@@ -105,7 +105,7 @@ const FormStyled = styled(Form)(({theme}) => ({
 function PlacesDetail() {
     const router = useRouter();
     const uuind = router.query.uuid;
-    const {t, ready} = useTranslation("settings");
+    const {t} = useTranslation("settings");
     const [check, setCheck] = useState(true);
 
     const validationSchema = Yup.object().shape({
@@ -114,13 +114,15 @@ function PlacesDetail() {
             .max(50, t("users.new.ntl"))
             .required(t("users.new.nameReq")),
         address: Yup.string().required(t("lieux.new.adreq")),
+        postalCode: Yup.string().required(t("lieux.new.codeReq")),
+        town: Yup.string().required(t("lieux.new.townReq")),
+        city: Yup.string().required(t("lieux.new.cityReq")),
     });
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [row, setRow] = useState<any>();
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
     const [cords, setCords] = useState<any[]>([]);
@@ -165,7 +167,6 @@ function PlacesDetail() {
         validationSchema,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
             cleanData();
-            setLoading(true);
             let method: string;
             let url: string;
             let phones: {
@@ -191,10 +192,17 @@ function PlacesDetail() {
             form.append("opening_hours", JSON.stringify(horaires[0].openingHours));
             form.append("city", values.city);
             form.append("name", JSON.stringify({fr: values.name}));
-            form.append("latitude", cords[0].points[0]);
-            form.append("longitude", cords[0].points[1]);
+
             form.append("address", JSON.stringify({fr: values.address}));
             form.append("contacts", JSON.stringify(phones));
+
+            if (cords.length > 0) {
+                form.append("latitude", cords[0].points[0]);
+                form.append("longitude", cords[0].points[1]);
+            } else {
+                form.append("latitude", '0');
+                form.append("longitude", '0');
+            }
 
             if (data) {
                 method = "PUT";
@@ -258,6 +266,7 @@ function PlacesDetail() {
         } else {
             navigator.geolocation.getCurrentPosition(function (position) {
                 setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
+                setCords([{name: "name", points: [position.coords.latitude, position.coords.longitude]}]);
             });
             setHoraires([
                 {
@@ -342,13 +351,14 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
-            const cnts: any[] = [
+            const cnts: any[] = row.contacts.length > 0 ? [] : [
                 {
                     countryCode: "",
                     phone: "",
                     hidden: false,
                 },
             ];
+            console.log(row.contacts)
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
                     countryCode: "",
@@ -410,7 +420,6 @@ function PlacesDetail() {
     //             });
     //         });
     //         setContacts([...contacts])
-    //         console.log('loop')
     //
     //     }
     // }, [check, contacts, row])
@@ -429,8 +438,6 @@ function PlacesDetail() {
                   access: 1
               }
           ]);*/
-
-    if (!ready) return <>loading translations...</>;
 
     /*
           // access array not exit in backend
@@ -503,11 +510,13 @@ function PlacesDetail() {
         ];
         setFieldValue("phone", phones);
     };
+
     const handleRemovePhone = (props: number) => {
         console.log(values.phone.filter((item, index) => index !== props))
         const phones = values.phone.filter((item, index) => index !== props);
         setFieldValue("phone", phones);
     };
+
     return (
         <>
             <SubHeader>
@@ -600,6 +609,9 @@ function PlacesDetail() {
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("lieux.new.postal")}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={3}>
@@ -626,6 +638,9 @@ function PlacesDetail() {
                                                 variant="body2"
                                                 fontWeight={400}>
                                                 {t("lieux.new.ville")}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
 
@@ -673,6 +688,9 @@ function PlacesDetail() {
                                                             variant="body2"
                                                             fontWeight={400}>
                                                             {t("lieux.new.city")}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
                                                         </Typography>
                                                         <FormControl size="small" fullWidth>
                                                             <Select
@@ -729,6 +747,9 @@ function PlacesDetail() {
                                                         variant="body2"
                                                         fontWeight={400}>
                                                         {t("lieux.new.number")}
+                                                        <Typography component="span" color="error">
+                                                            {' *'}
+                                                        </Typography>
                                                     </Typography>
                                                 </Grid>
                                                 <Grid item xs={12} lg={5}>
