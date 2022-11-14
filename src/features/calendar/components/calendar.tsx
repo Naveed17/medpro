@@ -81,7 +81,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
@@ -89,34 +89,38 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
+        let days: BusinessHoursInput[] = [];
+        if (openingHours) {
+            Object.entries(openingHours).map((openingHours: any) => {
+                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                    const min = moment.duration(openingHour?.start_time).asHours();
+                    const max = moment.duration(openingHour?.end_time).asHours();
+                    if (min < slotMinTime) {
+                        setSlotMinTime(min);
+                    }
+
+                    if (max > slotMaxTime) {
+                        setSlotMaxTime(max);
+                    }
+
+                    days.push({
+                        daysOfWeek: [DayOfWeek(openingHours[0], 0)],
+                        startTime: openingHour.start_time,
+                        endTime: openingHour.end_time
+                    });
+                })
+            });
+            setDaysOfWeek(days);
+            setLoading(false);
+        }
+    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
-            let days: BusinessHoursInput[] = [];
-            if (openingHours) {
-                Object.entries(openingHours).map((openingHours: any) => {
-                    openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
-                        const min = moment.duration(openingHour?.start_time).asHours();
-                        const max = moment.duration(openingHour?.end_time).asHours();
-                        if (min < slotMinTime) {
-                            setSlotMinTime(min);
-                        }
-
-                        if (max > slotMaxTime) {
-                            setSlotMaxTime(max);
-                        }
-
-                        days.push({
-                            daysOfWeek: [DayOfWeek(openingHours[0], 0)],
-                            startTime: openingHour.start_time,
-                            endTime: openingHour.end_time
-                        });
-                    })
-                });
-                setDaysOfWeek(days);
-            }
         }
-    }, [OnInit, isMounted, openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [OnInit, isMounted]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -159,7 +163,7 @@ function Calendar({...props}) {
         }
     }, [sortedData]);
 
-    const getSlotsFormat = (slot : number) => {
+    const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
         return moment.utc(duration._milliseconds).format("HH:mm:ss");
     }
@@ -284,7 +288,7 @@ function Calendar({...props}) {
                                 <NoDataCard t={translation} data={AddAppointmentCardData}/>
                             )}
                         </Box>
-                    ) : (
+                    ) : !loading && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
                                 weekends
