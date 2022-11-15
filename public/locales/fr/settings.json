@@ -325,6 +325,7 @@
     "config": {
       "add": "Ajouter",
       "manageAccess": "Gestion des accès",
+      "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
       "no-data": {
         "user": {

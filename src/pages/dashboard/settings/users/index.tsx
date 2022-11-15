@@ -6,10 +6,9 @@ import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {Box, Button} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {Otable} from "@features/table";
-import {styled} from "@mui/material/styles";
+import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {tableActionSelector} from "@features/table";
 import {NoDataCard} from "@features/card";
 import {useRequest} from "@app/axios";
@@ -24,24 +23,6 @@ const CardData = {
     buttonIcon: "ic-agenda-+",
     buttonVariant: "warning",
 };
-
-const ButtonStyled = styled(Button)(({theme}) => ({
-    margin: theme.spacing(1),
-    minWidth: 210,
-
-    [theme.breakpoints.down("sm")]: {
-        minWidth: 32,
-        height: 32,
-        //paddingLeft: 8,
-        //paddingRight: 8,
-        "& .MuiButton-startIcon": {
-            margin: 0,
-        },
-        "& .txt": {
-            display: "none",
-        },
-    },
-}));
 
 const headCells = [
     {
@@ -97,6 +78,8 @@ const headCells = [
 function Users() {
     const router = useRouter();
     const {data: session} = useSession();
+    const dispatch = useAppDispatch();
+
     const {addUser} = useAppSelector(tableActionSelector);
 
     const {data: user} = session as Session;
@@ -135,11 +118,11 @@ function Users() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-
                 <Button
                     type="submit"
                     variant="contained"
                     onClick={() => {
+                        dispatch(resetUser());
                         router.push(`/dashboard/settings/users/new`);
                     }}
                     color="success">
@@ -151,13 +134,9 @@ function Users() {
                     <Otable
                         headers={headCells}
                         rows={users}
-                        state={null}
                         from={"users"}
-                        t={t}
-                        edit={onDelete}
-                        handleConfig={null}
-                        handleChange={handleChange}
-                    />
+                        {...{t, handleChange}}
+                        edit={onDelete}/>
                 ) : (
                     <NoDataCard t={t} ns={"settings"} data={CardData}/>
                 )}
