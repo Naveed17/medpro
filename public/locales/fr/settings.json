@@ -132,6 +132,7 @@
         "update": "Editer",
         "name": "Nom du lieu de consultation",
         "actif": "est actif",
+        "default": "par defaut",
         "sharedCalander": "agenda partagé",
         "action": "action"
       }

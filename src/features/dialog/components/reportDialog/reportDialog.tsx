@@ -24,19 +24,25 @@ function ReportDialog({...props}) {
     }));
     const [editorLoaded, setEditorLoaded] = useState(false);
     const [data, setData] = useState("");
+    let para = document.createElement("div")
+    //para.setAttribute('style',styleDoc)
     const doc = new jsPDF({
         format: 'a5'
     });
+    doc.setLanguage('ar')
 
-    /* useEffect(() => {
+    useEffect(() => {
          setEditorLoaded(true);
      }, []);
 
-     useEffect(()=>{
-         (document?.getElementById("xx") as HTMLElement).innerHTML = data;
-         console.log(data)
+    /* useEffect(()=>{
+         const documentHTML = (document?.getElementById("xx") as HTMLElement)
+         documentHTML.innerHTML = data;
 
-     },[data])*/
+         para.id="xyz";
+         para.innerHTML = data
+     },[data, para])*/
+
     const {t, ready} = useTranslation("consultation");
     if (!ready) return (<>loading translations...</>);
 
@@ -53,7 +59,8 @@ function ReportDialog({...props}) {
                 />
 
                 <Button onClick={() => {
-                    doc.html((document.getElementById("xx") as HTMLElement), {
+
+                    doc.html((para as HTMLElement), {
                         autoPaging: "text",
                         y:30,
                         callback: () => {
