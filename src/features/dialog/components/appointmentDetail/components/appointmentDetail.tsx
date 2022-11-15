@@ -70,8 +70,7 @@ function AppointmentDetail({...props}) {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
     const {t, ready} = useTranslation("common")
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {selectedEvent: data} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
 
     const {
         trigger: updateInstructionTrigger
