@@ -316,6 +316,7 @@ function Agenda() {
     const handleOnToday = (event: React.MouseEventHandler) => {
         const calendarApi = (calendarEl as FullCalendar).getApi();
         calendarApi.today();
+        dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
     }
 
     const onLoadCalendar = (event: FullCalendar) => {
