@@ -41,6 +41,7 @@ import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector, setLock} from "@features/appLock";
 import {useSnackbar} from "notistack";
 import {useTranslation} from "next-i18next";
+import {agendaSelector} from "@features/calendar";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -59,6 +60,7 @@ function TopNavBar({...props}) {
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
+    const {pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
     const {ongoing} = useAppSelector(dashLayoutSelector);
 
@@ -95,6 +97,10 @@ function TopNavBar({...props}) {
             );
         }
     }, [dispatch, ongoing]);
+
+    useEffect(() => {
+        topBar[0].notifications = pendingAppointments.length;
+    }, [pendingAppointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleClick = (event: React.MouseEvent<any>, action: string) => {
         setAnchorEl(event.currentTarget);
