@@ -57,7 +57,6 @@ function AgendaPopupAction({...props}) {
                                         </Link>
                                     </Stack>
                                 </Box>
-
                             </Stack>
                         </ListItem>
                         <ListItem>

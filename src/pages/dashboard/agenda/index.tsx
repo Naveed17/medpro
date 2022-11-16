@@ -332,7 +332,6 @@ function Agenda() {
     }
 
     const onSelectEvent = (event: EventDef) => {
-        console.log(event);
         setEvent(event);
         dispatch(setSelectedEvent(event));
         dispatch(openDrawer({type: "view", open: true}));

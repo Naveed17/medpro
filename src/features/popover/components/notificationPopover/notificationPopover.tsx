@@ -94,8 +94,26 @@ function NotificationPopover({...props}) {
                                     }))
                                 ]}/>
                         </TabPanel>
-                        <TabPanel value={value} index={1}>
-                            Item Two
+                        <TabPanel value={value} index={1} className={"container"}>
+                            <BasicList
+                                handleAction={(action: string, event: EventDef) => {
+                                    console.log(action, event);
+                                }}
+                                sx={{
+                                    "& .MuiSvgIcon-root": {
+                                        width: 26,
+                                        height: 26
+                                    }
+                                }}
+                                data={[
+                                    ...pendingAppointments.map(appointment => ({
+                                        ...appointment,
+                                        duration: getDuration("14-11-2022 13:46"),
+                                        title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
+                                        icon: <EventIcon/>,
+                                        action: "onConfirm"
+                                    }))
+                                ]}/>
                         </TabPanel>
                     </Box>
 
