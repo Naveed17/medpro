@@ -21,7 +21,7 @@ function RequestedMedicalImaging({...props}) {
                     <p>{data.patient}</p>
                 </td>
                 <td className={"docDate"}>
-                    le {moment(data.createdAt).format('DD MMMM YYYY')}
+                    Le {moment(data.createdAt).format('DD MMMM YYYY')}
                 </td>
             </tr>
 

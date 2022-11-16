@@ -38,6 +38,7 @@ function HistoryTab({...props}) {
         dispatch,
         setOpenDialog,
         medical_entity,
+        showDoc,
         session,
         mutate,
         locale
@@ -165,58 +166,6 @@ function HistoryTab({...props}) {
         let capps = [...apps]
         capps[iid].appointment.requestedAnalyses[idx].hasAnalysis[idxh] = rs
         setApps(capps)
-    }
-
-    const showDoc = (card: any) => {
-        if (card.documentType === "photo") {
-            setIsViewerOpen(card.uri);
-        } else if (
-            card.documentType ===
-            "medical-certificate"
-        ) {
-            setInfo("document_detail");
-            setState({
-                uuid: card.uuid,
-                content:card.certificate[0].content,
-                doctor: card.name,
-                patient: card.patient,
-                days: card.days,
-                name: "certif",
-                type: "write_certif",
-                mutate: mutateDoc,
-            });
-            setOpenDialog(true);
-        } else {
-            setInfo("document_detail");
-            let info = card; let uuidDoc = ""
-            switch (card.documentType) {
-                case "prescription":
-                    info =
-                        card.prescription[0]
-                            .prescription_has_drugs;
-                    uuidDoc = card.prescription[0].uuid
-                    break;
-                case "requested-analysis":
-                    info =
-                        card.requested_Analyses[0]
-                            .analyses;
-                    break;
-            }
-            setState({
-                uuid: card.uuid,
-                uri: card.uri,
-                name: card.title,
-                type: card.documentType,
-                info: info,
-                uuidDoc:uuidDoc,
-                patient:
-                    patient.firstName +
-                    " " +
-                    patient.lastName,
-                mutate: mutateDoc,
-            });
-            setOpenDialog(true);
-        }
     }
 
     return (

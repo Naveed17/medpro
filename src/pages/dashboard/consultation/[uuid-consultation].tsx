@@ -537,6 +537,52 @@ function ConsultationInProgress() {
             </DialogActions>
         );
     };
+
+    const showDoc = (card: any) =>{
+        if (card.documentType === 'medical-certificate') {
+            console.log(card)
+            setInfo('document_detail');
+            setState({
+                uuid: card.uuid,
+                content: card.certificate[0].content,
+                doctor: card.name,
+                patient: card.patient,
+                days: card.days,
+                name: 'certif',
+                type: 'write_certif',
+                mutate: mutateDoc,
+            })
+            setOpenDialog(true);
+        }
+        else {
+            setInfo('document_detail')
+            let info = card
+            let uuidDoc = "";
+            switch (card.documentType) {
+                case "prescription":
+                    info = card.prescription[0].prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid
+                    break;
+                case "requested-analysis":
+                    info = card.requested_Analyses[0].analyses;
+                    break;
+                case "requested-medical-imaging":
+                    info = card.medical_imaging[0]['medical-imaging'];
+                    break;
+            }
+            setState({
+                uuid: card.uuid,
+                uri: card.uri,
+                name: card.title,
+                type: card.documentType,
+                info: info,
+                uuidDoc: uuidDoc,
+                patient: patient.firstName + ' ' + patient.lastName,
+                mutate: mutateDoc
+            })
+            setOpenDialog(true);
+        }
+    }
     const {t, ready} = useTranslation("consultation");
     if (!ready) return <>consulation translations...</>;
 
@@ -589,6 +635,7 @@ function ConsultationInProgress() {
                         medical_entity={medical_entity}
                         mutate={mutate}
                         session={session}
+                        showDoc={showDoc}
                         locale={router.locale}
                         dispatch={dispatch}
                         setOpenDialog={setOpenDialog}></HistoryTab>
@@ -639,6 +686,7 @@ function ConsultationInProgress() {
                         setIsViewerOpen={setIsViewerOpen}
                         setInfo={setInfo}
                         setState={setState}
+                        showDoc={showDoc}
                         selectedDialog={selectedDialog}
                         patient={patient}
                         mutateDoc={mutateDoc}
