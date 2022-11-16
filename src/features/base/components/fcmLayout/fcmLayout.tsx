@@ -14,11 +14,12 @@ import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import {openDrawer, setLastUpdate, setStepperIndex} from "@features/calendar";
+import {AppointmentStatus, openDrawer, setLastUpdate, setSelectedEvent, setStepperIndex} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
-import {ConsultationPopupAction} from "@features/popup";
+import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
+import moment from "moment-timezone";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -32,7 +33,8 @@ function FcmLayout({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
-    const [open, setOpen] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
 
@@ -41,13 +43,13 @@ function FcmLayout({...props}) {
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/professionals/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
     const {data: httpAppointmentTypesResponse} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
+        url: "/api/medical-entity/" + medical_entity?.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
@@ -56,11 +58,11 @@ function FcmLayout({...props}) {
     const general_information = (session?.data as UserDataResponse).general_information;
 
     const handleClickOpen = () => {
-        setOpen(true);
+        setOpenDialog(true);
     };
 
     const handleClose = () => {
-        setOpen(false);
+        setOpenDialog(false);
     };
 
     // Get the push notification message and triggers a toast to display it
@@ -75,7 +77,8 @@ function FcmLayout({...props}) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
-                            setOpen(true);
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
+                            setOpenDialog(true);
                             setNotificationData(data.body);
                         }
                         break;
@@ -140,7 +143,7 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
+            subscribeToTopic(`${general_information.roles[0]}${process.env.NODE_ENV === 'development' ? "-dev" : ""}-${general_information.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -160,7 +163,7 @@ function FcmLayout({...props}) {
         <>
             {props.children}
             <Dialog
-                open={open}
+                open={openDialog}
                 onClose={handleClose}
                 PaperComponent={PaperComponent}
                 PaperProps={{
@@ -169,7 +172,7 @@ function FcmLayout({...props}) {
                         position: "absolute",
                         right: 0,
                         bottom: 0,
-                        minWidth: "40vw",
+                        minWidth: dialogAction !== "confirm-dialog" ? "40vw" : "33vw",
                         "& .MuiPaper-root": {
                             borderRadius: 0,
                             border: 0
@@ -181,29 +184,57 @@ function FcmLayout({...props}) {
                 }}
                 aria-labelledby="draggable-dialog-title"
             >
-                <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
-                    Fin de consultation
-                </DialogTitle>
-                <DialogContent>
-                    <ConsultationPopupAction
+                {dialogAction !== "confirm-dialog" ? <>
+                        <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
+                            Fin de consultation
+                        </DialogTitle>
+                        <DialogContent>
+                            <ConsultationPopupAction
+                                data={{
+                                    id: notificationData?.patient.uuid,
+                                    name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
+                                    phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
+                                    fees: notificationData?.fees,
+                                    instruction: notificationData?.instruction,
+                                    control: notificationData?.nextApp
+                                }}
+                                OnSchedule={() => {
+                                    handleClose();
+                                    router.push("/dashboard/agenda").then(() => {
+                                        dispatch(setStepperIndex(1));
+                                        dispatch(setAppointmentPatient(notificationData?.patient));
+                                        dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                                        dispatch(openDrawer({type: "add", open: true}));
+                                    });
+                                }}/>
+                        </DialogContent>
+                    </> :
+                    <AgendaPopupAction
                         data={{
                             id: notificationData?.patient.uuid,
                             name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
                             phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
-                            fees: notificationData?.fees,
-                            instruction: notificationData?.instruction,
-                            control: notificationData?.nextApp
+                            date: notificationData?.appointment.dayDate,
+                            time: notificationData?.appointment.startTime
                         }}
-                        OnSchedule={() => {
+                        OnEdit={() => {
                             handleClose();
+                            const event = {
+                                publicId: notificationData?.appointment?.uuid,
+                                title: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
+                                extendedProps: {
+                                    patient: notificationData?.patient,
+                                    type: notificationData?.type,
+                                    status: AppointmentStatus[notificationData?.appointment?.status],
+                                    time: moment(`${notificationData?.appointment.dayDate} ${notificationData?.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+                                }
+                            } as any;
                             router.push("/dashboard/agenda").then(() => {
-                                dispatch(setStepperIndex(1));
-                                dispatch(setAppointmentPatient(notificationData?.patient));
-                                dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
-                                dispatch(openDrawer({type: "add", open: true}));
+                                dispatch(setSelectedEvent(event));
+                                dispatch(openDrawer({type: "view", open: true}));
                             });
-                        }}/>
-                </DialogContent>
+                        }}
+                    />}
             </Dialog>
         </>
     );

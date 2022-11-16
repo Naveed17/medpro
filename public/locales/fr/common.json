@@ -168,6 +168,18 @@
       "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Supprimer"
+    },
+    "confirm-dialog": {
+      "title": "Une nouvelle demande de Rendez-vous !",
+      "sub-title": "Date du rendez-vous",
+      "cancel": "Annuler",
+      "edit": "Gérer",
+      "confirm": "Confirmer RDV"
+    },
+    "finish-dialog": {
+      "title": "Consultation terminée avec",
+      "sub-title": "Prix de la consultation",
+      "reschedule": "Replanifier un Conrole"
     }
   },
   "filter": {

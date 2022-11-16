@@ -7,6 +7,7 @@ export const setStepperIndex = createAction<number>("agenda/setStepperIndex");
 export const setCurrentDate = createAction<{ date: Date, fallback: boolean }>("agenda/setCurrentDate");
 export const setConfig = createAction<AgendaConfigurationModel | null>("agenda/setConfig");
 export const setAgendas = createAction<AgendaConfigurationModel[]>("agenda/setAgendas");
+export const setPendingAppointments = createAction<AppointmentModel[]>("agenda/setPendingAppointments");
 export const setSelectedEvent = createAction<EventDef | null>("agenda/setSelectedEvent");
 export const setGroupedByDayAppointments = createAction<GroupEventsModel[]>("agenda/setGroupedByDayAppointments");
 export const setAppointmentTypes = createAction<AppointmentTypeModel[]>("agenda/setAppointmentTypes");
