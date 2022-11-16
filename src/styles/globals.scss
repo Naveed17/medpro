@@ -120,6 +120,18 @@ main {
     outline: none;
   }
 
+  textarea{
+    background: #F8FAFC;
+    border: 1px solid #DDDDDD;
+    border-radius: 6px;
+    display: flex;
+    padding: 10px;
+  }
+
+  textarea:focus {
+    outline: none;
+  }
+
   .form-text {
     color: #7C878E;
     font-size: 12px;

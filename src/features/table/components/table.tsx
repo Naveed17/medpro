@@ -76,10 +76,12 @@ function Otable({...props}) {
     const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: { uuid: string; id: any }) => n.uuid);
+            if(handleChange)handleChange('allRows',rows)
             setSelected(newSelecteds);
             return;
         }
         setSelected([]);
+        if(handleChange)handleChange('allRows',[])
     };
     const handleClick = (id: any) => {
         const selectedIndex = selected.indexOf(id);

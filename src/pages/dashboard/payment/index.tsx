@@ -113,7 +113,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: false,
         label: "billing_status",
         sortable: true,
-        align: "left",
+        align: "center",
     },*/
     {
         id: "amount",
@@ -140,16 +140,40 @@ function Payment() {
     const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
+    let [select, setSelect] = useState<any[]>([]);
+    const [toReceive, setToReceive] = useState(0);
     const {currentDate} = useAppSelector(agendaSelector);
 
     const isOpen = Boolean(anchorEl);
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const handleCloseCollapse = () => setCollapse(false);
-    const handleSave = () => setOpen(false);
+    const handleSave = () => {
+        console.log(state)
+        setOpen(false)
+    };
     const handleEdit = (props: any) => {
+        console.log(props)
         setSelected(props);
         setOpen(true);
     };
+
+    const [state, setState] = React.useState<any>({
+        species: false,
+        card: false,
+        cheque: false,
+        selected: "species",
+        tab3Data: [
+            {
+                amount: "",
+                carrier: "",
+                bank: "",
+                check_number: '',
+                payment_date: new Date(),
+                expiry_date: new Date(),
+
+            }
+        ]
+    });
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -173,7 +197,7 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {lock} = useAppSelector(appLockSelector);
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!lock) {
             dispatch(toggleSideBar(false));
         }
@@ -192,7 +216,7 @@ function Payment() {
             }
         }, TriggerWithoutValidation).then((result) => {
             let amout = 0;
-            const r: { uuid: any; date: any; time: any; name: any; insurance: string; type: any; payment_type: string[]; billing_status: string; amount: any; }[] = [];
+            const r: any[] = [];
             const appointments = (result?.data as HttpResponse)?.data.filter((app: { status: number; }) => app.status === 5)
             appointments.map((app: any) => {
                 amout += Number(app.fees)
@@ -203,7 +227,7 @@ function Payment() {
                     name: `${app.patient.firstName} ${app.patient.lastName}`,
                     insurance: "",
                     type: app.type.name,
-                    payment_type: ["ic-argent"],
+                    payment_type: ["ic-argent", "ic-card-pen"],
                     billing_status: "yes",
                     amount: app.fees,
                     /*collapse: [
@@ -213,8 +237,8 @@ function Payment() {
                             time: "15:30",
                             payment_type: [
                                 {
-                                    name: "credit_card",
-                                    icon: "ic-argent",
+                                    name: "123456789",
+                                    icon: "ic-card-pen",
                                 },
                             ],
                             billing_status: "yes",
@@ -243,7 +267,6 @@ function Payment() {
     }, [agenda, medical_entity.uuid, router, session, trigger, dispatch]);
 
     useEffect(() => {
-        console.log(currentDate.date)
         setDay(moment(currentDate.date).format('DD-MM-YYYY'))
     }, [currentDate])
     useEffect(() => {
@@ -253,6 +276,19 @@ function Payment() {
         }
     }, [getAppointments, agenda, day])
 
+    const handleChange = (action: string, selected: any, checked: boolean) => {
+        let amouts = 0
+        if (action === 'checkTransaction') {
+            checked ? select.push(selected) : select = select.filter(trans => trans.uuid !== selected.uuid)
+            select.map(trans => amouts += Number(trans.amount))
+            setSelect([...select])
+        } else {
+            selected.map((trans: { amount: any; }) => amouts += Number(trans.amount))
+            setSelect(selected)
+        }
+        setToReceive(amouts)
+    }
+
     return (
         <>
             <SubHeader>
@@ -261,8 +297,9 @@ function Payment() {
                     width={1}
                     justifyContent="space-between"
                     alignItems="center">
-                    <Typography textTransform={"capitalize"}>{t("path")} {'>'} {moment(day,'DD-MM-YYYY').format('ddd DD.MM.YYYY')}</Typography>
-                    {/*<Stack direction="row" spacing={3} alignItems="center">
+                    <Typography
+                        textTransform={"capitalize"}>{t("path")} {'>'} {moment(day, 'DD-MM-YYYY').format('ddd DD.MM.YYYY')}</Typography>
+                    <Stack direction="row" spacing={3} alignItems="center">
                         <Typography variant="subtitle2">{t("total")}</Typography>
                         <Typography variant="h6">{total} {devise}</Typography>
                         <Stack direction="row" spacing={1} alignItems="center">
@@ -290,19 +327,21 @@ function Payment() {
                                 + {!isMobile && t("btn_header_2")}
                             </Button>
                         </Stack>
-                    </Stack>*/}
+                    </Stack>
                 </Stack>
             </SubHeader>
 
             <Box className="container">
                 <DesktopContainer>
-                    {rows.length > 0 ?  <Otable
+                    {rows.length > 0 ? <Otable
                         headers={headCells}
                         rows={rows}
                         from={"payment"}
                         t={t}
+                        handleChange={handleChange}
+                        select={select}
                         edit={handleEdit}
-                    />:<NoDataCard t={t} ns={"payment"} data={noCardData}/>}
+                    /> : <NoDataCard t={t} ns={"payment"} data={noCardData}/>}
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack spacing={2}>
@@ -328,49 +367,20 @@ function Payment() {
                     justifyContent="flex-end"
                     alignItems="center"
                     width={1}>
-                    <Stack direction="row" spacing={3} alignItems="center">
-                        <Typography variant="subtitle2">{t("total")}:</Typography>
-                        <Typography variant="h6">{total} {devise}</Typography>
-                        {/*<Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="h6">I</Typography>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}>
-                                - {!isMobile && t("btn_header_1")}
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                                onClick={() => {
-                                    setOpen(true);
-                                    setSelected(null);
-                                }}>
-                                + {!isMobile && t("btn_header_2")}
-                            </Button>
-                        </Stack>*/}
-                    </Stack>
 
-                    {/*<Button variant="text-black">{t("receive")}</Button>
-                    <Button
-                        disabled={addBilling ? addBilling.length === 0 : true}
-                        variant="contained"
-                        onClick={() => console.log(addBilling)}>
-                        {t("billing")}
-                    </Button>*/}
+
+                    <Button variant="text-black" onClick={() => {
+                        console.log(select)
+                    }}>{t("receive")}
+                        {toReceive > 0 && <Typography> ( {toReceive} {devise} )</Typography>}
+                    </Button>
+
                 </Stack>
             </SubFooter>
             <Dialog
                 action={"payment_dialog"}
                 open={open}
-                data={{t, selected}}
+                data={{t, selected, state, setState}}
                 size={"md"}
                 direction={"ltr"}
                 title={t("dialog_title")}
