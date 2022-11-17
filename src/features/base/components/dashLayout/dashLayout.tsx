@@ -38,7 +38,7 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
-    const {data: httpPendingAppointmentResponse} = useRequest(agenda ? {
+    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -57,7 +57,7 @@ function DashLayout({children}: LayoutProps) {
 
     useEffect(() => {
         if (agenda) {
-            dispatch(setConfig({...agenda, mutate: mutateAgenda}));
+            dispatch(setConfig({...agenda, mutate: [mutateAgenda, mutatePendingAppointment]}));
             dispatch(setAgendas(agendas));
         }
     }, [agenda, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
