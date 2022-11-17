@@ -1,4 +1,5 @@
 import {NextPage, NextPageContext} from 'next';
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 interface Props {
@@ -6,13 +7,7 @@ interface Props {
 }
 
 const Error: NextPage<Props> = ({statusCode}) => {
-    return (
-        <p>
-            {statusCode
-                ? `An error ${statusCode} occurred on server`
-                : "An error occurred on client"}
-        </p>
-    );
+    return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-404"}/>);
 }
 
 Error.getInitialProps = ({res, err}: NextPageContext) => {
