@@ -7,7 +7,7 @@ import {Box, Typography} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
@@ -51,25 +51,27 @@ function NotificationPopover({...props}) {
     }
 
     const handleNotificationAction = (action: string, event: any) => {
-        console.log(action, event);
+        const eventUpdated = {
+            publicId: event?.uuid,
+            title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
+            extendedProps: {
+                patient: event?.patient,
+                type: event?.type,
+                status: AppointmentStatus[event?.status],
+                time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+            }
+        } as any;
         switch (action) {
             case "onEdit":
                 onClose();
-                const eventUpdated = {
-                    publicId: event?.uuid,
-                    title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
-                    extendedProps: {
-                        patient: event?.patient,
-                        type: event?.type,
-                        status: AppointmentStatus[event?.status],
-                        time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
-                    }
-                } as any;
-                console.log(eventUpdated);
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setSelectedEvent(eventUpdated));
                     dispatch(openDrawer({type: "view", open: true}));
                 });
+                break;
+            case "onConfirm":
+                onClose();
+                dispatch(setAction({action: "onConfirm", event: eventUpdated}));
                 break;
         }
     }

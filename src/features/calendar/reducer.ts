@@ -1,6 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    openDrawer,
+    openDrawer, setAction,
     setAgendas, setAppointmentTypes,
     setConfig,
     setCurrentDate,
@@ -23,6 +23,7 @@ export type CalendarProps = {
     pendingAppointments: AppointmentModel[];
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
+    actionSet: any | null;
     sortedData: GroupEventsModel[];
     appointmentTypes: AppointmentTypeModel[];
     lastUpdateNotification: { title: string, body: string } | null;
@@ -35,6 +36,7 @@ const initialState: CalendarProps = {
     openPatientDrawer: false,
     currentStepper: 0,
     config: null,
+    actionSet: null,
     agendas: [],
     pendingAppointments: [],
     currentDate: {date: new Date(), fallback: false},
@@ -59,6 +61,8 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.currentStepper = action.payload;
     }).addCase(setConfig, (state, action) => {
         state.config = action.payload;
+    }).addCase(setAction, (state, action) => {
+        state.actionSet = action.payload;
     }).addCase(setAgendas, (state, action) => {
         state.agendas = action.payload;
     }).addCase(setPendingAppointments, (state, action) => {
