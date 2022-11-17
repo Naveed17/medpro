@@ -1,7 +1,6 @@
 import {NextPage, NextPageContext} from 'next';
 import {LoadingScreen} from "@features/loadingScreen";
 
-
 interface Props {
     statusCode?: number
 }
