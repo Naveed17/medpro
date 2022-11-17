@@ -2,7 +2,6 @@ import {GetStaticProps, NextPage} from 'next';
 import {LoadingScreen} from "@features/loadingScreen";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 
-
 interface Props {
     statusCode?: number
 }
