@@ -69,6 +69,8 @@ function Calendar({...props}) {
     const [events, setEvents] = useState<ConsultationReasonTypeModel[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<EventDef>();
+    const [slotMinTime, setSlotMinTime] = useState(8);
+    const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [date, setDate] = useState(currentDate.date);
     const [calendarHeight, setCalendarHeight] = useState("80vh");
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
@@ -79,7 +81,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
@@ -87,24 +89,38 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
 
     useEffect(() => {
+        let days: BusinessHoursInput[] = [];
+        if (openingHours) {
+            Object.entries(openingHours).map((openingHours: any) => {
+                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                    const min = moment.duration(openingHour?.start_time).asHours();
+                    const max = moment.duration(openingHour?.end_time).asHours();
+                    if (min < slotMinTime) {
+                        setSlotMinTime(min);
+                    }
+
+                    if (max > slotMaxTime) {
+                        setSlotMaxTime(max);
+                    }
+
+                    days.push({
+                        daysOfWeek: [DayOfWeek(openingHours[0], 0)],
+                        startTime: openingHour.start_time,
+                        endTime: openingHour.end_time
+                    });
+                })
+            });
+            setDaysOfWeek(days);
+            setLoading(false);
+        }
+    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         const calendarEl = calendarRef.current;
         if (isMounted.current && calendarEl) {
             OnInit(calendarEl);
-            let days: BusinessHoursInput[] = [];
-            if (openingHours) {
-                Object.entries(openingHours).map((openingHours: any) => {
-                    openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
-                        days.push({
-                            daysOfWeek: [DayOfWeek(openingHours[0], 0)],
-                            startTime: openingHour.start_time,
-                            endTime: openingHour.end_time
-                        });
-                    })
-                });
-                setDaysOfWeek(days);
-            }
         }
-    }, [OnInit, isMounted, openingHours]);
+    }, [OnInit, isMounted]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -146,6 +162,11 @@ function Calendar({...props}) {
             calendarApi.refetchEvents();
         }
     }, [sortedData]);
+
+    const getSlotsFormat = (slot: number) => {
+        const duration = moment.duration(slot, "hours") as any;
+        return moment.utc(duration._milliseconds).format("HH:mm:ss");
+    }
 
     const handleClickDatePrev = () => {
         const calendarEl = calendarRef.current;
@@ -215,24 +236,24 @@ function Calendar({...props}) {
             (moment().format("DD-MM-YYYY") !== moment(eventMenu?.extendedProps.time).format("DD-MM-YYYY") ||
                 (eventMenu?.extendedProps.status.key === "WAITING_ROOM" || eventMenu?.extendedProps.status.key === "ON_GOING" || eventMenu?.extendedProps.status.key === "FINISHED")) ||
             action === "onConsultationView" &&
-                (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (!["FINISHED", "ON_GOING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
-                (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.extendedProps.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onLeaveWaitingRoom" &&
-                eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
+            eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-                (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onDelete" &&
-                (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onMove" &&
-                moment().isAfter(eventMenu?.extendedProps.time) ||
+            moment().isAfter(eventMenu?.extendedProps.time) ||
             action === "onPatientNoShow" &&
             ((moment().isBefore(eventMenu?.extendedProps.time) || eventMenu?.extendedProps.status.key === "ON_GOING") ||
                 eventMenu?.extendedProps.status.key === "FINISHED") ||
             action === "onConfirmAppointment" &&
-                eventMenu?.extendedProps.status.key !== "PENDING" ||
+            eventMenu?.extendedProps.status.key !== "PENDING" ||
             action === "onReschedule" &&
-                moment().isBefore(eventMenu?.extendedProps.time)
+            moment().isBefore(eventMenu?.extendedProps.time)
         )
     }
 
@@ -267,7 +288,7 @@ function Calendar({...props}) {
                                 <NoDataCard t={translation} data={AddAppointmentCardData}/>
                             )}
                         </Box>
-                    ) : (
+                    ) : !loading && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
                                 weekends
@@ -331,8 +352,8 @@ function Calendar({...props}) {
                                 rerenderDelay={8}
                                 height={calendarHeight}
                                 initialDate={date}
-                                slotMinTime={"08:00:00"}
-                                slotMaxTime={"20:00:00"}
+                                slotMinTime={getSlotsFormat(slotMinTime)}
+                                slotMaxTime={getSlotsFormat(slotMaxTime)}
                                 businessHours={daysOfWeek}
                                 firstDay={1}
                                 initialView={view}

@@ -13,20 +13,38 @@ import {
 } from '@mui/material'
 import IconUrl from "@themes/urlIcon";
 import CheckIcon from '@mui/icons-material/Check';
+import {useTranslation} from "next-i18next";
+import React from "react";
+import {pxToRem} from "@themes/formatFontSize";
 
 function AgendaPopupAction({...props}) {
-    const {data, onGerer, onConfirmer} = props
+    const {data, OnEdit, OnConfirm} = props;
+
+    const {t, ready} = useTranslation("common");
+
+    if (!ready) return <>loading translations...</>;
+
     return (
         <AgendaPopupActionStyled>
             <CardContent>
                 <Typography gutterBottom variant="subtitle2" fontWeight={600}>
-                    Une nouvelle demande de Rendez-vous !
+                    {t("dialogs.confirm-dialog.title")}
                 </Typography>
                 <Card>
                     <List>
                         <ListItem>
                             <Stack spacing={1} direction='row' alignItems="flex-start">
-                                <Avatar sx={{width: 24, height: 24}}/>
+                                <Box
+                                    component="img"
+                                    src={
+                                        data?.gender === "M"
+                                            ? "/static/icons/men-avatar.svg"
+                                            : "/static/icons/women-avatar.svg"
+                                    }
+                                    width={pxToRem(26)}
+                                    height={pxToRem(26)}
+                                    sx={{borderRadius: pxToRem(6), mb: pxToRem(10), mr: .5}}
+                                />
                                 <Box>
                                     <Typography fontWeight={700} gutterBottom>
                                         {data.name}
@@ -39,12 +57,11 @@ function AgendaPopupAction({...props}) {
                                         </Link>
                                     </Stack>
                                 </Box>
-
                             </Stack>
                         </ListItem>
                         <ListItem>
                             <Typography fontWeight={400}>
-                                Date du rendez-vous
+                                {t("dialogs.confirm-dialog.sub-title")}
                             </Typography>
                             <Stack spacing={4} direction="row" alignItems='center'>
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
@@ -65,15 +82,15 @@ function AgendaPopupAction({...props}) {
                 </Card>
                 <Stack mt={1} spacing={2} direction={{xs: 'column', md: "row"}}>
                     <Button fullWidth
-                            onClick={onGerer}
+                            onClick={OnEdit}
                             variant="white" startIcon={<IconUrl path="ic-setting"/>}>
-                        Gérer
+                        {t("dialogs.confirm-dialog.edit")}
                     </Button>
                     <Button
-                        onClick={onConfirmer}
+                        onClick={OnConfirm}
                         fullWidth
                         variant="contained" startIcon={<CheckIcon/>}>
-                        Confirmer RDV
+                        {t("dialogs.confirm-dialog.confirm")}
                     </Button>
                 </Stack>
             </CardContent>

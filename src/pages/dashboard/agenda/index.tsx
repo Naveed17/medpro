@@ -91,6 +91,7 @@ function Agenda() {
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
+        selectedEvent,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -316,6 +317,7 @@ function Agenda() {
     const handleOnToday = (event: React.MouseEventHandler) => {
         const calendarApi = (calendarEl as FullCalendar).getApi();
         calendarApi.today();
+        dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
     }
 
     const onLoadCalendar = (event: FullCalendar) => {
@@ -899,7 +901,7 @@ function Agenda() {
                         }, 300);
                     }}
                 >
-                    {(event && openViewDrawer) &&
+                    {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
                             OnConfirmAppointment={onConfirmAppointment}

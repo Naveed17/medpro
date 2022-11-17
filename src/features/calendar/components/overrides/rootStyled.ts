@@ -17,7 +17,11 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     "& .fc-day-today .fc-timegrid-col-frame": {
         background: "#F0FAFF",
-        border: `4px solid ${theme.palette.warning.main}`,
+        border: `solid ${theme.palette.warning.main}`,
+    },
+    "& .fc-day-today .fc-daygrid-day-frame": {
+        background: "#F0FAFF",
+        border: `solid ${theme.palette.warning.main}`,
     },
     "& .fc-col-header-cell-cushion ": {
         padding: "5px 0!important",

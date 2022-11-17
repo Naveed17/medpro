@@ -6,10 +6,11 @@ import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useEffect} from "react";
-import {setAgendas, setConfig} from "@features/calendar";
+import {setAgendas, setConfig, setPendingAppointments} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
+
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
 const variants = {
@@ -26,7 +27,7 @@ function DashLayout({children}: LayoutProps) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAgendasResponse} = useRequest({
+    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${router.locale}`,
         headers: {
@@ -37,6 +38,12 @@ function DashLayout({children}: LayoutProps) {
     const agendas = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
     const agenda = agendas?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
+    const {data: httpPendingAppointmentResponse} = useRequest(agenda ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    } : null, SWRNoValidateConfig);
+
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
@@ -46,13 +53,20 @@ function DashLayout({children}: LayoutProps) {
     } : null, SWRNoValidateConfig);
 
     const calendarStatus = (httpOngoingResponse as HttpResponse)?.data as dashLayoutState;
+    const pendingAppointments = (httpPendingAppointmentResponse as HttpResponse)?.data as AppointmentModel[];
 
     useEffect(() => {
         if (agenda) {
-            dispatch(setConfig(agenda));
+            dispatch(setConfig({...agenda, mutate: mutateAgenda}));
             dispatch(setAgendas(agendas));
         }
-    }, [agenda, dispatch]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [agenda, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (pendingAppointments) {
+            dispatch(setPendingAppointments(pendingAppointments));
+        }
+    }, [pendingAppointments, dispatch]);
 
     useEffect(() => {
         if (calendarStatus) {

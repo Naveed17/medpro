@@ -70,8 +70,7 @@ function AppointmentDetail({...props}) {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
     const {t, ready} = useTranslation("common")
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {selectedEvent: data} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
 
     const {
         trigger: updateInstructionTrigger
@@ -212,7 +211,7 @@ function AppointmentDetail({...props}) {
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
                                     <Avatar sx={{width: 24, height: 24}}
-                                            src={`/static/icons/${data?.extendedProps.patient.gender !== "O" ?
+                                            src={`/static/icons/${data?.extendedProps.patient?.gender !== "O" ?
                                                 "men" : "women"}-avatar.svg`}/>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
                                         {data?.title}
@@ -229,28 +228,28 @@ function AppointmentDetail({...props}) {
                                     <IconUrl path='ic-anniverssaire'/>
                                     <Typography sx={{ml: 1, fontSize: 11}} variant="caption" color="text.secondary"
                                                 fontWeight={400}>
-                                        {data?.extendedProps.patient.birthdate}
-                                        ({moment().diff(moment(data?.extendedProps.patient.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
+                                        {data?.extendedProps.patient?.birthdate}
+                                        ({moment().diff(moment(data?.extendedProps.patient?.birthdate, "DD-MM-YYYY"), "years")} {t("times.years")})
                                     </Typography>
                                 </ListItem>
-                                {data?.extendedProps.patient.email && <ListItem>
+                                {data?.extendedProps.patient?.email && <ListItem>
                                     <IconUrl path='ic-message-contour'/>
-                                    <Link underline="none" href={`mailto:${data?.extendedProps.patient.email}`}
+                                    <Link underline="none" href={`mailto:${data?.extendedProps.patient?.email}`}
                                           sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="primary" fontWeight={400}>
-                                        {data?.extendedProps.patient.email}
+                                        {data?.extendedProps.patient?.email}
                                     </Link>
                                 </ListItem>}
-                                {data?.extendedProps.patient.phone && <ListItem>
+                                {data?.extendedProps.patient?.phone && <ListItem>
                                     <IconUrl path='ic-tel'/>
                                     <Box component='img'
-                                         src={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg`}
-                                         srcSet={`https://flagcdn.com/${data?.extendedProps.patient.phone.ccode}.svg 2x`}
+                                         src={`https://flagcdn.com/${data?.extendedProps.patient?.phone.ccode}.svg`}
+                                         srcSet={`https://flagcdn.com/${data?.extendedProps.patient?.phone.ccode}.svg 2x`}
                                          sx={{width: 13, ml: 1}}/>
-                                    <Link underline="none" href={`tel:${data?.extendedProps.patient.phone}`}
+                                    <Link underline="none" href={`tel:${data?.extendedProps.patient?.phone}`}
                                           sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="text.secondary" fontWeight={400}>
-                                        {data.extendedProps.patient.phone}
+                                        {data.extendedProps.patient?.phone}
                                     </Link>
                                 </ListItem>}
                             </List>

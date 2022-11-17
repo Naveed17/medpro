@@ -192,7 +192,7 @@
         "remove": "Supprimer",
         "update": "Editer"
       }
-    
+
     }
   },
   "addAgenda":{
@@ -243,8 +243,6 @@
     "medical_secretary":"Secretaire medicale",
     "save":"Enregistrer",
     "cancel":"Annuler"
-
-
   },
   "holidays": {
     "start": "Date debut",
@@ -327,11 +325,12 @@
     "config": {
       "add": "Ajouter",
       "manageAccess": "Gestion des accès",
+      "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
       "no-data": {
         "user": {
-          "title": "ajouter votre premier utilisateur",
-          "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+          "title": "Ajouter votre premier utilisateur",
+          "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
         }
       },

@@ -10,7 +10,9 @@
   "stats": " Statistiques",
   "settings": "Paramètres",
   "loading": "Veuillez patienter un instant le temps de chargement",
-  "loading-error": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le login pour réessayer",
+  "loading-error": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
+  "loading-error-404": "404 - La page n'a pas été trouvée",
+  "loading-error-404-reset": "Retourner à la agenda",
   "loading-switch": "Veuillez patienter un moment pour le chargement de l'agenda",
   "logout": "Se déconnecter",
   "type_of_document": "Type de document",
@@ -166,6 +168,18 @@
       "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
       "cancel": "Annuler",
       "confirm": "Supprimer"
+    },
+    "confirm-dialog": {
+      "title": "Une nouvelle demande de Rendez-vous !",
+      "sub-title": "Date du rendez-vous",
+      "cancel": "Annuler",
+      "edit": "Gérer",
+      "confirm": "Confirmer RDV"
+    },
+    "finish-dialog": {
+      "title": "Consultation terminée avec",
+      "sub-title": "Prix de la consultation",
+      "reschedule": "Replanifier un Conrole"
     }
   },
   "filter": {

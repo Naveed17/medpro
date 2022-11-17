@@ -71,7 +71,7 @@ const settingsData = {
             name: "utilisateurs",
             icon: "setting/ic-user",
             href: "/dashboard/settings/users",
-            disable: true
+            disable: false
         },
         /*
          {

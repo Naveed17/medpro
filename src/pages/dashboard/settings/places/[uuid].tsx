@@ -41,6 +41,8 @@ import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
+import {useAppSelector} from "@app/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -106,7 +108,8 @@ function PlacesDetail() {
     const router = useRouter();
     const uuind = router.query.uuid;
     const {t} = useTranslation("settings");
-    const [check, setCheck] = useState(true);
+
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -123,7 +126,9 @@ function PlacesDetail() {
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     const [row, setRow] = useState<any>();
+    const [check, setCheck] = useState(true);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
     const [cords, setCords] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -225,7 +230,8 @@ function PlacesDetail() {
                 {revalidate: true, populateCache: true}
             ).then((r: any) => {
                 if (r.status === 200 || r.status === 201) {
-                    mutate()
+                    mutate();
+                    agendaConfig?.mutate();
                     router.back();
                     setLoading(false);
                 }
