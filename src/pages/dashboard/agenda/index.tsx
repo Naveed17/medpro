@@ -91,6 +91,7 @@ function Agenda() {
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
+        selectedEvent,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -900,7 +901,7 @@ function Agenda() {
                         }, 300);
                     }}
                 >
-                    {(event && openViewDrawer) &&
+                    {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
                             OnConsultation={onConsultationDetail}
                             OnConfirmAppointment={onConfirmAppointment}
