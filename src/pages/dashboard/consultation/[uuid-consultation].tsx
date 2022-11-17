@@ -9,6 +9,7 @@ import {
     SetExam,
     SetMutation,
     SetMutationDoc,
+    SetAppointement,
     SetPatient,
 } from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -283,7 +284,9 @@ function ConsultationInProgress() {
                 setConsultationFees(Number(appointement.consultation_fees))
 
             dispatch(SetPatient(appointement.patient));
+            dispatch(SetAppointement(appointement));
             dispatch(SetMutation(mutate));
+            dispatch(SetAppointement(appointement));
             dispatch(SetMutationDoc(mutateDoc));
 
             if (appointement.acts) {
@@ -661,7 +664,7 @@ function ConsultationInProgress() {
 */}
                 <TabPanel padding={1} value={value} index={"consultation_form"}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={5}>
+                        <Grid item xs={12} sm={12} md={5}>
                             {!loading && models && selectedModel && (
                                 <WidgetForm
                                     modal={selectedModel}

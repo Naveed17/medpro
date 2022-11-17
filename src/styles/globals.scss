@@ -120,7 +120,7 @@ main {
     outline: none;
   }
 
-  textarea{
+  textarea {
     background: #F8FAFC;
     border: 1px solid #DDDDDD;
     border-radius: 6px;
@@ -152,6 +152,7 @@ main {
 }
 
 .fieldset-specialty-formio {
+
   fieldset {
     border: 0;
 
@@ -171,6 +172,13 @@ main {
       margin-top: 0.5rem;
       margin-bottom: 1rem;
     }
+  }
+}
+
+.fieldset-specialty-formio:last-child {
+  fieldset {
+    padding-bottom: 26px;
+
   }
 }
 

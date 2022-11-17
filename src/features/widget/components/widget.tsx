@@ -41,6 +41,15 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         cmp = [...modal];
     }
 
+   /* Previous data
+   cmp.map(spec => {
+        spec.components.map(composant =>{
+            const old = composant.description? composant.description :''
+            composant.description = `${old} (90${old})`
+        })
+    })
+    console.log(cmp)*/
+
     return (
         <>
             <Form
@@ -127,8 +136,38 @@ function Widget({...props}) {
                         </Typography>
                         <IconUrl path="ic-flesh-bas-y"/>
                     </Stack>
+
                 </Stack>
-                <CardContent sx={{bgcolor: alpha(value?.color, 0.1)}}>
+
+                <CardContent sx={{bgcolor: alpha(value?.color, 0.1),overflowX:'scroll'}}>
+                    <motion.div
+                        hidden={!open}
+                        variants={variants}
+                        initial="initial"
+                        animate={open ? "animate" : "initial"}
+                        exit="initial">
+                        <Paper className="menu-list">
+                            <MenuList>
+                                {models &&
+                                    models.map((item: any, idx: number) => (
+                                        <MenuItem
+                                            key={`model-item-${idx}`}
+                                            onClick={() => handleClick(item)}>
+                                            <ListItemIcon>
+                                                <ModelDot
+                                                    color={item.color}
+                                                    selected={false}
+                                                    size={21}
+                                                    sizedot={13}
+                                                    padding={3}
+                                                />
+                                            </ListItemIcon>
+                                            <ListItemText>{item.label}</ListItemText>
+                                        </MenuItem>
+                                    ))}
+                            </MenuList>
+                        </Paper>
+                    </motion.div>
                     <Box>
                         {models.map(
                             (m: any) =>
@@ -164,34 +203,6 @@ function Widget({...props}) {
                                 </Box>
                             ))}
                     </Box>
-                    <motion.div
-                        hidden={!open}
-                        variants={variants}
-                        initial="initial"
-                        animate={open ? "animate" : "initial"}
-                        exit="initial">
-                        <Paper className="menu-list">
-                            <MenuList>
-                                {models &&
-                                    models.map((item: any, idx: number) => (
-                                        <MenuItem
-                                            key={`model-item-${idx}`}
-                                            onClick={() => handleClick(item)}>
-                                            <ListItemIcon>
-                                                <ModelDot
-                                                    color={item.color}
-                                                    selected={false}
-                                                    size={21}
-                                                    sizedot={13}
-                                                    padding={3}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText>{item.label}</ListItemText>
-                                        </MenuItem>
-                                    ))}
-                            </MenuList>
-                        </Paper>
-                    </motion.div>
                 </CardContent>
             </ConsultationModalStyled>
             {/* <Dialog action={'consultation-modal'}

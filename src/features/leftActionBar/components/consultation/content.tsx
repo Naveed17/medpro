@@ -151,18 +151,49 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
-                                    {patient?.treatment.map((list: any, index: number) => (
+                                    {patient?.treatment.filter((tr :any) => tr.isOtherProfessional).map((list: any, index: number) => (
                                         <ListItem key={index}>
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
                                             <Typography
                                                 variant="body2"
-                                                color={
-                                                    list.isOtherProfessional ? "text.secondary" : ""
-                                                }>
+                                                color={"text.secondary"}>
                                                 {list.name} / {list.duration} {list.durationType}{" "}
-                                                {list.isOtherProfessional ? "" : "( ordonnance )"}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => {
+                                                    trigger(
+                                                        {
+                                                            method: "PATCH",
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
+                                                            headers: {
+                                                                ContentType:
+                                                                    "application/x-www-form-urlencoded",
+                                                                Authorization: `Bearer ${session?.accessToken}`,
+                                                            },
+                                                        },
+                                                        {revalidate: true, populateCache: true}
+                                                    ).then(() => {
+                                                        mutate();
+                                                    });
+                                                }}
+                                                sx={{ml: "auto"}}>
+                                                <Icon path="setting/icdelete"/>
+                                            </IconButton>
+                                        </ListItem>
+                                    ))}
+
+                                    {patient?.treatment.filter((tr :any) => !tr.isOtherProfessional).length > 0 &&<Typography fontSize={11} fontWeight={"bold"} mt={1}>{t('prescription')}</Typography>}
+                                    {patient?.treatment.filter((tr :any) => !tr.isOtherProfessional).map((list: any, index: number) => (
+                                        <ListItem key={index}>
+                                            <ListItemIcon>
+                                                <CircleIcon/>
+                                            </ListItemIcon>
+                                            <Typography
+                                                variant="body2">
+                                                {list.name} / {list.duration} {list.durationType}{" "}
                                             </Typography>
                                             <IconButton
                                                 size="small"
