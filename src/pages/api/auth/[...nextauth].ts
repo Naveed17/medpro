@@ -144,9 +144,9 @@ export const authOptions: NextAuthOptions = {
     // when an action is performed.
     // https://next-auth.js.org/configuration/callbacks
     callbacks: {
-        // async signIn({ user, account, profile, email, credentials }) {
-        //   return true
-        // },
+        async signIn({ user, account, profile, email, credentials }) {
+            return !(user as any).error
+        },
         async redirect({url, baseUrl}) {
             if (url.startsWith(baseUrl)) return url;
             // Allows relative callback URLs

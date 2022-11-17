@@ -47,11 +47,6 @@ const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
 );
 
-const popovers: { [key: string]: EmotionJSX.Element } = {
-    "appointment-stats": <AppointmentStatsPopover/>,
-    notification: <NotificationPopover/>,
-};
-
 function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
@@ -75,6 +70,11 @@ function TopNavBar({...props}) {
     const settingHas = router.pathname.includes("settings/");
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
+
+    const popovers: { [key: string]: EmotionJSX.Element } = {
+        "appointment-stats": <AppointmentStatsPopover/>,
+        notification: <NotificationPopover onClose={() =>  setAnchorEl(null)}/>,
+    };
 
     useEffect(() => {
         if (ongoing) {
