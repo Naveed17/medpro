@@ -15,7 +15,6 @@ import {
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {SubFooter} from "@features/subFooter";
 import {DashLayout} from "@features/base";
 import {Otable, tableActionSelector} from "@features/table";
 import {useTranslation} from "next-i18next";
@@ -170,7 +169,6 @@ function Payment() {
                 check_number: '',
                 payment_date: new Date(),
                 expiry_date: new Date(),
-
             }
         ]
     });
@@ -302,6 +300,7 @@ function Payment() {
                     <Stack direction="row" spacing={3} alignItems="center">
                         <Typography variant="subtitle2">{t("total")}</Typography>
                         <Typography variant="h6">{total} {devise}</Typography>
+                        {/*
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Typography variant="h6">I</Typography>
                             <Button
@@ -327,6 +326,7 @@ function Payment() {
                                 + {!isMobile && t("btn_header_2")}
                             </Button>
                         </Stack>
+*/}
                     </Stack>
                 </Stack>
             </SubHeader>
@@ -360,7 +360,7 @@ function Payment() {
                 </MobileContainer>
             </Box>
 
-            <SubFooter>
+            {/*<SubFooter>
                 <Stack
                     spacing={3}
                     direction="row"
@@ -376,7 +376,7 @@ function Payment() {
                     </Button>
 
                 </Stack>
-            </SubFooter>
+            </SubFooter>*/}
             <Dialog
                 action={"payment_dialog"}
                 open={open}

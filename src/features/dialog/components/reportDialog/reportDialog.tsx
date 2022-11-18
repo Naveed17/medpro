@@ -1,77 +1,80 @@
 import {useTranslation} from "next-i18next";
-import React, {useEffect, useState} from "react";
-import {Box, Button} from "@mui/material";
+import React, {useEffect, useRef, useState} from "react";
+import {Button, Grid} from "@mui/material";
 import dynamic from "next/dynamic";
-import jsPDF from "jspdf";
 import {styled} from "@mui/material/styles";
+import PrintIcon from '@mui/icons-material/Print';
+import jsPDF from "jspdf";
 
-const Editor = dynamic(() => import('@features/editor/editor'), {
+const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
 });
 
 function ReportDialog({...props}) {
 
     const TableStyled = styled("div")(({theme}) => ({
-        wordWrap:"break-word",
+        wordWrap: "break-word",
         width: '148px',
-        height:'148px',
+        height: '148px',
 
-        border: '1px solid',
-        "& p,ol,ul":{
+        "& p,ol,ul": {
             fontSize: 5,
-            margin:0
+            margin: 0
         }
     }));
-    const [editorLoaded, setEditorLoaded] = useState(false);
-    const [data, setData] = useState("");
-    let para = document.createElement("div")
-    //para.setAttribute('style',styleDoc)
+    const componentRef = useRef<any>(null)
+    const [file, setFile] = useState<string>('');
+    const [numPages, setNumPages] = useState<number | null>(null);
     const doc = new jsPDF({
         format: 'a5'
     });
-    doc.setLanguage('ar')
+
+    const [editorLoaded, setEditorLoaded] = useState(false);
+    const [data, setData] = useState("");
+    useEffect(() => {
+        setEditorLoaded(true);
+    }, []);
 
     useEffect(() => {
-         setEditorLoaded(true);
-     }, []);
+        const el = document.getElementById("preview");
+        (el as HTMLElement).innerHTML = data
+    }, [data])
 
-    /* useEffect(()=>{
-         const documentHTML = (document?.getElementById("xx") as HTMLElement)
-         documentHTML.innerHTML = data;
+    const print = () => {
+        const el = document.getElementById("preview");
 
-         para.id="xyz";
-         para.innerHTML = data
-     },[data, para])*/
-
+        doc.html((el as HTMLElement), {
+            x: 10,
+            y: 10,
+            callback: () => {
+                doc.save()
+            }
+        })
+        doc.save();
+    }
     const {t, ready} = useTranslation("consultation");
     if (!ready) return (<>loading translations...</>);
 
     return (
-        <Box>
-
-            <div className="App">
-                <Editor
-                    name="description"
-                    onChange={(data: React.SetStateAction<string>) => {
-                        setData(data);
-                    }}
-                    editorLoaded={editorLoaded}
-                />
-
-                <Button onClick={() => {
-
-                    doc.html((para as HTMLElement), {
-                        autoPaging: "text",
-                        y:30,
-                        callback: () => {
-                            doc.save("OK")
-                        }
-                    })
-                }}>Xxxx</Button>
-                <TableStyled id={"xx"}></TableStyled>
-            </div>
-        </Box>
-    )
+        <div>
+            <Grid container spacing={0}>
+                <Grid item xs={10}>
+                    <CKeditor
+                        name="description"
+                        onChange={(data: React.SetStateAction<string>) => {
+                            setData(data);
+                        }}
+                        editorLoaded={editorLoaded}/>
+                </Grid>
+                <Grid item xs={2}>
+                    <Button onClick={print}>
+                        <PrintIcon/>
+                    </Button>
+                    <TableStyled id={'preview'}></TableStyled>
+                </Grid>
+            </Grid>
+        </div>
+    );
 }
 
 export default ReportDialog

@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -8,25 +8,27 @@ import {Session} from "next-auth";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Document as DocumentPDF, Page, pdfjs} from "react-pdf";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {useFormik} from "formik";
-import dynamic from "next/dynamic";
-import {PDFDocument, rgb, StandardFonts,} from 'pdf-lib';
 import {SubHeader} from "@features/subHeader";
-import {Box, Button, Grid, Stack, Typography} from "@mui/material";
-import WebViewer from '@pdftron/webviewer'
-const ReportEditor = dynamic(() => import("@features/editor/editor"), {
-    ssr: false,
-});
+import {Box, Button, Card, CardContent, Grid, Stack, TextField, Typography} from "@mui/material";
+import autoTable from "jspdf-autotable";
+import {Header} from "@features/files";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRouter} from "next/router";
+
 
 function ConsultationType() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+    const router = useRouter();
 
     const [file, setFile] = useState('');
-    const [docFile, setDocFile] = useState<any>('');
+    //const [docFile, setDocFile] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const {trigger} = useRequestMutation(null, "/MP/header");
 
 
     const formik = useFormik({
@@ -47,18 +49,38 @@ function ConsultationType() {
             speciality: "",
             diplome: "",
             tel: "Tel: ",
-            fax: "Fax: ",
+            fix: "Fix: ",
             email: ""
         }
     })
 
-    const {values, getFieldProps} = formik;
+    let {values, getFieldProps, setFieldValue} = formik;
 
     const doc = new jsPDF({
         format: 'a5'
     });
 
-    const modifyDoc = async () => {
+    const {data: httpData} = useRequest({
+        method: "GET",
+        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+
+    useEffect(() => {
+        if (httpData) {
+            const header = (httpData as HttpResponse).data
+            setFieldValue("name", header.name);
+            setFieldValue("speciality", header.speciality);
+            setFieldValue("diplome", header.diplome);
+            setFieldValue("tel", header.tel);
+            setFieldValue("fix", header.fix);
+            setFieldValue("email", header.email);
+        }
+    }, [httpData, setFieldValue])
+
+    /*const modifyDoc = async () => {
         const url = '/static/files/cnam.pdf'
         const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
 
@@ -107,7 +129,7 @@ function ConsultationType() {
         const form = pdfDoc.getForm()
 
         //Date
-        let yPOS =  height - 113;
+        let yPOS = height - 113;
         for (let i = 0; i < 6; i++) {
             const textField = form.createTextField(`date${i}`)
             textField.addToPage(firstPage, {
@@ -118,11 +140,11 @@ function ConsultationType() {
                 backgroundColor: rgb(1, 1, 1),
                 borderWidth: 0
             })
-            yPOS-= 23
+            yPOS -= 23
         }
 
         //DENT
-        yPOS =  height - 113;
+        yPOS = height - 113;
         for (let i = 0; i < 6; i++) {
             const textField = form.createTextField(`dent${i}`)
             textField.addToPage(firstPage, {
@@ -133,11 +155,11 @@ function ConsultationType() {
                 backgroundColor: rgb(1, 1, 1),
                 borderWidth: 0
             })
-            yPOS-= 23
+            yPOS -= 23
         }
 
         //CODE ACTE
-        yPOS =  height - 113;
+        yPOS = height - 113;
         for (let i = 0; i < 6; i++) {
             const textField = form.createTextField(`act${i}`)
             textField.addToPage(firstPage, {
@@ -148,7 +170,7 @@ function ConsultationType() {
                 backgroundColor: rgb(1, 1, 1),
                 borderWidth: 0
             })
-            yPOS-= 23
+            yPOS -= 23
         }
 
         //END OF CONSULTATIONS ET ACTES DE SOINS DENTAIRES
@@ -173,43 +195,52 @@ function ConsultationType() {
             })
         }
     }
-
-/*
+*/
     useEffect(() => {
         autoTable(doc, {
             html: '#header',
             useCss: true
         })
-
-        // const pageCount = doc.internal.getNumberOfPages()
-
-        doc.setLanguage('ar-SA')
-        doc.text('ربك تكست ', 1, 20)
-
-        doc.processArabic("ربك تكست")
-        doc.setFont('trado');
-
-        var arabic = 'مرحبا';
-        var arabic_with_diacritics = 'مَرْحَبًا';
-
-        doc.setFontSize(40);
-
-        doc.text(arabic, 200, 40, {align: 'right'});
-        doc.text(arabic_with_diacritics, 200, 80, {align: 'right'});
-
-        doc.html('<div style="font-size: 5px">ربك تكست هو  العربي </div>', {
-            callback: function (doc) {
-                const uri = doc.output('bloburi').toString()
-                setFile(uri)
-            },
-            x: 10,
-            y: doc.internal.pageSize.height - 30
-        })
         const uri = doc.output('bloburi').toString()
         setFile(uri)
-
     }, [values])// eslint-disable-line react-hooks/exhaustive-deps
-*/
+
+    /*
+        useEffect(() => {
+            autoTable(doc, {
+                html: '#header',
+                useCss: true
+            })
+
+            // const pageCount = doc.internal.getNumberOfPages()
+
+            doc.setLanguage('ar-SA')
+            doc.text('ربك تكست ', 1, 20)
+
+            doc.processArabic("ربك تكست")
+            doc.setFont('trado');
+
+            var arabic = 'مرحبا';
+            var arabic_with_diacritics = 'مَرْحَبًا';
+
+            doc.setFontSize(40);
+
+            doc.text(arabic, 200, 40, {align: 'right'});
+            doc.text(arabic_with_diacritics, 200, 80, {align: 'right'});
+
+            doc.html('<div style="font-size: 5px">ربك تكست هو  العربي </div>', {
+                callback: function (doc) {
+                    const uri = doc.output('bloburi').toString()
+                    setFile(uri)
+                },
+                x: 10,
+                y: doc.internal.pageSize.height - 30
+            })
+            const uri = doc.output('bloburi').toString()
+            setFile(uri)
+
+        }, [values])// eslint-disable-line react-hooks/exhaustive-deps
+    */
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -221,9 +252,7 @@ function ConsultationType() {
 
     if (!ready) return <>loading translations...</>;
 
-
     return (
-
         <>
             <SubHeader>
                 <Stack
@@ -232,90 +261,106 @@ function ConsultationType() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-
-                        }}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
                 </Stack>
             </SubHeader>
             <DesktopContainer>
-                <Box
-                    sx={{
-                        p: {xs: "40px 8px", sm: "30px 8px", md: 2},
-                        "& table": {tableLayout: "fixed"},
-                    }}>
+                <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, "& table": {tableLayout: "fixed"}}}>
 
-                    <Button onClick={modifyDoc}>OKOKOKOKOKOKOKOKOKOKOKOK</Button>
-                    <Button onClick={download}>Download</Button>
+                    <Header data={values}></Header>
 
-                    <Grid container spacing={2}>
-                        {/*<Grid item md={0}>
+                    {/*<Button onClick={modifyDoc}>OKOKOKOKOKOKOKOKOKOKOKOK</Button>
+                    <Button onClick={download}>Download</Button>*/}
 
-                                <Typography
-                                    variant="body1"
-                                    fontWeight={400}
-                                    margin={"16px 0"}
-                                    gutterBottom>
-                                    {t("header")}
-                                </Typography>
-                                <ReportEditor/>
+                    <Grid container spacing={4}>
+                        <Grid item md={7}>
 
-                                <Card>
-                                    <CardContent>
-                                        <Stack spacing={2}>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("name")}
-                                                    required
-                                                    {...getFieldProps("name")}
-                                                    fullWidth/>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("tel")}
-                                                    required
-                                                    {...getFieldProps("tel")}
-                                                    fullWidth/>
-                                            </Stack>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("speciality")}
-                                                    required
-                                                    {...getFieldProps("speciality")}
-                                                    fullWidth/>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("fax")}
-                                                    {...getFieldProps("fax")}
-                                                    required
-                                                    fullWidth/>
-                                            </Stack>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("name")}
-                                                    required
-                                                    {...getFieldProps("diplome")}
-                                                    fullWidth/>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("email")}
-                                                    required
-                                                    {...getFieldProps("email")}
-                                                    fullWidth/>
-                                            </Stack>
+                            <Typography
+                                variant="body1"
+                                fontWeight={400}
+                                margin={"16px 0"}
+                                gutterBottom>
+                                {t("header")}
+                            </Typography>
+
+                            <Card>
+                                <CardContent>
+                                    <Stack spacing={2}>
+                                        <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("name")}
+                                                required
+                                                {...getFieldProps("name")}
+                                                fullWidth/>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("tel")}
+                                                required
+                                                {...getFieldProps("tel")}
+                                                fullWidth/>
                                         </Stack>
-                                    </CardContent>
-                                </Card>
-                            </Grid>*/}
-                        <Grid item md={12}>
-                            <DocumentPDF file={docFile} onLoadSuccess={onDocumentLoadSuccess}>
+                                        <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("speciality")}
+                                                required
+                                                {...getFieldProps("speciality")}
+                                                fullWidth/>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("fax")}
+                                                {...getFieldProps("fix")}
+                                                required
+                                                fullWidth/>
+                                        </Stack>
+                                        <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("diplome")}
+                                                required
+                                                {...getFieldProps("diplome")}
+                                                fullWidth/>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("email")}
+                                                required
+                                                {...getFieldProps("email")}
+                                                fullWidth/>
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+
+                            <Stack spacing={2} mt={1}>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    onClick={() => {
+                                        const form = new FormData();
+                                        form.append('document_header', JSON.stringify(values));
+                                        trigger({
+                                            method: "PATCH",
+                                            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+                                            data: form,
+                                            headers: {
+                                                Authorization: `Bearer ${session?.accessToken}`
+                                            }
+                                        }, TriggerWithoutValidation)
+                                    }}
+                                    sx={{ml: "auto"}}>
+                                    {t("save")}
+                                </Button>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={5}>
+                            <Typography
+                                variant="body1"
+                                fontWeight={400}
+                                margin={"16px 0"}
+                                gutterBottom>
+                                {t("preview")}
+                            </Typography>
+                            <DocumentPDF file={file} onLoadSuccess={onDocumentLoadSuccess}>
                                 {Array.from(new Array(numPages), (el, index) => (
                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                 ))}

@@ -543,7 +543,6 @@ function ConsultationInProgress() {
 
     const showDoc = (card: any) =>{
         if (card.documentType === 'medical-certificate') {
-            console.log(card)
             setInfo('document_detail');
             setState({
                 uuid: card.uuid,
