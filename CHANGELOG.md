@@ -1,3 +1,26 @@
+# [4.2.0](https://github.com/SmartMedSA/med-pro/compare/v4.1.0...v4.2.0) (2022-11-17)
+
+
+### Bug Fixes
+
+* clean code ([fb82c97](https://github.com/SmartMedSA/med-pro/commit/fb82c9716f4a11d4fb7712f1ef255f7a2e2fb1e7))
+* current location and phone number ([0c19742](https://github.com/SmartMedSA/med-pro/commit/0c19742e6e4439a208671407eb41642ac278b5f8))
+* fix undefined object patient drawer ([7542d49](https://github.com/SmartMedSA/med-pro/commit/7542d49568c5b04b7e5000e3b02cc4dffe1a0e89))
+* invalid token redirect ([256e633](https://github.com/SmartMedSA/med-pro/commit/256e633015947f150d2568fbbfa51a8564a7680a))
+* loading config bug ([2e164ee](https://github.com/SmartMedSA/med-pro/commit/2e164eea18791312948b2a9dff6cbda8c11dcf4f))
+* today set date bug ([4d41885](https://github.com/SmartMedSA/med-pro/commit/4d4188568b4d615f4c4ffe5c9d1126da4f74b3d7))
+* update 404 page style ([dc95368](https://github.com/SmartMedSA/med-pro/commit/dc953689368eaef7862a39dcf7c1d9024e578532))
+
+
+### Features
+
+* add user listing ([b0d30e6](https://github.com/SmartMedSA/med-pro/commit/b0d30e6e0e9d1f04e9424bef8869a13c5ea79fb2))
+* confirm popup notifications ([9777374](https://github.com/SmartMedSA/med-pro/commit/9777374d34d358aa835368c8f3346f13fe74990d))
+* handle 404 error page ([2c64c7a](https://github.com/SmartMedSA/med-pro/commit/2c64c7a9c4a48f212361acfca6d712e0cd1fc9f2))
+* manage user access ([81323f6](https://github.com/SmartMedSA/med-pro/commit/81323f63d3dbdd1966795081bdd9d404e13c34c1))
+* today Highlight ([a6503c7](https://github.com/SmartMedSA/med-pro/commit/a6503c760a59e1fdecc3dd222a807b9ca6ace566))
+* update calendar with start/end work day limit ([740a93c](https://github.com/SmartMedSA/med-pro/commit/740a93c63d87859ab5ec3a341b801179906b88c4))
+
 # [4.1.0](https://github.com/SmartMedSA/med-pro/compare/v4.0.0...v4.1.0) (2022-11-14)
 
 

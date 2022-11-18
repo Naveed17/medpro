@@ -34,10 +34,12 @@ function BasicList({...props}) {
                                         {"RDV en ligne"}
                                     </span>
 
-                                    {item.action &&
-                                        <Button onClick={() => handleAction(item.action, item)} sx={{margin: 1}}
-                                                variant="contained" color="success"
-                                                size="small">Confirmer</Button>}
+                                    {item.buttons.map((button: any, index: number) => (
+                                        <Button key={index} onClick={() => handleAction(button.action, item)}
+                                                sx={{margin: 1}}
+                                                variant="contained" color={button.color}
+                                                size="small">{button.text}</Button>))
+                                    }
                                 </React.Fragment>
                             }/>
 

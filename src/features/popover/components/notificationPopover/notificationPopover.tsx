@@ -3,15 +3,17 @@ import React from "react";
 import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import {Alert, Box, Typography} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
-import {useAppSelector} from "@app/redux/hooks";
-import {agendaSelector} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
 import moment from "moment-timezone";
+import {useRouter} from "next/router";
+
 const humanizeDuration = require("humanize-duration");
 
 const popoverNotificationData = {
@@ -30,8 +32,11 @@ function a11yProps(index: number) {
 }
 
 function NotificationPopover({...props}) {
-    const {t, ready} = useTranslation("common");
+    const {onClose} = props;
+    const router = useRouter();
+    const dispatch = useAppDispatch();
 
+    const {t, ready} = useTranslation("common");
     const {pendingAppointments} = useAppSelector(agendaSelector);
 
     const [value, setValue] = React.useState(0);
@@ -42,7 +47,33 @@ function NotificationPopover({...props}) {
 
     const getDuration = (date: string) => {
         const duration: any = moment.duration(moment.utc().diff(moment.utc(date, "DD-MM-YYYY HH:mm")));
-        return humanizeDuration(duration, { largest: 2 });
+        return humanizeDuration(duration, {largest: 2});
+    }
+
+    const handleNotificationAction = (action: string, event: any) => {
+        const eventUpdated = {
+            publicId: event?.uuid,
+            title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
+            extendedProps: {
+                patient: event?.patient,
+                type: event?.type,
+                status: AppointmentStatus[event?.status],
+                time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+            }
+        } as any;
+        switch (action) {
+            case "onEdit":
+                onClose();
+                router.push("/dashboard/agenda").then(() => {
+                    dispatch(setSelectedEvent(eventUpdated));
+                    dispatch(openDrawer({type: "view", open: true}));
+                });
+                break;
+            case "onConfirm":
+                onClose();
+                dispatch(setAction({action: "onConfirm", event: eventUpdated}));
+                break;
+        }
     }
 
     if (!ready) return (<>loading translations...</>);
@@ -75,9 +106,7 @@ function NotificationPopover({...props}) {
                         </Box>
                         <TabPanel value={value} index={0} className={"container"}>
                             <BasicList
-                                handleAction={(action: string, event: EventDef) => {
-                                    console.log(action, event);
-                                }}
+                                handleAction={handleNotificationAction}
                                 sx={{
                                     "& .MuiSvgIcon-root": {
                                         width: 26,
@@ -90,7 +119,10 @@ function NotificationPopover({...props}) {
                                         duration: getDuration("14-11-2022 13:46"),
                                         title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
                                         icon: <EventIcon/>,
-                                        action: "onConfirm"
+                                        buttons: [
+                                            {text: "Confirmer", color: "success", action: "onConfirm"},
+                                            {text: "Gérer", color: "white", action: "onEdit"}
+                                        ]
                                     }))
                                 ]}/>
                         </TabPanel>
