@@ -286,7 +286,6 @@ function ConsultationInProgress() {
             dispatch(SetPatient(appointement.patient));
             dispatch(SetAppointement(appointement));
             dispatch(SetMutation(mutate));
-            dispatch(SetAppointement(appointement));
             dispatch(SetMutationDoc(mutateDoc));
 
             if (appointement.acts) {

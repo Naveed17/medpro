@@ -443,7 +443,8 @@
       "fax": "Fix : +216 00 000 000",
       "email": "doctor@email.com",
       "save": "Enregistrer",
-      "preview": "Aperçu"
+      "preview": "Aperçu",
+      "updated": "En-tête modifé"
     }
   }
 }
