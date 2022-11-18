@@ -120,6 +120,18 @@ main {
     outline: none;
   }
 
+  textarea {
+    background: #F8FAFC;
+    border: 1px solid #DDDDDD;
+    border-radius: 6px;
+    display: flex;
+    padding: 10px;
+  }
+
+  textarea:focus {
+    outline: none;
+  }
+
   .form-text {
     color: #7C878E;
     font-size: 12px;
@@ -140,6 +152,7 @@ main {
 }
 
 .fieldset-specialty-formio {
+
   fieldset {
     border: 0;
 
@@ -159,6 +172,13 @@ main {
       margin-top: 0.5rem;
       margin-bottom: 1rem;
     }
+  }
+}
+
+.fieldset-specialty-formio:last-child {
+  fieldset {
+    padding-bottom: 26px;
+
   }
 }
 

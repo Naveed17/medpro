@@ -1,6 +1,9 @@
 import {
     Box,
     Button,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
     Grid,
     List,
     ListItem,
@@ -18,7 +21,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Document, Page, pdfjs} from "react-pdf";
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
@@ -30,6 +33,7 @@ import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
 import printJS from 'print-js'
+import Dialog from "@mui/material/Dialog";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -40,12 +44,13 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const ginfo = (session?.data as UserDataResponse).general_information
-    const medical_professional = (session?.data as UserDataResponse).medical_professional
-    const speciality = medical_professional?.specialities.find(spe => spe.isMain).speciality.name;
     const [name, setName] = useState(state.name);
     const {data: user} = session as Session;
+    const [openAlert, setOpenAlert] = useState(false);
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+
     const {enqueueSnackbar} = useSnackbar();
 
     const list = [
@@ -72,8 +77,8 @@ function DocumentDetailDialog({...props}) {
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
     const [hide, sethide] = useState<boolean>(false);
+    const [header, setHeader] = useState(null);
 
-    console.log(state)
     const actionButtons = [
         {
             title: 'print',
@@ -129,7 +134,7 @@ function DocumentDetailDialog({...props}) {
         const doc = new jsPDF({
             format: 'a5'
         });
-        if (!hide) {
+        if (!hide && header) {
             autoTable(doc, {
                 html: '#header',
                 useCss: true
@@ -146,8 +151,6 @@ function DocumentDetailDialog({...props}) {
             })
             addFooters(doc)
             const uri = doc.output('bloburi').toString()
-            console.log(uri)
-
             setFile(uri)
         } else if (state.type === 'requested-analysis') {
             autoTable(doc, {
@@ -197,15 +200,41 @@ function DocumentDetailDialog({...props}) {
         } else setFile(state.uri)
 
         // doc.save()
-    }, [state, hide])
+    }, [state, hide, header])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
 
-    /*const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
-    });*/
+    const {data: httpHeaderData} = useRequest({
+        method: "GET",
+        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    }, {fallbackData: undefined, ...{revalidate: true, populateCache: true}});
+
+    const handleClickOpen = () => {
+        setOpenAlert(true);
+    };
+
+    const handleClose = () => {
+        setOpenAlert(false);
+    };
+
+    const handleYes = () => {
+        router.push("/dashboard/settings/documents").then(() => {
+            setOpenAlert(false);
+        })
+    };
+
+    useEffect(() => {
+        if (httpHeaderData) {
+            setHeader((httpHeaderData as HttpResponse).data)
+            if ((httpHeaderData as HttpResponse).data.length !== undefined)
+                handleClickOpen()
+        }
+    }, [httpHeaderData])
 
     const handlePrint = () => {
         printJS({printable: file, type: 'pdf', showModal: true})
@@ -293,25 +322,21 @@ function DocumentDetailDialog({...props}) {
             enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
 
         });
+
+
     }
 
     if (!ready) return <>loading translations...</>;
 
     return (
         <DocumentDetailDialogStyled>
-            <Header name={'Dr ' + ginfo.firstName + ' ' + ginfo.lastName}
-                    diplome={'Echo Doppler vasculaire'}
-                    tel={'Tel: +216 71 22 22 22'}
-                    fax={'Fax: +216 71 22 22 22'}
-                    email={'foulen@mail.com'}
-                    {...{speciality}}></Header>
+            {header && <Header data={header}/>}
 
-
-            {state.type === 'write_certif' && <Certificat data={state}></Certificat>}
-            {state.type === 'prescription' && <Prescription data={state}></Prescription>}
-            {state.type === 'requested-analysis' && <RequestedAnalysis data={state}></RequestedAnalysis>}
+            {state.type === 'write_certif' && <Certificat data={state}/>}
+            {state.type === 'prescription' && <Prescription data={state}/>}
+            {state.type === 'requested-analysis' && <RequestedAnalysis data={state}/>}
             {state.type === 'requested-medical-imaging' &&
-                <RequestedMedicalImaging data={state}></RequestedMedicalImaging>}
+                <RequestedMedicalImaging data={state}/>}
 
             {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container spacing={5}>
@@ -388,6 +413,25 @@ function DocumentDetailDialog({...props}) {
                     </List>
                 </Grid>
             </Grid>
+
+            <Dialog
+                open={openAlert}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description">
+                <DialogContent>
+                    <Typography variant={"h6"} mb={2}>{t('alertTitle')}</Typography>
+                    <DialogContentText id="alert-dialog-description">
+                        {t('alertDesc')}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>{t('notNow')}</Button>
+                    <Button onClick={handleYes} autoFocus>
+                        {t('now')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </DocumentDetailDialogStyled>
     )
 }

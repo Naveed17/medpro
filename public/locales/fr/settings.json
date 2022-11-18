@@ -15,6 +15,7 @@
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
+    "configdoc": "Configuration document",
     "app_lock": "Verrouillage"
   },
   "profil": {
@@ -132,6 +133,7 @@
         "update": "Editer",
         "name": "Nom du lieu de consultation",
         "actif": "est actif",
+        "default": "par defaut",
         "sharedCalander": "agenda partagé",
         "action": "action"
       }
@@ -435,11 +437,13 @@
       "path": "Paramètres > Configuration ",
       "name": "Dr ...",
       "header": "En-tête",
-      "speciality": "dermatologue",
-      "diplome": "Faculté de Médecine...",
+      "speciality": "spécialité",
+      "diplome": "diplôme",
       "tel": "Tél : +216 00 000 000",
-      "fax": "Fax : +216 00 000 000",
-      "email": "doctor@email.com"
+      "fax": "Fix : +216 00 000 000",
+      "email": "doctor@email.com",
+      "save": "Enregistrer",
+      "preview": "Aperçu"
     }
   }
 }
