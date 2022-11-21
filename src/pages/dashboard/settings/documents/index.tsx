@@ -16,6 +16,7 @@ import {Header} from "@features/files";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
+import {useSnackbar} from "notistack";
 
 
 function ConsultationType() {
@@ -29,6 +30,7 @@ function ConsultationType() {
     const [numPages, setNumPages] = useState<number | null>(null);
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const {trigger} = useRequestMutation(null, "/MP/header");
+    const {enqueueSnackbar} = useSnackbar();
 
 
     const formik = useFormik({
@@ -346,6 +348,8 @@ function ConsultationType() {
                                                 Authorization: `Bearer ${session?.accessToken}`
                                             }
                                         }, TriggerWithoutValidation)
+                                        enqueueSnackbar(t("updated"), {variant: 'success'})
+
                                     }}
                                     sx={{ml: "auto"}}>
                                     {t("save")}
