@@ -116,7 +116,7 @@ function NotificationPopover({...props}) {
                                 data={[
                                     ...pendingAppointments.map(appointment => ({
                                         ...appointment,
-                                        duration: getDuration("14-11-2022 13:46"),
+                                        duration: appointment.createdAt && getDuration(appointment.createdAt),
                                         title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
                                         icon: <EventIcon/>,
                                         buttons: [
@@ -140,10 +140,13 @@ function NotificationPopover({...props}) {
                                 data={[
                                     ...pendingAppointments.map(appointment => ({
                                         ...appointment,
-                                        duration: getDuration("14-11-2022 13:46"),
+                                        duration: appointment.createdAt && getDuration(appointment.createdAt),
                                         title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
                                         icon: <EventIcon/>,
-                                        action: "onConfirm"
+                                        buttons: [
+                                            {text: "Confirmer", color: "success", action: "onConfirm"},
+                                            {text: "Gérer", color: "white", action: "onEdit"}
+                                        ]
                                     }))
                                 ]}/>
                         </TabPanel>

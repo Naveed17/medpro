@@ -195,14 +195,14 @@ function AppointmentDetail({...props}) {
                         }
                     />
 
-                    <Stack direction="row" spacing={2} alignItems='center' mt={2}>
+                    {process.env.NODE_ENV === 'development' && <Stack direction="row" spacing={2} alignItems='center' mt={2}>
                         <Button onClick={handleQr} variant='contained' fullWidth>
                             Qr-Code
                         </Button>
                         <Button variant='contained' fullWidth>
                             {t('send_link')}
                         </Button>
-                    </Stack>
+                    </Stack>}
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('patient')}
                     </Typography>
