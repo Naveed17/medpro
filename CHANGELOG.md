@@ -1,3 +1,11 @@
+## [4.3.1](https://github.com/SmartMedSA/med-pro/compare/v4.3.0...v4.3.1) (2022-11-21)
+
+
+### Bug Fixes
+
+* patient select gender bug ([8b3881e](https://github.com/SmartMedSA/med-pro/commit/8b3881e712284adda7cd776175d3e476fdbdcd06))
+* patient without city bug ([4c8c7cd](https://github.com/SmartMedSA/med-pro/commit/4c8c7cd7169c16e1553e03c6a4e97b0a553ce60c))
+
 # [4.3.0](https://github.com/SmartMedSA/med-pro/compare/v4.2.0...v4.3.0) (2022-11-21)
 
 
