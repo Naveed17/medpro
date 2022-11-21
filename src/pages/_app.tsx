@@ -21,7 +21,6 @@ import moment from "moment-timezone";
 import Head from "next/head";
 import {FcmLayout} from "@features/base";
 
-
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
 }
