@@ -11,7 +11,7 @@ import {useEffect, useState} from 'react'
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
-    const {row, isItemSelected, handleClick, t, labelId, loading, editMotif} = props;
+    const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
     const [selected, setSelected] = useState<any>([])
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
@@ -24,6 +24,7 @@ function PaymentRow({...props}) {
                 selected.slice(selectedIndex + 1)
             );
         }
+        console.log(newSelected)
         setSelected(newSelected);
     };
     useEffect(() => {
@@ -39,7 +40,7 @@ function PaymentRow({...props}) {
         <>
             <TableRowStyled
                 hover
-                onClick={() => !loading && handleClick(row.uuid as string)}
+                 onClick={() => !loading && handleClick(row.uuid as string)}
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
@@ -67,6 +68,10 @@ function PaymentRow({...props}) {
                             checked={isItemSelected}
                             inputProps={{
                                 "aria-labelledby": labelId,
+                            }}
+                            onChange={(ev) => {
+                                handleClick(row.uuid as string)
+                                handleChange('checkTransaction', row, ev.target.checked)
                             }}
                         />
                     )}
@@ -119,7 +124,7 @@ function PaymentRow({...props}) {
 
                     )}
                 </TableCell>
-                <TableCell >
+                <TableCell>
                     {loading ? (
 
                         <Skeleton width={80}/>
@@ -177,7 +182,7 @@ function PaymentRow({...props}) {
 
                     )}
                 </TableCell>
-{/*
+                {/*
                 <TableCell align="center">
                     {loading ? (
                         <Skeleton width={40} height={40}/>
@@ -238,8 +243,7 @@ function PaymentRow({...props}) {
                                                          className="collapse-row"
                                                          sx={{
                                                              bgcolor: (theme: Theme) => theme.palette.background.paper
-                                                         }}
-                                        >
+                                                         }}>
                                             <TableCell style={{backgroundColor: 'transparent', border: 'none'}}
                                                        padding="checkbox">
                                                 {loading ? (

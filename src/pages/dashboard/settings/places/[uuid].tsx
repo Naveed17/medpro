@@ -231,7 +231,7 @@ function PlacesDetail() {
             ).then((r: any) => {
                 if (r.status === 200 || r.status === 201) {
                     mutate();
-                    agendaConfig?.mutate();
+                    agendaConfig?.mutate[0]();
                     router.back();
                     setLoading(false);
                 }

@@ -45,7 +45,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                         <KeycloakSession session={pageProps.session}>
                             <SwrProvider fallback={pageProps.fallback}>
                                 <Head>
-                                    <title>Med Pro</title>
+                                    <title>Med Link</title>
                                     <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
                                 </Head>
                                 <AnimatePresence
@@ -72,6 +72,6 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     );
 }
 
-MyApp.displayName = "Med Pro";
+MyApp.displayName = "Med Link";
 
 export default appWithTranslation(MyApp);

@@ -90,8 +90,8 @@ function Agenda() {
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer, currentStepper,
-        selectedEvent,
+        openViewDrawer, currentStepper, config,
+        selectedEvent, actionSet,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -105,7 +105,8 @@ function Agenda() {
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
-        end: moment().endOf('week').format('DD-MM-YYYY')});
+        end: moment().endOf('week').format('DD-MM-YYYY')
+    });
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
@@ -277,10 +278,19 @@ function Agenda() {
 
     useEffect(() => {
         if (lastUpdateNotification) {
-            console.log(lastUpdateNotification);
             refreshData();
         }
     }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (actionSet) {
+            switch (actionSet.action) {
+                case "onConfirm":
+                    onConfirmAppointment(actionSet.event, true);
+                    break;
+            }
+        }
+    }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (calendarEl && currentDate) {
@@ -506,12 +516,15 @@ function Agenda() {
         })
     }
 
-    const onConfirmAppointment = (event: EventDef) => {
+    const onConfirmAppointment = (event: EventDef, refreshBackground?: boolean) => {
         setLoading(true);
         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "1").then(() => {
             setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+            if (refreshBackground) {
+                config?.mutate[1]();
+            }
         });
     }
 

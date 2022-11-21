@@ -1,7 +1,7 @@
 import React from "react";
 import Switch from "@mui/material/Switch";
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Skeleton, Stack, IconButton} from "@mui/material";
+import {Box, IconButton, Skeleton, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
@@ -33,6 +33,20 @@ function LieuxRow({...props}) {
                 )}
             </TableCell>
 
+            {/*
+            <TableCell align="center">
+                {row ? (
+                    <Switch
+                        name="default"
+                        onChange={(e) => handleChange(row, "default", "")}
+                        checked={row.isDefault}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
+            </TableCell>
+*/}
+
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
@@ -41,11 +55,11 @@ function LieuxRow({...props}) {
                         }}>
                             <IconUrl path="setting/edit"/>
                         </IconButton>
-                        <IconButton onClick={() => {
+                        {/*<IconButton disabled={!row.isDefault} onClick={() => {
                             handleChange(row, 'remove')
                         }} size="small" sx={{mr: {md: 1}}}>
                             <IconUrl path="setting/icdelete"/>
-                        </IconButton>
+                        </IconButton>*/}
                     </Box>
                 ) : (
                     <Stack

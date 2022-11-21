@@ -38,6 +38,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "configdoc",
+            icon: "setting/ic-edit-file",
+            href: "/dashboard/settings/documents",
+            disable: false
+        },
+        {
             name: "type",
             icon: "setting/ic-doc",
             href: "/dashboard/settings/consultation-type",
@@ -71,7 +77,7 @@ const settingsData = {
             name: "utilisateurs",
             icon: "setting/ic-user",
             href: "/dashboard/settings/users",
-            disable: false
+            disable: true
         },
         /*
          {

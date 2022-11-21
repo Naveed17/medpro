@@ -7,7 +7,7 @@ import {Box, Typography} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer, setAction, setSelectedEvent} from "@features/calendar";
 import {BasicList} from "@features/list";
 import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
@@ -51,25 +51,27 @@ function NotificationPopover({...props}) {
     }
 
     const handleNotificationAction = (action: string, event: any) => {
-        console.log(action, event);
+        const eventUpdated = {
+            publicId: event?.uuid,
+            title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
+            extendedProps: {
+                patient: event?.patient,
+                type: event?.type,
+                status: AppointmentStatus[event?.status],
+                time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+            }
+        } as any;
         switch (action) {
             case "onEdit":
                 onClose();
-                const eventUpdated = {
-                    publicId: event?.uuid,
-                    title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
-                    extendedProps: {
-                        patient: event?.patient,
-                        type: event?.type,
-                        status: AppointmentStatus[event?.status],
-                        time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
-                    }
-                } as any;
-                console.log(eventUpdated);
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setSelectedEvent(eventUpdated));
                     dispatch(openDrawer({type: "view", open: true}));
                 });
+                break;
+            case "onConfirm":
+                onClose();
+                dispatch(setAction({action: "onConfirm", event: eventUpdated}));
                 break;
         }
     }
@@ -114,7 +116,7 @@ function NotificationPopover({...props}) {
                                 data={[
                                     ...pendingAppointments.map(appointment => ({
                                         ...appointment,
-                                        duration: getDuration("14-11-2022 13:46"),
+                                        duration: appointment.createdAt && getDuration(appointment.createdAt),
                                         title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
                                         icon: <EventIcon/>,
                                         buttons: [
@@ -138,10 +140,13 @@ function NotificationPopover({...props}) {
                                 data={[
                                     ...pendingAppointments.map(appointment => ({
                                         ...appointment,
-                                        duration: getDuration("14-11-2022 13:46"),
+                                        duration: appointment.createdAt && getDuration(appointment.createdAt),
                                         title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
                                         icon: <EventIcon/>,
-                                        action: "onConfirm"
+                                        buttons: [
+                                            {text: "Confirmer", color: "success", action: "onConfirm"},
+                                            {text: "Gérer", color: "white", action: "onEdit"}
+                                        ]
                                     }))
                                 ]}/>
                         </TabPanel>
