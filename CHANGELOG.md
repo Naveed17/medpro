@@ -1,3 +1,11 @@
+## [4.3.2](https://github.com/SmartMedSA/med-pro/compare/v4.3.1...v4.3.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* update error preview ([b0c0f86](https://github.com/SmartMedSA/med-pro/commit/b0c0f865238b4365e99984ba6fd5189f904d49c4))
+* update error preview agenda ([8cb3bfb](https://github.com/SmartMedSA/med-pro/commit/8cb3bfba2015a2672dd8c57e76fc7757dea95890))
+
 ## [4.3.1](https://github.com/SmartMedSA/med-pro/compare/v4.3.0...v4.3.1) (2022-11-21)
 
 
