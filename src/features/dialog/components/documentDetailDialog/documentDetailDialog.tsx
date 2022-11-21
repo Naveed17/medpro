@@ -34,6 +34,7 @@ import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
 import printJS from 'print-js'
 import Dialog from "@mui/material/Dialog";
+import {LoadingScreen} from "@features/loadingScreen";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -326,7 +327,7 @@ function DocumentDetailDialog({...props}) {
 
     }
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <DocumentDetailDialogStyled>

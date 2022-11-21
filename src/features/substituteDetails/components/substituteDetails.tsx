@@ -7,6 +7,7 @@ import { useTranslation } from "next-i18next";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import { TimePicker as MuiTimePicker } from "@mui/lab";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const PaperStyled = styled(Form)(({ theme }) => ({
 
@@ -67,7 +68,7 @@ function SubstituteDetails({ ...props }) {
       alert(JSON.stringify(values, null, 2));
     },
   });
-  if (!ready) return (<>loading translations...</>);
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const types = [
     { id: 1, text: t('motif.dialog.enligne'), name: 'teleconsult' },

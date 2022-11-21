@@ -31,6 +31,7 @@ import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -138,7 +139,7 @@ const Content = ({...props}) => {
         handleClickDialog();
     };
 
-    if (!ready || status === "loading") return <>loading translations...</>;
+    if (!ready || status === "loading") return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;

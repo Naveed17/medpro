@@ -13,6 +13,7 @@ import {
 //utils
 import Icon from "@themes/urlIcon";
 import { RootStyled } from "@features/duplicateDetected";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function DuplicateDetected({ ...props }) {
   const { data: modalData } = props;
@@ -26,7 +27,7 @@ function DuplicateDetected({ ...props }) {
     setFields(checked ? [...fields, name] : fields.filter((el) => el !== name));
   };
   const { t, ready } = useTranslation("patient");
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   return (
     <RootStyled>
       <Box className="modal-body">

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { useTranslation } from "next-i18next";
 import Acte from "@interfaces/Acte";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const actes: Acte[] = [
     { id: 1, title: "Electrothérapie" },
@@ -81,7 +82,7 @@ function Actes() {
     };
 
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-2" });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

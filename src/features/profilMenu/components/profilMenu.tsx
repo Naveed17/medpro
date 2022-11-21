@@ -54,7 +54,7 @@ function ProfilMenu() {
 
     const {trigger} = useRequestMutation(null, "/settings");
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));

@@ -16,6 +16,7 @@ import rows from '@features/card/components/detailsCard/config'
 import Icon from "@themes/urlIcon";
 import { Theme, } from '@mui/material/styles';
 import { upperFirst } from "lodash";
+import {LoadingScreen} from "@features/loadingScreen";
 const data = [
   {
     id: 0,
@@ -47,7 +48,7 @@ function Consultation() {
   const [drawer, setDrawer] = useState(false);
   const [collapse, setCollapse] = useState(false);
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   return (
     <>
       <SubHeader>

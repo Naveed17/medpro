@@ -24,6 +24,7 @@ import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
@@ -50,7 +51,7 @@ function Consultation() {
     }, [dispatch, patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <ConsultationStyled>
             <Box className="header">

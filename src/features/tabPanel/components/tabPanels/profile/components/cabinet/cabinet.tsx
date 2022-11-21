@@ -19,6 +19,7 @@ import { Schedules } from "@features/schedules";
 import { useTranslation } from "next-i18next";
 import moment from "moment-timezone";
 import { Theme } from "@mui/material/styles";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Cabinet() {
 
@@ -61,7 +62,7 @@ function Cabinet() {
     ])
 
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-3" });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box>

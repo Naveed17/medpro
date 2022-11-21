@@ -27,6 +27,7 @@ import { useSnackbar } from "notistack";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {useIsMountedRef} from "@app/hooks";
 import {appLockSelector} from "@features/appLock";
+import {LoadingScreen} from "@features/loadingScreen";
 
 export const headCells = [
     {
@@ -237,7 +238,7 @@ function WaitingRoom() {
         }
     }, [roles]);
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

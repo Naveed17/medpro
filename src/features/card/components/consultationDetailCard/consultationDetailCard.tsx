@@ -9,6 +9,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {pxToRem} from "@themes/formatFontSize";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges} = props
@@ -43,7 +44,7 @@ function CIPPatientHistoryCard({...props}) {
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <ConsultationDetailCardStyled>
             <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center" borderBottom={1}

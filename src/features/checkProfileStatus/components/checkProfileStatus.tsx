@@ -11,12 +11,13 @@ import IconUrl from "@themes/urlIcon";
 import { useTranslation } from "next-i18next";
 import React from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CheckProfileStatus({ ...props }) {
     const theme = useTheme();
     const { doctor } = props;
     const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers.check-status' });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box p={2} sx={{ textAlign: "center", pt: 4 }}>

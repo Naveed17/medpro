@@ -20,6 +20,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
+import {LoadingScreen} from "@features/loadingScreen";
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
@@ -45,7 +46,7 @@ function BalanceSheetPendingDialog({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <BalanceSheetPendingStyled>
             {/*<Grid container spacing={5}>

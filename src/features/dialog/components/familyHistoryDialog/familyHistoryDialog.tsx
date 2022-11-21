@@ -17,6 +17,7 @@ import {useRouter} from "next/router";
 import {useRequest, useRequestMutation} from "@app/axios";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function FamilyHistoryDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -74,7 +75,7 @@ function FamilyHistoryDialog({...props}) {
         setValue(e.target.value);
     };
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">

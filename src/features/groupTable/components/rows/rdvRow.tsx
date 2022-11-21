@@ -12,6 +12,7 @@ import {RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/card";
 // utils
 import {useTranslation} from "next-i18next";
 import _ from "lodash";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RDVRow({...props}) {
     const {data: patient, loading} = props;
@@ -38,7 +39,7 @@ function RDVRow({...props}) {
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <React.Fragment>

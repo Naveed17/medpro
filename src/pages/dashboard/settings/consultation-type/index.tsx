@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
 import { MotifTypeCard } from "@features/card";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function ConsultationType() {
   const { data: session } = useSession();
@@ -58,7 +59,7 @@ function ConsultationType() {
     keyPrefix: "motifType.config",
   });
 
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const headCells = [
     {

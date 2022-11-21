@@ -43,6 +43,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import {LoadingButton} from "@mui/lab";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AppointmentDetail({...props}) {
     const {
@@ -127,7 +128,7 @@ function AppointmentDetail({...props}) {
         setOpenDialog(false);
     };
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <RootStyled>

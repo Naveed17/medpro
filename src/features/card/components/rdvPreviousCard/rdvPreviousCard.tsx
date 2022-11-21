@@ -8,6 +8,7 @@ import { useAppDispatch } from "@app/redux/hooks";
 import moment from "moment/moment";
 // style
 import RootStyled from "./overrides/rootStyled";
+import {LoadingScreen} from "@features/loadingScreen";
 function RdvCard({ ...props }) {
   const { inner, patient, loading } = props;
   const dispatch = useAppDispatch();
@@ -38,7 +39,7 @@ function RdvCard({ ...props }) {
     dispatch(setSelectedEvent(event));
     dispatch(openDrawer({ type: "view", open: true }));
   }
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   return (
     <RootStyled>
       <TableCell

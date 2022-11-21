@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import PrintIcon from '@mui/icons-material/Print';
 import jsPDF from "jspdf";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -53,7 +54,7 @@ function ReportDialog({...props}) {
         doc.save();
     }
     const {t, ready} = useTranslation("consultation");
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <div>

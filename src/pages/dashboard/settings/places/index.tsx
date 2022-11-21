@@ -17,6 +17,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -185,7 +186,7 @@ function Lieux() {
         keyPrefix: "lieux.config",
     });
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

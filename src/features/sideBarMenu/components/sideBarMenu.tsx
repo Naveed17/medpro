@@ -37,6 +37,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -79,7 +80,7 @@ function SideBarMenu({children}: LayoutProps) {
 
 
     const {t, ready} = useTranslation("menu");
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
 
     const handleSettingRoute = () => {

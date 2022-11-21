@@ -1,6 +1,7 @@
 import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
 import {Box, TextField, Typography} from "@mui/material";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CertifDialog({...props}) {
 
@@ -13,7 +14,7 @@ function CertifDialog({...props}) {
         data.setState(data.state)
     }, [data])
     const {t, ready} = useTranslation("settings");
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box>

@@ -28,6 +28,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {addUser, tableActionSelector} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function NewUser() {
     const router = useRouter();
@@ -80,7 +81,7 @@ function NewUser() {
         setFieldValue,
     } = formik;
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

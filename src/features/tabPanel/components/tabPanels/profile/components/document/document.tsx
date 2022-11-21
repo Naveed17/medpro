@@ -3,13 +3,14 @@ import { Box, Typography, Button, Fab, LinearProgress } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { InputStyled } from "@features/tabPanel";
 import { useTranslation } from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
     const [file, setfile] = useState<File>();
     const [progress, setprogress] = useState(0);
 
     const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-1" });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box>

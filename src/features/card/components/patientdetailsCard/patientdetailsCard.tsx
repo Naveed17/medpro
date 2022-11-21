@@ -23,6 +23,7 @@ import {timerSelector} from "@features/card";
 import {QrCodeScanner} from "@features/qrCodeScanner";
 import {useFormik, Form, FormikProvider} from "formik";
 import MaskedInput from "react-text-mask";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
@@ -43,7 +44,7 @@ function PatientDetailsCard({...props}) {
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

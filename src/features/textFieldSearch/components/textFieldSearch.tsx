@@ -5,10 +5,11 @@ import { styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import {useTranslation} from "next-i18next";
 import {SearchField} from "@features/textFieldSearch";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function TextFieldSearch(props : any) {
     const { t, ready } = useTranslation('common');
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

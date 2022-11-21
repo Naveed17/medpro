@@ -18,6 +18,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function LifeStyleDialog({...props}) {
     const codes: any = {
@@ -84,7 +85,7 @@ function LifeStyleDialog({...props}) {
             ]);
         }
     };
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <LifeStyleDialogStyled display='block'>
 

@@ -24,6 +24,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -190,7 +191,7 @@ function OnStepPatient({...props}) {
         }
     }, [errors, touched]);
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

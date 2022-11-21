@@ -2,6 +2,7 @@ import React from 'react'
 import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface Props {
     data: any;
@@ -23,7 +24,7 @@ export default function SidebarCheckbox({...props}) {
         setChecked(event.target.checked);
         onChange(event.target.checked)
     };
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}

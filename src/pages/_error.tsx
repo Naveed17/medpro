@@ -6,7 +6,7 @@ interface Props {
 }
 
 const Error: NextPage<Props> = ({statusCode}) => {
-    return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-404"}/>);
+    return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 }
 
 Error.getInitialProps = ({res, err}: NextPageContext) => {

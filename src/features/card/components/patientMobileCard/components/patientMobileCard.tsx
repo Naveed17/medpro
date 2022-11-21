@@ -33,6 +33,7 @@ import {Accordion} from "@features/accordion/components";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const menuList = [
     {
@@ -196,7 +197,7 @@ function PatientMobileCard({...props}) {
     const {collapse} = RightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "filter"});
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const data = collapse.map((item) => {
         return {

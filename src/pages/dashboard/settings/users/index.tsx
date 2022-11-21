@@ -14,6 +14,7 @@ import {NoDataCard} from "@features/card";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -110,7 +111,7 @@ function Users() {
         keyPrefix: "users.config",
     });
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

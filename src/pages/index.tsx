@@ -10,6 +10,7 @@ import {useRouter} from "next/router";
 import {useAppDispatch} from "@app/redux/hooks";
 import {signIn, useSession} from "next-auth/react";
 import {useEffect} from "react";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Home() {
     const router = useRouter();
@@ -38,7 +39,7 @@ function Home() {
         dispatch(setTheme(mode));
     }
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <div className={styles.container} dir={dir}>

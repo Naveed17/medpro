@@ -18,6 +18,7 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Settings() {
     const {data: session} = useSession();
@@ -26,7 +27,7 @@ function Settings() {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
 
     const {t, ready} = useTranslation("settings");
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <SettingBarStyled>

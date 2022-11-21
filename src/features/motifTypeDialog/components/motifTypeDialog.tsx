@@ -23,6 +23,7 @@ import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { IconsTypes } from "@features/calendar";
 import { ModelDot } from "@features/modelDot";
+import {LoadingScreen} from "@features/loadingScreen";
 const icons = [
   "ic-consultation",
   "ic-teleconsultation",
@@ -159,7 +160,7 @@ function EditMotifDialog({ ...props }) {
     },
   });
 
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   const {
     values,
     errors,
