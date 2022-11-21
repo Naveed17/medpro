@@ -1,11 +1,12 @@
 import { SuccessCard } from "@features/card";
 import { useTranslation } from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 function AddRDVStep3() {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "add-appointment",
   });
 
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   return (
     <SuccessCard
       data={{

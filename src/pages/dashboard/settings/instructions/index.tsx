@@ -11,6 +11,7 @@ import { useAppSelector } from "@app/redux/hooks";
 import { InsctructionDetails } from "@features/instructionDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Instructions() {
 
@@ -56,7 +57,7 @@ function Instructions() {
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "instructions.config",
   });
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const closeDraw = () => {
     setEdit(false);

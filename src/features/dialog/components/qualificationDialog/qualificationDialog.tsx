@@ -11,6 +11,7 @@ import {
 import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {SetQualifications} from "@features/checkList";
 import {useAppDispatch} from "@app/redux/hooks";
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function QualificationDialog(info: any) {
@@ -32,7 +33,7 @@ function QualificationDialog(info: any) {
     }, [dispatch, items])
 
     const {t, ready} = useTranslation('settings');
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const handleRemove = (file: any) => {
         setFile(files.filter((_file) => _file !== file));

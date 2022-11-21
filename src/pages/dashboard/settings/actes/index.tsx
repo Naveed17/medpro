@@ -14,6 +14,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Actes() {
 
@@ -165,7 +166,7 @@ function Actes() {
     };
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

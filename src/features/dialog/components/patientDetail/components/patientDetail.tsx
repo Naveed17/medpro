@@ -26,6 +26,7 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function a11yProps(index: number) {
     return {
@@ -123,7 +124,7 @@ function PatientDetail({...props}) {
     const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient ? patient.documents : [];
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

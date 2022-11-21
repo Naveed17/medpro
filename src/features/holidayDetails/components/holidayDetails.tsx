@@ -17,6 +17,7 @@ import { Otable } from "@features/table";
 import { TimePicker as MuiTimePicker } from "@mui/lab";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const ContentStyled = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -117,7 +118,7 @@ function HolidayDetails({ ...props }) {
     },
   });
 
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const {
     values,

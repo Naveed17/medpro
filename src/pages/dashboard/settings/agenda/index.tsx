@@ -18,6 +18,7 @@ import { Theme } from "@mui/material/styles";
 import { MobileContainer } from "@themes/mobileContainer";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { SettingAgendaMobileCard, NoDataCard } from "@features/card";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Agenda() {
   const CardData = {
@@ -65,7 +66,7 @@ function Agenda() {
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "agenda.config",
   });
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const headCells = [
     {

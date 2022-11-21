@@ -7,6 +7,7 @@ import {Theme} from "@mui/material/styles";
 import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
 import {Redirect} from "@features/redirect";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Settings() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
@@ -14,7 +15,7 @@ function Settings() {
     if (!isMobile) {
         return <Redirect to='/dashboard/settings/profil'/>
     }
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box className="container">

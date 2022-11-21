@@ -23,6 +23,7 @@ import { Questions as QuestionFilter } from '@features/leftActionBar'
 import { useAppSelector } from "@app/redux/hooks";
 import { qsSidebarSelector } from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
+import {LoadingScreen} from "@features/loadingScreen";
 function Questions() {
     const { qs } = useAppSelector(qsSidebarSelector);
     const { t, ready } = useTranslation('questions');
@@ -39,7 +40,7 @@ function Questions() {
             setOffsetTop(0);
         }
     }, []);
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

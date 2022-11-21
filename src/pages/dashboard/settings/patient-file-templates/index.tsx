@@ -15,6 +15,7 @@ import { useRequest, useRequestMutation } from "@app/axios";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import AddIcon from '@mui/icons-material/Add';
+import {LoadingScreen} from "@features/loadingScreen";
 
 function PatientFileTemplates() {
 
@@ -104,7 +105,7 @@ function PatientFileTemplates() {
     const { t, ready } = useTranslation('settings', {
         keyPrefix: "templates.config",
     });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

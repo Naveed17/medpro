@@ -4,6 +4,7 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
 import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
+import {LoadingScreen} from "@features/loadingScreen";
 export default function ConsultationProgressCard({ ...props }) {
     const { index, data, open, onClickAction, translate } = props
     const { color, icon, id } = data;
@@ -20,7 +21,7 @@ export default function ConsultationProgressCard({ ...props }) {
             setOffsetTop(0);
         }
     }, []);
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
 
 

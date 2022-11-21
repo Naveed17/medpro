@@ -7,6 +7,7 @@ import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
 import SalleIcon from "@themes/overrides/icons/salleIcon";
 import {useSnackbar} from "notistack";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RoomToolbar({...props}) {
     const {board, data, handleCollapse, openCalendar} = props;
@@ -16,7 +17,7 @@ function RoomToolbar({...props}) {
     const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'subheader'});
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Stack direction='row' justifyContent="space-between" width={1} alignItems="center">

@@ -18,6 +18,7 @@ import {
 } from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {setView} from "@features/calendar";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function WaitingRoom() {
     const {data: session} = useSession();
@@ -46,7 +47,7 @@ function WaitingRoom() {
         })
     });
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <WaitingRoomStyled>

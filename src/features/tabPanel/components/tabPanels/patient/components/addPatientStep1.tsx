@@ -21,6 +21,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -94,7 +95,7 @@ function AddPatientStep1({...props}) {
         },
     });
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const handleChange = (event: ChangeEvent | null, values: object) => {
         onNext(1);
         dispatch(onAddPatient({...stepsData, step1: values}));

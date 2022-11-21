@@ -4,6 +4,7 @@ import TimePicker from "@themes/overrides/TimePicker";
 import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
 import { Theme } from '@mui/material/styles';
+import {LoadingScreen} from "@features/loadingScreen";
 
 type SchedulesProps = {
     initData: Schedule[]
@@ -13,7 +14,7 @@ function Schedules({ initData }: SchedulesProps) {
     const [schedule, setSchedule] = useState(initData);
 
     const { t, ready } = useTranslation('common', { keyPrefix: "schedule" });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

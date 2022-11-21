@@ -23,6 +23,7 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import {LoadingScreen} from "@features/loadingScreen";
 function SortIcon({ ...props }) {
   return (
     <SvgIcon
@@ -85,7 +86,7 @@ function AddRDVStep2({ ...props }) {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "add-appointment",
   });
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   return (
     <div>

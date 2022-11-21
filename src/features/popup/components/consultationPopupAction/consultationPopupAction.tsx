@@ -15,13 +15,14 @@ import IconUrl from "@themes/urlIcon";
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 import * as React from "react";
 import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function ConsultationPopupAction({...props}) {
     const {data, OnSchedule} = props
 
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <ConsultationPopupActionStyled>

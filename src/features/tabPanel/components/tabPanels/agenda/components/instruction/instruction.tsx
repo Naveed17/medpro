@@ -32,6 +32,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard} from "@features/card";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Instruction({...props}) {
     const {onNext, onBack, OnAction} = props;
@@ -174,7 +175,7 @@ function Instruction({...props}) {
         OnAction(action, defEvent);
     }
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <div>

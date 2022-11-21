@@ -7,6 +7,7 @@ import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function MedicalImagingDialog({...props}) {
     const {data} = props;
@@ -52,7 +53,7 @@ function MedicalImagingDialog({...props}) {
         });
 
     };
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <BalanceSheetPendingStyled>
             <Typography gutterBottom>{t('medical_imagery_list')}</Typography>

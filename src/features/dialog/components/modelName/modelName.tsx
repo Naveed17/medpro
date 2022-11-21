@@ -1,21 +1,14 @@
-
-import {useFormik} from "formik";
 import {useTranslation} from 'next-i18next'
-import React, {useEffect, useState} from 'react';
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@app/axios";
+import React from 'react';
 import {TextField, Typography} from "@mui/material";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function ModelDialog({...props}) {
     const {data} = props;
     console.log(data)
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const router = useRouter();
-    const {data: session} = useSession();
-
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <>
             <Typography>{t('namedModel')}</Typography>
@@ -23,9 +16,11 @@ function ModelDialog({...props}) {
                 fullWidth
                 id={"model-name"}
                 size="small"
-                onChange={(ev)=>{data.setModel(ev.target.value);}}
+                onChange={(ev) => {
+                    data.setModel(ev.target.value);
+                }}
                 value={data.model}
-                sx={{marginTop: 2,marginBottom:5}}/>
+                sx={{marginTop: 2, marginBottom: 5}}/>
         </>
     )
 }

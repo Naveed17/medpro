@@ -21,6 +21,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 const FormBuilder: any = dynamic(() => import("@formio/react").then((mod: any) => mod.Form
@@ -225,7 +226,7 @@ function PfTemplateDetail({...props}) {
         }
     }
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box style={{background: "black"}}>

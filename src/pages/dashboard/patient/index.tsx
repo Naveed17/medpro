@@ -40,6 +40,7 @@ import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const stepperData = [
     {
@@ -200,7 +201,7 @@ function Patient() {
         }
     }
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

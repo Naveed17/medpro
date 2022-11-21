@@ -17,6 +17,7 @@ import { StaticDatePicker } from "@features/staticDatePicker";
 import { TimeSlot } from "@features/timeSlot";
 import { RadioTextImage } from "@features/radioTextImage";
 import { PatientCardMobile } from "@features/card/components/patientCardMobile";
+import {LoadingScreen} from "@features/loadingScreen";
 
 // select data
 const listData = [
@@ -53,7 +54,7 @@ function AddRDVStep1({ ...props }) {
   const { t, ready } = useTranslation("patient", {
     keyPrefix: "add-appointment",
   });
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   return (
     <div>

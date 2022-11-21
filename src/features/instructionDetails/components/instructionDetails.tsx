@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import React from "react";
 import { useTranslation } from "next-i18next";
 import { width } from "@mui/system";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const PaperStyled = styled(Form)(({ theme }) => ({
 
@@ -58,7 +59,7 @@ function InstructionDetails({ ...props }) {
             alert(JSON.stringify(values, null, 2));
         },
     });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
 

@@ -1,10 +1,11 @@
 import styles from '@styles/Home.module.scss'
 import {useTranslation} from "next-i18next";
 import Image from 'next/image'
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Footer() {
     const { t, ready } = useTranslation('common');
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   return (
       <footer className={styles.footer}>

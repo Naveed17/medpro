@@ -5,6 +5,7 @@ import { useTranslation } from 'next-i18next'
 import { DrugListCard, drugListCardData } from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React from 'react';
+import {LoadingScreen} from "@features/loadingScreen";
 function AddTreatmentDialog() {
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
     const formik = useFormik({
@@ -19,7 +20,7 @@ function AddTreatmentDialog() {
         },
     });
     const { values, getFieldProps, handleSubmit } = formik;
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <AddTreatmentDialogStyled>
             <Grid container spacing={5}>

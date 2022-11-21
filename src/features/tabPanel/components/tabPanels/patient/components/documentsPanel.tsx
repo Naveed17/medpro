@@ -17,6 +17,7 @@ import {Otable} from "@features/table";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const typeofDocs = [
     "medical-imaging",
@@ -123,7 +124,7 @@ function DocumentsPanel({...props}) {
         keyPrefix: "config",
     });
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

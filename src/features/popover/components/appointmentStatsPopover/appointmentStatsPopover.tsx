@@ -2,11 +2,12 @@ import {Box, List, ListItem, ListSubheader, Typography, useTheme} from "@mui/mat
 import {AppointmentStatus} from "@features/calendar";
 import React from "react";
 import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AppointmentStatsPopover() {
     const theme = useTheme();
     const {t, ready} = useTranslation('common', {keyPrefix: "popover-info"});
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <List

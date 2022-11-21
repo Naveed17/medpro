@@ -19,6 +19,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
@@ -113,7 +114,7 @@ function MedicalImageryDialog({...props}) {
 
     const {handleSubmit} = formik;
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <BalanceSheetDialogStyled>

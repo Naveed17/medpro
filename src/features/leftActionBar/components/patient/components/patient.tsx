@@ -12,6 +12,7 @@ import {
 import {ActionBarState, setFilter} from "@features/leftActionBar";
 import React from "react";
 import {useAppDispatch} from "@app/redux/hooks";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Patient() {
     const {collapse} = rightActionData.filter;
@@ -72,7 +73,7 @@ function Patient() {
             ),
         };
     });
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <div>

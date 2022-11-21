@@ -21,6 +21,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, AppointmentStatus, DayOfWeek, setAppointmentTypes, setView} from "@features/calendar";
 import moment from "moment-timezone";
 import {Checkbox, Typography} from "@mui/material";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -68,7 +69,7 @@ function Agenda() {
         });
     });
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <BoxStyled>
