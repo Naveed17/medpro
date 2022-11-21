@@ -90,7 +90,7 @@ function PersonalInfo({...props}) {
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
-                    ? patient.address[0].city.name + ", " + patient.address[0].street
+                    ? patient.address[0].city?.name + ", " + patient.address[0].street
                     : "",
             telephone:
                 !loading && patient.contact.length > 0
