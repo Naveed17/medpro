@@ -131,7 +131,7 @@ function PersonalInfo({...props}) {
         const params = new FormData();
         params.append('first_name', values.name.split(' ').slice(0, -1).join(' '));
         params.append('last_name', values.name.split(' ').slice(-1).join(' '));
-        params.append('gender', patient.gender === 'M' ? '1' : '2');
+        params.append('gender', values.gender);
         params.append('phone', JSON.stringify({
             code: patient.contact[0].code,
             value: values.telephone,
