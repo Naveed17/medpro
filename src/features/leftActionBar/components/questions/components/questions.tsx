@@ -8,6 +8,7 @@ import { useAppDispatch } from "@app/redux/hooks";
 import { setQs } from "@features/leftActionBar";
 import { upperFirst } from 'lodash';
 import data from './config';
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Questions() {
     const [value, setValue] = useState('1');
@@ -23,7 +24,7 @@ function Questions() {
 
 
     const { t, ready } = useTranslation('questions');
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <QuestionStyled>
             <TabContext value={value}>

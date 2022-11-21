@@ -5,6 +5,7 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from "@themes/urlIcon";
 import RootStyled from "./overrides/accordionStyled";
 import {upperFirst} from "lodash";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface statetype {
     expanded: boolean | any;
@@ -31,7 +32,7 @@ function Accordion({...props}) {
         },
         [state]
     );
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         data.map((item: any, index: number) => (

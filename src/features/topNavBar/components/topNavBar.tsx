@@ -42,6 +42,7 @@ import {appLockSelector, setLock} from "@features/appLock";
 import {useSnackbar} from "notistack";
 import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -117,7 +118,7 @@ function TopNavBar({...props}) {
         dispatch(toggleSideBar(true));
     }
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

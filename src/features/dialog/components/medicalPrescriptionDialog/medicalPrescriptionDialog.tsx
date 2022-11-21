@@ -38,6 +38,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
 import {useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -276,7 +277,7 @@ function MedicalPrescriptionDialog({...props}) {
         } else setDrug({uuid: '', commercial_name: value, isVerified: false});
     }
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <MedicalPrescriptionDialogStyled>
             <Grid container spacing={5}>

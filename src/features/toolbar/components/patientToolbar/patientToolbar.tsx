@@ -2,6 +2,7 @@ import {useTranslation} from "next-i18next";
 import {Typography, Button, Stack} from "@mui/material";
 import {useCallback} from "react";
 import AddIcon from '@mui/icons-material/Add';
+import {LoadingScreen} from "@features/loadingScreen";
 
 function PatientToolbar({...props}) {
     const {onAddPatient} = props;
@@ -11,7 +12,7 @@ function PatientToolbar({...props}) {
         onAddPatient()
     }, [onAddPatient]);
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <>
             <Stack

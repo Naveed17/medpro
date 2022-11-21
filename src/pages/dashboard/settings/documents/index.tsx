@@ -17,6 +17,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function ConsultationType() {
@@ -252,7 +253,7 @@ function ConsultationType() {
         keyPrefix: "documents.config",
     });
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

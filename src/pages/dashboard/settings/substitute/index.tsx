@@ -10,6 +10,7 @@ import { Otable } from "@features/table";
 import { useAppSelector } from "@app/redux/hooks";
 import { configSelector } from "@features/base";
 import { SubstituteDetails } from "@features/substituteDetails";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Subtitule() {
   const [edit, setEdit] = useState(false);
@@ -99,7 +100,7 @@ function Subtitule() {
   const { t, ready } = useTranslation("settings", {
     keyPrefix: "substitute.config",
   });
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
   return (
     <>
       <SubHeader>

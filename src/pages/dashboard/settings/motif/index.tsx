@@ -17,6 +17,7 @@ import { useDateConverture } from "@app/hooks";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
 import { MotifListMobile } from '@features/card'
+import {LoadingScreen} from "@features/loadingScreen";
 function Motif() {
 
     const { data: session } = useSession();
@@ -60,7 +61,7 @@ function Motif() {
         keyPrefix: "motif.config",
     });
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const headCells = [
         {

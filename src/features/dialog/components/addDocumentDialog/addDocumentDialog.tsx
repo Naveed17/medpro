@@ -8,6 +8,7 @@ import FileuploadProgress from "@features/fileUploadProgress/components/fileUplo
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
@@ -51,7 +52,7 @@ function AddDocumentDialog({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [files]);
     const {t, ready} = useTranslation("common");
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <AddDocumentDialogStyled>
             <Typography fontWeight={600} variant="subtitle2">

@@ -35,6 +35,7 @@ import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Profil() {
     const router = useRouter();
@@ -114,7 +115,7 @@ function Profil() {
     const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation("settings");
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     const dialogClose = () => {
         setOpen(false);

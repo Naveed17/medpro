@@ -7,11 +7,12 @@ import { useTranslation } from 'next-i18next';
 // ________________________
 import { uniqueId } from "lodash";
 import { RootStyled } from "@features/popover";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function BasicPopover({ ...props }) {
     const { t, ready } = useTranslation('common');
     const { button, handleClose, open, menuList, onClickItem, ...rest } = props;
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <RootStyled>

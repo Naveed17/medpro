@@ -4,6 +4,7 @@ import {CheckList} from "@features/checkList";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AssuranceDialog(info: any) {
 
@@ -31,7 +32,7 @@ function AssuranceDialog(info: any) {
     },[data]);
 
     const {t, ready} = useTranslation("settings");
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (<>
 

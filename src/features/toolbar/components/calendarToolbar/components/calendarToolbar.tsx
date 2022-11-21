@@ -25,6 +25,7 @@ import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CalendarToolbar({...props}) {
     const {OnToday, OnAddAppointment, OnClickDatePrev, OnClickDateNext} = props;
@@ -47,7 +48,7 @@ function CalendarToolbar({...props}) {
     }
 
     const {t, ready} = useTranslation('agenda');
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <RootStyled {...props}>

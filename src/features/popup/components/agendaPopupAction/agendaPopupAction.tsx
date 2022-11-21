@@ -16,13 +16,14 @@ import CheckIcon from '@mui/icons-material/Check';
 import {useTranslation} from "next-i18next";
 import React from "react";
 import {pxToRem} from "@themes/formatFontSize";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AgendaPopupAction({...props}) {
     const {data, OnEdit, OnConfirm} = props;
 
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <AgendaPopupActionStyled>

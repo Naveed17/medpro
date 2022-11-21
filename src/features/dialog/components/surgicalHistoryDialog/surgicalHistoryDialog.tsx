@@ -5,6 +5,7 @@ import { TextField, Box, Stack, Typography } from '@mui/material'
 import {SetSubmit} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
+import {LoadingScreen} from "@features/loadingScreen";
 function SurgicalHistoryDialog() {
     const {submit,mutate} = useAppSelector(consultationSelector);
     const dispatch = useAppDispatch();
@@ -27,7 +28,7 @@ function SurgicalHistoryDialog() {
         })
     };
     const { t, ready } = useTranslation("consultation", { keyPrefix: "consultationIP" })
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <SurgicalHistoryDialogStyled display='block'>
             <Box maxWidth={{ xs: '100%', md: '80%' }} mx="auto">

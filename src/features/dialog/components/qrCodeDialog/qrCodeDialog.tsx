@@ -3,12 +3,13 @@ import React from 'react'
 import QrCodeDialogStyled from './overrides/qrCodeDialogStyle'
 import {QrCodeScanner} from '@features/qrCodeScanner'
 import {useTranslation} from 'next-i18next'
+import {LoadingScreen} from "@features/loadingScreen";
 
 function QrCodeDialog({...props}) {
     const {data} = props;
     const {t, ready} = useTranslation("common")
     const imgUrl = null
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <QrCodeDialogStyled spacing={2} alignItems="center">
             <Avatar {...(imgUrl ? {src: imgUrl} : {src: '/static/icons/avatar-1.svg'})} />

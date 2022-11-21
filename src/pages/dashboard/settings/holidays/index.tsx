@@ -12,6 +12,7 @@ import { HolidayDetails } from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Holidays() {
 
@@ -35,7 +36,7 @@ function Holidays() {
     ]);
 
     const { t, ready } = useTranslation("settings", { keyPrefix: "holidays.config" });
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const headCells = [
         {
             id: 'name',

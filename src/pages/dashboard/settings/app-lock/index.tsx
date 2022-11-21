@@ -20,6 +20,7 @@ import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@app/redux/hooks";
 import {toggleSideBar} from "@features/sideBarMenu";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AppLock() {
     const dispatch = useAppDispatch();
@@ -62,7 +63,7 @@ function AppLock() {
         setFieldValue,
         resetForm
     } = formik;
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>

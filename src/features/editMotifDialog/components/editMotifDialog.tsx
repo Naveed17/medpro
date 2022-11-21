@@ -22,6 +22,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { ModelDot } from "@features/modelDot";
+import {LoadingScreen} from "@features/loadingScreen";
 const PaperStyled = styled(Form)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   borderRadius: 0,
@@ -183,7 +184,7 @@ function EditMotifDialog({ ...props }) {
     },
   });
 
-  if (!ready) return <>loading translations...</>;
+  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
   const {
     values,

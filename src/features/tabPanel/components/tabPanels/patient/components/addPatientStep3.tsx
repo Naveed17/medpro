@@ -3,6 +3,7 @@ import {useTranslation} from "next-i18next";
 import {useAppDispatch} from "@app/redux/hooks";
 import {onAddPatient} from "@features/tabPanel";
 import {useTheme} from "@mui/material";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddPatientStep3({...props}) {
     const {onNext, selectedPatient} = props;
@@ -23,7 +24,7 @@ function AddPatientStep3({...props}) {
     };
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <SuccessCard
             data={{

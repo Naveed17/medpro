@@ -13,6 +13,7 @@ import {TabPanel} from "@features/tabPanel";
 import {EventDef} from "@fullcalendar/react";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -76,7 +77,7 @@ function NotificationPopover({...props}) {
         }
     }
 
-    if (!ready) return (<>loading translations...</>);
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <Box

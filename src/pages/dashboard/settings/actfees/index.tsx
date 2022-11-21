@@ -14,6 +14,7 @@ import {Otable} from '@features/table';
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -183,7 +184,7 @@ function ActFees() {
     };
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
-    if (!ready) return <>loading translations...</>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
