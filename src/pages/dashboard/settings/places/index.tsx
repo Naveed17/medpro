@@ -35,9 +35,52 @@ function Lieux() {
     const [loading, setLoading] = useState(false);
     const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
 
+    const headCells = [
+        {
+            id: "name",
+            numeric: false,
+            disablePadding: true,
+            label: "name",
+            align: "left",
+            sortable: false,
+        },
+        {
+            id: "actif",
+            numeric: false,
+            disablePadding: true,
+            label: "actif",
+            align: "center",
+            sortable: false,
+        },
+       /* {
+            id: "default",
+            numeric: false,
+            disablePadding: true,
+            label: "default",
+            align: "center",
+            sortable: false,
+        },*/
+        /* {
+           id: "agenda",
+           numeric: false,
+           disablePadding: true,
+           label: "sharedCalander",
+           align: "center",
+           sortable: true,
+         },*/
+        {
+            id: "action",
+            numeric: false,
+            disablePadding: true,
+            label: "action",
+            align: "center",
+            sortable: false,
+        },
+    ];
+
     const {data, mutate} = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/locations/" + router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/locations/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -60,70 +103,10 @@ function Lieux() {
         });
     }
 
-    useEffect(() => {
-        if (data !== undefined) {
-            setRows((data as any).data);
-        }
-    }, [data])
-
-    useEffect(() => {
-        const actives: any[] = [];
-        const bounds: any[] = []
-        rows.filter((row: MedicalEntityLocationModel) => row.isActive).map((cord) => {
-            actives.push({name: (cord.address as any).location.name, points: (cord.address as any).location.point});
-            if ((cord.address as any).location.point)
-                bounds.push((cord.address as any).location.point);
-        });
-        navigator.geolocation.getCurrentPosition(function (position) {
-            bounds.push([position.coords.latitude, position.coords.longitude]);
-        });
-        setOuterBounds(bounds);
-        setCords([...actives]);
-    }, [rows])
-
-    const {t, ready} = useTranslation("settings", {
-        keyPrefix: "lieux.config",
-    });
-    if (!ready) return <>loading translations...</>;
-
-    const headCells = [
-        {
-            id: "name",
-            numeric: false,
-            disablePadding: true,
-            label: "name",
-            align: "left",
-            sortable: false,
-        },
-        {
-            id: "actif",
-            numeric: false,
-            disablePadding: true,
-            label: "actif",
-            align: "center",
-            sortable: false,
-        },
-        /* {
-           id: "agenda",
-           numeric: false,
-           disablePadding: true,
-           label: "sharedCalander",
-           align: "center",
-           sortable: true,
-         },*/
-        {
-            id: "action",
-            numeric: false,
-            disablePadding: true,
-            label: "action",
-            align: "center",
-            sortable: false,
-        },
-    ];
-
     const editPlaces = (props: any) => {
         console.log("edit", props);
     };
+
     const handleConfig = (props: any, event: string) => {
         console.log("handleConfig", event);
     };
@@ -171,8 +154,38 @@ function Lieux() {
                 pathname: `/dashboard/settings/places/${props.uuid}`,
             }).then(() => {
             });
+        } else if(event === 'default'){
+            props.isDefault = !props.isDefault;
+            setRows([...rows]);
         }
     };
+
+    useEffect(() => {
+        if (data !== undefined) {
+            setRows((data as any).data);
+        }
+    }, [data])
+
+    useEffect(() => {
+        const actives: any[] = [];
+        const bounds: any[] = []
+        rows.filter((row: MedicalEntityLocationModel) => row.isActive).map((cord) => {
+            actives.push({name: (cord.address as any).location.name, points: (cord.address as any).location.point});
+            if ((cord.address as any).location.point)
+                bounds.push((cord.address as any).location.point);
+        });
+        navigator.geolocation.getCurrentPosition(function (position) {
+            bounds.push([position.coords.latitude, position.coords.longitude]);
+        });
+        setOuterBounds(bounds);
+        setCords([...actives]);
+    }, [rows])
+
+    const {t, ready} = useTranslation("settings", {
+        keyPrefix: "lieux.config",
+    });
+
+    if (!ready) return <>loading translations...</>;
 
     return (
         <>
@@ -185,7 +198,7 @@ function Lieux() {
                     <Typography color="text.primary">
                         {t("path")}
                     </Typography>
-                    <Button
+                   {/* <Button
                         variant="contained"
                         color="success"
                         onClick={() => {
@@ -194,7 +207,7 @@ function Lieux() {
                         }}
                         sx={{ml: "auto"}}>
                         {t("add")}
-                    </Button>
+                    </Button>*/}
                 </Stack>
             </SubHeader>
             <Box

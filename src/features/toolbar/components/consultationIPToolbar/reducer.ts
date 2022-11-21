@@ -8,7 +8,8 @@ import {
     SetPatient,
     SetSelectedApp,
     SetSelectedDialog,
-    SetSubmit
+    SetSubmit,
+    SetAppointement
 } from './actions';
 
 export type MenuState = {
@@ -18,6 +19,7 @@ export type MenuState = {
     fiche: any,
     mutate: any,
     mutateDoc: any,
+    appointement:any,
     patient: PatientModel | null
     selectedDialog: any
     selectedApp: string
@@ -37,6 +39,7 @@ const initialState: MenuState = {
     mutateDoc: null,
     patient: null,
     selectedApp: '',
+    appointement:null,
     selectedDialog: null
 };
 
@@ -68,6 +71,9 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetSelectedDialog, (state, action) => {
             state.selectedDialog = action.payload;
+        })
+        .addCase(SetAppointement, (state, action) => {
+            state.appointement = action.payload;
         })
 
 });

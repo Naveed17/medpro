@@ -36,12 +36,15 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
+import {useAppSelector} from "@app/redux/hooks";
+import {consultationSelector} from "@features/toolbar";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const {data} = props
+    const {appointement} = useAppSelector(consultationSelector);
     const [drugs, setDrugs] = useState<PrespectionDrugModel[]>([...data.state]);
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [drug, setDrug] = useState<DrugModel | null>(null);
@@ -50,6 +53,7 @@ function MedicalPrescriptionDialog({...props}) {
     const [models, setModels] = useState<any[]>([]);
     const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -70,7 +74,7 @@ function MedicalPrescriptionDialog({...props}) {
         form.append('drugs', JSON.stringify(drugs));
         trigger({
             method: "POST",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/prescriptions/modals/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/prescriptions/modals/${router.locale}`,
             data: form,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }, {
@@ -171,7 +175,6 @@ function MedicalPrescriptionDialog({...props}) {
             } else {
                 touchedFileds.name = true;
                 setTouchedFileds({...touchedFileds});
-
             }
         },
     });
@@ -191,7 +194,7 @@ function MedicalPrescriptionDialog({...props}) {
 
     const {data: httpDrugsResponse} = useRequest({
         method: "GET",
-        url: "/api/drugs/" + router.locale,
+        url: `/api/drugs/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
@@ -212,6 +215,17 @@ function MedicalPrescriptionDialog({...props}) {
         setDrugsList((httpDrugsResponse as HttpResponse)?.data)
     }, [httpDrugsResponse])*/
 
+    useEffect(()=>{
+        let lastPrescription: any[] = []
+        appointement.latestAppointments.map((la: { documents: any[]; }) => {
+            const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
+            if (prescriptions.length > 0) {
+                lastPrescription = [...lastPrescription,...prescriptions]
+            }
+        })
+        setLastPrescriptions(lastPrescription)
+    },[appointement])
+
     useEffect(() => {
         if (Object.keys(errors).length > 0)
             setTouchedFileds({name: true, duration: true})
@@ -223,6 +237,23 @@ function MedicalPrescriptionDialog({...props}) {
         drugs.splice(selected, 1);
         setDrugs([...drugs])
         data.setState([...drugs]);
+    }
+
+    const importLast = () =>{
+        const last: any[] = [];
+        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) =>{
+            last.push({
+                drugUuid:drug.standard_drug.uuid,
+                name:drug.standard_drug.commercial_name,
+                dosage:drug.dosage,
+                duration:drug.duration,
+                durationType:drug.duration_type,
+                note:drug.note
+            });
+        })
+        setDrugs([...last])
+        data.setState([...last])
+        setAnchorEl(null);
     }
 
     const edit = (ev: PrespectionDrugModel) => {
@@ -251,6 +282,7 @@ function MedicalPrescriptionDialog({...props}) {
             <Grid container spacing={5}>
                 <Grid item xs={12} md={7}>
                     <FormikProvider value={formik}>
+
                         <Stack
                             spacing={2}
                             component={Form}
@@ -264,6 +296,8 @@ function MedicalPrescriptionDialog({...props}) {
                                             *
                                         </Typography>
                                     </Typography>
+
+
                                     <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
@@ -296,6 +330,10 @@ function MedicalPrescriptionDialog({...props}) {
                                             'aria-labelledby': 'basic-button',
                                         }}
                                     >
+                                        {
+                                            lastPrescriptions.length > 0 && <MenuItem sx={{color: theme => theme.palette.grey[0]}}
+                                                      onClick={importLast}>{t('last_prescription')}</MenuItem>
+                                        }
                                         {
                                             models.map((item, idx) =>
                                                 <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
@@ -396,7 +434,6 @@ function MedicalPrescriptionDialog({...props}) {
                                                 />
                                             </RadioGroup>
                                         </FormControl>
-
                                     </Grid>
                                 </Grid>
                             </Stack>
