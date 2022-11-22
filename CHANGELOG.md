@@ -1,3 +1,52 @@
+# [4.4.0](https://github.com/SmartMedSA/med-pro/compare/v4.3.2...v4.4.0) (2022-11-22)
+
+
+### Bug Fixes
+
+* handle patient errors ([2c4bc0f](https://github.com/SmartMedSA/med-pro/commit/2c4bc0f17ed1f5bf1c725cc6518c596e8ab467a9))
+* medical imaging undefined fallback ([8329289](https://github.com/SmartMedSA/med-pro/commit/83292892f25c29f56346a40c537d86a2003798d7))
+
+
+### Features
+
+* track of an hasError state ([2afee58](https://github.com/SmartMedSA/med-pro/commit/2afee58ed154edb961b941ccf0ea1538edf58c2f))
+
+## [4.3.2](https://github.com/SmartMedSA/med-pro/compare/v4.3.1...v4.3.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* update error preview ([b0c0f86](https://github.com/SmartMedSA/med-pro/commit/b0c0f865238b4365e99984ba6fd5189f904d49c4))
+* update error preview agenda ([8cb3bfb](https://github.com/SmartMedSA/med-pro/commit/8cb3bfba2015a2672dd8c57e76fc7757dea95890))
+
+## [4.3.1](https://github.com/SmartMedSA/med-pro/compare/v4.3.0...v4.3.1) (2022-11-21)
+
+
+### Bug Fixes
+
+* patient select gender bug ([8b3881e](https://github.com/SmartMedSA/med-pro/commit/8b3881e712284adda7cd776175d3e476fdbdcd06))
+* patient without city bug ([4c8c7cd](https://github.com/SmartMedSA/med-pro/commit/4c8c7cd7169c16e1553e03c6a4e97b0a553ce60c))
+
+# [4.3.0](https://github.com/SmartMedSA/med-pro/compare/v4.2.0...v4.3.0) (2022-11-21)
+
+
+### Bug Fixes
+
+* disabled users settings ([b8ea371](https://github.com/SmartMedSA/med-pro/commit/b8ea371c2e9918a77e7bbfb53dc9bac76bebce9e))
+* hide appointment action in prod ([f6d5abf](https://github.com/SmartMedSA/med-pro/commit/f6d5abfb3dcd66cf0a80a9c7de9080151685106f))
+* notification ([5994c08](https://github.com/SmartMedSA/med-pro/commit/5994c08ae7f4c2bd6b7de86c082aca24428f937d))
+* payment UI ([f610870](https://github.com/SmartMedSA/med-pro/commit/f610870d1368cd1d3d05090c5479773cb09636db))
+* separate between treatment and prescription ([de84763](https://github.com/SmartMedSA/med-pro/commit/de84763e5472dd6747014e3e2fd5d410571302ca))
+* show document from histo ([ec0a6b3](https://github.com/SmartMedSA/med-pro/commit/ec0a6b397b46d2a88ca1d90f53c4ce9e04113437))
+
+
+### Features
+
+* auto refresh confirm appointment ([1015f8a](https://github.com/SmartMedSA/med-pro/commit/1015f8ae46eedf57985b0e2d490624448eb13229))
+* config document header ([0a29631](https://github.com/SmartMedSA/med-pro/commit/0a296319ac749aca8158bf8be3d1db88d84f6fca))
+* document editor ([7da217b](https://github.com/SmartMedSA/med-pro/commit/7da217b671cd83bd8b39156324f3f4f880249d4e))
+* update app title ([70b2890](https://github.com/SmartMedSA/med-pro/commit/70b28904757801744a2d5bcf9a54b5bc5cfb9af0))
+
 # [4.2.0](https://github.com/SmartMedSA/med-pro/compare/v4.1.0...v4.2.0) (2022-11-17)
 
 
