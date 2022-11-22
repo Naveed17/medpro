@@ -34,17 +34,14 @@ function RequestedMedicalImaging({...props}) {
                     <p>Prière, Faire pratiquer à {data.patient} les imageries médicales suivantes:</p>
                 </td>
             </tr>
+            {data?.info?.map((line: any) => (
+                <tr key={line.uuid}>
+                    <td className={"line"}>
+                        <p>• {line['medical-imaging'].name}</p>
+                    </td>
+                </tr>
 
-            {
-                data.info.map((line: any) => (
-                    <tr key={line.uuid}>
-                        <td className={"line"}>
-                            <p>• {line['medical-imaging'].name}</p>
-                        </td>
-                    </tr>
-
-                ))
-            }
+            ))}
             </tbody>
         </TableStyled>
 
