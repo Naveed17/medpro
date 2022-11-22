@@ -112,14 +112,14 @@ function OnStepPatient({...props}) {
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
-            country: address.length > 0 ? address[0]?.city?.country?.uuid : patient.step2.country,
-            region: address.length > 0 ? address[0]?.city?.uuid : patient.step2.region,
+            country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : patient.step2.country,
+            region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : patient.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : patient.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : patient.step2.cin,
             family_doctor: selectedPatient ? selectedPatient.familyDoctor : patient.step2.family_doctor,
-            insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => ({
+            insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid
             })) : [] as {
@@ -499,7 +499,7 @@ function OnStepPatient({...props}) {
                                     displayEmpty
                                     sx={{color: "text.secondary"}}
                                     renderValue={selected => {
-                                        if (selected.length === 0) {
+                                        if (selected?.length === 0) {
                                             return <em>{t("country-placeholder")}</em>;
                                         }
 
@@ -542,7 +542,7 @@ function OnStepPatient({...props}) {
                                             displayEmpty={true}
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
-                                                if (selected.length === 0) {
+                                                if (selected?.length === 0) {
                                                     return <em>{t("region-placeholder")}</em>;
                                                 }
 
@@ -629,7 +629,7 @@ function OnStepPatient({...props}) {
                                                             displayEmpty
                                                             sx={{color: "text.secondary"}}
                                                             renderValue={(selected) => {
-                                                                if (selected.length === 0) {
+                                                                if (selected?.length === 0) {
                                                                     return <em>{t("assurance-placeholder")}</em>;
                                                                 }
 

@@ -8,7 +8,7 @@ import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import {useRouter} from "next/router";
 
 function LoadingScreen({...props}) {
-    const {text = "loading", iconNote = null, button = null, error = false} = props
+    const {text = "loading", iconNote = null, button = null, error = false, OnClick = null} = props
 
     const router = useRouter();
     const theme = useTheme();
@@ -96,7 +96,12 @@ function LoadingScreen({...props}) {
                     {t(text)}
                 </Typography>
                 {button &&
-                    <Button onClick={() => router.push("/dashboard/agenda")}
+                    <Button onClick={() => {
+                        router.push("/dashboard/agenda");
+                        if (OnClick) {
+                            OnClick(error);
+                        }
+                    }}
                             color={error ? "error" : "primary"} variant="contained">
                         <Typography>{t(button)}</Typography>
                     </Button>}

@@ -44,14 +44,14 @@ function AddPatientStep2({...props}) {
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
         initialValues: {
-            country: address.length > 0 ? address[0]?.city?.country?.uuid : stepsData.step2.country,
-            region: address.length > 0 ? address[0]?.city?.uuid : stepsData.step2.region,
+            country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : stepsData.step2.country,
+            region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : stepsData.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : stepsData.step2.cin,
-            family_doctor: selectedPatient ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
-            insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => ({
+            family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
+            insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid
             })) : [] as {
@@ -64,7 +64,6 @@ function AddPatientStep2({...props}) {
             handleChange(null, values);
         },
     });
-
 
     const {values, handleSubmit, getFieldProps, touched, errors} = formik;
 
