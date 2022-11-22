@@ -1,3 +1,16 @@
+# [4.4.0](https://github.com/SmartMedSA/med-pro/compare/v4.3.2...v4.4.0) (2022-11-22)
+
+
+### Bug Fixes
+
+* handle patient errors ([2c4bc0f](https://github.com/SmartMedSA/med-pro/commit/2c4bc0f17ed1f5bf1c725cc6518c596e8ab467a9))
+* medical imaging undefined fallback ([8329289](https://github.com/SmartMedSA/med-pro/commit/83292892f25c29f56346a40c537d86a2003798d7))
+
+
+### Features
+
+* track of an hasError state ([2afee58](https://github.com/SmartMedSA/med-pro/commit/2afee58ed154edb961b941ccf0ea1538edf58c2f))
+
 ## [4.3.2](https://github.com/SmartMedSA/med-pro/compare/v4.3.1...v4.3.2) (2022-11-21)
 
 
