@@ -40,13 +40,13 @@ function DashLayout({children}: LayoutProps) {
 
     const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null, SWRNoValidateConfig);
 
     const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
+        url: `/api/medical-entity/${medical_entity?.uuid}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         }

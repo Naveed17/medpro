@@ -20,6 +20,7 @@ import AuthGuard from "@app/keycloak/authGuard";
 import moment from "moment-timezone";
 import Head from "next/head";
 import {FcmLayout} from "@features/base";
+import ErrorBoundary from "@features/errorBoundary";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -52,15 +53,17 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                     initial={false}
                                     onExitComplete={() => window.scrollTo(0, 0)}
                                 >
-                                    {Component.auth ? (
-                                        <AuthGuard>
-                                            <FcmLayout>
-                                                {getLayout(<Component {...pageProps} />)}
-                                            </FcmLayout>
-                                        </AuthGuard>
-                                    ) : (
-                                        <> {getLayout(<Component {...pageProps} />)}</>
-                                    )}
+                                    <ErrorBoundary>
+                                        {Component.auth ? (
+                                            <AuthGuard>
+                                                <FcmLayout>
+                                                    {getLayout(<Component {...pageProps} />)}
+                                                </FcmLayout>
+                                            </AuthGuard>
+                                        ) : (
+                                            <> {getLayout(<Component {...pageProps} />)}</>
+                                        )}
+                                    </ErrorBoundary>
                                 </AnimatePresence>
                             </SwrProvider>
                         </KeycloakSession>
