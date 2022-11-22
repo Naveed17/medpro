@@ -22,7 +22,7 @@ const initialState: MenuState = {
             gender: ""
         },
         step2: {
-            country: "98b08199-a1d8-44bc-8b33-1203195b718e", // TN
+            country: "", // TN
             region: "",
             zip_code: "",
             address: "",
