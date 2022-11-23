@@ -79,6 +79,7 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
