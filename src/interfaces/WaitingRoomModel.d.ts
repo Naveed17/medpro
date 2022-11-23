@@ -6,4 +6,5 @@ interface WaitingRoomModel {
     "consultation_reason": ConsultationReasonModel,
     "appointment_type": AppointmentTypeModel
     "patient": PatientModel
+    "fees": string
 }

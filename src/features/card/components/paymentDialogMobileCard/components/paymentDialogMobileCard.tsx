@@ -38,9 +38,9 @@ function PaymentMobileCard({ ...props }) {
                     </Stack>
                     <Stack direction='row' alignItems="center">
                         <Typography variant="body2" width='50%'>
-                            {t('table.' + data.method.name)}
+                            {t('table.' + data.method?.name)}
                         </Typography>
-                        <Icon className="ic-card" path={data.method.icon} />
+                        <Icon className="ic-card" path={data.method?.icon} />
                     </Stack>
                 </Stack>
 

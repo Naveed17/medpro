@@ -7,7 +7,7 @@ import Icon from "@themes/urlIcon";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Box, Drawer, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Drawer, LinearProgress, Menu, MenuItem, useTheme} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
@@ -28,7 +28,9 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {useIsMountedRef} from "@app/hooks";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
-import {PatientDetail} from "@features/dialog";
+import {Dialog, PatientDetail} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
 
 export const headCells = [
     {
@@ -43,7 +45,7 @@ export const headCells = [
         id: "appointmentTime",
         numeric: false,
         disablePadding: true,
-        label: "Appointment time",
+        label: "appointment time",
         align: "left",
         sortable: false,
     },
@@ -56,10 +58,17 @@ export const headCells = [
         sortable: true,
     },
     {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "left",
+        sortable: false,
+    }, {
         id: "motif",
         numeric: false,
         disablePadding: true,
-        label: "Reason",
+        label: "reason",
         align: "left",
         sortable: false,
     },
@@ -67,18 +76,24 @@ export const headCells = [
         id: "patient",
         numeric: false,
         disablePadding: true,
-        label: "Patient's name",
+        label: "patient's name",
         align: "left",
         sortable: true,
-    },
-    {
+    }, {
+        id: "fees",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        align: "right",
+        sortable: false,
+    }, {
         id: "action",
         numeric: false,
         disablePadding: true,
-        label: "Action",
+        label: "action",
         align: "right",
         sortable: false,
-    },
+    }
 ];
 
 const AddWaitingRoomCardData = {
@@ -114,21 +129,46 @@ function WaitingRoom() {
     } | null>(null);
     const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
-    const [popoverActions, setPopoverActions] = useState([{
-        title: "start_the_consultation",
-        icon: <PlayCircleIcon/>,
-        action: "onConsultationStart",
-    }, {
-        title: "leave_waiting_room",
-        icon: <Icon color={"white"} path="ic-salle"/>,
-        action: "onLeaveWaitingRoom",
-    }]);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [deals, setDeals] = React.useState<any>({
+        species: false,
+        card: false,
+        cheque: false,
+        selected: null,
+        tab3Data: [
+            {
+                amount: "",
+                carrier: "",
+                bank: "",
+                check_number: '',
+                payment_date: new Date(),
+                expiry_date: new Date(),
+            }
+        ]
+    });
+    const [popoverActions, setPopoverActions] = useState([
+        {
+            title: "start_the_consultation",
+            icon: <PlayCircleIcon/>,
+            action: "onConsultationStart",
+        },
+        {
+            title: "leave_waiting_room",
+            icon: <Icon color={"white"} path="ic-salle"/>,
+            action: "onLeaveWaitingRoom",
+        },
+        {
+            title: "see_patient_form",
+            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+            action: "onPatientDetail",
+        }]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
 
-    const {data: httpAgendasResponse, error: errorHttpAgendas} = useRequest({
+    const {data: httpAgendasResponse} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/agendas/${router.locale}`,
         headers: {
@@ -151,9 +191,7 @@ function WaitingRoom() {
         }
     });
 
-    const {
-        trigger: updateStatusTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment/status",
+    const {trigger: updateStatusTrigger} = useRequestMutation(null, "/agenda/update/appointment/status",
         TriggerWithoutValidation);
 
     const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
@@ -192,6 +230,17 @@ function WaitingRoom() {
         setContextMenu(null);
     };
 
+    const handleSubmit = (data: any) => {
+        console.log(data);
+    };
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+        const actions = [...popoverActions];
+        actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
+        setPopoverActions(actions);
+    };
+
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
@@ -216,17 +265,43 @@ function WaitingRoom() {
                     mutateWaitingRoom();
                 });
                 break;
+            case "onPatientDetail":
+                dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
+                setPatientDetailDrawer(true);
+                break;
+            case "onPay":
+                console.log(row);
+                setSelectedPayment({
+                    uuid: row?.uuid,
+                    date: moment().format("DD-MM-YYYY"),
+                    time: row?.appointment_time,
+                    patient: row?.patient,
+                    insurance: "",
+                    type: row?.appointment_type.name,
+                    payment_type: ["ic-argent", "ic-card-pen"],
+                    billing_status: "yes",
+                    amount: row?.fees,
+                    collapse: []
+                })
+                setOpenPaymentDialog(true);
+                break;
         }
     }
 
     const handleTableActions = (data: any) => {
-        console.log(data);
         switch (data.action) {
             case "PATIENT_DETAILS":
                 dispatch(onOpenPatientDrawer({patientId: data.row.patient.uuid}));
                 setPatientDetailDrawer(true);
                 break;
             default:
+                if (!data.row.fees) {
+                    setPopoverActions([{
+                        title: "consultation_pay",
+                        icon: <Icon color={"white"} path="ic-fees"/>,
+                        action: "onPay",
+                    }, ...popoverActions])
+                }
                 handleContextMenu(data.event);
                 setRow(data.row);
                 break;
@@ -370,6 +445,34 @@ function WaitingRoom() {
                     }}
                     onAddAppointment={() => console.log("onAddAppointment")}/>
             </Drawer>
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 300
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{selectedPayment, deals, setDeals, patient: row?.patient}}
+                size={"md"}
+                title={t("payment_dialog_title")}
+                dialogClose={resetDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleSubmit}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("save")}
+                        </Button>
+                    </DialogActions>
+                }
+            />
         </>
     );
 }
@@ -380,8 +483,10 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "menu",
             "common",
+            "agenda",
             "patient",
             "consultation",
+            "payment",
             "waitingRoom",
         ])),
     },
