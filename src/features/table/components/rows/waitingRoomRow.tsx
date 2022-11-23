@@ -98,7 +98,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 <Icon path="ic-time"/>
-                                {moment(row.arrive_time, "HH:mm").add(1,"hours").format("HH:mm")}
+                                {moment(row.arrive_time, "HH:mm").add(1, "hours").format("HH:mm")}
                             </Typography>
                         </Box>
                     ) : (
@@ -180,7 +180,12 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
-                            <Typography color="text.primary" sx={{ml: 0.6}}>
+                            <Typography
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row, event});
+                                }}
+                                color="primary" sx={{ml: 0.6, cursor: "pointer"}}>
                                 {row.patient.lastName} {row.patient.firstName}
                             </Typography>
                         </Box>
@@ -219,7 +224,7 @@ function WaitingRoomRow({...props}) {
                     <IconButton
                         onClick={(event) => {
                             event.stopPropagation();
-                            handleEvent({action: "open-popover", row, event});
+                            handleEvent({action: "OPEN-POPOVER", row, event});
                         }}
                         sx={{display: "block", ml: "auto"}}
                         size="small"

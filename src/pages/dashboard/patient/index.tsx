@@ -138,7 +138,7 @@ function Patient() {
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {patientId, patientAction} = useAppSelector(tableActionSelector);
+    const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -259,14 +259,12 @@ function Patient() {
                 }}
             >
                 <PatientDetail
-                    {...{isAddAppointment, mutate}}
+                    {...{isAddAppointment, patientId, mutate}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
-                    onAddAppointment={() => console.log("onAddAppointment")}
-                    patientId={patientId}
-                />
+                    onAddAppointment={() => console.log("onAddAppointment")}/>
             </Drawer>
 
             <Drawer

@@ -84,20 +84,15 @@ function PatientDetail({...props}) {
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
     const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest(
-        patientId
-            ? {
-                method: "GET",
-                url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }
-            : null
-    );
+    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
 
     // handle tab change
     const handleStepperIndexChange = (
@@ -118,8 +113,7 @@ function PatientDetail({...props}) {
         }
     };
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)
-        ?.data as PatientModel;
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
     const documents = patient ? patient.documents : [];
