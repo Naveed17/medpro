@@ -9,7 +9,7 @@ import {
     Paper,
     Grid,
     Skeleton,
-    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField
+    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField, Button
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {Stack} from "@mui/system";
@@ -30,6 +30,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
+import CloseIcon from "@mui/icons-material/Close";
 
 function PersonalInfo({...props}) {
     const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
@@ -211,19 +212,7 @@ function PersonalInfo({...props}) {
                             padding: 0
                         }
                     }}>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            fontSize: 14
-                        }}
-                        color="text.primary"
-                        gutterBottom>
-                        {loading ? (
-                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                        ) : (
-                            t("personal-info")
-                        )}
-                    </Typography>
+
                     <Paper
                         sx={{
                             "& .MuiTypography-root": {
@@ -234,10 +223,29 @@ function PersonalInfo({...props}) {
                         }}>
                         <AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
-                                <Box sx={{flexGrow: 1}}/>
+                                <Box sx={{flexGrow: 1}}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{fontWeight: "bold"}}
+                                        gutterBottom>
+                                        {loading ? (
+                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                        ) : (
+                                            t("personal-info")
+                                        )}
+                                    </Typography>
+                                </Box>
                                 <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                                     {editable ?
-                                        <Stack mt={1} justifyContent='flex-end'>
+                                        <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                            <Button onClick={() => setEditable(false)}
+                                                    color={"error"}
+                                                    className='btn-cancel'
+                                                    sx={{margin: 'auto'}}
+                                                    size='small'
+                                                    startIcon={<CloseIcon/>}>
+                                                {t('cancel')}
+                                            </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
                                                 loading={loadingRequest}

@@ -16,13 +16,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import RootStyled from "./overrides/rootStyled";
 // utils
 import Icon from "@themes/urlIcon";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {configSelector} from "@features/base";
 
 // selected dumy data
 const cardItems: PatientDetailsList[] = [
@@ -44,6 +45,9 @@ const emptyObject = {
 
 function BackgroundCard({...props}) {
     const {loading, patient, mutate} = props;
+
+    const {direction} = useAppSelector(configSelector);
+
     const [data, setdata] = useState([...cardItems]);
     const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -122,9 +126,8 @@ function BackgroundCard({...props}) {
         <RootStyled>
             <Typography
                 variant="body1"
-                color="text.primary"
-                gutterBottom
-            >
+                sx={{fontWeight: "bold", p: 1}}
+                gutterBottom>
                 {loading ? (
                     <Skeleton variant="text" sx={{maxWidth: 200}}/>
                 ) : (
@@ -188,19 +191,24 @@ function BackgroundCard({...props}) {
             </Grid>
             {info && (
                 <Dialog
+                    {...{
+                        direction,
+                        size,
+                        sx: {
+                            minHeight: 460
+                        }
+                    }}
                     action={info}
                     open={openDialog}
                     data={{
-                        state: state,
-                        setState: setState,
+                        state,
+                        setState,
                         patient_uuid: patient.uuid,
-                        action: info,
+                        action: info
                     }}
                     change={"false"}
-                    max={"true"}
-                    size={size}
-                    direction={"ltr"}
-                    actions={"true"}
+                    max
+                    actions
                     title={t(info)}
                     dialogClose={() => {
                         setOpenDialog(false);
