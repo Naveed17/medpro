@@ -56,7 +56,11 @@ function PersonalInfo({...props}) {
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
     const RegisterPatientSchema = Yup.object().shape({
-        name: Yup.string()
+        firstName: Yup.string()
+            .min(3, t("name-error"))
+            .max(50, t("name-error"))
+            .required(t("name-error")),
+        lastName: Yup.string()
             .min(3, t("name-error"))
             .max(50, t("name-error"))
             .required(t("name-error")),
@@ -86,7 +90,8 @@ function PersonalInfo({...props}) {
             gender: !loading && patient.gender
                 ? patient.gender === "M" ? "1" : "2"
                 : "",
-            name: !loading ? `${patient.firstName.trim()} ${patient.lastName.trim()}` : "",
+            firstName: !loading ? `${patient.firstName.trim()}` : "",
+            lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
@@ -129,8 +134,8 @@ function PersonalInfo({...props}) {
     const handleUpdatePatient = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append('first_name', values.name.split(' ').slice(0, -1).join(' '));
-        params.append('last_name', values.name.split(' ').slice(-1).join(' '));
+        params.append('first_name', values.firstName);
+        params.append('last_name', values.lastName);
         params.append('gender', values.gender);
         params.append('phone', JSON.stringify({
             code: patient.contact[0].code,
@@ -252,7 +257,7 @@ function PersonalInfo({...props}) {
                             </Toolbar>
                         </AppBar>
                         <Grid container spacing={1.2}>
-                            <Grid item md={5} sm={6} xs={6}>
+                            <Grid item md={4} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
@@ -284,7 +289,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={7} sm={6} xs={6}>
+                            <Grid item md={4} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -296,7 +301,7 @@ function PersonalInfo({...props}) {
                                     alignItems="center">
                                     <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("name")}
+                                            {t("first-name")}
                                         </Typography>
                                     </Grid>
                                     <Grid item md={8} sm={6} xs={6}>
@@ -306,8 +311,37 @@ function PersonalInfo({...props}) {
                                             <InputBase
                                                 placeholder={t("name-placeholder")}
                                                 readOnly={!editable}
-                                                error={Boolean(touched.name && errors.name)}
-                                                {...getFieldProps("name")}
+                                                error={Boolean(touched.firstName && errors.firstName)}
+                                                {...getFieldProps("firstName")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={4} sm={6} xs={6}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("last-name")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={8} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("name-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.lastName && errors.lastName)}
+                                                {...getFieldProps("lastName")}
                                             />
                                         )}
                                     </Grid>

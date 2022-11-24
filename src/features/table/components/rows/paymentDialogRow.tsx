@@ -60,9 +60,9 @@ function PaymentDialogRow({ ...props }) {
         ) : (
           <Stack direction='row' spacing={3} alignItems="center" justifyContent='flex-end'>
             <Typography variant="body2">
-              {t('table.' + row.method.name)}
+              {t('table.' + row.method?.name)}
             </Typography>
-            <Icon className="ic-card" path={row.method.icon} />
+            <Icon className="ic-card" path={row.method?.icon} />
           </Stack>
         )}
       </TableCell>

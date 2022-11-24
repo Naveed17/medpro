@@ -3,19 +3,16 @@ import {
     Grid,
     Typography,
     IconButton,
-    Button,
     Box,
-    Stack,
-    Link
+    Stack
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { Label } from "@features/label";
+import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import DetailCardStyled from "./overrides/detailCardStyle";
 import CircleIcon from '@mui/icons-material/Circle';
-import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
-export default function DetailsCard({ ...props }) {
-    const { rows, waitingRoom, t } = props;
+
+export default function DetailsCard({...props}) {
+    const {rows, waitingRoom, t} = props;
     const theme = useTheme();
     return (
         <>
@@ -30,13 +27,13 @@ export default function DetailsCard({ ...props }) {
                                 : item.status === "success"
                                     ? theme.palette.success.main
                                     : theme.palette.primary.main
-                            }`,
+                        }`,
                     }}
                 >
                     {waitingRoom &&
                         <Grid container>
                             <Grid item md={10} sm={10} xs={11}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center" >
+                                <Box display="flex" justifyContent="space-between" alignItems="center">
                                     <Box sx={{
                                         display: "flex", alignItems: "center",
                                         color: theme.palette.success.main,
@@ -49,14 +46,14 @@ export default function DetailsCard({ ...props }) {
                                             }
                                         }
                                     }}>
-                                        <Icon path="ic-time" />
+                                        <Icon path="ic-time"/>
                                         <span>
                                             {item.arrive_time}
                                         </span>
                                     </Box>
                                     {item.consultation_reason && <Stack direction="row"
-                                            alignItems="center"
-                                            spacing={1}
+                                                                        alignItems="center"
+                                                                        spacing={1}
                                     >
                                         <CircleIcon fontSize="small" sx={{
                                             border: 1,
@@ -87,14 +84,14 @@ export default function DetailsCard({ ...props }) {
                             </Grid>
                             <Grid item md={2} sm={2} xs={1}>
                                 <Box display="flex" alignItems="center" height="100%">
-                                    <IconButton sx={{ display: "block", ml: "auto" }} size="small">
-                                        <Icon path="more-vert" />
+                                    <IconButton sx={{display: "block", ml: "auto"}} size="small">
+                                        <Icon path="more-vert"/>
                                     </IconButton>
                                 </Box>
                             </Grid>
                         </Grid>
                     }
-                   {/* {item.consultation_reason && (<>
+                    {/* {item.consultation_reason && (<>
                         <Stack className="consultation-details" direction="row" alignItems='center'>
                             <Stack spacing={1} justifyContent="flex-start" alignItems='flex-start'>
                                 <Button

@@ -14,6 +14,7 @@ import {EventDef} from "@fullcalendar/react";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
+import {setMoveDateTime} from "@features/dialog";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -48,7 +49,7 @@ function NotificationPopover({...props}) {
 
     const getDuration = (date: string) => {
         const duration: any = moment.duration(moment.utc().diff(moment.utc(date, "DD-MM-YYYY HH:mm")));
-        return humanizeDuration(duration, {largest: 2});
+        return humanizeDuration(duration, {largest: 2, round: true});
     }
 
     const handleNotificationAction = (action: string, event: any) => {
@@ -57,6 +58,7 @@ function NotificationPopover({...props}) {
             title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
             extendedProps: {
                 patient: event?.patient,
+                dur: event?.dur,
                 type: event?.type,
                 status: AppointmentStatus[event?.status],
                 time: moment(`${event.dayDate} ${event.startTime}`, "DD-MM-YYYY HH:mm").toDate()
@@ -67,7 +69,13 @@ function NotificationPopover({...props}) {
                 onClose();
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setSelectedEvent(eventUpdated));
-                    dispatch(openDrawer({type: "view", open: true}));
+                    dispatch(setMoveDateTime({
+                        date: new Date(eventUpdated?.extendedProps.time),
+                        time: moment(new Date(eventUpdated?.extendedProps.time)).format("HH:mm"),
+                        action: "move",
+                        selected: false
+                    }));
+                    dispatch(openDrawer({type: "move", open: true}));
                 });
                 break;
             case "onConfirm":
@@ -117,8 +125,9 @@ function NotificationPopover({...props}) {
                                 data={[
                                     ...pendingAppointments.map(appointment => ({
                                         ...appointment,
+                                        dur: appointment.duration,
                                         duration: appointment.createdAt && getDuration(appointment.createdAt),
-                                        title: `Une nouvelle demande de rendez-vous en ligne le ${appointment.dayDate}`,
+                                        title: `${appointment.patient.firstName} ${appointment.patient.lastName} a demandé un nouveau rendez-vous en ligne pour le ${appointment.dayDate} ${appointment.startTime}`,
                                         icon: <EventIcon/>,
                                         buttons: [
                                             {text: "Confirmer", color: "success", action: "onConfirm"},
