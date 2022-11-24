@@ -165,7 +165,7 @@
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name-placeholder": "Tapez le prénom du patient",
-      "last-name": "Nom de famille",
+      "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "last-name-placeholder": "Tapez le nom de famille du patient",
       "birthdate": "Date de naissance",
