@@ -217,13 +217,14 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell>
                     {row ? (
-                       <>  {row.fees ? <Stack direction="row" alignItems="center" justifyContent={"center"}
-                                              spacing={1}>
-                           <PlayCircleRoundedIcon color="success"/>
-                           <Typography variant="body2">
-                               {row.fees} {process.env.NEXT_PUBLIC_DEVISE}
-                           </Typography>
-                       </Stack> : "--"}
+                        <>
+                            {row.fees ? <Stack direction="row" alignItems="center" justifyContent={"center"}
+                                               spacing={1}>
+                                <PlayCircleRoundedIcon color="success"/>
+                                <Typography variant="body2">
+                                    {row.fees} {process.env.NEXT_PUBLIC_DEVISE}
+                                </Typography>
+                            </Stack> : "--"}
                         </>
                     ) : (
                         <Skeleton variant="text" width={100}/>
