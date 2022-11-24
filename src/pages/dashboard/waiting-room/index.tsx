@@ -295,7 +295,9 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             default:
-                if (!data.row.fees && process.env.NODE_ENV === 'development') {
+                if (!data.row.fees &&
+                    popoverActions.findIndex(data => data.action === "onPay") === -1 &&
+                    process.env.NODE_ENV === 'development') {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <Icon color={"white"} path="ic-fees"/>,
