@@ -12,6 +12,8 @@ import {
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
+import CloseIcon from '@mui/icons-material/Close';
+
 import IconUrl from "@themes/urlIcon";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
@@ -23,7 +25,7 @@ import {countries} from "@features/countrySelect/countries";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Image from "next/image";
 import * as Yup from "yup";
-import {PhoneRegExp} from "@features/tabPanel";
+import {LoadingButton} from "@mui/lab";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -139,7 +141,6 @@ function PatientContactDetailCard({...props}) {
             data: params,
         }).then(() => {
             setLoadingRequest(false);
-            setEditable(false);
             mutatePatientData();
             if (mutatePatientList) {
                 mutatePatientList();
@@ -156,34 +157,44 @@ function PatientContactDetailCard({...props}) {
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate>
-                <Typography
-                    variant="body1"
-                    color="text.primary"
-                    fontFamily="Poppins"
-                    gutterBottom>
-                    {loading ? (
-                        <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                    ) : (
-                        t("contact")
-                    )}
-                </Typography>
                 <RootStyled>
                     <CardContent>
                         <Grid container>
                             <AppBar position="static" color={"transparent"}>
                                 <Toolbar variant="dense">
-                                    <Box sx={{flexGrow: 1}}/>
+                                    <Box sx={{flexGrow: 1}}>
+                                        <Typography
+                                            variant="body1"
+                                            sx={{fontWeight: "bold"}}
+                                            gutterBottom>
+                                            {loading ? (
+                                                <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                            ) : (
+                                                t("contact")
+                                            )}
+                                        </Typography>
+                                    </Box>
                                     <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                                         {editable ?
-                                            <Stack mt={1} justifyContent='flex-end'>
-                                                <Button onClick={() => handleUpdatePatient()}
-                                                        disabled={Object.keys(errors).length > 0}
-                                                        className='btn-add'
+                                            <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                                <Button onClick={() => setEditable(false)}
+                                                        color={"error"}
+                                                        className='btn-cancel'
                                                         sx={{margin: 'auto'}}
                                                         size='small'
-                                                        startIcon={<SaveAsIcon/>}>
-                                                    {t('register')}
+                                                        startIcon={<CloseIcon/>}>
+                                                    {t('cancel')}
                                                 </Button>
+                                                <LoadingButton
+                                                    onClick={() => handleUpdatePatient()}
+                                                    loading={loadingRequest}
+                                                    disabled={Object.keys(errors).length > 0}
+                                                    className='btn-add'
+                                                    sx={{margin: 'auto'}}
+                                                    size='small'
+                                                    startIcon={<SaveAsIcon/>}>
+                                                    {t('register')}
+                                                </LoadingButton>
                                             </Stack>
                                             :
                                             <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
@@ -376,39 +387,6 @@ function PatientContactDetailCard({...props}) {
                                 </Grid>
                                 <Grid item md={7} sm={6} xs={6}>
                                     <Stack direction="row"
-                                           spacing={1}
-                                           alignItems="center">
-                                        <Grid item md={3} sm={6} xs={6}>
-                                            <Typography
-                                                className="label"
-                                                variant="body2"
-                                                color="text.secondary"
-                                                width="50%">
-                                                {t("address")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={8} sm={6} xs={6}>
-                                            {loading ? (
-                                                <Skeleton width={100}/>
-                                            ) : (
-                                                <InputBase
-                                                    readOnly={!editable}
-                                                    sx={{width: "50%"}}
-                                                    placeholder={t("address-placeholder")}
-                                                    inputProps={{
-                                                        style: {
-                                                            background: "white",
-                                                            fontSize: 14,
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("address")}
-                                                />
-                                            )}
-                                        </Grid>
-                                    </Stack>
-                                </Grid>
-                                <Grid item md={5} sm={6} xs={6}>
-                                    <Stack direction="row"
                                            sx={{
                                                "& .MuiInputBase-root": {
                                                    width: "100%"
@@ -440,6 +418,41 @@ function PatientContactDetailCard({...props}) {
                                                         },
                                                     }}
                                                     {...getFieldProps("zip_code")}
+                                                />
+                                            )}
+                                        </Grid>
+                                    </Stack>
+                                </Grid>
+                                <Grid item md={12} sm={6} xs={6}>
+                                    <Stack direction="row"
+                                           spacing={1}
+                                           alignItems="center">
+                                        <Grid item md={1.4} sm={6} xs={6}>
+                                            <Typography
+                                                className="label"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                width="50%">
+                                                {t("address")}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item md={10} sm={6} xs={6}>
+                                            {loading ? (
+                                                <Skeleton width={100}/>
+                                            ) : (
+                                                <InputBase
+                                                    inputComponent={"textarea"}
+                                                    readOnly={!editable}
+                                                    sx={{width: "100%"}}
+                                                    placeholder={t("address-placeholder")}
+                                                    inputProps={{
+                                                        rows: 2,
+                                                        style: {
+                                                            background: "white",
+                                                            fontSize: 14,
+                                                        },
+                                                    }}
+                                                    {...getFieldProps("address")}
                                                 />
                                             )}
                                         </Grid>
