@@ -301,7 +301,6 @@ function ConsultationInProgress() {
             if (appointement.type.code !== 3) setTotal(consultationFees)
             if (appointement.consultation_fees) {
                 setConsultationFees(Number(appointement.consultation_fees))
-                localStorage.setItem("consultation_fees", appointement.consultation_fees);
             }
 
             dispatch(SetPatient(appointement.patient));
@@ -334,7 +333,6 @@ function ConsultationInProgress() {
         if (httpMPResponse) {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
             setConsultationFees(Number(mpRes.consultation_fees))
-            localStorage.setItem("consultation_fees", mpRes.consultation_fees)
             setMpUuid(mpRes.medical_professional.uuid);
             setActs(mpRes.acts);
         }
@@ -397,7 +395,7 @@ function ConsultationInProgress() {
                 mutate().then(() => {
                     localStorage.removeItem("Modeldata" + uuind);
                     localStorage.removeItem(`Consultation-data-${uuind}`);
-                    console.log("remove", localStorage.getItem("Modeldata" + uuind))
+                    localStorage.removeItem(`consultation_fees`);
                     router.push("/dashboard/agenda").then(() => {
                         setActions(false);
                     })
@@ -513,6 +511,9 @@ function ConsultationInProgress() {
     };
 
     const leave = () => {
+        localStorage.removeItem("Modeldata" + uuind);
+        localStorage.removeItem(`Consultation-data-${uuind}`);
+        localStorage.removeItem(`consultation_fees`);
         updateAppointmentStatus(uuind as string, "11").then(() => {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));

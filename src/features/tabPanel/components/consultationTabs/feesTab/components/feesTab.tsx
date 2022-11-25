@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from "@features/card";
@@ -67,13 +67,14 @@ function FeesTab({...props}) {
         consultationFees,
         free, setFree,
         t
-    } = props
+    } = props;
 
-    const localConsultationFees = useState(localStorage.getItem("consultation_fees") ?
-        localStorage.getItem("consultation_fees") : consultationFees);
-
-    console.log("localConsultationFees", localConsultationFees);
-    
+    useEffect(() => {
+        const localConsultationFees = localStorage.getItem("consultation_fees");
+        if (localConsultationFees) {
+            setConsultationFees(localConsultationFees);
+        }
+    })
     return (
         <>
             <Stack direction={"row"} alignItems={"center"}
@@ -91,7 +92,7 @@ function FeesTab({...props}) {
                     checked={!free}/>
                 <Typography>Consultation</Typography>
                 <TextField id="outlined-basic"
-                           value={localConsultationFees}
+                           value={consultationFees}
                            size="small"
                            InputProps={{
                                endAdornment: <InputAdornment
