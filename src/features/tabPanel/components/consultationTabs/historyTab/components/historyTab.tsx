@@ -107,10 +107,12 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
-        dispatch(SetSelectedApp(appuuid))
+        if(appointement.latestAppointments.length > 0) {
+            dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
+        }
     }, [appointement, appuuid, dispatch]);
 
-    const printFees = (app: { appointment: { acts: any[],consultation_fees: string} }) => {
+    const printFees = (app: { appointment: { acts: any[], consultation_fees: string } }) => {
         const selectedActs: {
             uuid: string,
             act: { name: string }
@@ -131,7 +133,7 @@ function HistoryTab({...props}) {
             type: "fees",
             name: "note_fees",
             info: selectedActs,
-            consultationFees:app.appointment.consultation_fees,
+            consultationFees: app.appointment.consultation_fees,
             patient: `${patient.firstName}   ${patient.lastName}`,
         });
         setOpenDialog(true);
@@ -197,13 +199,10 @@ function HistoryTab({...props}) {
             <Stack spacing={2}>
                 {apps.map((app: any, iid: number) => (
                     <PatientHistoryCard
-                        t={t}
+                        {...{selectedApp, t, appuuid, dispatch}}
                         key={app.appointment.uuid}
                         keyID={app.appointment.uuid}
-                        selectedApp={selectedApp}
-                        dispatch={dispatch}
-                        data={app}
-                        appuuid={appuuid}>
+                        data={app}>
                         <Collapse
                             in={app.appointment.uuid === selectedApp}>
                             <Stack spacing={2}>

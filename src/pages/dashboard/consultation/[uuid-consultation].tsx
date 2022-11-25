@@ -540,7 +540,7 @@ function ConsultationInProgress() {
         );
     };
 
-    const showDoc = (card: any) =>{
+    const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
             setInfo('document_detail');
             setState({
@@ -554,8 +554,7 @@ function ConsultationInProgress() {
                 mutate: mutateDoc,
             })
             setOpenDialog(true);
-        }
-        else {
+        } else {
             setInfo('document_detail')
             let info = card
             let uuidDoc = "";
@@ -623,23 +622,25 @@ function ConsultationInProgress() {
                 </Stack>}
                 <TabPanel padding={1} value={value} index={"patient_history"}>
                     <HistoryTab
-                        patient={patient}
-                        appointement={appointement}
-                        t={t}
+                        {...{
+                            patient,
+                            dispatch,
+                            appointement,
+                            t,
+                            session,
+                            acts,
+                            direction,
+                            mutateDoc,
+                            mutate,
+                            medical_entity,
+                            setOpenDialog,
+                            showDoc,
+                            setState,
+                            setInfo,
+                            setIsViewerOpen
+                        }}
                         appuuid={uuind}
-                        setIsViewerOpen={setIsViewerOpen}
-                        direction={direction}
-                        setInfo={setInfo}
-                        acts={acts}
-                        mutateDoc={mutateDoc}
-                        setState={setState}
-                        medical_entity={medical_entity}
-                        mutate={mutate}
-                        session={session}
-                        showDoc={showDoc}
-                        locale={router.locale}
-                        dispatch={dispatch}
-                        setOpenDialog={setOpenDialog}></HistoryTab>
+                        locale={router.locale}/>
                 </TabPanel>
                 {/*
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
@@ -906,6 +907,12 @@ function ConsultationInProgress() {
 
             {info && (
                 <Dialog
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 300
+                        }
+                    }}
                     action={info}
                     open={openDialog}
                     data={{
