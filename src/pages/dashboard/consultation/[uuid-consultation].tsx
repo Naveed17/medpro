@@ -409,7 +409,7 @@ function ConsultationInProgress() {
                 console.log(r);
                 dispatch(setTimer({isActive: false}));
                 mutate().then(() => {
-                    //localStorage.removeItem("Modeldata" + uuind);
+                    localStorage.removeItem("Modeldata" + uuind);
                     console.log("remove", localStorage.getItem("Modeldata" + uuind))
                     router.push("/dashboard/agenda").then(() => {
                         setActions(false);
