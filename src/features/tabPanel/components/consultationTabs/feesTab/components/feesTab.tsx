@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from "@features/card";
@@ -65,9 +65,15 @@ function FeesTab({...props}) {
         setTotal,
         setConsultationFees,
         consultationFees,
-        free,setFree,
+        free, setFree,
         t
     } = props
+
+    const localConsultationFees = useState(localStorage.getItem("consultation_fees") ?
+        localStorage.getItem("consultation_fees") : consultationFees);
+
+    console.log("localConsultationFees", localConsultationFees);
+    
     return (
         <>
             <Stack direction={"row"} alignItems={"center"}
@@ -85,14 +91,16 @@ function FeesTab({...props}) {
                     checked={!free}/>
                 <Typography>Consultation</Typography>
                 <TextField id="outlined-basic"
-                           value={consultationFees}
+                           value={localConsultationFees}
                            size="small"
                            InputProps={{
-                               endAdornment: <InputAdornment position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
+                               endAdornment: <InputAdornment
+                                   position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
                                style: {width: 120, backgroundColor: "white"}
                            }}
                            onChange={(ev) => {
                                setConsultationFees(Number(ev.target.value))
+                               localStorage.setItem("consultation_fees", ev.target.value);
                            }}
                            variant="outlined"/>
             </Stack>

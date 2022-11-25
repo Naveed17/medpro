@@ -12,7 +12,7 @@ import {pxToRem} from "@themes/formatFontSize";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function CIPPatientHistoryCard({...props}) {
-    const {exam: defaultExam, changes, setChanges} = props
+    const {exam: defaultExam, changes, setChanges, uuind} = props
     const {exam} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const dispatch = useAppDispatch();
@@ -33,7 +33,7 @@ function CIPPatientHistoryCard({...props}) {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
 
-    const {handleSubmit, values, getFieldProps} = formik;
+    const {handleSubmit, values, getFieldProps, setFieldValue} = formik;
 
 
     useEffect(() => {
@@ -76,7 +76,6 @@ function CIPPatientHistoryCard({...props}) {
                                 id={"motif"}
                                 size="small"
                                 {...getFieldProps("motif")}
-                                value={values.motif}
                                 displayEmpty={true}
                                 sx={{color: "text.secondary"}}
                                 renderValue={selected => {
@@ -87,7 +86,6 @@ function CIPPatientHistoryCard({...props}) {
                                     const creason = cReason?.find(cr => cr.uuid === selected);
                                     return (
                                         <Box sx={{display: "inline-flex"}}>
-
                                             <Typography>{creason?.name}</Typography>
                                         </Box>
                                     )
@@ -112,8 +110,15 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 multiline
                                 rows={9}
+                                value={values.notes}
+                                onChange={event => {
+                                    setFieldValue("notes", event.target.value);
+                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                        ...values,
+                                        notes: event.target.value
+                                    }));
+                                }}
                                 placeholder={t("hint_text")}
-                                {...getFieldProps("notes")}
                             />
                         </Box>
                         <Box width={1}>
@@ -124,11 +129,15 @@ function CIPPatientHistoryCard({...props}) {
                                 fullWidth
                                 id={"diagnosis"}
                                 size="small"
-                                {...getFieldProps("diagnosis")}
                                 value={values.diagnosis}
-                                sx={{color: "text.secondary"}}>
-
-                            </TextField>
+                                onChange={event => {
+                                    setFieldValue("diagnosis", event.target.value);
+                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                        ...values,
+                                        diagnosis: event.target.value
+                                    }));
+                                }}
+                                sx={{color: "text.secondary"}}/>
                         </Box>
                         <Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
@@ -139,7 +148,14 @@ function CIPPatientHistoryCard({...props}) {
                                 multiline
                                 rows={5}
                                 placeholder={t("enter_your_dosage")}
-                                {...getFieldProps("treatment")}
+                                value={values.treatment}
+                                onChange={event => {
+                                    setFieldValue("treatment", event.target.value);
+                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                        ...values,
+                                        treatment: event.target.value
+                                    }));
+                                }}
                             />
                         </Box>
                     </Stack>

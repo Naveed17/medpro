@@ -18,7 +18,7 @@ import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {ConsultationDetailCard, PatientHistoryNoDataCard, PendingDocumentCard, setTimer,} from "@features/card";
@@ -36,6 +36,7 @@ import {Widget} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import {LoadingScreen} from "@features/loadingScreen";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -138,8 +139,26 @@ function ConsultationInProgress() {
     const {trigger} = useRequestMutation(null, "/endConsultation");
 
     const uuind = router.query["uuid-consultation"];
-    const medical_entity = (session?.data as UserDataResponse)
-        ?.medical_entity as MedicalEntityModel;
+    const medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
+
+    const {trigger: updateStatusTrigger} = useRequestMutation(null,
+        "/agenda/update/appointment/status", TriggerWithoutValidation);
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
 
     const {data: httpMPResponse} = useRequest(
         medical_entity
@@ -254,22 +273,22 @@ function ConsultationInProgress() {
     }, [httpSheetResponse]);
 
     useEffect(() => {
+        console.log("sheet", sheet);
         if (sheet) {
             setSelectedModel(sheet.modal);
             //console.log(localStorage.getItem('Modeldata' + uuind))
             if (!localStorage.getItem('Modeldata' + uuind)) {
-
                 localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
             }
             const app_data = sheet.exam.appointment_data;
+            // load observation data from local storage
+            const examData = localStorage.getItem(`Consultation-data-${uuind}`);
             dispatch(
                 SetExam({
-                    motif: app_data?.consultation_reason
-                        ? app_data?.consultation_reason.uuid
-                        : "",
-                    notes: app_data?.notes ? app_data.notes.value : "",
-                    diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : "",
-                    treatment: app_data?.treatments ? app_data.treatments.value : "",
+                    motif: examData && JSON.parse(examData).motif ? JSON.parse(examData).motif : (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
+                    notes: app_data?.notes ? app_data.notes.value : (examData ? JSON.parse(examData).notes : ""),
+                    diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : (examData ? JSON.parse(examData).diagnosis : ""),
+                    treatment: app_data?.treatments ? app_data.treatments.value : (examData ? JSON.parse(examData).treatment : ""),
                 })
             );
         }
@@ -280,8 +299,10 @@ function ConsultationInProgress() {
             setPatient(appointement.patient);
             setFree(appointement.type.code === 3)
             if (appointement.type.code !== 3) setTotal(consultationFees)
-            if (appointement.consultation_fees)
+            if (appointement.consultation_fees) {
                 setConsultationFees(Number(appointement.consultation_fees))
+                localStorage.setItem("consultation_fees", appointement.consultation_fees);
+            }
 
             dispatch(SetPatient(appointement.patient));
             dispatch(SetAppointement(appointement));
@@ -313,6 +334,7 @@ function ConsultationInProgress() {
         if (httpMPResponse) {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
             setConsultationFees(Number(mpRes.consultation_fees))
+            localStorage.setItem("consultation_fees", mpRes.consultation_fees)
             setMpUuid(mpRes.medical_professional.uuid);
             setActs(mpRes.acts);
         }
@@ -336,42 +358,6 @@ function ConsultationInProgress() {
         }
     }, [patientId]);
 
-    const sendNotification = () => {
-        if (secretary.length > 0) {
-            const form = new FormData();
-            form.append("action", "end_consultation");
-            form.append("content", JSON.stringify(
-                {
-                    fees: total,
-                    instruction: instruction,
-                    control: checkedNext,
-                    nextApp: meeting,
-                    patient: {
-                        uuid: patient.uuid,
-                        email: patient.email,
-                        birthdate: patient.birthdate,
-                        firstName: patient.firstName,
-                        lastName: patient.lastName,
-                        gender: patient.gender,
-                        account: patient.account,
-                        address: patient.address,
-                        contact: patient.contact,
-                        hasAccount: patient.hasAccount,
-                        idCard: patient.idCard
-                    }
-                }))
-            trigger({
-                method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }).then((r: any) => {
-
-            })
-        }
-    }
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
@@ -410,6 +396,7 @@ function ConsultationInProgress() {
                 dispatch(setTimer({isActive: false}));
                 mutate().then(() => {
                     localStorage.removeItem("Modeldata" + uuind);
+                    localStorage.removeItem(`Consultation-data-${uuind}`);
                     console.log("remove", localStorage.getItem("Modeldata" + uuind))
                     router.push("/dashboard/agenda").then(() => {
                         setActions(false);
@@ -421,6 +408,43 @@ function ConsultationInProgress() {
         setEnd(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [end]);
+
+    const sendNotification = () => {
+        if (secretary.length > 0) {
+            const form = new FormData();
+            form.append("action", "end_consultation");
+            form.append("content", JSON.stringify(
+                {
+                    fees: total,
+                    instruction: instruction,
+                    control: checkedNext,
+                    nextApp: meeting,
+                    patient: {
+                        uuid: patient.uuid,
+                        email: patient.email,
+                        birthdate: patient.birthdate,
+                        firstName: patient.firstName,
+                        lastName: patient.lastName,
+                        gender: patient.gender,
+                        account: patient.account,
+                        address: patient.address,
+                        contact: patient.contact,
+                        hasAccount: patient.hasAccount,
+                        idCard: patient.idCard
+                    }
+                }))
+            trigger({
+                method: "POST",
+                url: `/api/medical-entity/${medical_entity.uuid}/professionals/${secretary}/notification/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then((r: any) => {
+
+            })
+        }
+    }
 
     const editAct = (row: any, from: any) => {
         if (from === "change") {
@@ -487,12 +511,16 @@ function ConsultationInProgress() {
         setActions(false);
 
     };
+
     const leave = () => {
-        router.push("/dashboard/agenda").then(() => {
-            dispatch(setTimer({isActive: false}));
-            setActions(false);
-        })
+        updateAppointmentStatus(uuind as string, "11").then(() => {
+            router.push("/dashboard/agenda").then(() => {
+                dispatch(setTimer({isActive: false}));
+                setActions(false);
+            })
+        });
     }
+
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
@@ -583,8 +611,10 @@ function ConsultationInProgress() {
             setOpenDialog(true);
         }
     }
+
     const {t, ready} = useTranslation("consultation");
-    if (!ready) return <>consulation translations...</>;
+
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
@@ -675,7 +705,9 @@ function ConsultationInProgress() {
                         </Grid>
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet &&
-                                <ConsultationDetailCard exam={sheet.exam} changes={changes} setChanges={setChanges}/>}
+                                <ConsultationDetailCard
+                                    {...{changes, setChanges, uuind}}
+                                    exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>
