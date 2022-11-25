@@ -29,11 +29,19 @@ function CIPPatientHistoryCard({...props}) {
         },
     });
 
+    const {handleSubmit, values, getFieldProps, setFieldValue} = formik;
+
     useEffect(() => {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
 
-    const {handleSubmit, values, getFieldProps, setFieldValue} = formik;
+    useEffect(() => {
+        if (exam) {
+            Object.entries(exam).map((value, index) => {
+                setFieldValue(value[0], value[1]);
+            });
+        }
+    }, [exam, setFieldValue]);
 
 
     useEffect(() => {
@@ -45,6 +53,7 @@ function CIPPatientHistoryCard({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <ConsultationDetailCardStyled>
             <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center" borderBottom={1}
@@ -113,7 +122,7 @@ function CIPPatientHistoryCard({...props}) {
                                 value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
-                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
                                         ...values,
                                         notes: event.target.value
                                     }));
@@ -132,7 +141,7 @@ function CIPPatientHistoryCard({...props}) {
                                 value={values.diagnosis}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
-                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
                                         ...values,
                                         diagnosis: event.target.value
                                     }));
@@ -151,7 +160,7 @@ function CIPPatientHistoryCard({...props}) {
                                 value={values.treatment}
                                 onChange={event => {
                                     setFieldValue("treatment", event.target.value);
-                                    localStorage.setItem(`Consultation-data-${uuind}`, JSON.stringify({
+                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
                                         ...values,
                                         treatment: event.target.value
                                     }));

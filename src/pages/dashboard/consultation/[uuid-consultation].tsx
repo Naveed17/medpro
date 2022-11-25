@@ -71,7 +71,8 @@ function ConsultationInProgress() {
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
-    const [selectedAct, setSelectedAct] = useState<any[]>([]);
+    const [selectedAct, setSelectedAct] = useState<any[]>(localStorage.getItem('consultation-acts') ?
+        JSON.parse(localStorage.getItem('consultation-acts') as string) : []);
     const [selectedUuid, setSelectedUuid] = useState<string[]>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
@@ -273,20 +274,18 @@ function ConsultationInProgress() {
     }, [httpSheetResponse]);
 
     useEffect(() => {
-        console.log("sheet", sheet);
         if (sheet) {
             setSelectedModel(sheet.modal);
-            //console.log(localStorage.getItem('Modeldata' + uuind))
             if (!localStorage.getItem('Modeldata' + uuind)) {
                 localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
             }
             const app_data = sheet.exam.appointment_data;
             // load observation data from local storage
-            const examData = localStorage.getItem(`Consultation-data-${uuind}`);
+            const examData = localStorage.getItem(`consultation-data-${uuind}`);
             dispatch(
                 SetExam({
                     motif: examData && JSON.parse(examData).motif ? JSON.parse(examData).motif : (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
-                    notes: app_data?.notes ? app_data.notes.value : (examData ? JSON.parse(examData).notes : ""),
+                    notes: examData && JSON.parse(examData).notes ? JSON.parse(examData).notes : (app_data?.notes ? app_data.notes.value : ""),
                     diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : (examData ? JSON.parse(examData).diagnosis : ""),
                     treatment: app_data?.treatments ? app_data.treatments.value : (examData ? JSON.parse(examData).treatment : ""),
                 })
@@ -334,16 +333,26 @@ function ConsultationInProgress() {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
             setConsultationFees(Number(mpRes.consultation_fees))
             setMpUuid(mpRes.medical_professional.uuid);
-            setActs(mpRes.acts);
+            const acts = [...mpRes.acts];
+            const localActes = localStorage.getItem('consultation-acts') ?
+                JSON.parse(localStorage.getItem('consultation-acts') as string) : [];
+            if (localActes) {
+                setSelectedAct([...localActes]);
+            }
+            const updatedActs = acts.map(act => {
+                const localAct = localActes.find((selAct: any) => selAct.uuid === act.uuid);
+                return localAct ? localAct : act;
+            });
+            setActs(updatedActs);
         }
     }, [httpMPResponse]);
 
     useEffect(() => {
-        let fees = free ? 0 : consultationFees;
+        let fees = free ? 0 : Number(consultationFees);
         let uuids: string[] = [];
         selectedAct.map((act) => {
             uuids.push(act.uuid);
-            act.qte ? (fees += act.fees * act.qte) : (fees += act.fees);
+            act.qte ? (fees += parseInt(act.fees) * parseInt(act.qte)) : (fees += parseInt(act.fees));
         });
         setTotal(fees);
         setSelectedUuid(uuids);
@@ -390,12 +399,12 @@ function ConsultationInProgress() {
                 },
             }).then((r: any) => {
                 console.log("end consultation", r);
-                console.log(r);
                 dispatch(setTimer({isActive: false}));
                 mutate().then(() => {
                     localStorage.removeItem("Modeldata" + uuind);
-                    localStorage.removeItem(`Consultation-data-${uuind}`);
-                    localStorage.removeItem(`consultation_fees`);
+                    localStorage.removeItem(`consultation-data-${uuind}`);
+                    localStorage.removeItem(`consultation-fees`);
+                    localStorage.removeItem(`consultation-acts`);
                     router.push("/dashboard/agenda").then(() => {
                         setActions(false);
                     })
@@ -449,10 +458,12 @@ function ConsultationInProgress() {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
+            localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct]));
         } else if (from === "changeQte") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
+            localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct]));
         } else if (from === "checked") {
         } else {
             if (from) {
@@ -461,9 +472,15 @@ function ConsultationInProgress() {
                     ...selectedAct.slice(0, index),
                     ...selectedAct.slice(index + 1, selectedAct.length),
                 ]);
+                localStorage.setItem('consultation-acts', JSON.stringify([
+                    ...selectedAct.slice(0, index),
+                    ...selectedAct.slice(index + 1, selectedAct.length),
+                ]));
+
             } else {
                 row.qte = 1;
                 setSelectedAct([...selectedAct, row]);
+                localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct, row]));
             }
         }
     };
@@ -512,8 +529,9 @@ function ConsultationInProgress() {
 
     const leave = () => {
         localStorage.removeItem("Modeldata" + uuind);
-        localStorage.removeItem(`Consultation-data-${uuind}`);
-        localStorage.removeItem(`consultation_fees`);
+        localStorage.removeItem(`consultation-data-${uuind}`);
+        localStorage.removeItem(`consultation-fees`);
+        localStorage.removeItem(`consultation-acts`);
         updateAppointmentStatus(uuind as string, "11").then(() => {
             router.push("/dashboard/agenda").then(() => {
                 dispatch(setTimer({isActive: false}));
@@ -733,6 +751,7 @@ function ConsultationInProgress() {
                         {...{
                             acts,
                             selectedUuid,
+                            selectedAct,
                             consultationFees,
                             setConsultationFees,
                             free, setFree,

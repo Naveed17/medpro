@@ -61,6 +61,7 @@ function FeesTab({...props}) {
     const {
         acts,
         selectedUuid,
+        selectedAct,
         editAct,
         setTotal,
         setConsultationFees,
@@ -70,11 +71,12 @@ function FeesTab({...props}) {
     } = props;
 
     useEffect(() => {
-        const localConsultationFees = localStorage.getItem("consultation_fees");
+        const localConsultationFees = localStorage.getItem("consultation-fees");
         if (localConsultationFees) {
             setConsultationFees(localConsultationFees);
         }
     })
+
     return (
         <>
             <Stack direction={"row"} alignItems={"center"}
@@ -85,10 +87,7 @@ function FeesTab({...props}) {
                    }} spacing={2} mb={2}>
                 <Checkbox
                     color="primary"
-                    onChange={(ev) => {
-                        console.log(ev.target.checked)
-                        setFree(!ev.target.checked)
-                    }}
+                    onChange={(ev) => setFree(!ev.target.checked)}
                     checked={!free}/>
                 <Typography>Consultation</Typography>
                 <TextField id="outlined-basic"
@@ -101,7 +100,7 @@ function FeesTab({...props}) {
                            }}
                            onChange={(ev) => {
                                setConsultationFees(Number(ev.target.value))
-                               localStorage.setItem("consultation_fees", ev.target.value);
+                               localStorage.setItem("consultation-fees", ev.target.value);
                            }}
                            variant="outlined"/>
             </Stack>
@@ -114,7 +113,6 @@ function FeesTab({...props}) {
                     from={"CIP-medical-procedures"}
                     t={t}
                     edit={editAct}
-                    handleConfig={null}
                     handleChange={setTotal}/>
             </Box>
             <Stack spacing={2} display={{xs: "block", md: 'none'}}>
