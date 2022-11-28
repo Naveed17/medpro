@@ -124,6 +124,7 @@ function AddPatientStep2({...props}) {
         form.append('family_doctor', values.family_doctor);
         form.append('region', values.region);
         form.append('zip_code', values.zip_code);
+        form.append('id_card', values.cin);
         setLoading(true);
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",

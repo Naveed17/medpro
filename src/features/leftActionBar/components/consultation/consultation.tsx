@@ -42,7 +42,6 @@ function Consultation() {
     useEffect(() => {
         if (patient && !lock) {
             dispatch(toggleSideBar(false));
-            console.log(patient);
             setNumber(patient.contact[0])
             setEmail(patient.email)
             setName(`${patient.firstName} ${patient.lastName}`)

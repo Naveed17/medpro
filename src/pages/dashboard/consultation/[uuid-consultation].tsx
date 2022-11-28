@@ -18,7 +18,7 @@ import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useTranslation} from "next-i18next";
 import {Box, Button, DialogActions, Drawer, Grid, Stack, Typography, useTheme,} from "@mui/material";
 import {ConsultationDetailCard, PatientHistoryNoDataCard, PendingDocumentCard, setTimer,} from "@features/card";
@@ -36,6 +36,7 @@ import {Widget} from "@features/widget";
 import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import {LoadingScreen} from "@features/loadingScreen";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -70,7 +71,8 @@ function ConsultationInProgress() {
     const [patient, setPatient] = useState<any>();
     const [mpUuid, setMpUuid] = useState("");
     const [dialog, setDialog] = useState<string>("");
-    const [selectedAct, setSelectedAct] = useState<any[]>([]);
+    const [selectedAct, setSelectedAct] = useState<any[]>(localStorage.getItem('consultation-acts') ?
+        JSON.parse(localStorage.getItem('consultation-acts') as string) : []);
     const [selectedUuid, setSelectedUuid] = useState<string[]>([]);
     const [pendingDocuments, setPendingDocuments] = useState<any[]>([]);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
@@ -138,8 +140,26 @@ function ConsultationInProgress() {
     const {trigger} = useRequestMutation(null, "/endConsultation");
 
     const uuind = router.query["uuid-consultation"];
-    const medical_entity = (session?.data as UserDataResponse)
-        ?.medical_entity as MedicalEntityModel;
+    const medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
+
+    const {trigger: updateStatusTrigger} = useRequestMutation(null,
+        "/agenda/update/appointment/status", TriggerWithoutValidation);
+
+    const updateAppointmentStatus = (appointmentUUid: string, status: string, params?: any) => {
+        const form = new FormData();
+        form.append('status', status);
+        if (params) {
+            Object.entries(params).map((param: any, index) => {
+                form.append(param[0], param[1]);
+            });
+        }
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
 
     const {data: httpMPResponse} = useRequest(
         medical_entity
@@ -256,20 +276,18 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheet.modal);
-            //console.log(localStorage.getItem('Modeldata' + uuind))
             if (!localStorage.getItem('Modeldata' + uuind)) {
-
                 localStorage.setItem("Modeldata" + uuind, JSON.stringify(sheet.modal.data));
             }
             const app_data = sheet.exam.appointment_data;
+            // load observation data from local storage
+            const examData = localStorage.getItem(`consultation-data-${uuind}`);
             dispatch(
                 SetExam({
-                    motif: app_data?.consultation_reason
-                        ? app_data?.consultation_reason.uuid
-                        : "",
-                    notes: app_data?.notes ? app_data.notes.value : "",
-                    diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : "",
-                    treatment: app_data?.treatments ? app_data.treatments.value : "",
+                    motif: examData && JSON.parse(examData).motif ? JSON.parse(examData).motif : (app_data?.consultation_reason ? app_data?.consultation_reason.uuid : ""),
+                    notes: examData && JSON.parse(examData).notes ? JSON.parse(examData).notes : (app_data?.notes ? app_data.notes.value : ""),
+                    diagnosis: app_data?.diagnostics ? app_data.diagnostics.value : (examData ? JSON.parse(examData).diagnosis : ""),
+                    treatment: app_data?.treatments ? app_data.treatments.value : (examData ? JSON.parse(examData).treatment : ""),
                 })
             );
         }
@@ -280,8 +298,9 @@ function ConsultationInProgress() {
             setPatient(appointement.patient);
             setFree(appointement.type.code === 3)
             if (appointement.type.code !== 3) setTotal(consultationFees)
-            if (appointement.consultation_fees)
+            if (appointement.consultation_fees) {
                 setConsultationFees(Number(appointement.consultation_fees))
+            }
 
             dispatch(SetPatient(appointement.patient));
             dispatch(SetAppointement(appointement));
@@ -314,16 +333,26 @@ function ConsultationInProgress() {
             const mpRes = (httpMPResponse as HttpResponse)?.data[0];
             setConsultationFees(Number(mpRes.consultation_fees))
             setMpUuid(mpRes.medical_professional.uuid);
-            setActs(mpRes.acts);
+            const acts = [...mpRes.acts];
+            const localActes = localStorage.getItem('consultation-acts') ?
+                JSON.parse(localStorage.getItem('consultation-acts') as string) : [];
+            if (localActes) {
+                setSelectedAct([...localActes]);
+            }
+            const updatedActs = acts.map(act => {
+                const localAct = localActes.find((selAct: any) => selAct.uuid === act.uuid);
+                return localAct ? localAct : act;
+            });
+            setActs(updatedActs);
         }
     }, [httpMPResponse]);
 
     useEffect(() => {
-        let fees = free ? 0 : consultationFees;
+        let fees = free ? 0 : Number(consultationFees);
         let uuids: string[] = [];
         selectedAct.map((act) => {
             uuids.push(act.uuid);
-            act.qte ? (fees += act.fees * act.qte) : (fees += act.fees);
+            act.qte ? (fees += parseInt(act.fees) * parseInt(act.qte)) : (fees += parseInt(act.fees));
         });
         setTotal(fees);
         setSelectedUuid(uuids);
@@ -335,6 +364,57 @@ function ConsultationInProgress() {
             setPatientDetailDrawer(true);
         }
     }, [patientId]);
+
+    useEffect(() => {
+        const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
+        if (end) {
+            selectedAct.map(
+                (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
+                    acts.push({
+                        act_uuid: act.uuid,
+                        name: act.act.name,
+                        qte: act.qte,
+                        price: act.fees,
+                    });
+                }
+            );
+            const form = new FormData();
+            form.append("acts", JSON.stringify(acts));
+            form.append("modal_uuid", selectedModel.default_modal.uuid);
+            form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
+            form.append("notes", exam.notes);
+            form.append("diagnostic", exam.diagnosis);
+            form.append("treatment", exam.treatment);
+            form.append("consultation_reason", exam.motif);
+            form.append("fees", total.toString());
+            form.append("consultation_fees", consultationFees.toString());
+            form.append("status", "5");
+
+            trigger({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
+                data: form,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then((r: any) => {
+                console.log("end consultation", r);
+                dispatch(setTimer({isActive: false}));
+                mutate().then(() => {
+                    localStorage.removeItem("Modeldata" + uuind);
+                    localStorage.removeItem(`consultation-data-${uuind}`);
+                    localStorage.removeItem(`consultation-fees`);
+                    localStorage.removeItem(`consultation-acts`);
+                    router.push("/dashboard/agenda").then(() => {
+                        setActions(false);
+                    })
+                    sendNotification()
+                })
+            });
+        }
+        setEnd(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [end]);
 
     const sendNotification = () => {
         if (secretary.length > 0) {
@@ -372,65 +452,18 @@ function ConsultationInProgress() {
             })
         }
     }
-    useEffect(() => {
-        const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
-        if (end) {
-            selectedAct.map(
-                (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
-                    acts.push({
-                        act_uuid: act.uuid,
-                        name: act.act.name,
-                        qte: act.qte,
-                        price: act.fees,
-                    });
-                }
-            );
-            const form = new FormData();
-            form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
-            form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
-            form.append("notes", exam.notes);
-            form.append("diagnostic", exam.diagnosis);
-            form.append("treatment", exam.treatment);
-            form.append("consultation_reason", exam.motif);
-            form.append("fees", total.toString());
-            form.append("consultation_fees", consultationFees.toString());
-            form.append("status", "5");
-
-            trigger({
-                method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }).then((r: any) => {
-                console.log("end consultation", r);
-                console.log(r);
-                dispatch(setTimer({isActive: false}));
-                mutate().then(() => {
-                    //localStorage.removeItem("Modeldata" + uuind);
-                    console.log("remove", localStorage.getItem("Modeldata" + uuind))
-                    router.push("/dashboard/agenda").then(() => {
-                        setActions(false);
-                    })
-                    sendNotification()
-                })
-            });
-        }
-        setEnd(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [end]);
 
     const editAct = (row: any, from: any) => {
         if (from === "change") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
+            localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct]));
         } else if (from === "changeQte") {
             const index = selectedAct.findIndex((act) => act.uuid === row.uuid);
             selectedAct[index] = row;
             setSelectedAct([...selectedAct]);
+            localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct]));
         } else if (from === "checked") {
         } else {
             if (from) {
@@ -439,9 +472,15 @@ function ConsultationInProgress() {
                     ...selectedAct.slice(0, index),
                     ...selectedAct.slice(index + 1, selectedAct.length),
                 ]);
+                localStorage.setItem('consultation-acts', JSON.stringify([
+                    ...selectedAct.slice(0, index),
+                    ...selectedAct.slice(index + 1, selectedAct.length),
+                ]));
+
             } else {
                 row.qte = 1;
                 setSelectedAct([...selectedAct, row]);
+                localStorage.setItem('consultation-acts', JSON.stringify([...selectedAct, row]));
             }
         }
     };
@@ -487,12 +526,20 @@ function ConsultationInProgress() {
         setActions(false);
 
     };
+
     const leave = () => {
-        router.push("/dashboard/agenda").then(() => {
-            dispatch(setTimer({isActive: false}));
-            setActions(false);
-        })
+        localStorage.removeItem("Modeldata" + uuind);
+        localStorage.removeItem(`consultation-data-${uuind}`);
+        localStorage.removeItem(`consultation-fees`);
+        localStorage.removeItem(`consultation-acts`);
+        updateAppointmentStatus(uuind as string, "11").then(() => {
+            router.push("/dashboard/agenda").then(() => {
+                dispatch(setTimer({isActive: false}));
+                setActions(false);
+            })
+        });
     }
+
     const closeImageViewer = () => {
         setIsViewerOpen("");
     };
@@ -540,7 +587,7 @@ function ConsultationInProgress() {
         );
     };
 
-    const showDoc = (card: any) =>{
+    const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
             setInfo('document_detail');
             setState({
@@ -554,8 +601,7 @@ function ConsultationInProgress() {
                 mutate: mutateDoc,
             })
             setOpenDialog(true);
-        }
-        else {
+        } else {
             setInfo('document_detail')
             let info = card
             let uuidDoc = "";
@@ -584,8 +630,10 @@ function ConsultationInProgress() {
             setOpenDialog(true);
         }
     }
+
     const {t, ready} = useTranslation("consultation");
-    if (!ready) return <>consulation translations...</>;
+
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
@@ -623,23 +671,25 @@ function ConsultationInProgress() {
                 </Stack>}
                 <TabPanel padding={1} value={value} index={"patient_history"}>
                     <HistoryTab
-                        patient={patient}
-                        appointement={appointement}
-                        t={t}
+                        {...{
+                            patient,
+                            dispatch,
+                            appointement,
+                            t,
+                            session,
+                            acts,
+                            direction,
+                            mutateDoc,
+                            mutate,
+                            medical_entity,
+                            setOpenDialog,
+                            showDoc,
+                            setState,
+                            setInfo,
+                            setIsViewerOpen
+                        }}
                         appuuid={uuind}
-                        setIsViewerOpen={setIsViewerOpen}
-                        direction={direction}
-                        setInfo={setInfo}
-                        acts={acts}
-                        mutateDoc={mutateDoc}
-                        setState={setState}
-                        medical_entity={medical_entity}
-                        mutate={mutate}
-                        session={session}
-                        showDoc={showDoc}
-                        locale={router.locale}
-                        dispatch={dispatch}
-                        setOpenDialog={setOpenDialog}></HistoryTab>
+                        locale={router.locale}/>
                 </TabPanel>
                 {/*
                 <TabPanel padding={1} value={value} index={"mediktor_report"}>
@@ -674,7 +724,9 @@ function ConsultationInProgress() {
                         </Grid>
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet &&
-                                <ConsultationDetailCard exam={sheet.exam} changes={changes} setChanges={setChanges}/>}
+                                <ConsultationDetailCard
+                                    {...{changes, setChanges, uuind}}
+                                    exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>
@@ -699,6 +751,7 @@ function ConsultationInProgress() {
                         {...{
                             acts,
                             selectedUuid,
+                            selectedAct,
                             consultationFees,
                             setConsultationFees,
                             free, setFree,
@@ -906,6 +959,12 @@ function ConsultationInProgress() {
 
             {info && (
                 <Dialog
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 300
+                        }
+                    }}
                     action={info}
                     open={openDialog}
                     data={{
@@ -927,7 +986,6 @@ function ConsultationInProgress() {
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
-                    direction={"ltr"}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}

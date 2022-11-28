@@ -1,11 +1,16 @@
-import { styled } from '@mui/material/styles'
-import { Box } from '@mui/material'
-const PaymentDialogStyled = styled(Box)(({ theme }) => ({
+import {styled} from '@mui/material/styles'
+import {Box} from '@mui/material'
+
+const PaymentDialogStyled = styled(Box)(({theme}) => ({
+    '& .MuiDialogContent-root': {
+        padding: "24px 40px"
+    },
     '.MuiAvatar-root': {
         width: 28,
         height: 28,
     },
-    '.MuiFormGroup-root': {
+    '& .MuiFormGroup-root': {
+        border: "none",
         marginTop: theme.spacing(3),
         flexWrap: 'nowrap',
         '.MuiFormControlLabel-root': {
@@ -14,7 +19,7 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
             padding: theme.spacing(.7, 1),
             borderRadius: theme.spacing(1),
             marginLeft: 0,
-            marginBottom: -1,
+            marginBottom: 8,
             '.label-inner': {
                 svg: {
                     path: {
@@ -25,16 +30,14 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
             },
             '&.selected': {
                 backgroundColor: 'transparent',
-                border: `1px solid ${theme.palette.divider}`,
-                borderBottomColor: theme.palette.common.white,
-                borderBottomLeftRadius: 0,
-                borderBottomRightRadius: 0,
+                border: `1px solid ${theme.palette.divider}`
             }
         }
     },
     '.tab-panel': {
         border: `1px solid ${theme.palette.divider}`,
-        borderTop: 'none',
+        margin: "8px 0",
+        borderRadius: 8,
         '.MuiPaper-root': {
             padding: theme.spacing(2)
         }

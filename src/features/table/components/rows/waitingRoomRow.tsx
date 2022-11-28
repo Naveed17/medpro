@@ -6,9 +6,12 @@ import {useTheme} from "@mui/material/styles";
 import {Label} from "@features/label";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import {ReactElement, useState} from 'react';
+import React, {ReactElement, useState} from 'react';
 import CloseIcon from "@mui/icons-material/Close";
+import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 import moment from "moment-timezone";
+import {IconsTypes} from "@features/calendar";
+import {ModelDot} from "@features/modelDot";
 
 function WaitingRoomRow({...props}) {
     const {row, t, handleEvent} = props;
@@ -98,7 +101,7 @@ function WaitingRoomRow({...props}) {
                                 }}
                             >
                                 <Icon path="ic-time"/>
-                                {moment(row.arrive_time, "HH:mm").add(1,"hours").format("HH:mm")}
+                                {moment(row.arrive_time, "HH:mm").add(1, "hours").format("HH:mm")}
                             </Typography>
                         </Box>
                     ) : (
@@ -156,6 +159,25 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell>
                     {row ? (
+                        <Stack spacing={2} direction="row" alignItems="center">
+                            {row.appointment_type ?
+                                <>
+                                    <ModelDot
+                                        icon={row.appointment_type && IconsTypes[row.appointment_type?.icon]}
+                                        color={row.appointment_type?.color}
+                                        selected={false}
+                                        marginRight={0}></ModelDot>
+                                    <Typography color="primary">
+                                        {row.appointment_type?.name}
+                                    </Typography>
+                                </> : " -- "}
+                        </Stack>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell>
+                <TableCell>
+                    {row ? (
                         <Stack direction="row"
                                alignItems="center"
                                spacing={1}
@@ -180,7 +202,12 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
-                            <Typography color="text.primary" sx={{ml: 0.6}}>
+                            <Typography
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row, event});
+                                }}
+                                color="primary" sx={{ml: 0.6, cursor: "pointer"}}>
                                 {row.patient.lastName} {row.patient.firstName}
                             </Typography>
                         </Box>
@@ -188,38 +215,26 @@ function WaitingRoomRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     )}
                 </TableCell>
-                {/*<TableCell>
+                <TableCell>
                     {row ? (
-                        <Stack spacing={2} direction="row" alignItems="center">
-                            {row.appointment_type ?
-                                <>
-                                    <CircleIcon fontSize="small"
-                                                sx={{
-                                                    border: 1,
-                                                    borderColor: 'divider',
-                                                    borderRadius: '50%',
-                                                    p: 0.2,
-                                                    color: row.appointment_type?.color
-                                                }}
-                                    />
-                                    <Typography color="primary">
-                                        {row.appointment_type?.name}
-                                    </Typography>
-                                </> : " -- "}
-                            <PlayCircleRoundedIcon color="success"/>
-                            <Typography variant="body2">
-                                120
-                            </Typography>
-                        </Stack>
+                        <>
+                            {row.fees ? <Stack direction="row" alignItems="center" justifyContent={"center"}
+                                               spacing={1}>
+                                <PlayCircleRoundedIcon color="success"/>
+                                <Typography variant="body2">
+                                    {row.fees} {process.env.NEXT_PUBLIC_DEVISE}
+                                </Typography>
+                            </Stack> : "--"}
+                        </>
                     ) : (
                         <Skeleton variant="text" width={100}/>
                     )}
-                </TableCell>*/}
+                </TableCell>
                 <TableCell align="right">
                     <IconButton
                         onClick={(event) => {
                             event.stopPropagation();
-                            handleEvent({action: "open-popover", row, event});
+                            handleEvent({action: "OPEN-POPOVER", row, event});
                         }}
                         sx={{display: "block", ml: "auto"}}
                         size="small"
@@ -239,12 +254,10 @@ function WaitingRoomRow({...props}) {
                         title={t("table.end_consultation")}
                         dialogClose={handleCloseDialog}
                         onClose={handleCloseDialog}
-                        {
-                            ...(actions && {
-                                actionDialog: <DialogAction/>,
-                                onClose: false,
-                            })
-                        }
+                        {...(actions && {
+                            actionDialog: <DialogAction/>,
+                            onClose: false,
+                        })}
 
                 />
             }

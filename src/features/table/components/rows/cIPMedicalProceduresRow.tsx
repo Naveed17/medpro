@@ -1,19 +1,20 @@
 import TableCell from "@mui/material/TableCell";
 import {Box, Button, Checkbox, IconButton} from "@mui/material";
-import { Theme, useTheme} from "@mui/material/styles";
+import {Theme, useTheme} from "@mui/material/styles";
 import {TableRowStyled} from "@features/table";
 import React, {useState} from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled"
-function CIPMedicalProceduresRow({...props}) {
 
+function CIPMedicalProceduresRow({...props}) {
     const {row, isItemSelected, handleClick, editMotif} = props;
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
-    const devise= process.env.NEXT_PUBLIC_DEVISE
+    const devise = process.env.NEXT_PUBLIC_DEVISE
 
-    const [selected, setSelected] = useState<string>('')
+    const [selected, setSelected] = useState<string>('');
+
     return (
         <TableRowStyled
             className={'cip-medical-proce-row'}

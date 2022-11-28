@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from "@features/card";
@@ -61,13 +61,22 @@ function FeesTab({...props}) {
     const {
         acts,
         selectedUuid,
+        selectedAct,
         editAct,
         setTotal,
         setConsultationFees,
         consultationFees,
-        free,setFree,
+        free, setFree,
         t
-    } = props
+    } = props;
+
+    useEffect(() => {
+        const localConsultationFees = localStorage.getItem("consultation-fees");
+        if (localConsultationFees) {
+            setConsultationFees(localConsultationFees);
+        }
+    })
+
     return (
         <>
             <Stack direction={"row"} alignItems={"center"}
@@ -78,21 +87,20 @@ function FeesTab({...props}) {
                    }} spacing={2} mb={2}>
                 <Checkbox
                     color="primary"
-                    onChange={(ev) => {
-                        console.log(ev.target.checked)
-                        setFree(!ev.target.checked)
-                    }}
+                    onChange={(ev) => setFree(!ev.target.checked)}
                     checked={!free}/>
                 <Typography>Consultation</Typography>
                 <TextField id="outlined-basic"
                            value={consultationFees}
                            size="small"
                            InputProps={{
-                               endAdornment: <InputAdornment position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
+                               endAdornment: <InputAdornment
+                                   position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
                                style: {width: 120, backgroundColor: "white"}
                            }}
                            onChange={(ev) => {
                                setConsultationFees(Number(ev.target.value))
+                               localStorage.setItem("consultation-fees", ev.target.value);
                            }}
                            variant="outlined"/>
             </Stack>
@@ -105,7 +113,6 @@ function FeesTab({...props}) {
                     from={"CIP-medical-procedures"}
                     t={t}
                     edit={editAct}
-                    handleConfig={null}
                     handleChange={setTotal}/>
             </Box>
             <Stack spacing={2} display={{xs: "block", md: 'none'}}>

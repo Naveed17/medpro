@@ -36,9 +36,7 @@ function Dialogs({ ...props }) {
     <>
       <Dialog
         {...rest}
-        open={open}
-        fullWidth={fullWidth}
-        maxWidth={maxWidth}
+        {...{open, maxWidth, fullWidth}}
         onClose={dialogClose}
         scroll="paper"
         dir={direction}

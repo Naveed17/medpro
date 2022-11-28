@@ -91,7 +91,7 @@ function Agenda() {
     const {waiting_room, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper, config,
-        selectedEvent, actionSet,
+        selectedEvent, actionSet, openMoveDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -274,13 +274,21 @@ function Agenda() {
 
             setLoading(false);
         });
-    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity.uuid, router.locale, session?.accessToken, trigger, dispatch]);
+    }, [agenda?.uuid, getAppointmentBugs, isMobile, medical_entity?.uuid, router.locale, session?.accessToken, trigger, dispatch]);
 
     useEffect(() => {
         if (lastUpdateNotification) {
             refreshData();
         }
     }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (openMoveDrawer) {
+            console.log("selectedEvent", selectedEvent);
+            setEvent(selectedEvent as EventDef);
+            setMoveDialogInfo(true);
+        }
+    }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (actionSet) {
@@ -522,9 +530,8 @@ function Agenda() {
             setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
-            if (refreshBackground) {
-                config?.mutate[1]();
-            }
+            // update pending notifications status
+            config?.mutate[1]();
         });
     }
 
@@ -574,6 +581,9 @@ function Agenda() {
     const onMoveAppointment = () => {
         onUpdateDefEvent();
         setMoveDialogInfo(false);
+        if (openMoveDrawer) {
+            dispatch(openDrawer({type: "move", open: false}));
+        }
         setMoveDialog(true);
     }
 
@@ -599,6 +609,8 @@ function Agenda() {
             }
             refreshData();
             setMoveDialog(false);
+            // update pending notifications status
+            config?.mutate[1]();
         });
     }
 
@@ -1143,7 +1155,12 @@ function Agenda() {
                     }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
-                    dialogClose={() => setMoveDialogInfo(false)}
+                    dialogClose={() => {
+                        setMoveDialogInfo(false);
+                        if (openMoveDrawer) {
+                            dispatch(openDrawer({type: "move", open: false}));
+                        }
+                    }}
                     action={"move_appointment"}
                     dir={direction}
                     open={moveDialogInfo}
@@ -1152,7 +1169,12 @@ function Agenda() {
                         <>
                             <Button
                                 variant="text-primary"
-                                onClick={() => setMoveDialogInfo(false)}
+                                onClick={() => {
+                                    setMoveDialogInfo(false);
+                                    if (openMoveDrawer) {
+                                        dispatch(openDrawer({type: "move", open: false}));
+                                    }
+                                }}
                                 startIcon={<CloseIcon/>}
                             >
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}

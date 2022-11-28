@@ -79,6 +79,7 @@
   },
   "config": {
     "reason_for_consultation": "Motif de consultation",
+    "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
@@ -103,7 +104,7 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Historique"
+      "history": "Fiche d'historique"
     },
     "no-data": {
       "appointment": {
@@ -164,7 +165,7 @@
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name-placeholder": "Tapez le prénom du patient",
-      "last-name": "Nom de famille",
+      "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "last-name-placeholder": "Tapez le nom de famille du patient",
       "birthdate": "Date de naissance",
@@ -215,6 +216,13 @@
       "alert": {
         "patient-edit": "le patient a été modifié avec succès"
       }
+    },
+    "consultationIP": {
+      "noFees": "Pas de frais",
+      "noTreatment": "Aucun traitement",
+      "noImage": "Aucune demande imagerie",
+      "noRequest": "Aucune demande",
+      "noDoc": "Aucun document"
     }
   },
   "background": {

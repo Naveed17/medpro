@@ -16,6 +16,7 @@ export type CalendarProps = {
     view: string | undefined;
     openViewDrawer: boolean;
     openAddDrawer: boolean;
+    openMoveDrawer: boolean;
     openPatientDrawer: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
@@ -34,6 +35,7 @@ const initialState: CalendarProps = {
     openViewDrawer: false,
     openAddDrawer: false,
     openPatientDrawer: false,
+    openMoveDrawer: false,
     currentStepper: 0,
     config: null,
     actionSet: null,
@@ -50,12 +52,19 @@ export const AgendaReducer = createReducer(initialState, builder => {
     builder.addCase(setView, (state, action) => {
         state.view = action.payload;
     }).addCase(openDrawer, (state, action) => {
-        if (action.payload.type === "view") {
-            state.openViewDrawer = action.payload.open;
-        } else if (action.payload.type === "patient") {
-            state.openPatientDrawer = action.payload.open;
-        } else {
-            state.openAddDrawer = action.payload.open;
+        switch (action.payload.type) {
+            case "view":
+                state.openViewDrawer = action.payload.open;
+                break;
+            case "patient":
+                state.openPatientDrawer = action.payload.open;
+                break;
+            case "move":
+                state.openMoveDrawer = action.payload.open;
+                break;
+            default:
+                state.openAddDrawer = action.payload.open;
+                break;
         }
     }).addCase(setStepperIndex, (state, action) => {
         state.currentStepper = action.payload;

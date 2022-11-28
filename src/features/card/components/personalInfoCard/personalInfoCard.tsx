@@ -9,7 +9,7 @@ import {
     Paper,
     Grid,
     Skeleton,
-    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField
+    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField, Button
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {Stack} from "@mui/system";
@@ -30,6 +30,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
+import CloseIcon from "@mui/icons-material/Close";
 
 function PersonalInfo({...props}) {
     const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
@@ -55,8 +56,19 @@ function PersonalInfo({...props}) {
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
+    const notEmpty = Yup.string()
+        .ensure() // Transforms undefined and null values to an empty string.
+        .test('Only Empty?', 'Cannot be only empty characters', (value) => {
+            const isValid = value.split(' ').join('').length !== 0;
+
+            return isValid;
+        });
     const RegisterPatientSchema = Yup.object().shape({
-        name: Yup.string()
+        firstName: Yup.string()
+            .min(3, t("name-error"))
+            .max(50, t("name-error"))
+            .required(t("name-error")),
+        lastName: Yup.string()
             .min(3, t("name-error"))
             .max(50, t("name-error"))
             .required(t("name-error")),
@@ -86,7 +98,8 @@ function PersonalInfo({...props}) {
             gender: !loading && patient.gender
                 ? patient.gender === "M" ? "1" : "2"
                 : "",
-            name: !loading ? `${patient.firstName.trim()} ${patient.lastName.trim()}` : "",
+            firstName: !loading ? `${patient.firstName.trim()}` : "",
+            lastName: !loading ? `${patient.lastName.trim()}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
             address:
                 !loading && patient.address.length > 0
@@ -104,10 +117,7 @@ function PersonalInfo({...props}) {
             })) : [{
                 insurance_number: "",
                 insurance_uuid: ""
-            }] as {
-                insurance_number: string;
-                insurance_uuid: string;
-            }[]
+            }] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
@@ -129,8 +139,8 @@ function PersonalInfo({...props}) {
     const handleUpdatePatient = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append('first_name', values.name.split(' ').slice(0, -1).join(' '));
-        params.append('last_name', values.name.split(' ').slice(-1).join(' '));
+        params.append('first_name', values.firstName);
+        params.append('last_name', values.lastName);
         params.append('gender', values.gender);
         params.append('phone', JSON.stringify({
             code: patient.contact[0].code,
@@ -142,7 +152,8 @@ function PersonalInfo({...props}) {
         }));
         params.append('email', values.email);
         params.append('id_card', values.cin);
-        params.append('insurance', JSON.stringify(values.insurances));
+        params.append('insurance', JSON.stringify(values.insurances.filter(
+           ( insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
@@ -167,6 +178,7 @@ function PersonalInfo({...props}) {
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
+
     if (!ready) return <div>Loading...</div>;
 
     return (
@@ -206,19 +218,7 @@ function PersonalInfo({...props}) {
                             padding: 0
                         }
                     }}>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            fontSize: 14
-                        }}
-                        color="text.primary"
-                        gutterBottom>
-                        {loading ? (
-                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                        ) : (
-                            t("personal-info")
-                        )}
-                    </Typography>
+
                     <Paper
                         sx={{
                             "& .MuiTypography-root": {
@@ -229,12 +229,32 @@ function PersonalInfo({...props}) {
                         }}>
                         <AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
-                                <Box sx={{flexGrow: 1}}/>
+                                <Box sx={{flexGrow: 1}}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{fontWeight: "bold"}}
+                                        gutterBottom>
+                                        {loading ? (
+                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
+                                        ) : (
+                                            t("personal-info")
+                                        )}
+                                    </Typography>
+                                </Box>
                                 <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                                     {editable ?
-                                        <Stack mt={1} justifyContent='flex-end'>
+                                        <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
+                                            <Button onClick={() => setEditable(false)}
+                                                    color={"error"}
+                                                    className='btn-cancel'
+                                                    sx={{margin: 'auto'}}
+                                                    size='small'
+                                                    startIcon={<CloseIcon/>}>
+                                                {t('cancel')}
+                                            </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
+                                                disabled={Object.keys(errors).length > 0}
                                                 loading={loadingRequest}
                                                 className='btn-add'
                                                 sx={{margin: 'auto'}}
@@ -252,7 +272,7 @@ function PersonalInfo({...props}) {
                             </Toolbar>
                         </AppBar>
                         <Grid container spacing={1.2}>
-                            <Grid item md={5} sm={6} xs={6}>
+                            <Grid item md={4} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
@@ -284,7 +304,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={7} sm={6} xs={6}>
+                            <Grid item md={4} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -296,7 +316,7 @@ function PersonalInfo({...props}) {
                                     alignItems="center">
                                     <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
-                                            {t("name")}
+                                            {t("first-name")}
                                         </Typography>
                                     </Grid>
                                     <Grid item md={8} sm={6} xs={6}>
@@ -306,8 +326,37 @@ function PersonalInfo({...props}) {
                                             <InputBase
                                                 placeholder={t("name-placeholder")}
                                                 readOnly={!editable}
-                                                error={Boolean(touched.name && errors.name)}
-                                                {...getFieldProps("name")}
+                                                error={Boolean(touched.firstName && errors.firstName)}
+                                                {...getFieldProps("firstName")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={4} sm={6} xs={6}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("last-name")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item md={8} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("name-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.lastName && errors.lastName)}
+                                                {...getFieldProps("lastName")}
                                             />
                                         )}
                                     </Grid>
@@ -468,7 +517,7 @@ function PersonalInfo({...props}) {
                                             )}
                                         </Grid>
                                         {(editable && index === 0) ? <>
-                                            <IconButton
+                                            {/*<IconButton
                                                 onClick={() => handleRemoveInsurance(index)}
                                                 className="error-light"
                                                 sx={{
@@ -484,7 +533,7 @@ function PersonalInfo({...props}) {
                                                 }}
                                             >
                                                 <Icon path="ic-moin"/>
-                                            </IconButton>
+                                            </IconButton>*/}
                                             <IconButton
                                                 onClick={handleAddInsurance}
                                                 className="success-light"
