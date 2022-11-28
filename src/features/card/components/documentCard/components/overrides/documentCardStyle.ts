@@ -1,8 +1,14 @@
-import { Card } from '@mui/material';
-import { styled, alpha } from '@mui/material/styles'
-const DocumentCardStyled = styled(Card)(({ theme }) => ({
+import {Card} from '@mui/material';
+import {styled, alpha} from '@mui/material/styles'
+
+const DocumentCardStyled = styled(Card)(({theme}) => ({
     boxShadow: theme.customShadows.documentCard,
     border: 'none',
+    "& .sub-title": {
+        textOverflow: "ellipsis",
+        overflow: "hidden",
+        width: " 6rem"
+    },
     ".MuiCardContent-root": {
         '.btn-more': {
             background: alpha(theme.palette.grey['A300'], 0.3),

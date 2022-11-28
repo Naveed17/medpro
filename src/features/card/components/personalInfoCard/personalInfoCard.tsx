@@ -86,8 +86,8 @@ function PersonalInfo({...props}) {
         insurances: Yup.array()
             .of(
                 Yup.object().shape({
-                    insurance_number: notEmpty.min(3, t("insurances-error")),
-                    insurance_uuid: notEmpty.min(3, t("insurances-error"))
+                    insurance_number: Yup.string().min(3, t("insurances-error")),
+                    insurance_uuid: Yup.string().min(3, t("insurances-error"))
                 })
             )
     });
@@ -117,10 +117,7 @@ function PersonalInfo({...props}) {
             })) : [{
                 insurance_number: "",
                 insurance_uuid: ""
-            }] as {
-                insurance_number: string;
-                insurance_uuid: string;
-            }[]
+            }] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
@@ -155,7 +152,8 @@ function PersonalInfo({...props}) {
         }));
         params.append('email', values.email);
         params.append('id_card', values.cin);
-        params.append('insurance', JSON.stringify(values.insurances));
+        params.append('insurance', JSON.stringify(values.insurances.filter(
+           ( insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address

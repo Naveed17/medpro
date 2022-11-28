@@ -80,7 +80,7 @@ function DocumentCard({...props}) {
                         data.documentType === "video" && "ic-video-outline" ||
                         data.documentType !== "prescription" && "ic-pdf" || ""
                     }/>
-                    <Typography variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={11}>
+                    <Typography className={"sub-title"} variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={11}>
                         {t(data.title)}
                     </Typography>
                     <Typography textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}
