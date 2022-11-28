@@ -56,6 +56,13 @@ function PersonalInfo({...props}) {
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
+    const notEmpty = Yup.string()
+        .ensure() // Transforms undefined and null values to an empty string.
+        .test('Only Empty?', 'Cannot be only empty characters', (value) => {
+            const isValid = value.split(' ').join('').length !== 0;
+
+            return isValid;
+        });
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("name-error"))
@@ -79,8 +86,8 @@ function PersonalInfo({...props}) {
         insurances: Yup.array()
             .of(
                 Yup.object().shape({
-                    insurance_number: Yup.string().min(3, t("insurances-error")),
-                    insurance_uuid: Yup.string().min(3, t("insurances-error"))
+                    insurance_number: notEmpty.min(3, t("insurances-error")),
+                    insurance_uuid: notEmpty.min(3, t("insurances-error"))
                 })
             )
     });
@@ -173,6 +180,7 @@ function PersonalInfo({...props}) {
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
+
     if (!ready) return <div>Loading...</div>;
 
     return (
@@ -248,6 +256,7 @@ function PersonalInfo({...props}) {
                                             </Button>
                                             <LoadingButton
                                                 onClick={() => handleUpdatePatient()}
+                                                disabled={Object.keys(errors).length > 0}
                                                 loading={loadingRequest}
                                                 className='btn-add'
                                                 sx={{margin: 'auto'}}
@@ -510,7 +519,7 @@ function PersonalInfo({...props}) {
                                             )}
                                         </Grid>
                                         {(editable && index === 0) ? <>
-                                            <IconButton
+                                            {/*<IconButton
                                                 onClick={() => handleRemoveInsurance(index)}
                                                 className="error-light"
                                                 sx={{
@@ -526,7 +535,7 @@ function PersonalInfo({...props}) {
                                                 }}
                                             >
                                                 <Icon path="ic-moin"/>
-                                            </IconButton>
+                                            </IconButton>*/}
                                             <IconButton
                                                 onClick={handleAddInsurance}
                                                 className="success-light"
