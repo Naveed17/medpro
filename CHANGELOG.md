@@ -1,3 +1,33 @@
+# [4.5.0](https://github.com/SmartMedSA/med-pro/compare/v4.4.0...v4.5.0) (2022-11-28)
+
+
+### Bug Fixes
+
+* cancel consultation ([a4adff6](https://github.com/SmartMedSA/med-pro/commit/a4adff61b5b45fbaf1b7024606951e4dda81003d))
+* consultation data local : motif ([c8a1864](https://github.com/SmartMedSA/med-pro/commit/c8a1864ebf63ae5b5dea71670f43691be986b5a8))
+* consultation data local data ([e4e048e](https://github.com/SmartMedSA/med-pro/commit/e4e048ea8ae694c5ef0501c04b8edad05b2e25ad))
+* consultation fees local data ([eef18ff](https://github.com/SmartMedSA/med-pro/commit/eef18ff12042a04a93300e4c8e50e5a2f1e2a3ac))
+* end consultation delete storage ([8c82ec5](https://github.com/SmartMedSA/med-pro/commit/8c82ec54b66576f4726cac42c566c186d12b50fa))
+* expand last appointment in his ([9917480](https://github.com/SmartMedSA/med-pro/commit/9917480767772c5a3d0be9546b176825e9877074))
+* patient update preview ([2ebbd82](https://github.com/SmartMedSA/med-pro/commit/2ebbd820a2f1ba22677f5a1aed4c31bd6d4f71b9))
+* set moment lang to fr ([d9af6ef](https://github.com/SmartMedSA/med-pro/commit/d9af6efb70ccb97dc59f0a0e082bdda0a2a097eb))
+* set moment lang to fr ([c979281](https://github.com/SmartMedSA/med-pro/commit/c9792810da9068b361a6055affcc5076c1c44698))
+* update patient stepper data ([b50b0d6](https://github.com/SmartMedSA/med-pro/commit/b50b0d698eb603a5648d8f9a57f5b0ba6a6400b5))
+* update pending appointment notification popover ([94d804c](https://github.com/SmartMedSA/med-pro/commit/94d804c4ce2d12a1985263b339106de3c0bacf3e))
+* update waiting room context menu ([7fefe51](https://github.com/SmartMedSA/med-pro/commit/7fefe51a12393c23c5804848fa86df84b38a88d8))
+* update waiting room fees ([2ad2ac4](https://github.com/SmartMedSA/med-pro/commit/2ad2ac4a07618d2779270b4d79281a3e1fb65589))
+* Upgrade loader-utils ([a900c16](https://github.com/SmartMedSA/med-pro/commit/a900c16e2fce7ac599b41bcef163d6b408087358))
+* Upgrade loader-utils ([4680ef6](https://github.com/SmartMedSA/med-pro/commit/4680ef65b6adecf53a0fb7858f636aa569ca328c))
+* Upgrade loader-utils ([0d52424](https://github.com/SmartMedSA/med-pro/commit/0d5242403298b95bc49857312b306eb93714b4df))
+* validation assurances ([30431b0](https://github.com/SmartMedSA/med-pro/commit/30431b0e93612f1d17430e0a0469ec1557e8a585))
+
+
+### Features
+
+* add payment waiting room ([4e1b6bd](https://github.com/SmartMedSA/med-pro/commit/4e1b6bd5242204442e6ddaa9b97fcab137d6e389))
+* history patient tab panel ([690b7f0](https://github.com/SmartMedSA/med-pro/commit/690b7f0f427b85c9ebcff5034144078c7cf399c1))
+* open patient drawer in waiting room ([b563ebe](https://github.com/SmartMedSA/med-pro/commit/b563ebe65f06bdd2f1f62e795a0af981d6c750ac))
+
 # [4.4.0](https://github.com/SmartMedSA/med-pro/compare/v4.3.2...v4.4.0) (2022-11-22)
 
 
