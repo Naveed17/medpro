@@ -456,15 +456,12 @@ function HistoryTab({...props}) {
                                                             }
                                                         </BoxFees>}
                                                     </ListItemDetailsStyled>
-
                                                 </Collapse>
-
                                             </>
                                         </React.Fragment>
                                     ))}
                                 </List>
                             </Stack>
-
                         </Collapse>
                     </PatientHistoryCard>
                 ))}

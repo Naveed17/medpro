@@ -104,7 +104,7 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Historique"
+      "history": "Fiche d'historique"
     },
     "no-data": {
       "appointment": {
@@ -216,6 +216,13 @@
       "alert": {
         "patient-edit": "le patient a été modifié avec succès"
       }
+    },
+    "consultationIP": {
+      "noFees": "Pas de frais",
+      "noTreatment": "Aucun traitement",
+      "noImage": "Aucune demande imagerie",
+      "noRequest": "Aucune demande",
+      "noDoc": "Aucun document"
     }
   },
   "background": {

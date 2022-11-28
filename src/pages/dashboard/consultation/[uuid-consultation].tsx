@@ -986,7 +986,6 @@ function ConsultationInProgress() {
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
-                    direction={"ltr"}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}
