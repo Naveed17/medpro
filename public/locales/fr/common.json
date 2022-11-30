@@ -234,5 +234,9 @@
   },
   "app-lock": {
     "update-pass": "App lock: configurer votre mot de passe"
+  },
+  "config": {
+    "save": "Enregistrer",
+    "cancel": "Annuler"
   }
 }

@@ -40,10 +40,13 @@ function a11yProps(index: number) {
 const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
     title: "no-data.appointment.title",
-    description: "no-data.appointment.description",
-    buttonText: "no-data.appointment.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
+    description: "no-data.appointment.description"
+};
+// add consultation details RDV for not data
+const AddConsultationCardData = {
+    mainIcon: "consultation/ic-text",
+    title: "no-data.consultation.title",
+    description: "no-data.consultation.description"
 };
 
 function PatientDetail({...props}) {
@@ -178,11 +181,18 @@ function PatientDetail({...props}) {
                             <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            <HistoryPanel {...{t, previousAppointments, patient}} />
+                            {previousAppointments && previousAppointments.length > 0 ? (
+                                <HistoryPanel {...{t, previousAppointments, patient}} />
+                            ) : (
+                                <NoDataCard
+                                    t={t}
+                                    ns={"patient"}
+                                    data={AddConsultationCardData}
+                                />
+                            )}
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
-                            {previousAppointments ||
-                            nextAppointments.length > 0 ? (
+                            {nextAppointments.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard
