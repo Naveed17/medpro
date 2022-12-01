@@ -232,7 +232,7 @@ function WaitingRoom() {
     };
 
     const handleSubmit = (data: any) => {
-        console.log(data);
+        console.log(selectedPayment.payments);
     };
 
     const resetDialog = () => {
@@ -452,12 +452,12 @@ function WaitingRoom() {
                 {...{
                     direction,
                     sx: {
-                        minHeight: 300
+                        minHeight: 380
                     }
                 }}
                 open={openPaymentDialog}
                 data={{
-                    selectedPayment,
+                    selectedPayment, setSelectedPayment,
                     deals, setDeals,
                     patient: row?.patient
                 }}
@@ -470,6 +470,7 @@ function WaitingRoom() {
                             {t("cancel", {ns: "common"})}
                         </Button>
                         <Button
+                            disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>

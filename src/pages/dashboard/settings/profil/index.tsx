@@ -549,7 +549,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.actes")}
+                                            {t("profil.acts")}
                                         </Typography>
                                         <Stack
                                             flexWrap="wrap"
@@ -600,7 +600,7 @@ function Profil() {
                                     <IconButton
                                         size="small"
                                         color="primary"
-                                        onClick={() => router.push("/dashboard/settings/actes")}>
+                                        onClick={() => router.push("/dashboard/settings/acts")}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import PaymentDialogStyled from './overrides/paymentDialogStyle';
 import {
     Avatar,
@@ -121,7 +121,7 @@ function TabPanel(props: TabPanelProps) {
 
 function PaymentDialog({...props}) {
     const {data} = props;
-    const {patient, selectedPayment, deals, setDeals} = data;
+    const {patient, selectedPayment, setSelectedPayment, deals, setDeals} = data;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const {t, ready} = useTranslation("payment");
@@ -147,6 +147,13 @@ function PaymentDialog({...props}) {
     });
 
     const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue, resetForm} = formik;
+
+    useEffect(() => {
+        setSelectedPayment({
+            ...selectedPayment,
+            payments
+        });
+    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleAddStep = () => {
         const step = [...values.check, {
@@ -511,28 +518,29 @@ function PaymentDialog({...props}) {
                         }
                     })()}
                 </AnimatePresence>
-
-                {payments.length > 0 &&
-                    <Box mt={4}>
-                        <DesktopContainer>
-                            <Otable
-                                {...{t}}
-                                headers={headCells}
-                                rows={payments}
-                                handleEvent={(action: string, payIndex: number) => {
-                                    const paymentsUpdated = [...payments];
-                                    paymentsUpdated.splice(payIndex, 1);
-                                    setPayments(paymentsUpdated);
-                                }}
-                                from={"payment_dialog"}
-                                sx={{tableLayout: 'fixed'}}
-                            />
-                        </DesktopContainer>
-                        <MobileContainer>
-                            <PaymentDialogMobileCard data={payments} t={t}/>
-                        </MobileContainer>
-                    </Box>
-                }
+                <AnimatePresence exitBeforeEnter>
+                    {payments.length > 0 &&
+                        <Box mt={4}>
+                            <DesktopContainer>
+                                <Otable
+                                    {...{t}}
+                                    headers={headCells}
+                                    rows={payments}
+                                    handleEvent={(action: string, payIndex: number) => {
+                                        const paymentsUpdated = [...payments];
+                                        paymentsUpdated.splice(payIndex, 1);
+                                        setPayments(paymentsUpdated);
+                                    }}
+                                    from={"payment_dialog"}
+                                    sx={{tableLayout: 'fixed'}}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <PaymentDialogMobileCard data={payments} t={t}/>
+                            </MobileContainer>
+                        </Box>
+                    }
+                </AnimatePresence>
             </PaymentDialogStyled>
         </FormikProvider>
     )
