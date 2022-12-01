@@ -15,71 +15,77 @@ import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 
-function Actes() {
+function getDifference<T>(a: T[], b: T[]): T[] {
+    return a.filter((element) => {
+        return !b.includes(element);
+    });
+}
 
+function Acts() {
     const {data: session} = useSession();
-
-    const [mainActes, setMainActes] = useState<ActModel[]>([]);
-    const [secondaryActes, setSecondaryActes] = useState<ActModel[]>([]);
+    const [mainActs, setMainActs] = useState<ActModel[]>([]);
+    const [secondaryActs, setSecondaryActs] = useState<ActModel[]>([]);
     const [selected, setSelected] = useState<ActModel>();
     const [suggestion, setSuggestion] = useState<ActModel[]>([]);
     const [alert, setAlert] = useState<boolean>(false);
-    const [edit, setEdit] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
-    const [isProfil, setIsProfil] = useState<boolean>(false);
-    //const [secAlert, setSecAlert] = useState<boolean>(false);
+    const [isProfile, setIsProfile] = useState<boolean>(false);
+
     const [acts, setActs] = useState<ActModel[]>([]);
     const [specialities, setSpecialities] = useState<any>({});
     const router = useRouter();
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
 
-    const initalData = Array.from(new Array(8));
+    const initialData = Array.from(new Array(8));
 
     const {data: user} = session as Session;
-
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data: httpProfessionalsResponse} = useRequest({
+
+    const {data: httpProfessionalsResponse, mutate} = useRequest({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const {trigger} = useRequestMutation(null, "/settings/acts");
+    const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
+    const {trigger: triggerDeleteAct} = useRequestMutation(null, "/settings/acts/delete");
 
-    const {data} = useRequest(isProfil ? {
+    const {data} = useRequest(isProfile ? {
         method: "GET",
         url: `/api/public/acts/${router.locale}`,
         params: specialities,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     } : null);
 
-    const getData = useCallback(() => {
-        let topAct = "";
-        let secondaryAct = ""
-        mainActes.map(ma => topAct += ma.uuid + ',');
-        secondaryActes.map(ms => secondaryAct += ms.uuid + ',');
-        topAct = topAct.substring(0, topAct.length - 1);
-        secondaryAct = secondaryAct.substring(0, secondaryAct.length - 1);
-        console.log(topAct)
-        setEdit(false);
+    const removeFees = (uuid: string) => {
+        triggerDeleteAct({
+            method: "DELETE",
+            url: `/api/medical-entity/${medical_entity.uuid}/acts/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation)
+    }
+
+    const setDoctorActs = useCallback((isTopAct: boolean, actUuid: string) => {
         const form = new FormData();
-        form.append('topAct', topAct)
-        form.append('secondaryAct', secondaryAct);
-        trigger({
+        form.append('topAct', isTopAct.toString());
+        form.append('act', actUuid);
+        triggerAddAct({
             method: "POST",
             url: "/api/medical-entity/" + medical_entity.uuid + "/professionals/" + medical_professional_uuid + '/acts/' + router.locale,
             data: form,
-            headers: {ContentType: 'application/x-www-form-urlencoded', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(r => console.log('edit qualification', r))
+            headers: {
+                ContentType: 'application/x-www-form-urlencoded',
+                Authorization: `Bearer ${session?.accessToken}`
+            }
+        }, TriggerWithoutValidation).then(() => {
+            mutate();
+        })
 
-    }, [mainActes, medical_entity.uuid, medical_professional_uuid, router.locale, secondaryActes, session?.accessToken, trigger]);
-
-    useEffect(() => {
-        if (edit) {
-            getData();
-        }
-    }, [edit, getData]);
+    }, [medical_entity.uuid, medical_professional_uuid, mutate, router.locale, session?.accessToken, triggerAddAct]);
 
     useEffect(() => {
         if (data !== undefined) {
@@ -90,49 +96,45 @@ function Actes() {
     }, [data]);
 
     useEffect(() => {
-
         if (httpProfessionalsResponse !== undefined) {
-
             const professionalSpecialities = {};
             (httpProfessionalsResponse as any).data[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
-
             setSpecialities(professionalSpecialities);
-            setIsProfil(true);
+            setIsProfile(true);
             setMedicalProfessionalUuid((httpProfessionalsResponse as any).data[0]?.medical_professional.uuid);
             const acts = (httpProfessionalsResponse as any).data[0]?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
             acts?.map((act: MedicalProfessionalActModel) => {
-                act.isTopAct ? main.push((act.act) as ActModel) : secondary.push(act.act);
+                const actUpdated = {...act.act, medicalProfessionalAct: act.uuid}
+                act.isTopAct ? main.push((actUpdated) as ActModel) : secondary.push(actUpdated);
             });
-            setMainActes(main);
-            setSecondaryActes(secondary);
+            setMainActs(main);
+            setSecondaryActs(secondary);
         }
     }, [httpProfessionalsResponse])
 
     useEffect(() => {
-        const selectedActes = [...mainActes, ...secondaryActes];
-
+        const selectedActs = [...mainActs, ...secondaryActs];
         setSuggestion(acts.filter((nb) => {
-            return !selectedActes.some((item) => item.uuid === nb.uuid);
+            return !selectedActs.some((item) => item.uuid === nb.uuid);
         }));
-    }, [acts, mainActes, secondaryActes]);
-
+    }, [acts, mainActs, secondaryActs]);
 
     const onDrop = (id: string, ev: any) => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== (selected as ActModel).uuid);
         setSuggestion([...deleteSuggestion]);
-        if (id === "main" && mainActes.length < 10) {
-            setMainActes([...mainActes, (selected as ActModel)]);
+        if (id === "main" && mainActs.length < 10) {
+            setMainActs([...mainActs, (selected as ActModel)]);
+            setDoctorActs(true, (selected as ActModel)?.uuid);
         } else {
             const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v !== selected);
             setSuggestion([...deleteSuggestion]);
-            setSecondaryActes([...secondaryActes, (selected as ActModel)]);
+            setSecondaryActs([...secondaryActs, (selected as ActModel)]);
+            setDoctorActs(false, (selected as ActModel)?.uuid);
         }
-
-        setEdit(true);
     };
 
     const onDrag = (prop: any) => (ev: any) => {
@@ -148,21 +150,27 @@ function Actes() {
     const onClickChip = (prop: any) => () => {
         const deleteSuggestion = (suggestion as ActModel[]).filter((v) => v.uuid !== prop.uuid);
         setSuggestion([...deleteSuggestion]);
-        if (mainActes.length < 10) {
-            setMainActes([...mainActes, prop]);
+        if (mainActs.length < 10) {
+            setMainActs([...mainActs, prop]);
         } else {
-            setSecondaryActes([...secondaryActes, prop]);
+            setSecondaryActs([...secondaryActs, prop]);
         }
-        setEdit(true);
     };
 
     const onChangeState = (
         val: any[],
         items: any[],
-        setItems: (arg0: any[]) => void
+        setItems: (arg0: any[]) => void,
+        id: string
     ) => {
+        const deletedAct = getDifference(items, val);
+        const insertedAct = getDifference(val, items);
+        if (insertedAct.length > 0) {
+            setDoctorActs(id === "main", (insertedAct[0] as ActModel)?.uuid);
+        } else {
+            removeFees((deletedAct[0] as ActModel)?.medicalProfessionalAct as string);
+        }
         setItems(val.slice(0, 10));
-        setEdit(true);
     };
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
@@ -227,15 +235,15 @@ function Actes() {
 
                     <MultiSelect
                         id="main"
-                        data={acts.filter((a) => !secondaryActes.some((m) => a.uuid === m.uuid))}
+                        data={acts.filter((a) => !secondaryActs.some((m) => a.uuid === m.uuid))}
                         onDrop={onDrop}
-                        all={[...mainActes, ...secondaryActes]}
+                        all={[...mainActs, ...secondaryActs]}
                         onDragOver={allowDrop}
-                        onChange={(event: React.ChangeEvent, value: any[]) => {
-                            onChangeState(value, mainActes, setMainActes);
+                        onChange={(event: React.ChangeEvent, value: any, id: string) => {
+                            onChangeState(value, mainActs, setMainActs, id);
                         }}
                         label={'name'}
-                        initData={mainActes}
+                        initData={mainActs}
                         limit={10}
                         helperText={t("max")}
                         placeholder={t("typing")}
@@ -288,15 +296,15 @@ function Actes() {
 
                     <MultiSelect
                         id="second"
-                        data={acts.filter((a) => !mainActes.some((m) => a.uuid === m.uuid))}
-                        all={[...mainActes, ...secondaryActes]}
+                        data={acts.filter((a) => !mainActs.some((m) => a.uuid === m.uuid))}
+                        all={[...mainActs, ...secondaryActs]}
                         onDrop={onDrop}
                         onDragOver={allowDrop}
-                        onChange={(event: React.ChangeEvent, value: any[]) => {
-                            onChangeState(value, secondaryActes, setSecondaryActes);
+                        onChange={(event: React.ChangeEvent, value: any[], id: string) => {
+                            onChangeState(value, secondaryActs, setSecondaryActs, id);
                         }}
                         label={'name'}
-                        initData={secondaryActes}
+                        initData={secondaryActs}
                         helperText={t("")}
                         placeholder={t("typing")}
                     />
@@ -321,62 +329,60 @@ function Actes() {
                         {t("suggestion")}
                     </Typography>
                     <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
-
-                        {
-                            loading ?
-                                initalData.map((item, index) => (
-                                    <Chip
-                                        key={index}
-                                        label={""}
-                                        color="default"
-                                        clickable
-                                        draggable="true"
-                                        avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
-                                                          variant="text"/>}
-                                        deleteIcon={<AddIcon/>}
-                                        sx={{
-                                            bgcolor: "#E4E4E4",
-                                            filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                            mb: 1,
-                                            mr: 1,
-                                            cursor: "move",
-                                            "&:active": {
-                                                boxShadow: "none",
-                                                outline: "none",
-                                            },
-                                            "& .MuiChip-deleteIcon": {
-                                                color: (theme) => theme.palette.text.primary,
-                                            },
-                                        }}
-                                    />
-                                )) : (suggestion as ActModel[]).map((v: ActModel) => (
-                                    <Chip
-                                        key={v.uuid}
-                                        id={v.uuid}
-                                        label={v.name}
-                                        color="default"
-                                        clickable
-                                        draggable="true"
-                                        onDragStart={onDrag(v)}
-                                        onClick={onClickChip(v)}
-                                        onDelete={onClickChip(v)}
-                                        deleteIcon={<AddIcon/>}
-                                        sx={{
-                                            bgcolor: "#E4E4E4",
-                                            filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
-                                            mb: 1,
-                                            mr: 1,
-                                            cursor: "move",
-                                            "&:active": {
-                                                boxShadow: "none",
-                                                outline: "none",
-                                            },
-                                            "& .MuiChip-deleteIcon": {
-                                                color: (theme) => theme.palette.text.primary,
-                                            },
-                                        }}
-                                    />
-                                ))}
+                        {loading ?
+                            initialData.map((item, index) => (
+                                <Chip
+                                    key={index}
+                                    label={""}
+                                    color="default"
+                                    clickable
+                                    draggable="true"
+                                    avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
+                                                      variant="text"/>}
+                                    deleteIcon={<AddIcon/>}
+                                    sx={{
+                                        bgcolor: "#E4E4E4",
+                                        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                        mb: 1,
+                                        mr: 1,
+                                        cursor: "move",
+                                        "&:active": {
+                                            boxShadow: "none",
+                                            outline: "none",
+                                        },
+                                        "& .MuiChip-deleteIcon": {
+                                            color: (theme) => theme.palette.text.primary,
+                                        },
+                                    }}
+                                />
+                            )) : (suggestion as ActModel[]).map((v: ActModel) => (
+                                <Chip
+                                    key={v.uuid}
+                                    id={v.uuid}
+                                    label={v.name}
+                                    color="default"
+                                    clickable
+                                    draggable="true"
+                                    onDragStart={onDrag(v)}
+                                    onClick={onClickChip(v)}
+                                    onDelete={onClickChip(v)}
+                                    deleteIcon={<AddIcon/>}
+                                    sx={{
+                                        bgcolor: "#E4E4E4",
+                                        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+                                        mb: 1,
+                                        mr: 1,
+                                        cursor: "move",
+                                        "&:active": {
+                                            boxShadow: "none",
+                                            outline: "none",
+                                        },
+                                        "& .MuiChip-deleteIcon": {
+                                            color: (theme) => theme.palette.text.primary,
+                                        },
+                                    }}
+                                />
+                            ))}
                     </Stack>
                 </Paper>
             </Box>
@@ -391,10 +397,10 @@ export const getStaticProps: GetStaticProps = async (context) => ({
     }
 })
 
-export default Actes;
+export default Acts;
 
-Actes.auth = true;
+Acts.auth = true;
 
-Actes.getLayout = function getLayout(page: ReactElement) {
+Acts.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

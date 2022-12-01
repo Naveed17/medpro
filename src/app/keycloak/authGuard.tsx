@@ -17,7 +17,7 @@ function AuthGuard({children}: LayoutProps) {
     const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
     const userPermission = [
         "/dashboard/settings/profil",
-        "/dashboard/settings/actes",
+        "/dashboard/settings/acts",
         "/dashboard/settings/actfees",
         "/dashboard/consultation/[uuid-consultation]"
     ];

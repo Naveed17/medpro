@@ -109,13 +109,18 @@
     "no-data": {
       "appointment": {
         "title": "Ajouter votre premier rendez-vous",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "description": "Vous n'avez pas de rendez-vous, ajoutez les rendez-vous en cliquant sur 'Ajouter RDV'",
         "button-text": "Ajouter un RDV"
       },
       "documents": {
         "title": "Ajouter le premier document",
-        "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur 'Ajouter un document'",
-        "button-text": "Ajouter un document "
+        "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
+        "button-text": "Ajouter un document"
+      },
+      "consultation": {
+        "title": "Ajouter votre premier consultation",
+        "description": "Vous n'avez pas de consultation, ajouter un rendez-vous et commencer la consultation",
+        "button-text": "Ajouter une consultation"
       }
     },
     "table": {

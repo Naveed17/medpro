@@ -1,11 +1,11 @@
-import { CardContent, Link, Theme, Stack, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles';
+import { CardContent, Link, Stack, Typography } from '@mui/material'
 import Icon from '@themes/urlIcon';
-import React, { useState } from 'react'
+import React from 'react'
 import PaymentDialogMobileCardStyled from './overrides/paymentDialogMobileCardStyle'
+
 function PaymentMobileCard({ ...props }) {
     const { data, t } = props;
-    console.log(data)
+
     return (
         <PaymentDialogMobileCardStyled>
             <CardContent>
@@ -36,12 +36,15 @@ function PaymentMobileCard({ ...props }) {
                         </Link>
 
                     </Stack>
-                    <Stack direction='row' alignItems="center">
-                        <Typography variant="body2" width='50%'>
-                            {t('table.' + data.method?.name)}
-                        </Typography>
-                        <Icon className="ic-card" path={data.method?.icon} />
-                    </Stack>
+                    {data.payment_type?.map((type: any, i: number) =>
+                        <Stack key={i} direction="row" alignItems="center"
+                               justifyContent={"flex-end"}
+                               spacing={1}>
+                            <Icon path={type.icon}/>
+                            <Typography color="text.primary"
+                                        variant="body2">{t("table." + type.label)}</Typography>
+                        </Stack>
+                    )}
                 </Stack>
 
             </CardContent>

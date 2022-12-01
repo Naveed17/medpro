@@ -14,7 +14,7 @@ export default function NoDataCard({...props}) {
     } = data;
 
     return (
-        <RootStyled>
+        <RootStyled className={"no-data-card"}>
             {typeof mainIcon === "string" ? <Icon path={mainIcon} className="main-icon"/> : mainIcon}
             <Typography
                 variant="subtitle1"

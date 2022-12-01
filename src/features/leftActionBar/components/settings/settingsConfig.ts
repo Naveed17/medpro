@@ -10,7 +10,7 @@ const settingsData = {
         {
             name: "acts",
             icon: "ic-generaliste",
-            href: "/dashboard/settings/actes",
+            href: "/dashboard/settings/acts",
             disable: false
         },
         {

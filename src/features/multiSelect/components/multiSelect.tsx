@@ -15,7 +15,8 @@ function MultiSelect({...props}) {
         limit,
         onChange,
         onDrop,
-        onDragOver
+        onDragOver,
+        onInputChange
     } = props;
 
 
@@ -27,9 +28,10 @@ function MultiSelect({...props}) {
             value={initData}
             getOptionLabel={(option) => option[label]}
             isOptionEqualToValue={(option, value) => option[label] === value[label]}
-            onChange={(event, value) =>  onChange(event, value)}
+            onChange={(event, value) =>  onChange(event, value, id)}
             onDrop={(e) => onDrop(id, e)}
             onDragOver={onDragOver}
+            onInputChange={onInputChange}
             renderInput={(params) => (
                 <TextField
                     {...params}
