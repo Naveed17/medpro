@@ -5,8 +5,8 @@ import {
     Button,
     Card,
     IconButton,
-    TextField, ListItemButton, ListItemText, List, ListItem, Skeleton,
-    Menu, MenuItem, Box, DialogActions
+    ListItemButton, ListItemText, List, ListItem, Skeleton,
+    Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
@@ -22,6 +22,9 @@ import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+import getDifference from "@app/hooks";
+
+const filter = createFilterOptions<any>();
 
 function BalanceSheetDialog({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -32,10 +35,22 @@ function BalanceSheetDialog({...props}) {
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
+    const [actValue, setActValue] = useState<AnalysisModel | null>(null);
+
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
+    const [recentAnalysis, setRecentAnalysis] = useState<AnalysisModel[]>(
+        localStorage.getItem("balance-Sheet-recent") ? JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : []);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
+
+    useEffect(() => {
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify(analysis));
+    }, [analysis]);
+
+    useEffect(() => {
+        sortAnalysis();
+    }, [analysisList]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -73,11 +88,18 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const sortAnalysis = () => {
+        const recents = localStorage.getItem("balance-Sheet-recent") ?
+            JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
+        analysisList && setAnalysisList([...recents, ...analysisList.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+    }
+
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
         setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         analysis.unshift(value)
         setAnalysis([...analysis])
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...analysis]));
         data.setState([...analysis])
     }
 
@@ -155,7 +177,7 @@ function BalanceSheetDialog({...props}) {
                             <Stack spacing={1}>
                                 <Stack direction="row" alignItems="center">
                                     <Typography>{t('please_name_the_balance_sheet')}</Typography>
-                                    <Button
+                                    {modals.length > 0 && <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
                                             <KeyboardArrowDownIcon/>
@@ -167,7 +189,7 @@ function BalanceSheetDialog({...props}) {
                                         onClick={handleClick}
                                     >
                                         {t('balance_sheet_model')}
-                                    </Button>
+                                    </Button>}
                                     <Menu
                                         id="basic-menu"
                                         anchorEl={anchorEl}
@@ -188,56 +210,98 @@ function BalanceSheetDialog({...props}) {
                                         }}
                                         MenuListProps={{
                                             'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
-                                        {
-                                            modals.map((item, idx) =>
-                                                <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
-                                                          onClick={() => {
-                                                              handleClose(item)
-                                                          }}>{item.name}</MenuItem>
-                                            )
-                                        }
-
-
+                                        }}>
+                                        {modals.map((item, idx) =>
+                                            <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
+                                                      onClick={() => {
+                                                          handleClose(item)
+                                                      }}>{item.name}</MenuItem>
+                                        )}
                                     </Menu>
                                 </Stack>
-                                <TextField
-                                    id="balance_sheet_name"
-                                    value={name}
-                                    placeholder={t('placeholder_balance_sheet_name')}
-                                    onChange={handleChange}/>
+                                <Autocomplete
+                                    value={actValue}
+                                    onChange={(event, newValue) => {
+                                        if (typeof newValue === 'string') {
+                                            addAnalysis({
+                                                name: newValue,
+                                            });
+                                        } else if (newValue && newValue.inputValue) {
+                                            // Create a new value from the user input
+                                            addAnalysis({
+                                                name: newValue.inputValue,
+                                            });
+                                        } else {
+                                            addAnalysis(newValue as AnalysisModel);
+                                        }
+                                        sortAnalysis();
+                                    }}
+                                    filterOptions={(options, params) => {
+                                        const filtered = filter(options, params);
+
+                                        const {inputValue} = params;
+                                        // Suggest the creation of a new value
+                                        const isExisting = options.some((option) => inputValue === option.name);
+                                        if (inputValue !== '' && !isExisting) {
+                                            filtered.push({
+                                                inputValue,
+                                                name: `${t('add_balance_sheet')} "${inputValue}"`,
+                                            });
+                                        }
+
+                                        return filtered;
+                                    }}
+                                    selectOnFocus
+                                    clearOnEscape
+                                    handleHomeEndKeys
+                                    id="sheet-solo-balance"
+                                    options={analysisList ? analysisList : []}
+                                    getOptionLabel={(option) => {
+                                        // Value selected with enter, right from the input
+                                        if (typeof option === 'string') {
+                                            return option;
+                                        }
+                                        // Add "xxx" option created dynamically
+                                        if (option.inputValue) {
+                                            return option.inputValue;
+                                        }
+                                        // Regular option
+                                        return option.name;
+                                    }}
+                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                    freeSolo
+                                    renderInput={(params) => (
+                                        <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
+                                    )}
+                                />
                             </Stack>
-                            <Button className='btn-add' type={"submit"} size='small'
-                                    startIcon={
-                                        <AddIcon/>
-                                    }>
-                                {t('add_balance_sheet')}
-                            </Button>
-                            {
-                                !loading ?
-                                    <List className='items-list'>
-                                        {
-                                            analysisList?.map(anaylis => (
-                                                    <ListItemButton disabled={analysis.find(an =>an.uuid ===anaylis.uuid) !== undefined} key={anaylis.uuid} onClick={() => {
-                                                        addAnalysis(anaylis)
-                                                    }}>
-                                                        <ListItemText primary={anaylis.name}/>
-                                                    </ListItemButton>
-                                                )
+                            <Typography>
+                                {t('recent-search')}
+                            </Typography>
+                            {!loading ?
+                                <List className='items-list'>
+                                    {analysisList?.map(analysisItem => (
+                                            <ListItemButton
+                                                disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
+                                                key={analysisItem.uuid}
+                                                onClick={() => {
+                                                    addAnalysis(analysisItem)
+                                                }}>
+                                                <ListItemText primary={analysisItem.name}/>
+                                            </ListItemButton>
+                                        )
+                                    )}
+                                </List> : <List className='items-list'>
+                                    {
+                                        initalData.map((item, index) => (
+                                                <ListItemButton key={index}>
+                                                    <Skeleton sx={{ml: 1}} width={130} height={8}
+                                                              variant="rectangular"/>
+                                                </ListItemButton>
                                             )
-                                        }
-                                    </List> : <List className='items-list'>
-                                        {
-                                            initalData.map((item, index) => (
-                                                    <ListItemButton key={index}>
-                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                  variant="rectangular"/>
-                                                    </ListItemButton>
-                                                )
-                                            )
-                                        }
-                                    </List>
+                                        )
+                                    }
+                                </List>
                             }
                         </Stack>
                     </FormikProvider>
@@ -263,11 +327,12 @@ function BalanceSheetDialog({...props}) {
                                     <Card key={index}>
                                         <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
                                             <Typography>{item.name}</Typography>
-                                            <IconButton size="small" onClick={() => {
-                                                analysis.splice(index, 1);
-                                                setAnalysis([...analysis])
-                                                data.setState([...analysis])
-                                            }}>
+                                            <IconButton size="small"
+                                                        onClick={() => {
+                                                            analysis.splice(index, 1);
+                                                            setAnalysis([...analysis])
+                                                            data.setState([...analysis])
+                                                        }}>
                                                 <Icon path="setting/icdelete"/>
                                             </IconButton>
                                         </Stack>

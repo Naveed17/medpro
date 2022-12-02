@@ -3,7 +3,11 @@ interface Qualifications {
         patient_group: string;
         first_name: string;
         last_name: string;
-        country_code: string;
+        country_code: {
+            code: string;
+            label: string;
+            phone: string;
+        },
         birthdate: {
             day: string;
             month: string;

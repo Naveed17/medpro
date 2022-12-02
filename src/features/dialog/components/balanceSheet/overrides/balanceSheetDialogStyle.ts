@@ -41,6 +41,9 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         paddingBottom: 8,
         overflowY: 'scroll'
     },
+    "& .MuiOutlinedInput-root": {
+        padding: "0.2rem 0.5rem"
+    }
 
 
 }));
