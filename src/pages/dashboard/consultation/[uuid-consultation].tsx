@@ -177,7 +177,7 @@ function ConsultationInProgress() {
         medical_entity
             ? {
                 method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/modals",
                 headers: {
                     ContentType: "multipart/form-data",
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -191,7 +191,7 @@ function ConsultationInProgress() {
         medical_entity
             ? {
                 method: "GET",
-                url: "/api/medical-entity/" + medical_entity.uuid + "/users/",
+                url: "/api/medical-entity/" + medical_entity.uuid + "/users",
                 headers: {
                     ContentType: "multipart/form-data",
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -447,9 +447,7 @@ function ConsultationInProgress() {
                 headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
-            }).then((r: any) => {
-
-            })
+            });
         }
     }
 
@@ -497,9 +495,11 @@ function ConsultationInProgress() {
                 break;
         }
     };
+
     const handleStepperChange = (index: number) => {
         dispatch(setStepperIndex(index));
     };
+
     const submitStepper = (index: number) => {
         if (EventStepper.length !== index) {
             EventStepper[index].disabled = false;
@@ -507,9 +507,11 @@ function ConsultationInProgress() {
             mutate();
         }
     };
+
     const handleCloseDialogAct = () => {
         setOpenActDialog(false);
     };
+
     const handleSaveDialog = () => {
         setOpenDialog(false);
         setActs([
@@ -520,6 +522,7 @@ function ConsultationInProgress() {
             },
         ]);
     };
+
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
@@ -986,7 +989,6 @@ function ConsultationInProgress() {
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
-                    direction={"ltr"}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
                     })}

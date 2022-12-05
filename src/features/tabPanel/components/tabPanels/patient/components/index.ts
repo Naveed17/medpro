@@ -6,4 +6,4 @@ export { default as DocumentsPanel } from "./documentsPanel";
 export { default as AddRDVStep1 } from "./addRDVStep1";
 export { default as AddRDVStep2 } from "./addRDVStep2";
 export { default as AddRDVStep3 } from "./addRDVStep3";
-export { default as FilesPanel } from './filesPanel'
+export { default as HistoryPanel } from './historyPanel'

@@ -98,14 +98,13 @@ function AddPatientStep2({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
-        const {first_name, last_name, birthdate, phone, gender} = stepsData.step1;
+        const {first_name, last_name, birthdate, phone, gender, country_code} = stepsData.step1;
         const {day, month, year} = birthdate;
-
         const form = new FormData();
         form.append('first_name', first_name)
         form.append('last_name', last_name);
         form.append('phone', JSON.stringify({
-            code: values.country.phone,
+            code: country_code && country_code?.phone,
             value: phone,
             type: "phone",
             "contact_type": contacts[0].uuid,

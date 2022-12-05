@@ -2,7 +2,6 @@ import {Stack} from "@mui/material";
 import {styled} from "@mui/material/styles";
 
 const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
-
     '.btn-add': {
         alignSelf: 'flex-start',
     },
@@ -41,7 +40,11 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         paddingBottom: 8,
         overflowY: 'scroll'
     },
-
-
+    "& .MuiOutlinedInput-root": {
+        padding: "0.2rem 0.5rem"
+    },
+    "& .no-data-card .MuiTypography-body2": {
+        paddingTop: 0
+    }
 }));
 export default BalanceSheetDialogStyled;

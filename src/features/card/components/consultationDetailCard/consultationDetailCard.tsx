@@ -81,12 +81,17 @@ function CIPPatientHistoryCard({...props}) {
                             </Typography>
                             <Select
                                 fullWidth
-                                labelId="demo-simple-select-label"
                                 id={"motif"}
                                 size="small"
-                                {...getFieldProps("motif")}
-                                displayEmpty={true}
-                                sx={{color: "text.secondary"}}
+                                value={values.motif}
+                                onChange={event => {
+                                    setFieldValue("motif", event.target.value);
+                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
+                                        ...values,
+                                        motif: event.target.value
+                                    }));
+                                }}
+                                displayEmpty
                                 renderValue={selected => {
                                     if (selected.length === 0) {
                                         return <em>--</em>;

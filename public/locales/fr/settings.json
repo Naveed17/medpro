@@ -369,6 +369,7 @@
   "actfees": {
     "path": "Paramètres > Honoraires",
     "add_a_new_act": "Ajouter",
+    "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
     "removed": "Acte est supprimé",

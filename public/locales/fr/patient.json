@@ -104,18 +104,23 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Historique"
+      "history": "Fiche d'historique"
     },
     "no-data": {
       "appointment": {
         "title": "Ajouter votre premier rendez-vous",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "description": "Vous n'avez pas de rendez-vous, ajoutez les rendez-vous en cliquant sur 'Ajouter RDV'",
         "button-text": "Ajouter un RDV"
       },
       "documents": {
         "title": "Ajouter le premier document",
-        "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur 'Ajouter un document'",
-        "button-text": "Ajouter un document "
+        "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
+        "button-text": "Ajouter un document"
+      },
+      "consultation": {
+        "title": "Ajouter votre premier consultation",
+        "description": "Vous n'avez pas de consultation, ajouter un rendez-vous et commencer la consultation",
+        "button-text": "Ajouter une consultation"
       }
     },
     "table": {
@@ -203,6 +208,7 @@
       "add-new": "Ajouter un autre patient",
       "add-appo": "Ajouter RDV",
       "register": "Enregistrer",
+      "edit": "Modifier",
       "return": "Retourner à",
       "contact": "Contact",
       "zip_code": "Zip code",
@@ -216,6 +222,13 @@
       "alert": {
         "patient-edit": "le patient a été modifié avec succès"
       }
+    },
+    "consultationIP": {
+      "noFees": "Pas de frais",
+      "noTreatment": "Aucun traitement",
+      "noImage": "Aucune demande imagerie",
+      "noRequest": "Aucune demande",
+      "noDoc": "Aucun document"
     }
   },
   "background": {

@@ -10,13 +10,13 @@ import {
     setAppointmentPatient,
     TabPanel,
     TimeSchedule,
-    resetAppointment, Patient,
+    resetAppointment, HistoryPanel
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -24,9 +24,10 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import {SyntheticEvent, useState} from "react";
+import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
+import {configSelector} from "@features/base";
 
 function a11yProps(index: number) {
     return {
@@ -39,10 +40,13 @@ function a11yProps(index: number) {
 const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
     title: "no-data.appointment.title",
-    description: "no-data.appointment.description",
-    buttonText: "no-data.appointment.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
+    description: "no-data.appointment.description"
+};
+// add consultation details RDV for not data
+const AddConsultationCardData = {
+    mainIcon: "consultation/ic-text",
+    title: "no-data.consultation.title",
+    description: "no-data.consultation.description"
 };
 
 function PatientDetail({...props}) {
@@ -82,6 +86,7 @@ function PatientDetail({...props}) {
         }
     ]);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -89,6 +94,14 @@ function PatientDetail({...props}) {
     const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
+
+    const {data: httpPatientHistoryResponse, mutate: mutatePatientHistory} = useRequest(patientId ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
@@ -115,7 +128,7 @@ function PatientDetail({...props}) {
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = patient ? patient.previousAppointments : [];
+    const previousAppointments = (httpPatientHistoryResponse as HttpResponse)?.data;
     const documents = patient ? patient.documents : [];
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -147,11 +160,11 @@ function PatientDetail({...props}) {
                                 label={t("tabs.personal-info")}
                                 {...a11yProps(0)}
                             />
-                            {/*<Tab
+                            <Tab
                                 disableRipple
-                                label={t("tabs.patient_file")}
+                                label={t("tabs.history")}
                                 {...a11yProps(1)}
-                            />*/}
+                            />
                             <Tab
                                 disableRipple
                                 label={t("tabs.appointment")}
@@ -167,12 +180,19 @@ function PatientDetail({...props}) {
                         <TabPanel padding={1} value={index} index={0}>
                             <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
                         </TabPanel>
-                        {/*<TabPanel padding={1} value={index} index={1}>
-                            <FilesPanel {...{t, previousAppointments}} />
-                        </TabPanel>*/}
                         <TabPanel padding={1} value={index} index={1}>
-                            {previousAppointments.length > 0 ||
-                            nextAppointments.length > 0 ? (
+                            {previousAppointments && previousAppointments.length > 0 ? (
+                                <HistoryPanel {...{t, previousAppointments, patient}} />
+                            ) : (
+                                <NoDataCard
+                                    t={t}
+                                    ns={"patient"}
+                                    data={AddConsultationCardData}
+                                />
+                            )}
+                        </TabPanel>
+                        <TabPanel padding={1} value={index} index={2}>
+                            {nextAppointments.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard
@@ -182,7 +202,7 @@ function PatientDetail({...props}) {
                                 />
                             )}
                         </TabPanel>
-                        <TabPanel padding={2} value={index} index={2}>
+                        <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel {...{documents, patient}} />
                         </TabPanel>
 

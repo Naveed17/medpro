@@ -61,7 +61,7 @@ function PatientFileTemplates() {
 
     const { data: modalsHttpResponse, error, mutate } = useRequest({
         method: "GET",
-        url: "/api/medical-entity/" + medical_entity.uuid + "/modals/",
+        url: "/api/medical-entity/" + medical_entity.uuid + "/modals",
         headers: { Authorization: `Bearer ${session?.accessToken}` }
     });
 

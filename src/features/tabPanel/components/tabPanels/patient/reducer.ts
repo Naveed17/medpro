@@ -17,7 +17,7 @@ const initialState: MenuState = {
                 month: "",
                 year: "",
             },
-            country_code: "",
+            country_code: null,
             phone: "",
             gender: ""
         },

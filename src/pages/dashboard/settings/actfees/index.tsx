@@ -202,6 +202,9 @@ function ActFees() {
                                     onClick={() => handleCreate()}>{t("add_a_new_act")}</Button>
                     }
                     <span>|</span>
+                    <Typography>
+                        {t("consultation")} :
+                    </Typography>
                     <TextField id="outlined-basic"
                                value={consultationFees}
                                size="small"

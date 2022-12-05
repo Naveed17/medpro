@@ -107,7 +107,7 @@ function HistoryTab({...props}) {
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
-        if(appointement.latestAppointments.length > 0) {
+        if (appointement.latestAppointments.length > 0) {
             dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
         }
     }, [appointement, appuuid, dispatch]);
@@ -164,8 +164,10 @@ function HistoryTab({...props}) {
     }
 
     const reqSheetChange = (rs: { result: any; }, ev: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, iid: number, idx: number, idxh: number) => {
-        rs.result = ev.target.value
+        const data = {...rs}
+        data.result = ev.target.value
         let capps = [...apps]
+        console.log(rs, ev, capps, iid, idx, idxh);
         capps[iid].appointment.requestedAnalyses[idx].hasAnalysis[idxh] = rs
         setApps(capps)
     }
@@ -456,15 +458,12 @@ function HistoryTab({...props}) {
                                                             }
                                                         </BoxFees>}
                                                     </ListItemDetailsStyled>
-
                                                 </Collapse>
-
                                             </>
                                         </React.Fragment>
                                     ))}
                                 </List>
                             </Stack>
-
                         </Collapse>
                     </PatientHistoryCard>
                 ))}
