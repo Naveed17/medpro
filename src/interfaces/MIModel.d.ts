@@ -1,4 +1,5 @@
 interface MIModel {
-    uuid: string,
+    uuid?: string,
     name: string,
+    inputValue?: string,
 }
