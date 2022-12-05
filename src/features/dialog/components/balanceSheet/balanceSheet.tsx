@@ -121,12 +121,9 @@ function BalanceSheetDialog({...props}) {
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data
-                if (res.length > 0)
-                    setAnalysisList(res)
-                else
-                    setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
-
-            })
+                setAnalysisList(res.length > 0 ? res : (httpAnalysisResponse as HttpResponse)?.data);
+                sortAnalysis();
+            });
         } else {
             setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         }
@@ -227,7 +224,10 @@ function BalanceSheetDialog({...props}) {
                                                 name: newValue.inputValue,
                                             });
                                         } else {
-                                            addAnalysis(newValue as AnalysisModel);
+                                            const analysisItem = (newValue as AnalysisModel);
+                                            if (!analysis.find(item => item.uuid === analysisItem.uuid)) {
+                                                addAnalysis(newValue as AnalysisModel);
+                                            }
                                         }
                                         sortAnalysis();
                                     }}
