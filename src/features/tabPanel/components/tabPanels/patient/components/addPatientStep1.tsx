@@ -95,12 +95,14 @@ function AddPatientStep1({...props}) {
         },
     });
 
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const handleChange = (event: ChangeEvent | null, values: object) => {
         onNext(1);
-        dispatch(onAddPatient({...stepsData, step1: values}));
+        dispatch(onAddPatient({...stepsData, step1: {...values, country_code: selectedCountry}}));
     };
-    const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+
+    const {handleSubmit, touched, errors, getFieldProps} = formik;
+
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

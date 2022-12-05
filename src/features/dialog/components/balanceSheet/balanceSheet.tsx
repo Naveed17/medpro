@@ -5,15 +5,15 @@ import {
     Button,
     Card,
     IconButton,
-    TextField, ListItemButton, ListItemText, List, ListItem, Skeleton,
-    Menu, MenuItem, Box, DialogActions
+    ListItemButton, ListItemText, List, ListItem, Skeleton,
+    Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -22,6 +22,8 @@ import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+
+const filter = createFilterOptions<any>();
 
 function BalanceSheetDialog({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -32,6 +34,7 @@ function BalanceSheetDialog({...props}) {
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
+    const [actValue, setActValue] = useState<AnalysisModel | null>(null);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
@@ -61,7 +64,8 @@ function BalanceSheetDialog({...props}) {
                 addAnalysis({uuid: '', name})
         },
     });
-    const initalData = Array.from(new Array(20));
+
+    const initialData = Array.from(new Array(20));
 
     const router = useRouter();
     const {data: session} = useSession();
@@ -73,11 +77,22 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const sortAnalysis = useCallback(() => {
+        const recents = localStorage.getItem("balance-Sheet-recent") ?
+            JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
+        if (recents.length > 0 && analysisList) {
+            setAnalysisList([
+                ...recents,
+                ...analysisList.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+        }
+    }, [analysisList])
+
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
         setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         analysis.unshift(value)
         setAnalysis([...analysis])
+        localStorage.setItem("balance-Sheet-recent", JSON.stringify([...analysis]));
         data.setState([...analysis])
     }
 
@@ -97,24 +112,21 @@ function BalanceSheetDialog({...props}) {
         })
     }
 
-    const handleChange = (ev: any) => {
-        setName(ev.target.value);
-
-        if (ev.target.value.length >= 2) {
+    const searchInAnalysis = (analysisName: string) => {
+        setName(analysisName);
+        if (analysisName.length >= 2) {
             trigger({
                 method: "GET",
-                url: "/api/private/analysis/" + router.locale + '?name=' + ev.target.value,
+                url: `/api/private/analysis/${router.locale}?name=${analysisName}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((r) => {
                 const res = (r?.data as HttpResponse).data
-                if (res.length > 0)
-                    setAnalysisList(res)
-                else
-                    setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
-
-            })
-        } else
+                setAnalysisList(res.length > 0 ? res : (httpAnalysisResponse as HttpResponse)?.data);
+                sortAnalysis();
+            });
+        } else {
             setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
+        }
     }
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -125,6 +137,8 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const {handleSubmit} = formik;
+
     useEffect(() => {
         if (httpModelResponse)
             setModels((httpModelResponse as HttpResponse).data);
@@ -133,11 +147,10 @@ function BalanceSheetDialog({...props}) {
     useEffect(() => {
         setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         setTimeout(() => {
-            setLoading(false)
-        }, 1000)
-    }, [httpAnalysisResponse])
-
-    const {handleSubmit} = formik;
+            setLoading(false);
+            sortAnalysis();
+        }, 1000);
+    }, [httpAnalysisResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -155,7 +168,7 @@ function BalanceSheetDialog({...props}) {
                             <Stack spacing={1}>
                                 <Stack direction="row" alignItems="center">
                                     <Typography>{t('please_name_the_balance_sheet')}</Typography>
-                                    <Button
+                                    {modals.length > 0 && <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
                                             <KeyboardArrowDownIcon/>
@@ -167,7 +180,7 @@ function BalanceSheetDialog({...props}) {
                                         onClick={handleClick}
                                     >
                                         {t('balance_sheet_model')}
-                                    </Button>
+                                    </Button>}
                                     <Menu
                                         id="basic-menu"
                                         anchorEl={anchorEl}
@@ -188,56 +201,99 @@ function BalanceSheetDialog({...props}) {
                                         }}
                                         MenuListProps={{
                                             'aria-labelledby': 'basic-button',
-                                        }}
-                                    >
-                                        {
-                                            modals.map((item, idx) =>
-                                                <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
-                                                          onClick={() => {
-                                                              handleClose(item)
-                                                          }}>{item.name}</MenuItem>
-                                            )
-                                        }
-
-
+                                        }}>
+                                        {modals.map((item, idx) =>
+                                            <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
+                                                      onClick={() => {
+                                                          handleClose(item)
+                                                      }}>{item.name}</MenuItem>
+                                        )}
                                     </Menu>
                                 </Stack>
-                                <TextField
-                                    id="balance_sheet_name"
-                                    value={name}
-                                    placeholder={t('placeholder_balance_sheet_name')}
-                                    onChange={handleChange}/>
+                                <Autocomplete
+                                    value={actValue}
+                                    onInputChange={(event, value) => searchInAnalysis(value)}
+                                    onChange={(event, newValue) => {
+                                        if (typeof newValue === 'string') {
+                                            addAnalysis({
+                                                name: newValue,
+                                            });
+                                        } else if (newValue && newValue.inputValue) {
+                                            // Create a new value from the user input
+                                            addAnalysis({
+                                                name: newValue.inputValue,
+                                            });
+                                        } else {
+                                            const analysisItem = (newValue as AnalysisModel);
+                                            if (!analysis.find(item => item.uuid === analysisItem.uuid)) {
+                                                addAnalysis(newValue as AnalysisModel);
+                                            }
+                                        }
+                                        sortAnalysis();
+                                    }}
+                                    filterOptions={(options, params) => {
+                                        const filtered = filter(options, params);
+                                        const {inputValue} = params;
+                                        // Suggest the creation of a new value
+                                        const isExisting = options.some((option) => inputValue === option.name);
+                                        if (inputValue !== '' && !isExisting) {
+                                            filtered.push({
+                                                inputValue,
+                                                name: `${t('add_balance_sheet')} "${inputValue}"`,
+                                            });
+                                        }
+
+                                        return filtered;
+                                    }}
+                                    selectOnFocus
+                                    clearOnEscape
+                                    handleHomeEndKeys
+                                    id="sheet-solo-balance"
+                                    options={analysisList ? analysisList : []}
+                                    getOptionLabel={(option) => {
+                                        // Value selected with enter, right from the input
+                                        if (typeof option === 'string') {
+                                            return option;
+                                        }
+                                        // Add "xxx" option created dynamically
+                                        if (option.inputValue) {
+                                            return option.inputValue;
+                                        }
+                                        // Regular option
+                                        return option.name;
+                                    }}
+                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                    freeSolo
+                                    renderInput={(params) => (
+                                        <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
+                                    )}
+                                />
                             </Stack>
-                            <Button className='btn-add' type={"submit"} size='small'
-                                    startIcon={
-                                        <AddIcon/>
-                                    }>
-                                {t('add_balance_sheet')}
-                            </Button>
-                            {
-                                !loading ?
-                                    <List className='items-list'>
-                                        {
-                                            analysisList?.map(anaylis => (
-                                                    <ListItemButton disabled={analysis.find(an =>an.uuid ===anaylis.uuid) !== undefined} key={anaylis.uuid} onClick={() => {
-                                                        addAnalysis(anaylis)
-                                                    }}>
-                                                        <ListItemText primary={anaylis.name}/>
-                                                    </ListItemButton>
-                                                )
-                                            )
-                                        }
-                                    </List> : <List className='items-list'>
-                                        {
-                                            initalData.map((item, index) => (
-                                                    <ListItemButton key={index}>
-                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                  variant="rectangular"/>
-                                                    </ListItemButton>
-                                                )
-                                            )
-                                        }
-                                    </List>
+                            <Typography>
+                                {t('recent-search')}
+                            </Typography>
+                            {!loading ?
+                                <List className='items-list'>
+                                    {analysisList?.map(analysisItem => (
+                                            <ListItemButton
+                                                disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
+                                                key={analysisItem.uuid}
+                                                onClick={() => {
+                                                    addAnalysis(analysisItem)
+                                                }}>
+                                                <ListItemText primary={analysisItem.name}/>
+                                            </ListItemButton>
+                                        )
+                                    )}
+                                </List> : <List className='items-list'>
+                                    {initialData.map((item, index) => (
+                                            <ListItemButton key={index}>
+                                                <Skeleton sx={{ml: 1}} width={130} height={8}
+                                                          variant="rectangular"/>
+                                            </ListItemButton>
+                                        )
+                                    )}
+                                </List>
                             }
                         </Stack>
                     </FormikProvider>
@@ -257,41 +313,41 @@ function BalanceSheetDialog({...props}) {
                         </Button>}
                     </Stack>
                     <Box className="list-container">
-                        {
-                            analysis.length > 0 ?
-                                analysis.map((item, index) => (
-                                    <Card key={index}>
-                                        <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
-                                            <Typography>{item.name}</Typography>
-                                            <IconButton size="small" onClick={() => {
-                                                analysis.splice(index, 1);
-                                                setAnalysis([...analysis])
-                                                data.setState([...analysis])
-                                            }}>
-                                                <Icon path="setting/icdelete"/>
-                                            </IconButton>
-                                        </Stack>
-                                    </Card>
-                                ))
-                                : <Card className='loading-card'>
-                                    <Stack spacing={2}>
-                                        <Typography alignSelf="center">
-                                            {t("list_empty")}
-                                        </Typography>
-                                        <List>
-                                            {
-                                                Array.from({length: 4}).map((_, idx) =>
-                                                    <ListItem key={idx} sx={{py: .5}}>
-                                                        <Skeleton width={10} height={8} variant="rectangular"/>
-                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                  variant="rectangular"/>
-                                                    </ListItem>
-                                                )
-                                            }
-
-                                        </List>
+                        {analysis.length > 0 ?
+                            analysis.map((item, index) => (
+                                <Card key={index}>
+                                    <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
+                                        <Typography>{item.name}</Typography>
+                                        <IconButton size="small"
+                                                    onClick={() => {
+                                                        analysis.splice(index, 1);
+                                                        setAnalysis([...analysis])
+                                                        data.setState([...analysis])
+                                                    }}>
+                                            <Icon path="setting/icdelete"/>
+                                        </IconButton>
                                     </Stack>
                                 </Card>
+                            ))
+                            : <Card className='loading-card'>
+                                <Stack spacing={2}>
+                                    <Typography alignSelf="center">
+                                        {t("list_empty")}
+                                    </Typography>
+                                    <List>
+                                        {
+                                            Array.from({length: 4}).map((_, idx) =>
+                                                <ListItem key={idx} sx={{py: .5}}>
+                                                    <Skeleton width={10} height={8} variant="rectangular"/>
+                                                    <Skeleton sx={{ml: 1}} width={130} height={8}
+                                                              variant="rectangular"/>
+                                                </ListItem>
+                                            )
+                                        }
+
+                                    </List>
+                                </Stack>
+                            </Card>
                         }
                     </Box>
                 </Grid>

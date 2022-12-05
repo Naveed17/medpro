@@ -271,7 +271,7 @@ function PatientRow({...props}) {
                             >
                                 {t("table.see-card")}
                             </Button>
-                            <Button
+{/*                            <Button
                                 size="small"
                                 sx={{
                                     ml: 0.6
@@ -289,7 +289,7 @@ function PatientRow({...props}) {
                                 startIcon={<Icon color={theme.palette.primary.main} path="setting/edit"/>}
                             >
                                 {t("table.edit")}
-                            </Button>
+                            </Button>*/}
                         </Box>
                         <Box className="lg-up">
                             <IconButton
@@ -307,7 +307,7 @@ function PatientRow({...props}) {
                             >
                                 <Icon path="/ic-voir"/>
                             </IconButton>
-                            <IconButton
+   {/*                         <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     dispatch(
@@ -321,7 +321,7 @@ function PatientRow({...props}) {
                                 size="small"
                             >
                                 <Icon color={theme.palette.primary.main} path="setting/edit"/>
-                            </IconButton>
+                            </IconButton>*/}
                         </Box>
                     </>
                 )}

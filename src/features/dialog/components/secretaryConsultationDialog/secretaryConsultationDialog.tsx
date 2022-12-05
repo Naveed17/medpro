@@ -28,8 +28,6 @@ function SecretaryConsultationDialog({...props}) {
         data: {t, changes, total, instruction, setInstruction, meeting, setMeeting, checkedNext, setCheckedNext},
     } = props;
 
-    console.log(instruction)
-
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInstruction(event.target.value.slice(0, limit));
     };

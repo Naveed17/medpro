@@ -264,9 +264,11 @@ function PersonalInfo({...props}) {
                                             </LoadingButton>
                                         </Stack>
                                         :
-                                        <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
-                                            <IconUrl path={"setting/edit"}/>
-                                        </IconButton>
+                                        <Button onClick={() => setEditable(true)}
+                                                startIcon={<IconUrl path={"setting/edit"}/>}
+                                                color="primary" size="small">
+                                            {t("edit")}
+                                        </Button>
                                     }
                                 </Box>
                             </Toolbar>

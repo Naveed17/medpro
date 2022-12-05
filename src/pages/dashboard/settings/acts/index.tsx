@@ -16,12 +16,7 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-
-function getDifference<T>(a: T[], b: T[]): T[] {
-    return a.filter((element) => {
-        return !b.includes(element);
-    });
-}
+import getDifference from "@app/hooks";
 
 function Acts() {
     const {data: session} = useSession();

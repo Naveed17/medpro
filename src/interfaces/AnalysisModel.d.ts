@@ -1,4 +1,5 @@
 interface AnalysisModel {
-    uuid: string,
+    uuid?: string,
+    inputValue?: string,
     name: string,
 }

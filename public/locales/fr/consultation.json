@@ -61,6 +61,7 @@
   "reason_for_consultation": "Motif du consultation",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
+    "recent-search": "Recherches récentes",
     "reason_for_consultation": "Motif du consultation",
     "patient_history": "Fiche d'historique",
     "name": "Nom",
