@@ -87,7 +87,7 @@ function TimeSchedule({...props}) {
         return slots.find((item: TimeSlotModel) => item.start === time);
     }, []);
 
-    const getSlots = useCallback((date: Date, duration: string, time: string) => {
+    const getSlots = useCallback((date: Date, duration: string, timeSlot: string) => {
         setLoading(true);
         trigger(medical_professional ? {
             method: "GET",
@@ -98,10 +98,13 @@ function TimeSchedule({...props}) {
             const slots = weekTimeSlots.find(slot => slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
             if (slots) {
                 setTimeSlots(slots);
-                if (onTimeAvailable(slots, time)) {
+                if (moment(selectedDate).isValid() && onTimeAvailable(slots, timeSlot) ||
+                    !moment(selectedDate).isValid()) {
                     setTimeAvailable(true);
                 } else {
-                    setRecurringDates([]);
+                    if (recurringDates.find((item: RecurringDateModel) => item.time === timeSlot)) {
+                        setRecurringDates([]);
+                    }
                     setTimeAvailable(false);
                 }
             }
@@ -166,6 +169,9 @@ function TimeSchedule({...props}) {
     }
 
     const onTimeSlotChange = (newTime: string) => {
+        const newDate = moment(`${moment(date).format("DD-MM-YYYY")} ${newTime}`, "DD-MM-YYYY HH:mm").toDate();
+        dispatch(setAppointmentDate(newDate));
+
         const updatedRecurringDates = [{
             id: `${moment(date).format("DD-MM-YYYY")}--${newTime}`,
             time: newTime,
@@ -176,6 +182,7 @@ function TimeSchedule({...props}) {
                 (unique.find(recurringDate => recurringDate.id === item.id) ? unique : [...unique, item]),
             [],
         );
+
         setRecurringDates(updatedRecurringDates);
         dispatch(setAppointmentRecurringDates(updatedRecurringDates));
         setTime(newTime);
@@ -204,9 +211,9 @@ function TimeSchedule({...props}) {
 
     useEffect(() => {
         if (date && medical_professional?.uuid) {
-            setTime(moment(date).format('HH:mm'));
+            setTime(moment(selectedDate).format('HH:mm'));
             if (duration !== "") {
-                getSlots(date, duration as string, moment(date).format('HH:mm'));
+                getSlots(date, duration as string, moment(selectedDate).format('HH:mm'));
             }
         }
     }, [date, duration, getSlots]); // eslint-disable-line react-hooks/exhaustive-deps
