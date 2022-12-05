@@ -100,7 +100,6 @@ function AddPatientStep2({...props}) {
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         const {first_name, last_name, birthdate, phone, gender, country_code} = stepsData.step1;
         const {day, month, year} = birthdate;
-        console.log("country", stepsData.step1);
         const form = new FormData();
         form.append('first_name', first_name)
         form.append('last_name', last_name);
