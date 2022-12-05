@@ -13,7 +13,7 @@ import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -43,14 +43,6 @@ function BalanceSheetDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
     const [name, setName] = useState('');
-
-    useEffect(() => {
-        localStorage.setItem("balance-Sheet-recent", JSON.stringify(analysis));
-    }, [analysis]);
-
-    useEffect(() => {
-        sortAnalysis();
-    }, [analysisList]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -88,11 +80,15 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
-    const sortAnalysis = () => {
+    const sortAnalysis = useCallback(() => {
         const recents = localStorage.getItem("balance-Sheet-recent") ?
             JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
-        analysisList && setAnalysisList([...recents, ...analysisList.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]);
-    }
+        if(recents.length > 0 && analysisList) {
+            setAnalysisList([
+                ...recents,
+                ...analysisList.filter(x => !recents.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+        }
+    },[analysisList])
 
     const addAnalysis = (value: AnalysisModel) => {
         setName('')
@@ -147,6 +143,8 @@ function BalanceSheetDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const {handleSubmit} = formik;
+
     useEffect(() => {
         if (httpModelResponse)
             setModels((httpModelResponse as HttpResponse).data);
@@ -155,11 +153,10 @@ function BalanceSheetDialog({...props}) {
     useEffect(() => {
         setAnalysisList((httpAnalysisResponse as HttpResponse)?.data);
         setTimeout(() => {
-            setLoading(false)
+            setLoading(false);
+            sortAnalysis();
         }, 1000)
     }, [httpAnalysisResponse])
-
-    const {handleSubmit} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
