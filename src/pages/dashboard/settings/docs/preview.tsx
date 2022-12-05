@@ -48,14 +48,17 @@ function PreviewDialog({...props}) {
         pageX.style.top="0"
         document.body.append(pageX)
         createPageContent(pageX)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
-        const content = document.getElementById('content0')
-        if (content) {
-            content.style.height = data.content.maxHeight+'px'
+        if (data){
+            const content = document.getElementById('content0')
+            if (content) {
+                content.style.height = data.content.maxHeight+'px'
+            }
         }
-    }, [data.content.maxHeight])
+    }, [data])
 
     return (
         <>
