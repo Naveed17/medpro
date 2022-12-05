@@ -7,7 +7,7 @@ interface Qualifications {
             code: string;
             label: string;
             phone: string;
-        },
+        } | null,
         birthdate: {
             day: string;
             month: string;
