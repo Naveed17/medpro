@@ -17,7 +17,11 @@ const initialState: MenuState = {
                 month: "",
                 year: "",
             },
-            country_code: "",
+            country_code: {
+                code: "TN",
+                label: "Tunisia",
+                phone: "+216"
+            },
             phone: "",
             gender: ""
         },
