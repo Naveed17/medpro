@@ -3,56 +3,77 @@ import {DocHeader} from "@features/files";
 import React, {useRef} from "react";
 
 const Prescription = ({...props}) => {
-    const {background, header, title, eventHandler, date, patient, pages, id} = props;
+    const {eventHandler, data, pages, id, values} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
 
-
     return (
         <div className={"page"}>
-            {background.show && background.content !== '' && id === 0 &&
+            {data.background.show && data.background.content !== '' && id === 0 &&
                 // eslint-disable-next-line @next/next/no-img-element
                 <img className={"page"}
                      style={{position: "absolute", height: '210mm'}}
-                     src={background.content} alt={'backgroud'}/>}
+                     src={data.background.content} alt={'backgroud'}/>}
 
 
-            <Draggable onStop={eventHandler}
+            <Draggable onStop={(ev, data) => {
+                eventHandler(ev, data, 'header')
+            }}
                        bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
                 <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red', height: '35mm'}}>
-                    {header.show && <DocHeader></DocHeader>}
+                    {data.header.show && <DocHeader data={values}></DocHeader>}
                 </div>
             </Draggable>
 
-            {id == 0 && <><Draggable onStop={eventHandler}
-                                     defaultPosition={{x: title.x, y: title.y}}
-                                     bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                <div style={{width: "100%", border: '0 solid red', textAlign: "center", height: '6mm'}}>
-                    {title.show && <div className="handle">{title.content}</div>}
-                </div>
-            </Draggable>
-
-                <Draggable onStop={eventHandler}
-                           defaultPosition={{x: date.x, y: date.y}}
+            {id === 0 && <>
+                <Draggable onStop={(ev, data) => {
+                    eventHandler(ev, data, 'title')
+                }}
+                           defaultPosition={{x: data.title.x, y: data.title.y}}
                            bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                    <div style={{width: "fit-content", border: '0 solid red'}}>
-                        {date.show && <div className="handle">{date.content}</div>}
+                    <div style={{width: "100%", border: '0 solid red', textAlign: "center", height: '6mm'}}>
+                        {data.title.show && <div className="handle">{data.title.content}</div>}
                     </div>
                 </Draggable>
 
-                <Draggable onStop={eventHandler}
-                           defaultPosition={{x: patient.x, y: patient.y}}
+                <Draggable onStop={(ev, data) => {
+                    eventHandler(ev, data, 'date')
+                }}
+                           defaultPosition={{x: data.date.x, y: data.date.y}}
                            bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                    <div style={{padding: "1rem", width: "30%"}}>
-                        {patient.show && <div className="handle">{patient.content}</div>}
+                    <div style={{width: "fit-content", border: '0 solid red'}}>
+                        {data.date.show && <div className="handle">{data.date.prefix + data.date.content}</div>}
                     </div>
-                </Draggable></>}
+                </Draggable>
 
-            <Draggable onStop={eventHandler}
-                       defaultPosition={{x: 0, y: 0}}
-                       bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                <div style={{width: "100%", padding: '10mm', overflowWrap: 'break-word'}}>
+                <Draggable onStop={(ev, data) => {
+                    eventHandler(ev, data, 'patient')
+                }}
+                           defaultPosition={{x: data.patient.x, y: data.patient.y}}
+                           bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                    <div style={{width: "fit-content", border: '0 solid red'}}>
+                        {data.patient.show && <div className="handle">{data.patient.prefix + data.patient.content}</div>}
+                    </div>
+                </Draggable>
+            </>}
+
+            <Draggable
+                defaultPosition={{x: data.content.x, y: data.content.y}}
+                onStop={(ev, data) => {
+                    eventHandler(ev, data, 'content')
+                }}
+                bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                <div style={{width: "100%", padding: '0 10mm', overflowWrap: 'break-word'}}>
+                    <div id={'content' + id} className="box"
+                         style={{ height: `${data.content.maxHeight}px`}}>
+                        {data.content.content}</div>
+
+
+{/*
                     <div id={id} ref={content}></div>
+*/}
+
+
                 </div>
             </Draggable>
 

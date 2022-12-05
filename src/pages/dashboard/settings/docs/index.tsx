@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useRef, useState} from "react";
+import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -10,6 +10,7 @@ import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
+    Button,
     Card,
     CardContent,
     Checkbox,
@@ -20,6 +21,7 @@ import {
     ListItem,
     ListItemText,
     Stack,
+    TextareaAutosize,
     TextField,
     Typography
 } from "@mui/material";
@@ -28,10 +30,11 @@ import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
-import Preview from "./preview";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import Preview from "./preview";
 
 function DocsConfig() {
     const {data: session} = useSession();
@@ -39,17 +42,22 @@ function DocsConfig() {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
 
-    const [background, setBackground] = useState({show: false, content: ''});
-    const [header, setHeader] = useState({show: true, content: '/static/img/scan.jpg', x: 0, y: 0});
-    const [title, setTitle] = useState({show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8});
-    const [date, setDate] = useState({show: true, content: '21/11/2022', x: 412, y: 35});
-    const [patient, setPatient] = useState({show: true, content: 'Foulen ben foulen', x: 104, y: 40});
     const [files, setFiles] = useState<any[]>([]);
+    const [data, setData] = useState<any>({
+        background: {show: false, content: ''},
+        header: {show: true, x: 0, y: 0},
+        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
+        date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
+        patient: {show: true, prefix: '', content: 'Foulen ben foulen', x: 120, y: 55},
+        content: {
+            show: true,
+            maxHeight: 400,
+            content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
+            x: 0,
+            y: 70
+        }
+    })
 
-    const [file, setFile] = useState('');
-    const [pos, setPos] = useState(0);
-    const [docFile, setDocFile] = useState<any>('');
-    const [numPages, setNumPages] = useState<number | null>(null);
     const {trigger} = useRequestMutation(null, "/MP/header");
     const {enqueueSnackbar} = useSnackbar();
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
@@ -57,7 +65,7 @@ function DocsConfig() {
     const componentRef = useRef<HTMLDivElement>(null);
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
-    });
+    })
 
     const printNow = () => {
         handlePrint()
@@ -67,8 +75,8 @@ function DocsConfig() {
         (acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
-                background.content = (ev.target?.result as string)
-                setBackground({...background})
+                data.background.content = (ev.target?.result as string)
+                setData({...data})
             }
             reader.readAsDataURL(acceptedFiles[0]);
             setFiles([...files, ...acceptedFiles]);
@@ -78,8 +86,8 @@ function DocsConfig() {
 
     const handleRemove = (file: any) => {
         setFiles(files.filter((_file: any) => _file !== file));
-        background.content = ''
-        setBackground({...background})
+        data.background.content = ''
+        setData({...data})
     };
 
     const formik = useFormik({
@@ -96,12 +104,12 @@ function DocsConfig() {
 
         enableReinitialize: true,
         initialValues: {
-            name: "Dr",
-            speciality: "",
-            diplome: "",
-            tel: "Tel: ",
-            fix: "Fix: ",
-            email: ""
+            left1: "Dr",
+            left2: "",
+            left3: "",
+            right1: "Tel: ",
+            right2: "Fix: ",
+            right3: ""
         }
     })
 
@@ -115,13 +123,28 @@ function DocsConfig() {
         },
     });
 
+    useEffect(() => {
+        if (httpData) {
+            const header = (httpData as HttpResponse).data
+            setFieldValue("left1", header.left1);
+            setFieldValue("left2", header.left2);
+            setFieldValue("left3", header.left3);
+            setFieldValue("right1", header.right1);
+            setFieldValue("right2", header.right2);
+            setFieldValue("right3", header.right3);
+        }
+    }, [httpData, setFieldValue])
+
 
     const {t, ready} = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
 
-    const eventHandler = (e: { type: any; }, data: any) => {
-        console.log(data.x, data.y);
+    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+        console.log(location.x, location.y)
+        data[from].x = location.x
+        data[from].y = location.y
+        setData({...data})
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -164,20 +187,37 @@ function DocsConfig() {
                                 component="nav"
                                 aria-labelledby="nested-list-subheader">
 
+                                <fieldset>
+                                    <legend>Configurer contenu</legend>
+                                    <Typography fontSize={12} color={'#999'} mb={1}>Hauteur maximum</Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder={t("name")}
+                                        required
+                                        type={"number"}
+                                        value={data.content.maxHeight}
+                                        onChange={(ev) => {
+                                            data.content.maxHeight = ev.target.value
+                                            setData({...data})
+                                        }}
+                                        fullWidth/>
+                                    <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
+                                        : {data.content.x} , y : {data.content.y}</Typography>
+                                </fieldset>
 
-                                <ListItem  style={{padding: 0, marginBottom: 5}}>
+                                <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
-                                        checked={background.show}
+                                        checked={data.background.show}
                                         onChange={(ev) => {
                                             console.log(ev.target.checked)
-                                            background.show = ev.target.checked;
-                                            setBackground({...background})
+                                            data.background.show = ev.target.checked;
+                                            setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("background")}/>
                                 </ListItem>
 
-                                <Collapse in={background.show} timeout="auto" unmountOnExit>
+                                <Collapse in={data.background.show} timeout="auto" unmountOnExit>
                                     {files.length === 0 &&
                                         <UploadFile
                                             files={files}
@@ -201,17 +241,17 @@ function DocsConfig() {
 
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
-                                        checked={header.show}
+                                        checked={data.header.show}
                                         onChange={(ev) => {
                                             console.log(ev.target.checked)
-                                            header.show = ev.target.checked;
-                                            setHeader({...header})
+                                            data.header.show = ev.target.checked;
+                                            setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("header")}/>
                                 </ListItem>
 
-                                <Collapse in={header.show} timeout="auto" unmountOnExit>
+                                <Collapse in={data.header.show} timeout="auto" unmountOnExit>
                                     <Card>
                                         <CardContent>
                                             <Stack spacing={2}>
@@ -220,13 +260,17 @@ function DocsConfig() {
                                                         variant="outlined"
                                                         placeholder={t("name")}
                                                         required
-                                                        {...getFieldProps("name")}
+                                                        {...getFieldProps("left1")}
                                                         fullWidth/>
                                                     <TextField
                                                         variant="outlined"
                                                         placeholder={t("tel")}
                                                         required
-                                                        {...getFieldProps("tel")}
+                                                        inputProps={{
+                                                            style: {
+                                                                textAlign: "right"
+                                                            },
+                                                        }}                                                        {...getFieldProps("right1")}
                                                         fullWidth/>
                                                 </Stack>
                                                 <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
@@ -234,27 +278,39 @@ function DocsConfig() {
                                                         variant="outlined"
                                                         placeholder={t("speciality")}
                                                         required
-                                                        {...getFieldProps("speciality")}
+                                                        {...getFieldProps("left2")}
                                                         fullWidth/>
                                                     <TextField
                                                         variant="outlined"
                                                         placeholder={t("fax")}
-                                                        {...getFieldProps("fix")}
+                                                        inputProps={{
+                                                            style: {
+                                                                textAlign: "right"
+                                                            },
+                                                        }}
+                                                        {...getFieldProps("right2")}
                                                         required
                                                         fullWidth/>
                                                 </Stack>
                                                 <Stack direction={"row"} justifyContent={"space-between"} spacing={4}>
-                                                    <TextField
-                                                        variant="outlined"
+
+                                                    <TextareaAutosize
+                                                        aria-label="minimum height"
+                                                        minRows={3}
                                                         placeholder={t("diplome")}
-                                                        required
-                                                        {...getFieldProps("diplome")}
-                                                        fullWidth/>
+                                                        {...getFieldProps("left3")}
+                                                        style={{width: 200}}
+                                                    />
                                                     <TextField
                                                         variant="outlined"
                                                         placeholder={t("email")}
                                                         required
-                                                        {...getFieldProps("email")}
+                                                        inputProps={{
+                                                            style: {
+                                                                textAlign: "right"
+                                                            },
+                                                        }}
+                                                        {...getFieldProps("right3")}
                                                         fullWidth/>
                                                 </Stack>
                                             </Stack>
@@ -264,56 +320,156 @@ function DocsConfig() {
 
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
-                                        checked={title.show}
+                                        checked={data.title.show}
                                         onChange={(ev) => {
                                             console.log(ev.target.checked)
-                                            title.show = ev.target.checked;
-                                            setTitle({...title})
+                                            data.title.show = ev.target.checked;
+                                            setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("title")}/>
                                 </ListItem>
 
-                                <Collapse in={title.show} timeout="auto" unmountOnExit>
+                                <Collapse in={data.title.show} timeout="auto" unmountOnExit>
                                     <fieldset>
-                                        <legend>Glisser title pour changer sa position</legend>
-                                        <Typography>x: {title.x}</Typography>
-                                        <Typography>y: {title.y}</Typography>
+                                        <legend>Configurer title</legend>
+                                        <Typography fontSize={12} color={'#999'} mb={1}>Nom</Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("name")}
+                                            required
+
+                                            value={data.title.content}
+                                            onChange={(ev) => {
+                                                data.title.content = ev.target.value
+                                                setData({...data})
+                                            }}
+                                            fullWidth/>
+                                        <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
+                                            : {data.title.x} , y : {data.title.y}</Typography>
                                     </fieldset>
                                 </Collapse>
 
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
-                                        checked={date.show}
+                                        checked={data.date.show}
                                         onChange={(ev) => {
                                             console.log(ev.target.checked)
-                                            date.show = ev.target.checked;
-                                            setDate({...date})
+                                            data.date.show = ev.target.checked;
+                                            setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("date")}/>
                                 </ListItem>
 
+                                <Collapse in={data.date.show} timeout="auto" unmountOnExit>
+                                    <fieldset>
+                                        <legend>Configurer date</legend>
+                                        <Typography fontSize={12} color={'#999'} mb={1}>Prefix</Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("name")}
+                                            required
+                                            value={data.date.prefix}
+                                            onChange={(ev) => {
+                                                data.date.prefix = ev.target.value
+                                                setData({...data})
+                                            }}
+                                            fullWidth/>
+                                        <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
+                                            : {data.date.x} , y : {data.date.y}</Typography>
+                                    </fieldset>
+                                </Collapse>
+
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
-                                        checked={patient.show}
+                                        checked={data.patient.show}
                                         onChange={(ev) => {
                                             console.log(ev.target.checked)
-                                            patient.show = ev.target.checked;
-                                            setPatient({...patient})
+                                            data.patient.show = ev.target.checked;
+                                            setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("patient")}/>
                                 </ListItem>
+
+                                <Collapse in={data.patient.show} timeout="auto" unmountOnExit>
+                                    <fieldset>
+                                        <legend>Configurer nom du patient</legend>
+                                        <Typography fontSize={12} color={'#999'} mb={1}>Prefix</Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("name")}
+                                            required
+                                            value={data.patient.prefix}
+                                            onChange={(ev) => {
+                                                data.patient.prefix = ev.target.value
+                                                setData({...data})
+                                            }}
+                                            fullWidth/>
+                                        <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
+                                            : {data.patient.x} , y : {data.patient.y}</Typography>
+                                    </fieldset>
+                                </Collapse>
+
+                                <ListItemText>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={() => {
+                                            const form = new FormData();
+                                            form.append('document_header', JSON.stringify(values));
+                                            trigger({
+                                                method: "PATCH",
+                                                url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+                                                data: form,
+                                                headers: {
+                                                    Authorization: `Bearer ${session?.accessToken}`
+                                                }
+                                            }, TriggerWithoutValidation)
+                                            enqueueSnackbar(t("updated"), {variant: 'success'})
+                                        }}
+                                        sx={{ml: "auto"}}>
+                                        {t("save")}
+                                    </Button>
+                                </ListItemText>
                             </List>
                         </Box>
                     </Grid>
 
                     <Grid item md={7}>
                         <Box padding={2}>
-                            <Box style={{width: '148.5mm', margin: 'auto'}}>
+                            <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{background, header, title, eventHandler, date, patient}} />
+                                    {/*
+                                     <div style={{width:'148mm',overflowWrap:"break-word",padding:'40px',border:'1px solid'}}>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+                                         <p> HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello</p>
+
+                                     </div>
+*/}
+
+                                    <Preview  {...{eventHandler, data, values}} />
                                 </Box>
                             </Box>
 

@@ -12,14 +12,12 @@ import {useFormik} from "formik";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, Card, CardContent, Grid, Stack, TextField, Typography} from "@mui/material";
 import autoTable from "jspdf-autotable";
-import { Header} from "@features/files";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
-import { PDFDocument,StandardFonts,rgb } from 'pdf-lib'
-import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
+import {PDFDocument, rgb, StandardFonts} from 'pdf-lib'
 
 
 function ConsultationType() {
@@ -265,7 +263,7 @@ function ConsultationType() {
     });
 
     const eventHandler = (e: { type: any; }, data: any) => {
-        console.log(data.x,data.y);
+        console.log(data.x, data.y);
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
