@@ -3,7 +3,7 @@ import {RootStyled} from "./overrides";
 import Icon from "@themes/urlIcon";
 
 export default function NoDataCard({...props}) {
-    const {data, t, ns = "agenda", onHandleClick = null} = props;
+    const {data, t, ns = "agenda", onHandleClick = null, ...rest} = props;
     const {
         mainIcon,
         title,
@@ -14,7 +14,7 @@ export default function NoDataCard({...props}) {
     } = data;
 
     return (
-        <RootStyled className={"no-data-card"}>
+        <RootStyled {...rest} className={"no-data-card"}>
             {typeof mainIcon === "string" ? <Icon path={mainIcon} className="main-icon"/> : mainIcon}
             <Typography
                 variant="subtitle1"

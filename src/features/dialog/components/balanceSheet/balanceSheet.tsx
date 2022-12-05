@@ -5,7 +5,7 @@ import {
     Button,
     Card,
     IconButton,
-    ListItemButton, ListItemText, List, ListItem, Skeleton,
+    ListItemButton, ListItemText, List, Skeleton,
     Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
@@ -22,8 +22,15 @@ import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+import {NoDataCard} from "@features/card";
 
 const filter = createFilterOptions<any>();
+
+export const BalanceSheetCardData = {
+    mainIcon: "ic-analyse",
+    title: "noRequest",
+    description: "noRequest-description"
+};
 
 function BalanceSheetDialog({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -34,7 +41,7 @@ function BalanceSheetDialog({...props}) {
     const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
-    const [actValue, setActValue] = useState<AnalysisModel | null>(null);
+    const [balanceValue, setBalance] = useState<AnalysisModel | null>(null);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/balanceSheet");
@@ -211,7 +218,7 @@ function BalanceSheetDialog({...props}) {
                                     </Menu>
                                 </Stack>
                                 <Autocomplete
-                                    value={actValue}
+                                    value={balanceValue}
                                     onInputChange={(event, value) => searchInAnalysis(value)}
                                     onChange={(event, newValue) => {
                                         if (typeof newValue === 'string') {
@@ -274,10 +281,10 @@ function BalanceSheetDialog({...props}) {
                             </Typography>
                             {!loading ?
                                 <List className='items-list'>
-                                    {analysisList?.map(analysisItem => (
+                                    {analysisList?.map((analysisItem, index) => (
                                             <ListItemButton
                                                 disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
-                                                key={analysisItem.uuid}
+                                                key={index}
                                                 onClick={() => {
                                                     addAnalysis(analysisItem)
                                                 }}>
@@ -331,21 +338,11 @@ function BalanceSheetDialog({...props}) {
                             ))
                             : <Card className='loading-card'>
                                 <Stack spacing={2}>
-                                    <Typography alignSelf="center">
-                                        {t("list_empty")}
-                                    </Typography>
-                                    <List>
-                                        {
-                                            Array.from({length: 4}).map((_, idx) =>
-                                                <ListItem key={idx} sx={{py: .5}}>
-                                                    <Skeleton width={10} height={8} variant="rectangular"/>
-                                                    <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                              variant="rectangular"/>
-                                                </ListItem>
-                                            )
-                                        }
-
-                                    </List>
+                                    <NoDataCard
+                                        {...{t}}
+                                        ns={"consultation"}
+                                        data={BalanceSheetCardData}
+                                    />
                                 </Stack>
                             </Card>
                         }
