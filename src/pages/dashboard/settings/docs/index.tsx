@@ -34,7 +34,6 @@ import {UploadFile} from "@features/uploadFile";
 import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Preview from "./preview";
-
 function DocsConfig() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -42,12 +41,13 @@ function DocsConfig() {
     const router = useRouter();
 
     const [files, setFiles] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
-        patient: {show: true, prefix: '', content: 'Foulen ben foulen', x: 120, y: 55},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'Foulen ben foulen', x: 40, y: 55},
         content: {
             show: true,
             maxHeight: 400,
@@ -70,8 +70,7 @@ function DocsConfig() {
         handlePrint()
     }
 
-    const handleDrop = React.useCallback(
-        (acceptedFiles: File[]) => {
+    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
             let reader = new FileReader();
             reader.onload = (ev) => {
                 data.background.content = (ev.target?.result as string)
@@ -104,11 +103,11 @@ function DocsConfig() {
 
         enableReinitialize: true,
         initialValues: {
-            left1: "Dr",
+            left1: "",
             left2: "",
             left3: "",
-            right1: "Tel: ",
-            right2: "Fix: ",
+            right1: "",
+            right2: "",
             right3: ""
         }
     })
@@ -121,22 +120,32 @@ function DocsConfig() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    },SWRNoValidateConfig);
+    });
 
     useEffect(() => {
         if (httpData) {
             const docInfo = (httpData as HttpResponse).data
 
-            setFieldValue("left1", docInfo.header.left1);
-            setFieldValue("left2", docInfo.header.left2);
-            setFieldValue("left3", docInfo.header.left3);
-            setFieldValue("right1", docInfo.header.right1);
-            setFieldValue("right2", docInfo.header.right2);
-            setFieldValue("right3", docInfo.header.right3);
+            if (docInfo.header) {
+                setFieldValue("left1", docInfo.header.left1);
+                setFieldValue("left2", docInfo.header.left2);
+                setFieldValue("left3", docInfo.header.left3);
+                setFieldValue("right1", docInfo.header.right1);
+                setFieldValue("right2", docInfo.header.right2);
+                setFieldValue("right3", docInfo.header.right3);
+            }
 
-            if (docInfo.data) setData(docInfo.data)
+            if (docInfo.data)
+                setData(docInfo.data)
+
+
+            setLoading(false)
+
+            console.log(docInfo)
 
         }
+
+
     }, [httpData, setFieldValue])
 
 
@@ -458,14 +467,14 @@ function DocsConfig() {
                     </Grid>
 
                     <Grid item md={7}>
-                        <Box padding={2}>
+                        {<Box padding={2}>
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{eventHandler, data, values}} />
+                                    <Preview  {...{eventHandler, data, values,loading}} />
                                 </Box>
                             </Box>
 
-                        </Box>
+                        </Box>}
                     </Grid>
                 </Grid>
             </DesktopContainer>

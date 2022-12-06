@@ -5,7 +5,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function ModelDialog({...props}) {
     const {data} = props;
-    console.log(data)
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);

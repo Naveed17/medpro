@@ -238,14 +238,14 @@ fieldset {
 }
 .page{
   width:148mm;
-  height:210mm;
+  height:208mm;
   background: white;
   margin-bottom: 10px;
   box-shadow: 0 0 6px #ccc;
 }
 @media print {
   .page {
-    margin-bottom: 0;
+    margin: 0;
     box-shadow: none;
   }
 }
