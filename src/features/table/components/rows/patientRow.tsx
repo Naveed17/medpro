@@ -15,11 +15,18 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import WomenIcon from "@themes/overrides/icons/womenIcon";
 import MenIcon from "@themes/overrides/icons/menIcon";
+import {countries} from "@features/countrySelect/countries";
+import Image from "next/image";
+import React from "react";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
+
+    const getCountryByCode = (code: string) => {
+        return countries.find(country => country.phone === code)
+    }
 
     return (
         <TableRowStyled
@@ -95,10 +102,23 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     ) : (
                         <>
-                            {row.contact.length > 0 && <Icon path="ic-tel"/>}
-                            <Typography sx={{ml: 0.6}}>
-                                {(row.contact.length > 0 && row.contact[0].value) || "-"}
-                            </Typography>
+                            {(row.contact.length > 0 ? <Stack direction={"row"}>
+                                {row.contact[0].code &&
+                                    <>
+                                        <Box mt={0.3}
+                                             width={20}
+                                             height={14}
+                                             component="img"
+                                             src={`https://flagcdn.com/${getCountryByCode(row.contact[0].code)?.code.toLowerCase()}.svg`}
+                                        />
+
+                                        <Typography variant={"body2"} color={"primary"}
+                                                    sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
+                                    </>
+                                }
+                                <Typography variant={"body2"} color={"primary"}
+                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
+                            </Stack> : "-")}
                         </>
                     )}
                 </Box>
@@ -271,7 +291,7 @@ function PatientRow({...props}) {
                             >
                                 {t("table.see-card")}
                             </Button>
-{/*                            <Button
+                            {/*                            <Button
                                 size="small"
                                 sx={{
                                     ml: 0.6
@@ -307,7 +327,7 @@ function PatientRow({...props}) {
                             >
                                 <Icon path="/ic-voir"/>
                             </IconButton>
-   {/*                         <IconButton
+                            {/*                         <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     dispatch(

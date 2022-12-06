@@ -259,6 +259,7 @@ function PatientDetail({...props}) {
             ) : (
                 <CustomStepper
                     {...{stepperData, t}}
+                    modal={"patient"}
                     OnSubmitStepper={submitStepper}
                     OnAction={(action: string) => {
                         if (action === "close") {

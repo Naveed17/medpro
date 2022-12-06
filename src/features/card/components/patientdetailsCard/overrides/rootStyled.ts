@@ -13,7 +13,7 @@ const RootStyled = styled(Stack)(({theme}) => ({
     },
     borderBottom: `1px solid ${theme.palette.divider}`,
     "& .BaseBadge-badge": {
-        bottom: 42,
+        bottom: 14,
         right: 9,
         height: 14,
         width: 14,
