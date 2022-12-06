@@ -202,7 +202,7 @@ function PatientDetailsCard({...props}) {
                                 </>
                             )}
                         </Box>
-                        {onConsultation && (
+                       {/* {onConsultation && (
                             <>
                                 {loading ? (
                                     <Skeleton
@@ -231,7 +231,7 @@ function PatientDetailsCard({...props}) {
                                     </Button>
                                 )}
                             </>
-                        )}
+                        )}*/}
                     </Box>
 
                     {patient && (
