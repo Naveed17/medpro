@@ -189,9 +189,8 @@ export const authOptions: NextAuthOptions = {
                 Object.assign(res?.data.data, {
                     medical_entity: res?.data.data.medical_entities?.find((entity: MedicalEntityDefault) =>
                         entity.is_default)?.medical_entity
-                })
+                });
                 token.data = res?.data.data;
-
                 return token
             }
 
