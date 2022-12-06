@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import Prescription from "./prescription";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state} = props;
+    const {eventHandler, data, values, state,loading} = props;
 
     // const drugs = ['AaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaa', '2', '3', '4', '5', '6', '7', '8Aaaaaaaaaaaaaaaaaaaa', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
     const drugs = ['X'];
@@ -79,7 +79,6 @@ function PreviewDialog({...props}) {
         }
 
         let lastPos = 0
-        //console.log(pageX.clientHeight)
         for (let i = 0; i < Math.ceil(pageX.clientHeight / data.content.maxHeight); i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
@@ -133,6 +132,7 @@ function PreviewDialog({...props}) {
                         values,
                         drugs,
                         state,
+                        loading,
                         pages
                     }}></Prescription>
                 </div>

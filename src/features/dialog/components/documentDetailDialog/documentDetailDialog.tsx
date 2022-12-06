@@ -48,6 +48,7 @@ function DocumentDetailDialog({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const [name, setName] = useState(state.name);
+    const [loading, setLoading] = useState(true);
     const {data: user} = session as Session;
     const [openAlert, setOpenAlert] = useState(false);
 
@@ -79,7 +80,7 @@ function DocumentDetailDialog({...props}) {
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
-    const [hide, sethide] = useState<boolean>(false);
+    const [hide, sethide] = useState<boolean>(true);
     const [header, setHeader] = useState(null);
 
     const [data, setData] = useState<any>({
@@ -230,7 +231,7 @@ function DocumentDetailDialog({...props}) {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    }, {fallbackData: undefined, ...{revalidate: true, populateCache: true}});
+    });
 
     const handleClickOpen = () => {
         setOpenAlert(true);
@@ -241,7 +242,7 @@ function DocumentDetailDialog({...props}) {
     };
 
     const handleYes = () => {
-        router.push("/dashboard/settings/documents").then(() => {
+        router.push("/dashboard/settings/docs").then(() => {
             setOpenAlert(false);
         })
     };
@@ -254,6 +255,7 @@ function DocumentDetailDialog({...props}) {
             else {
                 setData(docInfo.data)
                 setHeader(docInfo.header)
+                setLoading(false)
             }
         }
     }, [httpHeaderData])
@@ -309,9 +311,13 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "hide":
                 sethide(!hide)
+                data.header.show = !data.header.show
+                setData({...data})
                 break;
             case "show":
                 sethide(!hide)
+                data.header.show = !data.header.show
+                setData({...data})
                 break;
             case "download":
                 if (file) {
@@ -397,7 +403,7 @@ function DocumentDetailDialog({...props}) {
                         {state.type === 'prescription' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{eventHandler, data, values:header,state}} />
+                                    {!loading && <Preview  {...{eventHandler, data, values:header,state}} />}
                                 </Box>
                             </Box>
                         }
