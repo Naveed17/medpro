@@ -39,6 +39,7 @@ function RDVRow({...props}) {
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
