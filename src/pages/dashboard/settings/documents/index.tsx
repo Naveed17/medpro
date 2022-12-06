@@ -12,12 +12,12 @@ import {useFormik} from "formik";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, Card, CardContent, Grid, Stack, TextField, Typography} from "@mui/material";
 import autoTable from "jspdf-autotable";
-import {Header} from "@features/files";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
+import {PDFDocument, rgb, StandardFonts} from 'pdf-lib'
 
 
 function ConsultationType() {
@@ -27,7 +27,8 @@ function ConsultationType() {
     const router = useRouter();
 
     const [file, setFile] = useState('');
-    //const [docFile, setDocFile] = useState<any>('');
+    const [pos, setPos] = useState(0);
+    const [docFile, setDocFile] = useState<any>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
     const {trigger} = useRequestMutation(null, "/MP/header");
@@ -83,7 +84,7 @@ function ConsultationType() {
         }
     }, [httpData, setFieldValue])
 
-    /*const modifyDoc = async () => {
+    const modifyDoc = async () => {
         const url = '/static/files/cnam.pdf'
         const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
 
@@ -198,11 +199,19 @@ function ConsultationType() {
             })
         }
     }
-*/
+
     useEffect(() => {
         autoTable(doc, {
             html: '#header',
             useCss: true
+        })
+
+        autoTable(doc, {
+            html: '#demo',
+            useCss: true,
+            includeHiddenHtml: true,
+            styles: {fillColor: [255, 255, 255]},
+            startY: 40
         })
         const uri = doc.output('bloburi').toString()
         setFile(uri)
@@ -253,6 +262,10 @@ function ConsultationType() {
         keyPrefix: "documents.config",
     });
 
+    const eventHandler = (e: { type: any; }, data: any) => {
+        console.log(data.x, data.y);
+    }
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -269,13 +282,11 @@ function ConsultationType() {
             <DesktopContainer>
                 <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, "& table": {tableLayout: "fixed"}}}>
 
-                    <Header data={values}></Header>
-
                     {/*<Button onClick={modifyDoc}>OKOKOKOKOKOKOKOKOKOKOKOK</Button>
                     <Button onClick={download}>Download</Button>*/}
 
                     <Grid container spacing={4}>
-                        <Grid item md={7}>
+                        <Grid item md={6}>
 
                             <Typography
                                 variant="body1"
@@ -357,7 +368,7 @@ function ConsultationType() {
                                 </Button>
                             </Stack>
                         </Grid>
-                        <Grid item md={5}>
+                        <Grid item md={6}>
                             <Typography
                                 variant="body1"
                                 fontWeight={400}
@@ -365,7 +376,22 @@ function ConsultationType() {
                                 gutterBottom>
                                 {t("preview")}
                             </Typography>
-                            <DocumentPDF file={file} onLoadSuccess={onDocumentLoadSuccess}>
+
+                            {/*                            <div className={"page"}>
+
+                                <Header data={values} style={{width: '100%',padding:20}} ></Header>
+
+                                <img className={"page"} style={{position:"absolute"}} src={"/static/img/scan.jpg"}/>
+                                <Draggable onStop={eventHandler}
+                                           defaultPosition={{y: 173, x: 418}}
+                                           bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                                    <div style={{ padding: "1rem", width: "30%"}}>
+                                        <div className="handle">Date ../../....</div>
+                                    </div>
+                                </Draggable>
+                            </div>*/}
+
+                            <DocumentPDF file={docFile} onLoadSuccess={onDocumentLoadSuccess}>
                                 {Array.from(new Array(numPages), (el, index) => (
                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
                                 ))}
