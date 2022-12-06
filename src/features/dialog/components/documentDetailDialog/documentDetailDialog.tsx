@@ -35,6 +35,8 @@ import {useSnackbar} from "notistack";
 import printJS from 'print-js'
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
+import Preview from "../../../../pages/dashboard/settings/docs/preview";
+import {useReactToPrint} from "react-to-print";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -79,6 +81,21 @@ function DocumentDetailDialog({...props}) {
     const componentRef = useRef<any>(null)
     const [hide, sethide] = useState<boolean>(false);
     const [header, setHeader] = useState(null);
+
+    const [data, setData] = useState<any>({
+        background: {show: false, content: ''},
+        header: {show: true, x: 0, y: 0},
+        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
+        date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
+        patient: {show: true, prefix: '', content: 'Foulen ben foulen', x: 120, y: 55},
+        content: {
+            show: true,
+            maxHeight: 400,
+            content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
+            x: 0,
+            y: 70
+        }
+    })
 
     const actionButtons = [
         {
@@ -231,15 +248,23 @@ function DocumentDetailDialog({...props}) {
 
     useEffect(() => {
         if (httpHeaderData) {
-            setHeader((httpHeaderData as HttpResponse).data)
-            if ((httpHeaderData as HttpResponse).data.length !== undefined)
-                handleClickOpen()
+            const docInfo = (httpHeaderData as HttpResponse).data
+            if ((docInfo.length !== undefined))
+                handleClickOpen();
+            else {
+                setData(docInfo.data)
+                setHeader(docInfo.header)
+            }
         }
     }, [httpHeaderData])
 
     const handlePrint = () => {
-        printJS({printable: file, type: 'pdf', showModal: true})
+        state.type === 'prescription' ? printNow() : printJS({printable: file, type: 'pdf', showModal: true})
     }
+
+    const printNow = useReactToPrint({
+        content: () => componentRef.current,
+    })
 
     const {trigger} = useRequestMutation(null, "/documents");
 
@@ -327,6 +352,12 @@ function DocumentDetailDialog({...props}) {
 
     }
 
+    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+        data[from].x = location.x
+        data[from].y = location.y
+        setData({...data})
+    }
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -343,7 +374,7 @@ function DocumentDetailDialog({...props}) {
             <Grid container spacing={5}>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
-                        {state.type !== 'photo' && <Box sx={{
+                        {state.type !== 'photo' && state.type !== 'prescription' && <Box sx={{
                             '.react-pdf__Page': {
                                 marginBottom: 1,
                                 '.react-pdf__Page__canvas': {
@@ -359,9 +390,17 @@ function DocumentDetailDialog({...props}) {
                                 ))}
 
                             </Document>
-                        </Box>}
+                        </Box>
+                        }
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
+                        {state.type === 'prescription' &&
+                            <Box style={{width: '148mm', margin: 'auto'}}>
+                                <Box ref={componentRef}>
+                                    <Preview  {...{eventHandler, data, values:header,state}} />
+                                </Box>
+                            </Box>
+                        }
                     </Stack>
                 </Grid>
                 <Grid item xs={12} md={4} className="sidebar">

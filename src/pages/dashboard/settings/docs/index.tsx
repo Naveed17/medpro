@@ -134,7 +134,7 @@ function DocsConfig() {
             setFieldValue("right2", docInfo.header.right2);
             setFieldValue("right3", docInfo.header.right3);
 
-            if (docInfo.data) setData(docInfo.data)
+            if (docInfo.data.length === undefined) setData(docInfo.data)
 
         }
     }, [httpData, setFieldValue])

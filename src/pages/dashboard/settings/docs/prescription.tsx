@@ -1,9 +1,10 @@
 import Draggable from "react-draggable";
 import {DocHeader} from "@features/files";
 import React, {useRef} from "react";
+import moment from "moment";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values} = props;
+    const {eventHandler, data, pages, id, values, state} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
 
@@ -43,7 +44,8 @@ const Prescription = ({...props}) => {
                                defaultPosition={{x: data.date.x, y: data.date.y}}
                                bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                         <div style={{width: "fit-content", border: '0 solid red'}}>
-                            {data.date.show && <div className="handle">{data.date.prefix + data.date.content}</div>}
+                            {data.date.show && <div
+                                className="handle">{data.date.prefix} {state ? moment(state.createdAt).format('DD/MM/YYYY') : data.date.content}</div>}
                         </div>
                     </Draggable>
 
@@ -53,7 +55,8 @@ const Prescription = ({...props}) => {
                                defaultPosition={{x: data.patient.x, y: data.patient.y}}
                                bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                         <div style={{width: "fit-content", border: '0 solid red'}}>
-                            {data.patient.show && <div className="handle">{data.patient.prefix + data.patient.content}</div>}
+                            {data.patient.show && <div
+                                className="handle">{data.patient.prefix} {state ? state.patient : data.patient.content}</div>}
                         </div>
                     </Draggable>
                 </>}
@@ -65,16 +68,11 @@ const Prescription = ({...props}) => {
                     }}
                     bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                     <div style={{width: "100%", padding: '0 10mm', overflowWrap: 'break-word'}}>
-                        <div id={'content' + id} className="box"
-                             style={{ height: `${data.content.maxHeight}px`}}>
-                            {data.content.content}</div>
+                        {state === undefined && <div id={'content' + id} className="box"
+                                                     style={{height: `${data.content.maxHeight}px`}}>
+                            {data.content.content}</div>}
 
-
-                        {/*
-                    <div id={id} ref={content}></div>
-*/}
-
-
+                        {state !== undefined && <div id={id} ref={content}></div>}
                     </div>
                 </Draggable>
 
