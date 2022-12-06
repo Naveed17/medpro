@@ -16,7 +16,7 @@ import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch} from "@app/redux/hooks";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -27,7 +27,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
-import {configSelector} from "@features/base";
+import {EventDef} from "@fullcalendar/react";
 
 function a11yProps(index: number) {
     return {
@@ -86,7 +86,6 @@ function PatientDetail({...props}) {
         }
     ]);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -261,15 +260,20 @@ function PatientDetail({...props}) {
                     {...{stepperData, t}}
                     modal={"patient"}
                     OnSubmitStepper={submitStepper}
-                    OnAction={(action: string) => {
-                        if (action === "close") {
-                            if (patientId) {
-                                setIsAdd(false);
-                            } else {
-                                dispatch(onOpenPatientDrawer({patientId: ""}));
-                                onCloseDialog(false);
-                            }
-                            mutatePatientList && mutatePatientList();
+                    OnAction={(action: string, event: EventDef) => {
+                        switch (action) {
+                            case "close":
+                                if (patientId) {
+                                    setIsAdd(false);
+                                } else {
+                                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                                    onCloseDialog(false);
+                                }
+                                mutatePatientList && mutatePatientList();
+                                break;
+                            case "onConsultationStart":
+                                onConsultation && onConsultation(event);
+                                break;
                         }
                     }}
                     onBackButton={(index: number) => {
