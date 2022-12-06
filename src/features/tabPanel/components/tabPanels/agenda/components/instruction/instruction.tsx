@@ -35,7 +35,7 @@ import {SuccessCard} from "@features/card";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function Instruction({...props}) {
-    const {onNext, onBack, OnAction} = props;
+    const {onNext, onBack, OnAction, modal} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -191,8 +191,12 @@ function Instruction({...props}) {
                                     {
                                         variant: "text-primary",
                                         action: "onDetailPatient",
-                                        title: t("show-patient")
-                                    }, {
+                                        title: t("show-patient"),
+                                        sx: {
+                                            display: modal && modal === "patient" ? "none" : "inline-flex",
+                                        }
+                                    },
+                                    {
                                         icon: "ic-salle",
                                         action: "onWaitingRoom",
                                         variant: "contained",
@@ -205,7 +209,8 @@ function Instruction({...props}) {
                                         title: t("waiting"),
                                         color: "warning",
                                         disabled: !isTodayAppointment()
-                                    }, {
+                                    },
+                                    {
                                         icon: "play",
                                         action: "onConsultationStart",
                                         variant: "contained",

@@ -83,8 +83,13 @@ function RdvCard({ ...props }) {
         {loading ? (
           <Skeleton variant="text" width={80} height={22} sx={{ ml: "auto" }} />
         ) : (
-          <Button variant="text" color="primary" size="small" onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
-            {t("see-details")}
+          <Button
+              sx={{
+                display: router.asPath.includes("/dashboard/agenda") ? "none" : "inline-block"
+              }}
+              variant="text" color="primary" size="small"
+                  onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
+            {t(inner?.status === 5 ? "view_the_consultation" : "see-details")}
           </Button>
         )}
       </TableCell>
