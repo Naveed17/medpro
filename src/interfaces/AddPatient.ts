@@ -30,6 +30,7 @@ interface Qualifications {
         }[]
     };
     step3: {};
+    submit: PatientModel | null;
 }
 
 export default Qualifications;

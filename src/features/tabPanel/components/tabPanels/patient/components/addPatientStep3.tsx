@@ -1,14 +1,16 @@
 import {SuccessCard} from "@features/card/";
 import {useTranslation} from "next-i18next";
-import {useAppDispatch} from "@app/redux/hooks";
-import {onAddPatient} from "@features/tabPanel";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {addPatientSelector, onAddPatient} from "@features/tabPanel";
 import {useTheme} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function AddPatientStep3({...props}) {
-    const {onNext, selectedPatient} = props;
+    const {onNext, selectedPatient, OnCustomAction} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
+
+    const {stepsData} = useAppSelector(addPatientSelector);
 
     const initialStep = {
         patient_group: "",
@@ -49,8 +51,17 @@ function AddPatientStep3({...props}) {
                     }
                 ]
             }}
-            onClickTextButton={() => {
-                dispatch(onAddPatient({step1: initialStep}));
+            onClickTextButton={(action: string) => {
+                switch (action) {
+                    case "onAddPatient":
+                        dispatch(onAddPatient({step1: initialStep}));
+                        break;
+                    case "onAddAppointment":
+                        if (OnCustomAction) {
+                            OnCustomAction("ADD_APPOINTMENT", stepsData.submit);
+                        }
+                        break;
+                }
                 onNext(0);
             }}
         />
