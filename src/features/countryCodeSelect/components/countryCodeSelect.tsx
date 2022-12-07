@@ -47,8 +47,8 @@ function CountryCodeSelect({...props}) {
                             style={{marginLeft: 3}}
                             alt={"flag"}
                             src={`https://flagcdn.com/${state && state.code.toLowerCase()}.svg`}
-                            width="27px"
-                            height="15px"
+                            width={27}
+                            height={15}
                         />
                     </InputAdornment>
                 );
