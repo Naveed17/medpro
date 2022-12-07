@@ -1,3 +1,38 @@
+# [4.6.0](https://github.com/SmartMedSA/med-pro/compare/v4.5.0...v4.6.0) (2022-12-07)
+
+
+### Bug Fixes
+
+* add consultation price tag ([fd8798b](https://github.com/SmartMedSA/med-pro/commit/fd8798b07a54d233e2c97f76fa26d1234c87ba78))
+* balance sheet sort if exist ([daf5e82](https://github.com/SmartMedSA/med-pro/commit/daf5e82dcc7a9ed45284575b32bfed590e74cb1f))
+* clean code ([b3f4dd2](https://github.com/SmartMedSA/med-pro/commit/b3f4dd2bb78cce5f449f9bec7a00492691b57451))
+* country code typescript error ([4c1543a](https://github.com/SmartMedSA/med-pro/commit/4c1543a8c1451f440e156e7bb6e126060683e50f))
+* country code typescript error ([515bb6b](https://github.com/SmartMedSA/med-pro/commit/515bb6b6cc44e255c2530d61d65a137bc2917b90))
+* custom stepper modal source trigger ([a0a35a4](https://github.com/SmartMedSA/med-pro/commit/a0a35a4783d7c213a665b30cf16bbaeae75d83c2))
+* local storage recent search balance sheet ([620fe5d](https://github.com/SmartMedSA/med-pro/commit/620fe5d4a99be0aeaa7956606cdc2e9e93e02db1))
+* patient dialog actions ([d59186d](https://github.com/SmartMedSA/med-pro/commit/d59186da921ba0b692fcfb8b8a524969f32d6e44))
+* patient dialog start consultation bug ([8bcae66](https://github.com/SmartMedSA/med-pro/commit/8bcae66512394578306e70c62dc8019090a51ccf))
+* prescription layout config ([9bfd9b8](https://github.com/SmartMedSA/med-pro/commit/9bfd9b87a18cca969bcb8c2ac1e184cd7a8871bf))
+* print document template ([abbcc34](https://github.com/SmartMedSA/med-pro/commit/abbcc34202e590777e30bd81edbebf70cc34c936))
+* prod error ([9d2ab31](https://github.com/SmartMedSA/med-pro/commit/9d2ab31e94379fcc64f00e306ca1d902452cbf1e))
+* rename acts page bug ([2920a60](https://github.com/SmartMedSA/med-pro/commit/2920a60802b49250910f8369cd38866f43bed39c))
+* search analysis with keyword ([0d3c702](https://github.com/SmartMedSA/med-pro/commit/0d3c702d32080e5aa39b416708e6d7a2f3b4b22b))
+* time schedule multi case bug ([6a0978b](https://github.com/SmartMedSA/med-pro/commit/6a0978bc412ded2689d6cd487b523d4a0caac366))
+* too big header callback ([cb35da3](https://github.com/SmartMedSA/med-pro/commit/cb35da320ab01a6e5b6e1290e8fdccf61379fb72))
+
+
+### Features
+
+* analysis data from patient history ([f0cf614](https://github.com/SmartMedSA/med-pro/commit/f0cf61497259d737e8f47b27afddf3cbe57b06bc))
+* config prescription document ([d0801aa](https://github.com/SmartMedSA/med-pro/commit/d0801aa9395d11aa1ed419d6ec2c36fbc6602168))
+* imagery medical update behavior ([318091f](https://github.com/SmartMedSA/med-pro/commit/318091f65ea0c4db2ac7c053f167bec40aed3bce))
+* prescription layout ([d1e01c5](https://github.com/SmartMedSA/med-pro/commit/d1e01c5faf7f993b15b6fb06958c6cf6956b7e4e))
+* print prescription following the template ([ec4b0f9](https://github.com/SmartMedSA/med-pro/commit/ec4b0f92a4ed84a81b8fe8116dbe2913976502a9))
+* recent search balance sheet ([d501a34](https://github.com/SmartMedSA/med-pro/commit/d501a34585a48afb88cf7f6f49460797a4250eee))
+* unity of models data ([f5a7171](https://github.com/SmartMedSA/med-pro/commit/f5a7171fd3cee24d2177c3fe00bf0d1e8300b5e2))
+* update acts behavior ([dc4e539](https://github.com/SmartMedSA/med-pro/commit/dc4e539fd44f06089e5ad7d2ee7cec3edb804182))
+* update payment dialog ([4900008](https://github.com/SmartMedSA/med-pro/commit/49000086f5593ae44bc40d71b32870d75f44ef44))
+
 # [4.5.0](https://github.com/SmartMedSA/med-pro/compare/v4.4.0...v4.5.0) (2022-11-28)
 
 
