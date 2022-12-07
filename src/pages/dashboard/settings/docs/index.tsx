@@ -150,7 +150,6 @@ function DocsConfig() {
 
     }, [httpData, setFieldValue])
 
-
     const {t, ready} = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
@@ -175,22 +174,6 @@ function DocsConfig() {
         enqueueSnackbar(t("updated"), {variant: 'success'})
 
     }
-
-    const reset = () => {
-        const form = new FormData();
-        form.append('document_header', JSON.stringify([]));
-        trigger({
-            method: "PATCH",
-            url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation)
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-
-    }
-
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -233,12 +216,6 @@ function DocsConfig() {
                                             <SaveRoundedIcon color={"primary"} style={{fontSize:16}}/>
                                         </IconButton>
                                     </Tooltip>
-
-                                   {/* <Tooltip title={t("reset")} TransitionComponent={Zoom}>
-                                        <IconButton onClick={reset} sx={{border: "1px solid", mr: 1,borderRadius: 2, color:"primary.main"}}>
-                                            <SaveRoundedIcon color={"primary"} style={{fontSize:16}}/>
-                                        </IconButton>
-                                    </Tooltip>*/}
                                 </Stack>
                             </Stack>
 
