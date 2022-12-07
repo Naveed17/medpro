@@ -29,10 +29,8 @@ function HistoryTab({...props}) {
         patient,
         appointement,
         t,
-        setIsViewerOpen,
         direction,
         setInfo,
-        mutateDoc,
         setState,
         appuuid,
         dispatch,
@@ -163,12 +161,18 @@ function HistoryTab({...props}) {
         });
     }
 
-    const reqSheetChange = (rs: { result: any; }, ev: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, iid: number, idx: number, idxh: number) => {
+    const reqSheetChange = (rs: any,ev:any, appID: number, sheetID: number, sheetAnalysisID: number) => {
         const data = {...rs}
         data.result = ev.target.value
         let capps = [...apps]
-        console.log(rs, ev, capps, iid, idx, idxh);
-        capps[iid].appointment.requestedAnalyses[idx].hasAnalysis[idxh] = rs
+
+        capps[appID] = {...apps[appID]}
+        capps[appID].appointment = {...capps[appID].appointment}
+        capps[appID].appointment.requestedAnalyses = [...capps[appID].appointment.requestedAnalyses]
+        capps[appID].appointment.requestedAnalyses[sheetID] = {...capps[appID].appointment.requestedAnalyses[sheetID]}
+        capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis = [...capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis]
+        capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
+
         setApps(capps)
     }
 
@@ -199,7 +203,7 @@ function HistoryTab({...props}) {
             )}
 
             <Stack spacing={2}>
-                {apps.map((app: any, iid: number) => (
+                {apps.map((app: any, appID: number) => (
                     <PatientHistoryCard
                         {...{selectedApp, t, appuuid, dispatch}}
                         key={app.appointment.uuid}
@@ -281,11 +285,11 @@ function HistoryTab({...props}) {
 
                                                         {col.type === "req-sheet" && <>
                                                             {app?.appointment.requestedAnalyses.length > 0 ? app?.appointment.requestedAnalyses.map(
-                                                                (reqSheet: any, idx: number) => (
-                                                                    <Box key={`req-sheet-item-${idx}`}>
+                                                                (reqSheet: any, reqSheetID: number) => (
+                                                                    <Box key={`req-sheet-item-${reqSheetID}`}>
                                                                         {reqSheet.hasAnalysis.map(
-                                                                            (rs: any, idxh: number) => (
-                                                                                <Stack key={`req-sheet-p-${idxh}`}
+                                                                            (rs: any, reqSheetHasAnalysisID: number) => (
+                                                                                <Stack key={`req-sheet-p-${reqSheetHasAnalysisID}`}
                                                                                        direction={{
                                                                                            md: "row",
                                                                                            xs: "column"
@@ -302,7 +306,7 @@ function HistoryTab({...props}) {
                                                                                         size="small"
                                                                                         inputProps={{className: "input"}}
                                                                                         onChange={(ev) => {
-                                                                                            reqSheetChange(rs, ev, iid, idx, idxh)
+                                                                                            reqSheetChange(rs, ev, appID, reqSheetID, reqSheetHasAnalysisID)
                                                                                         }}
                                                                                         autoFocus={selected === rs.uuid + 'result'}
                                                                                         onFocus={() => {
@@ -322,7 +326,7 @@ function HistoryTab({...props}) {
                                                                                 variant="contained"
                                                                                 color={"info"}
                                                                                 onClick={() => {
-                                                                                    editReqSheet(apps, iid, idx)
+                                                                                    editReqSheet(apps, appID, reqSheetID)
                                                                                 }}
                                                                                 startIcon={<IconUrl
                                                                                     path="ic-edit-file-pen"/>}>
