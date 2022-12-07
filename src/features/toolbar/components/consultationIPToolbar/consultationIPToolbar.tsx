@@ -275,11 +275,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
-        const item = changes.find((change: { name: string }) => change.name === info)
-        if (item) {
-            item.checked = true
-            setChanges([...changes])
-        }
+
 
         setlabel("documents");
         selected("documents")

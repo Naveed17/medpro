@@ -11,7 +11,7 @@ function PreviewDialog({...props}) {
 
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
 
-        console.log(list)
+        //console.log(list)
         if (pageX) {
             list.map((el: any) => {
                 const elx = document.createElement('p');
