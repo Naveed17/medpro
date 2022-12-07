@@ -26,7 +26,6 @@ function CustomStepper({...props}) {
         OnCustomAction = null,
         OnSubmitStepper = null,
         onBackButton = null,
-        ...rest
     } = props;
 
     const dispatch = useAppDispatch();
@@ -130,7 +129,7 @@ function CustomStepper({...props}) {
                                 OnAction={customActions}
                                 onNext={submitStepper}
                                 onBack={backAction}
-                                {...rest}
+                                {...props}
                             />
                         </TabPanel>
                     );

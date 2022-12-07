@@ -41,6 +41,7 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
+import {EventDef} from "@fullcalendar/react";
 
 const stepperData = [
     {
@@ -177,9 +178,13 @@ function Patient() {
 
     const submitStepper = (index: number) => {
         if (index === 2) {
-            dispatch(onResetPatient())
             mutate();
         }
+    }
+
+    const onConsultationView = (event: EventDef) => {
+        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+        router.push(slugConsultation, slugConsultation, {locale: router.locale});
     }
 
     const handleTableActions = (action: string, event: PatientModel) => {
@@ -193,6 +198,10 @@ function Patient() {
                 setPatientDrawer(true);
                 break;
             case "ADD_APPOINTMENT":
+                if (patientDrawer) {
+                    dispatch(onResetPatient());
+                    setPatientDrawer(false);
+                }
                 dispatch(setAppointmentPatient(event as any));
                 setAddAppointment(true);
                 setSelectedPatient(event);
@@ -264,6 +273,7 @@ function Patient() {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
+                    onConsultation={onConsultationView}
                     onAddAppointment={() => console.log("onAddAppointment")}/>
             </Drawer>
 
@@ -293,10 +303,12 @@ function Patient() {
                     translationKey="patient"
                     prefixKey="add-patient"
                     OnSubmitStepper={submitStepper}
+                    OnCustomAction={handleTableActions}
                     scroll
                     {...{stepperData, t, selectedPatient}}
                     minWidth={648}
                     onClose={() => {
+                        dispatch(onResetPatient());
                         setPatientDrawer(false);
                     }}
                 />
