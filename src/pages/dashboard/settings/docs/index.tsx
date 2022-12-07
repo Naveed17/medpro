@@ -234,11 +234,11 @@ function DocsConfig() {
                                         </IconButton>
                                     </Tooltip>
 
-                                    <Tooltip title={t("reset")} TransitionComponent={Zoom}>
+                                   {/* <Tooltip title={t("reset")} TransitionComponent={Zoom}>
                                         <IconButton onClick={reset} sx={{border: "1px solid", mr: 1,borderRadius: 2, color:"primary.main"}}>
                                             <SaveRoundedIcon color={"primary"} style={{fontSize:16}}/>
                                         </IconButton>
-                                    </Tooltip>
+                                    </Tooltip>*/}
                                 </Stack>
                             </Stack>
 
