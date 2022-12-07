@@ -31,9 +31,10 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
-import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {FileuploadProgress} from "@features/fileUploadProgress";
+import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Preview from "./preview";
+
 function DocsConfig() {
     const {data: session} = useSession();
     const {data: user} = session as Session;

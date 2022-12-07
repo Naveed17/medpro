@@ -16,6 +16,7 @@
     "type": "Types de consultation",
     "actfees": "Honoraires",
     "configdoc": "Configuration document",
+    "import-data": "Importation de données",
     "app_lock": "Verrouillage"
   },
   "profil": {
@@ -166,22 +167,22 @@
       "emsc": "em seance",
       "firstsc": "1er seance",
       "timeshedule": "horaire d'ouverture",
-      "applyforWeek":"Appliquer pour toute la semaine"
+      "applyforWeek": "Appliquer pour toute la semaine"
     }
   },
   "agenda": {
     "config": {
       "path": "Paramètres > Agenda",
-      "add":"Ajouter",
+      "add": "Ajouter",
       "remove": "Supprimer une agenda",
       "askRemove": "Voulez vous vraiment supprimer cette agenda ?",
       "subtitleRemove": "vous perdez jamais l'historique des patients et des rendez-vous de cette agenda",
       "cancel": "Annuler",
-      "no-data":{
-        "title":"ajouter votre premier Agenda",
-        "description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
-        "button-text":"Ajouter un Agenda"
-    },
+      "no-data": {
+        "title": "ajouter votre premier Agenda",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+        "button-text": "Ajouter un Agenda"
+      },
       "table": {
         "name": "Nom",
         "type": "Type",
@@ -194,57 +195,56 @@
         "remove": "Supprimer",
         "update": "Editer"
       }
-
     }
   },
-  "addAgenda":{
-    "title-1":"Quel est le type d’agenda que vous souhaitez ajouter?",
-    "title-2":"What type of calendar do you want to add?",
-    "practitioner":"Praticien",
-    "consultation-room":"Salle de consultation",
-    "equipment-room":"Salle d'équipement",
-    "content-1":"Example: ENT, Gynecologist, Dentist, Generalist, Pediatrician, Ophthalmologist, ....",
-    "content-2":"Example: Consultation room, Sampling room, radiologist room, ultrasound room, ....",
-    "content-3":"Example: Echo Dopler, ECG, Laser, Respirator,, ....",
-    "practitionerSpecialty":"Spécialité du praticien",
-    "placeholderSpecialty":"Veuillez sélectionner la spécialité du participant",
-    "selectPractitioner":"Veuillez choisir le praticien",
-    "location":"Lieu",
-    "placeOfConsultation":"Veuillez choisir le lieu de consultation",
-    "patientBase":"Base de patients",
-    "placeholderPatientBase":"Veuillez choisir le base patient",
-    "agenda":"Agenda",
-    "name":"Nom",
-    "placeholderName":"Veuillez renseigner le nom de l’agenda",
-    "whoMakes":"Who makes the appointments in this room?",
-    "assistant":"Assistant",
-    "room":"Salle",
-    "number_of_rooms":"Nombre de salles",
-    "selectSpecialty":"Veuillez séléctionner la spécialité du particien",
-    "perRoom":"Nombre d’accées par salle",
-    "placeholderRoom":"Veuillez indiquer le nombre de billets simultanés par chambre",
-    "specialties":"Spécialités",
-    "selectConcerned":"Veuillez séléctionner la spécialité concernées par cette salle",
-    "type":"Type",
-    "typeRoom":"Veuillez séléctionner le type de la salle",
-    "specialty_of_practitioner":"Spécialité du praticien",
-    "specialty_concerned":"Veuillez sélectionner la spécialité concernée par cette chambre",
-    "place":"Place",
-    "consultationPlace":"Veuillez choisir le lieu de la consultation",
-    "equipment":"Équipement",
+  "addAgenda": {
+    "title-1": "Quel est le type d’agenda que vous souhaitez ajouter?",
+    "title-2": "What type of calendar do you want to add?",
+    "practitioner": "Praticien",
+    "consultation-room": "Salle de consultation",
+    "equipment-room": "Salle d'équipement",
+    "content-1": "Example: ENT, Gynecologist, Dentist, Generalist, Pediatrician, Ophthalmologist, ....",
+    "content-2": "Example: Consultation room, Sampling room, radiologist room, ultrasound room, ....",
+    "content-3": "Example: Echo Dopler, ECG, Laser, Respirator,, ....",
+    "practitionerSpecialty": "Spécialité du praticien",
+    "placeholderSpecialty": "Veuillez sélectionner la spécialité du participant",
+    "selectPractitioner": "Veuillez choisir le praticien",
+    "location": "Lieu",
+    "placeOfConsultation": "Veuillez choisir le lieu de consultation",
+    "patientBase": "Base de patients",
+    "placeholderPatientBase": "Veuillez choisir le base patient",
+    "agenda": "Agenda",
+    "name": "Nom",
+    "placeholderName": "Veuillez renseigner le nom de l’agenda",
+    "whoMakes": "Who makes the appointments in this room?",
+    "assistant": "Assistant",
+    "room": "Salle",
+    "number_of_rooms": "Nombre de salles",
+    "selectSpecialty": "Veuillez séléctionner la spécialité du particien",
+    "perRoom": "Nombre d’accées par salle",
+    "placeholderRoom": "Veuillez indiquer le nombre de billets simultanés par chambre",
+    "specialties": "Spécialités",
+    "selectConcerned": "Veuillez séléctionner la spécialité concernées par cette salle",
+    "type": "Type",
+    "typeRoom": "Veuillez séléctionner le type de la salle",
+    "specialty_of_practitioner": "Spécialité du praticien",
+    "specialty_concerned": "Veuillez sélectionner la spécialité concernée par cette chambre",
+    "place": "Place",
+    "consultationPlace": "Veuillez choisir le lieu de la consultation",
+    "equipment": "Équipement",
     "speciality": "Spécialité",
-    "pattern":"Patronage",
-    "select-equipment-1":"Veuillez sélectionner la spécialité concernée par cet équipement",
-    "select-equipment-2":"Veuillez sélectionner le type d'équipement",
-    "select-equipment-3":"Sélectionnez le motif de la consultation pour cet appareil ?",
-    "rightsOfAgenda":"Define the rights on the agneda",
-    "clone_existing_rights":"Cloner les droits existant",
-    "clone_existing_rights_placeholder":"Cloner les droits d'un agenda existant",
-    "lamia_barnat":"lamia barnat",
-    "no_access":"Aucun acces",
-    "medical_secretary":"Secretaire medicale",
-    "save":"Enregistrer",
-    "cancel":"Annuler"
+    "pattern": "Patronage",
+    "select-equipment-1": "Veuillez sélectionner la spécialité concernée par cet équipement",
+    "select-equipment-2": "Veuillez sélectionner le type d'équipement",
+    "select-equipment-3": "Sélectionnez le motif de la consultation pour cet appareil ?",
+    "rightsOfAgenda": "Define the rights on the agneda",
+    "clone_existing_rights": "Cloner les droits existant",
+    "clone_existing_rights_placeholder": "Cloner les droits d'un agenda existant",
+    "lamia_barnat": "lamia barnat",
+    "no_access": "Aucun acces",
+    "medical_secretary": "Secretaire medicale",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
   },
   "holidays": {
     "start": "Date debut",
@@ -393,6 +393,9 @@
       "price": "Prix"
     }
   },
+  "import-data": {
+    "path": "Paramètres > Importation de données"
+  },
   "appLock": {
     "path": "Paramètres > verrouillage des applications",
     "tittle": "réglage du mot de passe",
@@ -437,11 +440,9 @@
     "config": {
       "path": "Paramètres > Configuration ",
       "header": "En-tête",
-
       "case1": "Première case",
       "case2": "Deuxième case",
       "case3": "Troisième case",
-
       "save": "Enregistrer",
       "preview": "Aperçu",
       "updated": "En-tête modifé",

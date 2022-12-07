@@ -31,6 +31,7 @@ import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function PersonalInfo({...props}) {
     const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
@@ -179,7 +180,7 @@ function PersonalInfo({...props}) {
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
 
-    if (!ready) return <div>Loading...</div>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>

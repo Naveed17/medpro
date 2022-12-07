@@ -26,6 +26,7 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Image from "next/image";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -40,21 +41,19 @@ function PatientContactDetailCard({...props}) {
     });
 
     const [editable, setEditable] = useState(false);
-    const [country, setCountry] = useState(countries.find(country => country.phone === patient?.contact[0]?.code));
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const RegisterPatientSchema = Yup.object().shape({
         country: Yup.string()
-            .required(t("name-error")),
+            .min(3, t("country-error")),
         region: Yup.string()
-            .required(t("name-error")),
-        zip_code: Yup.string()
-            .required(t("name-error")),
-        address: Yup.string()
-            .required(t("name-error")),
+            .min(3, t("region-error")),
+        zip_code: Yup.string(),
+        address: Yup.string(),
         telephone: Yup.array()
             .required(t("telephone-error"))
     });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -100,7 +99,6 @@ function PatientContactDetailCard({...props}) {
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
     }
-
 
     const handleUpdatePatient = () => {
         setEditable(false);
@@ -152,7 +150,7 @@ function PatientContactDetailCard({...props}) {
     const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
-    if (!ready) return <div>Loading...</div>;
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <FormikProvider value={formik}>
