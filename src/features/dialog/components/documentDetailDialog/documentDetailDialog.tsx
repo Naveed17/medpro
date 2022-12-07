@@ -250,9 +250,10 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (httpHeaderData) {
             const docInfo = (httpHeaderData as HttpResponse).data
-            if ((docInfo.length !== undefined))
+            if (!docInfo.header)
                 handleClickOpen();
             else {
+                setOpenAlert(false);
                 setData(docInfo.data)
                 setHeader(docInfo.header)
                 setLoading(false)
