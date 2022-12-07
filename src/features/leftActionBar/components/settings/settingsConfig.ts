@@ -10,7 +10,7 @@ const settingsData = {
         {
             name: "acts",
             icon: "ic-generaliste",
-            href: "/dashboard/settings/actes",
+            href: "/dashboard/settings/acts",
             disable: false
         },
         {
@@ -40,7 +40,7 @@ const settingsData = {
         {
             name: "configdoc",
             icon: "setting/ic-edit-file",
-            href: "/dashboard/settings/documents",
+            href: "/dashboard/settings/docs",
             disable: false
         },
         {

@@ -151,6 +151,16 @@ main {
   }
 }
 
+fieldset {
+  border: 1px solid #E0E0E0;
+  border-radius: 5px;
+  legend {
+    font-style: normal;
+    font-size: 12px;
+    padding: 0 10px;
+    color: #999;
+  }
+}
 .fieldset-specialty-formio {
 
   fieldset {
@@ -225,4 +235,21 @@ main {
   padding: 0;
   height: 80vh;
   overflow-y: scroll
+}
+.page{
+  width:148mm;
+  height:208mm;
+  background: white;
+  margin-bottom: 10px;
+  box-shadow: 0 0 6px #ccc;
+}
+@media print {
+  .page {
+    margin: 0;
+    box-shadow: none;
+  }
+}
+.box{
+  border: 1px dashed #0096d6;
+  padding: 10px;
 }

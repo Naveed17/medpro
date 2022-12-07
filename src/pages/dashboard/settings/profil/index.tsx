@@ -60,22 +60,17 @@ function Profil() {
     const dispatch = useAppDispatch();
 
     const [loading, setLoading] = useState<boolean>(true);
-    const initalData = Array.from(new Array(3));
+    const initialData = Array.from(new Array(3));
 
     const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
     const {
         data: httpMedicalProfessionalResponse,
         error: errorHttpMedicalProfessional,
     } = useRequest({
         method: "GET",
-        url:
-            "/api/medical-entity/" +
-            medical_entity.uuid +
-            "/professionals/" +
-            router.locale,
+        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     });
 
@@ -83,6 +78,7 @@ function Profil() {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
     );
+
     useEffect(() => {
         if (httpMedicalProfessionalResponse !== undefined) {
             const infoData = (httpMedicalProfessionalResponse as any).data[0];
@@ -101,9 +97,6 @@ function Profil() {
             setPaymentMeans(infoData.payments);
             setQualifications(infoData.qualification);
             setActs(infoData.acts);
-        }
-        if (errorHttpMedicalProfessional !== undefined) {
-            console.log(errorHttpMedicalProfessional);
         }
 
         if (!lock) {
@@ -350,7 +343,7 @@ function Profil() {
                                         </Typography>
 
                                         {loading ? (
-                                            initalData.map((item, index) => (
+                                            initialData.map((item, index) => (
                                                 <Typography key={index} fontWeight={400}>
                                                     <Skeleton width={250}/>
                                                 </Typography>
@@ -395,7 +388,7 @@ function Profil() {
                                             alignItems="flex-start"
                                             width={1}>
                                             {loading ? (
-                                                initalData.map((item, index) => (
+                                                initialData.map((item, index) => (
                                                     <Skeleton
                                                         sx={{borderRadius: 1}}
                                                         variant="rectangular"
@@ -449,7 +442,7 @@ function Profil() {
                                             alignItems={{xs: "stretch", md: "flex-start"}}
                                             width={1}>
                                             {loading ? (
-                                                initalData.map((mode: any, index) => (
+                                                initialData.map((mode: any, index) => (
                                                     <Button
                                                         key={index}
                                                         variant="outlined"
@@ -503,7 +496,7 @@ function Profil() {
                                             alignItems={{xs: "stretch", md: "flex-start"}}
                                             width={1}>
                                             {loading ? (
-                                                initalData.map((language: any, index) => (
+                                                initialData.map((language: any, index) => (
                                                     <Button
                                                         key={index}
                                                         variant="outlined"
@@ -557,7 +550,7 @@ function Profil() {
                                             alignItems={{xs: "stretch", md: "flex-start"}}
                                             width={1}>
                                             {loading ? (
-                                                initalData.map((language: any, index) => (
+                                                initialData.map((language: any, index) => (
                                                     <Button
                                                         sx={{
                                                             mr: 1,
@@ -600,7 +593,7 @@ function Profil() {
                                     <IconButton
                                         size="small"
                                         color="primary"
-                                        onClick={() => router.push("/dashboard/settings/actes")}>
+                                        onClick={() => router.push("/dashboard/settings/acts")}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>
@@ -625,7 +618,7 @@ function Profil() {
                                                 alignItems={{xs: "stretch", md: "flex-start"}}
                                                 width={1}>
                                                 {loading
-                                                    ? initalData.map((language: any, index) => (
+                                                    ? initialData.map((language: any, index) => (
                                                         <Button
                                                             sx={{
                                                                 mb: 1,

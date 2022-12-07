@@ -16,7 +16,7 @@ import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch} from "@app/redux/hooks";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -27,7 +27,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
-import {configSelector} from "@features/base";
+import {EventDef} from "@fullcalendar/react";
 
 function a11yProps(index: number) {
     return {
@@ -40,10 +40,13 @@ function a11yProps(index: number) {
 const AddAppointmentCardData = {
     mainIcon: "ic-agenda-+",
     title: "no-data.appointment.title",
-    description: "no-data.appointment.description",
-    buttonText: "no-data.appointment.button-text",
-    buttonIcon: "ic-agenda-+",
-    buttonVariant: "warning",
+    description: "no-data.appointment.description"
+};
+// add consultation details RDV for not data
+const AddConsultationCardData = {
+    mainIcon: "consultation/ic-text",
+    title: "no-data.consultation.title",
+    description: "no-data.consultation.description"
 };
 
 function PatientDetail({...props}) {
@@ -83,7 +86,6 @@ function PatientDetail({...props}) {
         }
     ]);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {direction} = useAppSelector(configSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -178,11 +180,18 @@ function PatientDetail({...props}) {
                             <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            <HistoryPanel {...{t, previousAppointments, patient}} />
+                            {previousAppointments && previousAppointments.length > 0 ? (
+                                <HistoryPanel {...{t, previousAppointments, patient}} />
+                            ) : (
+                                <NoDataCard
+                                    t={t}
+                                    ns={"patient"}
+                                    data={AddConsultationCardData}
+                                />
+                            )}
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
-                            {previousAppointments ||
-                            nextAppointments.length > 0 ? (
+                            {nextAppointments.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard
@@ -249,16 +258,22 @@ function PatientDetail({...props}) {
             ) : (
                 <CustomStepper
                     {...{stepperData, t}}
+                    modal={"patient"}
                     OnSubmitStepper={submitStepper}
-                    OnAction={(action: string) => {
-                        if (action === "close") {
-                            if (patientId) {
-                                setIsAdd(false);
-                            } else {
-                                dispatch(onOpenPatientDrawer({patientId: ""}));
-                                onCloseDialog(false);
-                            }
-                            mutatePatientList && mutatePatientList();
+                    OnAction={(action: string, event: EventDef) => {
+                        switch (action) {
+                            case "close":
+                                if (patientId) {
+                                    setIsAdd(false);
+                                } else {
+                                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                                    onCloseDialog(false);
+                                }
+                                mutatePatientList && mutatePatientList();
+                                break;
+                            case "onConsultationStart":
+                                onConsultation && onConsultation(event);
+                                break;
                         }
                     }}
                     onBackButton={(index: number) => {

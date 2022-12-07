@@ -1,6 +1,5 @@
 // material
 import {Typography, TableCell, Button, Box, Skeleton, Stack, IconButton} from "@mui/material";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 // urils
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
@@ -8,7 +7,7 @@ import {useTranslation} from "next-i18next";
 import RootStyled from "./overrides/rootStyled";
 import {ModelDot} from '@features/modelDot'
 import {useRouter} from "next/router";
-import {AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
+import {AppointmentStatus, IconsTypes, openDrawer, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import moment from "moment/moment";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -17,6 +16,7 @@ function RdvCard({...props}) {
     const {inner, patient, loading} = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
@@ -45,19 +45,21 @@ function RdvCard({...props}) {
     }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <RootStyled>
-            <TableCell
-            >
+            <TableCell>
                 <Box sx={{display: "flex"}}>
                     <Stack spacing={1}>
-                        <Typography variant="body2" color="text.primary" sx={{mr: 3}}>
-                            {loading ? <Skeleton variant="text" width={100}/> : t("reason")}
-                        </Typography>
+                        {inner.consultationReason && <Typography variant="body2" color="text.primary" sx={{mr: 3}}>
+                            {loading ? <Skeleton variant="text" width={100}/> :
+                                (<> {t("reason")} : {inner.consultationReason.name}</>)}
+                        </Typography>}
                         <Stack direction='row' alignItems="center">
-                            <ModelDot color={inner.consultationReason ? inner.consultationReason?.color : '#1BC47D'}
-                                      selected={false} size={20} sizedot={12}
-                                      padding={3} marginRight={5}/>
+                            <ModelDot
+                                color={inner?.type?.color}
+                                selected={false} size={20} sizedot={12}
+                                padding={3} marginRight={5}/>
                             <Typography variant="body2" color="text.primary">{inner?.type?.name}</Typography>
                         </Stack>
                     </Stack>
@@ -99,9 +101,15 @@ function RdvCard({...props}) {
                 {loading ? (
                     <Skeleton variant="text" width={80} height={22} sx={{ml: "auto"}}/>
                 ) : (
-                    <Button variant="text" color="primary" size="small"
-                            onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
-                        {t("see-details")}
+                    <Button
+                        sx={{
+                            display: router.asPath.includes("/dashboard/agenda") ? "none" : "inline-block"
+                        }}
+                        variant="text"
+                        color="primary"
+                        size="small"
+                        onClick={() => inner?.status === 5 ? onConsultationView(inner?.uuid) : onAppointmentView()}>
+                        {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Button>
                 )}
             </TableCell>

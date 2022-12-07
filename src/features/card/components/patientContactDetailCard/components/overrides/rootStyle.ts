@@ -35,6 +35,12 @@ const RootStyled = styled(Card)(({theme}) => ({
     },
     "& .MuiAutocomplete-popperDisablePortal": {
         minWidth: "200px"
+    },
+    "& .phone-handler": {
+        paddingTop: 0
+    },
+    "& .app-bar-header": {
+        marginBottom: 18
     }
 }));
 export default RootStyled

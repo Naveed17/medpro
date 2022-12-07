@@ -24,7 +24,6 @@ function PaymentRow({...props}) {
                 selected.slice(selectedIndex + 1)
             );
         }
-        console.log(newSelected)
         setSelected(newSelected);
     };
     useEffect(() => {
@@ -40,7 +39,7 @@ function PaymentRow({...props}) {
         <>
             <TableRowStyled
                 hover
-                 onClick={() => !loading && handleClick(row.uuid as string)}
+                onClick={() => !loading && handleClick(row.uuid as string)}
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
@@ -316,16 +315,14 @@ function PaymentRow({...props}) {
                                                 ) : (
                                                     <Stack direction='row' alignItems="center"
                                                            justifyContent='flex-start' spacing={1}>
-                                                        {
-                                                            col.payment_type.map((type: any, i: number) =>
-                                                                <Stack key={i} direction="row" alignItems="center"
-                                                                       spacing={1}>
-                                                                    <Icon path={type.icon}/>
-                                                                    <Typography color="text.primary"
-                                                                                variant="body2">{t("table." + type.name)}</Typography>
-                                                                </Stack>
-                                                            )
-                                                        }
+                                                        {col.payment_type.map((type: any, i: number) =>
+                                                            <Stack key={i} direction="row" alignItems="center"
+                                                                   spacing={1}>
+                                                                <Icon path={type.icon}/>
+                                                                <Typography color="text.primary"
+                                                                            variant="body2">{t("table." + type.label)}</Typography>
+                                                            </Stack>
+                                                        )}
                                                     </Stack>
 
                                                 )}

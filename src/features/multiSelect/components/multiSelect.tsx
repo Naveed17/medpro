@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Autocomplete, TextField, Chip } from "@mui/material";
 
-
 function MultiSelect({...props}) {
     const {
         label = 'title',
         multiple = true,
         id,
+        freeSolo,
         data,
         initData,
         placeholder,
@@ -15,21 +15,32 @@ function MultiSelect({...props}) {
         limit,
         onChange,
         onDrop,
-        onDragOver
+        onDragOver,
+        onInputChange,
+        filterOptions,
+        ...rest
     } = props;
-
 
     return (
         <Autocomplete
+            {...rest}
+            {...{filterOptions, onDragOver, onInputChange}}
+            {...(freeSolo && freeSolo)}
             multiple={multiple}
             id="tags-standard"
             options={data}
             value={initData}
-            getOptionLabel={(option) => option[label]}
-            isOptionEqualToValue={(option, value) => option[label] === value[label]}
-            onChange={(event, value) =>  onChange(event, value)}
+            getOptionLabel={(option: any) => {
+                // Add "xxx" option created dynamically
+                if (option.inputValue) {
+                    return option.inputValue;
+                }
+                // Regular option
+                return option[label];
+            }}
+            isOptionEqualToValue={(option: any, value: any) => option[label] === value[label]}
+            onChange={(event, value) =>  onChange(event, value, id)}
             onDrop={(e) => onDrop(id, e)}
-            onDragOver={onDragOver}
             renderInput={(params) => (
                 <TextField
                     {...params}
@@ -39,7 +50,7 @@ function MultiSelect({...props}) {
                 />
             )}
             renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
+                value.map((option: any, index) => (
                     // eslint-disable-next-line react/jsx-key
                     <Chip
                         variant="contained"

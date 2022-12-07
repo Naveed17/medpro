@@ -3,7 +3,11 @@ interface Qualifications {
         patient_group: string;
         first_name: string;
         last_name: string;
-        country_code: string;
+        country_code: {
+            code: string;
+            label: string;
+            phone: string;
+        } | null,
         birthdate: {
             day: string;
             month: string;
@@ -26,6 +30,7 @@ interface Qualifications {
         }[]
     };
     step3: {};
+    submit: PatientModel | null;
 }
 
 export default Qualifications;

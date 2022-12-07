@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {addPatientSelector} from "@features/tabPanel";
-import {useAppSelector} from "@app/redux/hooks";
+import {addPatientSelector, onAddPatient, onSubmitPatient} from "@features/tabPanel";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
@@ -34,8 +34,11 @@ MyTextInput.displayName = "TextField";
 function AddPatientStep2({...props}) {
     const {onNext, selectedPatient, t} = props;
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
+
     const [loading, setLoading] = useState<boolean>(status === "loading");
+
     const {stepsData} = useAppSelector(addPatientSelector);
     const RegisterSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email")
@@ -98,14 +101,13 @@ function AddPatientStep2({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
-        const {first_name, last_name, birthdate, phone, gender} = stepsData.step1;
+        const {first_name, last_name, birthdate, phone, gender, country_code} = stepsData.step1;
         const {day, month, year} = birthdate;
-
         const form = new FormData();
         form.append('first_name', first_name)
         form.append('last_name', last_name);
         form.append('phone', JSON.stringify({
-            code: values.country.phone,
+            code: country_code && country_code?.phone,
             value: phone,
             type: "phone",
             "contact_type": contacts[0].uuid,
@@ -139,9 +141,11 @@ function AddPatientStep2({...props}) {
                 const {status} = data;
                 setLoading(false);
                 if (status === "success") {
+                    dispatch(onSubmitPatient(data.data));
                     onNext(2);
                 }
-            });
+            }
+        );
     };
 
     const handleAddInsurance = () => {

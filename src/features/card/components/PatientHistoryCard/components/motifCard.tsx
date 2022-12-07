@@ -8,6 +8,10 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
+    const getDescription = (key:string) =>{
+        const desc = models.modal.structure[0].components.find((md:any) => md.key === key)?.description
+        return desc ? desc : "";
+    }
     return (
         <RootStled>
             <Grid container spacing={2}>
@@ -31,7 +35,7 @@ function MotifCard({...props}) {
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
-                                            {ml} : {models.data[ml] ? models.data[ml] : '--'}
+                                            {ml} : <span style={{fontWeight:"bold",margin: '0 2px'}}>{models.data[ml] ? models.data[ml] : '--'}</span> {getDescription(ml)}
                                         </ListItem>
                                     ))}
                                 </List>

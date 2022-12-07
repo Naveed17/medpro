@@ -113,7 +113,7 @@ function WaitingRoom() {
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
 
-    const {t, ready} = useTranslation("waitingRoom", {keyPrefix: "config"});
+    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -132,20 +132,21 @@ function WaitingRoom() {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [deals, setDeals] = React.useState<any>({
-        species: false,
-        card: false,
-        cheque: false,
-        selected: null,
-        tab3Data: [
-            {
-                amount: "",
-                carrier: "",
-                bank: "",
-                check_number: '',
-                payment_date: new Date(),
-                expiry_date: new Date(),
-            }
-        ]
+        cash: {
+            amount: ""
+        },
+        card: {
+            amount: ""
+        },
+        check: [{
+            amount: "",
+            carrier: "",
+            bank: "",
+            check_number: '',
+            payment_date: new Date(),
+            expiry_date: new Date(),
+        }],
+        selected: null
     });
     const [popoverActions, setPopoverActions] = useState([
         {
@@ -231,7 +232,7 @@ function WaitingRoom() {
     };
 
     const handleSubmit = (data: any) => {
-        console.log(data);
+        console.log(selectedPayment.payments);
     };
 
     const resetDialog = () => {
@@ -270,7 +271,6 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
-                console.log(row);
                 setSelectedPayment({
                     uuid: row?.uuid,
                     date: moment().format("DD-MM-YYYY"),
@@ -278,11 +278,10 @@ function WaitingRoom() {
                     patient: row?.patient,
                     insurance: "",
                     type: row?.appointment_type.name,
-                    payment_type: ["ic-argent", "ic-card-pen"],
-                    billing_status: "yes",
-                    amount: row?.fees,
-                    collapse: []
-                })
+                    amount: 40,
+                    total: 60,
+                    payments: []
+                });
                 setOpenPaymentDialog(true);
                 break;
         }
@@ -453,24 +452,29 @@ function WaitingRoom() {
                 {...{
                     direction,
                     sx: {
-                        minHeight: 300
+                        minHeight: 380
                     }
                 }}
                 open={openPaymentDialog}
-                data={{selectedPayment, deals, setDeals, patient: row?.patient}}
+                data={{
+                    selectedPayment, setSelectedPayment,
+                    deals, setDeals,
+                    patient: row?.patient
+                }}
                 size={"md"}
                 title={t("payment_dialog_title")}
                 dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>
                         <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("cancel")}
+                            {t("cancel", {ns: "common"})}
                         </Button>
                         <Button
+                            disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("save")}
+                            {t("save", {ns: "common"})}
                         </Button>
                     </DialogActions>
                 }

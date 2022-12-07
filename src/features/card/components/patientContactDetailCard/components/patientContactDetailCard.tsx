@@ -80,7 +80,7 @@ function PatientContactDetailCard({...props}) {
         },
     });
 
-    const {handleSubmit, values, touched, errors, getFieldProps} = formik;
+    const {values, touched, errors, getFieldProps} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -160,7 +160,7 @@ function PatientContactDetailCard({...props}) {
                 <RootStyled>
                     <CardContent>
                         <Grid container>
-                            <AppBar position="static" color={"transparent"}>
+                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
                                 <Toolbar variant="dense">
                                     <Box sx={{flexGrow: 1}}>
                                         <Typography
@@ -197,9 +197,11 @@ function PatientContactDetailCard({...props}) {
                                                 </LoadingButton>
                                             </Stack>
                                             :
-                                            <IconButton onClick={() => setEditable(true)} color="inherit" size="small">
-                                                <IconUrl path={"setting/edit"}/>
-                                            </IconButton>
+                                            <Button onClick={() => setEditable(true)}
+                                                    startIcon={<IconUrl path={"setting/edit"}/>}
+                                                    color="primary" size="small">
+                                                {t("edit")}
+                                            </Button>
                                         }
                                     </Box>
                                 </Toolbar>
@@ -207,6 +209,7 @@ function PatientContactDetailCard({...props}) {
                             <Grid container spacing={1.2}>
                                 {values.telephone.map((phone: any, index: number) => (
                                         <Grid item md={5} sm={6} xs={6}
+                                              className={"phone-handler"}
                                               key={`${index}`}>
                                             <Stack direction="row"
                                                    spacing={1}
@@ -218,7 +221,7 @@ function PatientContactDetailCard({...props}) {
                                                         {t("telephone")}
                                                     </Typography>
                                                 </Grid>
-                                                <Grid item md={7.5} sm={6} xs={6} sx={{
+                                                <Grid item md={7.5} sm={6} xs={6}  sx={{
                                                     "& .Input-select": {
                                                         marginLeft: "-0.6rem"
                                                     }

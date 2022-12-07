@@ -5,14 +5,22 @@ import {
     Button,
     Card,
     IconButton,
-    TextField, ListItemButton, ListItemText, List, ListItem, Skeleton, Box, DialogActions
+    TextField,
+    ListItemButton,
+    ListItemText,
+    List,
+    Skeleton,
+    Box,
+    DialogActions,
+    Autocomplete,
+    createFilterOptions
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import BalanceSheetDialogStyled from '../balanceSheet/overrides/balanceSheetDialogStyle';
 import {useTranslation} from 'next-i18next'
 import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -20,10 +28,20 @@ import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+import {NoDataCard} from "@features/card";
+
+const filter = createFilterOptions<any>();
+
+export const MedicalPrescriptionCardData = {
+    mainIcon: "ic-soura",
+    title: "noRequest",
+    description: "noRequest-description"
+};
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
 
+    const [imageryValue, setImagery] = useState<MIModel | null>(null);
     const [model, setModel] = useState<string>('');
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [miList, setMiList] = useState<MIModel[]>([]);
@@ -31,11 +49,6 @@ function MedicalImageryDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
     const {trigger} = useRequestMutation(null, "/medicalImagery");
     const [name, setName] = useState('');
-
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    }
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const formik = useFormik({
@@ -47,7 +60,8 @@ function MedicalImageryDialog({...props}) {
                 addImage({uuid: '', name})
         },
     });
-    const initalData = Array.from(new Array(20));
+
+    const initialData = Array.from(new Array(20));
 
     const router = useRouter();
     const {data: session} = useSession();
@@ -59,11 +73,16 @@ function MedicalImageryDialog({...props}) {
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     });
 
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    }
+
     const addImage = (value: MIModel) => {
         setName('')
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
         mi.unshift(value)
         setMi([...mi])
+        localStorage.setItem("medical-imagery-recent", JSON.stringify([...mi]));
         data.setState([...mi])
     }
 
@@ -83,21 +102,27 @@ function MedicalImageryDialog({...props}) {
         })
     }
 
-    const handleChange = (ev: any) => {
-        setName(ev.target.value);
+    const sortMedicalImagery = useCallback(() => {
+        const recent = localStorage.getItem("medical-imagery-recent") ?
+            JSON.parse(localStorage.getItem("medical-imagery-recent") as string) : [] as AnalysisModel[];
+        if (recent.length > 0 && miList) {
+            setMiList([
+                ...recent,
+                ...miList.filter(x => !recent.find((r: AnalysisModel) => r.uuid === x.uuid))]);
+        }
+    }, [miList])
 
-        if (ev.target.value.length >= 2) {
+    const searchInMedicalImagery = (medicalImagery: string) => {
+        setName(medicalImagery);
+        if (medicalImagery.length >= 2) {
             trigger({
                 method: "GET",
-                url: "/api/private/medical-imaging/" + router.locale + '?name=' + ev.target.value,
+                url: `/api/private/medical-imaging/${router.locale}?name=${medicalImagery}`,
                 headers: {Authorization: `Bearer ${session?.accessToken}`}
             }).then((r) => {
-                const res = (r?.data as HttpResponse).data
-                if (res.length > 0)
-                    setMiList(res)
-                else
-                    setMiList((httpAnalysisResponse as HttpResponse)?.data);
-
+                const res = (r?.data as HttpResponse).data;
+                setMiList(res.length > 0 ? res : (httpAnalysisResponse as HttpResponse)?.data);
+                sortMedicalImagery();
             })
         } else
             setMiList((httpAnalysisResponse as HttpResponse)?.data);
@@ -108,9 +133,10 @@ function MedicalImageryDialog({...props}) {
     useEffect(() => {
         setMiList((httpAnalysisResponse as HttpResponse)?.data);
         setTimeout(() => {
-            setLoading(false)
+            setLoading(false);
+            sortMedicalImagery();
         }, 1000)
-    }, [httpAnalysisResponse])
+    }, [httpAnalysisResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const {handleSubmit} = formik;
 
@@ -131,42 +157,95 @@ function MedicalImageryDialog({...props}) {
                                 <Stack direction="row" alignItems="center">
                                     <Typography>{t('please_name_medical_imagery')}</Typography>
                                 </Stack>
-                                <TextField
+                                {/*                                <TextField
                                     id="balance_sheet_name"
                                     value={name}
                                     placeholder={t('placeholder_medical_imagery')}
-                                    onChange={handleChange}/>
+                                    onChange={handleChange}/>*/}
+                                <Autocomplete
+                                    value={imageryValue}
+                                    onInputChange={(event, value) => searchInMedicalImagery(value)}
+                                    onChange={(event, newValue) => {
+                                        if (typeof newValue === 'string') {
+                                            addImage({
+                                                name: newValue,
+                                            });
+                                        } else if (newValue && newValue.inputValue) {
+                                            // Create a new value from the user input
+                                            addImage({
+                                                name: newValue.inputValue,
+                                            });
+                                        } else {
+                                            const medicalImagery = (newValue as MIModel);
+                                            if (!mi.find(item => item.uuid === medicalImagery.uuid)) {
+                                                addImage(newValue as MIModel);
+                                            }
+                                        }
+                                        sortMedicalImagery();
+                                    }}
+                                    filterOptions={(options, params) => {
+                                        const filtered = filter(options, params);
+                                        const {inputValue} = params;
+                                        // Suggest the creation of a new value
+                                        const isExisting = options.some((option) => inputValue === option.name);
+                                        if (inputValue !== '' && !isExisting) {
+                                            filtered.push({
+                                                inputValue,
+                                                name: `${t('add_medical_imagery')} "${inputValue}"`,
+                                            });
+                                        }
+
+                                        return filtered;
+                                    }}
+                                    selectOnFocus
+                                    clearOnEscape
+                                    handleHomeEndKeys
+                                    id="sheet-solo-balance"
+                                    options={miList ? miList : []}
+                                    getOptionLabel={(option) => {
+                                        // Value selected with enter, right from the input
+                                        if (typeof option === 'string') {
+                                            return option;
+                                        }
+                                        // Add "xxx" option created dynamically
+                                        if (option.inputValue) {
+                                            return option.inputValue;
+                                        }
+                                        // Regular option
+                                        return option.name;
+                                    }}
+                                    renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                                    freeSolo
+                                    renderInput={(params) => (
+                                        <TextField {...params} label={t('placeholder_medical_imagery')}/>
+                                    )}
+                                />
                             </Stack>
-                            <Button className='btn-add' type={"submit"} size='small'
-                                    startIcon={
-                                        <AddIcon/>
-                                    }>
-                                {t('add_medical_imagery')}
-                            </Button>
-                            {
-                                !loading ?
-                                    <List className='items-list'>
-                                        {
-                                            miList?.map(anaylis => (
-                                                    <ListItemButton disabled={mi.find(an =>an.uuid ===anaylis.uuid) !== undefined}  key={anaylis.uuid} onClick={() => {
-                                                        addImage(anaylis)
-                                                    }}>
-                                                        <ListItemText primary={anaylis.name}/>
-                                                    </ListItemButton>
-                                                )
-                                            )
-                                        }
-                                    </List> : <List className='items-list'>
-                                        {
-                                            initalData.map((item, index) => (
-                                                    <ListItemButton key={index}>
-                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                  variant="rectangular"/>
-                                                    </ListItemButton>
-                                                )
-                                            )
-                                        }
-                                    </List>
+                            <Typography>
+                                {t('recent-search')}
+                            </Typography>
+                            {!loading ?
+                                <List className='items-list'>
+                                    {miList?.map((item, index) => (
+                                            <ListItemButton
+                                                disabled={!!mi.find(an => an.uuid === item.uuid)}
+                                                key={index}
+                                                onClick={() => {
+                                                    addImage(item)
+                                                }}>
+                                                <ListItemText primary={item.name}/>
+                                            </ListItemButton>
+                                        )
+                                    )}
+                                </List> : <List className='items-list'>
+                                    {initialData.map((item, index) => (
+                                            <ListItemButton key={index}>
+                                                <Skeleton sx={{ml: 1}} width={130} height={8}
+                                                          variant="rectangular"/>
+                                            </ListItemButton>
+                                        )
+                                    )}
+                                </List>
                             }
                         </Stack>
                     </FormikProvider>
@@ -186,41 +265,30 @@ function MedicalImageryDialog({...props}) {
                         </Button>}*/}
                     </Stack>
                     <Box className="list-container">
-                        {
-                            mi.length > 0 ?
-                                mi.map((item, index) => (
-                                    <Card key={index}>
-                                        <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
-                                            <Typography>{item.name}</Typography>
-                                            <IconButton size="small" onClick={() => {
-                                                mi.splice(index, 1);
-                                                setMi([...mi])
-                                                data.setState([...mi])
-                                            }}>
-                                                <Icon path="setting/icdelete"/>
-                                            </IconButton>
-                                        </Stack>
-                                    </Card>
-                                ))
-                                : <Card className='loading-card'>
-                                    <Stack spacing={2}>
-                                        <Typography alignSelf="center">
-                                            {t("list_empty")}
-                                        </Typography>
-                                        <List>
-                                            {
-                                                Array.from({length: 4}).map((_, idx) =>
-                                                    <ListItem key={idx} sx={{py: .5}}>
-                                                        <Skeleton width={10} height={8} variant="rectangular"/>
-                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                  variant="rectangular"/>
-                                                    </ListItem>
-                                                )
-                                            }
-
-                                        </List>
+                        {mi.length > 0 ?
+                            mi.map((item, index) => (
+                                <Card key={index}>
+                                    <Stack p={1} direction='row' alignItems="center" justifyContent='space-between'>
+                                        <Typography>{item.name}</Typography>
+                                        <IconButton size="small" onClick={() => {
+                                            mi.splice(index, 1);
+                                            setMi([...mi])
+                                            data.setState([...mi])
+                                        }}>
+                                            <Icon path="setting/icdelete"/>
+                                        </IconButton>
                                     </Stack>
                                 </Card>
+                            ))
+                            : <Card className='loading-card'>
+                                <Stack spacing={2}>
+                                    <NoDataCard
+                                        {...{t}}
+                                        ns={"consultation"}
+                                        data={MedicalPrescriptionCardData}
+                                    />
+                                </Stack>
+                            </Card>
                         }
                     </Box>
                 </Grid>

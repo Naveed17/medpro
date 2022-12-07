@@ -369,6 +369,7 @@
   "actfees": {
     "path": "Paramètres > Honoraires",
     "add_a_new_act": "Ajouter",
+    "consultation": "Consultation",
     "name_of_act": "Nom",
     "feesupdated": "Honoraire est enregistré",
     "removed": "Acte est supprimé",
@@ -435,16 +436,32 @@
   "documents": {
     "config": {
       "path": "Paramètres > Configuration ",
-      "name": "Dr ...",
       "header": "En-tête",
-      "speciality": "spécialité",
-      "diplome": "diplôme",
-      "tel": "Tél : +216 00 000 000",
-      "fax": "Fix : +216 00 000 000",
-      "email": "doctor@email.com",
+
+      "case1": "Première case",
+      "case2": "Deuxième case",
+      "case3": "Troisième case",
+
       "save": "Enregistrer",
       "preview": "Aperçu",
-      "updated": "En-tête modifé"
+      "updated": "En-tête modifé",
+      "background": "Importer le document actuel",
+      "title": "Titre du document",
+      "date": "Date",
+      "patient": "Nom patient",
+      "firstName": "Nom & prénom",
+      "configPatient": "Configurer nom du patient",
+      "prefix": "Prefix",
+      "configDate": "Configurer date",
+      "nom": "Nom",
+      "configTitle": "Configurer title",
+      "le": "Le",
+      "configContent": "Configurer contenu",
+      "maxHeight": "Hauteur maximum",
+      "nameDoc": "ORDONNANCE MEDICALE",
+      "proprety": "Propriétés du modèle",
+      "leftSide": "Côté gauche",
+      "rightSide": "Côté droit"
     }
   }
 }
