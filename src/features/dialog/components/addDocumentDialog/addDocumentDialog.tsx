@@ -4,7 +4,7 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {UploadFile} from "@features/uploadFile";
 import {useTranslation} from "next-i18next";
-import FileuploadProgress from "@features/fileUploadProgress/components/fileUploadProgress";
+import {FileuploadProgress} from "@features/fileUploadProgress";
 import {useRequest} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -37,7 +37,6 @@ function AddDocumentDialog({...props}) {
 
     const handleDrop = React.useCallback(
         (acceptedFiles: File[]) => {
-            console.log(acceptedFiles)
             setFiles([...files, ...acceptedFiles]);
         },
         [files]

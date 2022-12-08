@@ -39,6 +39,14 @@ function Settings() {
                     <List>
                         {settingsData.data.map((v: any) => (
                             <ListItem
+                                {...(v.fill !== "default" && {
+                                    sx: {
+                                        "& .MuiListItemIcon-root svg path": {
+                                            fill: (theme) => theme.palette.primary.main
+                                        }
+                                    }
+                                })
+                                }
                                 key={v.name}
                                 {...((roles?.includes('ROLE_SECRETARY') &&
                                     ['profile', 'acts', 'actfees'].includes(v.name) || v.disable) && {sx: {display: "none"}})}

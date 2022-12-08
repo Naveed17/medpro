@@ -1,6 +1,6 @@
-import { styled } from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 
-const SettingBarStyled = styled("div")(({ theme }) => ({
+const SettingBarStyled = styled("div")(({theme}) => ({
     "& .heading": {
         marginTop: "6px",
         bottom: "24px",
@@ -31,10 +31,7 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
             },
             "& .MuiListItemIcon-root svg": {
                 height: "36px",
-                width: "23px",
-                path:{
-                    fill:theme.palette.primary.main
-                }
+                width: "23px"
             },
             "& .MuiListItemText-root": {
                 "& span": {
@@ -76,8 +73,8 @@ const SettingBarStyled = styled("div")(({ theme }) => ({
         width: "100%",
         left: 0,
         padding: "0px 20px",
-        paddingBottom:theme.spacing(5),
-        overflow:'scroll',
+        paddingBottom: theme.spacing(5),
+        overflow: 'scroll',
         "& .heading": {
             marginTop: "30px",
         },

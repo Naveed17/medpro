@@ -40,7 +40,6 @@ function CropImage({ img, setFieldValue, setOpen, open }: any) {
   };
 
   const handleDrop = (acceptedFiles: any) => {
-    console.log(acceptedFiles);
     const file = acceptedFiles[0];
     setFieldValue("file", URL.createObjectURL(file));
   };

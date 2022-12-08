@@ -68,6 +68,7 @@ declare module "@mui/material" {
 
     interface Palette {
         back: PaletteColor
+        expire: PaletteColor
     }
     interface ThemeOptions {
         customShadows?: CustomShadowType;
