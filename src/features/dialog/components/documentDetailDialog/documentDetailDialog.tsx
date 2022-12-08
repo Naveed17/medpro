@@ -403,7 +403,8 @@ function DocumentDetailDialog({...props}) {
                         {state.type === 'prescription' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    {!loading && <Preview  {...{eventHandler, data, values:header,state}} />}
+                                    <Preview  {...{eventHandler, data, values:header,state,loading}} />
+                                    {loading && <div className={"page"}></div>}
                                 </Box>
                             </Box>
                         }
