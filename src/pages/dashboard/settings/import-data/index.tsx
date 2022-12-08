@@ -1,22 +1,48 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useCallback, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
     Typography,
-    Box, TextField, Card, CardContent, Grid, MenuItem, Select, Stack
+    Box, Card, CardContent, Grid, MenuItem, Select, Stack
 } from "@mui/material";
 import {useAppDispatch} from "@app/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
 import {UploadFile} from "@features/uploadFile";
 import {FileuploadProgress} from "@features/fileUploadProgress";
+import {SettingsTabs} from "@features/tabPanel";
+import {LoadingButton} from "@mui/lab";
+import Icon from "@themes/urlIcon";
+
+const TabData = [
+    {
+        icon: "Med-logo_",
+        label: "tabs.med",
+        content: "tabs.content-1",
+    },
+    {
+        icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
+        label: "tabs.medWin",
+        content: "tabs.content-2",
+    },
+    {
+        icon: "ic-upload",
+        variant: "default",
+        label: "tabs.file",
+        content: "tabs.content-3",
+    },
+];
 
 function ImportData() {
     const dispatch = useAppDispatch();
 
+    const [settingsTab, setSettingsTab] = useState({
+        activeTab: null,
+        loading: false
+    });
     const [typeImport, setTypeImport] = useState([
         {label: "Patients", key: "1"},
         {label: "Rendez-vous", key: "2"},
@@ -59,26 +85,26 @@ function ImportData() {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    console.log(values);
-
     return (
         <>
             <SubHeader>
                 <Typography>{t("path")}</Typography>
             </SubHeader>
             <Box className="container">
+                <SettingsTabs {...{t}} data={TabData} initIndex={0} getIndex={setSettingsTab}/>
                 <FormikProvider value={formik}>
                     <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-                        <Typography
-                            textTransform="uppercase"
-                            fontWeight={600}
-                            marginBottom={2}
-                            gutterBottom>
-                            {t("tittle")}
-                        </Typography>
+
                         <Card className="venue-card">
                             <CardContent>
-                                <Box mb={2}>
+                                <Typography
+                                    textTransform="uppercase"
+                                    fontWeight={600}
+                                    marginBottom={2}
+                                    gutterBottom>
+                                    {t("title")}
+                                </Typography>
+                                {settingsTab.activeTab === 0 && <Box mb={2} mt={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -116,8 +142,8 @@ function ImportData() {
                                             </Select>
                                         </Grid>
                                     </Grid>
-                                </Box>
-                                <Box mb={2}>
+                                </Box>}
+                                {settingsTab.activeTab === 2 && <Box mb={6} mt={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -128,35 +154,26 @@ function ImportData() {
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("software")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
+                                                {t("file-modele")}
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <Select
-                                                fullWidth
-                                                id={"software"}
-                                                size="small"
-                                                {...getFieldProps("software")}
-                                                displayEmpty
-                                                renderValue={(selected) => {
-                                                    if (selected?.length === 0) {
-                                                        return <em>{t(`software-placeholder`)}</em>;
-                                                    }
-                                                    const software = softwareImport?.find(type => type.key === selected);
-                                                    return (<Typography>{software?.label}</Typography>);
-                                                }}
-                                            >
-                                                {softwareImport.map(type => (<MenuItem
-                                                    key={type.key}
-                                                    value={type.key}>{type.label}</MenuItem>))}
-                                            </Select>
+                                            <a href={"/static/files/Med_fichier_modele.xlsx"} download>
+                                                <Stack
+                                                    sx={{
+                                                        cursor: "pointer"
+                                                    }}
+                                                    justifyContent={"center"} alignItems={"center"}>
+
+                                                    <Icon width={"80"} height={"80"} path={"ic-download"}/>
+                                                    <Typography
+                                                        variant={"body2"}>{t("file-modele-placeholder")}</Typography>
+                                                </Stack>
+                                            </a>
                                         </Grid>
                                     </Grid>
-                                </Box>
-                                <Box mb={2}>
+                                </Box>}
+                                {settingsTab.activeTab !== 0 && <Box mb={2} mt={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -181,8 +198,11 @@ function ImportData() {
                                                     onDrop={(acceptedFiles: File[]) => {
                                                         setFiles([...files, ...acceptedFiles]);
                                                     }}
-                                                    accept={".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"}
-                                                    singleFile/>}
+                                                    accept={{
+                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls"]
+                                                    }}
+                                                    singleFile
+                                                    maxFiles={1}/>}
 
                                             <Stack spacing={2} maxWidth={{xs: "100%", md: "100%"}}>
                                                 {files?.map((file: any, index: number) => (
@@ -196,7 +216,13 @@ function ImportData() {
                                             </Stack>
                                         </Grid>
                                     </Grid>
-                                </Box>
+                                </Box>}
+                                <LoadingButton
+                                    sx={{
+                                        marginTop: 4
+                                    }} variant={"contained"} fullWidth>
+                                    {t(settingsTab.activeTab !== 0 ? "load-file" : "load-data")}
+                                </LoadingButton>
                             </CardContent>
                         </Card>
                     </Form>

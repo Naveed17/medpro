@@ -394,7 +394,24 @@
     }
   },
   "import-data": {
-    "path": "Paramètres > Importation de données"
+    "tabs": {
+      "med": "Med",
+      "content-1": "Vous pouvez importer des données de vos patients et votre historique de rendez-vous.",
+      "medWin": "Med Win",
+      "content-2": "Le format de données doit être de type tabulaire (CSV, Excel).",
+      "file": "Télécharger un fichier modèle",
+      "content-3": "Le format de données doit être de type tabulaire (CSV, Excel)."
+    },
+    "path": "Paramètres > Importation de données",
+    "title": "Données",
+    "type": "Type de données",
+    "type-placeholder": "Choisissez votre type de données",
+    "file": "Fichier",
+    "file-modele": "Fichie modèle",
+    "file-modele-placeholder": "Cliquez ici pour télécharger le fichier modèle",
+    "software": "Logiciel source de l'export",
+    "load-file": "Charger le fichier",
+    "load-data": "importer les données"
   },
   "appLock": {
     "path": "Paramètres > verrouillage des applications",

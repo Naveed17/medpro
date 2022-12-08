@@ -37,7 +37,6 @@ function AddDocumentDialog({...props}) {
 
     const handleDrop = React.useCallback(
         (acceptedFiles: File[]) => {
-            console.log(acceptedFiles)
             setFiles([...files, ...acceptedFiles]);
         },
         [files]
