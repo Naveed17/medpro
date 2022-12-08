@@ -97,7 +97,7 @@ const settingsData = {
             icon: "ic-upload-3",
             fill: "default",
             href: "/dashboard/settings/import-data",
-            disable: false
+            disable: true
         },
         {
             name: "app_lock",
