@@ -9,7 +9,7 @@ import TabsStyled from "./overrides/tabsStyle";
 import {useEffect} from "react";
 
 export default function SettingsTabs({...props}) {
-    const {data, getIndex, initIndex = null, t} = props;
+    const {data, getIndex, initIndex = null, t, OnSelectTab = null} = props;
     const theme = useTheme();
 
     const [state, setstate] = React.useState({
@@ -18,6 +18,7 @@ export default function SettingsTabs({...props}) {
 
     const handleClick = (props: number) => {
         setstate((pre: any) => ({...pre, tabIndex: props}));
+        OnSelectTab && OnSelectTab(props);
     };
 
     useEffect(() => {
@@ -35,7 +36,7 @@ export default function SettingsTabs({...props}) {
             }}>
             {data?.map((item: any, index: number) => (
                 <Box
-                    sx={{maxWidth: {lg: 328, xs: "100%"}, width: "100%", p: 1}}
+                    sx={{maxWidth: "33%", width: "100%", p: 1}}
                     key={`tab-${index}`}>
                     <TabsStyled
                         className={`${item.variant ? item.variant : ""} ${typeof item.icon !== "string" ? "img-background" : ""} ${state.tabIndex === index ? 'active' : ''}`}

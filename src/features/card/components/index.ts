@@ -37,3 +37,4 @@ export * from './rdvPreviousCard'
 export * from './appointmentPopoverCard';
 export * from './patientHistoryNoDataCard'
 export * from './settingAgendaMobileCard'
+export * from './circularProgressbarCard'
