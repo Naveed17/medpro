@@ -114,6 +114,11 @@ function DocumentDetailDialog({...props}) {
             disabled: state.type === 'photo'
         },
         {
+            title: 'settings',
+            icon: "ic-setting",
+            disabled: state.type === 'photo'
+        },
+        {
             title: 'download',
             icon: "ic-dowlaodfile"
         },
@@ -321,7 +326,9 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (file) {
+                printNow()
+
+                /*if (file) {
                     fetch(file).then(response => {
                         response.blob().then(blob => {
                             const fileURL = window.URL.createObjectURL(blob);
@@ -334,8 +341,12 @@ function DocumentDetailDialog({...props}) {
                     })
                 } else {
                     alert('no file to download')
-                }
+                }*/
                 break;
+            case "settings":
+                router.push("/dashboard/settings/docs").then(() => {})
+                break;
+
             default:
                 break;
         }
@@ -378,7 +389,7 @@ function DocumentDetailDialog({...props}) {
                 <RequestedMedicalImaging data={state}/>}
 
             {state.type === 'fees' && <Fees data={state}></Fees>}
-            <Grid container spacing={5}>
+            <Grid container>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
                         {state.type !== 'photo' && state.type !== 'prescription' && <Box sx={{
@@ -389,8 +400,7 @@ function DocumentDetailDialog({...props}) {
                                 }
                             }
                         }}>
-                            <Document ref={
-                                componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
+                            <Document ref={componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
                             >
                                 {Array.from(new Array(numPages), (el, index) => (
                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
@@ -411,7 +421,7 @@ function DocumentDetailDialog({...props}) {
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={4} className="sidebar">
+                <Grid item xs={12} md={4} className="sidebar" color={"white"} style={{background:"white"}}>
                     <List>
                         {
                             actionButtons.map((button, idx) =>
