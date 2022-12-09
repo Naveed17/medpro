@@ -52,6 +52,7 @@ function PreviewDialog({...props}) {
                         case "prescription":
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
+                                elx.style.maxWidth = "130mm"
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
@@ -83,6 +84,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-analysis":
                             const elx = document.createElement('p');
+                            elx.style.maxWidth = "130mm"
                             elx.append(`• ${el.name}`)
                             rows.push({
                                 value: `• ${el.name}`,
@@ -95,6 +97,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
+                            imgLine.style.maxWidth = "130mm"
                             imgLine.append(`• ${el['medical-imaging'].name}`)
                             rows.push({
                                 value: `• ${el['medical-imaging'].name}`,
@@ -107,6 +110,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "write_certif":
                             const certifLine = document.createElement('p');
+                            certifLine.style.maxWidth = "130mm"
                             certifLine.append(`• ${el.name}`)
                             rows.push({
                                 value: el.name,
@@ -187,6 +191,7 @@ function PreviewDialog({...props}) {
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
+                    elx.style.maxWidth = "130mm"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)

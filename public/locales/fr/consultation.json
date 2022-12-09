@@ -192,6 +192,8 @@
     "print": "Imprimer",
     "show": "Afficher en-tête",
     "hide": "Masquer en-tête",
+    "showtitle": "Afficher le titre",
+    "hidetitle": "Masquer le titre",
     "share": "Partager",
     "download": "Télécharger",
     "delete": "Supprimer",
