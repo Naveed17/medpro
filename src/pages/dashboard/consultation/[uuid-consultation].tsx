@@ -111,10 +111,10 @@ function ConsultationInProgress() {
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
-        {index: 0, name: "medical_prescription", icon: "ic-traitement", checked: false},
-        {index: 3, name: "balance_sheet_request", icon: "ic-analyse", checked: false},
-        {index: 2, name: "medical_imagery", icon: "ic-soura", checked: false},
-        {index: 1, name: "write_certif", icon: "ic-text", checked: false},
+        {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 3, name: "requested-analysis", icon: "ic-analyse", checked: false},
+        {index: 2, name: "requested-medical-imaging", icon: "ic-soura", checked: false},
+        {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
 
     const EventStepper = [
@@ -240,8 +240,16 @@ function ConsultationInProgress() {
     );
 
     useEffect(() => {
-        if (httpDocumentResponse)
-            setDocuments((httpDocumentResponse as HttpResponse).data);
+        if (httpDocumentResponse) {
+            const data  = (httpDocumentResponse as HttpResponse).data
+            setDocuments(data);
+            changes.map(change => {
+                const item = data.filter((doc: { documentType: string; }) => doc.documentType === change.name)
+                change.checked = item.length > 0;
+                setChanges([...changes])
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [httpDocumentResponse]);
 
     useEffect(() => {
