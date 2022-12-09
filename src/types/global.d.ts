@@ -1,6 +1,6 @@
-import { CustomShadowType } from "@themes/shadows";
+import {CustomShadowType} from "@themes/shadows";
 import React from "react";
-import { PaletteColor, Palette } from "@mui/material";
+import {PaletteColor, Palette} from "@mui/material";
 
 declare global {
     type LayoutProps = {
@@ -12,7 +12,7 @@ declare global {
     };
 }
 
-declare module "next-auth"{
+declare module "next-auth" {
     interface Session {
         data: any;
         accessToken: string;
@@ -31,6 +31,9 @@ declare module "@mui/material/Button" {
         consultationIP: true;
     }
 
+    interface ButtonPropsColorOverrides {
+        text: true
+    }
 }
 
 declare module "@mui/material/Chip" {
@@ -70,6 +73,7 @@ declare module "@mui/material" {
         back: PaletteColor
         expire: PaletteColor
     }
+
     interface ThemeOptions {
         customShadows?: CustomShadowType;
     }

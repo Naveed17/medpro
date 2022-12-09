@@ -1,12 +1,12 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
     Typography,
-    Box, Card, CardContent, Grid, MenuItem, Select, Stack
+    Box, Card, CardContent, Grid, MenuItem, Select, Stack, useTheme, DialogActions, Button
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -19,6 +19,10 @@ import Papa from "papaparse";
 import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
+import {Dialog} from "@features/dialog";
+import {DuplicateDetected} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
 
 const TabData = [
     {
@@ -43,7 +47,8 @@ const TabData = [
 ];
 
 function ImportData() {
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
+    const theme = useTheme();
 
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
@@ -55,9 +60,78 @@ function ImportData() {
         {label: "Toutes les données", key: "3"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
+    const [duplicatedData, setDuplicatedData] = useState<any[]>([{
+        "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
+        "email": "",
+        "birthdate": "18-04-1962",
+        "firstName": "test ",
+        "lastName": "patient",
+        "gender": "M",
+        "account": null,
+        "address": [],
+        "contact": [
+            {
+                "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
+                "value": "5151515151",
+                "type": "phone",
+                "contactType": {
+                    "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
+                    "name": "Téléphone"
+                },
+                "isPublic": false,
+                "isSupport": false,
+                "isVerified": false,
+                "description": null,
+                "code": "+216"
+            }
+        ],
+        "insurances": [],
+        "isParent": false,
+        "nextAppointment": null,
+        "previousAppointments": null,
+        "familyDoctor": "",
+        "hasAccount": false,
+        "idCard": "",
+        "cin": ""
+    },
+        {
+            "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
+            "email": "",
+            "birthdate": "18-04-1990",
+            "firstName": "test 2",
+            "lastName": "patient",
+            "gender": "M",
+            "account": null,
+            "address": [],
+            "contact": [
+                {
+                    "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
+                    "value": "2436456546",
+                    "type": "phone",
+                    "contactType": {
+                        "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
+                        "name": "Téléphone"
+                    },
+                    "isPublic": false,
+                    "isSupport": false,
+                    "isVerified": false,
+                    "description": null,
+                    "code": "+216"
+                }
+            ],
+            "insurances": [],
+            "isParent": false,
+            "nextAppointment": null,
+            "previousAppointments": null,
+            "familyDoctor": "",
+            "hasAccount": false,
+            "idCard": "",
+            "cin": ""
+        }]);
     const [fileLength, setFileLength] = useState(0);
+    const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "import-data"});
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -68,8 +142,11 @@ function ImportData() {
             comment: ""
         },
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            console.log(values, files);
-            handleClick();
+            if (values.source !== "med") {
+                setDuplicateDetectedDialog(true);
+            } else {
+                handleClick();
+            }
         },
     });
 
@@ -80,7 +157,7 @@ function ImportData() {
                 vertical: 'bottom',
                 horizontal: 'right',
             },
-            content: (key, message) => <CircularProgressbarCard {...{t}} id={key} message={message} />,
+            content: (key, message) => <CircularProgressbarCard {...{t}} id={key} message={message}/>,
         });
     };
 
@@ -108,7 +185,6 @@ function ImportData() {
                 let readedData = read(data, {type: 'binary'});
                 const wsname = readedData.SheetNames[0];
                 const ws = readedData.Sheets[wsname];
-
                 /* Convert array to json*/
                 const dataParse = utils.sheet_to_json(ws, {header: 1});
                 setFileLength(dataParse.length);
@@ -283,6 +359,52 @@ function ImportData() {
                     </Form>
                 </FormikProvider>
             </Box>
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340
+                    }
+                }}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    setDuplicateDetectedDialog(false);
+                }}
+                action={() => {
+                    return (<DuplicateDetected data={duplicatedData}/>)
+                }}
+                actionDialog={
+                    <DialogActions
+                        sx={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                            "& .MuiDialogActions-root": {
+                                'div': {
+                                    width: "100%",
+                                }
+                            }
+                        }}>
+                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            <Button onClick={() => setDuplicateDetectedDialog(false)} startIcon={<CloseIcon/>}>
+                                {t("dialog.later")}
+                            </Button>
+                            <Box>
+                                <Button sx={{marginRight: 1}} color={"inherit"} startIcon={<CloseIcon/>}>
+                                    {t("dialog.no-duplicates")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    {t("dialog.save")}
+                                </Button>
+                            </Box>
+                        </Stack>
+
+                    </DialogActions>
+                }
+                open={duplicateDetectedDialog}
+                title={t(`dialog.title`)}
+            />
         </>
     );
 }
@@ -293,6 +415,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
+            "patient",
             "settings",
         ])),
     },

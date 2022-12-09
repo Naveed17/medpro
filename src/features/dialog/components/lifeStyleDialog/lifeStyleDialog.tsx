@@ -187,7 +187,7 @@ function LifeStyleDialog({...props}) {
                                             {
                                                 list.value_type === 2 &&
                                                 <>
-                                                    <Typography fontSize={10} color={"text.secondary"} mt={2}
+                                                    <Typography fontSize={10} c mt={2}
                                                                 ml={1}>{t('selectPlz')}</Typography>
                                                     <Stack direction={'row'} spacing={1} mb={1} ml={1}>
                                                         {list.values.map((val: { uuid: string; value: string }) => (

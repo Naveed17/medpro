@@ -414,7 +414,14 @@
     "file-modele-placeholder": "Cliquez ici pour télécharger le fichier modèle",
     "software": "Logiciel source de l'export",
     "load-file": "Charger le fichier",
-    "load-data": "importer les données"
+    "load-data": "importer les données",
+    "dialog": {
+      "title": "Duplicatas détectés",
+      "later": "Le faire plus tard",
+      "no-duplicates": "Ces patients ne sont pas doublons ",
+      "selected": "Patient sélectionné",
+      "save": "Enregistrer"
+    }
   },
   "appLock": {
     "path": "Paramètres > verrouillage des applications",
