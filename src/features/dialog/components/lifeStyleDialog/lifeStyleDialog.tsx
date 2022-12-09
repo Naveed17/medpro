@@ -56,10 +56,10 @@ function LifeStyleDialog({...props}) {
     }, [httpAntecedentsResponse])
 
     useEffect(() => {
-        if (state && antecedents.length > 0 ) {
+        if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
             items.map(item => {
-                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !=="string") {
+                if (antecedents.find(ant => ant.uuid === item.uuid)?.value_type === 2 && typeof item.response !== "string") {
                     item.response = item.response[0].uuid
                 }
             })
@@ -187,7 +187,7 @@ function LifeStyleDialog({...props}) {
                                             {
                                                 list.value_type === 2 &&
                                                 <>
-                                                    <Typography fontSize={10} c mt={2}
+                                                    <Typography fontSize={10} mt={2}
                                                                 ml={1}>{t('selectPlz')}</Typography>
                                                     <Stack direction={'row'} spacing={1} mb={1} ml={1}>
                                                         {list.values.map((val: { uuid: string; value: string }) => (
@@ -246,7 +246,6 @@ function LifeStyleDialog({...props}) {
                                     })
                                     setAntecedents([...antecedents])
                                 });
-
                             }}
                             startIcon={<AddIcon/>}>
                         {t('createAnt')}
