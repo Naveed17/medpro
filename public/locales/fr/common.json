@@ -27,6 +27,12 @@
   "type_the_name_of_the_document": "Tapez le nom du document",
   "type_a_description": "Tapez une description",
   "import_document": "Importer un document",
+  "import_data": {
+    "title": "Importation de données",
+    "sub_title": "importer des données",
+    "description": "importer les rendez vous, patients... a partir de med.tn ou d'un fichier csv.",
+    "button": "importer"
+  },
   "click_or_drop_files_to_upload": "Cliquez ou déposez les fichiers à uploader",
   "drag_and_drop_file_here_or_click": "Glissez et déposez le fichier ici ou cliquez",
   "drag_3": "Faites glisser les bilans ici ou cliquez pour les télécharger.",

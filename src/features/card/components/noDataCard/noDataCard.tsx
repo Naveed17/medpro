@@ -8,9 +8,7 @@ export default function NoDataCard({...props}) {
         mainIcon,
         title,
         description,
-        buttonText = null,
-        buttonIcon,
-        buttonVariant
+        buttons = []
     } = data;
 
     return (
@@ -27,14 +25,20 @@ export default function NoDataCard({...props}) {
             <Typography variant="body2" color="#00234B" mb={3}>
                 {t(description, {ns})}
             </Typography>
-            {/*{buttonText && <Button
-                variant="contained"
-                {...(onHandleClick && {onClick: onHandleClick})}
-                color={buttonVariant}
-                {...(buttonIcon && {startIcon: <Icon path={buttonIcon}/>})}
-            >
-                {t(buttonText, {ns})}
-            </Button>}*/}
+            {buttons.map((button: any, index: number) => (
+                <Button
+                    key={index}
+                    variant="contained"
+                    {...(onHandleClick && {onClick: onHandleClick})}
+                    color={button.variant}
+                    {...(button.icon && {
+                        startIcon: (typeof button.icon === "string" ?
+                            <Icon color={button.color} path={button.icon}/> : button.icon)
+                    })}
+                >
+                    {t(button.text, {ns})}
+                </Button>
+            ))}
         </RootStyled>
     );
 }

@@ -93,6 +93,13 @@ const settingsData = {
             disable: true
         },
         {
+            name: "import-data",
+            icon: "ic-upload-3",
+            fill: "default",
+            href: "/dashboard/settings/import-data",
+            disable: true
+        },
+        {
             name: "app_lock",
             icon: "ic-cloc",
             href: "/dashboard/settings/app-lock",

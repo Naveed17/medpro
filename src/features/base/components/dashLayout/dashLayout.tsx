@@ -5,11 +5,16 @@ import {signIn, useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments} from "@features/calendar";
 import {useAppDispatch} from "@app/redux/hooks";
 import {dashLayoutState, setOngoing} from "@features/base";
 import {AppLock} from "@features/appLock";
+import {useTheme} from "@mui/material";
+import Icon from "@themes/urlIcon";
+import {Dialog} from "@features/dialog";
+import {NoDataCard} from "@features/card";
+import {useTranslation} from "next-i18next";
 
 const SideBarMenu = dynamic(() => import("@features/sideBarMenu/components/sideBarMenu"));
 
@@ -19,10 +24,26 @@ const variants = {
     exit: {opacity: 0},
 };
 
+export const ImportCardData = {
+    mainIcon: <Icon path={"ic-upload"} width={"100"} height={"100"}/>,
+    title: "import_data.sub_title",
+    description: "import_data.description",
+    buttons: [{
+        text: "import_data.button",
+        icon: <Icon path={"ic-upload"} width={"18"} height={"18"}/>,
+        variant: "expire",
+        color: "white"
+    }]
+};
+
 function DashLayout({children}: LayoutProps) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
+    const {t, ready} = useTranslation('common');
+
+    const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -100,6 +121,31 @@ function DashLayout({children}: LayoutProps) {
             >
                 {children}
             </motion.main>
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340
+                    }
+                }}
+                color={theme.palette.expire.main}
+                contrastText={theme.palette.expire.contrastText}
+                dialogClose={() => {
+                    setImportDataDialog(false);
+                }}
+                action={() => {
+                    return (<NoDataCard
+                        {...{t}}
+                        ns={'common'}
+                        onHandleClick={() => {
+                            router.push('/dashboard/settings/import-data').then(() => {
+                                setImportDataDialog(false);
+                            });
+                        }}
+                        data={ImportCardData}/>)
+                }}
+                open={importDataDialog}
+                title={t(`import_data.title`)}
+            />
         </SideBarMenu>
     );
 }
