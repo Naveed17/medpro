@@ -8,7 +8,6 @@ const DocumentDetailDialogStyled = styled(Stack)(({ theme }) => ({
     ".sidebar": {
         ".MuiList-root": {
             backgroundColor: theme.palette.background.paper,
-            borderLeft: `1px solid ${theme.palette.divider}`,
             marginTop: theme.spacing(-2),
             position: 'sticky',
             top: 0,

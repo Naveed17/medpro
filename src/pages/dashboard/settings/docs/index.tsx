@@ -76,6 +76,7 @@ function DocsConfig() {
             let reader = new FileReader();
             reader.onload = (ev) => {
                 data.background.content = (ev.target?.result as string)
+                data.background.show = true;
                 setData({...data})
             }
             reader.readAsDataURL(acceptedFiles[0]);
@@ -150,7 +151,6 @@ function DocsConfig() {
 
     }, [httpData, setFieldValue])
 
-
     const {t, ready} = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
@@ -163,6 +163,7 @@ function DocsConfig() {
 
     const save = () => {
         const form = new FormData();
+        data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
         trigger({
             method: "PATCH",
@@ -378,6 +379,7 @@ function DocsConfig() {
                                     />
                                     <ListItemText primary={t("title")}/>
                                 </ListItem>
+{/*
                                 <Collapse in={data.title.show} timeout="auto" unmountOnExit>
                                     <fieldset>
                                         <legend>{t('configTitle')}</legend>
@@ -397,6 +399,7 @@ function DocsConfig() {
                                             : {data.title.x} , y : {data.title.y}</Typography>
                                     </fieldset>
                                 </Collapse>
+*/}
 
                                 {/*Date*/}
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
