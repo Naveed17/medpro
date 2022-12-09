@@ -810,6 +810,7 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
+                                        disabled={selectedAct.length === 0}
                                         onClick={() => {
                                             setInfo('document_detail')
                                             setState({
