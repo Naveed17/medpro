@@ -26,8 +26,8 @@ const INFO = {
     lighter: "#D0F2FF",
     light: "#74CAFF",
     main: "#F0F7FA",
-    dark: "#0C53B7",
-    darker: "#04297A"
+    dark: "#bdc4c7",
+    darker: "#bdc4c7"
 };
 
 const SUCCESS = {

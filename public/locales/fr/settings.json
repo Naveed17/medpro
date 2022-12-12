@@ -429,8 +429,12 @@
       "column" : "la colonne",
       "missing" : "est manquante",
       "see-all" : "voir tout",
+      "see-details": "Voir détails",
       "duplicated" : "patients dupliqués ont été trouvés",
       "duplicated-row" : "Erreur de duplication à la ligne",
+      "warning-row" : "Le patient",
+      "warning-row-detail" : "a été inséré avec des avertissements",
+      "warning-insert" : "patients insérés avec des avertissements ont été trouvés",
       "fix-duplication": "Corriger la duplication"
     }
   },
