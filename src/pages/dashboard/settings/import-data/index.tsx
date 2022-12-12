@@ -494,7 +494,7 @@ function ImportData() {
                                         </Button>
                                     }
                                     severity="error">
-                                    <AlertTitle>Erreur</AlertTitle>
+                                    <AlertTitle>{t("error.title")}</AlertTitle>
                                     {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
                                 </Alert>
                                 {/* Warning Alert */}
@@ -512,7 +512,7 @@ function ImportData() {
                                         marginBottom: 1
                                     }}
                                     severity="warning">
-                                    <AlertTitle>Avertissement</AlertTitle>
+                                    <AlertTitle>{t("error.warning-title")}</AlertTitle>
                                     {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
                                     <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
                                         <List>
@@ -556,7 +556,7 @@ function ImportData() {
                                         marginBottom: 1
                                     }}
                                     severity="info">
-                                    <AlertTitle>Informations</AlertTitle>
+                                    <AlertTitle>{t("error.info-title")}</AlertTitle>
                                     {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
                                     <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
                                         <List>
