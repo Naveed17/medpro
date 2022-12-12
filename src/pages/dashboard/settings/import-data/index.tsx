@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -19,7 +19,7 @@ import {
     Alert,
     AlertTitle,
     Collapse,
-    List, ListItemText, ListItem
+    List, ListItemText, ListItem, Drawer
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -32,11 +32,12 @@ import Papa from "papaparse";
 import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
-import {Dialog} from "@features/dialog";
+import {Dialog, PatientDetail} from "@features/dialog";
 import {DuplicateDetected, duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 
 const TabData = [
     {
@@ -66,6 +67,8 @@ function ImportData() {
     const theme = useTheme();
 
     const {patient: duplicatedPatient} = useAppSelector(duplicatedSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {patientId} = useAppSelector(tableActionSelector);
 
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
@@ -78,52 +81,300 @@ function ImportData() {
     ]);
     const [files, setFiles] = useState<any[]>([]);
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
-    const [duplicatedData, setDuplicatedData] = useState<any[]>([{
-        "city": "Bizerte",
-        "gender": 1,
-        "number": 2869,
-        "address": null,
-        "contact": "97 234 730",
-        "birthday": {
-            "date": "1968-05-01 00:00:00.000000",
-            "timezone": "UTC",
-            "timezone_type": 3
-        },
-        "lastname": "Ridha",
-        "firstname": "Marnissi",
-        "insurance": {
-            "insurance": null,
-            "insuranceNumber": "001157151109",
-            "insuranceRelation": 0
-        },
-        "profession": null,
-        "maritalStatus": "Marié(e)",
-        "addressedDoctor": "Gheribi riadh"
-    },
+    const [infoAlertContainer, setInfoAlertContainer] = useState(false);
+    const [errorsDuplication, setErrorsDuplication] = useState([
         {
-            "city": "Bizerte",
-            "gender": 1,
-            "number": 522,
-            "address": "23 576 362",
-            "contact": null,
-            "birthday": {
-                "date": "1968-05-01 00:00:00.000000",
-                "timezone": "UTC",
-                "timezone_type": 3
+            key: "1",
+            row: "324",
+            data: [{
+                "city": "Bizerte",
+                "gender": 1,
+                "number": 2869,
+                "address": null,
+                "contact": "97 234 730",
+                "birthday": {
+                    "date": "1968-05-01 00:00:00.000000",
+                    "timezone": "UTC",
+                    "timezone_type": 3
+                },
+                "lastname": "Ridha",
+                "firstname": "Marnissi",
+                "insurance": {
+                    "insurance": null,
+                    "insuranceNumber": "001157151109",
+                    "insuranceRelation": 0
+                },
+                "profession": null,
+                "maritalStatus": "Marié(e)",
+                "addressedDoctor": "Gheribi riadh"
             },
-            "lastname": "Ridha",
-            "firstname": "Marnissi",
-            "insurance": {
-                "insurance": null,
-                "insuranceNumber": "000065822580",
-                "insuranceRelation": 0
+                {
+                    "city": "Bizerte",
+                    "gender": 1,
+                    "number": 522,
+                    "address": "23 576 362",
+                    "contact": null,
+                    "birthday": {
+                        "date": "1968-05-01 00:00:00.000000",
+                        "timezone": "UTC",
+                        "timezone_type": 3
+                    },
+                    "lastname": "Ridha",
+                    "firstname": "Marnissi",
+                    "insurance": {
+                        "insurance": null,
+                        "insuranceNumber": "000065822580",
+                        "insuranceRelation": 0
+                    },
+                    "profession": "SANS PROFESSION",
+                    "maritalStatus": "Marié(e)",
+                    "addressedDoctor": null
+                }],
+            fixed: false
+        }, {
+            key: "2",
+            row: "24",
+            data: [{
+                "city": "Bizerte",
+                "gender": 1,
+                "number": 2869,
+                "address": null,
+                "contact": "97 234 730",
+                "birthday": {
+                    "date": "1968-05-01 00:00:00.000000",
+                    "timezone": "UTC",
+                    "timezone_type": 3
+                },
+                "lastname": "Ahmed",
+                "firstname": "Marnissi",
+                "insurance": {
+                    "insurance": null,
+                    "insuranceNumber": "001157151109",
+                    "insuranceRelation": 0
+                },
+                "profession": null,
+                "maritalStatus": "Marié(e)",
+                "addressedDoctor": "Gheribi riadh"
             },
-            "profession": "SANS PROFESSION",
-            "maritalStatus": "Marié(e)",
-            "addressedDoctor": null
+                {
+                    "city": "Bizerte",
+                    "gender": 1,
+                    "number": 522,
+                    "address": "23 576 362",
+                    "contact": null,
+                    "birthday": {
+                        "date": "1968-05-01 00:00:00.000000",
+                        "timezone": "UTC",
+                        "timezone_type": 3
+                    },
+                    "lastname": "Ridha",
+                    "firstname": "Marnissi",
+                    "insurance": {
+                        "insurance": null,
+                        "insuranceNumber": "000065822580",
+                        "insuranceRelation": 0
+                    },
+                    "profession": "SANS PROFESSION",
+                    "maritalStatus": "Marié(e)",
+                    "addressedDoctor": null
+                }],
+            fixed: false
+        }, {
+            key: "3",
+            row: "304",
+            data: [{
+                "city": "Bizerte",
+                "gender": 1,
+                "number": 2869,
+                "address": null,
+                "contact": "97 234 730",
+                "birthday": {
+                    "date": "1968-05-01 00:00:00.000000",
+                    "timezone": "UTC",
+                    "timezone_type": 3
+                },
+                "lastname": "Imed",
+                "firstname": "Marnissi",
+                "insurance": {
+                    "insurance": null,
+                    "insuranceNumber": "001157151109",
+                    "insuranceRelation": 0
+                },
+                "profession": null,
+                "maritalStatus": "Marié(e)",
+                "addressedDoctor": "Gheribi riadh"
+            },
+                {
+                    "city": "Bizerte",
+                    "gender": 1,
+                    "number": 522,
+                    "address": "23 576 362",
+                    "contact": null,
+                    "birthday": {
+                        "date": "1968-05-01 00:00:00.000000",
+                        "timezone": "UTC",
+                        "timezone_type": 3
+                    },
+                    "lastname": "Ridha",
+                    "firstname": "Marnissi",
+                    "insurance": {
+                        "insurance": null,
+                        "insuranceNumber": "000065822580",
+                        "insuranceRelation": 0
+                    },
+                    "profession": "SANS PROFESSION",
+                    "maritalStatus": "Marié(e)",
+                    "addressedDoctor": null
+                }],
+            fixed: false
+        }, {
+            key: "0",
+            row: "124",
+            data: [{
+                "city": "Bizerte",
+                "gender": 1,
+                "number": 2869,
+                "address": null,
+                "contact": "97 234 730",
+                "birthday": {
+                    "date": "1968-05-01 00:00:00.000000",
+                    "timezone": "UTC",
+                    "timezone_type": 3
+                },
+                "lastname": "Karim",
+                "firstname": "Marnissi",
+                "insurance": {
+                    "insurance": null,
+                    "insuranceNumber": "001157151109",
+                    "insuranceRelation": 0
+                },
+                "profession": null,
+                "maritalStatus": "Marié(e)",
+                "addressedDoctor": "Gheribi riadh"
+            },
+                {
+                    "city": "Bizerte",
+                    "gender": 1,
+                    "number": 522,
+                    "address": "23 576 362",
+                    "contact": null,
+                    "birthday": {
+                        "date": "1968-05-01 00:00:00.000000",
+                        "timezone": "UTC",
+                        "timezone_type": 3
+                    },
+                    "lastname": "Ridha",
+                    "firstname": "Marnissi",
+                    "insurance": {
+                        "insurance": null,
+                        "insuranceNumber": "000065822580",
+                        "insuranceRelation": 0
+                    },
+                    "profession": "SANS PROFESSION",
+                    "maritalStatus": "Marié(e)",
+                    "addressedDoctor": null
+                }],
+            fixed: false
         }]);
+    const [infoDuplication, setInfoDuplication] = useState([
+        {
+            key: "1",
+            row: "324",
+            data: {
+                "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
+                "email": "",
+                "birthdate": "18-04-1962",
+                "firstName": "test ",
+                "lastName": "patient",
+                "gender": "M",
+                "account": null,
+                "address": [],
+                "contact": [
+                    {
+                        "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
+                        "value": "5151515151",
+                        "type": "phone",
+                        "contactType": {
+                            "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
+                            "name": "Téléphone"
+                        },
+                        "isPublic": false,
+                        "isSupport": false,
+                        "isVerified": false,
+                        "description": null,
+                        "code": "+216"
+                    }
+                ],
+                "insurances": [],
+                "isParent": false,
+                "nextAppointment": null,
+                "previousAppointments": {
+                    "uuid": "26795b1a-136d-4375-a9e6-5275293d3b7a",
+                    "type": {
+                        "uuid": "b410fe0a-8715-4fe7-8d57-2c9def51285d",
+                        "name": "Consultation",
+                        "color": "#1BC47D",
+                        "icon": "ic-consultation",
+                        "code": 1
+                    },
+                    "dayDate": "08-12-2022",
+                    "startTime": "09:30",
+                    "endTime": "09:45",
+                    "duration": 15,
+                    "isVip": false,
+                    "status": 1,
+                    "instruction": null,
+                    "consultationReason": null,
+                    "createdAt": "09-12-2022 11:40",
+                    "patient": {
+                        "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
+                        "email": "",
+                        "birthdate": "18-04-1962",
+                        "firstName": "test ",
+                        "lastName": "patient",
+                        "gender": "M",
+                        "contact": [
+                            {
+                                "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
+                                "value": "5151515151",
+                                "type": "phone",
+                                "contactType": {
+                                    "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
+                                    "name": "Téléphone"
+                                },
+                                "isPublic": false,
+                                "isSupport": false,
+                                "isVerified": false,
+                                "description": null,
+                                "code": "+216"
+                            }
+                        ],
+                        "antecedents": {
+                            "way_of_life": [],
+                            "allergic": [],
+                            "treatment": [],
+                            "family_antecedents": [],
+                            "surgical_antecedents": [],
+                            "medical_antecedents": []
+                        },
+                        "hasAccount": false,
+                        "idCard": ""
+                    },
+                    "overlapEvent": true,
+                    "PatientHasAgendaAppointment": false,
+                    "fees": null
+                },
+                "familyDoctor": "",
+                "hasAccount": false,
+                "idCard": ""
+            },
+            fixed: false
+        }
+    ]);
+    const [duplicatedData, setDuplicatedData] = useState<any>(null);
     const [fileLength, setFileLength] = useState(0);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
@@ -149,9 +400,10 @@ function ImportData() {
             persist: true,
             anchorOrigin: {
                 vertical: 'bottom',
-                horizontal: 'right',
+                horizontal: 'right'
             },
-            content: (key, message) => <CircularProgressbarCard {...{t}} id={key} message={message}/>,
+            content: (key, message) =>
+                <CircularProgressbarCard {...{t}} id={key} message={message}/>,
         });
     };
 
@@ -162,7 +414,7 @@ function ImportData() {
 
     const handleDuplicatedPatient = () => {
         setDuplicateDetectedDialog(false);
-        console.log(duplicatedPatient);
+        (errorsDuplication.find(err => err.key === duplicatedData.key) as any).fixed = true;
         dispatch(resetDuplicated());
     }
 
@@ -231,6 +483,7 @@ function ImportData() {
                                     gutterBottom>
                                     {t("title")}
                                 </Typography>
+                                {/* Error Alert */}
                                 <Alert
                                     sx={{
                                         marginBottom: 1
@@ -241,10 +494,10 @@ function ImportData() {
                                         </Button>
                                     }
                                     severity="error">
-                                    <AlertTitle>Erreur</AlertTitle>
+                                    <AlertTitle>{t("error.title")}</AlertTitle>
                                     {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
                                 </Alert>
-
+                                {/* Warning Alert */}
                                 <Alert
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -259,28 +512,81 @@ function ImportData() {
                                         marginBottom: 1
                                     }}
                                     severity="warning">
-                                    <AlertTitle>Avertissement</AlertTitle>
-                                    {t("error.loading-error")} — <strong>{` 30 ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                    <AlertTitle>{t("error.warning-title")}</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
                                     <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
                                         <List>
-                                            {Array.from(new Array(20)).map((value, index) => (<ListItem
-                                                key={index}
+                                            {errorsDuplication.map((error, index) => (<ListItem
+                                                key={error.key}
                                                 disableGutters
                                                 secondaryAction={
                                                     <Button variant={"contained"}
+                                                            sx={{
+                                                                visibility: !error.fixed ? "visible" : "hidden"
+                                                            }}
                                                             onClick={(event) => {
                                                                 event.stopPropagation();
+                                                                setDuplicatedData(error);
                                                                 setDuplicateDetectedDialog(true);
                                                             }}
                                                             color="warning" size="small">
                                                         {t('error.fix-duplication')}
                                                     </Button>
                                                 }>
-                                                <ListItemText primary={`${t("error.duplicated-row")}`}/>
+                                                <strong>{index} .</strong>
+                                                <ListItemText sx={{
+                                                    textDecorationLine: error.fixed ? "line-through" : "none"
+                                                }} primary={`${t("error.duplicated-row")} ${error.row}`}/>
                                             </ListItem>))}
                                         </List>
                                     </Collapse>
                                 </Alert>
+                                {/* Info Alert */}
+                                <Alert
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setInfoAlertContainer(!infoAlertContainer);
+                                    }}
+                                    action={
+                                        <Button variant={"contained"} color="info" size="small">
+                                            {t('error.see-all')}
+                                        </Button>
+                                    }
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    severity="info">
+                                    <AlertTitle>{t("error.info-title")}</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
+                                    <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
+                                        <List>
+                                            {infoDuplication.map((info, index) => (<ListItem
+                                                key={info.key}
+                                                disableGutters
+                                                secondaryAction={
+                                                    <Button variant={"contained"}
+                                                            sx={{
+                                                                visibility: !info.fixed ? "visible" : "hidden"
+                                                            }}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                console.log(info)
+                                                                dispatch(onOpenPatientDrawer({patientId: info?.data.uuid}));
+                                                                setPatientDetailDrawer(true);
+                                                            }}
+                                                            color="warning" size="small">
+                                                        {t('error.see-details')}
+                                                    </Button>
+                                                }>
+                                                <strong>{index} .</strong>
+                                                <ListItemText sx={{
+                                                    textDecorationLine: info.fixed ? "line-through" : "none"
+                                                }} primary={`${t("error.warning-row")} ${info.data.firstName} ${info.data.lastName} ${t("error.warning-row-detail")}`}/>
+                                            </ListItem>))}
+                                        </List>
+                                    </Collapse>
+                                </Alert>
+                                {/* Layout */}
                                 {settingsTab.activeTab === 0 && <Box mb={2} mt={2}>
                                     <Grid
                                         container
@@ -409,6 +715,7 @@ function ImportData() {
                     </Form>
                 </FormikProvider>
             </Box>
+
             <Dialog
                 {...{
                     sx: {
@@ -456,6 +763,24 @@ function ImportData() {
                 open={duplicateDetectedDialog}
                 title={t(`dialog.title`)}
             />
+
+            <Drawer
+                anchor={"right"}
+                open={patientDetailDrawer}
+                dir={direction}
+                onClose={() => {
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
+                    setPatientDetailDrawer(false);
+                }}
+            >
+                <PatientDetail
+                    {...{isAddAppointment: false, patientId}}
+                    onCloseDialog={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}/>
+            </Drawer>
         </>
     );
 }

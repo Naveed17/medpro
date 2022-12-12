@@ -48,9 +48,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`firstName-${index}`)}
+                        checked={fields.includes(`firstname-${index}`)}
                         onChange={handleChangeFiled}
-                        name={`firstName-${index}`}
+                        name={`firstname-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -73,9 +73,9 @@ function DuplicatedRow({...props}) {
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`lastName-${index}`)}
+                        checked={fields.includes(`lastname-${index}`)}
                         onChange={handleChangeFiled}
-                        name={`lastName-${index}`}
+                        name={`lastname-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -105,9 +105,9 @@ function DuplicatedRow({...props}) {
                     }}
                 >
                     <Checkbox
-                        checked={fields.includes(`birthdate-${index}`)}
+                        checked={fields.includes(`birthday-${index}`)}
                         onChange={handleChangeFiled}
-                        name={`birthdate-${index}`}
+                        name={`birthday-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
