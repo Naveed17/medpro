@@ -41,7 +41,7 @@ function DuplicatedRow({...props}) {
                             <Typography>--</Typography>
                         ) : (
                             <Typography sx={{textTransform: "capitalize"}}>
-                                {modalData.gender}
+                                {modalData.gender === 1 ? "Mr" : "Ms"}
                             </Typography>
                         )}
                     </Stack>
@@ -62,9 +62,13 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.name")}
                         </Typography>
-                        <Typography sx={{textTransform: "capitalize"}}>
-                            {modalData.firstName}
-                        </Typography>
+                        {modalData.firstname ? (
+                            <Typography sx={{textTransform: "capitalize"}}>
+                                {modalData.firstname}
+                            </Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
                     </Stack>
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
@@ -83,9 +87,13 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.first-name")}
                         </Typography>
-                        <Typography sx={{textTransform: "capitalize"}}>
-                            {modalData.lastName}
-                        </Typography>
+                        {modalData.lastname ? (
+                            <Typography sx={{textTransform: "capitalize"}}>
+                                {modalData.lastname}
+                            </Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
                     </Stack>
                 </ListItem>
                 <ListItem
@@ -111,9 +119,13 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.date-of-birth")}
                         </Typography>
-                        <Typography>
-                            {modalData.birthdate}
-                        </Typography>
+                        {modalData.birthday ? (
+                            <Typography>
+                                {modalData.birthday.date.split(" ")[0]}
+                            </Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
                     </Stack>
                     <Icon path="danger"/>
                 </ListItem>
@@ -133,14 +145,18 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.telephone")}
                         </Typography>
-                        <Typography>{modalData.contact[0].value}</Typography>
+                        {modalData.contact ? (
+                            <Typography>{modalData.contact}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
                     </Stack>
                 </ListItem>
                 <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
                     <Checkbox
-                        checked={fields.includes(`region-${index}`)}
+                        checked={fields.includes(`profession-${index}`)}
                         onChange={handleChangeFiled}
-                        name={`region-${index}`}
+                        name={`profession-${index}`}
                         sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
                     />
                     <Stack>
@@ -149,14 +165,36 @@ function DuplicatedRow({...props}) {
                             color="text.secondary"
                             component="p"
                             gutterBottom
-                            mb={0.56}
                         >
-                            {t("add-patient.region")}
+                            {t("add-patient.profession")}
                         </Typography>
-                        {modalData.address.length === 0 ? (
-                            <Typography>--</Typography>
+                        {modalData.profession ? (
+                            <Typography>{modalData.profession}</Typography>
                         ) : (
-                            <Typography>{modalData.address}</Typography>
+                            <Typography>--</Typography>
+                        )}
+                    </Stack>
+                </ListItem>
+                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                    <Checkbox
+                        checked={fields.includes(`maritalStatus-${index}`)}
+                        onChange={handleChangeFiled}
+                        name={`maritalStatus-${index}`}
+                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
+                    />
+                    <Stack>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="p"
+                            gutterBottom
+                        >
+                            {t("add-patient.maritalStatus")}
+                        </Typography>
+                        {modalData.maritalStatus ? (
+                            <Typography>{modalData.maritalStatus}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
                         )}
                     </Stack>
                 </ListItem>
@@ -173,13 +211,38 @@ function DuplicatedRow({...props}) {
                             color="text.secondary"
                             component="p"
                             gutterBottom
+                            mb={0.56}
                         >
                             {t("add-patient.address")}
                         </Typography>
-                        {modalData.address.length === 0 ? (
-                            <Typography>--</Typography>
-                        ) : (
+                        {modalData.address ? (
                             <Typography>{modalData.address}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
+                        )}
+                    </Stack>
+                </ListItem>
+                <ListItem sx={{borderBottom: 1, borderColor: "divider"}}>
+                    <Checkbox
+                        checked={fields.includes(`city-${index}`)}
+                        onChange={handleChangeFiled}
+                        name={`city-${index}`}
+                        sx={{mr: 1, visibility: index === "init" ? "hidden" : ""}}
+                    />
+                    <Stack>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            component="p"
+                            gutterBottom
+                            mb={0.56}
+                        >
+                            {t("add-patient.region")}
+                        </Typography>
+                        {modalData.city ? (
+                            <Typography>{modalData.city}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
                         )}
                     </Stack>
                 </ListItem>
@@ -199,8 +262,9 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.assurance")}
                         </Typography>
-                        {modalData.insurance?.length > 0 ? (
-                            modalData.insurance?.map(
+                        {modalData.insurance ? (
+                            <Typography>{modalData.insurance.insuranceNumber}</Typography>
+                            /*modalData.insurance?.map(
                                 (assurance: { name: string; number: number }) => (
                                     <Stack
                                         direction="row"
@@ -208,10 +272,10 @@ function DuplicatedRow({...props}) {
                                         key={Math.random()}
                                     >
                                         <Typography>{assurance.name}</Typography>:
-                                        <Typography>{assurance.number}</Typography>
+                                        <Typography>{assurance.insuranceNumber}</Typography>
                                     </Stack>
                                 )
-                            )
+                            )*/
                         ) : (
                             <Typography>--</Typography>
                         )}
@@ -233,10 +297,10 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.email")}
                         </Typography>
-                        {modalData.email === "" ? (
-                            <Typography>--</Typography>
-                        ) : (
+                        {modalData.email ? (
                             <Typography>{modalData.email}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
                         )}
                     </Stack>
                 </ListItem>
@@ -256,10 +320,10 @@ function DuplicatedRow({...props}) {
                         >
                             {t("add-patient.cin")}
                         </Typography>
-                        {modalData.idCard === "" ? (
-                            <Typography>--</Typography>
-                        ) : (
+                        {modalData.idCard ? (
                             <Typography>{modalData.idCard}</Typography>
+                        ) : (
+                            <Typography>--</Typography>
                         )}
                     </Stack>
                 </ListItem>

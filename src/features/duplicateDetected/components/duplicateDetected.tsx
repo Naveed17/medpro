@@ -1,26 +1,40 @@
-import React, {ChangeEvent} from "react";
+import React, {ChangeEvent, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {
     Box,
     List
 } from "@mui/material";
 //utils
-import {RootStyled, DuplicatedRow} from "@features/duplicateDetected";
+import RootStyled from "./overrides/rootStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
+import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 function DuplicateDetected({...props}) {
     const {data: duplicatedPatients, translationKey = "patient"} = props;
-    const [selectedValue, setSelectedValue] = React.useState<string>("1");
-    const [fields, setFields] = React.useState<string[]>([]);
+    const dispatch = useAppDispatch();
+    const {fields: duplicatedFields, patient} = useAppSelector(duplicatedSelector);
+    const [selectedValue, setSelectedValue] = useState<string>("1");
+    const [fields, setFields] = useState<string[]>(duplicatedFields);
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: {...duplicatedPatients[0]},
+        initialValues: (patient ? patient : duplicatedPatients[0]) as PatientImportModel,
         onSubmit: async (values, {setErrors, setSubmitting}) => {
             console.log(values);
         },
     });
+
+    const {
+        values,
+        errors,
+        touched,
+        handleSubmit,
+        getFieldProps,
+        setFieldValue,
+        resetForm
+    } = formik;
 
     const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
         setSelectedValue(event.target.value);
@@ -33,25 +47,21 @@ function DuplicateDetected({...props}) {
         if (checkedFiled !== -1) {
             filteredFields.splice(checkedFiled, 1)
         }
-        setFields(checked ? [...filteredFields, name] : fields.filter((el) => el !== name));
+        const updatedFields = checked ? [...filteredFields, name] : fields.filter((el) => el !== name)
+        setFields(updatedFields);
+
+        let updatedPatient = values;
         if (checked) {
             const updatedFieldName = name.split("-")[0];
             const updatedFieldIndex = parseInt(name.split("-")[1]);
             setFieldValue(updatedFieldName, duplicatedPatients[updatedFieldIndex][updatedFieldName]);
+            updatedPatient = {...values, [updatedFieldName]: duplicatedPatients[updatedFieldIndex][updatedFieldName]};
         }
+
+        dispatch(setDuplicated({fields: updatedFields, patient: updatedPatient}));
     };
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: "config"});
-
-    const {
-        values,
-        errors,
-        touched,
-        handleSubmit,
-        getFieldProps,
-        setFieldValue,
-        resetForm
-    } = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -73,4 +83,4 @@ function DuplicateDetected({...props}) {
     );
 }
 
-export default DuplicateDetected;
+export default React.memo(DuplicateDetected);

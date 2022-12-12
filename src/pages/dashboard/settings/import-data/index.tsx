@@ -6,7 +6,20 @@ import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
     Typography,
-    Box, Card, CardContent, Grid, MenuItem, Select, Stack, useTheme, DialogActions, Button
+    Box,
+    Card,
+    CardContent,
+    Grid,
+    MenuItem,
+    Select,
+    Stack,
+    useTheme,
+    DialogActions,
+    Button,
+    Alert,
+    AlertTitle,
+    Collapse,
+    List, ListItemText, ListItem
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -20,9 +33,10 @@ import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
 import {Dialog} from "@features/dialog";
-import {DuplicateDetected} from "@features/duplicateDetected";
+import {DuplicateDetected, duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 const TabData = [
     {
@@ -47,8 +61,11 @@ const TabData = [
 ];
 
 function ImportData() {
+    const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
+
+    const {patient: duplicatedPatient} = useAppSelector(duplicatedSelector);
 
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
@@ -60,73 +77,50 @@ function ImportData() {
         {label: "Toutes les données", key: "3"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
+    const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [duplicatedData, setDuplicatedData] = useState<any[]>([{
-        "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
-        "email": "",
-        "birthdate": "18-04-1962",
-        "firstName": "test ",
-        "lastName": "patient",
-        "gender": "M",
-        "account": null,
-        "address": [],
-        "contact": [
-            {
-                "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
-                "value": "5151515151",
-                "type": "phone",
-                "contactType": {
-                    "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
-                    "name": "Téléphone"
-                },
-                "isPublic": false,
-                "isSupport": false,
-                "isVerified": false,
-                "description": null,
-                "code": "+216"
-            }
-        ],
-        "insurances": [],
-        "isParent": false,
-        "nextAppointment": null,
-        "previousAppointments": null,
-        "familyDoctor": "",
-        "hasAccount": false,
-        "idCard": "",
-        "cin": ""
+        "city": "Bizerte",
+        "gender": 1,
+        "number": 2869,
+        "address": null,
+        "contact": "97 234 730",
+        "birthday": {
+            "date": "1968-05-01 00:00:00.000000",
+            "timezone": "UTC",
+            "timezone_type": 3
+        },
+        "lastname": "Ridha",
+        "firstname": "Marnissi",
+        "insurance": {
+            "insurance": null,
+            "insuranceNumber": "001157151109",
+            "insuranceRelation": 0
+        },
+        "profession": null,
+        "maritalStatus": "Marié(e)",
+        "addressedDoctor": "Gheribi riadh"
     },
         {
-            "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
-            "email": "",
-            "birthdate": "18-04-1990",
-            "firstName": "test 2",
-            "lastName": "patient",
-            "gender": "M",
-            "account": null,
-            "address": [],
-            "contact": [
-                {
-                    "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
-                    "value": "2436456546",
-                    "type": "phone",
-                    "contactType": {
-                        "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
-                        "name": "Téléphone"
-                    },
-                    "isPublic": false,
-                    "isSupport": false,
-                    "isVerified": false,
-                    "description": null,
-                    "code": "+216"
-                }
-            ],
-            "insurances": [],
-            "isParent": false,
-            "nextAppointment": null,
-            "previousAppointments": null,
-            "familyDoctor": "",
-            "hasAccount": false,
-            "idCard": "",
-            "cin": ""
+            "city": "Bizerte",
+            "gender": 1,
+            "number": 522,
+            "address": "23 576 362",
+            "contact": null,
+            "birthday": {
+                "date": "1968-05-01 00:00:00.000000",
+                "timezone": "UTC",
+                "timezone_type": 3
+            },
+            "lastname": "Ridha",
+            "firstname": "Marnissi",
+            "insurance": {
+                "insurance": null,
+                "insuranceNumber": "000065822580",
+                "insuranceRelation": 0
+            },
+            "profession": "SANS PROFESSION",
+            "maritalStatus": "Marié(e)",
+            "addressedDoctor": null
         }]);
     const [fileLength, setFileLength] = useState(0);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
@@ -165,6 +159,12 @@ function ImportData() {
         setFiles(files.filter((_file: any) => _file !== file));
         setFileLength(0);
     };
+
+    const handleDuplicatedPatient = () => {
+        setDuplicateDetectedDialog(false);
+        console.log(duplicatedPatient);
+        dispatch(resetDuplicated());
+    }
 
     const handleOnDropFile = (acceptedFiles: File[]) => {
         // Passing CSV file data to parse using Papa.parse
@@ -231,6 +231,56 @@ function ImportData() {
                                     gutterBottom>
                                     {t("title")}
                                 </Typography>
+                                <Alert
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    action={
+                                        <Button variant={"contained"} color="error" size="small">
+                                            {t('load-file')}
+                                        </Button>
+                                    }
+                                    severity="error">
+                                    <AlertTitle>Erreur</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
+                                </Alert>
+
+                                <Alert
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setWarningAlertContainer(!warningAlertContainer);
+                                    }}
+                                    action={
+                                        <Button variant={"contained"} color="warning" size="small">
+                                            {t('error.see-all')}
+                                        </Button>
+                                    }
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    severity="warning">
+                                    <AlertTitle>Avertissement</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{` 30 ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                    <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
+                                        <List>
+                                            {Array.from(new Array(20)).map((value, index) => (<ListItem
+                                                key={index}
+                                                disableGutters
+                                                secondaryAction={
+                                                    <Button variant={"contained"}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                setDuplicateDetectedDialog(true);
+                                                            }}
+                                                            color="warning" size="small">
+                                                        {t('error.fix-duplication')}
+                                                    </Button>
+                                                }>
+                                                <ListItemText primary={`${t("error.duplicated-row")}`}/>
+                                            </ListItem>))}
+                                        </List>
+                                    </Collapse>
+                                </Alert>
                                 {settingsTab.activeTab === 0 && <Box mb={2} mt={2}>
                                     <Grid
                                         container
@@ -371,7 +421,7 @@ function ImportData() {
                     setDuplicateDetectedDialog(false);
                 }}
                 action={() => {
-                    return (<DuplicateDetected data={duplicatedData}/>)
+                    return <DuplicateDetected data={duplicatedData}/>
                 }}
                 actionDialog={
                     <DialogActions
@@ -393,6 +443,7 @@ function ImportData() {
                                     {t("dialog.no-duplicates")}
                                 </Button>
                                 <Button
+                                    onClick={handleDuplicatedPatient}
                                     variant="contained"
                                     startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
                                     {t("dialog.save")}
