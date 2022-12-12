@@ -1,12 +1,25 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
     Typography,
-    Box, Card, CardContent, Grid, MenuItem, Select, Stack
+    Box,
+    Card,
+    CardContent,
+    Grid,
+    MenuItem,
+    Select,
+    Stack,
+    useTheme,
+    DialogActions,
+    Button,
+    Alert,
+    AlertTitle,
+    Collapse,
+    List, ListItemText, ListItem
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -19,6 +32,11 @@ import Papa from "papaparse";
 import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
+import {Dialog} from "@features/dialog";
+import {DuplicateDetected, duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
+import CloseIcon from "@mui/icons-material/Close";
+import IconUrl from "@themes/urlIcon";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 const TabData = [
     {
@@ -43,7 +61,11 @@ const TabData = [
 ];
 
 function ImportData() {
-    const { enqueueSnackbar } = useSnackbar();
+    const dispatch = useAppDispatch();
+    const {enqueueSnackbar} = useSnackbar();
+    const theme = useTheme();
+
+    const {patient: duplicatedPatient} = useAppSelector(duplicatedSelector);
 
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
@@ -55,9 +77,55 @@ function ImportData() {
         {label: "Toutes les données", key: "3"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
+    const [warningAlertContainer, setWarningAlertContainer] = useState(false);
+    const [duplicatedData, setDuplicatedData] = useState<any[]>([{
+        "city": "Bizerte",
+        "gender": 1,
+        "number": 2869,
+        "address": null,
+        "contact": "97 234 730",
+        "birthday": {
+            "date": "1968-05-01 00:00:00.000000",
+            "timezone": "UTC",
+            "timezone_type": 3
+        },
+        "lastname": "Ridha",
+        "firstname": "Marnissi",
+        "insurance": {
+            "insurance": null,
+            "insuranceNumber": "001157151109",
+            "insuranceRelation": 0
+        },
+        "profession": null,
+        "maritalStatus": "Marié(e)",
+        "addressedDoctor": "Gheribi riadh"
+    },
+        {
+            "city": "Bizerte",
+            "gender": 1,
+            "number": 522,
+            "address": "23 576 362",
+            "contact": null,
+            "birthday": {
+                "date": "1968-05-01 00:00:00.000000",
+                "timezone": "UTC",
+                "timezone_type": 3
+            },
+            "lastname": "Ridha",
+            "firstname": "Marnissi",
+            "insurance": {
+                "insurance": null,
+                "insuranceNumber": "000065822580",
+                "insuranceRelation": 0
+            },
+            "profession": "SANS PROFESSION",
+            "maritalStatus": "Marié(e)",
+            "addressedDoctor": null
+        }]);
     const [fileLength, setFileLength] = useState(0);
+    const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "import-data"});
+    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -68,8 +136,11 @@ function ImportData() {
             comment: ""
         },
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            console.log(values, files);
-            handleClick();
+            if (values.source !== "med") {
+                setDuplicateDetectedDialog(true);
+            } else {
+                handleClick();
+            }
         },
     });
 
@@ -80,7 +151,7 @@ function ImportData() {
                 vertical: 'bottom',
                 horizontal: 'right',
             },
-            content: (key, message) => <CircularProgressbarCard {...{t}} id={key} message={message} />,
+            content: (key, message) => <CircularProgressbarCard {...{t}} id={key} message={message}/>,
         });
     };
 
@@ -88,6 +159,12 @@ function ImportData() {
         setFiles(files.filter((_file: any) => _file !== file));
         setFileLength(0);
     };
+
+    const handleDuplicatedPatient = () => {
+        setDuplicateDetectedDialog(false);
+        console.log(duplicatedPatient);
+        dispatch(resetDuplicated());
+    }
 
     const handleOnDropFile = (acceptedFiles: File[]) => {
         // Passing CSV file data to parse using Papa.parse
@@ -108,7 +185,6 @@ function ImportData() {
                 let readedData = read(data, {type: 'binary'});
                 const wsname = readedData.SheetNames[0];
                 const ws = readedData.Sheets[wsname];
-
                 /* Convert array to json*/
                 const dataParse = utils.sheet_to_json(ws, {header: 1});
                 setFileLength(dataParse.length);
@@ -155,6 +231,56 @@ function ImportData() {
                                     gutterBottom>
                                     {t("title")}
                                 </Typography>
+                                <Alert
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    action={
+                                        <Button variant={"contained"} color="error" size="small">
+                                            {t('load-file')}
+                                        </Button>
+                                    }
+                                    severity="error">
+                                    <AlertTitle>Erreur</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
+                                </Alert>
+
+                                <Alert
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setWarningAlertContainer(!warningAlertContainer);
+                                    }}
+                                    action={
+                                        <Button variant={"contained"} color="warning" size="small">
+                                            {t('error.see-all')}
+                                        </Button>
+                                    }
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    severity="warning">
+                                    <AlertTitle>Avertissement</AlertTitle>
+                                    {t("error.loading-error")} — <strong>{` 30 ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                    <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
+                                        <List>
+                                            {Array.from(new Array(20)).map((value, index) => (<ListItem
+                                                key={index}
+                                                disableGutters
+                                                secondaryAction={
+                                                    <Button variant={"contained"}
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                setDuplicateDetectedDialog(true);
+                                                            }}
+                                                            color="warning" size="small">
+                                                        {t('error.fix-duplication')}
+                                                    </Button>
+                                                }>
+                                                <ListItemText primary={`${t("error.duplicated-row")}`}/>
+                                            </ListItem>))}
+                                        </List>
+                                    </Collapse>
+                                </Alert>
                                 {settingsTab.activeTab === 0 && <Box mb={2} mt={2}>
                                     <Grid
                                         container
@@ -283,6 +409,53 @@ function ImportData() {
                     </Form>
                 </FormikProvider>
             </Box>
+            <Dialog
+                {...{
+                    sx: {
+                        minHeight: 340
+                    }
+                }}
+                color={theme.palette.primary.main}
+                contrastText={theme.palette.primary.contrastText}
+                dialogClose={() => {
+                    setDuplicateDetectedDialog(false);
+                }}
+                action={() => {
+                    return <DuplicateDetected data={duplicatedData}/>
+                }}
+                actionDialog={
+                    <DialogActions
+                        sx={{
+                            justifyContent: "space-between",
+                            width: "100%",
+                            "& .MuiDialogActions-root": {
+                                'div': {
+                                    width: "100%",
+                                }
+                            }
+                        }}>
+                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            <Button onClick={() => setDuplicateDetectedDialog(false)} startIcon={<CloseIcon/>}>
+                                {t("dialog.later")}
+                            </Button>
+                            <Box>
+                                <Button sx={{marginRight: 1}} color={"inherit"} startIcon={<CloseIcon/>}>
+                                    {t("dialog.no-duplicates")}
+                                </Button>
+                                <Button
+                                    onClick={handleDuplicatedPatient}
+                                    variant="contained"
+                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                    {t("dialog.save")}
+                                </Button>
+                            </Box>
+                        </Stack>
+
+                    </DialogActions>
+                }
+                open={duplicateDetectedDialog}
+                title={t(`dialog.title`)}
+            />
         </>
     );
 }
@@ -293,6 +466,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
+            "patient",
             "settings",
         ])),
     },

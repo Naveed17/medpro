@@ -414,7 +414,25 @@
     "file-modele-placeholder": "Cliquez ici pour télécharger le fichier modèle",
     "software": "Logiciel source de l'export",
     "load-file": "Charger le fichier",
-    "load-data": "importer les données"
+    "load-data": "importer les données",
+    "dialog": {
+      "title": "Duplicatas détectés",
+      "later": "Le faire plus tard",
+      "no-duplicates": "Ces patients ne sont pas doublons ",
+      "selected": "Patient sélectionné",
+      "save": "Enregistrer"
+    },
+    "error": {
+      "loading-error": "Une erreur s'est produite pendant la phase d'importation de données.",
+      "re-upload": "corrigez l'erreur sur le fichier et essayez de l'importer à nouveau.",
+      "re-duplicate": "cliquez sur \"voir tout\" pour exposer tous les avertissements.",
+      "column" : "la colonne",
+      "missing" : "est manquante",
+      "see-all" : "voir tout",
+      "duplicated" : "patients dupliqués ont été trouvés",
+      "duplicated-row" : "Erreur de duplication à la ligne",
+      "fix-duplication": "Corriger la duplication"
+    }
   },
   "appLock": {
     "path": "Paramètres > verrouillage des applications",

@@ -178,6 +178,8 @@
       "family_doctor": "Médecin traitant",
       "family_doctor-placeholder": "Tapez le nom du médecin traitant",
       "country": "Pays",
+      "profession": "Profession",
+      "maritalStatus": "Etat civil",
       "country-placeholder": "pays",
       "country-placeholder-error": "Veuillez choisir le pays.",
       "day": "Jour",
