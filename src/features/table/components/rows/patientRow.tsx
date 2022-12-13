@@ -21,7 +21,7 @@ import React from "react";
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
     const dispatch = useAppDispatch();
-    console.log(row);
+
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
     }
