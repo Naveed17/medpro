@@ -149,7 +149,6 @@ function DocsConfig() {
             }
 
             if (docInfo.data) {
-                console.log(docInfo.data.footer)
                 if (docInfo.data.footer === undefined)
                     setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
                 else
@@ -177,7 +176,6 @@ function DocsConfig() {
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
-        console.log(location.x,location.y)
         setData({...data})
     }
 
