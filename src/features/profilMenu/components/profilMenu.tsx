@@ -201,18 +201,18 @@ function ProfilMenu() {
                                                     {dir === "rtl" ? <Icon path="ic-retour"/> :
                                                         <Icon path="ic-flesh-droite"/>}
                                                     <MenuList className="sub-items">
-                                                        {agendas?.map((subItem: any, subIndex: any) => ( subItem.locations[0] &&
+                                                        {agendas?.map((subItem: any, subIndex: any) => (subItem.locations[0] &&
                                                             <MenuItem
                                                                 onClick={() => switchAgenda(subItem)}
                                                                 key={`sub-${subIndex}`}
                                                                 selected={subItem.isDefault}
-                                                                className={"border-bottom"}>
+                                                                {...(subIndex !== agendas.length - 1 && {className: "border-bottom"})}>
                                                                 <ListItemText>
                                                                     {subItem.locations[0].name}
                                                                 </ListItemText>
                                                             </MenuItem>
                                                         ))}
-                                                        <Link href={"/dashboard/settings/places/new"}>
+                                                        {/*<Link href={"/dashboard/settings/places/new"}>
                                                             <MenuItem>
                                                                 <ListItemIcon>
                                                                     <IconUrl path={"ic-plus"}/>
@@ -221,7 +221,7 @@ function ProfilMenu() {
                                                                     Ajouter un agenda
                                                                 </ListItemText>
                                                             </MenuItem>
-                                                        </Link>
+                                                        </Link>*/}
                                                     </MenuList>
                                                 </>
                                             ) : null}

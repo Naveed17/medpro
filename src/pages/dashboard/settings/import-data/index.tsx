@@ -499,12 +499,13 @@ function ImportData() {
                                 </Alert>
                                 {/* Warning Alert */}
                                 <Alert
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setWarningAlertContainer(!warningAlertContainer);
-                                    }}
                                     action={
-                                        <Button variant={"contained"} color="warning" size="small">
+                                        <Button variant={"contained"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setWarningAlertContainer(!warningAlertContainer);
+                                                }}
+                                                color="warning" size="small">
                                             {t('error.see-all')}
                                         </Button>
                                     }
@@ -512,8 +513,13 @@ function ImportData() {
                                         marginBottom: 1
                                     }}
                                     severity="warning">
-                                    <AlertTitle>{t("error.warning-title")}</AlertTitle>
-                                    {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                    <Box onClick={(event) => {
+                                        event.stopPropagation();
+                                        setWarningAlertContainer(!warningAlertContainer);
+                                    }}>
+                                        <AlertTitle>{t("error.warning-title")}</AlertTitle>
+                                        {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                    </Box>
                                     <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
                                         <List>
                                             {errorsDuplication.map((error, index) => (<ListItem
@@ -543,12 +549,13 @@ function ImportData() {
                                 </Alert>
                                 {/* Info Alert */}
                                 <Alert
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setInfoAlertContainer(!infoAlertContainer);
-                                    }}
                                     action={
-                                        <Button variant={"contained"} color="info" size="small">
+                                        <Button variant={"contained"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setInfoAlertContainer(!infoAlertContainer);
+                                                }}
+                                                color="info" size="small">
                                             {t('error.see-all')}
                                         </Button>
                                     }
@@ -556,8 +563,13 @@ function ImportData() {
                                         marginBottom: 1
                                     }}
                                     severity="info">
-                                    <AlertTitle>{t("error.info-title")}</AlertTitle>
-                                    {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
+                                    <Box onClick={(event) => {
+                                        event.stopPropagation();
+                                        setInfoAlertContainer(!infoAlertContainer);
+                                    }}>
+                                        <AlertTitle>{t("error.info-title")}</AlertTitle>
+                                        {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
+                                    </Box>
                                     <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
                                         <List>
                                             {infoDuplication.map((info, index) => (<ListItem
@@ -581,7 +593,8 @@ function ImportData() {
                                                 <strong>{index} .</strong>
                                                 <ListItemText sx={{
                                                     textDecorationLine: info.fixed ? "line-through" : "none"
-                                                }} primary={`${t("error.warning-row")} ${info.data.firstName} ${info.data.lastName} ${t("error.warning-row-detail")}`}/>
+                                                }}
+                                                              primary={`${t("error.warning-row")} ${info.data.firstName} ${info.data.lastName} ${t("error.warning-row-detail")}`}/>
                                             </ListItem>))}
                                         </List>
                                     </Collapse>
