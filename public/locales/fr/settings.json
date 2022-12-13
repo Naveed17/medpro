@@ -488,6 +488,7 @@
     "config": {
       "path": "Paramètres > Configuration ",
       "header": "En-tête",
+      "footer": "Bas de page",
       "case1": "Première case",
       "case2": "Deuxième case",
       "case3": "Troisième case",

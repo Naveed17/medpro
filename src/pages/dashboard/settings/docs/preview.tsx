@@ -238,6 +238,10 @@ function PreviewDialog({...props}) {
             if (content) {
                 content.style.height = data.content.maxHeight + 'px'
             }
+
+            const footer = document.getElementById('footer')
+            if (footer && data.footer) footer.innerHTML = data.footer.content;
+
         }
     }, [data])
 
