@@ -34,8 +34,8 @@ import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
-import Preview from "../../../../pages/dashboard/settings/docs/preview";
 import {useReactToPrint} from "react-to-print";
+import Preview from "../../../../pages/dashboard/settings/docs/preview";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
