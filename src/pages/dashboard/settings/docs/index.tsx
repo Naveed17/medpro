@@ -129,7 +129,7 @@ function DocsConfig() {
 
     const {data: httpData} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
