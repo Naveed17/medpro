@@ -13,6 +13,7 @@ import {DialogReducer, dialogMoveAppointmentReducer, dialogPatientDetailReducer}
 import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
 import {AppLockReducer} from "@features/appLock";
+import {DuplicatedReducer} from "@features/duplicateDetected";
 
 export const store = configureStore({
     reducer: {
@@ -34,7 +35,8 @@ export const store = configureStore({
         leftActionBar: leftActionBarReducer,
         dashLayout: DashLayoutReducer,
         appLock: AppLockReducer,
-        patientDetail: dialogPatientDetailReducer
+        patientDetail: dialogPatientDetailReducer,
+        duplicate: DuplicatedReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
