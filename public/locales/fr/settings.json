@@ -406,6 +406,7 @@
     },
     "path": "Paramètres > Importation de données",
     "title": "Données",
+    "history": "Historiques",
     "type": "Type de données",
     "type-placeholder": "Choisissez votre type de données",
     "file": "Fichier",
