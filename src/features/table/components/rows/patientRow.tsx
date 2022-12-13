@@ -5,7 +5,7 @@ import {
     Checkbox,
     Button,
     IconButton,
-    Skeleton, Stack, useTheme
+    Skeleton, Stack
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -16,13 +16,11 @@ import {onOpenPatientDrawer} from "@features/table";
 import WomenIcon from "@themes/overrides/icons/womenIcon";
 import MenIcon from "@themes/overrides/icons/menIcon";
 import {countries} from "@features/countrySelect/countries";
-import Image from "next/image";
 import React from "react";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
     const dispatch = useAppDispatch();
-    const theme = useTheme();
 
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
@@ -197,7 +195,7 @@ function PatientRow({...props}) {
                 <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
-                    ) : row.latestAppointment?.dayDate ? (
+                    ) : row.previousAppointments?.dayDate ? (
                         <>
                             <IconButton size="small">
                                 <Icon path="ic-historique"/>
@@ -214,7 +212,7 @@ function PatientRow({...props}) {
                                     ) : (
                                         <>
                                             <Icon path="ic-agenda"/>
-                                            {row.latestAppointment?.dayDate || "-"}
+                                            {row.previousAppointments?.dayDate || "-"}
                                         </>
                                     )}
                                 </Typography>
@@ -236,7 +234,7 @@ function PatientRow({...props}) {
                                     ) : (
                                         <>
                                             <Icon path="ic-time"/>{" "}
-                                            {row.latestAppointment?.startTime || "-"}
+                                            {row.previousAppointments?.startTime || "-"}
                                         </>
                                     )}
                                 </Typography>
