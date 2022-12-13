@@ -378,6 +378,8 @@
     "price_of_act": "Prix",
     "save": "Enregistrer",
     "newAct": "Nouveau act",
+    "add_act": "Nouveau act",
+    "placeholder_act": "Ex: le nom de l'acte",
     "name": "Nom",
     "price": "Prix",
     "cancel": "Annuler",

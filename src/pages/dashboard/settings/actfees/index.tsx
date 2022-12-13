@@ -332,7 +332,7 @@ function ActFees() {
                             renderOption={(props, option) => <li {...props}>{option.name}</li>}
                             freeSolo
                             renderInput={(params) => (
-                                <TextField {...params} label={t('placeholder_balance_sheet_name')}/>
+                                <TextField {...params} label={t('placeholder_act')}/>
                             )}
                         />
 
