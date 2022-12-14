@@ -25,6 +25,9 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
+import {InputStyled} from "@features/tabPanel";
+import IconUrl from "@themes/urlIcon";
+import {CropImage} from "@features/cropImage";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(4);
@@ -36,6 +39,8 @@ function Consultation() {
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [open, setOpen] = useState(false);
+    const [picture, setPicture] = useState('');
 
     const dispatch = useAppDispatch();
 
@@ -47,21 +52,32 @@ function Consultation() {
             setName(`${patient.firstName} ${patient.lastName}`)
             setLoading(false)
         }
-    }, [dispatch, patient]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setPicture(URL.createObjectURL(file))
+        setOpen(true);
+    };
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <ConsultationStyled>
             <Box className="header">
                 <Box className="about">
-                    <Avatar
-                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2}}
-                        src={
-                            patient?.gender === "M"
-                                ? "/static/icons/men-avatar.svg"
-                                : "/static/icons/women-avatar.svg"
-                        }/>
+                    <label htmlFor="contained-button-file">
+                        <InputStyled
+                            id="contained-button-file"
+                            onChange={(e) => handleDrop(e.target.files as FileList)}
+                            type="file"
+                        />
+                        <Avatar
+                            src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture }
+                            sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2,borderRadius: 2}}>
+                            <IconUrl path="ic-user-profile"/>
+                        </Avatar>
+                    </label>
+
                     <Box>
                         {loading ?
                             <>
@@ -171,6 +187,14 @@ function Consultation() {
                     sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0,}}>
                 {upperFirst(t('patient record'))}
             </Button>*/}
+
+            <CropImage
+                open={open}
+                img={picture}
+                setOpen={setOpen}
+                setPicture={setPicture}
+                setFieldValue={null}
+            />
         </ConsultationStyled>
     );
 }

@@ -55,7 +55,7 @@ function DocsConfig() {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        footer: {show: true, x: 0, y: 140,content:''},
+        footer: {show: false, x: 0, y: 140,content:''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 35},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'Foulen ben foulen', x: 40, y: 55},
@@ -165,8 +165,6 @@ function DocsConfig() {
             },1200)
 
         }
-
-
     }, [httpData, setFieldValue])
 
     const {t, ready} = useTranslation(["settings", "common"], {
@@ -277,9 +275,7 @@ function DocsConfig() {
                                     {files.length === 0 &&
                                         <UploadFile
                                             files={files}
-                                            accept={{
-                                                'image/jpeg': ['.png', '.jpeg', '.jpg']
-                                            }}
+                                            accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
                                             onDrop={handleDrop}
                                             singleFile={true}/>}
 

@@ -11,7 +11,7 @@ const settingsData = {
             name: "acts",
             icon: "ic-generaliste",
             href: "/dashboard/settings/acts",
-            disable: false
+            disable: true
         },
         {
             name: "actfees",
