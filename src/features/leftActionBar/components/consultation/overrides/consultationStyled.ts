@@ -10,7 +10,7 @@ const ConsultationStyled = styled(Box)(({ theme }) => ({
         marginLeft: theme.typography.pxToRem(-10),
     },
     '& .header': {
-        paddingBottom: theme.typography.pxToRem(18),
+        //paddingBottom: theme.typography.pxToRem(18),
         '& .about': {
             display: 'flex',
             alignItems: 'center',

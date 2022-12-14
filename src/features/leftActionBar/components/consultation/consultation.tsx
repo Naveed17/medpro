@@ -14,6 +14,7 @@ import {
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import Content from "./content";
 import {collapse as collapseData} from "./config";
@@ -26,11 +27,10 @@ import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
-import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
 
 function Consultation() {
-    const [collapse, setCollapse] = useState<any>(4);
+    const [collapse, setCollapse] = useState<any>(-1);
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -72,8 +72,8 @@ function Consultation() {
                             type="file"
                         />
                         <Avatar
-                            src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture }
-                            sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2,borderRadius: 2}}>
+                            src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
+                            sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
                             <IconUrl path="ic-user-profile"/>
                         </Avatar>
                     </label>
@@ -129,13 +129,6 @@ function Consultation() {
                         </Typography>
                     </Box>
                 </Box>
-            </Box>
-            <Box style={{
-                display: "flex",
-                alignItems: "center",
-                marginLeft: '-30px',
-                justifyContent: "center"
-            }}>
             </Box>
 
             <Stack spacing={1} mb={1}>
