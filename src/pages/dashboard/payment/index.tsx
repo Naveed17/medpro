@@ -139,7 +139,7 @@ function Payment() {
     const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
-    let [select, setSelect] = useState<any[]>([]);
+    const [select, setSelect] = useState<any[]>([]);
     const [toReceive, setToReceive] = useState(0);
     const {currentDate} = useAppSelector(agendaSelector);
 
@@ -277,7 +277,7 @@ function Payment() {
     const handleChange = (action: string, selected: any, checked: boolean) => {
         let amouts = 0
         if (action === 'checkTransaction') {
-            checked ? select.push(selected) : select = select.filter(trans => trans.uuid !== selected.uuid)
+            checked ? select.push(selected) : setSelect(select.filter(trans => trans.uuid !== selected.uuid));
             select.map(trans => amouts += Number(trans.amount))
             setSelect([...select])
         } else {

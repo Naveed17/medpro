@@ -406,6 +406,7 @@
     },
     "path": "Paramètres > Importation de données",
     "title": "Données",
+    "history": "Historiques",
     "type": "Type de données",
     "type-placeholder": "Choisissez votre type de données",
     "file": "Fichier",
@@ -442,6 +443,12 @@
       "warning-row-detail" : "a été inséré avec des avertissements",
       "warning-insert" : "patients insérés avec des avertissements ont été trouvés",
       "fix-duplication": "Corriger la duplication"
+    },
+    "table": {
+      "name": "Nom",
+      "source": "Source de l'export",
+      "action": "Action",
+      "reset": "réinitialiser les données"
     }
   },
   "appLock": {

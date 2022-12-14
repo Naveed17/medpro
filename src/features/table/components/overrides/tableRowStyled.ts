@@ -169,7 +169,6 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
             }
         }
     },
-
     '.counter-btn': {
         padding: theme.spacing(1),
         alignSelf: 'flex-start',
@@ -202,5 +201,15 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
             }
         }
     },
+    "& .expand-icon": {
+        width: 16,
+        height: 16,
+        border: " 1px solid",
+        borderRadius: 3,
+        marginRight: 8
+    },
+    "& .MuiChip-label": {
+        // color: "white"
+    }
 }));
 export default TableRowStyled;
