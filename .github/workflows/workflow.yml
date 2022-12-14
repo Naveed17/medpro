@@ -90,11 +90,3 @@ jobs:
       SKAFFOLD_KUBE_CONTEXT: ${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
       SKAFFOLD_NAMESPACE: ${{ secrets.SKAFFOLD_NAMESPACE }}
 
-  release:
-    # Dependent on build job when enabled.
-    needs: [CI,CD]
-    if: github.ref == 'refs/heads/main'
-    uses: SmartMedSA/github-workflows/.github/workflows/semantic_release.yml@master
-    secrets:
-      token: ${{ secrets.SMARTMEDBOT_PAT }}
-
