@@ -76,7 +76,6 @@ function ImportDataRow({...props}) {
                                 size="small"
                                 color="error"
                                 startIcon={<RestartAltIcon />}
-                                onClick={() => editMotif(row)}
                                 sx={{mr: 1}}>
                                 {t("table.reset")}
                             </Button>
