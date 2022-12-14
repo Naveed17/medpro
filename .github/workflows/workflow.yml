@@ -52,6 +52,10 @@ jobs:
                 "enable_cd": "true",
                 "environments": "{\"envs\":[{\"name\": \"develop\",\"ws\": \"develop\"}]}"
               },
+              "refs/heads/main": {
+                "enable_cd": "true",
+                "environments": "{\"envs\":[{\"name\": \"master\",\"ws\": \"master\"}]}"
+              },
               "refs/tags/v[1-9].[0-9]+.[0-9]+": {
                 "enable_cd": "true",
                 "environments": "{\"envs\":[{\"name\": \"prod-ma\",\"ws\": \"prod-ma\"} , {\"name\": \"prod-tn\",\"ws\": \"prod-tn\"}]}"
@@ -88,7 +92,7 @@ jobs:
 
   release:
     # Dependent on build job when enabled.
-    needs: [CI]
+    needs: [CI,CD]
     if: github.ref == 'refs/heads/main'
     uses: SmartMedSA/github-workflows/.github/workflows/semantic_release.yml@master
     secrets:

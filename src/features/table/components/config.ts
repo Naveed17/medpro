@@ -131,6 +131,13 @@ const rowsActionsData = [
         (mod) => mod
       )
     ),
+  },{
+    action: "import_data",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/importDataRow").then(
+        (mod) => mod
+      )
+    ),
   },
 ];
 
