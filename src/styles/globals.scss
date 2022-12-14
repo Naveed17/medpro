@@ -246,7 +246,11 @@ fieldset {
 @media print {
   .page {
     margin: 0;
+    size: A5;
     box-shadow: none;
+  }
+  img {
+    display: none;
   }
 }
 .box{

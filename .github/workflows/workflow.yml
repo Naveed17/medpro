@@ -52,6 +52,10 @@ jobs:
                 "enable_cd": "true",
                 "environments": "{\"envs\":[{\"name\": \"develop\",\"ws\": \"develop\"}]}"
               },
+              "refs/heads/main": {
+                "enable_cd": "true",
+                "environments": "{\"envs\":[{\"name\": \"master\",\"ws\": \"master\"}]}"
+              },
               "refs/tags/v[1-9].[0-9]+.[0-9]+": {
                 "enable_cd": "true",
                 "environments": "{\"envs\":[{\"name\": \"prod-ma\",\"ws\": \"prod-ma\"} , {\"name\": \"prod-tn\",\"ws\": \"prod-tn\"}]}"
@@ -85,12 +89,4 @@ jobs:
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
       SKAFFOLD_KUBE_CONTEXT: ${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
       SKAFFOLD_NAMESPACE: ${{ secrets.SKAFFOLD_NAMESPACE }}
-
-  release:
-    # Dependent on build job when enabled.
-    needs: [CI]
-    if: github.ref == 'refs/heads/main'
-    uses: SmartMedSA/github-workflows/.github/workflows/semantic_release.yml@master
-    secrets:
-      token: ${{ secrets.SMARTMEDBOT_PAT }}
 

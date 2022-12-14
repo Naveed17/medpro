@@ -1,316 +1,87 @@
-import React, { ChangeEvent } from "react";
-import { useTranslation } from "next-i18next";
+import React, {ChangeEvent, useState} from "react";
+import {useTranslation} from "next-i18next";
 import {
-  Box,
-  Typography,
-  Radio,
-  Checkbox,
-  List,
-  ListSubheader,
-  ListItem,
-  Stack,
+    Box,
+    List
 } from "@mui/material";
 //utils
-import Icon from "@themes/urlIcon";
-import { RootStyled } from "@features/duplicateDetected";
+import RootStyled from "./overrides/rootStyled";
 import {LoadingScreen} from "@features/loadingScreen";
+import {FormikProvider, Form, useFormik} from "formik";
+import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
-function DuplicateDetected({ ...props }) {
-  const { data: modalData } = props;
-  const [selectedValue, setSelectedValue] = React.useState<string>("1");
-  const [fields, setFields] = React.useState<string[]>([]);
-  const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
-    setSelectedValue(event.target.value);
-  };
-  const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = event.target;
-    setFields(checked ? [...fields, name] : fields.filter((el) => el !== name));
-  };
-  const { t, ready } = useTranslation("patient");
-  if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-  return (
-    <RootStyled>
-      <Box className="modal-body">
-        <List className="list-main">
-          {Array.from({ length: 3 }, (_, i) => (
-            <ListItem
-              key={Math.random()}
-              className={`list-item ${i > 0 ? "except" + i : "first"}`}
-            >
-              <List className="child-list-main">
-                {i > 0 ? (
-                  <ListSubheader
-                    disableSticky
-                    disableGutters
-                    className="list-subheader"
-                  >
-                    <Radio
-                      checked={selectedValue === `${i}`}
-                      onChange={handleChangeColumn}
-                      value={`${i}`}
-                      name={`radio-${i}`}
-                    />
-                    {t("add-patient.dialog.selected")}
-                  </ListSubheader>
-                ) : (
-                  <ListSubheader
-                    disableSticky
-                    disableGutters
-                    className="list-subheader first"
-                  >
-                    {t("add-patient.dialog.selected")}
-                  </ListSubheader>
-                )}
+function DuplicateDetected({...props}) {
+    const {data, translationKey = "patient"} = props;
+    const {data: duplicatedPatients, key} = data;
+    const dispatch = useAppDispatch();
+    const {fields: duplicatedFields, patient} = useAppSelector(duplicatedSelector);
+    const [selectedValue, setSelectedValue] = useState<string>("1");
+    const [fields, setFields] = useState<string[]>(duplicatedFields);
 
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`gender-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`gender-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("filter.gender")}
-                    </Typography>
-                    {modalData.gender === "" ? (
-                      <Typography>--</Typography>
-                    ) : (
-                      <Typography sx={{ textTransform: "capitalize" }}>
-                        {modalData.gender}
-                      </Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`name-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`name-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.name")}
-                    </Typography>
-                    <Typography sx={{ textTransform: "capitalize" }}>
-                      {modalData.name}
-                    </Typography>
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`firstName-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`firstName-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.first-name")}
-                    </Typography>
-                    <Typography sx={{ textTransform: "capitalize" }}>
-                      {modalData.firstName}
-                    </Typography>
-                  </Stack>
-                </ListItem>
-                <ListItem
-                  sx={{
-                    borderBottom: 1,
-                    borderColor: "divider",
-                    bgcolor: (theme) => theme.palette.error.lighter,
-                    "& .react-svg": { ml: "auto" },
-                  }}
-                >
-                  <Checkbox
-                    checked={fields.includes(`dob-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`dob-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.date-of-birth")}
-                    </Typography>
-                    <Typography>
-                      {modalData.dob.day}/{modalData.dob.month}/
-                      {modalData.dob.year}
-                    </Typography>
-                  </Stack>
-                  <Icon path="danger" />
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`phone-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`phone-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.telephone")}
-                    </Typography>
-                    <Typography>{modalData.phone}</Typography>
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`region-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`region-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                      mb={0.56}
-                    >
-                      {t("add-patient.region")}
-                    </Typography>
-                    {modalData.region === "" ? (
-                      <Typography>--</Typography>
-                    ) : (
-                      <Typography>{modalData.region}</Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`address-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`address-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.address")}
-                    </Typography>
-                    {modalData.address === "" ? (
-                      <Typography>--</Typography>
-                    ) : (
-                      <Typography>{modalData.address}</Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`insurance-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`insurance-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.assurance")}
-                    </Typography>
-                    {modalData.insurance?.length > 0 ? (
-                      modalData.insurance?.map(
-                        (assurance: { name: string; number: number }) => (
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            key={Math.random()}
-                          >
-                            <Typography>{assurance.name}</Typography>:
-                            <Typography>{assurance.number}</Typography>
-                          </Stack>
-                        )
-                      )
-                    ) : (
-                      <Typography>--</Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-                <ListItem sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <Checkbox
-                    checked={fields.includes(`email-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`email-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.email")}
-                    </Typography>
-                    {modalData.email === "" ? (
-                      <Typography>--</Typography>
-                    ) : (
-                      <Typography>{modalData.email}</Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-                <ListItem>
-                  <Checkbox
-                    checked={fields.includes(`cin-${i}`)}
-                    onChange={handleChangeFiled}
-                    name={`cin-${i}`}
-                    sx={{ mr: 1 }}
-                  />
-                  <Stack>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      component="p"
-                      gutterBottom
-                    >
-                      {t("add-patient.cin")}
-                    </Typography>
-                    {modalData.cin === "" ? (
-                      <Typography>--</Typography>
-                    ) : (
-                      <Typography>{modalData.cin}</Typography>
-                    )}
-                  </Stack>
-                </ListItem>
-              </List>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </RootStyled>
-  );
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: (patient ? patient : duplicatedPatients[0]) as PatientImportModel,
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
+            console.log(values);
+        },
+    });
+
+    const {
+        values,
+        errors,
+        touched,
+        handleSubmit,
+        getFieldProps,
+        setFieldValue,
+        resetForm
+    } = formik;
+
+    const handleChangeColumn = (event: ChangeEvent<HTMLInputElement>) => {
+        setSelectedValue(event.target.value);
+    };
+
+    const handleChangeFiled = (event: ChangeEvent<HTMLInputElement>) => {
+        const {name, checked} = event.target;
+        const filteredFields = [...fields];
+        const checkedFiled = filteredFields.findIndex((el) => el.includes(name.split("-")[0]));
+        if (checkedFiled !== -1) {
+            filteredFields.splice(checkedFiled, 1)
+        }
+        const updatedFields = checked ? [...filteredFields, name] : fields.filter((el) => el !== name)
+        setFields(updatedFields);
+
+        let updatedPatient = values;
+        if (checked) {
+            const updatedFieldName = name.split("-")[0];
+            const updatedFieldIndex = parseInt(name.split("-")[1]);
+            setFieldValue(updatedFieldName, duplicatedPatients[updatedFieldIndex][updatedFieldName]);
+            updatedPatient = {...values, [updatedFieldName]: duplicatedPatients[updatedFieldIndex][updatedFieldName]};
+        }
+
+        dispatch(setDuplicated({fields: updatedFields, patient: updatedPatient}));
+    };
+
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: "config"});
+
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
+    return (
+        <RootStyled>
+            <FormikProvider value={formik}>
+                <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
+                    <Box className="modal-body">
+                        <List className="list-main">
+                            <DuplicatedRow {...{t, fields}} index={"init"} modalData={values}/>
+                            {duplicatedPatients.map((duplicated: any, index: number) =>
+                                <DuplicatedRow {...{index, t, fields, handleChangeFiled}} key={index}
+                                               modalData={duplicated}/>)}
+                        </List>
+                    </Box>
+                </Form>
+            </FormikProvider>
+        </RootStyled>
+    );
 }
-export default DuplicateDetected;
+
+export default React.memo(DuplicateDetected);

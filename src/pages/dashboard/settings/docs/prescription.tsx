@@ -5,7 +5,7 @@ import moment from "moment";
 import {Box} from "@mui/material";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values, state,loading} = props;
+    const {eventHandler, data, pages, id, values, state,loading,title} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
 
@@ -37,7 +37,7 @@ const Prescription = ({...props}) => {
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                             <div style={{width: "100%", border: '0 solid red', textAlign: "center", height: '6mm'}}>
                                 {data.title.show && <div
-                                    className="handle">{data.title.content}</div>}
+                                    className="handle">{title}</div>}
                             </div>
                         </Draggable>
 

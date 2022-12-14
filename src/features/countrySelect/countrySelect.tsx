@@ -48,7 +48,7 @@ function CountrySelect({...props}) {
                 <MenuItem  {...props}>
                     <Image
                         loading="lazy"
-                        width={20}
+                        width={24}
                         height={14}
                         style={{marginLeft: 2}}
                         src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
@@ -62,8 +62,8 @@ function CountrySelect({...props}) {
                     <InputAdornment position="start">
                         <Image
                             loading="lazy"
-                            width={20}
-                            height={14}
+                            width={24}
+                            height={16}
                             src={`https://flagcdn.com/${state && state.code.toLowerCase()}.svg`}
                             alt={state && state.label}
                         />

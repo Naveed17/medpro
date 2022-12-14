@@ -19,10 +19,10 @@ import {
     IconButton,
     List,
     ListItem,
-    ListItemText,
+    ListItemText, Skeleton,
     Stack,
-    TextField,
-    Typography
+    TextField, Tooltip,
+    Typography, useTheme
 } from "@mui/material";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
@@ -31,15 +31,17 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import Preview from "./preview";
+import Zoom from "@mui/material/Zoom";
 function DocsConfig() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
-
+    const theme = useTheme();
     const [files, setFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({
@@ -74,6 +76,7 @@ function DocsConfig() {
             let reader = new FileReader();
             reader.onload = (ev) => {
                 data.background.content = (ev.target?.result as string)
+                data.background.show = true;
                 setData({...data})
             }
             reader.readAsDataURL(acceptedFiles[0]);
@@ -116,11 +119,11 @@ function DocsConfig() {
 
     const {data: httpData} = useRequest({
         method: "GET",
-        url: `/api/medical-professional/${medical_professional.uuid}/documents_header/${router.locale}`,
+        url: `/api/medical-professional/${medical_professional?.uuid}/documents_header/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    });
+    },SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpData) {
@@ -139,22 +142,20 @@ function DocsConfig() {
                 setData(docInfo.data)
 
 
-            setLoading(false)
-
-            console.log(docInfo)
+            setTimeout(()=>{
+               setLoading(false)
+            },1000)
 
         }
 
 
     }, [httpData, setFieldValue])
 
-
     const {t, ready} = useTranslation(["settings", "common"], {
         keyPrefix: "documents.config",
     });
 
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
-        console.log(location.x, location.y)
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
@@ -162,6 +163,7 @@ function DocsConfig() {
 
     const save = () => {
         const form = new FormData();
+        data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
         trigger({
             method: "PATCH",
@@ -205,9 +207,18 @@ function DocsConfig() {
                                 <Typography fontSize={16}>
                                     {t('proprety')}
                                 </Typography>
-                                <IconButton color={"primary"} onClick={printNow}>
-                                    <LocalPrintshopRoundedIcon/>
-                                </IconButton>
+                                <Stack direction={"row"}>
+                                    <Tooltip title={t("preview")} TransitionComponent={Zoom}>
+                                        <IconButton onClick={printNow} sx={{border: "1px solid", mr: 1, borderRadius: 2, color: theme.palette.grey[400]}}>
+                                            <LocalPrintshopRoundedIcon style={{color:theme.palette.grey[400],fontSize:16}}/>
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title={t("save")} TransitionComponent={Zoom}>
+                                        <IconButton onClick={save} sx={{border: "1px solid", mr: 1,borderRadius: 2, color:"primary.main"}}>
+                                            <SaveRoundedIcon color={"primary"} style={{fontSize:16}}/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Stack>
                             </Stack>
 
                             <List
@@ -239,7 +250,6 @@ function DocsConfig() {
                                     <Checkbox
                                         checked={data.background.show}
                                         onChange={(ev) => {
-                                            console.log(ev.target.checked)
                                             data.background.show = ev.target.checked;
                                             setData({...data})
                                         }}
@@ -273,7 +283,6 @@ function DocsConfig() {
                                     <Checkbox
                                         checked={data.header.show}
                                         onChange={(ev) => {
-                                            console.log(ev.target.checked)
                                             data.header.show = ev.target.checked;
                                             setData({...data})
                                         }}
@@ -364,13 +373,13 @@ function DocsConfig() {
                                     <Checkbox
                                         checked={data.title.show}
                                         onChange={(ev) => {
-                                            console.log(ev.target.checked)
                                             data.title.show = ev.target.checked;
                                             setData({...data})
                                         }}
                                     />
                                     <ListItemText primary={t("title")}/>
                                 </ListItem>
+{/*
                                 <Collapse in={data.title.show} timeout="auto" unmountOnExit>
                                     <fieldset>
                                         <legend>{t('configTitle')}</legend>
@@ -390,13 +399,13 @@ function DocsConfig() {
                                             : {data.title.x} , y : {data.title.y}</Typography>
                                     </fieldset>
                                 </Collapse>
+*/}
 
                                 {/*Date*/}
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
                                         checked={data.date.show}
                                         onChange={(ev) => {
-                                            console.log(ev.target.checked)
                                             data.date.show = ev.target.checked;
                                             setData({...data})
                                         }}
@@ -451,26 +460,18 @@ function DocsConfig() {
                                             : {data.patient.x} , y : {data.patient.y}</Typography>
                                     </fieldset>
                                 </Collapse>
-
-                                {/*Save Button*/}
-                                <Stack justifyContent="flex-end" marginTop={1}>
-                                    <Button
-                                        variant="contained"
-                                        color="success"
-                                        onClick={save}
-                                        sx={{ml: "auto"}}>
-                                        {t("save")}
-                                    </Button>
-                                </Stack>
                             </List>
                         </Box>
                     </Grid>
 
                     <Grid item md={7}>
                         {<Box padding={2}>
-                            <Box style={{width: '148mm', margin: 'auto'}}>
+                            <Box style={{width: '148mm', margin: 'auto',paddingTop:20}}>
                                 <Box ref={componentRef}>
                                     <Preview  {...{eventHandler, data, values,loading}} />
+                                    {loading && <div className={"page"} style={{padding: 20}}>
+                                        {Array.from(Array(30)).map((item,key) => (<Skeleton key={key}></Skeleton>))}
+                                    </div>}
                                 </Box>
                             </Box>
 

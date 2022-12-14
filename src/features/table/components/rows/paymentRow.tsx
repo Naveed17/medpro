@@ -1,18 +1,19 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Collapse, IconButton, Link, Skeleton, Stack, Table, TableRow, Typography,} from "@mui/material";
+import {Checkbox, Collapse, IconButton, Link, Skeleton, Stack, Table, TableRow, Typography} from "@mui/material";
 import {addBilling, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {alpha, Theme} from '@mui/material/styles';
 import Image from "next/image";
-import {Label} from '@features/label'
-import {useEffect, useState} from 'react'
+import {Label} from '@features/label';
+import {useEffect, useState} from 'react';
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
-    const [selected, setSelected] = useState<any>([])
+    const [selected, setSelected] = useState<any>([]);
+
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly string[] = [];
@@ -26,15 +27,18 @@ function PaymentRow({...props}) {
         }
         setSelected(newSelected);
     };
+
     useEffect(() => {
         if (!isItemSelected) {
             setSelected([])
         }
     }, [isItemSelected])
+
     useEffect(() => {
         dispatch(addBilling(selected))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected])
+
     return (
         <>
             <TableRowStyled

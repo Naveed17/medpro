@@ -114,6 +114,11 @@ function DocumentDetailDialog({...props}) {
             disabled: state.type === 'photo'
         },
         {
+            title: 'settings',
+            icon: "ic-setting",
+            disabled: state.type === 'photo'
+        },
+        {
             title: 'download',
             icon: "ic-dowlaodfile"
         },
@@ -250,9 +255,10 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (httpHeaderData) {
             const docInfo = (httpHeaderData as HttpResponse).data
-            if ((docInfo.length !== undefined))
+            if (!docInfo.header)
                 handleClickOpen();
             else {
+                setOpenAlert(false);
                 setData(docInfo.data)
                 setHeader(docInfo.header)
                 setLoading(false)
@@ -261,7 +267,7 @@ function DocumentDetailDialog({...props}) {
     }, [httpHeaderData])
 
     const handlePrint = () => {
-        state.type === 'prescription' ? printNow() : printJS({printable: file, type: 'pdf', showModal: true})
+        printNow()
     }
 
     const printNow = useReactToPrint({
@@ -320,7 +326,9 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (file) {
+                printNow()
+
+                /*if (file) {
                     fetch(file).then(response => {
                         response.blob().then(blob => {
                             const fileURL = window.URL.createObjectURL(blob);
@@ -333,8 +341,12 @@ function DocumentDetailDialog({...props}) {
                     })
                 } else {
                     alert('no file to download')
-                }
+                }*/
                 break;
+            case "settings":
+                router.push("/dashboard/settings/docs").then(() => {})
+                break;
+
             default:
                 break;
         }
@@ -377,39 +389,22 @@ function DocumentDetailDialog({...props}) {
                 <RequestedMedicalImaging data={state}/>}
 
             {state.type === 'fees' && <Fees data={state}></Fees>}
-            <Grid container spacing={5}>
+            <Grid container>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
-                        {state.type !== 'photo' && state.type !== 'prescription' && <Box sx={{
-                            '.react-pdf__Page': {
-                                marginBottom: 1,
-                                '.react-pdf__Page__canvas': {
-                                    mx: 'auto',
-                                }
-                            }
-                        }}>
-                            <Document ref={
-                                componentRef} file={file} onLoadSuccess={onDocumentLoadSuccess}
-                            >
-                                {Array.from(new Array(numPages), (el, index) => (
-                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                ))}
-
-                            </Document>
-                        </Box>
-                        }
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
-                        {state.type === 'prescription' &&
+                        {state.type !== 'photo' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    {!loading && <Preview  {...{eventHandler, data, values:header,state}} />}
+                                    <Preview  {...{eventHandler, data, values:header,state,loading,t}} />
+                                    {loading && <div className={"page"}></div>}
                                 </Box>
                             </Box>
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={4} className="sidebar">
+                <Grid item xs={12} md={4} className="sidebar" color={"white"} style={{background:"white"}}>
                     <List>
                         {
                             actionButtons.map((button, idx) =>
