@@ -1,24 +1,19 @@
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton, TableRow, Collapse, Table, Checkbox, Chip} from "@mui/material";
+import {Typography, Box, Stack, Skeleton, TableRow, Collapse, Table, Chip} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table";
-import {useAppDispatch} from "@app/redux/hooks";
-import {editUser} from "@features/table";
 import {uniqueId} from "lodash";
 import {Theme} from "@mui/material/styles";
 import {useState} from "react";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ErrorIcon from '@mui/icons-material/Error';
 import HelpIcon from '@mui/icons-material/Help';
 
 function ImportDataRow({...props}) {
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const {pathname, locale} = router;
-    const {row, labelId, handleClick, loading = false, t, editMotif} = props;
+    const {row, loading = false, t, editMotif} = props;
     const [expanded, setExpanded] = useState(false);
 
     return (
@@ -79,24 +74,11 @@ function ImportDataRow({...props}) {
                             <Button
                                 variant="text"
                                 size="small"
-                                color="primary"
-                                startIcon={<IconUrl path="setting/edit"/>}
-                                onClick={() => {
-                                    dispatch(editUser(row));
-                                    router.push(`${pathname}/${row.uuid}`, undefined, {
-                                        locale,
-                                    });
-                                }}>
-                                {t("table.update")}
-                            </Button>
-                            <Button
-                                variant="text"
-                                size="small"
                                 color="error"
-                                startIcon={<IconUrl path="setting/icdelete"/>}
+                                startIcon={<RestartAltIcon />}
                                 onClick={() => editMotif(row)}
                                 sx={{mr: 1}}>
-                                {t("table.remove")}
+                                {t("table.reset")}
                             </Button>
                         </Box>
                     ) : (

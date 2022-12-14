@@ -443,6 +443,12 @@
       "warning-row-detail" : "a été inséré avec des avertissements",
       "warning-insert" : "patients insérés avec des avertissements ont été trouvés",
       "fix-duplication": "Corriger la duplication"
+    },
+    "table": {
+      "name": "Nom",
+      "source": "Source de l'export",
+      "action": "Action",
+      "reset": "réinitialiser les données"
     }
   },
   "appLock": {
