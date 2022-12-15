@@ -65,7 +65,7 @@
       "year": "Année",
       "date-error": "Ce champ est obligatoire",
       "telephone": "Numéro de téléphone",
-      "telephone-error": "Ce champ est obligatoire",
+      "telephone-error": "Le numéro de téléphone est obligatoire",
       "cancel": "Annuler",
       "next": "Suivant",
       "region": "Région",

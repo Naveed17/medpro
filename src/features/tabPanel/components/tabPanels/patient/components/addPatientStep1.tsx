@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from "react";
+import React, {ChangeEvent, memo} from "react";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
 import {
@@ -14,16 +14,23 @@ import {
     Button,
     Select,
     Stack,
-    FormHelperText, MenuItem,
+    FormHelperText, MenuItem, IconButton,
 } from "@mui/material";
 import {addPatientSelector, onAddPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import dynamic from "next/dynamic";
 import {LoadingScreen} from "@features/loadingScreen";
+import Icon from "@themes/urlIcon";
+import AddIcCallTwoToneIcon from '@mui/icons-material/AddIcCallTwoTone';
+import {CountrySelect} from "@features/countrySelect";
 
-const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+export const PhoneCountry: any = memo(({...props}) => {
+    return (
+        <CountrySelect {...props}/>
+    );
+})
+PhoneCountry.displayName = "Phone country";
 
 function AddPatientStep1({...props}) {
     const {
@@ -38,11 +45,6 @@ function AddPatientStep1({...props}) {
     const {stepsData} = useAppSelector(addPatientSelector);
     const dispatch = useAppDispatch();
 
-    const [selectedCountry, setSelectedCountry] = React.useState<any>({
-        code: "TN",
-        label: "Tunisia",
-        phone: "+216"
-    });
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
@@ -58,10 +60,18 @@ function AddPatientStep1({...props}) {
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
             .required(t("last-name-error")),
-        phone: Yup.string()
-            .min(8, t("telephone-error"))
-            .matches(phoneRegExp, t("telephone-error"))
-            .required(t("telephone-error")),
+        phones: Yup.array().of(
+            Yup.object().shape({
+                phone: Yup.string()
+                    .min(8, t("telephone-error"))
+                    .matches(phoneRegExp, t("telephone-error"))
+                    .required(t("telephone-error")),
+                dial: Yup.object().shape({
+                    code: Yup.string(),
+                    label: Yup.string(),
+                    phone: Yup.string(),
+                })
+            })),
         gender: Yup.string().required(t("gender-error"))
     });
 
@@ -81,8 +91,15 @@ function AddPatientStep1({...props}) {
                     year: selectedPatient.birthdate.split("-")[2] as string,
                 }
                 : stepsData.step1.birthdate,
-            phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
-                selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value : "",
+            phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
+                [{
+                    phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
+                    dial: {
+                        code: "TN",
+                        label: "Tunisia",
+                        phone: "+216"
+                    }
+                }] : stepsData.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : stepsData.step1.gender,
@@ -96,12 +113,30 @@ function AddPatientStep1({...props}) {
         },
     });
 
-    const handleChange = (event: ChangeEvent | null, values: object) => {
-        onNext(1);
-        dispatch(onAddPatient({...stepsData, step1: {...values, country_code: selectedCountry}}));
+    const handleAddPhone = () => {
+        const phones = [...values.phones, {
+            phone: "",
+            dial: {
+                code: "TN",
+                label: "Tunisia",
+                phone: "+216"
+            }
+        }];
+        formik.setFieldValue("phones", phones);
     };
 
-    const {handleSubmit, touched, errors, getFieldProps} = formik;
+    const handleRemovePhone = (index: number) => {
+        const phones = [...values.phones];
+        phones.splice(index, 1);
+        setFieldValue("phones", phones);
+    };
+
+    const handleChange = (event: ChangeEvent | null, values: object) => {
+        onNext(1);
+        dispatch(onAddPatient({...stepsData, step1: values}));
+    };
+
+    const {handleSubmit, values, touched, errors, getFieldProps, setFieldValue} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -308,50 +343,81 @@ function AddPatientStep1({...props}) {
                         </Stack>
                     </Box>
                     <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("telephone")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <Grid container spacing={2}>
-                            <Grid item md={6} lg={4} xs={12}>
-                                <CountrySelect
-                                    initCountry={{
-                                        code: "TN",
-                                        label: "Tunisia",
-                                        phone: "+216"
-                                    }}
-                                    onSelect={(state: any) => {
-                                        setSelectedCountry(state);
-                                    }}/>
-                            </Grid>
-                            <Grid item md={6} lg={8} xs={12}>
-                                <TextField
-                                    variant="outlined"
-                                    size="small"
-                                    {...getFieldProps("phone")}
-                                    error={Boolean(touched.phone && errors.phone)}
-                                    fullWidth
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                {selectedCountry?.phone}
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-                        </Grid>
-                        {touched.phone && errors.phone && (
-                            <FormHelperText error sx={{px: 2, mx: 0}}>
-                                {touched.phone as any && errors.phone as any}
-                            </FormHelperText>
+                        {values.phones.map((phoneObject, index: number) =>
+                            <Box key={index} mb={2}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span"
+                                >
+                                    {t("telephone")}{" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} lg={4} xs={12}>
+                                        <PhoneCountry
+                                            initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                            onSelect={(state: any) => setFieldValue(`phones[${index}].dial`, state)}/>
+                                    </Grid>
+                                    <Grid item md={4} lg={7} xs={12}>
+                                        <TextField
+                                            variant="outlined"
+                                            size="small"
+                                            {...getFieldProps(`phones[${index}].phone`)}
+                                            error={Boolean(touched.phones && touched.phones[index] && errors.phones && errors.phones[index])}
+                                            fullWidth
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        {getFieldProps(`phones[${index}].dial`)?.value.phone}
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item md={2} lg={1} xs={12}>
+                                        {index === 0 ? <IconButton
+                                                onClick={handleAddPhone}
+                                                color={"success"}
+                                                className="success-light"
+                                                sx={{
+                                                    mr: 1.5,
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20,
+                                                    },
+                                                }}
+                                            >
+                                                <AddIcCallTwoToneIcon/>
+                                            </IconButton>
+                                            :
+                                            <IconButton
+                                                onClick={() => handleRemovePhone(index)}
+                                                className="error-light"
+                                                sx={{
+                                                    mr: 1.5,
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20,
+                                                        "& path": {
+                                                            fill: (theme) => theme.palette.text.primary,
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                <Icon path="ic-moin"/>
+                                            </IconButton>}
+                                    </Grid>
+                                </Grid>
+                                {touched.phones && touched.phones[index] && errors.phones && errors.phones[index] && (
+                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                        {touched.phones[index].phone as any && (errors.phones[index] as any).phone}
+                                    </FormHelperText>
+                                )}
+                            </Box>
                         )}
                     </Box>
                 </Stack>

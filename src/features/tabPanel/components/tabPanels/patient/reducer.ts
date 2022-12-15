@@ -17,8 +17,14 @@ export const initialPatientState: MenuState = {
                 month: "",
                 year: "",
             },
-            country_code: null,
-            phone: "",
+            phones: [{
+                phone: "",
+                dial: {
+                    code: "TN",
+                    label: "Tunisia",
+                    phone: "+216"
+                }
+            }],
             gender: ""
         },
         step2: {
