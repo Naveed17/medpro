@@ -87,6 +87,7 @@ jobs:
         INGRESS_TARGET=${{ secrets.INGRESS_TARGET }}
         INGRESS_HOST=${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
+        SKAFFOLD_CACHE_ARTIFACTS=false
       SKAFFOLD_KUBE_CONTEXT: ${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
       SKAFFOLD_NAMESPACE: ${{ secrets.SKAFFOLD_NAMESPACE }}
 
