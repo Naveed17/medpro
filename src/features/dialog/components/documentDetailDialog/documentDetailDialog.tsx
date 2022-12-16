@@ -25,7 +25,7 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
-import {Certificat, Fees, Header, Prescription, RequestedAnalysis} from "@features/files";
+import {Certificat, Fees, Header, RequestedAnalysis} from "@features/files";
 import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 import {useAppDispatch} from "@app/redux/hooks";
@@ -35,7 +35,7 @@ import {useSnackbar} from "notistack";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
-import Preview from "../../../../pages/dashboard/settings/docs/preview";
+import Preview from "@features/files/components/preview";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -380,7 +380,6 @@ function DocumentDetailDialog({...props}) {
             {header && <Header data={header}/>}
 
             {state.type === 'write_certif' && <Certificat data={state}/>}
-            {state.type === 'prescription' && <Prescription data={state}/>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}/>}
             {state.type === 'requested-medical-imaging' &&
                 <RequestedMedicalImaging data={state}/>}

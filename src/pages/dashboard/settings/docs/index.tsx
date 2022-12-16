@@ -36,9 +36,9 @@ import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import Preview from "./preview";
 import Zoom from "@mui/material/Zoom";
 import dynamic from "next/dynamic";
+import Preview from "@features/files/components/preview";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
