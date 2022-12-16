@@ -60,5 +60,18 @@ const RootStyled = styled(Stack)(({theme}) => ({
         },
         svg: {height: 16, width: 16},
     },
+    "& .import-avatar": {
+        "& .react-svg": {
+            margin: 0
+        },
+        position: "absolute",
+        borderRadius: 6,
+        bottom: 8,
+        right: 8,
+        zIndex: 1,
+        padding: 0,
+        pointerEvents: "none",
+        background: theme.palette.background.paper
+    }
 }));
 export default RootStyled;

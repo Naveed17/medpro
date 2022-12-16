@@ -4,7 +4,7 @@ import Cropper from "react-easy-crop";
 import {pxToRem} from "@themes/formatFontSize";
 import IconUrl from "@themes/urlIcon";
 import getCroppedImg from "@themes/overrides/getCroppedImg";
-import ModalStyled from "@features/cropImage/components/overrides/modalStyled";
+import ModalStyled from "./overrides/modalStyled";
 import {InputStyled} from "@features/tabPanel";
 
 function CropImage({img, setFieldValue, setPicture, setOpen, open}: any) {

@@ -1,5 +1,5 @@
 //material-ui
-import {Avatar, Badge, Box, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
+import {Avatar, Badge, Box, IconButton, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 
@@ -8,9 +8,7 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
-import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
-import {timerSelector} from "@features/card";
 import {QrCodeScanner} from "@features/qrCodeScanner";
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
@@ -23,7 +21,6 @@ function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
 
     const theme = useTheme();
-    const {isActive} = useAppSelector(timerSelector);
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -34,7 +31,9 @@ function PatientDetailsCard({...props}) {
             console.log("ok", values);
         },
     });
-    const {handleSubmit, values, getFieldProps} = formik;
+
+    const {getFieldProps} = formik;
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
@@ -80,9 +79,17 @@ function PatientDetailsCard({...props}) {
                                     />
                                     <Avatar
                                         src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
-                                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
+                                        sx={{width: 90, height: 90, background: "none"}}
+                                    >
                                         <IconUrl path="ic-user-profile"/>
                                     </Avatar>
+                                    <IconButton
+                                        type="button"
+                                        size={"small"}
+                                        className={"import-avatar"}
+                                    >
+                                        <IconUrl path="ic-return-photo"/>
+                                    </IconButton>
                                 </label>
                             )}
                         </Badge>
