@@ -24,7 +24,6 @@ import {
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
 import {UploadFile} from "@features/uploadFile";
-import {FileuploadProgress} from "@features/fileUploadProgress";
 import {SettingsTabs} from "@features/tabPanel";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
@@ -32,12 +31,17 @@ import Papa from "papaparse";
 import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
-import {Dialog, PatientDetail} from "@features/dialog";
-import {DuplicateDetected, duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
+import {Dialog} from "@features/dialog";
+import {duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import dynamic from "next/dynamic";
+
+const DuplicateDetected = dynamic(() => import("@features/duplicateDetected/components/duplicateDetected"));
+const PatientDetail = dynamic(() => import("@features/dialog/components/patientDetail/components/patientDetail"));
+const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
 const TabData = [
     {
@@ -69,7 +73,7 @@ const headImportDataCells = [
         label: "name",
         align: 'left',
         sortable: true,
-    },{
+    }, {
         id: 'source',
         numeric: false,
         disablePadding: true,
@@ -107,295 +111,18 @@ function ImportData() {
     const [files, setFiles] = useState<any[]>([]);
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
-    const [errorsDuplication, setErrorsDuplication] = useState([
-        {
-            key: "1",
-            row: "324",
-            data: [{
-                "city": "Bizerte",
-                "gender": 1,
-                "number": 2869,
-                "address": null,
-                "contact": "97 234 730",
-                "birthday": {
-                    "date": "1968-05-01 00:00:00.000000",
-                    "timezone": "UTC",
-                    "timezone_type": 3
-                },
-                "lastname": "Ridha",
-                "firstname": "Marnissi",
-                "insurance": {
-                    "insurance": null,
-                    "insuranceNumber": "001157151109",
-                    "insuranceRelation": 0
-                },
-                "profession": null,
-                "maritalStatus": "Marié(e)",
-                "addressedDoctor": "Gheribi riadh"
-            },
-                {
-                    "city": "Bizerte",
-                    "gender": 1,
-                    "number": 522,
-                    "address": "23 576 362",
-                    "contact": null,
-                    "birthday": {
-                        "date": "1968-05-01 00:00:00.000000",
-                        "timezone": "UTC",
-                        "timezone_type": 3
-                    },
-                    "lastname": "Ridha",
-                    "firstname": "Marnissi",
-                    "insurance": {
-                        "insurance": null,
-                        "insuranceNumber": "000065822580",
-                        "insuranceRelation": 0
-                    },
-                    "profession": "SANS PROFESSION",
-                    "maritalStatus": "Marié(e)",
-                    "addressedDoctor": null
-                }],
-            fixed: false
-        }, {
-            key: "2",
-            row: "24",
-            data: [{
-                "city": "Bizerte",
-                "gender": 1,
-                "number": 2869,
-                "address": null,
-                "contact": "97 234 730",
-                "birthday": {
-                    "date": "1968-05-01 00:00:00.000000",
-                    "timezone": "UTC",
-                    "timezone_type": 3
-                },
-                "lastname": "Ahmed",
-                "firstname": "Marnissi",
-                "insurance": {
-                    "insurance": null,
-                    "insuranceNumber": "001157151109",
-                    "insuranceRelation": 0
-                },
-                "profession": null,
-                "maritalStatus": "Marié(e)",
-                "addressedDoctor": "Gheribi riadh"
-            },
-                {
-                    "city": "Bizerte",
-                    "gender": 1,
-                    "number": 522,
-                    "address": "23 576 362",
-                    "contact": null,
-                    "birthday": {
-                        "date": "1968-05-01 00:00:00.000000",
-                        "timezone": "UTC",
-                        "timezone_type": 3
-                    },
-                    "lastname": "Ridha",
-                    "firstname": "Marnissi",
-                    "insurance": {
-                        "insurance": null,
-                        "insuranceNumber": "000065822580",
-                        "insuranceRelation": 0
-                    },
-                    "profession": "SANS PROFESSION",
-                    "maritalStatus": "Marié(e)",
-                    "addressedDoctor": null
-                }],
-            fixed: false
-        }, {
-            key: "3",
-            row: "304",
-            data: [{
-                "city": "Bizerte",
-                "gender": 1,
-                "number": 2869,
-                "address": null,
-                "contact": "97 234 730",
-                "birthday": {
-                    "date": "1968-05-01 00:00:00.000000",
-                    "timezone": "UTC",
-                    "timezone_type": 3
-                },
-                "lastname": "Imed",
-                "firstname": "Marnissi",
-                "insurance": {
-                    "insurance": null,
-                    "insuranceNumber": "001157151109",
-                    "insuranceRelation": 0
-                },
-                "profession": null,
-                "maritalStatus": "Marié(e)",
-                "addressedDoctor": "Gheribi riadh"
-            },
-                {
-                    "city": "Bizerte",
-                    "gender": 1,
-                    "number": 522,
-                    "address": "23 576 362",
-                    "contact": null,
-                    "birthday": {
-                        "date": "1968-05-01 00:00:00.000000",
-                        "timezone": "UTC",
-                        "timezone_type": 3
-                    },
-                    "lastname": "Ridha",
-                    "firstname": "Marnissi",
-                    "insurance": {
-                        "insurance": null,
-                        "insuranceNumber": "000065822580",
-                        "insuranceRelation": 0
-                    },
-                    "profession": "SANS PROFESSION",
-                    "maritalStatus": "Marié(e)",
-                    "addressedDoctor": null
-                }],
-            fixed: false
-        }, {
-            key: "0",
-            row: "124",
-            data: [{
-                "city": "Bizerte",
-                "gender": 1,
-                "number": 2869,
-                "address": null,
-                "contact": "97 234 730",
-                "birthday": {
-                    "date": "1968-05-01 00:00:00.000000",
-                    "timezone": "UTC",
-                    "timezone_type": 3
-                },
-                "lastname": "Karim",
-                "firstname": "Marnissi",
-                "insurance": {
-                    "insurance": null,
-                    "insuranceNumber": "001157151109",
-                    "insuranceRelation": 0
-                },
-                "profession": null,
-                "maritalStatus": "Marié(e)",
-                "addressedDoctor": "Gheribi riadh"
-            },
-                {
-                    "city": "Bizerte",
-                    "gender": 1,
-                    "number": 522,
-                    "address": "23 576 362",
-                    "contact": null,
-                    "birthday": {
-                        "date": "1968-05-01 00:00:00.000000",
-                        "timezone": "UTC",
-                        "timezone_type": 3
-                    },
-                    "lastname": "Ridha",
-                    "firstname": "Marnissi",
-                    "insurance": {
-                        "insurance": null,
-                        "insuranceNumber": "000065822580",
-                        "insuranceRelation": 0
-                    },
-                    "profession": "SANS PROFESSION",
-                    "maritalStatus": "Marié(e)",
-                    "addressedDoctor": null
-                }],
-            fixed: false
-        }]);
-    const [infoDuplication, setInfoDuplication] = useState([
-        {
-            key: "1",
-            row: "324",
-            data: {
-                "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
-                "email": "",
-                "birthdate": "18-04-1962",
-                "firstName": "test ",
-                "lastName": "patient",
-                "gender": "M",
-                "account": null,
-                "address": [],
-                "contact": [
-                    {
-                        "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
-                        "value": "5151515151",
-                        "type": "phone",
-                        "contactType": {
-                            "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
-                            "name": "Téléphone"
-                        },
-                        "isPublic": false,
-                        "isSupport": false,
-                        "isVerified": false,
-                        "description": null,
-                        "code": "+216"
-                    }
-                ],
-                "insurances": [],
-                "isParent": false,
-                "nextAppointment": null,
-                "previousAppointments": {
-                    "uuid": "26795b1a-136d-4375-a9e6-5275293d3b7a",
-                    "type": {
-                        "uuid": "b410fe0a-8715-4fe7-8d57-2c9def51285d",
-                        "name": "Consultation",
-                        "color": "#1BC47D",
-                        "icon": "ic-consultation",
-                        "code": 1
-                    },
-                    "dayDate": "08-12-2022",
-                    "startTime": "09:30",
-                    "endTime": "09:45",
-                    "duration": 15,
-                    "isVip": false,
-                    "status": 1,
-                    "instruction": null,
-                    "consultationReason": null,
-                    "createdAt": "09-12-2022 11:40",
-                    "patient": {
-                        "uuid": "d831a503-8dfa-4c6e-bff0-ac0c32cfb9a6",
-                        "email": "",
-                        "birthdate": "18-04-1962",
-                        "firstName": "test ",
-                        "lastName": "patient",
-                        "gender": "M",
-                        "contact": [
-                            {
-                                "uuid": "a28a4f30-601f-42c6-b95b-4a0355cf4dee",
-                                "value": "5151515151",
-                                "type": "phone",
-                                "contactType": {
-                                    "uuid": "9dea764e-1ba7-4022-b381-c045bf6e321a",
-                                    "name": "Téléphone"
-                                },
-                                "isPublic": false,
-                                "isSupport": false,
-                                "isVerified": false,
-                                "description": null,
-                                "code": "+216"
-                            }
-                        ],
-                        "antecedents": {
-                            "way_of_life": [],
-                            "allergic": [],
-                            "treatment": [],
-                            "family_antecedents": [],
-                            "surgical_antecedents": [],
-                            "medical_antecedents": []
-                        },
-                        "hasAccount": false,
-                        "idCard": ""
-                    },
-                    "overlapEvent": true,
-                    "PatientHasAgendaAppointment": false,
-                    "fees": null
-                },
-                "familyDoctor": "",
-                "hasAccount": false,
-                "idCard": ""
-            },
-            fixed: false
-        }
-    ]);
+    const [errorsDuplication, setErrorsDuplication] = useState<Array<{
+        key: string;
+        row: string;
+        data: Array<PatientImportModel>;
+        fixed: boolean;
+    }>>([]);
+    const [infoDuplication, setInfoDuplication] = useState<Array<{
+        key: string;
+        row: string;
+        data: PatientModel | null;
+        fixed: boolean;
+    }>>([]);
     const [duplicatedData, setDuplicatedData] = useState<any>(null);
     const [fileLength, setFileLength] = useState(0);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
@@ -572,7 +299,8 @@ function ImportData() {
                                                                 <strong>{index} .</strong>
                                                                 <ListItemText sx={{
                                                                     textDecorationLine: error.fixed ? "line-through" : "none"
-                                                                }} primary={`${t("error.duplicated-row")} ${error.row}`}/>
+                                                                }}
+                                                                              primary={`${t("error.duplicated-row")} ${error.row}`}/>
                                                             </ListItem>))}
                                                         </List>
                                                     </Collapse>
@@ -612,7 +340,7 @@ function ImportData() {
                                                                             onClick={(event) => {
                                                                                 event.stopPropagation();
                                                                                 console.log(info)
-                                                                                dispatch(onOpenPatientDrawer({patientId: info?.data.uuid}));
+                                                                                dispatch(onOpenPatientDrawer({patientId: info?.data && info?.data.uuid}));
                                                                                 setPatientDetailDrawer(true);
                                                                             }}
                                                                             color="warning" size="small">
@@ -623,7 +351,7 @@ function ImportData() {
                                                                 <ListItemText sx={{
                                                                     textDecorationLine: info.fixed ? "line-through" : "none"
                                                                 }}
-                                                                              primary={`${t("error.warning-row")} ${info.data.firstName} ${info.data.lastName} ${t("error.warning-row-detail")}`}/>
+                                                                              primary={`${t("error.warning-row")} ${info.data?.firstName} ${info.data?.lastName} ${t("error.warning-row-detail")}`}/>
                                                             </ListItem>))}
                                                         </List>
                                                     </Collapse>
@@ -741,7 +469,7 @@ function ImportData() {
 
                                             <Stack spacing={2} maxWidth={{xs: "100%", md: "100%"}}>
                                                 {files?.map((file: any, index: number) => (
-                                                    <FileuploadProgress
+                                                    <FileUploadProgress
                                                         {...{handleRemove}}
                                                         key={index}
                                                         file={file}
