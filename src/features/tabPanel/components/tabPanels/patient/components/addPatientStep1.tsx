@@ -27,6 +27,7 @@ const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelec
 
 function AddPatientStep1({...props}) {
     const {
+        freeSolo = false,
         onNext,
         onClose,
         OnSubmit = null,
@@ -80,8 +81,8 @@ function AddPatientStep1({...props}) {
                     year: selectedPatient.birthdate.split("-")[2] as string,
                 }
                 : stepsData.step1.birthdate,
-            phone: selectedPatient?.contact.find((contact: ContactModel) => contact.type === "phone") ?
-                selectedPatient?.contact.find((contact: ContactModel) => contact.type === "phone").value : "",
+            phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
+                selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value : "",
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : stepsData.step1.gender,
@@ -107,40 +108,42 @@ function AddPatientStep1({...props}) {
     return (
         <FormikProvider value={formik}>
             <Stack
-                sx={{height: "100%"}}
+                sx={{height: freeSolo ? "auto" : "100%"}}
                 component={Form}
                 autoComplete="off"
                 noValidate
                 onSubmit={handleSubmit}
             >
                 <Stack spacing={2} className="inner-section">
-                    <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 2}}>
-                        {t("personal-info")}
-                    </Typography>
-                    <Box>
-                        <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("gender")} {" "}
-                                <Typography component="span" color="error">
-                                    *
+                    {!freeSolo && <>
+                        <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 2}}>
+                            {t("personal-info")}
+                        </Typography>
+                        <Box>
+                            <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    {t("gender")} {" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
                                 </Typography>
-                            </Typography>
-                            <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
-                                <FormControlLabel
-                                    value={1}
-                                    control={<Radio size="small"/>}
-                                    label={t("mr")}
-                                />
-                                <FormControlLabel
-                                    value={2}
-                                    control={<Radio size="small"/>}
-                                    label={t("mrs")}
-                                />
-                            </RadioGroup>
-                            {(touched.gender && errors.gender) &&
-                                <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
-                        </FormControl>
-                    </Box>
+                                <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
+                                    <FormControlLabel
+                                        value={1}
+                                        control={<Radio size="small"/>}
+                                        label={t("mr")}
+                                    />
+                                    <FormControlLabel
+                                        value={2}
+                                        control={<Radio size="small"/>}
+                                        label={t("mrs")}
+                                    />
+                                </RadioGroup>
+                                {(touched.gender && errors.gender) &&
+                                    <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
+                            </FormControl>
+                        </Box>
+                    </>}
                     <Box>
                         <Typography
                             variant="body2"
@@ -193,7 +196,6 @@ function AddPatientStep1({...props}) {
                             }
                         />
                     </Box>
-
                     <Box>
                         <Typography
                             variant="body2"
@@ -277,9 +279,8 @@ function AddPatientStep1({...props}) {
                                     labelId="demo-simple-select-label"
                                     id={"day"}
                                     {...getFieldProps("birthdate.year")}
-                                    displayEmpty={true}
+                                    displayEmpty
                                     autoFocus
-                                    sx={{color: "text.secondary"}}
                                     renderValue={(value) => {
                                         if (value?.length === 0) {
                                             return <em>{t("year")}</em>;
@@ -354,7 +355,7 @@ function AddPatientStep1({...props}) {
                         )}
                     </Box>
                 </Stack>
-                <Stack
+                {!freeSolo && <Stack
                     spacing={3}
                     direction="row"
                     justifyContent="flex-end"
@@ -370,7 +371,7 @@ function AddPatientStep1({...props}) {
                     <Button variant="contained" type="submit" color="primary">
                         {t("next")}
                     </Button>
-                </Stack>
+                </Stack>}
             </Stack>
         </FormikProvider>
     );
