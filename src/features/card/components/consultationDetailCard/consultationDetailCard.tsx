@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, CardContent, IconButton, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -10,12 +10,19 @@ import {SetExam} from "@features/toolbar/components/consultationIPToolbar/action
 import {consultationSelector} from "@features/toolbar";
 import {pxToRem} from "@themes/formatFontSize";
 import {LoadingScreen} from "@features/loadingScreen";
+import MicRoundedIcon from "@mui/icons-material/MicRounded";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges, uuind} = props
     const {exam} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const dispatch = useAppDispatch();
+
+    const {
+        transcript,
+        listening,
+    } = useSpeechRecognition();
 
     const formik = useFormik({
         initialValues: {
@@ -34,6 +41,10 @@ function CIPPatientHistoryCard({...props}) {
     useEffect(() => {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
+
+    useEffect(()=>{
+        setFieldValue("notes", transcript);
+    },[setFieldValue, transcript])
 
     useEffect(() => {
         if (exam) {
@@ -56,13 +67,17 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={pxToRem(13)} direction="row" alignItems="center" borderBottom={1}
+            <Stack className="card-header" padding={"0.2rem 0.7rem"} direction="row" alignItems="center" justifyContent={"space-between"} borderBottom={1}
                    borderColor="divider">
                 <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
                             fontWeight={600}>
                     <Icon path='ic-edit-file-pen'/>
                     {t("review")}
                 </Typography>
+
+                <IconButton onClick={()=>{listening ?SpeechRecognition.stopListening() : SpeechRecognition.startListening({continuous:true})}}>
+                    <MicRoundedIcon color={listening ?'error':'primary'}/>
+                </IconButton>
             </Stack>
             <CardContent style={{padding: 20}}>
                 <button hidden={true} className={'sub-exam'} onClick={() => {
@@ -153,6 +168,7 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 sx={{color: "text.secondary"}}/>
                         </Box>
+
                         <Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
                                 {t("treatment")}
