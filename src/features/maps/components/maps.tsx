@@ -79,7 +79,7 @@ function Maps({...props}) {
                     attributionControl={false}
                     scrollWheelZoom={false}
                     id="mapId">
-                    <TileLayer url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"/>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
 
                     {draggable && data?.points !== null && <LocationMarker cords={data} editCords={editCords}/>}
 

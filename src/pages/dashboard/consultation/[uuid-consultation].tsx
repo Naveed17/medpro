@@ -37,6 +37,7 @@ import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import {LoadingScreen} from "@features/loadingScreen";
+import {appLockSelector} from "@features/appLock";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -116,6 +117,7 @@ function ConsultationInProgress() {
         {index: 2, name: "requested-medical-imaging", icon: "ic-soura", checked: false},
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
+    const {lock} = useAppSelector(appLockSelector);
 
     const EventStepper = [
         {
@@ -241,7 +243,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (httpDocumentResponse) {
-            const data  = (httpDocumentResponse as HttpResponse).data
+            const data = (httpDocumentResponse as HttpResponse).data
             setDocuments(data);
             changes.map(change => {
                 const item = data.filter((doc: { documentType: string; }) => doc.documentType === change.name)
@@ -605,7 +607,7 @@ function ConsultationInProgress() {
                 uuid: card.uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: card.patient,
+                patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
                 name: 'certif',
                 type: 'write_certif',
@@ -795,7 +797,7 @@ function ConsultationInProgress() {
                     ))}
                 </Stack>
                 <Box pt={8}>
-                    <SubFooter>
+                    {!lock && <SubFooter>
                         <Stack width={1} direction={"row"} alignItems="flex-end"
                                justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
                             {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
@@ -810,6 +812,7 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
+                                        disabled={selectedAct.length === 0}
                                         onClick={() => {
                                             setInfo('document_detail')
                                             setState({
@@ -855,7 +858,7 @@ function ConsultationInProgress() {
                                     : t("end_of_consultation")}
                             </Button>
                         </Stack>
-                    </SubFooter>
+                    </SubFooter>}
                 </Box>
                 <Drawer
                     anchor={"right"}

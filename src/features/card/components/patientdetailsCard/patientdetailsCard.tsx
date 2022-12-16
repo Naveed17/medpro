@@ -1,29 +1,23 @@
 //material-ui
-import {
-    Box,
-    Button,
-    Typography,
-    Badge,
-    Skeleton,
-    InputBase,
-    Stack,
-    useTheme,
-} from "@mui/material";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import {Avatar, Badge, Box, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 
 // utils
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
 import {QrCodeScanner} from "@features/qrCodeScanner";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
+import {InputStyled} from "@features/tabPanel";
+import React, {useState} from "react";
+import {CropImage} from "@features/cropImage";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
@@ -44,6 +38,17 @@ function PatientDetailsCard({...props}) {
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
+
+    const [picture, setPicture] = useState('');
+    const [open, setOpen] = useState(false);
+
+
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setPicture(URL.createObjectURL(file))
+        setOpen(true);
+    };
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -67,17 +72,18 @@ function PatientDetailsCard({...props}) {
                                     sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                 />
                             ) : (
-                                <Box
-                                    component="img"
-                                    src={
-                                        patient?.gender === "M"
-                                            ? "/static/icons/men-avatar.svg"
-                                            : "/static/icons/women-avatar.svg"
-                                    }
-                                    width={pxToRem(59)}
-                                    height={pxToRem(59)}
-                                    sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
-                                />
+                                <label htmlFor="contained-button-file">
+                                    <InputStyled
+                                        id="contained-button-file"
+                                        onChange={(e) => handleDrop(e.target.files as FileList)}
+                                        type="file"
+                                    />
+                                    <Avatar
+                                        src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
+                                        sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
+                                        <IconUrl path="ic-user-profile"/>
+                                    </Avatar>
+                                </label>
                             )}
                         </Badge>
                         <Box mx={1}>
@@ -202,7 +208,7 @@ function PatientDetailsCard({...props}) {
                                 </>
                             )}
                         </Box>
-                       {/* {onConsultation && (
+                        {/* {onConsultation && (
                             <>
                                 {loading ? (
                                     <Skeleton
@@ -241,6 +247,13 @@ function PatientDetailsCard({...props}) {
                     )}
                 </RootStyled>
             </Form>
+            <CropImage
+                open={open}
+                img={picture}
+                setOpen={setOpen}
+                setPicture={setPicture}
+                setFieldValue={null}
+            />
         </FormikProvider>
     );
 }

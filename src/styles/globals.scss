@@ -236,13 +236,15 @@ fieldset {
   height: 80vh;
   overflow-y: scroll
 }
-.page{
-  width:148mm;
-  height:208mm;
+
+.page {
+  width: 148mm;
+  height: 208mm;
   background: white;
   margin-bottom: 10px;
   box-shadow: 0 0 6px #ccc;
 }
+
 @media print {
   .page {
     margin: 0;
@@ -253,7 +255,26 @@ fieldset {
     display: none;
   }
 }
-.box{
+
+.box {
   border: 1px dashed #0096d6;
   padding: 10px;
+}
+
+.ck-editor__editable {
+  height: 30vh;
+  border: 1px solid #dddddd !important;
+  border-top: 0 !important;
+  border-radius: 0 !important;
+  color: hsl(0, 0%, 0%);
+
+}
+
+.resume3Lines {
+  overflow: hidden;
+  text-overflow: 'ellipsis';
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
 }

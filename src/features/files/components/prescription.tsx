@@ -5,7 +5,7 @@ import moment from "moment";
 import {Box} from "@mui/material";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values, state,loading,title} = props;
+    const {eventHandler, data, pages, id, values, state, loading, title} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
 
@@ -24,7 +24,7 @@ const Prescription = ({...props}) => {
                         eventHandler(ev, data, 'header')
                     }}
                                bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
-                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red', height: '35mm'}}>
+                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
                             {data.header.show && <DocHeader data={values}></DocHeader>}
                         </div>
                     </Draggable>
@@ -70,7 +70,7 @@ const Prescription = ({...props}) => {
                             eventHandler(ev, data, 'content')
                         }}
                         bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                        <div style={{width: "100%", padding: '0 10mm', overflowWrap: 'break-word'}}>
+                        <div style={{width: "100%", padding: '0 10mm', overflowWrap: 'break-word',height: `${data.content.maxHeight}px`}}>
                             {state === undefined && <div id={'content' + id} className="box"
                                                          style={{height: `${data.content.maxHeight}px`}}>
                                 {data.content.content}</div>}
@@ -78,6 +78,16 @@ const Prescription = ({...props}) => {
                             {state !== undefined && <div id={id} ref={content}></div>}
                         </div>
                     </Draggable>
+
+                    {data.footer && <Draggable defaultPosition={{x: data.footer.x, y: data.footer.y}}
+                                               onStop={(ev, data) => {
+                                                   eventHandler(ev, data, 'footer')
+                                               }}
+                                               bounds={{left: 0, top: 0, right: 0, bottom: 710}}>
+                        <div style={{padding: "1.5rem 1.5rem 0", width: "100%", border: '0 solid red'}}>
+                            {data.footer.show && <div id={"footer"}></div>}
+                        </div>
+                    </Draggable>}
 
                 </div>}
             </Box>}
