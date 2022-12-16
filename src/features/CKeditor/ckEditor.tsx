@@ -9,7 +9,6 @@ const CkEditor = ({...props}) => {
     });
     const {CKEditor, DecoupledEditor} = editorRef.current || {};
 
-    const data = ''
     return (
         <CKEditor
             onReady={(editor: { ui: { getEditableElement: () => { (): any; new(): any; parentElement: { (): any; new(): any; insertBefore: { (arg0: any, arg1: any): void; new(): any; }; }; }; view: { toolbar: { element: any; }; }; }; }) => {
@@ -25,7 +24,7 @@ const CkEditor = ({...props}) => {
             }}
             onChange={(event: any, editor: any) => onChange(editor.getData())}
             editor={DecoupledEditor}
-            data={data}
+            data={value}
         />
     );
 }

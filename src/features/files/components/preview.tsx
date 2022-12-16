@@ -52,6 +52,7 @@ function PreviewDialog({...props}) {
                         case "prescription":
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
+                                elx.style.maxWidth = "130mm"
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
@@ -83,6 +84,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-analysis":
                             const elx = document.createElement('p');
+                            elx.style.maxWidth = "130mm"
                             elx.append(`• ${el.name}`)
                             rows.push({
                                 value: `• ${el.name}`,
@@ -95,6 +97,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
+                            imgLine.style.maxWidth = "130mm"
                             imgLine.append(`• ${el['medical-imaging'].name}`)
                             rows.push({
                                 value: `• ${el['medical-imaging'].name}`,
@@ -106,15 +109,23 @@ function PreviewDialog({...props}) {
                             setTitle("Imagerie médicale");
                             break;
                         case "write_certif":
-                            const certifLine = document.createElement('p');
-                            certifLine.append(`• ${el.name}`)
-                            rows.push({
-                                value: el.name,
-                                name: "name",
-                                element: "p",
-                                style: {}
+                            const certifLine = document.createElement('div');
+                            certifLine.style.maxWidth = "130mm"
+                            var parser = new DOMParser();
+                            var noeuds = parser.parseFromString(el.name, 'text/html').getElementsByTagName('body')[0];
+
+                            noeuds.childNodes.forEach(item =>{
+                                rows.push({
+                                    value: item,
+                                    name: "name",
+                                    element: "div",
+                                    style: {}
+                                })
+                                certifLine.append(item.cloneNode(true))
+
                             })
-                            pageX.appendChild(certifLine)
+
+                                pageX.appendChild(certifLine)
                             setTitle("CERTIFICAT MEDICAL");
                             break;
                         case "fees":
@@ -148,25 +159,25 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width ='130mm';
+                elx.style.width = '130mm';
 
                 const header = document.createElement("tr");
                 header.innerHTML = `<td style="text-align: left !important;">ACTE</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
-                header.style.fontSize= "12px"
-                header.style.fontWeight="bold"
-                header.style.textAlign="center"
+                header.style.fontSize = "12px"
+                header.style.fontWeight = "bold"
+                header.style.textAlign = "center"
                 elx.appendChild(header)
 
-                if (state.consultationFees > 0){
+                if (state.consultationFees > 0) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<td style="text-align: left !important;">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
                     elx.appendChild(line)
-                    total+= state.consultationFees;
+                    total += state.consultationFees;
                 }
                 for (let i = lastPos; i < rows.length; i++) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<tr><td style="text-align: left !important;">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
-                    line.style.textAlign="center"
+                    line.style.textAlign = "center"
                     elx.appendChild(line)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
@@ -174,19 +185,20 @@ function PreviewDialog({...props}) {
                         lastPos = i + 1;
                         break;
                     }
-                    total+=rows[i].value.total
+                    total += rows[i].value.total
                 }
 
                 const tt = document.createElement("tr");
 
                 tt.innerHTML = `<td style="text-align: left !important;">Total</td><td></td><td></td><td>${total} <span style="font-size: 10px;color: gray">${devise}</span></td>`
-                tt.style.fontWeight="bold"
-                tt.style.textAlign="center"
+                tt.style.fontWeight = "bold"
+                tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
-            } else {
+            } else  {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
+                    elx.style.maxWidth = "130mm"
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
@@ -226,6 +238,10 @@ function PreviewDialog({...props}) {
             if (content) {
                 content.style.height = data.content.maxHeight + 'px'
             }
+
+            const footer = document.getElementById('footer')
+            if (footer && data.footer) footer.innerHTML = data.footer.content;
+
         }
     }, [data])
 

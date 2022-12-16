@@ -61,7 +61,7 @@ function SecretaryConsultationDialog({...props}) {
                             }}
                         />
                         <Stack direction={"row"} alignItems={"center"}>
-                            <Typography mr={1}>Montant a payé : </Typography>
+                            <Typography mr={1}>Montant à payer : </Typography>
 
                             <Label
                                 variant="filled"

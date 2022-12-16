@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
+import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, Typography, useMediaQuery,} from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
 import {useTranslation} from "next-i18next";
@@ -19,8 +19,13 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Recorder from "recorder-js";
+import MicRoundedIcon from '@mui/icons-material/MicRounded';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 function ConsultationIPToolbar({...props}) {
+
+
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
@@ -55,6 +60,7 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState<string>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
+    const [isRecording, setIsRecording] = useState<boolean>(false);
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
@@ -99,6 +105,42 @@ function ConsultationIPToolbar({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
+
+    /*dictaphone*/
+    const audioContext = new window.AudioContext();
+    let audioBlob = null;
+
+
+    /*dictaphone*/
+
+    const startRecording = () => {
+        const recorder = new Recorder(audioContext, {
+            onAnalysed: data => {
+
+            },
+        });
+        navigator.mediaDevices.getUserMedia({audio: true})
+            .then(stream => recorder.init(stream))
+            .catch(err => console.log('Uh oh... unable to get stream...', err));
+
+        setTimeout(() => {
+
+            if (!isRecording)
+                recorder.start().then(() => {
+                    setIsRecording(true)
+                    console.log("started")
+                })
+            else {
+                recorder.stop()
+                    .then(({blob, buffer}) => {
+                        audioBlob = blob;
+                        Recorder.download(blob, 'my-audio-file'); // downloads a .wav file
+                        setIsRecording(false);
+                    });
+            }
+        }, 500)
+
+    }
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -274,7 +316,6 @@ function ConsultationIPToolbar({...props}) {
 
                 break;
         }
-
 
 
         setlabel("documents");
@@ -557,6 +598,11 @@ function ConsultationIPToolbar({...props}) {
                                 handleOpen();
                             }}>
                             {isMobile ? <IconUrl path="ic-agenda"/> : t("RDV")}
+                        </Button>*/}
+
+                        {/*<Button onClick={startRecording}>
+                            <MicRoundedIcon/>
+                            {isRecording && <Typography>00:00</Typography>}
                         </Button>*/}
                         <Button
                             sx={{minWidth: 35}}

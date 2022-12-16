@@ -18,25 +18,24 @@ import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
-import {Document, Page, pdfjs} from "react-pdf";
+import {pdfjs} from "react-pdf";
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import autoTable from 'jspdf-autotable';
-import {Certificat, Fees, Header, Prescription, RequestedAnalysis} from "@features/files";
+import {Certificat, Fees, Header, RequestedAnalysis} from "@features/files";
 import moment from "moment/moment";
 import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
-import printJS from 'print-js'
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
-import Preview from "../../../../pages/dashboard/settings/docs/preview";
 import {useReactToPrint} from "react-to-print";
+import Preview from "@features/files/components/preview";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -80,7 +79,6 @@ function DocumentDetailDialog({...props}) {
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
-    const [hide, sethide] = useState<boolean>(true);
     const [header, setHeader] = useState(null);
 
     const [data, setData] = useState<any>({
@@ -88,6 +86,7 @@ function DocumentDetailDialog({...props}) {
         header: {show: true, x: 0, y: 0},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
+        footer: {show: true, x: 0, y: 140,content:''},
         patient: {show: true, prefix: '', content: 'Foulen ben foulen', x: 120, y: 55},
         content: {
             show: true,
@@ -109,7 +108,11 @@ function DocumentDetailDialog({...props}) {
              icon: "ic-send"
          },*/
         {
-            title: hide ? 'show' : 'hide',
+            title: data.header.show ? 'hide' : 'show',
+            icon: "ic-menu2",
+            disabled: state.type === 'photo'
+        }, {
+            title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ic-menu2",
             disabled: state.type === 'photo'
         },
@@ -158,12 +161,6 @@ function DocumentDetailDialog({...props}) {
         const doc = new jsPDF({
             format: 'a5'
         });
-        if (!hide && header) {
-            autoTable(doc, {
-                html: '#header',
-                useCss: true
-            })
-        }
 
         if (state.type === 'prescription') {
             autoTable(doc, {
@@ -224,7 +221,7 @@ function DocumentDetailDialog({...props}) {
         } else setFile(state.uri)
 
         // doc.save()
-    }, [state, hide, header])
+    }, [state, header])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -313,16 +310,15 @@ function DocumentDetailDialog({...props}) {
                         }))
                         break;
                 }
-
                 break;
             case "hide":
-                sethide(!hide)
+            case "show":
                 data.header.show = !data.header.show
                 setData({...data})
                 break;
-            case "show":
-                sethide(!hide)
-                data.header.show = !data.header.show
+            case "hidetitle":
+            case "showtitle":
+                data.title.show = !data.title.show
                 setData({...data})
                 break;
             case "download":
@@ -344,7 +340,8 @@ function DocumentDetailDialog({...props}) {
                 }*/
                 break;
             case "settings":
-                router.push("/dashboard/settings/docs").then(() => {})
+                router.push("/dashboard/settings/docs").then(() => {
+                })
                 break;
 
             default:
@@ -383,7 +380,6 @@ function DocumentDetailDialog({...props}) {
             {header && <Header data={header}/>}
 
             {state.type === 'write_certif' && <Certificat data={state}/>}
-            {state.type === 'prescription' && <Prescription data={state}/>}
             {state.type === 'requested-analysis' && <RequestedAnalysis data={state}/>}
             {state.type === 'requested-medical-imaging' &&
                 <RequestedMedicalImaging data={state}/>}
@@ -397,14 +393,14 @@ function DocumentDetailDialog({...props}) {
                         {state.type !== 'photo' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{eventHandler, data, values:header,state,loading,t}} />
+                                    <Preview  {...{eventHandler, data, values: header, state, loading, t}} />
                                     {loading && <div className={"page"}></div>}
                                 </Box>
                             </Box>
                         }
                     </Stack>
                 </Grid>
-                <Grid item xs={12} md={4} className="sidebar" color={"white"} style={{background:"white"}}>
+                <Grid item xs={12} md={4} className="sidebar" color={"white"} style={{background: "white"}}>
                     <List>
                         {
                             actionButtons.map((button, idx) =>
