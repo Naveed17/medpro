@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {firebaseCloudMessaging} from "@app/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
@@ -20,6 +20,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 import moment from "moment-timezone";
+import {CircularProgressbarCard} from "@features/card";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -155,6 +156,20 @@ function FcmLayout({...props}) {
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 console.log("event for the service worker", event);
+            });
+        }
+
+        const importData = localStorage.getItem("import-data");
+        if (importData) {
+            enqueueSnackbar("Importing data in progress", {
+                persist: true,
+                preventDuplicate: true,
+                anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                },
+                content: (key, message) =>
+                    <CircularProgressbarCard id={key} message={message}/>,
             });
         }
     });

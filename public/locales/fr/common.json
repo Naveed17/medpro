@@ -115,6 +115,7 @@
   "send_link": "Envoyer le lien",
   "patient": "Patient",
   "insctruction": "Instructions",
+  "file-process-start": "Vérification et importation des données en cours",
   "waiting": "Ajouter le patient à la salle d'attente",
   "move_appointment": "Déplacer RDV",
   "cancel_appointment": "Annuler RDV",

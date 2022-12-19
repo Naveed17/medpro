@@ -13,8 +13,8 @@ const RootStyled = styled(Stack)(({theme}) => ({
     },
     borderBottom: `1px solid ${theme.palette.divider}`,
     "& .BaseBadge-badge": {
-        bottom: 14,
-        right: 9,
+        bottom: 5,
+        right: 2,
         height: 14,
         width: 14,
         borderRadius: "50%",
@@ -64,13 +64,16 @@ const RootStyled = styled(Stack)(({theme}) => ({
         "& .react-svg": {
             margin: 0
         },
+        "& svg": {
+            width: 24,
+            height: 22
+        },
         position: "absolute",
         borderRadius: 6,
         bottom: 8,
         right: 8,
         zIndex: 1,
         padding: 0,
-        pointerEvents: "none",
         background: theme.palette.background.paper
     }
 }));

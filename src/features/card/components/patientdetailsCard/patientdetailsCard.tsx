@@ -71,7 +71,7 @@ function PatientDetailsCard({...props}) {
                                     sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                 />
                             ) : (
-                                <label htmlFor="contained-button-file">
+                                <label htmlFor="contained-button-file" style={{cursor: "pointer"}}>
                                     <InputStyled
                                         id="contained-button-file"
                                         onChange={(e) => handleDrop(e.target.files as FileList)}
@@ -79,11 +79,14 @@ function PatientDetailsCard({...props}) {
                                     />
                                     <Avatar
                                         src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
-                                        sx={{width: 90, height: 90, background: "none"}}
+                                        sx={{width: 80, height: 80, background: "none"}}
                                     >
                                         <IconUrl path="ic-user-profile"/>
                                     </Avatar>
                                     <IconButton
+                                        sx={{
+                                            minWidth: 20
+                                        }}
                                         type="button"
                                         size={"small"}
                                         className={"import-avatar"}

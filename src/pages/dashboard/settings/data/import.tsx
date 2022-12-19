@@ -15,11 +15,7 @@ import {
     Stack,
     useTheme,
     DialogActions,
-    Button,
-    Alert,
-    AlertTitle,
-    Collapse,
-    List, ListItemText, ListItem, Drawer
+    Button, Drawer, AlertTitle, Alert, List, ListItem
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -29,35 +25,48 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import {read, utils} from "xlsx";
-import {CircularProgressbarCard} from "@features/card";
+import {CircularProgressbarCard, NoDataCard} from "@features/card";
 import {useSnackbar} from "notistack";
 import {Dialog} from "@features/dialog";
-import {duplicatedSelector, resetDuplicated} from "@features/duplicateDetected";
+import {resetDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import dynamic from "next/dynamic";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {agendaSelector} from "@features/calendar";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 const DuplicateDetected = dynamic(() => import("@features/duplicateDetected/components/duplicateDetected"));
 const PatientDetail = dynamic(() => import("@features/dialog/components/patientDetail/components/patientDetail"));
 const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
+export const ImportCardData = {
+    mainIcon: "ic-upload-3",
+    title: "no-data.event.title",
+    description: "no-data.event.description"
+};
+
 const TabData = [
     {
-        key: "med",
+        key: "med-pro",
         icon: "Med-logo_",
         label: "tabs.med",
         content: "tabs.content-1",
     },
     {
-        key: "medWin",
+        key: "med-win",
         icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
         label: "tabs.medWin",
         content: "tabs.content-2",
     },
     {
-        key: "file",
+        key: "med-link",
         icon: "ic-upload",
         variant: "default",
         label: "tabs.file",
@@ -65,40 +74,21 @@ const TabData = [
     },
 ];
 
-const headImportDataCells = [
-    {
-        id: 'name',
-        numeric: false,
-        disablePadding: true,
-        label: "name",
-        align: 'left',
-        sortable: true,
-    }, {
-        id: 'source',
-        numeric: false,
-        disablePadding: true,
-        label: "source",
-        align: 'left',
-        sortable: true,
-    },
-    {
-        id: 'action',
-        numeric: false,
-        disablePadding: false,
-        label: 'action',
-        align: 'right',
-        sortable: false
-    },
-];
-
 function ImportData() {
+    const router = useRouter();
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
-    const {patient: duplicatedPatient} = useAppSelector(duplicatedSelector);
     const {direction} = useAppSelector(configSelector);
     const {patientId} = useAppSelector(tableActionSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
@@ -109,21 +99,15 @@ function ImportData() {
         {label: "Toutes les données", key: "2"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
-    const [warningAlertContainer, setWarningAlertContainer] = useState(false);
-    const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [errorsDuplication, setErrorsDuplication] = useState<Array<{
         key: string;
         row: string;
         data: Array<PatientImportModel>;
         fixed: boolean;
     }>>([]);
-    const [infoDuplication, setInfoDuplication] = useState<Array<{
-        key: string;
-        row: string;
-        data: PatientModel | null;
-        fixed: boolean;
-    }>>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     const [duplicatedData, setDuplicatedData] = useState<any>(null);
+    const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
     const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -135,25 +119,24 @@ function ImportData() {
         initialValues: {
             type: "",
             file: "",
-            source: "med",
+            source: "med-pro",
             comment: ""
         },
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            handleClick();
+            // handleImportData();
+            enqueueSnackbar("Importing data in progress", {
+                persist: true,
+                preventDuplicate: true,
+                anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                },
+                content: (key, message) =>
+                    <CircularProgressbarCard {...{t}} id={key} message={message}/>,
+            });
+            localStorage.setItem("import-data", "true");
         },
     });
-
-    const handleClick = () => {
-        enqueueSnackbar("You're report is ready", {
-            persist: true,
-            anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'right'
-            },
-            content: (key, message) =>
-                <CircularProgressbarCard {...{t}} id={key} message={message}/>,
-        });
-    };
 
     const handleRemove = (file: any) => {
         setFiles(files.filter((_file: any) => _file !== file));
@@ -194,6 +177,49 @@ function ImportData() {
         setFiles([...files, ...acceptedFiles]);
     }
 
+    const handleImportData = () => {
+        setErrorsImport([]);
+        setLoading(true);
+        const params = new FormData();
+        params.append('method', values.source);
+        params.append('withAppointments', (values.source === "med-pro" && values.type === "2").toString());
+        params.append('agenda', agendaConfig?.uuid as string);
+        files.length > 0 && params.append('document', files[0]);
+
+        triggerImportData({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${router.locale}`,
+            data: params,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((value: any) => {
+            if (value?.data.status === 'success') {
+                enqueueSnackbar("Importing data in progress", {
+                    persist: true,
+                    preventDuplicate: true,
+                    anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'right'
+                    },
+                    content: (key, message) =>
+                        <CircularProgressbarCard {...{t}} id={key} message={message}/>,
+                });
+                setLoading(false);
+                localStorage.setItem("import-data", "true");
+                setFiles([]);
+                router.push('/dashboard/settings/data');
+            }
+        }, reason => {
+            if (reason?.response.status === 400) {
+                const errors = Object.entries(reason?.response.data.data).map(([key, value]: [string, any]) => ({
+                    row: key,
+                    data: value
+                }));
+                setErrorsImport(errors);
+            }
+            setLoading(false);
+        });
+    }
+
     const {
         values,
         errors,
@@ -209,7 +235,7 @@ function ImportData() {
     return (
         <>
             <SubHeader>
-                <Typography>{t("path")}</Typography>
+                <Typography>{t("path-import")}</Typography>
             </SubHeader>
             <Box className="container">
                 <SettingsTabs
@@ -224,142 +250,29 @@ function ImportData() {
                     <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
                         <Card className="venue-card">
                             <CardContent>
-                                <Typography
-                                    textTransform="uppercase"
-                                    fontWeight={600}
-                                    marginBottom={2}
-                                    gutterBottom>
-                                    {t("history")}
-                                </Typography>
+                                {errorsImport.length > 0 && <Alert
+                                    sx={{
+                                        marginBottom: 1
+                                    }}
+                                    action={
+                                        <LoadingButton
+                                            {...{loading}}
+                                            onClick={() => handleImportData()}
+                                            variant={"contained"} color="error" size="small">
+                                            {t('load-file')}
+                                        </LoadingButton>
+                                    }
+                                    severity="error">
+                                    <AlertTitle>{t("error.title")}</AlertTitle>
+                                    {t("error.loading-error")}
+                                    <List>
+                                        {errorsImport.map((error, index) =>
+                                            <ListItem key={index}>
+                                                — <strong>{` ${error.data[0]} ${t("error.missing")} ${t("error.line")} ${error.row}, ${t("error.re-upload")}`}</strong>
+                                            </ListItem>)}
+                                    </List>
 
-                                <Otable
-                                    {...{t}}
-                                    headers={headImportDataCells}
-                                    isItemSelected
-                                    rows={[
-                                        {
-                                            key: "1",
-                                            date: "11/12/2022",
-                                            source: "Med",
-                                            collapse: [{
-                                                errors: <Alert
-                                                    sx={{
-                                                        marginBottom: 1
-                                                    }}
-                                                    action={
-                                                        <Button variant={"contained"} color="error" size="small">
-                                                            {t('load-file')}
-                                                        </Button>
-                                                    }
-                                                    severity="error">
-                                                    <AlertTitle>{t("error.title")}</AlertTitle>
-                                                    {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
-                                                </Alert>,
-                                                warning: <Alert
-                                                    action={
-                                                        <Button variant={"contained"}
-                                                                onClick={(event) => {
-                                                                    event.stopPropagation();
-                                                                    setWarningAlertContainer(!warningAlertContainer);
-                                                                }}
-                                                                color="warning" size="small">
-                                                            {t('error.see-all')}
-                                                        </Button>
-                                                    }
-                                                    sx={{
-                                                        marginBottom: 1
-                                                    }}
-                                                    severity="warning">
-                                                    <Box onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        setWarningAlertContainer(!warningAlertContainer);
-                                                    }}>
-                                                        <AlertTitle>{t("error.warning-title")}</AlertTitle>
-                                                        {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
-                                                    </Box>
-                                                    <Collapse in={warningAlertContainer} timeout="auto" unmountOnExit>
-                                                        <List>
-                                                            {errorsDuplication.map((error, index) => (<ListItem
-                                                                key={error.key}
-                                                                disableGutters
-                                                                secondaryAction={
-                                                                    <Button variant={"contained"}
-                                                                            sx={{
-                                                                                visibility: !error.fixed ? "visible" : "hidden"
-                                                                            }}
-                                                                            onClick={(event) => {
-                                                                                event.stopPropagation();
-                                                                                setDuplicatedData(error);
-                                                                                setDuplicateDetectedDialog(true);
-                                                                            }}
-                                                                            color="warning" size="small">
-                                                                        {t('error.fix-duplication')}
-                                                                    </Button>
-                                                                }>
-                                                                <strong>{index} .</strong>
-                                                                <ListItemText sx={{
-                                                                    textDecorationLine: error.fixed ? "line-through" : "none"
-                                                                }}
-                                                                              primary={`${t("error.duplicated-row")} ${error.row}`}/>
-                                                            </ListItem>))}
-                                                        </List>
-                                                    </Collapse>
-                                                </Alert>,
-                                                info: <Alert
-                                                    action={
-                                                        <Button variant={"contained"}
-                                                                onClick={(event) => {
-                                                                    event.stopPropagation();
-                                                                    setInfoAlertContainer(!infoAlertContainer);
-                                                                }}
-                                                                color="info" size="small">
-                                                            {t('error.see-all')}
-                                                        </Button>
-                                                    }
-                                                    sx={{
-                                                        marginBottom: 1
-                                                    }}
-                                                    severity="info">
-                                                    <Box onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        setInfoAlertContainer(!infoAlertContainer);
-                                                    }}>
-                                                        <AlertTitle>{t("error.info-title")}</AlertTitle>
-                                                        {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
-                                                    </Box>
-                                                    <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
-                                                        <List>
-                                                            {infoDuplication.map((info, index) => (<ListItem
-                                                                key={info.key}
-                                                                disableGutters
-                                                                secondaryAction={
-                                                                    <Button variant={"contained"}
-                                                                            sx={{
-                                                                                visibility: !info.fixed ? "visible" : "hidden"
-                                                                            }}
-                                                                            onClick={(event) => {
-                                                                                event.stopPropagation();
-                                                                                console.log(info)
-                                                                                dispatch(onOpenPatientDrawer({patientId: info?.data && info?.data.uuid}));
-                                                                                setPatientDetailDrawer(true);
-                                                                            }}
-                                                                            color="warning" size="small">
-                                                                        {t('error.see-details')}
-                                                                    </Button>
-                                                                }>
-                                                                <strong>{index} .</strong>
-                                                                <ListItemText sx={{
-                                                                    textDecorationLine: info.fixed ? "line-through" : "none"
-                                                                }}
-                                                                              primary={`${t("error.warning-row")} ${info.data?.firstName} ${info.data?.lastName} ${t("error.warning-row-detail")}`}/>
-                                                            </ListItem>))}
-                                                        </List>
-                                                    </Collapse>
-                                                </Alert>
-                                            }]
-                                        }
-                                    ]}
-                                    from={"import_data"}/>
+                                </Alert>}
 
                                 {/* Layout */}
                                 <Typography
@@ -484,6 +397,7 @@ function ImportData() {
                                     </Grid>
                                 </Box>}
                                 <LoadingButton
+                                    {...{loading}}
                                     disabled={settingsTab.activeTab === 0 && values.type === "" ||
                                         settingsTab.activeTab !== 0 && files.length === 0}
                                     type={"submit"}
@@ -525,17 +439,17 @@ function ImportData() {
                         }}>
                         <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
                             <Button onClick={() => setDuplicateDetectedDialog(false)} startIcon={<CloseIcon/>}>
-                                {t("dialog.later")}
+                                {t("dialogs.duplication-dialog.later")}
                             </Button>
                             <Box>
                                 <Button sx={{marginRight: 1}} color={"inherit"} startIcon={<CloseIcon/>}>
-                                    {t("dialog.no-duplicates")}
+                                    {t("dialogs.duplication-dialog.no-duplicates")}
                                 </Button>
                                 <Button
                                     onClick={handleDuplicatedPatient}
                                     variant="contained"
                                     startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
-                                    {t("dialog.save")}
+                                    {t("dialogs.duplication-dialog.save")}
                                 </Button>
                             </Box>
                         </Stack>
@@ -543,7 +457,7 @@ function ImportData() {
                     </DialogActions>
                 }
                 open={duplicateDetectedDialog}
-                title={t(`dialog.title`)}
+                title={t(`dialogs.duplication-dialog.title`)}
             />
 
             <Drawer
