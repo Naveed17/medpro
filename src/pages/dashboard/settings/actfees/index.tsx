@@ -234,9 +234,7 @@ function ActFees() {
 
                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                     {
-                        create ?
-                            <Button variant="contained" color={"warning"}
-                                    onClick={handleRemove}>{t('cancel')}</Button> :
+                        !create &&
                             <Button variant="contained" color={"success"}
                                     onClick={() => handleCreate()}>{t("add_a_new_act")}</Button>
                     }
@@ -274,7 +272,7 @@ function ActFees() {
                     spacing={2}
                     mb={2}>
                     <Typography style={{color: theme.palette.grey[400], fontSize: 10}}>{t('newAct')}</Typography>
-                    <Stack direction={"row"} alignItems={"center"} spacing={3}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
                         <Autocomplete
                             sx={{width: "44%"}}
                             size="small"
@@ -351,6 +349,7 @@ function ActFees() {
                                    }}
                                    variant="outlined"/>
                         <Button disabled={newFees.act === null || newFees.fees.length === 0}
+                                variant="contained"
                                 onClick={() => {
                                     if (typeof newFees.act === 'string') {
                                         saveFees()
@@ -358,6 +357,10 @@ function ActFees() {
                                         setActFees(false, newFees);
                                     }
                                 }}>{t('save')}</Button>
+                        <Button
+                                onClick={() => {
+                                    handleRemove()
+                                }}>{t('cancel')}</Button>
                     </Stack>
                 </Stack>}
 
