@@ -3,17 +3,19 @@ interface Qualifications {
         patient_group: string;
         first_name: string;
         last_name: string;
-        country_code: {
-            code: string;
-            label: string;
-            phone: string;
-        } | null,
         birthdate: {
             day: string;
             month: string;
             year: string;
         };
-        phone: number | "";
+        phones: [{
+            phone: string;
+            dial: {
+                code: string;
+                label: string;
+                phone: string;
+            }
+        }];
         gender: string;
     };
     step2: {

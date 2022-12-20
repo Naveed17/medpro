@@ -104,6 +104,7 @@ function AppLock() {
                                                 variant="outlined"
                                                 placeholder={t("current")}
                                                 fullWidth
+                                                type={"password"}
                                                 helperText={
                                                     touched.currentPassword && errors.currentPassword
                                                 }
@@ -138,6 +139,7 @@ function AppLock() {
                                                 variant="outlined"
                                                 placeholder={t("new")}
                                                 fullWidth
+                                                type={"password"}
                                                 helperText={touched.newPassword && errors.newPassword}
                                                 error={Boolean(
                                                     touched.newPassword && errors.newPassword

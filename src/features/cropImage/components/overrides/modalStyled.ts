@@ -3,7 +3,7 @@ import {Dialog} from "@mui/material";
 import {pxToRem} from "@themes/formatFontSize";
 
 const ModalStyled = styled(Dialog)(({ theme }) => ({
-    zIndex: 999,
+    zIndex: 1200,
     '& .MuiPaper-root': {
         maxWidth: "842px",
         width: '100%',

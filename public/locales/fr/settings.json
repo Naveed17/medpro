@@ -404,7 +404,9 @@
       "file": "Télécharger un fichier modèle",
       "content-3": "Le format de données doit être de type tabulaire (CSV, XLSX)."
     },
+    "add": "Importer",
     "path": "Paramètres > Importation de données",
+    "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
     "history": "Historiques",
     "type": "Type de données",
@@ -418,30 +420,46 @@
     "software": "Logiciel source de l'export",
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
-    "dialog": {
-      "title": "Duplicatas détectés",
-      "later": "Le faire plus tard",
-      "no-duplicates": "Ces patients ne sont pas doublons ",
-      "selected": "Patient sélectionné",
-      "save": "Enregistrer"
+    "alert": {
+      "delete-import": "L'importation de données a été réinitialisée avec succès."
+    },
+    "dialogs": {
+      "duplication-dialog": {
+        "title": "Duplicatas détectés",
+        "later": "Le faire plus tard",
+        "no-duplicates": "Ces patients ne sont pas doublons ",
+        "selected": "Patient sélectionné",
+        "save": "Enregistrer"
+      },
+      "reInitDialog": {
+        "title": "Réinitialiser les données",
+        "sub-title": "Voulez-vous vraiment réinitialiser les données de cette importation ?",
+        "description": "Vous perdrez définitivement l'historique des rendez-vous et les patients liés à cette importation.",
+        "cancel": "Annuler",
+        "confirm": "Réinitialiser"
+      }
+    },
+    "no-data": {
+      "title": "Aucune importation n'a été effectuée",
+      "description": "Voir tous les logs d'importation"
     },
     "error": {
       "title": "Erreurs",
       "loading-error": "Une erreur s'est produite pendant la phase d'importation de données.",
       "re-upload": "corrigez l'erreur sur le fichier et essayez de l'importer à nouveau.",
       "re-duplicate": "cliquez sur \"voir tout\" pour exposer tous les avertissements.",
-      "column" : "la colonne",
-      "missing" : "est manquante",
-      "see-all" : "voir tout",
+      "line": "à la ligne",
+      "missing": "est manquante",
+      "see-all": "voir tout",
       "see-details": "Voir détails",
-      "duplicated" : "patients dupliqués ont été trouvés",
-      "duplicated-row" : "Erreur de duplication à la ligne",
-      "duplicated-title" : "Erreur de duplication à la ligne",
-      "warning-title" : "Avertissements",
-      "info-title" : "Informations",
-      "warning-row" : "Le patient",
-      "warning-row-detail" : "a été inséré avec des avertissements",
-      "warning-insert" : "patients insérés avec des avertissements ont été trouvés",
+      "duplicated": "patients dupliqués ont été trouvés",
+      "duplicated-row": "Erreur de duplication à la ligne",
+      "duplicated-title": "Erreur de duplication à la ligne",
+      "warning-title": "Avertissements",
+      "info-title": "Informations",
+      "warning-row": "Le patient",
+      "warning-row-detail": "a été inséré avec des avertissements",
+      "warning-insert": "patients insérés avec des avertissements ont été trouvés",
       "fix-duplication": "Corriger la duplication"
     },
     "table": {

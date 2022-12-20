@@ -1,14 +1,16 @@
 import {useState, forwardRef, useCallback, useEffect} from "react";
 import {useSnackbar, SnackbarContent} from "notistack";
 import Card from "@mui/material/Card";
-import {Box, Button, CircularProgress, Stack, Typography} from "@mui/material";
+import {Box, Button, Stack} from "@mui/material";
 import CollapseCardStyled from "./overrides/circularProgressbarCardStyled";
-import Icon from "@themes/urlIcon";
 import * as React from "react";
+import {FacebookCircularProgress} from "@features/circularProgress";
+import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
     ({id, ...props}, ref) => {
-        const {t} = props;
+        const {t, ready} = useTranslation("common");
         const [progress, setProgress] = useState(10);
 
         useEffect(() => {
@@ -31,21 +33,27 @@ const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
             closeSnackbar(id);
         }, [id, closeSnackbar]);
 
+        if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
         return (
             <SnackbarContent
                 className={"notif-stack-progress"}
                 {...(expanded && {style: {flexDirection: "row-reverse"}})}
                 ref={ref}>
-                <Card>
+                <Card sx={{
+                    "& .MuiPaper-root": {
+                        backgroundColor: (theme) => theme.palette.background.paper
+                    }
+                }}>
                     <CollapseCardStyled>
                         <Stack onClick={() => setExpanded(!expanded)} direction={"row"} justifyContent={"center"}
                                alignItems={"center"}>
                             {!expanded && <Button size="small" color="primary">
-                                <Icon path="ic-upload"/>
                                 {t("file-process-start")}
                             </Button>}
                             <Box className={"container-circular-progress"}>
-                                <CircularProgress variant="determinate" value={progress}/>
+                                <FacebookCircularProgress/>
+                                {/*<CircularProgress variant="determinate" value={progress}/>
                                 <Box
                                     sx={{
                                         top: 0,
@@ -63,7 +71,7 @@ const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
                                         component="div"
                                         color="text.secondary"
                                     >{`${Math.round(progress)}%`}</Typography>
-                                </Box>
+                                </Box>*/}
                             </Box>
                         </Stack>
                     </CollapseCardStyled>

@@ -62,8 +62,8 @@ function AddPatientStep2({...props}) {
     const {data: session, status} = useSession();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
-    const [expanded, setExpanded] = useState(false);
     const [socialInsured, setSocialInsured] = useState([
+        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
         {grouped: "L'ascendant", key: "father", label: "Le Pére"},
         {grouped: "L'ascendant", key: "mother", label: "La Mére"},
         {grouped: "L'enfant", key: "child", label: "1er Enfant"},
@@ -71,7 +71,6 @@ function AddPatientStep2({...props}) {
         {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
         {grouped: "L'enfant", key: "child", label: "Autre"},
         {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"}
     ]);
     const [selectedCountry, setSelectedCountry] = React.useState<any>({
         code: "TN",
@@ -103,6 +102,7 @@ function AddPatientStep2({...props}) {
                 insurance_number: string;
                 insurance_uuid: string;
                 insurance_type: string;
+                expanded: boolean;
             }[]
         },
         validationSchema: RegisterSchema,
@@ -144,19 +144,19 @@ function AddPatientStep2({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
-        const {first_name, last_name, birthdate, phone, gender, country_code} = stepsData.step1;
+        const {first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
         form.append('first_name', first_name)
         form.append('last_name', last_name);
-        form.append('phone', JSON.stringify({
-            code: country_code && country_code?.phone,
-            value: phone,
+        form.append('phone', JSON.stringify(phones.map(phoneData => ({
+            code: phoneData.dial.phone,
+            value: phoneData.phone,
             type: "phone",
-            "contact_type": contacts[0].uuid,
-            "is_public": false,
-            "is_support": false
-        }));
+            contact_type: contacts[0].uuid,
+            is_public: false,
+            is_support: false
+        }))));
         form.append('gender', gender);
         if (day && month && year) {
             form.append('birthdate', `${day}-${month}-${year}`);
@@ -458,7 +458,8 @@ function AddPatientStep2({...props}) {
                                                 </Grid>
                                             </Grid>
                                         </CardContent>
-                                        <Collapse in={getFieldProps(`insurance[${index}].expand`).value} timeout="auto" unmountOnExit>
+                                        <Collapse in={getFieldProps(`insurance[${index}].expand`).value} timeout="auto"
+                                                  unmountOnExit>
                                             <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
                                                 <Box mb={1}>
                                                     <Typography variant="body2" color="text.secondary" gutterBottom>

@@ -520,23 +520,6 @@ function PersonalInfo({...props}) {
                                             )}
                                         </Grid>
                                         {(editable && index === 0) ? <>
-                                            {/*<IconButton
-                                                onClick={() => handleRemoveInsurance(index)}
-                                                className="error-light"
-                                                sx={{
-                                                    mr: 1.5,
-                                                    p: "3px 5px",
-                                                    "& svg": {
-                                                        width: 14,
-                                                        height: 14,
-                                                        "& path": {
-                                                            fill: (theme) => theme.palette.text.primary,
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                <Icon path="ic-moin"/>
-                                            </IconButton>*/}
                                             <IconButton
                                                 onClick={handleAddInsurance}
                                                 className="success-light"

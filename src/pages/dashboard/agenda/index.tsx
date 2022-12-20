@@ -1006,6 +1006,9 @@ function Agenda() {
 
                 <Drawer
                     anchor={"right"}
+                    sx={{
+                        width: 300
+                    }}
                     open={quickAddAppointment}
                     dir={direction}
                     onClose={() => {
