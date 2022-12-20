@@ -14,11 +14,11 @@ const RootStyled = styled(Box)(({theme, ...props}) => ({
             height: 80,
             ...((props as any).firstbackgroundonly ? {
                 "path:first-of-type": {
-                    fill: "#C9C8C8",
+                    fill: theme.palette.grey[300],
                 }
             } : {
                 path: {
-                    fill: "#C9C8C8",
+                    fill: theme.palette.grey[300],
                 }
             })
         },
