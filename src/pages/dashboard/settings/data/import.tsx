@@ -123,18 +123,7 @@ function ImportData() {
             comment: ""
         },
         onSubmit: async (values, {setErrors, setSubmitting}) => {
-            // handleImportData();
-            enqueueSnackbar("Importing data in progress", {
-                persist: true,
-                preventDuplicate: true,
-                anchorOrigin: {
-                    vertical: 'bottom',
-                    horizontal: 'right'
-                },
-                content: (key, message) =>
-                    <CircularProgressbarCard {...{t}} id={key} message={message}/>,
-            });
-            localStorage.setItem("import-data", "true");
+            handleImportData();
         },
     });
 

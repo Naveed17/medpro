@@ -25,6 +25,10 @@ import ErrorIcon from '@mui/icons-material/Error';
 import HelpIcon from '@mui/icons-material/Help';
 import {useAppDispatch} from "@app/redux/hooks";
 import {LoadingButton} from "@mui/lab";
+import {useRequestMutation} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function ImportDataRow({...props}) {
     const {
@@ -32,7 +36,14 @@ function ImportDataRow({...props}) {
         setDuplicatedData, setDuplicateDetectedDialog,
         setPatientDetailDrawer
     } = props;
+    const router = useRouter();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
     const [infoDuplication, setInfoDuplication] = useState<Array<{
         key: string;
@@ -45,15 +56,31 @@ function ImportDataRow({...props}) {
     const [expanded, setExpanded] = useState(false);
     const [loadingAction, setLoadingAction] = useState<boolean>(false);
 
+    const getDetailImportData = (uuid: string) => {
+        triggerImportDataDetail({
+            method: "GET",
+            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/1/${router.locale}?page=1&limit=10`,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }).then((value: any) => {
+            if (value?.data.status === 'success') {
+
+            }
+        });
+    }
+
     return (
         <>
             <TableRowStyled
-                onClick={() => setExpanded(!expanded)}
+                onClick={() => {
+                    getDetailImportData(row.uuid);
+                    setExpanded(!expanded);
+                }}
                 key={uniqueId}>
                 <TableCell>
                     {row ? (
                         <Stack direction={"row"} alignItems={"center"}>
-                            {expanded ? <RemoveIcon className={"expand-icon"}/> : <AddIcon className={"expand-icon"}/>}
+{/*                            {(row.errors !== 0 || row.duplication !== 0 || row.info !== 0) &&
+                                (expanded ? <RemoveIcon className={"expand-icon"}/> : <AddIcon className={"expand-icon"}/>)}*/}
                             <Typography variant="body1" color="text.primary">
                                 {row.date}
                             </Typography>
@@ -86,19 +113,19 @@ function ImportDataRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack direction={"row"} alignItems={"center"}>
-                            <Typography variant="body1" color="text.primary">
-                                {(() => {
-                                    switch (row.method) {
-                                        case 'med-win':
-                                            return <Box m={"auto"} width={44} height={14} component="img"
-                                                        src={"/static/img/logo-wide.png"}/>
-                                        case 'med-pro':
-                                            return <IconUrl width={"20"} height={"20"} path={"Med-logo_"}/>
-                                        case 'med-link':
-                                            return <IconUrl width={"20"} height={"20"} path={"ic-upload"}/>
-                                    }
-                                })()}
-                            </Typography>
+                            {(() => {
+                                switch (row.method) {
+                                    case 'med-win':
+                                        return <Box m={"auto"} width={44} height={14} component="img"
+                                                    src={"/static/img/logo-wide.png"}/>
+                                    case 'med-pro':
+                                        return <IconUrl className={"source-icon"} width={"20"} height={"20"}
+                                                        path={"Med-logo_"}/>
+                                    case 'med-link':
+                                        return <IconUrl className={"source-icon"} width={"20"} height={"20"}
+                                                        path={"ic-upload"}/>
+                                }
+                            })()}
                         </Stack>
                     ) : (
                         <Stack>

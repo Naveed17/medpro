@@ -34,7 +34,7 @@ const headImportDataCells = [
         numeric: false,
         disablePadding: true,
         label: "source",
-        align: 'left',
+        align: 'center',
         sortable: true,
     },
     {

@@ -57,7 +57,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>
-                                                <FcmLayout>
+                                                <FcmLayout {...pageProps}>
                                                     {getLayout(<Component {...pageProps} />)}
                                                 </FcmLayout>
                                             </AuthGuard>
