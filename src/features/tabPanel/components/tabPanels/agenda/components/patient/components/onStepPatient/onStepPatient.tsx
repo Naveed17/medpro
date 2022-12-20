@@ -91,6 +91,7 @@ function OnStepPatient({...props}) {
     });
 
     const [socialInsured, setSocialInsured] = useState([
+        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
         {grouped: "L'ascendant", key: "father", label: "Le Pére"},
         {grouped: "L'ascendant", key: "mother", label: "La Mére"},
         {grouped: "L'enfant", key: "child", label: "1er Enfant"},
@@ -98,7 +99,6 @@ function OnStepPatient({...props}) {
         {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
         {grouped: "L'enfant", key: "child", label: "Autre"},
         {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"}
     ]);
 
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);

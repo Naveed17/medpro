@@ -63,6 +63,7 @@ function AddPatientStep2({...props}) {
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [socialInsured, setSocialInsured] = useState([
+        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
         {grouped: "L'ascendant", key: "father", label: "Le Pére"},
         {grouped: "L'ascendant", key: "mother", label: "La Mére"},
         {grouped: "L'enfant", key: "child", label: "1er Enfant"},
@@ -70,7 +71,6 @@ function AddPatientStep2({...props}) {
         {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
         {grouped: "L'enfant", key: "child", label: "Autre"},
         {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"}
     ]);
     const [selectedCountry, setSelectedCountry] = React.useState<any>({
         code: "TN",
