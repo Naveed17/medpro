@@ -83,7 +83,7 @@ function PatientContactDetailCard({...props}) {
                         value: contact.value
                     }))
                     : [{
-                        code: "",
+                        code: "+216",
                         value: ""
                     }]
         },
@@ -111,7 +111,7 @@ function PatientContactDetailCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const handleAddPhone = () => {
-        const phone = [...values.phones, {code: "", phone: ""}];
+        const phone = [...values.phones, {code: "+216", value: ""}];
         setFieldValue("phones", phone);
     }
 
