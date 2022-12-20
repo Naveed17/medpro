@@ -58,7 +58,7 @@ function PatientDetailsCard({...props}) {
                         <Badge
                             color="success"
                             variant="dot"
-                            invisible={patient?.nextAppointments.length === 0}
+                            invisible={patient?.nextAppointments.length === 0 || loading}
                             anchorOrigin={{
                                 vertical: "bottom",
                                 horizontal: "right",
