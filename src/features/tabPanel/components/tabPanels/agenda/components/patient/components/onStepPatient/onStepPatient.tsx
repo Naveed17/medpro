@@ -30,7 +30,8 @@ import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
-
+import {isValidPhoneNumber} from "libphonenumber-js";
+import {countries as dialCountries} from "@features/countrySelect/countries";
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 
@@ -116,15 +117,19 @@ function OnStepPatient({...props}) {
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
-                phone: Yup.string()
-                    .min(8, t("telephone-error"))
-                    .matches(phoneRegExp, t("telephone-error"))
-                    .required(t("telephone-error")),
                 dial: Yup.object().shape({
                     code: Yup.string(),
                     label: Yup.string(),
                     phone: Yup.string(),
-                })
+                }),
+                phone: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
+                    })
+                    .matches(phoneRegExp, t("telephone-error"))
+                    .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error"))
     });
@@ -148,11 +153,7 @@ function OnStepPatient({...props}) {
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [{
                     phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone")?.value,
-                    dial: {
-                        code: "TN",
-                        label: "Tunisia",
-                        phone: "+216"
-                    }
+                    dial: dialCountries.find(dial => dial.phone === selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone")?.code)
                 }] : patient.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"

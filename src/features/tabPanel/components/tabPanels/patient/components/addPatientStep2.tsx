@@ -150,7 +150,7 @@ function AddPatientStep2({...props}) {
         form.append('first_name', first_name)
         form.append('last_name', last_name);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
-            code: phoneData.dial.code,
+            code: phoneData.dial.phone,
             value: phoneData.phone,
             type: "phone",
             contact_type: contacts[0].uuid,

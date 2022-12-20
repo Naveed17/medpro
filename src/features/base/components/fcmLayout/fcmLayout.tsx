@@ -71,6 +71,7 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudMessaging.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
+            console.log("getFcmMessage", data);
             if (data.type === "no_action" && data.mode === "foreground") {
                 enqueueSnackbar(message.notification.body, {variant: "info"});
             } else {

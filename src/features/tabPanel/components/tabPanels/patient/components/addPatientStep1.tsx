@@ -24,6 +24,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import Icon from "@themes/urlIcon";
 import AddIcCallTwoToneIcon from '@mui/icons-material/AddIcCallTwoTone';
 import {CountrySelect} from "@features/countrySelect";
+import {isValidPhoneNumber} from 'libphonenumber-js';
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -62,15 +63,19 @@ function AddPatientStep1({...props}) {
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
-                phone: Yup.string()
-                    .min(8, t("telephone-error"))
-                    .matches(phoneRegExp, t("telephone-error"))
-                    .required(t("telephone-error")),
                 dial: Yup.object().shape({
                     code: Yup.string(),
                     label: Yup.string(),
                     phone: Yup.string(),
-                })
+                }),
+                phone: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
+                    })
+                    .matches(phoneRegExp, t("telephone-error"))
+                    .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error"))
     });

@@ -87,7 +87,17 @@ function ImportDataRow({...props}) {
                     {row ? (
                         <Stack direction={"row"} alignItems={"center"}>
                             <Typography variant="body1" color="text.primary">
-                                {row.method}
+                                {(() => {
+                                    switch (row.method) {
+                                        case 'med-win':
+                                            return <Box m={"auto"} width={44} height={14} component="img"
+                                                        src={"/static/img/logo-wide.png"}/>
+                                        case 'med-pro':
+                                            return <IconUrl width={"20"} height={"20"} path={"Med-logo_"}/>
+                                        case 'med-link':
+                                            return <IconUrl width={"20"} height={"20"} path={"ic-upload"}/>
+                                    }
+                                })()}
                             </Typography>
                         </Stack>
                     ) : (
