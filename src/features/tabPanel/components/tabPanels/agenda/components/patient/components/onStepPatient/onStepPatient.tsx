@@ -32,6 +32,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 
@@ -150,11 +151,12 @@ function OnStepPatient({...props}) {
                     year: selectedPatient.birthdate.split("-")[2] as string,
                 }
                 : patient.step1.birthdate,
-            phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
-                [{
-                    phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone")?.value,
-                    dial: dialCountries.find(dial => dial.phone === selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone")?.code)
-                }] : patient.step1.phones,
+            phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
+            selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
+                selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
+                    phone: contact.value,
+                    dial: dialCountries.find(dial => dial.phone === contact.code)
+                })) : patient.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
