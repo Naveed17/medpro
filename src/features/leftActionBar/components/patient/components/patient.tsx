@@ -13,11 +13,14 @@ import {ActionBarState, setFilter} from "@features/leftActionBar";
 import React from "react";
 import {useAppDispatch} from "@app/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useRouter} from "next/router";
 
 function Patient() {
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient");
-    const dispatch = useAppDispatch();
 
     const data = collapse.map((item) => {
         return {
@@ -31,7 +34,10 @@ function Patient() {
                     {item.heading.title === "patient" ? (
                         <PatientFilter
                             OnSearch={(data: { query: ActionBarState }) => {
-                                dispatch(setFilter({patient: data.query}));
+                                router.replace('/dashboard/patient?page=1', "/dashboard/patient",
+                                    {shallow: true}).then(() => {
+                                    dispatch(setFilter({patient: data.query}));
+                                });
                             }}
                             item={{
                                 heading: {
@@ -55,6 +61,10 @@ function Patient() {
                     ) : item.heading.title === "place" && (
                         <PlaceFilter
                             OnSearch={(data: { query: ActionBarState }) => {
+                                router.replace('/dashboard/patient?page=1', "/dashboard/patient",
+                                    {shallow: true}).then(() => {
+                                    dispatch(setFilter({patient: data.query}));
+                                });
                                 dispatch(setFilter({patient: data.query}));
                             }}
                             item={item}

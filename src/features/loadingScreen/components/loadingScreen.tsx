@@ -97,7 +97,9 @@ function LoadingScreen({...props}) {
                 </Typography>
                 {button &&
                     <Button onClick={() => {
-                        // router.push("/dashboard/agenda");
+                        if (process.env.NODE_ENV !== 'development') {
+                            router.push("/dashboard/agenda");
+                        }
                         if (OnClick) {
                             OnClick(error);
                         }
