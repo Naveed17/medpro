@@ -1,8 +1,10 @@
-import React from "react";
-import {Box, Stack, Typography} from "@mui/material";
+import React, {useState} from "react";
+import {Box, Icon, IconButton, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
-
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 function DocumentsTab({...props}) {
 
     const noCardData = {
@@ -13,6 +15,7 @@ function DocumentsTab({...props}) {
         buttonVariant: "warning",
     };
 
+    const [selectedAudio, setSelectedAudio] = useState<any>(null);
 
 
     const {
@@ -36,14 +39,15 @@ function DocumentsTab({...props}) {
                     lg: "repeat(5,minmax(0,1fr))",
                 }
             }}>
-                {
+                {selectedAudio === null &&
                     documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
-                            <DocumentCard data={card} onClick={() => {showDoc(card)}} t={t}/>
+                            <DocumentCard data={card} onClick={() => {
+                                card.documentType ==='audio' ? setSelectedAudio(card): showDoc(card)
+                            }} t={t}/>
                         </React.Fragment>
                     )
                 }
-
                 {/*{documents.length > 0 && <DocumentCardStyled>
                     <CardContent>
                         <Stack justifyContent={"center"} alignItems="center" className="document-detail">
@@ -52,10 +56,36 @@ function DocumentsTab({...props}) {
                     </CardContent>
                 </DocumentCardStyled>}
 */}
-
             </Box>
 
-            {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
+            <Box style={{marginTop:10}}>
+                {selectedAudio && <Box>
+                    <Box display='grid' sx={{
+                        gridGap: 16,
+                        gridTemplateColumns: {
+                            xs: "repeat(2,minmax(0,1fr))",
+                            md: "repeat(4,minmax(0,1fr))",
+                            lg: "repeat(5,minmax(0,1fr))",
+                        }
+                    }}>
+                        <DocumentCard data={selectedAudio} t={t}/>
+                    </Box>
+                    <Stack justifyContent={"space-between"} direction={"row"} alignItems={"center"}>
+                        <Typography>{selectedAudio.title}</Typography>
+                        <IconButton onClick={()=> setSelectedAudio(null)}>
+                            <CloseRoundedIcon/>
+                        </IconButton>
+                    </Stack>
+                    <AudioPlayer
+                        autoPlay
+                        style={{marginTop:10}}
+                        src={selectedAudio.uri}
+                        onPlay={e => console.log("onPlay")}
+                    />
+                </Box>}
+            </Box>
+
+            { documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mt={3} mb={3} fontSize={16}>
                     {t('gallery')}
                 </Typography>}
