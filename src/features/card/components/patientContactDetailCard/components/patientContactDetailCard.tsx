@@ -75,7 +75,7 @@ function PatientContactDetailCard({...props}) {
             region: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.uuid : "",
             zip_code: !loading && patient?.address.length > 0 ? (patient?.address[0]?.postalCode ? patient?.address[0]?.postalCode : "") : "",
             address:
-                !loading && patient?.address[0] ? patient?.address[0].street : "",
+                !loading && patient?.address[0] ? (patient?.address[0].street ? patient?.address[0].street : "") : "",
             phones:
                 !loading && patient.contact.length > 0
                     ? patient.contact.map((contact: any) => ({
@@ -234,14 +234,7 @@ function PatientContactDetailCard({...props}) {
                                             <Stack direction="row"
                                                    spacing={1}
                                                    alignItems="center">
-                                                <Grid item md={3.5} sm={6} xs={6}>
-                                                    <Typography className="label"
-                                                                noWrap
-                                                                variant="body2" color="text.secondary" width="50%">
-                                                        {t("telephone")}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={6} sm={6} xs={6} sx={{
+                                                <Grid item md={10} sm={12} xs={12} sx={{
                                                     "& .Input-select": {
                                                         marginLeft: "-0.6rem"
                                                     }
@@ -252,6 +245,7 @@ function PatientContactDetailCard({...props}) {
                                                         <Stack
                                                             direction="row"
                                                             spacing={1}
+                                                            sx={{height: 22}}
                                                             alignItems="center">
                                                             <CountrySelect
                                                                 sx={{
@@ -276,7 +270,9 @@ function PatientContactDetailCard({...props}) {
                                                                     setFieldValue(`phones[${index}].code`, state.phone);
                                                                 }}/>
                                                             <InputBase
+                                                                fullWidth
                                                                 className={"Input-select"}
+                                                                placeholder={t("telephone")}
                                                                 error={Boolean(touched.phones && errors.phones)}
                                                                 readOnly={!editable}
                                                                 {...getFieldProps(`phones[${index}].value`)}
@@ -285,38 +281,41 @@ function PatientContactDetailCard({...props}) {
                                                     )}
                                                 </Grid>
                                                 <Grid item md={1} sm={6} xs={6}>
-                                                    {(editable && index === 0) ? <>
-                                                        <IconButton
-                                                            onClick={handleAddPhone}
-                                                            className="success-light"
+                                                    <Stack direction="row"
+                                                           alignItems="center">
+                                                        {(editable && index === 0) ? <>
+                                                            <IconButton
+                                                                onClick={handleAddPhone}
+                                                                className="success-light"
+                                                                sx={{
+                                                                    mr: 1.5,
+                                                                    p: "3px 5px",
+                                                                    "& svg": {
+                                                                        width: 14,
+                                                                        height: 14
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <Icon path="ic-plus"/>
+                                                            </IconButton>
+                                                        </> : (editable && <IconButton
+                                                            onClick={() => handleRemovePhone(index)}
+                                                            className="error-light"
                                                             sx={{
                                                                 mr: 1.5,
                                                                 p: "3px 5px",
                                                                 "& svg": {
                                                                     width: 14,
-                                                                    height: 14
+                                                                    height: 14,
+                                                                    "& path": {
+                                                                        fill: (theme) => theme.palette.text.primary,
+                                                                    },
                                                                 },
                                                             }}
                                                         >
-                                                            <Icon path="ic-plus"/>
-                                                        </IconButton>
-                                                    </> : (editable && <IconButton
-                                                        onClick={() => handleRemovePhone(index)}
-                                                        className="error-light"
-                                                        sx={{
-                                                            mr: 1.5,
-                                                            p: "3px 5px",
-                                                            "& svg": {
-                                                                width: 14,
-                                                                height: 14,
-                                                                "& path": {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        }}
-                                                    >
-                                                        <Icon path="ic-moin"/>
-                                                    </IconButton>)}
+                                                            <Icon path="ic-moin"/>
+                                                        </IconButton>)}
+                                                    </Stack>
                                                 </Grid>
                                             </Stack>
                                         </Grid>
@@ -324,6 +323,7 @@ function PatientContactDetailCard({...props}) {
                                 )}
                                 <Grid item md={7} sm={6} xs={6}>
                                     <Stack direction="row"
+                                           sx={{height: 28}}
                                            spacing={1}
                                            alignItems="center">
                                         <Grid item md={2.5} sm={6} xs={6}>
