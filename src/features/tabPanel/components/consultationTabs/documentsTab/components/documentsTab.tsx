@@ -1,7 +1,11 @@
-import React from "react";
-import {Box, Stack, Typography} from "@mui/material";
+import React, {useState} from "react";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 
 function DocumentsTab({...props}) {
 
@@ -13,7 +17,7 @@ function DocumentsTab({...props}) {
         buttonVariant: "warning",
     };
 
-
+    const [selectedAudio, setSelectedAudio] = useState<any>(null);
 
     const {
         documents,
@@ -24,8 +28,21 @@ function DocumentsTab({...props}) {
         mutateDoc,
         setOpenDialog,
         showDoc,
-        t
-    } = props
+        router,
+        session,
+        t,trigger
+    } = props;
+
+    const removeDoc = () =>{
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(() => {
+            setSelectedAudio(null)
+            mutateDoc()
+        });
+    }
     return (
         <>
             <Box display='grid' sx={{
@@ -37,13 +54,15 @@ function DocumentsTab({...props}) {
                 }
             }}>
                 {
+                    selectedAudio === null &&
                     documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
-                            <DocumentCard data={card} onClick={() => {showDoc(card)}} t={t}/>
+                            <DocumentCard data={card} onClick={() => {
+                                card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
+                            }} t={t}/>
                         </React.Fragment>
                     )
                 }
-
                 {/*{documents.length > 0 && <DocumentCardStyled>
                     <CardContent>
                         <Stack justifyContent={"center"} alignItems="center" className="document-detail">
@@ -52,7 +71,36 @@ function DocumentsTab({...props}) {
                     </CardContent>
                 </DocumentCardStyled>}
 */}
+            </Box>
 
+            <Box style={{marginTop: 10}}>
+                {selectedAudio && <Box>
+                    <Box display='grid' sx={{
+                        gridGap: 16,
+                        gridTemplateColumns: {
+                            xs: "repeat(2,minmax(0,1fr))",
+                            md: "repeat(4,minmax(0,1fr))",
+                            lg: "repeat(5,minmax(0,1fr))",
+                        }
+                    }}>
+                        <DocumentCard data={selectedAudio} t={t}/>
+                    </Box>
+                    <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
+                        <IconButton color={"error"} onClick={() => removeDoc()}>
+                            <DeleteOutlineRoundedIcon/>
+                        </IconButton>
+                        <IconButton onClick={() => setSelectedAudio(null)}>
+                            <CloseRoundedIcon/>
+                        </IconButton>
+
+                    </Stack>
+                    <AudioPlayer
+                        autoPlay
+                        style={{marginTop: 10}}
+                        src={selectedAudio.uri}
+                        onPlay={e => console.log("onPlay")}
+                    />
+                </Box>}
             </Box>
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
