@@ -26,7 +26,7 @@
         "date": "Date",
         "time": "Heure",
         "name": "Nom",
-        "insurance": "Assurance",
+        "insurance": "Assurances",
         "type": "Type",
         "payment_type": "Type de Paiement",
         "billing_status": "Etat de Facturation",

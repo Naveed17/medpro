@@ -32,10 +32,9 @@ import {Session} from "next-auth";
 
 function ImportDataRow({...props}) {
     const {
-        row, loading = false, t, handleEvent, errorsDuplication,
-        setDuplicatedData, setDuplicateDetectedDialog,
-        setPatientDetailDrawer
+        row, loading = false, t, handleEvent, data
     } = props;
+    const {setPatientDetailDrawer, setDuplicatedData, setDuplicateDetectedDialog} = data;
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -54,16 +53,19 @@ function ImportDataRow({...props}) {
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const [expandData, setExpandData] = useState([]);
+    const [expandType, setExpandType] = useState("");
     const [loadingAction, setLoadingAction] = useState<boolean>(false);
 
-    const getDetailImportData = (uuid: string) => {
+    const getDetailImportData = (uuid: string, type: string) => {
+        setExpandType(type);
         triggerImportDataDetail({
             method: "GET",
-            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/1/${router.locale}?page=1&limit=10`,
+            url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
             if (value?.data.status === 'success') {
-
+                setExpandData(value?.data.data);
             }
         });
     }
@@ -71,37 +73,65 @@ function ImportDataRow({...props}) {
     return (
         <>
             <TableRowStyled
+                sx={{
+                    "&.MuiTableRow-root:hover": {
+                        background: (theme: Theme) => theme.palette.background.paper
+                    }
+                }}
                 onClick={() => {
-                    getDetailImportData(row.uuid);
-                    setExpanded(!expanded);
+                    if (expanded) {
+                        setExpanded(!expanded);
+                    }
                 }}
                 key={uniqueId}>
                 <TableCell>
                     {row ? (
                         <Stack direction={"row"} alignItems={"center"}>
-{/*                            {(row.errors !== 0 || row.duplication !== 0 || row.info !== 0) &&
-                                (expanded ? <RemoveIcon className={"expand-icon"}/> : <AddIcon className={"expand-icon"}/>)}*/}
+                            {(row.errors !== 0 || row.duplication !== 0 || row.info !== 0) &&
+                                (expanded ? <RemoveIcon className={"expand-icon"}/> :
+                                    <AddIcon className={"expand-icon"}/>)}
                             <Typography variant="body1" color="text.primary">
                                 {row.date}
                             </Typography>
 
                             {row.errors > 0 &&
-                                <Chip sx={{marginLeft: 1, height: 26}}
-                                      color={"error"}
-                                      icon={<IconUrl color={"black"} path={"danger"}/>}
-                                      label={`${row.errors} ${t("error.title")}`}/>}
+                                <Chip
+                                    onClick={() => {
+                                        if (!expanded) {
+                                            getDetailImportData(row.uuid, "2");
+                                        }
+                                        setExpanded(!expanded);
+                                    }}
+                                    sx={{marginLeft: 1, height: 26}}
+                                    color={"error"}
+                                    icon={<IconUrl color={"black"} path={"danger"}/>}
+                                    label={`${row.errors} ${t("error.title")}`}/>}
 
                             {row.duplication > 0 &&
-                                <Chip sx={{marginLeft: 1, height: 26}}
-                                      color={"warning"}
-                                      icon={<ErrorIcon/>}
-                                      label={`${row.duplication} ${t("error.warning-title")}`}/>}
+                                <Chip
+                                    onClick={() => {
+                                        if (!expanded) {
+                                            getDetailImportData(row.uuid, "1");
+                                        }
+                                        setExpanded(!expanded);
+                                    }}
+                                    sx={{marginLeft: 1, height: 26}}
+                                    color={"warning"}
+                                    icon={<ErrorIcon/>}
+                                    label={`${row.duplication} ${t("error.warning-title")}`}/>}
 
                             {row.info > 0 &&
-                                <Chip sx={{marginLeft: 1, height: 26}}
-                                      color={"info"}
-                                      icon={<HelpIcon color={"inherit"}/>}
-                                      label={`${row.info} ${t("error.info-title")}`}/>}
+                                <Chip
+                                    onClick={() => {
+                                        if (!expanded) {
+                                            getDetailImportData(row.uuid, "3");
+                                        }
+                                        setExpanded(!expanded);
+                                    }}
+                                    sx={{marginLeft: 1, height: 26}}
+                                    color={"info"}
+                                    icon={<HelpIcon color={"inherit"}/>}
+                                    label={`${row.info} ${t("error.info-title")}`}/>}
                         </Stack>
                     ) : (
                         <Stack>
@@ -163,8 +193,7 @@ function ImportDataRow({...props}) {
                     )}
                 </TableCell>
             </TableRowStyled>
-            {
-                row.collapse &&
+            {expandType.length > 0 &&
                 <TableRow>
                     <TableCell colSpan={9} style={{
                         backgroundColor: 'transparent',
@@ -177,145 +206,147 @@ function ImportDataRow({...props}) {
                         <Collapse in={expanded} timeout="auto" unmountOnExit sx={{pl: 6}}>
                             <Table>
                                 <tbody>
-                                {row.collapse.map((col: any, idx: number) => {
-                                    return <TableRow hover
-                                                     role="checkbox"
-                                                     key={idx}
-                                                     className="collapse-row"
-                                                     sx={{
-                                                         bgcolor: (theme: Theme) => theme.palette.background.paper
-                                                     }}>
-                                        <TableCell
-                                            style={{backgroundColor: 'transparent', border: 'none', width: "auto"}}
-                                            padding="checkbox">
-                                            {loading ? (
-                                                <Skeleton variant="circular" width={28} height={28}/>
-                                            ) : (
-                                                <>
-                                                    {col.errors && <Alert
-                                                        sx={{
-                                                            marginBottom: 1
-                                                        }}
-                                                        action={
-                                                            <Button variant={"contained"} color="error" size="small">
-                                                                {t('load-file')}
-                                                            </Button>
-                                                        }
-                                                        severity="error">
-                                                        <AlertTitle>{t("error.title")}</AlertTitle>
-                                                        {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
-                                                    </Alert>}
-                                                    {col.warning && <Alert
-                                                        action={
-                                                            <Button variant={"contained"}
-                                                                    onClick={(event) => {
-                                                                        event.stopPropagation();
-                                                                        setWarningAlertContainer(!warningAlertContainer);
+                                <TableRow hover
+                                          role="checkbox"
+                                          className="collapse-row"
+                                          sx={{
+                                              "&.MuiTableRow-root": {
+                                                  background: (theme: Theme) => theme.palette.common.white,
+                                                  "&:hover": {
+                                                      background: (theme: Theme) => theme.palette.background.paper
+                                                  }
+                                              }
+                                          }}>
+                                    <TableCell
+                                        style={{backgroundColor: 'transparent', border: 'none', width: "auto"}}
+                                        padding="checkbox">
+                                        {loading ? (
+                                            <Skeleton variant="circular" width={28} height={28}/>
+                                        ) : (
+                                            <>
+                                                {expandType === "2" && <Alert
+                                                    sx={{
+                                                        marginBottom: 1
+                                                    }}
+                                                    action={
+                                                        <Button variant={"contained"} color="error" size="small">
+                                                            {t('load-file')}
+                                                        </Button>
+                                                    }
+                                                    severity="error">
+                                                    <AlertTitle>{t("error.title")}</AlertTitle>
+                                                    {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
+                                                </Alert>}
+                                                {expandType === "1" && <Alert
+                                                    action={
+                                                        <Button variant={"contained"}
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    setWarningAlertContainer(!warningAlertContainer);
+                                                                }}
+                                                                color="warning" size="small">
+                                                            {t('error.see-all')}
+                                                        </Button>
+                                                    }
+                                                    sx={{
+                                                        marginBottom: 1
+                                                    }}
+                                                    severity="warning">
+                                                    <Box onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setWarningAlertContainer(!warningAlertContainer);
+                                                    }}>
+                                                        <AlertTitle>{t("error.warning-title")}</AlertTitle>
+                                                        {t("error.loading-error")} — <strong>{` ${row.duplication} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
+                                                    </Box>
+                                                    <Collapse in={warningAlertContainer} timeout="auto"
+                                                              unmountOnExit>
+                                                        <List>
+                                                            {expandData.map((error: any, index: number) => (
+                                                                <ListItem
+                                                                    key={index}
+                                                                    disableGutters
+                                                                    secondaryAction={
+                                                                        <Button variant={"contained"}
+                                                                                sx={{
+                                                                                    visibility: !error.fixed ? "visible" : "hidden"
+                                                                                }}
+                                                                                onClick={(event) => {
+                                                                                    console.log(error)
+                                                                                    event.stopPropagation();
+                                                                                    setDuplicatedData(error.value);
+                                                                                    setDuplicateDetectedDialog(true);
+                                                                                }}
+                                                                                color="warning" size="small">
+                                                                            {t('error.fix-duplication')}
+                                                                        </Button>
+                                                                    }>
+                                                                    <strong>{index} .</strong>
+                                                                    <ListItemText sx={{
+                                                                        textDecorationLine: error.fixed ? "line-through" : "none"
                                                                     }}
-                                                                    color="warning" size="small">
-                                                                {t('error.see-all')}
-                                                            </Button>
-                                                        }
-                                                        sx={{
-                                                            marginBottom: 1
-                                                        }}
-                                                        severity="warning">
-                                                        <Box onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            setWarningAlertContainer(!warningAlertContainer);
-                                                        }}>
-                                                            <AlertTitle>{t("error.warning-title")}</AlertTitle>
-                                                            {t("error.loading-error")} — <strong>{` ${errorsDuplication.length} ${t("error.duplicated")} , ${t("error.re-duplicate")}`}</strong>
-                                                        </Box>
-                                                        <Collapse in={warningAlertContainer} timeout="auto"
-                                                                  unmountOnExit>
-                                                            <List>
-                                                                {errorsDuplication.map((error: any, index: number) => (
-                                                                    <ListItem
-                                                                        key={error.key}
-                                                                        disableGutters
-                                                                        secondaryAction={
-                                                                            <Button variant={"contained"}
-                                                                                    sx={{
-                                                                                        visibility: !error.fixed ? "visible" : "hidden"
-                                                                                    }}
-                                                                                    onClick={(event) => {
-                                                                                        event.stopPropagation();
-                                                                                        setDuplicatedData(error);
-                                                                                        setDuplicateDetectedDialog(true);
-                                                                                    }}
-                                                                                    color="warning" size="small">
-                                                                                {t('error.fix-duplication')}
-                                                                            </Button>
-                                                                        }>
-                                                                        <strong>{index} .</strong>
-                                                                        <ListItemText sx={{
-                                                                            textDecorationLine: error.fixed ? "line-through" : "none"
-                                                                        }}
-                                                                                      primary={`${t("error.duplicated-row")} ${error.row}`}/>
-                                                                    </ListItem>))}
-                                                            </List>
-                                                        </Collapse>
-                                                    </Alert>}
-                                                    {col.info && <Alert
-                                                        action={
-                                                            <Button variant={"contained"}
-                                                                    onClick={(event) => {
-                                                                        event.stopPropagation();
-                                                                        setInfoAlertContainer(!infoAlertContainer);
+                                                                                  primary={`${t("error.duplicated-row")} ${error.row}`}/>
+                                                                </ListItem>))}
+                                                        </List>
+                                                    </Collapse>
+                                                </Alert>}
+                                                {expandType === "3" && <Alert
+                                                    action={
+                                                        <Button variant={"contained"}
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    setInfoAlertContainer(!infoAlertContainer);
+                                                                }}
+                                                                color="info" size="small">
+                                                            {t('error.see-all')}
+                                                        </Button>
+                                                    }
+                                                    sx={{
+                                                        marginBottom: 1
+                                                    }}
+                                                    severity="info">
+                                                    <Box onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setInfoAlertContainer(!infoAlertContainer);
+                                                    }}>
+                                                        <AlertTitle>{t("error.info-title")}</AlertTitle>
+                                                        {t("error.loading-error")} — <strong>{` ${row.info} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
+                                                    </Box>
+                                                    <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
+                                                        <List>
+                                                            {expandData.map((info: any, index: number) => (
+                                                                <ListItem
+                                                                    key={index}
+                                                                    disableGutters
+                                                                    secondaryAction={
+                                                                        <Button variant={"contained"}
+                                                                                sx={{
+                                                                                    visibility: !info.fixed ? "visible" : "hidden"
+                                                                                }}
+                                                                                onClick={(event) => {
+                                                                                    event.stopPropagation();
+                                                                                    console.log(info)
+                                                                                    dispatch(onOpenPatientDrawer({patientId: info?.patient}));
+                                                                                    setPatientDetailDrawer(true);
+                                                                                }}
+                                                                                color="warning" size="small">
+                                                                            {t('error.see-details')}
+                                                                        </Button>
+                                                                    }>
+                                                                    <strong>{index} .</strong>
+                                                                    <ListItemText sx={{
+                                                                        textDecorationLine: info.fixed ? "line-through" : "none"
                                                                     }}
-                                                                    color="info" size="small">
-                                                                {t('error.see-all')}
-                                                            </Button>
-                                                        }
-                                                        sx={{
-                                                            marginBottom: 1
-                                                        }}
-                                                        severity="info">
-                                                        <Box onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            setInfoAlertContainer(!infoAlertContainer);
-                                                        }}>
-                                                            <AlertTitle>{t("error.info-title")}</AlertTitle>
-                                                            {t("error.loading-error")} — <strong>{` ${infoDuplication.length} ${t("error.warning-insert")} , ${t("error.re-duplicate")}`}</strong>
-                                                        </Box>
-                                                        <Collapse in={infoAlertContainer} timeout="auto" unmountOnExit>
-                                                            <List>
-                                                                {infoDuplication.map((info: any, index: number) => (
-                                                                    <ListItem
-                                                                        key={info.key}
-                                                                        disableGutters
-                                                                        secondaryAction={
-                                                                            <Button variant={"contained"}
-                                                                                    sx={{
-                                                                                        visibility: !info.fixed ? "visible" : "hidden"
-                                                                                    }}
-                                                                                    onClick={(event) => {
-                                                                                        event.stopPropagation();
-                                                                                        console.log(info)
-                                                                                        dispatch(onOpenPatientDrawer({patientId: info?.data && info?.data.uuid}));
-                                                                                        setPatientDetailDrawer(true);
-                                                                                    }}
-                                                                                    color="warning" size="small">
-                                                                                {t('error.see-details')}
-                                                                            </Button>
-                                                                        }>
-                                                                        <strong>{index} .</strong>
-                                                                        <ListItemText sx={{
-                                                                            textDecorationLine: info.fixed ? "line-through" : "none"
-                                                                        }}
-                                                                                      primary={`${t("error.warning-row")} ${info.data?.firstName} ${info.data?.lastName} ${t("error.warning-row-detail")}`}/>
-                                                                    </ListItem>))}
-                                                            </List>
-                                                        </Collapse>
-                                                    </Alert>}
-                                                </>
+                                                                                  primary={`${t("error.warning-row")} ${info.data?.firstName} ${info.data?.lastName} ${t("error.warning-row-detail")}`}/>
+                                                                </ListItem>))}
+                                                        </List>
+                                                    </Collapse>
+                                                </Alert>}
+                                            </>
 
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                })
-                                }
+                                        )}
+                                    </TableCell>
+                                </TableRow>
                                 </tbody>
                             </Table>
                         </Collapse>

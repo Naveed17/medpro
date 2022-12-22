@@ -1,37 +1,71 @@
-import React, {useState} from "react";
+import React, {memo, useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
+    AppBar,
+    Autocomplete,
     Box,
-    Typography,
-    Paper,
+    Button,
+    CardContent,
+    Collapse,
+    Divider,
     Grid,
+    IconButton,
+    InputAdornment,
+    InputBase,
+    MenuItem,
+    Paper,
     Skeleton,
-    InputBase, AppBar, Toolbar, IconButton, MenuItem, TextField, Button
+    Stack,
+    TextField,
+    Toolbar,
+    Typography
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {Stack} from "@mui/system";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {PhoneRegExp} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import Select from '@mui/material/Select';
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {DatePicker} from "@mui/x-date-pickers";
+import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+import {styled} from "@mui/material/styles";
+
+const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+
+const GroupHeader = styled('div')(({theme}) => ({
+    position: 'sticky',
+    top: '-8px',
+    padding: '4px 10px',
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.background.paper
+}));
+
+const GroupItems = styled('ul')({
+    padding: 0,
+});
+
+export const MyTextInput: any = memo(({...props}) => {
+    return (
+        <TextField {...props} />
+    );
+})
+MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
@@ -48,6 +82,21 @@ function PersonalInfo({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
+    const [selectedCountry, setSelectedCountry] = React.useState<any>({
+        code: "TN",
+        label: "Tunisia",
+        phone: "+216"
+    });
+    const [socialInsured, setSocialInsured] = useState([
+        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
+        {grouped: "L'ascendant", key: "father", label: "Le Pére"},
+        {grouped: "L'ascendant", key: "mother", label: "La Mére"},
+        {grouped: "L'enfant", key: "child", label: "1er Enfant"},
+        {grouped: "L'enfant", key: "child", label: "2ème Enfant"},
+        {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
+        {grouped: "L'enfant", key: "child", label: "Autre"},
+        {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
+    ]);
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
     const {t, ready} = useTranslation("patient", {
@@ -60,10 +109,9 @@ function PersonalInfo({...props}) {
     const notEmpty = Yup.string()
         .ensure() // Transforms undefined and null values to an empty string.
         .test('Only Empty?', 'Cannot be only empty characters', (value) => {
-            const isValid = value.split(' ').join('').length !== 0;
-
-            return isValid;
+            return value.split(' ').join('').length !== 0;
         });
+
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("name-error"))
@@ -80,10 +128,6 @@ function PersonalInfo({...props}) {
             .email('Invalid email format'),
         birthdate: Yup.string(),
         cin: Yup.number(),
-        telephone: Yup.string()
-            .min(8, t("telephone-error"))
-            .matches(PhoneRegExp, t("telephone-error"))
-            .required(t("telephone-error")),
         insurances: Yup.array()
             .of(
                 Yup.object().shape({
@@ -106,28 +150,28 @@ function PersonalInfo({...props}) {
                 !loading && patient.address.length > 0
                     ? patient.address[0].city?.name + ", " + patient.address[0].street
                     : "",
-            telephone:
-                !loading && patient.contact.length > 0
-                    ? patient.contact[0].value
-                    : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
             insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
                 insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance?.uuid
-            })) : [{
-                insurance_number: "",
-                insurance_uuid: ""
-            }] as InsurancesModel[]
+                insurance_uuid: insurance.insurance?.uuid,
+                insurance_type: "",
+                expanded: false
+            })) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
-        onSubmit: async (values) => {
+        onSubmit: async () => {
             handleUpdatePatient();
         },
     });
 
     const handleAddInsurance = () => {
-        const insurance = [...values.insurances, {insurance_uuid: "", insurance_number: ""}];
+        const insurance = [...values.insurances, {
+            insurance_uuid: "",
+            insurance_number: "",
+            insurance_type: "",
+            expanded: false
+        }];
         setFieldValue("insurances", insurance);
     }
 
@@ -143,18 +187,19 @@ function PersonalInfo({...props}) {
         params.append('first_name', values.firstName);
         params.append('last_name', values.lastName);
         params.append('gender', values.gender);
-        params.append('phone', JSON.stringify({
-            code: patient.contact[0].code,
-            value: values.telephone,
+        params.append('phone', JSON.stringify(
+            patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
+            code: phone.code,
+            value: phone.value,
             type: "phone",
             "contact_type": patient.contact[0].uuid,
             "is_public": false,
             "is_support": false
-        }));
+        }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
         params.append('insurance', JSON.stringify(values.insurances.filter(
-           ( insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
+            (insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
@@ -185,41 +230,7 @@ function PersonalInfo({...props}) {
     return (
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
-                <PersonalInfoStyled
-                    sx={{
-                        mt: "0.5rem",
-                        "& .MuiSelect-select": {
-                            padding: "0 2rem 0 1rem"
-                        },
-                        "& .MuiInputBase-root": {
-                            background: "no-repeat!important",
-                            "&:hover": {
-                                backgroundColor: "none"
-                            },
-                        },
-                        "& fieldset": {
-                            border: "none!important",
-                            boxShadow: "none!important"
-                        },
-                        "& .MuiPaper-root": {
-                            pt: 0
-                        },
-                        "& .MuiAppBar-root": {
-                            border: "none",
-                            borderBottom: "1px solid #E0E0E0",
-                            height: 46,
-                            mb: 2,
-                            "& .MuiTypography-root": {
-                                fontSize: 14,
-                                pt: 0
-                            }
-                        },
-                        "& .MuiToolbar-root": {
-                            float: "right",
-                            padding: 0
-                        }
-                    }}>
-
+                <PersonalInfoStyled>
                     <Paper
                         sx={{
                             "& .MuiTypography-root": {
@@ -274,7 +285,9 @@ function PersonalInfo({...props}) {
                                 </Box>
                             </Toolbar>
                         </AppBar>
-                        <Grid container spacing={1.2}>
+                        <Grid container spacing={1.2} sx={{
+                            marginTop: "0.5rem"
+                        }}>
                             <Grid item md={4} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
@@ -457,100 +470,221 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
+                            <Grid item md={12} sm={12} xs={12}>
+                                <Divider/>
+                                <Stack sx={{padding: 1}} direction={"row"} alignItems={"center"}>
+                                    <IconButton
+                                        disabled={!editable}
+                                        size={"small"}
+                                        onClick={handleAddInsurance}
+                                        className="success-light"
+                                        sx={{
+                                            mr: 1.5,
+                                            "& svg": {
+                                                width: 14,
+                                                height: 12
+                                            }
+                                        }}>
+                                        <Icon path="ic-plus"/>
+                                    </IconButton>
+                                    <Typography ml={1} variant="body1" sx={{fontWeight: "bold"}}>
+                                        {t("assurance")}
+                                    </Typography>
+                                </Stack>
+                            </Grid>
                             {values.insurances.map((insurance: any, index: number) => (
-                                <Grid item md={7} sm={6} xs={6} key={`${index}-${insurance.insurance_uuid}`}>
-                                    <Stack
-                                        direction="row"
-                                        spacing={1}
-                                        alignItems="center">
-                                        <Grid item md={2.5} sm={6} xs={6}>
-                                            <Typography variant="body1" color="text.secondary" noWrap>
-                                                {t("assurance")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item md={10} sm={6} xs={6}>
+                                <Grid item md={12} sm={12} xs={12} key={`${index}-${insurance.insurance_uuid}`}>
+                                    <Stack direction="row" alignItems="center">
+                                        <Grid item md={12} sm={12} xs={12}>
                                             {loading ? (
                                                 <Skeleton variant="text"/>
                                             ) : (
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center">
-                                                    <Select
-                                                        sx={{
-                                                            "& .MuiSvgIcon-root": {
-                                                                display: !editable ? "none" : "inline-block"
-                                                            }
-                                                        }}
-                                                        readOnly={!editable}
-                                                        id={"assurance"}
-                                                        size="small"
-                                                        {...getFieldProps(`insurances[${index}].insurance_uuid`)}
-                                                        displayEmpty
-                                                        renderValue={(selected) => {
-                                                            if (!selected) {
-                                                                return <em>{t("assurance-placeholder")}</em>;
-                                                            }
-
-                                                            const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                            return <Box key={insurance?.uuid}
-                                                                        component="img" width={20} height={20}
-                                                                        src={insurance?.logoUrl}/>
-                                                        }}
-                                                    >
-                                                        {insurances?.map(insurance => (
-                                                            <MenuItem
-                                                                key={insurance.uuid}
-                                                                value={insurance.uuid}>
-                                                                <Box key={insurance.uuid}
-                                                                     component="img" width={20} height={20}
-                                                                     src={insurance.logoUrl}/>
-                                                                <Typography
-                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
-                                                            </MenuItem>)
-                                                        )}
-                                                    </Select>
-                                                    <InputBase
-                                                        fullWidth
-                                                        placeholder={t("assurance-phone-error")}
-                                                        readOnly={!editable}
-                                                        {...getFieldProps(`insurances[${index}].insurance_number`)}
-                                                    />
-                                                </Stack>
-
+                                                <>
+                                                    <CardContent sx={{paddingTop: 0, paddingLeft: 1}}>
+                                                        <Grid container spacing={1.2}>
+                                                            <Grid item xs={6} md={4}>
+                                                                <Stack direction={"row"} alignItems={"center"}>
+                                                                    <Autocomplete
+                                                                        size={"small"}
+                                                                        {...getFieldProps(`insurances[${index}].insurance_type`)}
+                                                                        onChange={(event, newValue) => {
+                                                                            setFieldValue(`insurances[${index}].insurance_type`, newValue)
+                                                                            setFieldValue(`insurances[${index}].expand`, newValue?.key !== "socialInsured")
+                                                                        }}
+                                                                        id={"assure"}
+                                                                        options={socialInsured}
+                                                                        groupBy={(option) => option.grouped}
+                                                                        sx={{minWidth: 240}}
+                                                                        renderGroup={(params) => {
+                                                                            return (
+                                                                                <li key={params.key}>
+                                                                                    {(params.children as Array<any>)?.length > 1 &&
+                                                                                        <GroupHeader
+                                                                                            sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                                                    <GroupItems {...(
+                                                                                        (params.children as Array<any>)?.length > 1 &&
+                                                                                        {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                                                </li>)
+                                                                        }}
+                                                                        renderInput={(params) =>
+                                                                            <TextField {...params}
+                                                                                       placeholder={"Le malade"}/>}
+                                                                    />
+                                                                </Stack>
+                                                            </Grid>
+                                                            <Grid item xs={6} md={7}>
+                                                                <Stack direction="row" spacing={1.5}
+                                                                       alignItems={"center"}>
+                                                                    <Select
+                                                                        id={"assurance"}
+                                                                        size="small"
+                                                                        placeholder={t("assurance-placeholder")}
+                                                                        {...getFieldProps(`insurances[${index}].insurance_uuid`)}
+                                                                        displayEmpty
+                                                                        renderValue={(selected) => {
+                                                                            if (selected?.length === 0) {
+                                                                                return <em>{t("assurance-placeholder")}</em>;
+                                                                            }
+                                                                            const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                                            return <Typography>{insurance?.name}</Typography>
+                                                                        }}
+                                                                    >
+                                                                        {insurances?.map(insurance => (
+                                                                            <MenuItem
+                                                                                key={insurance.uuid}
+                                                                                value={insurance.uuid}>
+                                                                                <Box key={insurance.uuid}
+                                                                                     component="img" width={30}
+                                                                                     height={30}
+                                                                                     src={insurance.logoUrl}/>
+                                                                                <Typography
+                                                                                    sx={{ml: 1}}>{insurance.name}</Typography>
+                                                                            </MenuItem>)
+                                                                        )}
+                                                                    </Select>
+                                                                    <MyTextInput
+                                                                        variant="outlined"
+                                                                        placeholder={t("assurance-phone-error")}
+                                                                        size="small"
+                                                                        fullWidth
+                                                                        {...getFieldProps(`insurances[${index}].insurance_number`)}
+                                                                    />
+                                                                </Stack>
+                                                            </Grid>
+                                                            <Grid item xs={6} md={1}>
+                                                                <Stack direction={"row"} alignItems={"center"}>
+                                                                    <IconButton
+                                                                        onClick={() => handleRemoveInsurance(index)}
+                                                                        className="error-light"
+                                                                        size={"small"}
+                                                                        sx={{
+                                                                            mr: 1.5,
+                                                                            "& svg": {
+                                                                                width: 14,
+                                                                                height: 12
+                                                                            },
+                                                                        }}
+                                                                    >
+                                                                        <Icon path="ic-moin"/>
+                                                                    </IconButton>
+                                                                </Stack>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </CardContent>
+                                                    <Collapse in={getFieldProps(`insurances[${index}].expand`).value}
+                                                              timeout="auto"
+                                                              unmountOnExit>
+                                                        <CardContent sx={{paddingTop: 0}}
+                                                                     className={"insurance-section"}>
+                                                            <Grid container spacing={1.2}>
+                                                                <Grid item md={6} sm={6}>
+                                                                    <Stack direction={"row"} alignItems={"center"}
+                                                                           mb={1}>
+                                                                        <Typography variant="body2"
+                                                                                    color="text.secondary"
+                                                                                    gutterBottom>
+                                                                            {t("first-name")}
+                                                                        </Typography>
+                                                                        <TextField
+                                                                            placeholder={t("first-name-placeholder")}
+                                                                            variant="outlined"
+                                                                            size="small"
+                                                                            fullWidth
+                                                                            {...getFieldProps(`insurances[${index}].insurance_social.firstName`)}
+                                                                        />
+                                                                    </Stack>
+                                                                </Grid>
+                                                                <Grid item md={6} sm={6}>
+                                                                    <Stack direction={"row"} alignItems={"center"}
+                                                                           mb={1}>
+                                                                        <Typography variant="body2"
+                                                                                    color="text.secondary"
+                                                                                    gutterBottom>
+                                                                            {t("last-name")}
+                                                                        </Typography>
+                                                                        <TextField
+                                                                            placeholder={t("last-name-placeholder")}
+                                                                            variant="outlined"
+                                                                            size="small"
+                                                                            fullWidth
+                                                                            {...getFieldProps(`insurances[${index}].insurance_social.lastName`)}
+                                                                        />
+                                                                    </Stack>
+                                                                </Grid>
+                                                            </Grid>
+                                                            <Stack direction={"row"} alignItems={"center"} mb={1}>
+                                                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                    <Typography variant="body2" color="text.secondary"
+                                                                                gutterBottom>
+                                                                        {t("birthdate")}
+                                                                    </Typography>
+                                                                    <CustomDatePicker
+                                                                        onChange={(date: Date) => {
+                                                                            console.log(date);
+                                                                        }}
+                                                                        inputFormat="dd/MM/yyyy"
+                                                                    />
+                                                                </LocalizationProvider>
+                                                            </Stack>
+                                                            <Stack direction={"row"} alignItems={"center"}>
+                                                                <Typography variant="body2" color="text.secondary"
+                                                                            gutterBottom>
+                                                                    {t("telephone")}
+                                                                </Typography>
+                                                                <Grid container spacing={2}>
+                                                                    <Grid item md={6} lg={4} xs={12}>
+                                                                        <CountrySelect
+                                                                            initCountry={{
+                                                                                code: "TN",
+                                                                                label: "Tunisia",
+                                                                                phone: "+216"
+                                                                            }}
+                                                                            onSelect={(state: any) => {
+                                                                                setSelectedCountry(state);
+                                                                            }}/>
+                                                                    </Grid>
+                                                                    <Grid item md={6} lg={8} xs={12}>
+                                                                        <TextField
+                                                                            variant="outlined"
+                                                                            size="small"
+                                                                            fullWidth
+                                                                            InputProps={{
+                                                                                startAdornment: (
+                                                                                    <InputAdornment position="start">
+                                                                                        {selectedCountry?.phone}
+                                                                                    </InputAdornment>
+                                                                                ),
+                                                                            }}
+                                                                        />
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Stack>
+                                                        </CardContent>
+                                                    </Collapse>
+                                                    {(values.insurances.length - 1) !== index && <Divider/>}
+                                                </>
                                             )}
                                         </Grid>
-                                        {(editable && index === 0) ? <>
-                                            <IconButton
-                                                onClick={handleAddInsurance}
-                                                className="success-light"
-                                                sx={{
-                                                    mr: 1.5,
-                                                    p: "3px 5px",
-                                                    "& svg": {
-                                                        width: 14,
-                                                        height: 14
-                                                    },
-                                                }}
-                                            >
-                                                <Icon path="ic-plus"/>
-                                            </IconButton>
-                                        </> : (editable && <IconButton
-                                            onClick={() => handleRemoveInsurance(index)}
-                                            className="error-light"
-                                            sx={{
-                                                mr: 1.5,
-                                                p: "3px 5px",
-                                                "& svg": {
-                                                    width: 14,
-                                                    height: 14,
-                                                    "& path": {
-                                                        fill: (theme) => theme.palette.text.primary,
-                                                    },
-                                                },
-                                            }}
-                                        >
-                                            <Icon path="ic-moin"/>
-                                        </IconButton>)}
                                     </Stack>
                                 </Grid>))}
                         </Grid>

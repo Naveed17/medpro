@@ -155,7 +155,7 @@
         "zip": "Code postal",
         "address": "Adresse",
         "address-placeholder": "Entrez l'adresse du patient",
-        "assurance": "Assurance",
+        "assurance": "Assurances",
         "assurance-placeholder": "assurance",
         "assurance-phone-error": "Entrez le numéro d'assurance",
         "email": "E-mail",

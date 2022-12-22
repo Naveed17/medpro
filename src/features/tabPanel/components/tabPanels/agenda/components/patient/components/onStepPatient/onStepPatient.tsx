@@ -152,7 +152,7 @@ function OnStepPatient({...props}) {
                 }
                 : patient.step1.birthdate,
             phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
-            selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
+                selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
                     phone: contact.value,
                     dial: dialCountries.find(dial => dial.phone === contact.code)
@@ -242,7 +242,12 @@ function OnStepPatient({...props}) {
     };
 
     const handleAddInsurance = () => {
-        const insurance = [...values.insurance, {insurance_uuid: "", insurance_number: ""}];
+        const insurance = [...values.insurance, {
+            insurance_uuid: "",
+            insurance_number: "",
+            insurance_type: "",
+            expanded: false
+        }];
         formik.setFieldValue("insurance", insurance);
     };
 
@@ -710,7 +715,7 @@ function OnStepPatient({...props}) {
                                     name={"insurance"}
                                     render={arrayHelpers => (
                                         values.insurance.map((
-                                            val: { insurance_number: string; insurance_uuid: string; },
+                                            val: InsurancesModel,
                                             index: number) => (
                                             <Card key={index} sx={{marginBottom: 2}}>
                                                 <CardHeader

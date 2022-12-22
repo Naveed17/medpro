@@ -3,7 +3,7 @@ import {configSelector, DashLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
-import {Box, Button, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Button, DialogActions, Drawer, Stack, Typography, useTheme} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
@@ -12,14 +12,20 @@ import {Session} from "next-auth";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {NoDataCard} from "@features/card";
-import {Otable} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {ImportCardData} from "./import";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import {useAppSelector} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useSnackbar} from "notistack";
+import dynamic from "next/dynamic";
+import IconUrl from "@themes/urlIcon";
+import {resetDuplicated} from "@features/duplicateDetected";
+
+const PatientDetail = dynamic(() => import("@features/dialog/components/patientDetail/components/patientDetail"));
+const DuplicateDetected = dynamic(() => import("@features/duplicateDetected/components/duplicateDetected"));
 
 const headImportDataCells = [
     {
@@ -49,10 +55,12 @@ const headImportDataCells = [
 
 function Data() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
+    const {patientId} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
@@ -74,6 +82,15 @@ function Data() {
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [selectedRow, setSelectedRow] = useState<string | null>(null);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+    const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
+    const [errorsDuplication, setErrorsDuplication] = useState<Array<{
+        key: string;
+        row: string;
+        data: Array<PatientImportModel>;
+        fixed: boolean;
+    }>>([]);
+    const [duplicatedData, setDuplicatedData] = useState<any>(null);
 
     const handleTableEvent = (action: string, uuid: string) => {
         switch (action) {
@@ -82,6 +99,12 @@ function Data() {
                 setDeleteDialog(true);
                 break;
         }
+    }
+
+    const handleDuplicatedPatient = () => {
+        setDuplicateDetectedDialog(false);
+        (errorsDuplication.find(err => err.key === duplicatedData.key) as any).fixed = true;
+        dispatch(resetDuplicated());
     }
 
     const handleDeleteImportData = (uuid: string) => {
@@ -137,7 +160,12 @@ function Data() {
                     <NoDataCard {...{t}} firstbackgroundonly="true" data={ImportCardData}/>
                     :
                     <Otable
-                        {...{t}}
+                        {...{
+                            t,
+                            setPatientDetailDrawer,
+                            setDuplicatedData,
+                            setDuplicateDetectedDialog
+                        }}
                         handleEvent={(action: string, uuid: string) =>
                             handleTableEvent(action, uuid)
                         }
@@ -186,6 +214,72 @@ function Data() {
                             </LoadingButton>
                         </>
                     }
+                />
+
+                <Drawer
+                    anchor={"right"}
+                    open={patientDetailDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                        setPatientDetailDrawer(false);
+                    }}
+                >
+                    <PatientDetail
+                        {...{isAddAppointment: false, patientId}}
+                        onCloseDialog={() => {
+                            dispatch(onOpenPatientDrawer({patientId: ""}));
+                            setPatientDetailDrawer(false);
+                        }}
+                        onAddAppointment={() => console.log("onAddAppointment")}/>
+                </Drawer>
+
+                <Dialog
+                    {...{
+                        sx: {
+                            minHeight: 340
+                        }
+                    }}
+                    color={theme.palette.primary.main}
+                    contrastText={theme.palette.primary.contrastText}
+                    dialogClose={() => {
+                        setDuplicateDetectedDialog(false);
+                    }}
+                    action={() => {
+                        return duplicatedData && <DuplicateDetected data={duplicatedData}/>
+                    }}
+                    actionDialog={
+                        <DialogActions
+                            sx={{
+                                justifyContent: "space-between",
+                                width: "100%",
+                                "& .MuiDialogActions-root": {
+                                    'div': {
+                                        width: "100%",
+                                    }
+                                }
+                            }}>
+                            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                                <Button onClick={() => setDuplicateDetectedDialog(false)} startIcon={<CloseIcon/>}>
+                                    {t("dialogs.duplication-dialog.later")}
+                                </Button>
+                                <Box>
+                                    <Button sx={{marginRight: 1}} color={"inherit"} startIcon={<CloseIcon/>}>
+                                        {t("dialogs.duplication-dialog.no-duplicates")}
+                                    </Button>
+                                    <Button
+                                        onClick={handleDuplicatedPatient}
+                                        variant="contained"
+                                        startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
+                                        {t("dialogs.duplication-dialog.save")}
+                                    </Button>
+                                </Box>
+                            </Stack>
+
+                        </DialogActions>
+                    }
+                    open={duplicateDetectedDialog}
+                    title={t(`dialogs.duplication-dialog.title`)}
                 />
             </Box>
         </>
