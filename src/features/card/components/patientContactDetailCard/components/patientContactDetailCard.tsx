@@ -73,7 +73,7 @@ function PatientContactDetailCard({...props}) {
         initialValues: {
             country: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.country?.uuid : "",
             region: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.uuid : "",
-            zip_code: !loading && patient?.address.length > 0 ? patient?.address[0]?.postalCode : "",
+            zip_code: !loading && patient?.address.length > 0 ? (patient?.address[0]?.postalCode ? patient?.address[0]?.postalCode : "") : "",
             address:
                 !loading && patient?.address[0] ? patient?.address[0].street : "",
             phones:
@@ -273,7 +273,6 @@ function PatientContactDetailCard({...props}) {
                                                                     phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : "+216"
                                                                 }}
                                                                 onSelect={(state: any) => {
-                                                                    console.log(state);
                                                                     setFieldValue(`phones[${index}].code`, state.phone);
                                                                 }}/>
                                                             <InputBase

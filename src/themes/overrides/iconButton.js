@@ -48,6 +48,9 @@ export default function IconButton(theme) {
                 fill: theme.palette.text.primary,
               },
             },
+            "&.Mui-disabled":{
+              backgroundColor: theme.palette.grey[100]
+            }
           },
           "&.error-light": {
             border: `1px solid ${theme.palette.error.lighter}`,

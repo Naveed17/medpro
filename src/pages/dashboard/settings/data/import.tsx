@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -13,9 +13,7 @@ import {
     MenuItem,
     Select,
     Stack,
-    useTheme,
-    DialogActions,
-    Button, Drawer, AlertTitle, Alert, List, ListItem
+    useTheme, AlertTitle, Alert, List, ListItem
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import {FormikProvider, Form, useFormik} from "formik";
@@ -25,25 +23,16 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import Papa from "papaparse";
 import {read, utils} from "xlsx";
-import {CircularProgressbarCard, NoDataCard} from "@features/card";
+import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
-import {Dialog} from "@features/dialog";
-import {resetDuplicated} from "@features/duplicateDetected";
-import CloseIcon from "@mui/icons-material/Close";
-import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {agendaSelector} from "@features/calendar";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
-const DuplicateDetected = dynamic(() => import("@features/duplicateDetected/components/duplicateDetected"));
-const PatientDetail = dynamic(() => import("@features/dialog/components/patientDetail/components/patientDetail"));
 const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
 export const ImportCardData = {
@@ -81,8 +70,6 @@ function ImportData() {
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
-    const {direction} = useAppSelector(configSelector);
-    const {patientId} = useAppSelector(tableActionSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
@@ -90,6 +77,7 @@ function ImportData() {
 
     const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
+    const [loading, setLoading] = useState<boolean>(false);
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
         loading: false
@@ -99,18 +87,9 @@ function ImportData() {
         {label: "Toutes les données", key: "2"},
     ]);
     const [files, setFiles] = useState<any[]>([]);
-    const [errorsDuplication, setErrorsDuplication] = useState<Array<{
-        key: string;
-        row: string;
-        data: Array<PatientImportModel>;
-        fixed: boolean;
-    }>>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [duplicatedData, setDuplicatedData] = useState<any>(null);
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
-    const [duplicateDetectedDialog, setDuplicateDetectedDialog] = useState(false);
-    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
+
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
@@ -131,12 +110,6 @@ function ImportData() {
         setFiles(files.filter((_file: any) => _file !== file));
         setFileLength(0);
     };
-
-    const handleDuplicatedPatient = () => {
-        setDuplicateDetectedDialog(false);
-        (errorsDuplication.find(err => err.key === duplicatedData.key) as any).fixed = true;
-        dispatch(resetDuplicated());
-    }
 
     const handleOnDropFile = (acceptedFiles: File[]) => {
         // Passing CSV file data to parse using Papa.parse
@@ -400,72 +373,6 @@ function ImportData() {
                     </Form>
                 </FormikProvider>
             </Box>
-
-            <Dialog
-                {...{
-                    sx: {
-                        minHeight: 340
-                    }
-                }}
-                color={theme.palette.primary.main}
-                contrastText={theme.palette.primary.contrastText}
-                dialogClose={() => {
-                    setDuplicateDetectedDialog(false);
-                }}
-                action={() => {
-                    return duplicatedData && <DuplicateDetected data={duplicatedData}/>
-                }}
-                actionDialog={
-                    <DialogActions
-                        sx={{
-                            justifyContent: "space-between",
-                            width: "100%",
-                            "& .MuiDialogActions-root": {
-                                'div': {
-                                    width: "100%",
-                                }
-                            }
-                        }}>
-                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                            <Button onClick={() => setDuplicateDetectedDialog(false)} startIcon={<CloseIcon/>}>
-                                {t("dialogs.duplication-dialog.later")}
-                            </Button>
-                            <Box>
-                                <Button sx={{marginRight: 1}} color={"inherit"} startIcon={<CloseIcon/>}>
-                                    {t("dialogs.duplication-dialog.no-duplicates")}
-                                </Button>
-                                <Button
-                                    onClick={handleDuplicatedPatient}
-                                    variant="contained"
-                                    startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
-                                    {t("dialogs.duplication-dialog.save")}
-                                </Button>
-                            </Box>
-                        </Stack>
-
-                    </DialogActions>
-                }
-                open={duplicateDetectedDialog}
-                title={t(`dialogs.duplication-dialog.title`)}
-            />
-
-            <Drawer
-                anchor={"right"}
-                open={patientDetailDrawer}
-                dir={direction}
-                onClose={() => {
-                    dispatch(onOpenPatientDrawer({patientId: ""}));
-                    setPatientDetailDrawer(false);
-                }}
-            >
-                <PatientDetail
-                    {...{isAddAppointment: false, patientId}}
-                    onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({patientId: ""}));
-                        setPatientDetailDrawer(false);
-                    }}
-                    onAddAppointment={() => console.log("onAddAppointment")}/>
-            </Drawer>
         </>
     );
 }
