@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -17,43 +17,15 @@ import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledR
 import moment from "moment-timezone";
 import {pxToRem} from "@themes/formatFontSize";
 import {useRequestMutation} from "@app/axios";
+import RecondingBoxStyle from './overrides/recordingBoxStyle';
 
-const RecondingBox = styled(Stack)(() => ({
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0.25em',
-    borderRadius: '0.5em',
-    backgroundColor: '#0796d6',
-    width: '85px',
-    cursor: 'pointer',
-    '.recording-circle': {
-        backgroundColor: 'red',
-        width: '0.7em',
-        height: '0.7em',
-        borderRadius: '50%',
-        animation: 'ease pulse 1s infinite',
-        marginRight: '0.2em'
-    },
-    '.recording-text': {
-        fontSize: '0.75em',
-        color: 'white'
-    },
-    '@keyframes pulse': {
-        '0%': {backgroundColor: "red"},
-        '50%': {backgroundColor: '#f06c6c'},
-        '100%': {backgroundColor: 'red'}
-    }
-}));
+
 
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
     const {exam} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const dispatch = useAppDispatch();
-    const {trigger} = useRequestMutation(null, "/uploadAudio");
-
     const {
         transcript,
         listening,
@@ -62,7 +34,6 @@ function CIPPatientHistoryCard({...props}) {
     let [time, setTime] = useState('00:00');
 
     const intervalref = useRef<number | null>(null);
-
 
     const formik = useFormik({
         initialValues: {
@@ -79,22 +50,6 @@ function CIPPatientHistoryCard({...props}) {
     const {handleSubmit, values, setFieldValue} = formik;
 
 
-    const uploadRecord = (file: File) => {
-        const form = new FormData();
-        form.append("type", '43d2e546-dbc3-4f55-9f3b-45eb999e02b2');
-        form.append("files[]", file, file.name);
-
-        trigger({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${uuind}/documents/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            mutateDoc();
-        });
-    }
 
 
     useEffect(() => {
@@ -192,20 +147,25 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("notes")}
                                 </Typography>
                                 {
-                                    listening ? <RecondingBox onClick={() => {
+                                    listening ? <RecondingBoxStyle onClick={() => {
+                                        console.log('hello')
+
                                         if (intervalref.current) {
                                             window.clearInterval(intervalref.current);
                                             intervalref.current = null;
                                         }
-                                        SpeechRecognition.stopListening()
+                                        SpeechRecognition.stopListening();
+
                                         setTime('00:00');
                                     }}>
                                         <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
                                         <div className={"recording-text"}>{time}</div>
                                         <div className="recording-circle"></div>
 
-                                    </RecondingBox> : <RecondingBox onClick={() => {
+                                    </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
+
                                         SpeechRecognition.startListening({continuous: true}).then(() => {
+
                                         })
                                         if (intervalref.current !== null) return;
                                         intervalref.current = window.setInterval(() => {
@@ -216,7 +176,7 @@ function CIPPatientHistoryCard({...props}) {
                                         <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
                                         <div className="recording-text">{t('listen')}</div>
                                         <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                    </RecondingBox>
+                                    </RecondingBoxStyle>
                                 }
                             </Stack>}
                             <TextField

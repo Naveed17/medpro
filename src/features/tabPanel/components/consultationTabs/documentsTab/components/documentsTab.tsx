@@ -1,10 +1,12 @@
 import React, {useState} from "react";
-import {Box, Icon, IconButton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import Image from "next/image";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+
 function DocumentsTab({...props}) {
 
     const noCardData = {
@@ -17,7 +19,6 @@ function DocumentsTab({...props}) {
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
 
-
     const {
         documents,
         setIsViewerOpen,
@@ -27,8 +28,21 @@ function DocumentsTab({...props}) {
         mutateDoc,
         setOpenDialog,
         showDoc,
-        t
-    } = props
+        router,
+        session,
+        t,trigger
+    } = props;
+
+    const removeDoc = () =>{
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(() => {
+            setSelectedAudio(null)
+            mutateDoc()
+        });
+    }
     return (
         <>
             <Box display='grid' sx={{
@@ -39,11 +53,12 @@ function DocumentsTab({...props}) {
                     lg: "repeat(5,minmax(0,1fr))",
                 }
             }}>
-                {selectedAudio === null &&
+                {
+                    selectedAudio === null &&
                     documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
                             <DocumentCard data={card} onClick={() => {
-                                card.documentType ==='audio' ? setSelectedAudio(card): showDoc(card)
+                                card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
                             }} t={t}/>
                         </React.Fragment>
                     )
@@ -58,7 +73,7 @@ function DocumentsTab({...props}) {
 */}
             </Box>
 
-            <Box style={{marginTop:10}}>
+            <Box style={{marginTop: 10}}>
                 {selectedAudio && <Box>
                     <Box display='grid' sx={{
                         gridGap: 16,
@@ -70,22 +85,25 @@ function DocumentsTab({...props}) {
                     }}>
                         <DocumentCard data={selectedAudio} t={t}/>
                     </Box>
-                    <Stack justifyContent={"space-between"} direction={"row"} alignItems={"center"}>
-                        <Typography>{selectedAudio.title}</Typography>
-                        <IconButton onClick={()=> setSelectedAudio(null)}>
+                    <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
+                        <IconButton color={"error"} onClick={() => removeDoc()}>
+                            <DeleteOutlineRoundedIcon/>
+                        </IconButton>
+                        <IconButton onClick={() => setSelectedAudio(null)}>
                             <CloseRoundedIcon/>
                         </IconButton>
+
                     </Stack>
                     <AudioPlayer
                         autoPlay
-                        style={{marginTop:10}}
+                        style={{marginTop: 10}}
                         src={selectedAudio.uri}
                         onPlay={e => console.log("onPlay")}
                     />
                 </Box>}
             </Box>
 
-            { documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
+            {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mt={3} mb={3} fontSize={16}>
                     {t('gallery')}
                 </Typography>}

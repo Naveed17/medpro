@@ -756,6 +756,9 @@ function ConsultationInProgress() {
                         selectedDialog={selectedDialog}
                         patient={patient}
                         mutateDoc={mutateDoc}
+                        router={router}
+                        session={session}
+                        trigger={trigger}
                         setOpenDialog={setOpenDialog}
                         t={t}></DocumentsTab>
                 </TabPanel>
