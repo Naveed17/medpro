@@ -1,20 +1,10 @@
 import React from "react";
 import {ReactSVG} from "react-svg";
 
-interface iconUrl {
-    path?: string
-    onChange?: any
-    className?: string
-    height?: string
-    color?: string
-    width?: string
-    variant?: string
-}
-
-export default function IconUrl({path, onChange, className, ...props}: iconUrl) {
-    const {color, height, width} = props;
+function IconUrl({...props}) {
+    const {path, onChange, className, color, height, width, ...rest} = props;
     const prefix = "/static/icons/";
-    return <ReactSVG  {...props}
+    return <ReactSVG  {...rest}
                       sx={{height: 1}}
                       onClick={onChange}
                       {...(color || height || width) ? {
@@ -34,3 +24,5 @@ export default function IconUrl({path, onChange, className, ...props}: iconUrl) 
                       className={`react-svg ${className ? className : ''}`}
                       src={`${prefix}${path}.svg`}/>;
 }
+
+export default IconUrl;

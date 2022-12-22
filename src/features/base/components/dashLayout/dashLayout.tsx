@@ -137,7 +137,7 @@ function DashLayout({children}: LayoutProps) {
                         {...{t}}
                         ns={'common'}
                         onHandleClick={() => {
-                            router.push('/dashboard/settings/import-data').then(() => {
+                            router.push('/dashboard/settings/data').then(() => {
                                 setImportDataDialog(false);
                             });
                         }}

@@ -27,6 +27,8 @@ import Image from "next/image";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import Icon from "@themes/urlIcon";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -43,6 +45,8 @@ function PatientContactDetailCard({...props}) {
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
+    const phoneRegExp =
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const RegisterPatientSchema = Yup.object().shape({
         country: Yup.string()
             .min(3, t("country-error")),
@@ -50,8 +54,18 @@ function PatientContactDetailCard({...props}) {
             .min(3, t("region-error")),
         zip_code: Yup.string(),
         address: Yup.string(),
-        telephone: Yup.array()
-            .required(t("telephone-error"))
+        phones: Yup.array().of(
+            Yup.object().shape({
+                code: Yup.string(),
+                value: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
+                    })
+                    .matches(phoneRegExp, t("telephone-error"))
+                    .required(t("telephone-error"))
+            })),
     });
 
     const formik = useFormik({
@@ -59,17 +73,17 @@ function PatientContactDetailCard({...props}) {
         initialValues: {
             country: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.country?.uuid : "",
             region: !loading && patient?.address.length > 0 && patient?.address[0]?.city ? patient?.address[0]?.city?.uuid : "",
-            zip_code: !loading && patient?.address.length > 0 ? patient?.address[0]?.postalCode : "",
+            zip_code: !loading && patient?.address.length > 0 ? (patient?.address[0]?.postalCode ? patient?.address[0]?.postalCode : "") : "",
             address:
-                !loading && patient?.address[0] ? patient?.address[0].street : "",
-            telephone:
+                !loading && patient?.address[0] ? (patient?.address[0].street ? patient?.address[0].street : "") : "",
+            phones:
                 !loading && patient.contact.length > 0
                     ? patient.contact.map((contact: any) => ({
                         code: contact.code,
                         value: contact.value
                     }))
                     : [{
-                        code: "",
+                        code: "+216",
                         value: ""
                     }]
         },
@@ -79,7 +93,7 @@ function PatientContactDetailCard({...props}) {
         },
     });
 
-    const {values, touched, errors, getFieldProps} = formik;
+    const {values, touched, errors, getFieldProps, setFieldValue} = formik;
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -95,6 +109,17 @@ function PatientContactDetailCard({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const handleAddPhone = () => {
+        const phone = [...values.phones, {code: "+216", value: ""}];
+        setFieldValue("phones", phone);
+    }
+
+    const handleRemovePhone = (index: number) => {
+        const phones = [...values.phones];
+        phones.splice(index, 1);
+        formik.setFieldValue("phones", phones);
+    };
 
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
@@ -116,23 +141,21 @@ function PatientContactDetailCard({...props}) {
         params.append('country', values.country);
         params.append('region', values.region);
         params.append('zip_code', values.zip_code);
-        values.telephone.map((phone: any) => {
-            params.append('phone', JSON.stringify({
-                code: phone.code,
-                value: phone.value,
-                type: "phone",
-                "contact_type": patient.contact[0].uuid,
-                "is_public": false,
-                "is_support": false
-            }));
-        })
+        params.append('phone', JSON.stringify(values.phones.map((phone: any) => ({
+            code: phone.code,
+            value: phone.value,
+            type: "phone",
+            "contact_type": patient.contact[0].uuid,
+            "is_public": false,
+            "is_support": false
+        }))));
         params.append('address', JSON.stringify({
             fr: values.address
         }));
 
         triggerPatientUpdate({
             method: "PUT",
-            url: "/api/medical-entity/" + medical_entity.uuid + '/patients/' + patient?.uuid + '/' + router.locale,
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`
             },
@@ -205,21 +228,13 @@ function PatientContactDetailCard({...props}) {
                                 </Toolbar>
                             </AppBar>
                             <Grid container spacing={1.2}>
-                                {values.telephone.map((phone: any, index: number) => (
-                                        <Grid item md={5} sm={6} xs={6}
-                                              className={"phone-handler"}
-                                              key={`${index}`}>
+                                {values.phones.map((phone: any, index: number) => (
+                                        <Grid key={`${index}`} item md={5} sm={6} xs={6}
+                                              className={"phone-handler"}>
                                             <Stack direction="row"
                                                    spacing={1}
                                                    alignItems="center">
-                                                <Grid item md={3} sm={6} xs={6}>
-                                                    <Typography className="label"
-                                                                noWrap
-                                                                variant="body2" color="text.secondary" width="50%">
-                                                        {t("telephone")}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={7.5} sm={6} xs={6}  sx={{
+                                                <Grid item md={10} sm={12} xs={12} sx={{
                                                     "& .Input-select": {
                                                         marginLeft: "-0.6rem"
                                                     }
@@ -230,9 +245,13 @@ function PatientContactDetailCard({...props}) {
                                                         <Stack
                                                             direction="row"
                                                             spacing={1}
+                                                            sx={{height: 22}}
                                                             alignItems="center">
                                                             <CountrySelect
                                                                 sx={{
+                                                                    "& .MuiInputAdornment-root": {
+                                                                        width: 20
+                                                                    },
                                                                     ...(!editable && {
                                                                         "& .MuiAutocomplete-endAdornment": {
                                                                             display: "none"
@@ -243,21 +262,60 @@ function PatientContactDetailCard({...props}) {
                                                                 small
                                                                 readOnly={!editable}
                                                                 initCountry={{
-                                                                    code: getCountryByCode(values.telephone[index].code) ? getCountryByCode(values.telephone[index].code)?.code : "TN",
-                                                                    label: getCountryByCode(values.telephone[index].code) ? getCountryByCode(values.telephone[index].code)?.label : "Tunisia",
-                                                                    phone: getCountryByCode(values.telephone[index].code) ? getCountryByCode(values.telephone[index].code)?.phone : "+216"
+                                                                    code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : "TN",
+                                                                    label: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.label : "Tunisia",
+                                                                    phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : "+216"
                                                                 }}
                                                                 onSelect={(state: any) => {
-                                                                    console.log(state);
+                                                                    setFieldValue(`phones[${index}].code`, state.phone);
                                                                 }}/>
                                                             <InputBase
+                                                                fullWidth
                                                                 className={"Input-select"}
-                                                                error={Boolean(touched.telephone && errors.telephone)}
+                                                                placeholder={t("telephone")}
+                                                                error={Boolean(touched.phones && errors.phones)}
                                                                 readOnly={!editable}
-                                                                {...getFieldProps(`telephone[${index}].value`)}
+                                                                {...getFieldProps(`phones[${index}].value`)}
                                                             />
                                                         </Stack>
                                                     )}
+                                                </Grid>
+                                                <Grid item md={1} sm={6} xs={6}>
+                                                    <Stack direction="row"
+                                                           alignItems="center">
+                                                        {(editable && index === 0) ? <>
+                                                            <IconButton
+                                                                onClick={handleAddPhone}
+                                                                className="success-light"
+                                                                sx={{
+                                                                    mr: 1.5,
+                                                                    p: "3px 5px",
+                                                                    "& svg": {
+                                                                        width: 14,
+                                                                        height: 14
+                                                                    },
+                                                                }}
+                                                            >
+                                                                <Icon path="ic-plus"/>
+                                                            </IconButton>
+                                                        </> : (editable && <IconButton
+                                                            onClick={() => handleRemovePhone(index)}
+                                                            className="error-light"
+                                                            sx={{
+                                                                mr: 1.5,
+                                                                p: "3px 5px",
+                                                                "& svg": {
+                                                                    width: 14,
+                                                                    height: 14,
+                                                                    "& path": {
+                                                                        fill: (theme) => theme.palette.text.primary,
+                                                                    },
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Icon path="ic-moin"/>
+                                                        </IconButton>)}
+                                                    </Stack>
                                                 </Grid>
                                             </Stack>
                                         </Grid>
@@ -265,6 +323,7 @@ function PatientContactDetailCard({...props}) {
                                 )}
                                 <Grid item md={7} sm={6} xs={6}>
                                     <Stack direction="row"
+                                           sx={{height: 28}}
                                            spacing={1}
                                            alignItems="center">
                                         <Grid item md={2.5} sm={6} xs={6}>

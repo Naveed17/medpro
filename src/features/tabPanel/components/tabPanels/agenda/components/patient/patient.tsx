@@ -76,14 +76,14 @@ function Patient({...props}) {
         const form = new FormData();
         form.append('first_name', patient.firstName)
         form.append('last_name', patient.lastName);
-        form.append('phone', JSON.stringify({
-            code: patient.countryCode.phone,
-            value: patient.phone.toString(),
+        form.append('phone', JSON.stringify(patient.phones.map((phoneData: any) => ({
+            code: phoneData.dial.phone,
+            value: phoneData.phone,
             type: "phone",
-            "contact_type": patient.contact.uuid,
-            "is_public": false,
-            "is_support": false
-        }));
+            contact_type: patient.contact.uuid,
+            is_public: false,
+            is_support: false
+        }))));
         form.append('gender', patient.gender);
         if (patient.birthdate.day && patient.birthdate.month && patient.birthdate.year) {
             form.append('birthdate',

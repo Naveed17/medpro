@@ -1,6 +1,7 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Box, Button, Collapse,
+    Autocomplete,
+    Box, Button, Card, CardContent, CardHeader, Collapse,
     FormControl,
     FormControlLabel, FormHelperText, Grid, IconButton, IconButtonProps, InputAdornment, MenuItem,
     Radio,
@@ -11,9 +12,9 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo, useEffect, useRef} from "react";
+import React, {memo, useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@app/redux/hooks";
-import {addPatientSelector, appointmentSelector, PhoneRegExp} from "@features/tabPanel";
+import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
@@ -25,8 +26,27 @@ import Image from "next/image";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
+import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import {DatePicker} from "@features/datepicker";
+import {isValidPhoneNumber} from "libphonenumber-js";
+import {countries as dialCountries} from "@features/countrySelect/countries";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
+
+
+const GroupHeader = styled('div')(({theme}) => ({
+    position: 'sticky',
+    top: '-8px',
+    padding: '4px 10px',
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.background.paper
+}));
+
+const GroupItems = styled('ul')({
+    padding: 0,
+});
 
 interface ExpandMoreProps extends IconButtonProps {
     expand: boolean;
@@ -71,9 +91,22 @@ function OnStepPatient({...props}) {
         keyPrefix: translationPrefix,
     });
 
+    const [socialInsured, setSocialInsured] = useState([
+        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
+        {grouped: "L'ascendant", key: "father", label: "Le Pére"},
+        {grouped: "L'ascendant", key: "mother", label: "La Mére"},
+        {grouped: "L'enfant", key: "child", label: "1er Enfant"},
+        {grouped: "L'enfant", key: "child", label: "2ème Enfant"},
+        {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
+        {grouped: "L'enfant", key: "child", label: "Autre"},
+        {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
+    ]);
+
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
+    const phoneRegExp =
+        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
@@ -83,10 +116,22 @@ function OnStepPatient({...props}) {
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
             .required(t("last-name-error")),
-        phone: Yup.string()
-            .min(8, t("telephone-error"))
-            .matches(PhoneRegExp, t("telephone-error"))
-            .required(t("telephone-error")),
+        phones: Yup.array().of(
+            Yup.object().shape({
+                dial: Yup.object().shape({
+                    code: Yup.string(),
+                    label: Yup.string(),
+                    phone: Yup.string(),
+                }),
+                phone: Yup.string()
+                    .test({
+                        name: 'is-phone',
+                        message: t("telephone-error"),
+                        test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
+                    })
+                    .matches(phoneRegExp, t("telephone-error"))
+                    .required(t("telephone-error"))
+            })),
         gender: Yup.string().required(t("gender-error"))
     });
     const address = selectedPatient ? selectedPatient.address : [];
@@ -106,9 +151,12 @@ function OnStepPatient({...props}) {
                     year: selectedPatient.birthdate.split("-")[2] as string,
                 }
                 : patient.step1.birthdate,
-            phone: selectedPatient ?
-                selectedPatient?.contact.find((contact: ContactModel) => contact.type === "phone")?.value
-                : patient.step1.phone,
+            phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
+                selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
+                selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
+                    phone: contact.value,
+                    dial: dialCountries.find(dial => dial.phone === contact.code)
+                })) : patient.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
@@ -121,10 +169,14 @@ function OnStepPatient({...props}) {
             family_doctor: selectedPatient ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance?.uuid
+                insurance_uuid: insurance.insurance?.uuid,
+                insurance_type: "",
+                expanded: false
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
+                insurance_type: string;
+                expanded: boolean;
             }[]
         },
         validationSchema: RegisterPatientSchema,
@@ -134,9 +186,9 @@ function OnStepPatient({...props}) {
             }
         },
     });
-    const {values, handleSubmit, touched, errors, isSubmitting, getFieldProps} = formik;
+    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps} = formik;
 
-    const {data: httpContactResponse, error: errorHttpContact} = useRequest({
+    const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
     }, SWRNoValidateConfig);
@@ -171,8 +223,31 @@ function OnStepPatient({...props}) {
         setExpanded(!expanded);
     };
 
+    const handleAddPhone = () => {
+        const phones = [...values.phones, {
+            phone: "",
+            dial: {
+                code: "TN",
+                label: "Tunisia",
+                phone: "+216"
+            }
+        }];
+        formik.setFieldValue("phones", phones);
+    };
+
+    const handleRemovePhone = (index: number) => {
+        const phones = [...values.phones];
+        phones.splice(index, 1);
+        setFieldValue("phones", phones);
+    };
+
     const handleAddInsurance = () => {
-        const insurance = [...values.insurance, {insurance_uuid: "", insurance_number: ""}];
+        const insurance = [...values.insurance, {
+            insurance_uuid: "",
+            insurance_number: "",
+            insurance_type: "",
+            expanded: false
+        }];
         formik.setFieldValue("insurance", insurance);
     };
 
@@ -185,7 +260,7 @@ function OnStepPatient({...props}) {
     useEffect(() => {
         if (errors.hasOwnProperty("firstName") ||
             errors.hasOwnProperty("lastName") ||
-            errors.hasOwnProperty("phone") ||
+            errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
             (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
         }
@@ -298,55 +373,81 @@ function OnStepPatient({...props}) {
                         </Grid>
                     </Box>
                     <Box className={"inner-box"}>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("telephone")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <Grid container spacing={2}>
-                            <Grid item md={6} lg={4} xs={12}>
-                                <CountrySelect
-                                    initCountry={{
-                                        code: "TN",
-                                        label: "Tunisia",
-                                        phone: "+216"
-                                    }}
-                                    onSelect={(state: StateModel) => {
-                                        setSelectedCountry(state);
-                                        const country = countries?.find(country => country.code === state.code);
-                                        if (country) {
-                                            formik.setFieldValue("country", country.uuid);
-                                        }
-                                    }}/>
-                            </Grid>
-                            <Grid item md={6} lg={8} xs={12}>
-                                <TextField
-                                    variant="outlined"
-                                    type={"number"}
-                                    size="small"
-                                    {...getFieldProps("phone")}
-                                    error={Boolean(touched.phone && errors.phone)}
-                                    fullWidth
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                {selectedCountry?.phone}
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                            </Grid>
-                        </Grid>
-                        {touched.phone && errors.phone && (
-                            <FormHelperText error sx={{px: 2, mx: 0}}>
-                                {touched.phone && errors.phone}
-                            </FormHelperText>
+                        {values.phones.map((phoneObject, index: number) =>
+                            <Box key={index} mb={2}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span"
+                                >
+                                    {t("telephone")}{" "}
+                                    <Typography component="span" color="error">
+                                        *
+                                    </Typography>
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} lg={4} xs={12}>
+                                        <CountrySelect
+                                            initCountry={getFieldProps(`phones[${index}].dial`).value}
+                                            onSelect={(state: any) => setFieldValue(`phones[${index}].dial`, state)}/>
+                                    </Grid>
+                                    <Grid item md={4} lg={7} xs={12}>
+                                        <TextField
+                                            variant="outlined"
+                                            size="small"
+                                            {...getFieldProps(`phones[${index}].phone`)}
+                                            error={Boolean(touched.phones && touched.phones[index] && errors.phones && errors.phones[index])}
+                                            fullWidth
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        {getFieldProps(`phones[${index}].dial`)?.value.phone}
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                    </Grid>
+                                    <Grid item md={2} lg={1} xs={12}>
+                                        {index === 0 ? <IconButton
+                                                onClick={handleAddPhone}
+                                                color={"success"}
+                                                className="success-light"
+                                                sx={{
+                                                    mr: 1.5,
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20,
+                                                    },
+                                                }}
+                                            >
+                                                <AddIcCallTwoToneIcon/>
+                                            </IconButton>
+                                            :
+                                            <IconButton
+                                                onClick={() => handleRemovePhone(index)}
+                                                className="error-light"
+                                                sx={{
+                                                    mr: 1.5,
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20,
+                                                        "& path": {
+                                                            fill: (theme) => theme.palette.text.primary,
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                <Icon path="ic-moin"/>
+                                            </IconButton>}
+                                    </Grid>
+                                </Grid>
+                                {touched.phones && touched.phones[index] && errors.phones && errors.phones[index] && (
+                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                        {touched.phones[index].phone as any && (errors.phones[index] as any).phone}
+                                    </FormHelperText>
+                                )}
+                            </Box>
                         )}
                     </Box>
                     <Box>
@@ -593,7 +694,7 @@ function OnStepPatient({...props}) {
                             />
                         </Box>
                         <Box>
-                            <Typography sx={{mt: 1.5, textTransform: "capitalize"}}>
+                            <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>
                                 <IconButton
                                     onClick={handleAddInsurance}
                                     className="success-light"
@@ -613,53 +714,17 @@ function OnStepPatient({...props}) {
                                 <FieldArray
                                     name={"insurance"}
                                     render={arrayHelpers => (
-                                        values.insurance.map((val, index: number) => (
-                                            <Grid
-                                                key={index}
-                                                container
-                                                spacing={2}
-                                                sx={{mt: index > 0 ? 0.5 : 0}}
-                                            >
-                                                <Grid item xs={12} md={4}>
-                                                    <FormControl fullWidth>
-                                                        <Select
-                                                            id={"assurance"}
-                                                            size="small"
-                                                            {...getFieldProps(`insurance[${index}].insurance_uuid`)}
-                                                            displayEmpty
-                                                            sx={{color: "text.secondary"}}
-                                                            renderValue={(selected) => {
-                                                                if (selected?.length === 0) {
-                                                                    return <em>{t("assurance-placeholder")}</em>;
-                                                                }
-
-                                                                const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                return <Typography>{insurance?.name}</Typography>
-                                                            }}
-                                                        >
-                                                            {insurances?.map(insurance => (
-                                                                <MenuItem
-                                                                    key={insurance.uuid}
-                                                                    value={insurance.uuid}>
-                                                                    <Box key={insurance.uuid}
-                                                                         component="img" width={30} height={30}
-                                                                         src={insurance.logoUrl}/>
-                                                                    <Typography
-                                                                        sx={{ml: 1}}>{insurance.name}</Typography>
-                                                                </MenuItem>)
-                                                            )}
-                                                        </Select>
-                                                    </FormControl>
-                                                </Grid>
-                                                <Grid item xs={12} md={8}>
-                                                    <Stack direction="row" spacing={2} key={`stack-${index}`}>
-                                                        <MyTextInput
-                                                            variant="outlined"
-                                                            placeholder={t("assurance-phone-error")}
-                                                            size="small"
-                                                            fullWidth
-                                                            {...getFieldProps(`insurance[${index}].insurance_number`)}
-                                                        />
+                                        values.insurance.map((
+                                            val: InsurancesModel,
+                                            index: number) => (
+                                            <Card key={index} sx={{marginBottom: 2}}>
+                                                <CardHeader
+                                                    sx={{
+                                                        "& .MuiCardHeader-action": {
+                                                            marginTop: 0
+                                                        }
+                                                    }}
+                                                    action={
                                                         <IconButton
                                                             onClick={() => handleRemoveInsurance(index)}
                                                             className="error-light"
@@ -676,9 +741,166 @@ function OnStepPatient({...props}) {
                                                         >
                                                             <Icon path="ic-moin"/>
                                                         </IconButton>
-                                                    </Stack>
-                                                </Grid>
-                                            </Grid>
+                                                    }
+                                                    avatar={
+                                                        <Stack direction={"row"} alignItems={"center"}>
+                                                            <Autocomplete
+                                                                size={"small"}
+                                                                {...getFieldProps(`insurance[${index}].insurance_type`)}
+                                                                onChange={(event, newValue) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_type`, newValue)
+                                                                    setFieldValue(`insurance[${index}].expand`, newValue?.key !== "socialInsured")
+                                                                }}
+                                                                id={"assure"}
+                                                                options={socialInsured}
+                                                                groupBy={(option) => option.grouped}
+                                                                sx={{minWidth: 500}}
+                                                                renderGroup={(params) => {
+                                                                    return (
+                                                                        <li key={params.key}>
+                                                                            {(params.children as Array<any>)?.length > 1 &&
+                                                                                <GroupHeader
+                                                                                    sx={{marginLeft: 0.8}}>{params.group}</GroupHeader>}
+                                                                            <GroupItems {...(
+                                                                                (params.children as Array<any>)?.length > 1 &&
+                                                                                {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
+                                                                        </li>)
+                                                                }}
+                                                                renderInput={(params) =>
+                                                                    <TextField {...params} label={"Le malade"}/>}
+                                                            />
+                                                        </Stack>
+                                                    }/>
+                                                <CardContent sx={{padding: "0 16px 16px"}}>
+                                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                                        {t("assurance-social")}
+                                                    </Typography>
+                                                    <Grid
+                                                        container
+                                                        spacing={2}>
+                                                        <Grid item xs={12} md={4}>
+                                                            <FormControl fullWidth>
+                                                                <Select
+                                                                    id={"assurance"}
+                                                                    size="small"
+                                                                    {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                                    displayEmpty
+                                                                    renderValue={(selected) => {
+                                                                        if (selected?.length === 0) {
+                                                                            return <em>{t("assurance-placeholder")}</em>;
+                                                                        }
+                                                                        const insurance = insurances?.find(insurance => insurance.uuid === selected);
+                                                                        return <Typography>{insurance?.name}</Typography>
+                                                                    }}
+                                                                >
+                                                                    {insurances?.map(insurance => (
+                                                                        <MenuItem
+                                                                            key={insurance.uuid}
+                                                                            value={insurance.uuid}>
+                                                                            <Box key={insurance.uuid}
+                                                                                 component="img" width={30} height={30}
+                                                                                 src={insurance.logoUrl}/>
+                                                                            <Typography
+                                                                                sx={{ml: 1}}>{insurance.name}</Typography>
+                                                                        </MenuItem>)
+                                                                    )}
+                                                                </Select>
+                                                            </FormControl>
+                                                        </Grid>
+                                                        <Grid item xs={12} md={8}>
+                                                            <Stack direction="row" spacing={2}>
+                                                                <MyTextInput
+                                                                    variant="outlined"
+                                                                    placeholder={t("assurance-phone-error")}
+                                                                    size="small"
+                                                                    fullWidth
+                                                                    {...getFieldProps(`insurance[${index}].insurance_number`)}
+                                                                />
+
+                                                            </Stack>
+                                                        </Grid>
+                                                    </Grid>
+                                                </CardContent>
+                                                <Collapse in={getFieldProps(`insurance[${index}].expand`).value}
+                                                          timeout="auto"
+                                                          unmountOnExit>
+                                                    <CardContent sx={{paddingTop: 0}} className={"insurance-section"}>
+                                                        <Box mb={1}>
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("first-name")}
+                                                            </Typography>
+                                                            <TextField
+                                                                placeholder={t("first-name-placeholder")}
+                                                                variant="outlined"
+                                                                size="small"
+                                                                fullWidth
+                                                                {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
+                                                            />
+                                                        </Box>
+                                                        <Box mb={1}>
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("last-name")}
+                                                            </Typography>
+                                                            <TextField
+                                                                placeholder={t("last-name-placeholder")}
+                                                                variant="outlined"
+                                                                size="small"
+                                                                fullWidth
+                                                                {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
+                                                            />
+                                                        </Box>
+                                                        <Box mb={1}>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                <Typography variant="body2" color="text.secondary"
+                                                                            gutterBottom>
+                                                                    {t("birthdate")}
+                                                                </Typography>
+                                                                <DatePicker
+                                                                    onChange={(date: Date) => {
+                                                                        console.log(date);
+                                                                    }}
+                                                                    inputFormat="dd/MM/yyyy"
+                                                                />
+                                                            </LocalizationProvider>
+                                                        </Box>
+                                                        <Box>
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("telephone")}
+                                                            </Typography>
+                                                            <Grid container spacing={2}>
+                                                                <Grid item md={6} lg={4} xs={12}>
+                                                                    <CountrySelect
+                                                                        initCountry={{
+                                                                            code: "TN",
+                                                                            label: "Tunisia",
+                                                                            phone: "+216"
+                                                                        }}
+                                                                        onSelect={(state: any) => {
+                                                                            setSelectedCountry(state);
+                                                                        }}/>
+                                                                </Grid>
+                                                                <Grid item md={6} lg={8} xs={12}>
+                                                                    <TextField
+                                                                        variant="outlined"
+                                                                        size="small"
+                                                                        fullWidth
+                                                                        InputProps={{
+                                                                            startAdornment: (
+                                                                                <InputAdornment position="start">
+                                                                                    {selectedCountry?.phone}
+                                                                                </InputAdornment>
+                                                                            ),
+                                                                        }}
+                                                                    />
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Box>
+                                                    </CardContent>
+                                                </Collapse>
+                                            </Card>
                                         )))}
                                 />
                             </Box>

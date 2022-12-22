@@ -208,8 +208,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         borderRadius: 3,
         marginRight: 8
     },
-    "& .MuiChip-label": {
-        // color: "white"
+    "& .source-icon": {
+        margin: "auto"
     }
 }));
 export default TableRowStyled;

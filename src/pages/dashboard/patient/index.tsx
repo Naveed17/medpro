@@ -226,11 +226,11 @@ function Patient() {
             <Box className="container">
                 <Box display={{xs: "none", md: "block"}}>
                     <Otable
+                        {...{t}}
                         headers={headCells}
                         handleEvent={handleTableActions}
                         rows={(httpPatientsResponse as HttpResponse)?.data?.list}
                         from={"patient"}
-                        t={t}
                         pagination
                         total={(httpPatientsResponse as HttpResponse)?.data?.total}
                         totalPages={
