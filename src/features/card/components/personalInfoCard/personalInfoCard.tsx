@@ -1,24 +1,27 @@
 import React, {memo, useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    Box,
-    Typography,
-    Paper,
-    Grid,
-    Skeleton,
-    InputBase,
     AppBar,
-    Toolbar,
-    IconButton,
-    MenuItem,
-    TextField,
-    Button,
-    Stack,
     Autocomplete,
-    CardContent, Collapse, InputAdornment, Divider
+    Box,
+    Button,
+    CardContent,
+    Collapse,
+    Divider,
+    Grid,
+    IconButton,
+    InputAdornment,
+    InputBase,
+    MenuItem,
+    Paper,
+    Skeleton,
+    Stack,
+    TextField,
+    Toolbar,
+    Typography
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -28,6 +31,7 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import Select from '@mui/material/Select';
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
@@ -35,7 +39,6 @@ import {DatePicker} from "@mui/x-date-pickers";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
@@ -106,10 +109,9 @@ function PersonalInfo({...props}) {
     const notEmpty = Yup.string()
         .ensure() // Transforms undefined and null values to an empty string.
         .test('Only Empty?', 'Cannot be only empty characters', (value) => {
-            const isValid = value.split(' ').join('').length !== 0;
-
-            return isValid;
+            return value.split(' ').join('').length !== 0;
         });
+
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("name-error"))
@@ -158,7 +160,7 @@ function PersonalInfo({...props}) {
             })) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
-        onSubmit: async (values) => {
+        onSubmit: async () => {
             handleUpdatePatient();
         },
     });
