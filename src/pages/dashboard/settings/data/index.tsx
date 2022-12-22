@@ -71,13 +71,15 @@ function Data() {
 
     const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/import/data/${router.locale}?page=1&limit=10`,
+        url: `/api/medical-entity/${medical_entity.uuid}/import/data/${router.locale}?page=${router.query.page || 1}&limit=10`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`
         },
     }, SWRNoValidateConfig);
 
-    const importData = (httpImportDataResponse as HttpResponse)?.data as ImportDataModel[];
+    const importData = (httpImportDataResponse as HttpResponse)?.data as {
+        currentPage: number, totalPages: number, list: ImportDataModel[]
+    };
 
     const [loading, setLoading] = useState<boolean>(false);
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
@@ -148,31 +150,27 @@ function Data() {
                 </Stack>
             </SubHeader>
             <Box className="container">
-                <Typography
-                    textTransform="uppercase"
-                    fontWeight={600}
-                    marginBottom={2}
-                    gutterBottom>
-                    {t("history")}
-                </Typography>
-
-                {(importData && importData.length === 0) ?
+                {(importData && importData.list.length === 0) ?
                     <NoDataCard {...{t}} firstbackgroundonly="true" data={ImportCardData}/>
                     :
-                    <Otable
-                        {...{
-                            t,
-                            setPatientDetailDrawer,
-                            setDuplicatedData,
-                            setDuplicateDetectedDialog
-                        }}
-                        handleEvent={(action: string, uuid: string) =>
-                            handleTableEvent(action, uuid)
-                        }
-                        headers={headImportDataCells}
-                        isItemSelected
-                        rows={importData ? importData : []}
-                        from={"import_data"}/>
+                    <Box display={{xs: "none", md: "block"}}>
+                        <Otable
+                            {...{
+                                t,
+                                setPatientDetailDrawer,
+                                setDuplicatedData,
+                                setDuplicateDetectedDialog
+                            }}
+                            handleEvent={(action: string, uuid: string) =>
+                                handleTableEvent(action, uuid)
+                            }
+                            headers={headImportDataCells}
+                            rows={importData ? importData.list : []}
+                            pagination
+                            total={importData?.totalPages * 10}
+                            totalPages={importData?.totalPages}
+                            from={"import_data"}/>
+                    </Box>
                 }
 
                 <Dialog

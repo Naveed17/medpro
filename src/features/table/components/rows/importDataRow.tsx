@@ -272,7 +272,6 @@ function ImportDataRow({...props}) {
                                                                                     visibility: !error.fixed ? "visible" : "hidden"
                                                                                 }}
                                                                                 onClick={(event) => {
-                                                                                    console.log(error)
                                                                                     event.stopPropagation();
                                                                                     setDuplicatedData(error.value);
                                                                                     setDuplicateDetectedDialog(true);
