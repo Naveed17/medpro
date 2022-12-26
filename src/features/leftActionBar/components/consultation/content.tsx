@@ -1,6 +1,5 @@
 // components
 import {
-    Box,
     Button,
     CardContent,
     DialogActions,
@@ -9,7 +8,6 @@ import {
     ListItem,
     ListItemIcon,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -474,18 +472,6 @@ const Content = ({...props}) => {
                         </ContentStyled>
                     ))}
                 </>
-            ) : id === 8 ? (
-                <Box padding={2} pt={0}>
-                    <TextField inputProps={{style: {fontSize: 10}}} placeholder={t('writenote')} fullWidth multiline rows={5}/>
-                    <Button
-                        onClick={() => handleOpen("add_treatment")}
-                        size="small"
-
-                        style={{paddingBottom: pxToRem(0),marginTop:10}}
-                        startIcon={<Add/>}>
-                        {t("save")}
-                    </Button>
-                </Box>
             ) : (
                 patient &&
                 Object.keys(patient.antecedents).map((antecedent, index) => (

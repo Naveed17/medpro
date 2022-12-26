@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, Typography, useMediaQuery,} from "@mui/material";
+import React, {useEffect, useRef, useState} from "react";
+import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
 import {useTranslation} from "next-i18next";
@@ -19,12 +19,16 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Recorder from "recorder-js";
-import MicRoundedIcon from '@mui/icons-material/MicRounded';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import RecondingBoxStyle from '../../../card/components/consultationDetailCard/overrides/recordingBoxStyle';
+import moment from "moment-timezone";
+
+const MicRecorder = require('mic-recorder-to-mp3');
+const recorder = new MicRecorder({
+    bitRate: 128
+});
 
 function ConsultationIPToolbar({...props}) {
-
 
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
@@ -45,7 +49,6 @@ function ConsultationIPToolbar({...props}) {
         selectedDialog,
         setDialog,
         changes,
-        setChanges,
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -60,7 +63,9 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState<string>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
-    const [isRecording, setIsRecording] = useState<boolean>(false);
+    let [record, setRecord] = useState(false);
+    let [time, setTime] = useState('00:00');
+
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
@@ -99,47 +104,82 @@ function ConsultationIPToolbar({...props}) {
             }
         ];
 
+
+
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
+    const intervalref = useRef<number | null>(null);
 
-    /*dictaphone*/
-    const audioContext = new window.AudioContext();
-    let audioBlob = null;
-
-
-    /*dictaphone*/
-
-    const startRecording = () => {
-        const recorder = new Recorder(audioContext, {
-            onAnalysed: data => {
-
-            },
+    const startRecord = () => {
+        recorder.start().then(() => {
+            if (intervalref.current !== null) return;
+            intervalref.current = window.setInterval(() => {
+                time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                setTime(time);
+            }, 1000);
+            setRecord(true)
+        }).catch((e: any) => {
+            console.error(e);
         });
-        navigator.mediaDevices.getUserMedia({audio: true})
-            .then(stream => recorder.init(stream))
-            .catch(err => console.log('Uh oh... unable to get stream...', err));
+    }
 
-        setTimeout(() => {
+    const stopRec = () => {
+        const res = recorder.stop();
+        // @ts-ignore
+        res.getMp3().then(([buffer, blob]) => {
+            const file = new File(buffer, 'audio', {
+                type: blob.type,
+                lastModified: Date.now()
+            });
+            uploadRecord(file)
 
-            if (!isRecording)
-                recorder.start().then(() => {
-                    setIsRecording(true)
-                    console.log("started")
-                })
-            else {
-                recorder.stop()
-                    .then(({blob, buffer}) => {
-                        audioBlob = blob;
-                        Recorder.download(blob, 'my-audio-file'); // downloads a .wav file
-                        setIsRecording(false);
-                    });
+            /*const player = new Audio(URL.createObjectURL(file));
+            player.play();*/
+
+            if (intervalref.current) {
+                window.clearInterval(intervalref.current);
+                intervalref.current = null;
             }
-        }, 500)
+            setRecord(false)
+            setTime('00:00')
+            mutateDoc();
 
+        }).catch((e: any) => {
+            alert('We could not retrieve your message');
+            console.log(e);
+        });
+    }
+
+    const uploadRecord = (file: File) => {
+
+        trigger({
+            method: "GET",
+            url: `/api/private/document/types/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((res) => {
+            const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
+            if (audios.length > 0){
+                const form = new FormData();
+                form.append("type", audios[0].uuid);
+                form.append("files[]", file, file.name);
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                }).then(() => {
+                    mutateDoc();
+                });
+            }
+        });
     }
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -410,6 +450,9 @@ function ConsultationIPToolbar({...props}) {
                 setInfo("add_a_document");
                 setState({name: "", description: "", type: "analyse", files: []});
                 break;
+            case "record":
+                startRecord()
+                break;
             case "RDV":
                 handleOpen()
                 break;
@@ -590,20 +633,14 @@ function ConsultationIPToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
-                        {/*<Button
-                            variant="contained"
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={() => {
-                                handleOpen();
-                            }}>
-                            {isMobile ? <IconUrl path="ic-agenda"/> : t("RDV")}
-                        </Button>*/}
+                        {record && <RecondingBoxStyle id={"record"} onClick={() => {
+                            stopRec()
+                        }} style={{width: 130, padding: 10}}>
+                            <StopCircleIcon style={{fontSize: 20, color: "white"}}/>
+                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{time}</div>
+                            <div className="recording-circle"></div>
+                        </RecondingBoxStyle>}
 
-                        {/*<Button onClick={startRecording}>
-                            <MicRoundedIcon/>
-                            {isRecording && <Typography>00:00</Typography>}
-                        </Button>*/}
                         <Button
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}

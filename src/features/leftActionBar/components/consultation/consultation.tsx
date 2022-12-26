@@ -4,6 +4,7 @@ import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
     Box,
+    Button,
     Collapse,
     IconButton,
     List,
@@ -11,6 +12,7 @@ import {
     ListItemIcon,
     Skeleton,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
@@ -28,6 +30,9 @@ import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import {CropImage} from "@features/cropImage";
+import {pxToRem} from "@themes/formatFontSize";
+import AddIcon from '@mui/icons-material/Add';
+import Add from "@mui/icons-material/Add";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
@@ -39,6 +44,8 @@ function Consultation() {
     const [number, setNumber] = useState<any>(null);
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [note, setNote] = useState('');
+    const [isNote, setIsNote] = useState(false);
     const [open, setOpen] = useState(false);
     const [picture, setPicture] = useState('');
 
@@ -83,7 +90,12 @@ function Consultation() {
                             <>
                                 <Skeleton width={130} variant="text"/>
                                 <Skeleton variant="text"/>
-                            </> : <>
+                                <Skeleton variant="text"/>
+                                <Skeleton variant="text"/>
+                            </> : <Box style={{cursor: 'pointer'}} onClick={()=>{
+                                    dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                            }
+                            }>
 
                                 <Typography variant="body1" color='primary.main'
                                             sx={{fontFamily: 'Poppins'}}>{name}</Typography>
@@ -93,7 +105,26 @@ function Consultation() {
                                         ? moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")
                                         : "--"}{" "}
                                     {t("year")})
-                                </Typography></>}
+                                </Typography>
+
+                                {number && <Typography component="div"
+                                                       sx={{
+                                                           display: 'flex',
+                                                           alignItems: 'center',
+                                                           '& .react-svg': {mr: 0.8},
+                                                           mb: (0.3)
+                                                       }}
+                                                       variant="body2" color="text.secondary"><Icon path="ic-phone"/>
+                                    {(number.code ? number.code + ' ' : '') + number.value}
+                                </Typography>}
+
+                                <Typography component="div"
+                                            sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 0.8}}}
+                                            variant="body2" color="text.secondary"><Icon path="ic-message-contour"/>
+                                    {email ? email : t('addMail')}
+                                </Typography>
+
+                            </Box>}
                     </Box>
 
                     <Box onClick={() => {
@@ -106,28 +137,64 @@ function Consultation() {
 
                 </Box>
                 <Box className="contact" ml={2}>
-                    <Typography component="div" textTransform="capitalize"
-                                sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 1}, mb: (1.5)}}
-                                variant="body1" color="text.primary"><Icon path="ic-doc"/>
-                        {upperFirst(t("contact details"))}
-                    </Typography>
-                    <Box sx={{pl: 1}}>
-                        {number && <Typography component="div"
-                                               sx={{
-                                                   display: 'flex',
-                                                   alignItems: 'center',
-                                                   '& .react-svg': {mr: 0.8},
-                                                   mb: (0.3)
-                                               }}
-                                               variant="body2" color="text.secondary"><Icon path="ic-phone"/>
-                            {(number.code ? number.code + ' ' : '') + number.value}
-                        </Typography>}
-                        <Typography component="div"
-                                    sx={{display: 'flex', alignItems: 'center', '& .react-svg': {mr: 0.8}}}
-                                    variant="body2" color="text.secondary"><Icon path="ic-message-contour"/>
-                            {email ? email : t('addMail')}
+                    <Stack direction={"row"}
+                           spacing={1}
+                           onClick={() => {
+                               setIsNote(!isNote)
+                           }}
+                           alignItems={"center"}
+                           justifyContent={"space-between"}
+                           mr={3}>
+                        <Typography component="div" textTransform="capitalize"
+                                    sx={{display: 'flex', alignItems: 'center',cursor: 'pointer', '& .react-svg': {mr: 1}}}
+                                    variant="body1" color="text.primary"><Icon path="ic-doc"/>
+                            {upperFirst(t("note"))}
                         </Typography>
-                    </Box>
+                        {!note && <AddIcon sx={{fontSize: 14, color: '#7C878E'}}/>}
+                    </Stack>
+                    {!isNote && note &&
+                        <Stack direction={"row"} spacing={1} justifyContent={"space-between"}
+                               mr={3}>
+
+                            <Typography fontStyle={"italic"}
+                                        whiteSpace={'pre-line'}
+                                        onClick={() => {
+                                            setIsNote(true)
+                                        }}
+                                        variant="body2" color="text.secondary" mt={1}>
+                                {note}
+                            </Typography>
+
+                            <IconButton size={"small"} onClick={()=>{setIsNote(true)}}>
+                                <Icon path={'ic-duotone'}/>
+                            </IconButton>
+                        </Stack>
+                    }
+
+                    {isNote && <Box mr={2}>
+                        <TextField inputProps={{style: {fontSize: 12, padding: 0}}}
+                                   placeholder={t('writenote')}
+                                   fullWidth
+                                   multiline
+                                   style={{marginTop: 15}}
+                                   value={note}
+                                   onChange={(val) => {
+                                       setNote(val.target.value)
+                                   }
+                                   }
+                                   rows={3}/>
+                        <Button
+                            onClick={() => {
+                                setIsNote(false);
+                            }}
+                            size="small"
+                            startIcon={<Add/>}
+                            style={{paddingBottom: pxToRem(0), marginTop: 10}}>
+                            {t("save")}
+                        </Button>
+                    </Box>}
+
+
                 </Box>
             </Box>
 

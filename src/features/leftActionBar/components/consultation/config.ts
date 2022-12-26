@@ -21,11 +21,6 @@ export const collapse = [
         icon: 'ic-doc',
     },
     {
-        id: 8,
-        title: 'note',
-        icon: 'ic-text',
-    },
-    {
         id: 2,
         title: 'balance_sheet_pending',
         icon: 'ic-analyse',

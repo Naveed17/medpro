@@ -738,7 +738,7 @@ function ConsultationInProgress() {
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet &&
                                 <ConsultationDetailCard
-                                    {...{changes, setChanges, uuind}}
+                                    {...{changes, setChanges, uuind,agenda:agenda?.uuid,mutateDoc,medical_entity,session,router}}
                                     exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
@@ -756,6 +756,9 @@ function ConsultationInProgress() {
                         selectedDialog={selectedDialog}
                         patient={patient}
                         mutateDoc={mutateDoc}
+                        router={router}
+                        session={session}
+                        trigger={trigger}
                         setOpenDialog={setOpenDialog}
                         t={t}></DocumentsTab>
                 </TabPanel>

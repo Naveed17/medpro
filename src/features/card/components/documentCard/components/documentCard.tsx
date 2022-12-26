@@ -75,6 +75,7 @@ function DocumentCard({...props}) {
                         data.documentType == "medical-imaging" && "ic-soura" ||
                         data.documentType == "requested-medical-imaging" && "ic-soura" ||
                         data.documentType === "photo" && "ic-img" ||
+                        data.documentType === "audio" && "ic-son" ||
                         data.documentType === "Rapport" && "ic-text" ||
                         data.documentType === "medical-certificate" && "ic-text" ||
                         data.documentType === "video" && "ic-video-outline" ||
