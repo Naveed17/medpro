@@ -3,13 +3,14 @@ import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Box,
-    Button, Card,
+    Button,
     Divider,
     Grid,
     List,
     ListItem,
     ListItemAvatar,
-    ListItemText, Skeleton,
+    ListItemText,
+    Skeleton,
     Stack,
     TextField,
     Typography
@@ -44,7 +45,7 @@ function CertifDialog({...props}) {
     return (
         <Box>
             <Grid container>
-                <Grid item xs={9} className={'container-scroll'}>
+                <Grid item xs={12} md={9} className={'container-scroll'}>
                     <Box style={{height: 200}} color={'primary.main'}>
                         <Box style={{paddingRight: 20}}>
                             <Typography style={{color: "gray"}} fontSize={12}
@@ -89,7 +90,7 @@ function CertifDialog({...props}) {
                         </Box>
                     </Box>
                 </Grid>
-                <Grid item xs={3} style={{borderLeft: '1px solid #DDDDDD'}}>
+                <Grid item xs={12} md={3} style={{borderLeft: '1px solid #DDDDDD'}}>
 
                     <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                         <Typography variant={'h6'} marginLeft={2} marginTop={1}>{t('Models')}</Typography>

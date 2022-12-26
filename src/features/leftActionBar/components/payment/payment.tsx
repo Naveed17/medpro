@@ -34,6 +34,8 @@ function Payment() {
                 renderDay
                 {...{notes}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+
+
         </BoxStyled>
     )
 }

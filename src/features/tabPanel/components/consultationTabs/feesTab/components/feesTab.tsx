@@ -105,7 +105,7 @@ function FeesTab({...props}) {
                            variant="outlined"/>
             </Stack>
 
-            <Box display={{xs: 'none', md: 'block'}}>
+            <Box>
                 <Otable
                     headers={headCells}
                     rows={acts}
@@ -115,7 +115,7 @@ function FeesTab({...props}) {
                     edit={editAct}
                     handleChange={setTotal}/>
             </Box>
-            <Stack spacing={2} display={{xs: "block", md: 'none'}}>
+            {/*<Stack spacing={2} display={{xs: "block", md: 'none'}}>
                 {
                     acts?.map((data: any, index: number) => (
                         <React.Fragment key={`cip-card-${index}`}>
@@ -124,7 +124,7 @@ function FeesTab({...props}) {
                     ))
                 }
 
-            </Stack>
+            </Stack>*/}
 
             {/*            <Button
                 onClick={() => setOpenActDialog(true)}

@@ -572,19 +572,19 @@ function ConsultationInProgress() {
     };
     const DialogAction = () => {
         return (
-            <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
+            <DialogActions  style={{justifyContent: 'space-between', width: '100%'}}>
                 <Button
                     variant="text-black"
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
-                    {t("withoutSave")}
+                    <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("withoutSave")}</Typography>
                 </Button>
                 <Stack direction={"row"} spacing={2}>
                     <Button
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        {t("cancel")}
+                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("cancel")}</Typography>
                     </Button>
                     <Button
                         variant="contained"
@@ -593,7 +593,7 @@ function ConsultationInProgress() {
                             saveConsultation()
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        {t("end_consultation")}
+                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("end_consultation")}</Typography>
                     </Button>
                 </Stack>
             </DialogActions>
@@ -744,9 +744,6 @@ function ConsultationInProgress() {
                     </Grid>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"documents"}>
-                    {/*
-                    <Button onClick={sendNotification}>send</Button>
-*/}
                     <DocumentsTab
                         documents={documents}
                         setIsViewerOpen={setIsViewerOpen}
@@ -941,7 +938,7 @@ function ConsultationInProgress() {
                         display: {xs: "flex", md: "none"},
                     }}
                     variant="filter">
-                    {t('Filtrer')}
+                    {t('Fiche')}
                 </Button>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}

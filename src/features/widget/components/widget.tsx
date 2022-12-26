@@ -112,7 +112,7 @@ function Widget({...props}) {
     };
     return (
         <>
-            <ConsultationModalStyled>
+            <ConsultationModalStyled sx={{height:{xs:'30vh',md:'99.7vh'}}}>
                 <Stack
                     spacing={1}
                     p={2}
@@ -162,7 +162,7 @@ function Widget({...props}) {
                                                     padding={3}
                                                 />
                                             </ListItemIcon>
-                                            <ListItemText>{item.label}</ListItemText>
+                                            <ListItemText style={{textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden'}}>{item.label}</ListItemText>
                                         </MenuItem>
                                     ))}
                             </MenuList>
