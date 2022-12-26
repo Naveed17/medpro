@@ -1,5 +1,6 @@
 interface Qualifications {
     step1: {
+        picture: string;
         patient_group: string;
         first_name: string;
         last_name: string;
@@ -25,6 +26,7 @@ interface Qualifications {
         address: string;
         email: string;
         cin: string;
+        profession: string;
         family_doctor: string;
         insurance: {
             insurance_number: string;

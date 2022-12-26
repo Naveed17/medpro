@@ -9,6 +9,7 @@ export type MenuState = {
 export const initialPatientState: MenuState = {
     stepsData: {
         step1: {
+            picture: "",
             patient_group: "",
             first_name: "",
             last_name: "",
@@ -34,6 +35,7 @@ export const initialPatientState: MenuState = {
             address: "",
             email: "",
             cin: "",
+            profession: "",
             family_doctor: "",
             insurance: [],
         },

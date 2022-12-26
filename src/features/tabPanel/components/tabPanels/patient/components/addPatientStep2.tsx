@@ -18,7 +18,7 @@ import {
     Collapse,
     CardHeader,
     Autocomplete,
-    InputAdornment,
+    InputAdornment, FormHelperText,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -37,6 +37,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {SocialInsured} from "@app/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
+import {isValidPhoneNumber} from "libphonenumber-js";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -96,16 +97,25 @@ function AddPatientStep2({...props}) {
                                     test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                                 }),
                             birthday: Yup.string()
+                                .nullable()
                                 .min(3, t("birthday-error"))
                                 .max(50, t("birthday-error"))
                                 .test({
                                     name: 'insurance-type-test',
                                     message: t("birthday-error"),
-                                    test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
+                                    test: (value, ctx: any) => {
+                                        console.log(ctx, ctx.from[0].value.birthday)
+                                        return ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
+                                    }
                                 }),
                             phone: Yup.object().shape({
                                 code: Yup.string(),
-                                value: Yup.string(),
+                                value: Yup.string().test({
+                                    name: 'phone-value-test',
+                                    message: t("telephone-error"),
+                                    test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
+                                        isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
+                                }),
                                 type: Yup.string(),
                                 contact_type: Yup.string(),
                                 is_public: Yup.boolean(),
@@ -128,6 +138,7 @@ function AddPatientStep2({...props}) {
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
             email: selectedPatient ? selectedPatient.email : stepsData.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : stepsData.step2.cin,
+            profession: selectedPatient ? selectedPatient?.cin : stepsData.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : stepsData.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
@@ -135,7 +146,7 @@ function AddPatientStep2({...props}) {
                 insurance_social: {
                     firstName: "",
                     lastName: "",
-                    birthday: "",
+                    birthday: null,
                     phone: {
                         code: "+216",
                         value: "",
@@ -195,9 +206,11 @@ function AddPatientStep2({...props}) {
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
-        const {first_name, last_name, birthdate, phones, gender} = stepsData.step1;
+        const {picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
+        console.log(typeof picture);
+        picture.length > 0 && form.append('profil', picture)
         form.append('first_name', first_name)
         form.append('last_name', last_name);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
@@ -226,6 +239,7 @@ function AddPatientStep2({...props}) {
         form.append('region', values.region);
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
+        form.append('profession', values.profession);
 
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -258,7 +272,7 @@ function AddPatientStep2({...props}) {
             insurance_social: {
                 firstName: "",
                 lastName: "",
-                birthday: "",
+                birthday: null,
                 phone: {
                     code: "+216",
                     value: "",
@@ -279,8 +293,6 @@ function AddPatientStep2({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
-
-    console.log(values, errors);
 
     return (
         <FormikProvider value={formik}>
@@ -502,6 +514,9 @@ function AddPatientStep2({...props}) {
                                                             id={"assurance"}
                                                             size="small"
                                                             {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                            error={Boolean(touched.insurance &&
+                                                                (touched.insurance as any)[index]?.insurance_uuid &&
+                                                                errors.insurance && (errors.insurance as any)[index]?.insurance_uuid)}
                                                             displayEmpty
                                                             renderValue={(selected) => {
                                                                 if (selected?.length === 0) {
@@ -523,6 +538,11 @@ function AddPatientStep2({...props}) {
                                                                 </MenuItem>)
                                                             )}
                                                         </Select>
+                                                        {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
+                                                            <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                                {(errors.insurance as any)[index].insurance_uuid}
+                                                            </FormHelperText>
+                                                        )}
                                                     </FormControl>
                                                 </Grid>
                                                 <Grid item xs={12} md={8}>
@@ -532,9 +552,9 @@ function AddPatientStep2({...props}) {
                                                             placeholder={t("add-patient.assurance-phone-error")}
                                                             size="small"
                                                             error={Boolean(touched.insurance &&
-                                                                (touched.insurance as any)[index].insurance_number &&
-                                                                errors.insurance && (errors.insurance as any)[index].insurance_number)}
-                                                            helperText={touched.insurance && (touched.insurance as any)[index].insurance_number}
+                                                                (touched.insurance as any)[index]?.insurance_number &&
+                                                                errors.insurance && (errors.insurance as any)[index]?.insurance_number)}
+                                                            helperText={touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_number}
                                                             fullWidth
                                                             {...getFieldProps(`insurance[${index}].insurance_number`)}
                                                         />
@@ -552,6 +572,12 @@ function AddPatientStep2({...props}) {
                                                     </Typography>
                                                     <TextField
                                                         placeholder={t("add-patient.first-name-placeholder")}
+                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.firstName)}
+                                                        helperText={
+                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.firstName)
+                                                                ? String((errors.insurance as any)[index].insurance_social.firstName)
+                                                                : undefined
+                                                        }
                                                         variant="outlined"
                                                         size="small"
                                                         fullWidth
@@ -566,6 +592,12 @@ function AddPatientStep2({...props}) {
                                                         placeholder={t("add-patient.last-name-placeholder")}
                                                         variant="outlined"
                                                         size="small"
+                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.lastName)}
+                                                        helperText={
+                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.lastName)
+                                                                ? String((errors.insurance as any)[index].insurance_social.lastName)
+                                                                : undefined
+                                                        }
                                                         fullWidth
                                                         {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
                                                     />
@@ -607,6 +639,12 @@ function AddPatientStep2({...props}) {
                                                                 variant="outlined"
                                                                 size="small"
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.phone?.value)}
+                                                                helperText={
+                                                                    Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.phone)
+                                                                        ? String((errors.insurance as any)[index].insurance_social.phone.value)
+                                                                        : undefined
+                                                                }
                                                                 fullWidth
                                                                 InputProps={{
                                                                     startAdornment: (
@@ -654,6 +692,18 @@ function AddPatientStep2({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("cin")}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("add-patient.profession")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("add-patient.profession-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("profession")}
                             />
                         </Box>
                         <Box>
