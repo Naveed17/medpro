@@ -64,6 +64,9 @@ export default function IconButton(theme) {
                 fill: theme.palette.error.main,
               },
             },
+            "&.Mui-disabled":{
+              backgroundColor: theme.palette.grey[100]
+            }
           },
         },
       },

@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo} from "react";
+import React, {ChangeEvent, memo, useState} from "react";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
 import {
@@ -14,9 +14,9 @@ import {
     Button,
     Select,
     Stack,
-    FormHelperText, MenuItem, IconButton,
+    FormHelperText, MenuItem, IconButton, Avatar,
 } from "@mui/material";
-import {addPatientSelector, onAddPatient} from "@features/tabPanel";
+import {addPatientSelector, InputStyled, onAddPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -25,6 +25,8 @@ import Icon from "@themes/urlIcon";
 import AddIcCallTwoToneIcon from '@mui/icons-material/AddIcCallTwoTone';
 import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from 'libphonenumber-js';
+import IconUrl from "@themes/urlIcon";
+import {CropImage} from "@features/cropImage";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -49,6 +51,8 @@ function AddPatientStep1({...props}) {
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
+
+    const [openUploadPicture, setOpenUploadPicture] = useState(false);
 
     const phoneRegExp =
         /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -82,6 +86,9 @@ function AddPatientStep1({...props}) {
 
     const formik = useFormik({
         initialValues: {
+            picture: selectedPatient
+                ? selectedPatient.picture
+                : stepsData.step1.picture,
             patient_group: stepsData.step1.patient_group,
             first_name: selectedPatient
                 ? selectedPatient.firstName
@@ -141,6 +148,12 @@ function AddPatientStep1({...props}) {
         dispatch(onAddPatient({...stepsData, step1: values}));
     };
 
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setFieldValue("picture", URL.createObjectURL(file));
+        setOpenUploadPicture(true);
+    };
+
     const {handleSubmit, values, touched, errors, getFieldProps, setFieldValue} = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -160,82 +173,126 @@ function AddPatientStep1({...props}) {
                             {t("personal-info")}
                         </Typography>
                         <Box>
-                            <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
-                                <Typography variant="body2" color="text.secondary" gutterBottom>
-                                    {t("gender")} {" "}
+                            <Stack
+                                spacing={2}
+                                direction={{xs: "column", lg: "row"}}
+                                alignItems={{xs: "center", lg: "stretch"}}
+                                sx={{
+                                    "& > label": {
+                                        position: "relative",
+                                        zIndex: 1,
+                                        cursor: "pointer",
+                                    },
+                                }}
+                            >
+                                <label htmlFor="contained-button-file">
+                                    <InputStyled
+                                        id="contained-button-file"
+                                        onChange={(e) => handleDrop(e.target.files as FileList)}
+                                        type="file"
+                                    />
+                                    <Avatar
+                                        src={values.picture}
+                                        sx={{width: 164, height: 164}}
+                                    >
+                                        <IconUrl path="ic-user-profile"/>
+                                    </Avatar>
+                                    <IconButton
+                                        color="primary"
+                                        type="button"
+                                        sx={{
+                                            position: "absolute",
+                                            bottom: 10,
+                                            right: 10,
+                                            zIndex: 1,
+                                            pointerEvents: "none",
+                                            bgcolor: "#fff !important",
+                                        }}
+                                    >
+                                        <IconUrl path="ic-return-photo"/>
+                                    </IconButton>
+                                </label>
+                                <Stack direction={"column"} sx={{width: "100%"}}>
+                                    <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
+                                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                                            {t("gender")} {" "}
+                                            <Typography component="span" color="error">
+                                                *
+                                            </Typography>
+                                        </Typography>
+                                        <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
+                                            <FormControlLabel
+                                                value={1}
+                                                control={<Radio size="small"/>}
+                                                label={t("mr")}
+                                            />
+                                            <FormControlLabel
+                                                value={2}
+                                                control={<Radio size="small"/>}
+                                                label={t("mrs")}
+                                            />
+                                        </RadioGroup>
+                                        {(touched.gender && errors.gender) &&
+                                            <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
+                                    </FormControl>
+                                    <Box>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            gutterBottom
+                                            component="span"
+                                        >
+                                            {t("first-name")}{" "}
+                                            <Typography component="span" color="error">
+                                                *
+                                            </Typography>
+                                        </Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder={t("first-name-placeholder")}
+                                            size="small"
+                                            fullWidth
+                                            {...getFieldProps("first_name")}
+                                            error={Boolean(touched.first_name && errors.first_name)}
+                                            helperText={
+                                                Boolean(touched.first_name && errors.first_name)
+                                                    ? String(errors.first_name)
+                                                    : undefined
+                                            }
+                                        />
+                                    </Box>
+                                </Stack>
+
+                            </Stack>
+                            <Box mt={1}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span"
+                                >
+                                    {t("last-name")}{" "}
                                     <Typography component="span" color="error">
                                         *
                                     </Typography>
                                 </Typography>
-                                <RadioGroup row aria-label="gender" {...getFieldProps("gender")}>
-                                    <FormControlLabel
-                                        value={1}
-                                        control={<Radio size="small"/>}
-                                        label={t("mr")}
-                                    />
-                                    <FormControlLabel
-                                        value={2}
-                                        control={<Radio size="small"/>}
-                                        label={t("mrs")}
-                                    />
-                                </RadioGroup>
-                                {(touched.gender && errors.gender) &&
-                                    <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
-                            </FormControl>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("last-name-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("last_name")}
+                                    error={Boolean(touched.last_name && errors.last_name)}
+                                    helperText={
+                                        Boolean(touched.last_name && errors.last_name)
+                                            ? String(errors.last_name)
+                                            : undefined
+                                    }
+                                />
+                            </Box>
                         </Box>
                     </>}
-                    <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("first-name")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <TextField
-                            variant="outlined"
-                            placeholder={t("first-name-placeholder")}
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("first_name")}
-                            error={Boolean(touched.first_name && errors.first_name)}
-                            helperText={
-                                Boolean(touched.first_name && errors.first_name)
-                                    ? String(errors.first_name)
-                                    : undefined
-                            }
-                        />
-                    </Box>
-                    <Box>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span"
-                        >
-                            {t("last-name")}{" "}
-                            <Typography component="span" color="error">
-                                *
-                            </Typography>
-                        </Typography>
-                        <TextField
-                            variant="outlined"
-                            placeholder={t("last-name-placeholder")}
-                            size="small"
-                            fullWidth
-                            {...getFieldProps("last_name")}
-                            error={Boolean(touched.last_name && errors.last_name)}
-                            helperText={
-                                Boolean(touched.last_name && errors.last_name)
-                                    ? String(errors.last_name)
-                                    : undefined
-                            }
-                        />
-                    </Box>
+
                     <Box>
                         <Typography
                             variant="body2"
@@ -444,6 +501,13 @@ function AddPatientStep1({...props}) {
                     </Button>
                 </Stack>}
             </Stack>
+            <CropImage
+                {...{setFieldValue}}
+                filedName={"picture"}
+                open={openUploadPicture}
+                img={values.picture}
+                setOpen={setOpenUploadPicture}
+            />
         </FormikProvider>
     );
 }

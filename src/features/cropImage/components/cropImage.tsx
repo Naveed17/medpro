@@ -7,7 +7,8 @@ import getCroppedImg from "@themes/overrides/getCroppedImg";
 import ModalStyled from "./overrides/modalStyled";
 import {InputStyled} from "@features/tabPanel";
 
-function CropImage({img, setFieldValue, setPicture, setOpen, open}: any) {
+function CropImage({...props}) {
+    const {img, setFieldValue, setPicture, setOpen, open, filedName= "file"} = props;
     const [crop, setCrop] = useState({x: 0, y: 0});
     const [rotation, setRotation] = useState(0);
     const [zoom, setZoom] = useState(1);
@@ -29,7 +30,7 @@ function CropImage({img, setFieldValue, setPicture, setOpen, open}: any) {
             );
             setCroppedImage(croppedImage);
             if (setFieldValue)
-                setFieldValue("file", croppedImage);
+                setFieldValue(filedName, croppedImage);
             else
                 setPicture(croppedImage)
 
@@ -46,7 +47,7 @@ function CropImage({img, setFieldValue, setPicture, setOpen, open}: any) {
     const handleDrop = (acceptedFiles: any) => {
         const file = acceptedFiles[0];
         if (setFieldValue)
-            setFieldValue("file", URL.createObjectURL(file));
+            setFieldValue(filedName, URL.createObjectURL(file));
         else
             setPicture(URL.createObjectURL(file))
     };
