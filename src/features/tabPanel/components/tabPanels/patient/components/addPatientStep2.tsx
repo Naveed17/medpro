@@ -1,4 +1,4 @@
-import React, {ChangeEvent, memo, SyntheticEvent, useState} from "react";
+import React, {ChangeEvent, memo, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useFormik, Form, FormikProvider} from "formik";
@@ -16,7 +16,6 @@ import {
     Card,
     CardContent,
     Collapse,
-    IconButtonProps,
     CardHeader,
     Autocomplete,
     InputAdornment,
@@ -35,6 +34,9 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {CountrySelect} from "@features/countrySelect";
+import {SocialInsured} from "@app/constants";
+import {countries as dialCountries} from "@features/countrySelect/countries";
+import moment from "moment-timezone";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -62,26 +64,60 @@ function AddPatientStep2({...props}) {
     const {data: session, status} = useSession();
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
-    const [socialInsured, setSocialInsured] = useState([
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
-        {grouped: "L'ascendant", key: "father", label: "Le Pére"},
-        {grouped: "L'ascendant", key: "mother", label: "La Mére"},
-        {grouped: "L'enfant", key: "child", label: "1er Enfant"},
-        {grouped: "L'enfant", key: "child", label: "2ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "Autre"},
-        {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-    ]);
-    const [selectedCountry, setSelectedCountry] = React.useState<any>({
-        code: "TN",
-        label: "Tunisia",
-        phone: "+216"
-    });
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const RegisterSchema = Yup.object().shape({
-        email: Yup.string().email("Invalid email")
-    });
+                email: Yup.string().email("Invalid email"),
+                insurance: Yup.array().of(
+                    Yup.object().shape({
+                        insurance_number: Yup.string()
+                            .min(3, t("insurance_number-error"))
+                            .max(50, t("insurance_number-error"))
+                            .required(t("insurance_number-error")),
+                        insurance_uuid: Yup.string()
+                            .min(3, t("insurance_uuid-error"))
+                            .max(50, t("insurance_uuid-error"))
+                            .required(t("insurance_number-error")),
+                        insurance_social: Yup.object().shape({
+                            firstName: Yup.string()
+                                .min(3, t("first-name-error"))
+                                .max(50, t("first-name-error"))
+                                .test({
+                                    name: 'insurance-type-test',
+                                    message: t("first-name-error"),
+                                    test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
+                                }),
+                            lastName: Yup.string()
+                                .min(3, t("last-name-error"))
+                                .max(50, t("last-name-error"))
+                                .test({
+                                    name: 'insurance-type-test',
+                                    message: t("last-name-error"),
+                                    test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
+                                }),
+                            birthday: Yup.string()
+                                .min(3, t("birthday-error"))
+                                .max(50, t("birthday-error"))
+                                .test({
+                                    name: 'insurance-type-test',
+                                    message: t("birthday-error"),
+                                    test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
+                                }),
+                            phone: Yup.object().shape({
+                                code: Yup.string(),
+                                value: Yup.string(),
+                                type: Yup.string(),
+                                contact_type: Yup.string(),
+                                is_public: Yup.boolean(),
+                                is_support: Yup.boolean()
+                            })
+                        }),
+                        insurance_type: Yup.string(),
+                        expand: Yup.boolean()
+                    }))
+            }
+        )
+    ;
 
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
@@ -96,13 +132,27 @@ function AddPatientStep2({...props}) {
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
+                insurance_social: {
+                    firstName: "",
+                    lastName: "",
+                    birthday: "",
+                    phone: {
+                        code: "+216",
+                        value: "",
+                        type: "phone",
+                        contact_type: contacts[0].uuid,
+                        is_public: false,
+                        is_support: false
+                    }
+                },
                 insurance_type: "",
-                expanded: false
+                expand: false
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
+                insurance_social?: InsuranceSocialModel;
                 insurance_type: string;
-                expanded: boolean;
+                expand: boolean;
             }[]
         },
         validationSchema: RegisterSchema,
@@ -144,6 +194,7 @@ function AddPatientStep2({...props}) {
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
+        setLoading(true);
         const {first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
@@ -164,13 +215,18 @@ function AddPatientStep2({...props}) {
         form.append('address', JSON.stringify({
             fr: values.address
         }));
+        values.insurance.map((insurance: InsurancesModel) => {
+            if (insurance.insurance_type === "0") {
+                delete insurance['insurance_social'];
+            }
+        });
         form.append('insurance', JSON.stringify(values.insurance));
         form.append('email', values.email);
         form.append('family_doctor', values.family_doctor);
         form.append('region', values.region);
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
-        setLoading(true);
+
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
@@ -191,12 +247,29 @@ function AddPatientStep2({...props}) {
         );
     };
 
+    const getCountryByCode = (code: string) => {
+        return dialCountries.find(country => country.phone === code)
+    }
+
     const handleAddInsurance = () => {
         const insurance = [...values.insurance, {
             insurance_uuid: "",
             insurance_number: "",
+            insurance_social: {
+                firstName: "",
+                lastName: "",
+                birthday: "",
+                phone: {
+                    code: "+216",
+                    value: "",
+                    type: "phone",
+                    contact_type: contacts[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
             insurance_type: "",
-            expanded: false
+            expand: false
         }];
         formik.setFieldValue("insurance", insurance);
     };
@@ -206,6 +279,8 @@ function AddPatientStep2({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
+
+    console.log(values, errors);
 
     return (
         <FormikProvider value={formik}>
@@ -287,7 +362,6 @@ function AddPatientStep2({...props}) {
                                                 if (selected?.length === 0) {
                                                     return <em>{t("add-patient.region-placeholder")}</em>;
                                                 }
-
                                                 const state = states?.find(state => state.uuid === selected);
                                                 return <Typography>{state?.name}</Typography>
                                             }}>
@@ -384,12 +458,12 @@ function AddPatientStep2({...props}) {
                                                     <Autocomplete
                                                         size={"small"}
                                                         {...getFieldProps(`insurance[${index}].insurance_type`)}
-                                                        onChange={(event, newValue) => {
-                                                            setFieldValue(`insurance[${index}].insurance_type`, newValue)
-                                                            setFieldValue(`insurance[${index}].expand`, newValue?.key !== "socialInsured")
+                                                        onChange={(event, insurance) => {
+                                                            setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
+                                                            setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                         }}
                                                         id={"assure"}
-                                                        options={socialInsured}
+                                                        options={SocialInsured}
                                                         groupBy={(option) => option.grouped}
                                                         sx={{minWidth: 500}}
                                                         renderGroup={(params) => {
@@ -403,8 +477,15 @@ function AddPatientStep2({...props}) {
                                                                         {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
                                                                 </li>)
                                                         }}
-                                                        renderInput={(params) =>
-                                                            <TextField {...params} label={"Le malade"}/>}
+                                                        renderInput={(params) => {
+                                                            const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
+                                                            return (<TextField {...params}
+                                                                               inputProps={{
+                                                                                   ...params.inputProps,
+                                                                                   value: insurance?.label
+                                                                               }}
+                                                                               placeholder={"Le malade"}/>)
+                                                        }}
                                                     />
                                                 </Stack>
                                             }/>
@@ -450,6 +531,10 @@ function AddPatientStep2({...props}) {
                                                             variant="outlined"
                                                             placeholder={t("add-patient.assurance-phone-error")}
                                                             size="small"
+                                                            error={Boolean(touched.insurance &&
+                                                                (touched.insurance as any)[index].insurance_number &&
+                                                                errors.insurance && (errors.insurance as any)[index].insurance_number)}
+                                                            helperText={touched.insurance && (touched.insurance as any)[index].insurance_number}
                                                             fullWidth
                                                             {...getFieldProps(`insurance[${index}].insurance_number`)}
                                                         />
@@ -491,8 +576,9 @@ function AddPatientStep2({...props}) {
                                                             {t("add-patient.birthdate")}
                                                         </Typography>
                                                         <DatePicker
+                                                            value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
                                                             onChange={(date: Date) => {
-                                                                console.log(date);
+                                                                setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
                                                             }}
                                                             inputFormat="dd/MM/yyyy"
                                                         />
@@ -505,24 +591,27 @@ function AddPatientStep2({...props}) {
                                                     <Grid container spacing={2}>
                                                         <Grid item md={6} lg={4} xs={12}>
                                                             <CountrySelect
-                                                                initCountry={{
-                                                                    code: "TN",
-                                                                    label: "Tunisia",
-                                                                    phone: "+216"
-                                                                }}
+                                                                initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
+                                                                    {
+                                                                        code: "TN",
+                                                                        label: "Tunisia",
+                                                                        phone: "+216"
+                                                                    }}
                                                                 onSelect={(state: any) => {
-                                                                    setSelectedCountry(state);
+                                                                    setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                 }}/>
                                                         </Grid>
                                                         <Grid item md={6} lg={8} xs={12}>
                                                             <TextField
                                                                 variant="outlined"
                                                                 size="small"
+                                                                {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
                                                                 fullWidth
                                                                 InputProps={{
                                                                     startAdornment: (
                                                                         <InputAdornment position="start">
-                                                                            {selectedCountry?.phone}
+                                                                            {getFieldProps(`insurance[${index}].insurance_social.phone.code`)?.value}
                                                                         </InputAdornment>
                                                                     ),
                                                                 }}
@@ -533,7 +622,6 @@ function AddPatientStep2({...props}) {
                                             </CardContent>
                                         </Collapse>
                                     </Card>
-
                                 ))}
                             </Box>
                         </Box>
@@ -598,6 +686,7 @@ function AddPatientStep2({...props}) {
                     </Button>
 
                     <LoadingButton
+                        disabled={Object.keys(errors).length > 0}
                         type="submit"
                         color="primary"
                         loading={loading}

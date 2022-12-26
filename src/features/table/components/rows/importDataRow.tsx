@@ -64,8 +64,9 @@ function ImportDataRow({...props}) {
             url: `/api/medical-entity/${medical_entity.uuid}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`,
             headers: {Authorization: `Bearer ${session?.accessToken}`}
         }).then((value: any) => {
+            const {data} = value?.data;
             if (value?.data.status === 'success') {
-                setExpandData(value?.data.data);
+                setExpandData(data.list);
             }
         });
     }

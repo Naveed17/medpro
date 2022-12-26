@@ -45,6 +45,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
+import {SocialInsured} from "@app/constants";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -87,16 +88,7 @@ function PersonalInfo({...props}) {
         label: "Tunisia",
         phone: "+216"
     });
-    const [socialInsured, setSocialInsured] = useState([
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
-        {grouped: "L'ascendant", key: "father", label: "Le Pére"},
-        {grouped: "L'ascendant", key: "mother", label: "La Mére"},
-        {grouped: "L'enfant", key: "child", label: "1er Enfant"},
-        {grouped: "L'enfant", key: "child", label: "2ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "Autre"},
-        {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-    ]);
+
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
     const {t, ready} = useTranslation("patient", {
@@ -512,7 +504,7 @@ function PersonalInfo({...props}) {
                                                                             setFieldValue(`insurances[${index}].expand`, newValue?.key !== "socialInsured")
                                                                         }}
                                                                         id={"assure"}
-                                                                        options={socialInsured}
+                                                                        options={SocialInsured}
                                                                         groupBy={(option) => option.grouped}
                                                                         sx={{minWidth: 240}}
                                                                         renderGroup={(params) => {
