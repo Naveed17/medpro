@@ -141,20 +141,20 @@ function AddPatientStep2({...props}) {
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
                 insurance_social: {
-                    firstName: "",
-                    lastName: "",
-                    birthday: null,
+                    firstName: insurance.insuredPerson.firstName,
+                    lastName: insurance.insuredPerson.lastName,
+                    birthday: insurance.insuredPerson.birthday,
                     phone: {
-                        code: "+216",
-                        value: "",
+                        code: insurance.insuredPerson.contact.code,
+                        value: insurance.insuredPerson.contact.value,
                         type: "phone",
                         contact_type: contacts[0].uuid,
                         is_public: false,
                         is_support: false
                     }
                 },
-                insurance_type: "",
-                expand: false
+                insurance_type: insurance.type.toString(),
+                expand: insurance.type.toString() !== "0"
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
@@ -360,7 +360,7 @@ function AddPatientStep2({...props}) {
                                     </Typography>
                                     <FormControl fullWidth>
                                         <Select
-                                            labelId="demo-simple-select-label"
+                                            labelId="region-select-label"
                                             id={"region"}
                                             disabled={!values.country && !states}
                                             size="small"
@@ -520,7 +520,14 @@ function AddPatientStep2({...props}) {
                                                                     return <em>{t("add-patient.assurance-placeholder")}</em>;
                                                                 }
                                                                 const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                return <Typography>{insurance?.name}</Typography>
+                                                                return (
+                                                                    <Stack direction={"row"}>
+                                                                        <Image width={20} height={14}
+                                                                               alt={"insurance"}
+                                                                               src={insurance?.logoUrl as string}/>
+                                                                        <Typography
+                                                                            ml={1}>{insurance?.name}</Typography>
+                                                                    </Stack>)
                                                             }}
                                                         >
                                                             {insurances?.map(insurance => (
