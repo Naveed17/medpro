@@ -46,6 +46,9 @@ import {LoadingScreen} from "@features/loadingScreen";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {SocialInsured} from "@app/constants";
+import {countries as dialCountries} from "@features/countrySelect/countries";
+import Image from "next/image";
+import {isValidPhoneNumber} from "libphonenumber-js";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -120,13 +123,60 @@ function PersonalInfo({...props}) {
             .email('Invalid email format'),
         birthdate: Yup.string(),
         cin: Yup.number(),
-        insurances: Yup.array()
-            .of(
-                Yup.object().shape({
-                    insurance_number: Yup.string().min(3, t("insurances-error")),
-                    insurance_uuid: Yup.string().min(3, t("insurances-error"))
-                })
-            )
+        insurances: Yup.array().of(
+            Yup.object().shape({
+                insurance_number: Yup.string()
+                    .min(3, t("add-patient.assurance-num-error"))
+                    .max(50, t("add-patient.assurance-num-error"))
+                    .required(t("add-patient.assurance-num-error")),
+                insurance_uuid: Yup.string()
+                    .min(3, t("add-patient.assurance-type-error"))
+                    .max(50, t("add-patient.assurance-type-error"))
+                    .required(t("add-patient.assurance-type-error")),
+                insurance_social: Yup.object().shape({
+                    firstName: Yup.string()
+                        .min(3, t("add-patient.first-name-error"))
+                        .max(50, t("add-patient.first-name-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("add-patient.first-name-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
+                        }),
+                    lastName: Yup.string()
+                        .min(3, t("add-patient.last-name-error"))
+                        .max(50, t("add-patient.last-name-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("add-patient.last-name-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
+                        }),
+                    birthday: Yup.string()
+                        .nullable()
+                        .min(3, t("add-patient.birthday-error"))
+                        .max(50, t("add-patient.birthday-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("add-patient.birthday-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
+                        }),
+                    phone: Yup.object().shape({
+                        code: Yup.string(),
+                        value: Yup.string().test({
+                            name: 'phone-value-test',
+                            message: t("add-patient.telephone-error"),
+                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
+                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
+                        }),
+                        type: Yup.string(),
+                        contact_type: Yup.string(),
+                        is_public: Yup.boolean(),
+                        is_support: Yup.boolean()
+                    })
+                }),
+                insurance_type: Yup.string(),
+                expand: Yup.boolean()
+            })
+        )
     });
 
     const formik = useFormik({
@@ -147,8 +197,21 @@ function PersonalInfo({...props}) {
             insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
-                insurance_type: "",
-                expanded: false
+                insurance_social: insurance.insuredPerson && {
+                    firstName: insurance.insuredPerson.firstName,
+                    lastName: insurance.insuredPerson.lastName,
+                    birthday: insurance.insuredPerson.birthday,
+                    phone: {
+                        code: insurance.insuredPerson.contact.code,
+                        value: insurance.insuredPerson.contact.value,
+                        type: "phone",
+                        contact_type: patient.contact[0].uuid,
+                        is_public: false,
+                        is_support: false
+                    }
+                },
+                insurance_type: insurance.type.toString(),
+                expand: insurance.type.toString() !== "0"
             })) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
@@ -161,8 +224,21 @@ function PersonalInfo({...props}) {
         const insurance = [...values.insurances, {
             insurance_uuid: "",
             insurance_number: "",
+            insurance_social: {
+                firstName: "",
+                lastName: "",
+                birthday: null,
+                phone: {
+                    code: "+216",
+                    value: "",
+                    type: "phone",
+                    contact_type: patient.contact[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
             insurance_type: "",
-            expanded: false
+            expand: false
         }];
         setFieldValue("insurances", insurance);
     }
@@ -181,15 +257,20 @@ function PersonalInfo({...props}) {
         params.append('gender', values.gender);
         params.append('phone', JSON.stringify(
             patient.contact.filter((contact: ContactModel) => contact.type === "phone").map((phone: any) => ({
-            code: phone.code,
-            value: phone.value,
-            type: "phone",
-            "contact_type": patient.contact[0].uuid,
-            "is_public": false,
-            "is_support": false
-        }))));
+                code: phone.code,
+                value: phone.value,
+                type: "phone",
+                "contact_type": patient.contact[0].uuid,
+                "is_public": false,
+                "is_support": false
+            }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
+        values.insurances.map((insurance: InsurancesModel) => {
+            if (insurance.insurance_type === "0") {
+                delete insurance['insurance_social'];
+            }
+        });
         params.append('insurance', JSON.stringify(values.insurances.filter(
             (insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
@@ -213,6 +294,10 @@ function PersonalInfo({...props}) {
             }
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
+    }
+
+    const getCountryByCode = (code: string) => {
+        return dialCountries.find(country => country.phone === code)
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
@@ -466,8 +551,8 @@ function PersonalInfo({...props}) {
                                 <Divider/>
                                 <Stack sx={{padding: 1}} direction={"row"} alignItems={"center"}>
                                     <IconButton
-                                        disabled={!editable}
                                         size={"small"}
+                                        disabled={!editable}
                                         onClick={handleAddInsurance}
                                         className="success-light"
                                         sx={{
@@ -493,20 +578,33 @@ function PersonalInfo({...props}) {
                                             ) : (
                                                 <>
                                                     <CardContent sx={{paddingTop: 0, paddingLeft: 1}}>
-                                                        <Grid container spacing={1.2}>
-                                                            <Grid item xs={6} md={4}>
-                                                                <Stack direction={"row"} alignItems={"center"}>
+                                                        <Grid ml={0} container spacing={1.2}>
+                                                            <Grid item xs={6} md={5}>
+                                                                <Stack direction={"row"}
+                                                                       sx={{
+                                                                           "& .MuiInputBase-root": {
+                                                                               paddingTop: 0
+                                                                           }
+                                                                       }}
+                                                                       justifyContent={"space-between"}
+                                                                       alignItems={"center"}>
+                                                                    <Typography variant="body2"
+                                                                                color="text.secondary"
+                                                                                gutterBottom>
+                                                                        {t("patient")}
+                                                                    </Typography>
                                                                     <Autocomplete
                                                                         size={"small"}
+                                                                        readOnly={!editable}
                                                                         {...getFieldProps(`insurances[${index}].insurance_type`)}
-                                                                        onChange={(event, newValue) => {
-                                                                            setFieldValue(`insurances[${index}].insurance_type`, newValue)
-                                                                            setFieldValue(`insurances[${index}].expand`, newValue?.key !== "socialInsured")
+                                                                        onChange={(event, insurance) => {
+                                                                            setFieldValue(`insurances[${index}].insurance_type`, insurance?.value)
+                                                                            setFieldValue(`insurances[${index}].expand`, insurance?.key !== "socialInsured")
                                                                         }}
                                                                         id={"assure"}
                                                                         options={SocialInsured}
                                                                         groupBy={(option) => option.grouped}
-                                                                        sx={{minWidth: 240}}
+                                                                        sx={{minWidth: 180}}
                                                                         renderGroup={(params) => {
                                                                             return (
                                                                                 <li key={params.key}>
@@ -518,17 +616,24 @@ function PersonalInfo({...props}) {
                                                                                         {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
                                                                                 </li>)
                                                                         }}
-                                                                        renderInput={(params) =>
-                                                                            <TextField {...params}
-                                                                                       placeholder={"Le malade"}/>}
+                                                                        renderInput={(params) => {
+                                                                            const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
+                                                                            return (<TextField {...params}
+                                                                                               inputProps={{
+                                                                                                   ...params.inputProps,
+                                                                                                   value: insurance?.label
+                                                                                               }}
+                                                                                               placeholder={"Le malade"}/>)
+                                                                        }}
                                                                     />
                                                                 </Stack>
                                                             </Grid>
-                                                            <Grid item xs={6} md={7}>
+                                                            <Grid item xs={6} md={6}>
                                                                 <Stack direction="row" spacing={1.5}
                                                                        alignItems={"center"}>
                                                                     <Select
                                                                         id={"assurance"}
+                                                                        readOnly={!editable}
                                                                         size="small"
                                                                         placeholder={t("assurance-placeholder")}
                                                                         {...getFieldProps(`insurances[${index}].insurance_uuid`)}
@@ -538,7 +643,15 @@ function PersonalInfo({...props}) {
                                                                                 return <em>{t("assurance-placeholder")}</em>;
                                                                             }
                                                                             const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                            return <Typography>{insurance?.name}</Typography>
+                                                                            return (
+                                                                                <Stack direction={"row"}>
+                                                                                    {insurance?.logoUrl &&
+                                                                                        <Image width={20} height={14}
+                                                                                               alt={"insurance"}
+                                                                                               src={insurance?.logoUrl}/>}
+                                                                                    <Typography
+                                                                                        ml={1}>{insurance?.name}</Typography>
+                                                                                </Stack>)
                                                                         }}
                                                                     >
                                                                         {insurances?.map(insurance => (
@@ -556,6 +669,7 @@ function PersonalInfo({...props}) {
                                                                     </Select>
                                                                     <MyTextInput
                                                                         variant="outlined"
+                                                                        disabled={!editable}
                                                                         placeholder={t("assurance-phone-error")}
                                                                         size="small"
                                                                         fullWidth
@@ -566,11 +680,13 @@ function PersonalInfo({...props}) {
                                                             <Grid item xs={6} md={1}>
                                                                 <Stack direction={"row"} alignItems={"center"}>
                                                                     <IconButton
+                                                                        disabled={!editable}
                                                                         onClick={() => handleRemoveInsurance(index)}
                                                                         className="error-light"
                                                                         size={"small"}
                                                                         sx={{
                                                                             mr: 1.5,
+                                                                            display: !editable ? "none" : "inline-block",
                                                                             "& svg": {
                                                                                 width: 14,
                                                                                 height: 12
@@ -599,6 +715,7 @@ function PersonalInfo({...props}) {
                                                                         </Typography>
                                                                         <TextField
                                                                             placeholder={t("first-name-placeholder")}
+                                                                            disabled={!editable}
                                                                             variant="outlined"
                                                                             size="small"
                                                                             fullWidth
@@ -616,6 +733,7 @@ function PersonalInfo({...props}) {
                                                                         </Typography>
                                                                         <TextField
                                                                             placeholder={t("last-name-placeholder")}
+                                                                            disabled={!editable}
                                                                             variant="outlined"
                                                                             size="small"
                                                                             fullWidth
@@ -631,8 +749,10 @@ function PersonalInfo({...props}) {
                                                                         {t("birthdate")}
                                                                     </Typography>
                                                                     <CustomDatePicker
+                                                                        readOnly={!editable}
+                                                                        value={moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
                                                                         onChange={(date: Date) => {
-                                                                            console.log(date);
+                                                                            setFieldValue(`insurances[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
                                                                         }}
                                                                         inputFormat="dd/MM/yyyy"
                                                                     />
@@ -646,24 +766,29 @@ function PersonalInfo({...props}) {
                                                                 <Grid container spacing={2}>
                                                                     <Grid item md={6} lg={4} xs={12}>
                                                                         <CountrySelect
-                                                                            initCountry={{
-                                                                                code: "TN",
-                                                                                label: "Tunisia",
-                                                                                phone: "+216"
-                                                                            }}
+                                                                            readOnly={!editable}
+                                                                            initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
+                                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) :
+                                                                                {
+                                                                                    code: "TN",
+                                                                                    label: "Tunisia",
+                                                                                    phone: "+216"
+                                                                                }}
                                                                             onSelect={(state: any) => {
-                                                                                setSelectedCountry(state);
+                                                                                setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
                                                                             }}/>
                                                                     </Grid>
                                                                     <Grid item md={6} lg={8} xs={12}>
                                                                         <TextField
+                                                                            disabled={!editable}
+                                                                            {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
                                                                             variant="outlined"
                                                                             size="small"
                                                                             fullWidth
                                                                             InputProps={{
                                                                                 startAdornment: (
                                                                                     <InputAdornment position="start">
-                                                                                        {selectedCountry?.phone}
+                                                                                        {getFieldProps(`insurances[${index}].insurance_social.phone.code`)?.value}
                                                                                     </InputAdornment>
                                                                                 ),
                                                                             }}

@@ -72,44 +72,44 @@ function AddPatientStep2({...props}) {
                 insurance: Yup.array().of(
                     Yup.object().shape({
                         insurance_number: Yup.string()
-                            .min(3, t("insurance_number-error"))
-                            .max(50, t("insurance_number-error"))
-                            .required(t("insurance_number-error")),
+                            .min(3, t("add-patient.assurance-num-error"))
+                            .max(50, t("add-patient.assurance-num-error"))
+                            .required(t("add-patient.assurance-num-error")),
                         insurance_uuid: Yup.string()
-                            .min(3, t("insurance_uuid-error"))
-                            .max(50, t("insurance_uuid-error"))
-                            .required(t("insurance_number-error")),
+                            .min(3, t("add-patient.assurance-type-error"))
+                            .max(50, t("add-patient.assurance-type-error"))
+                            .required(t("add-patient.assurance-type-error")),
                         insurance_social: Yup.object().shape({
                             firstName: Yup.string()
-                                .min(3, t("first-name-error"))
-                                .max(50, t("first-name-error"))
+                                .min(3, t("add-patient.first-name-error"))
+                                .max(50, t("add-patient.first-name-error"))
                                 .test({
                                     name: 'insurance-type-test',
-                                    message: t("first-name-error"),
+                                    message: t("add-patient.first-name-error"),
                                     test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
                                 }),
                             lastName: Yup.string()
-                                .min(3, t("last-name-error"))
-                                .max(50, t("last-name-error"))
+                                .min(3, t("add-patient.last-name-error"))
+                                .max(50, t("add-patient.last-name-error"))
                                 .test({
                                     name: 'insurance-type-test',
-                                    message: t("last-name-error"),
+                                    message: t("add-patient.last-name-error"),
                                     test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                                 }),
                             birthday: Yup.string()
                                 .nullable()
-                                .min(3, t("birthday-error"))
-                                .max(50, t("birthday-error"))
+                                .min(3, t("add-patient.birthday-error"))
+                                .max(50, t("add-patient.birthday-error"))
                                 .test({
                                     name: 'insurance-type-test',
-                                    message: t("birthday-error"),
+                                    message: t("add-patient.birthday-error"),
                                     test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
                                 }),
                             phone: Yup.object().shape({
                                 code: Yup.string(),
                                 value: Yup.string().test({
                                     name: 'phone-value-test',
-                                    message: t("telephone-error"),
+                                    message: t("add-patient.telephone-error"),
                                     test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
                                         isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
                                 }),
