@@ -132,7 +132,14 @@ function PatientFilter({...props}) {
                                 />
                             </>
                         ) : (
-                            <>
+                            <Box sx={{
+                                "& .MuiOutlinedInput-root button": {
+                                    padding: "5px",
+                                    minHeight: "auto",
+                                    height: "auto",
+                                    minWidth: "auto"
+                                }
+                            }}>
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
                                     {t(`${keyPrefix}${lab.label}`)}
                                 </InputLabel>
@@ -162,7 +169,7 @@ function PatientFilter({...props}) {
                                         }}
                                     />
                                 </LocalizationProvider>
-                            </>
+                            </Box>
                         )}
                     </Fragment>
                 )

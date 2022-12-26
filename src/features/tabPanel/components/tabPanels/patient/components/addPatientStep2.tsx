@@ -601,7 +601,7 @@ function AddPatientStep2({...props}) {
                                                 </Box>
                                                 <Box mb={1} sx={{
                                                     "& .MuiOutlinedInput-root button": {
-                                                        padding: 1,
+                                                        padding: "5px",
                                                         minHeight: "auto",
                                                         height: "auto",
                                                         minWidth: "auto"
