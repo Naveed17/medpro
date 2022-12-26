@@ -103,10 +103,7 @@ function AddPatientStep2({...props}) {
                                 .test({
                                     name: 'insurance-type-test',
                                     message: t("birthday-error"),
-                                    test: (value, ctx: any) => {
-                                        console.log(ctx, ctx.from[0].value.birthday)
-                                        return ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                                    }
+                                    test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
                                 }),
                             phone: Yup.object().shape({
                                 code: Yup.string(),
@@ -602,7 +599,14 @@ function AddPatientStep2({...props}) {
                                                         {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
                                                     />
                                                 </Box>
-                                                <Box mb={1}>
+                                                <Box mb={1} sx={{
+                                                    "& .MuiOutlinedInput-root button": {
+                                                        padding: 1,
+                                                        minHeight: "auto",
+                                                        height: "auto",
+                                                        minWidth: "auto"
+                                                    }
+                                                }}>
                                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                         <Typography variant="body2" color="text.secondary" gutterBottom>
                                                             {t("add-patient.birthdate")}
