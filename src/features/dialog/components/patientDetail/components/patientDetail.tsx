@@ -174,6 +174,11 @@ function PatientDetail({...props}) {
                                 label={t("tabs.documents")}
                                 {...a11yProps(2)}
                             />
+                            <Tab
+                                disableRipple
+                                label={t("tabs.notes")}
+                                {...a11yProps(2)}
+                            />
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
@@ -191,7 +196,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
-                            {nextAppointments?.length > 0 || previousAppointments?.length > 0? (
+                            {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard
@@ -204,7 +209,9 @@ function PatientDetail({...props}) {
                         <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel {...{documents, patient}} />
                         </TabPanel>
-
+                        <TabPanel padding={2} value={index} index={4}>
+                            notes
+                        </TabPanel>
                         <SpeedDial
                             sx={{
                                 position: "fixed",
@@ -238,11 +245,17 @@ function PatientDetail({...props}) {
                     >
                         <Button
                             size="medium"
+                            style={{color:"black"}}
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
+
+                        <Button
+                            size="medium"
                             variant="contained"
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
                                 mr: 1,
+                                ml:1,
                                 width: {md: "auto", sm: "100%", xs: "100%"},
                             }}
                             onClick={() => {

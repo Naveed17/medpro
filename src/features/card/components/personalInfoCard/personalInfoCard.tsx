@@ -86,12 +86,6 @@ function PersonalInfo({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const [selectedCountry, setSelectedCountry] = React.useState<any>({
-        code: "TN",
-        label: "Tunisia",
-        phone: "+216"
-    });
-
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
     const {t, ready} = useTranslation("patient", {
@@ -577,7 +571,9 @@ function PersonalInfo({...props}) {
                                                 <Skeleton variant="text"/>
                                             ) : (
                                                 <>
-                                                    <CardContent sx={{paddingTop: 0, paddingLeft: 1}}>
+                                                    <CardContent sx={{
+                                                        padding: "0 16px 4px"
+                                                    }}>
                                                         <Grid ml={0} container spacing={1.2}>
                                                             <Grid item xs={6} md={5}>
                                                                 <Stack direction={"row"}
@@ -588,9 +584,7 @@ function PersonalInfo({...props}) {
                                                                        }}
                                                                        justifyContent={"space-between"}
                                                                        alignItems={"center"}>
-                                                                    <Typography variant="body2"
-                                                                                color="text.secondary"
-                                                                                gutterBottom>
+                                                                    <Typography variant="body2">
                                                                         {t("patient")}
                                                                     </Typography>
                                                                     <Autocomplete
@@ -623,7 +617,7 @@ function PersonalInfo({...props}) {
                                                                                                    ...params.inputProps,
                                                                                                    value: insurance?.label
                                                                                                }}
-                                                                                               placeholder={"Le malade"}/>)
+                                                                                               placeholder={t("patient-placeholder")}/>)
                                                                         }}
                                                                     />
                                                                 </Stack>
@@ -646,9 +640,10 @@ function PersonalInfo({...props}) {
                                                                             return (
                                                                                 <Stack direction={"row"}>
                                                                                     {insurance?.logoUrl &&
-                                                                                        <Image width={20} height={14}
-                                                                                               alt={"insurance"}
-                                                                                               src={insurance?.logoUrl}/>}
+                                                                                        <Box component={"img"}
+                                                                                             width={20} height={20}
+                                                                                             alt={"insurance"}
+                                                                                             src={insurance?.logoUrl}/>}
                                                                                     <Typography
                                                                                         ml={1}>{insurance?.name}</Typography>
                                                                                 </Stack>)
@@ -704,98 +699,99 @@ function PersonalInfo({...props}) {
                                                               unmountOnExit>
                                                         <CardContent sx={{paddingTop: 0}}
                                                                      className={"insurance-section"}>
-                                                            <Grid container spacing={1.2}>
-                                                                <Grid item md={6} sm={6}>
-                                                                    <Stack direction={"row"} alignItems={"center"}
-                                                                           mb={1}>
+                                                            <fieldset>
+                                                                <legend>{t("patient-detail")}</legend>
+                                                                <Grid container spacing={1.2}>
+                                                                    <Grid item md={6} sm={6}>
+                                                                        <Stack direction={"row"} alignItems={"center"}
+                                                                               mb={1}>
+                                                                            <Typography variant="body2">
+                                                                                {t("first-name")}
+                                                                            </Typography>
+                                                                            <TextField
+                                                                                placeholder={t("first-name-placeholder")}
+                                                                                disabled={!editable}
+                                                                                variant="outlined"
+                                                                                size="small"
+                                                                                fullWidth
+                                                                                {...getFieldProps(`insurances[${index}].insurance_social.firstName`)}
+                                                                            />
+                                                                        </Stack>
+                                                                    </Grid>
+                                                                    <Grid item md={6} sm={6}>
+                                                                        <Stack direction={"row"} alignItems={"center"}
+                                                                               mb={1}>
+                                                                            <Typography variant="body2">
+                                                                                {t("last-name")}
+                                                                            </Typography>
+                                                                            <TextField
+                                                                                placeholder={t("last-name-placeholder")}
+                                                                                disabled={!editable}
+                                                                                variant="outlined"
+                                                                                size="small"
+                                                                                fullWidth
+                                                                                {...getFieldProps(`insurances[${index}].insurance_social.lastName`)}
+                                                                            />
+                                                                        </Stack>
+                                                                    </Grid>
+                                                                </Grid>
+                                                                <Stack direction={"row"} alignItems={"center"} mb={1}>
+                                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                         <Typography variant="body2"
                                                                                     color="text.secondary"
                                                                                     gutterBottom>
-                                                                            {t("first-name")}
+                                                                            {t("birthdate")}
                                                                         </Typography>
-                                                                        <TextField
-                                                                            placeholder={t("first-name-placeholder")}
-                                                                            disabled={!editable}
-                                                                            variant="outlined"
-                                                                            size="small"
-                                                                            fullWidth
-                                                                            {...getFieldProps(`insurances[${index}].insurance_social.firstName`)}
+                                                                        <CustomDatePicker
+                                                                            readOnly={!editable}
+                                                                            value={moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
+                                                                            onChange={(date: Date) => {
+                                                                                setFieldValue(`insurances[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                            }}
+                                                                            inputFormat="dd/MM/yyyy"
                                                                         />
-                                                                    </Stack>
-                                                                </Grid>
-                                                                <Grid item md={6} sm={6}>
-                                                                    <Stack direction={"row"} alignItems={"center"}
-                                                                           mb={1}>
-                                                                        <Typography variant="body2"
-                                                                                    color="text.secondary"
-                                                                                    gutterBottom>
-                                                                            {t("last-name")}
-                                                                        </Typography>
-                                                                        <TextField
-                                                                            placeholder={t("last-name-placeholder")}
-                                                                            disabled={!editable}
-                                                                            variant="outlined"
-                                                                            size="small"
-                                                                            fullWidth
-                                                                            {...getFieldProps(`insurances[${index}].insurance_social.lastName`)}
-                                                                        />
-                                                                    </Stack>
-                                                                </Grid>
-                                                            </Grid>
-                                                            <Stack direction={"row"} alignItems={"center"} mb={1}>
-                                                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                    </LocalizationProvider>
+                                                                </Stack>
+                                                                <Stack direction={"row"} alignItems={"center"}>
                                                                     <Typography variant="body2" color="text.secondary"
                                                                                 gutterBottom>
-                                                                        {t("birthdate")}
+                                                                        {t("telephone")}
                                                                     </Typography>
-                                                                    <CustomDatePicker
-                                                                        readOnly={!editable}
-                                                                        value={moment(getFieldProps(`insurances[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                                        onChange={(date: Date) => {
-                                                                            setFieldValue(`insurances[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                        }}
-                                                                        inputFormat="dd/MM/yyyy"
-                                                                    />
-                                                                </LocalizationProvider>
-                                                            </Stack>
-                                                            <Stack direction={"row"} alignItems={"center"}>
-                                                                <Typography variant="body2" color="text.secondary"
-                                                                            gutterBottom>
-                                                                    {t("telephone")}
-                                                                </Typography>
-                                                                <Grid container spacing={2}>
-                                                                    <Grid item md={6} lg={4} xs={12}>
-                                                                        <CountrySelect
-                                                                            readOnly={!editable}
-                                                                            initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
-                                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) :
-                                                                                {
-                                                                                    code: "TN",
-                                                                                    label: "Tunisia",
-                                                                                    phone: "+216"
+                                                                    <Grid container spacing={2}>
+                                                                        <Grid item md={6} lg={4} xs={12}>
+                                                                            <CountrySelect
+                                                                                readOnly={!editable}
+                                                                                initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
+                                                                                    getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) :
+                                                                                    {
+                                                                                        code: "TN",
+                                                                                        label: "Tunisia",
+                                                                                        phone: "+216"
+                                                                                    }}
+                                                                                onSelect={(state: any) => {
+                                                                                    setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
+                                                                                }}/>
+                                                                        </Grid>
+                                                                        <Grid item md={6} lg={8} xs={12}>
+                                                                            <TextField
+                                                                                disabled={!editable}
+                                                                                {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
+                                                                                variant="outlined"
+                                                                                size="small"
+                                                                                fullWidth
+                                                                                InputProps={{
+                                                                                    startAdornment: (
+                                                                                        <InputAdornment
+                                                                                            position="start">
+                                                                                            {getFieldProps(`insurances[${index}].insurance_social.phone.code`)?.value}
+                                                                                        </InputAdornment>
+                                                                                    ),
                                                                                 }}
-                                                                            onSelect={(state: any) => {
-                                                                                setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
-                                                                            }}/>
+                                                                            />
+                                                                        </Grid>
                                                                     </Grid>
-                                                                    <Grid item md={6} lg={8} xs={12}>
-                                                                        <TextField
-                                                                            disabled={!editable}
-                                                                            {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
-                                                                            variant="outlined"
-                                                                            size="small"
-                                                                            fullWidth
-                                                                            InputProps={{
-                                                                                startAdornment: (
-                                                                                    <InputAdornment position="start">
-                                                                                        {getFieldProps(`insurances[${index}].insurance_social.phone.code`)?.value}
-                                                                                    </InputAdornment>
-                                                                                ),
-                                                                            }}
-                                                                        />
-                                                                    </Grid>
-                                                                </Grid>
-                                                            </Stack>
+                                                                </Stack>
+                                                            </fieldset>
                                                         </CardContent>
                                                     </Collapse>
                                                     {(values.insurances.length - 1) !== index && <Divider/>}

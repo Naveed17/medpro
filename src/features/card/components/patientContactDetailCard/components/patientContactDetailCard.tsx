@@ -229,10 +229,9 @@ function PatientContactDetailCard({...props}) {
                             </AppBar>
                             <Grid container spacing={1.2}>
                                 {values.phones.map((phone: any, index: number) => (
-                                        <Grid key={`${index}`} item md={5} sm={6} xs={6}
+                                        <Grid key={`${index}`} item md={6} sm={6} xs={6}
                                               className={"phone-handler"}>
                                             <Stack direction="row"
-                                                   spacing={1}
                                                    alignItems="center">
                                                 <Grid item md={10} sm={12} xs={12} sx={{
                                                     "& .Input-select": {
@@ -245,8 +244,14 @@ function PatientContactDetailCard({...props}) {
                                                         <Stack
                                                             direction="row"
                                                             spacing={1}
-                                                            sx={{height: 22}}
+                                                            sx={{height: 30}}
                                                             alignItems="center">
+                                                            <Typography
+                                                                className="label"
+                                                                variant="body2"
+                                                                color="text.secondary">
+                                                                {t("phone")}
+                                                            </Typography>
                                                             <CountrySelect
                                                                 sx={{
                                                                     "& .MuiInputAdornment-root": {
@@ -321,7 +326,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     )
                                 )}
-                                <Grid item md={7} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row"
                                            sx={{height: 28}}
                                            spacing={1}

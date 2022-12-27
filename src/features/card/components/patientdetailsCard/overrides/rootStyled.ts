@@ -23,10 +23,9 @@ const RootStyled = styled(Stack)(({theme}) => ({
         marginRight: "5px",
     },
     "& .date-birth": {
-        marginTop: theme.spacing(.2),
         display: "flex",
         alignItems: "center",
-        svg: {marginRight: theme.spacing(0.5)},
+        marginTop: -4,
         [theme.breakpoints.down("md")]: {
             marginBottom: theme.spacing(1),
         },
@@ -55,9 +54,8 @@ const RootStyled = styled(Stack)(({theme}) => ({
     "& .email-link": {
         alignItems: "center",
         display: "flex",
-        [theme.breakpoints.up("md")]: {
-            marginLeft: theme.spacing(1),
-        },
+        marginTop: 1,
+        marginLeft: -1,
         svg: {height: 16, width: 16},
     },
     "& .import-avatar": {
@@ -65,11 +63,11 @@ const RootStyled = styled(Stack)(({theme}) => ({
             margin: 0
         },
         "& svg": {
-            width: 24,
-            height: 22
+            width: 28,
+            height: 26
         },
         position: "absolute",
-        borderRadius: 6,
+        borderRadius: 8,
         bottom: 8,
         right: 8,
         zIndex: 1,

@@ -110,7 +110,7 @@ export const countries = [
   { code: "EC", label: "Ecuador", phone: "+593" },
   { code: "EE", label: "Estonia", phone: "+372" },
   { code: "EG", label: "Egypt", phone: "+20" },
-  { code: "EH", label: "Western Sahara", phone: "+212" },
+//  { code: "EH", label: "Western Sahara", phone: "+212" },
   { code: "ER", label: "Eritrea", phone: "+291" },
   { code: "ES", label: "Spain", phone: "+34" },
   { code: "ET", label: "Ethiopia", phone: "+251" },
