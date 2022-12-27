@@ -1,6 +1,9 @@
 interface Qualifications {
     step1: {
-        picture: string;
+        picture: {
+            url: string;
+            file: string;
+        }
         patient_group: string;
         first_name: string;
         last_name: string;

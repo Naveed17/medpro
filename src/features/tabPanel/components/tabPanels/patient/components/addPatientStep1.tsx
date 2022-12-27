@@ -27,6 +27,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from 'libphonenumber-js';
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
+import {PhoneRegExp} from "@app/constants";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -54,8 +55,6 @@ function AddPatientStep1({...props}) {
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
 
-    const phoneRegExp =
-        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
             .min(3, t("first-name-error"))
@@ -78,7 +77,7 @@ function AddPatientStep1({...props}) {
                         message: t("telephone-error"),
                         test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
                     })
-                    .matches(phoneRegExp, t("telephone-error"))
+                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error"))
@@ -87,7 +86,7 @@ function AddPatientStep1({...props}) {
     const formik = useFormik({
         initialValues: {
             picture: selectedPatient
-                ? selectedPatient.picture
+                ? {url: selectedPatient.photo, file: ""}
                 : stepsData.step1.picture,
             patient_group: stepsData.step1.patient_group,
             first_name: selectedPatient
@@ -150,7 +149,8 @@ function AddPatientStep1({...props}) {
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
-        setFieldValue("picture", URL.createObjectURL(file));
+        setFieldValue("picture.url", URL.createObjectURL(file));
+        setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
     };
 
@@ -192,7 +192,7 @@ function AddPatientStep1({...props}) {
                                         type="file"
                                     />
                                     <Avatar
-                                        src={values.picture}
+                                        src={values.picture.url}
                                         sx={{width: 164, height: 164}}
                                     >
                                         <IconUrl path="ic-user-profile"/>
@@ -503,9 +503,9 @@ function AddPatientStep1({...props}) {
             </Stack>
             <CropImage
                 {...{setFieldValue}}
-                filedName={"picture"}
+                filedName={"picture.url"}
                 open={openUploadPicture}
-                img={values.picture}
+                img={values.picture.url}
                 setOpen={setOpenUploadPicture}
             />
         </FormikProvider>

@@ -32,6 +32,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {PhoneRegExp} from "@app/constants";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -105,8 +106,6 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
-    const phoneRegExp =
-        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
@@ -129,7 +128,7 @@ function OnStepPatient({...props}) {
                         message: t("telephone-error"),
                         test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.dial.phone}${value}`),
                     })
-                    .matches(phoneRegExp, t("telephone-error"))
+                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error"))

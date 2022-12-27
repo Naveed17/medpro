@@ -8,3 +8,6 @@ export const SocialInsured = [
     {grouped: "L'enfant", key: "child", value: "6", label: "3ème Enfant"},
     {grouped: "L'enfant", key: "child", value: "7", label: "Autre"},
 ];
+
+export const PhoneRegExp =
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
