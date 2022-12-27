@@ -48,6 +48,7 @@ function PatientDetailsCard({...props}) {
     const {values, getFieldProps, setFieldValue} = formik;
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [editable, setEditable] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
 
@@ -215,8 +216,44 @@ function PatientDetailsCard({...props}) {
                                         )}
                                     </Typography>
                                 </Stack>}
+                            {loading ?
+                                <Skeleton variant="text" width={150}/>
+                                :
+                                <Stack direction={"row"} alignItems="center">
+                                    <Typography
+                                        variant="body2"
+                                        component="span"
+                                        color={"gray"}>
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Icon width={"14"} height={"14"} path="ic-doc"/>
+                                                <InputBase
+                                                    readOnly={editable}
+                                                    inputProps={{
+                                                        style: {
+                                                            fontSize: pxToRem(12)
+                                                        },
+                                                    }}
+                                                    placeholder={t("fiche_placeholder")}
+                                                    {...getFieldProps("fiche_id")}/>
+                                                <IconButton size="small"
+                                                            onClick={() => setEditable(true)}
+                                                            sx={{
+                                                                padding: "4px",
+                                                                "& .react-svg": {
+                                                                    margin: 0,
+                                                                }
+                                                            }}>
+                                                    <IconUrl path='ic-duotone'/>
+                                                </IconButton>
+                                            </Stack>
+                                        )}
+                                    </Typography>
+                                </Stack>}
                         </Box>
-{/*                        <div>
+                        {/*                        <div>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
