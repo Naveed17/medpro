@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Card} from "@mui/material";
 
-const NotesPanelStyled = styled(Card)(({theme}) => ({
+const PanelCardStyled = styled(Card)(({theme}) => ({
     border: "none",
     "& .MuiSelect-select": {
         padding: "0 2rem 0 1rem"
@@ -51,4 +51,4 @@ const NotesPanelStyled = styled(Card)(({theme}) => ({
     }
 }));
 
-export default NotesPanelStyled;
+export default PanelCardStyled;

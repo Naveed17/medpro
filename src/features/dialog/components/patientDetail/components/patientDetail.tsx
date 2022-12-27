@@ -128,7 +128,8 @@ function PatientDetail({...props}) {
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const previousAppointments = patient ? patient.previousAppointments : [];
+    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
     const documents = patient ? patient.documents : [];
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -186,8 +187,8 @@ function PatientDetail({...props}) {
                             <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            {previousAppointments && previousAppointments.length > 0 ? (
-                                <HistoryPanel {...{t, previousAppointments, patient}} />
+                            {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
+                                <HistoryPanel {...{t, previousAppointmentsData, patient}} />
                             ) : (
                                 <NoDataCard
                                     t={t}

@@ -7,7 +7,7 @@ import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import IconUrl from "@themes/urlIcon";
 import React, {useState} from "react";
-import NotesPanelStyled from "./overrides/notesPanelStyled";
+import PanelCardStyled from "./overrides/panelCardStyled";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
@@ -23,7 +23,7 @@ function NotesPanel({...props}) {
 
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
-    const [notes, setNotes] = useState(loading && patient.note ? patient.note : "");
+    const [notes, setNotes] = useState(patient && patient?.note ? patient.note : "");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/notes");
 
@@ -51,7 +51,7 @@ function NotesPanel({...props}) {
     }
 
     return (
-        <NotesPanelStyled>
+        <PanelCardStyled>
             <CardContent>
                 <Grid container>
                     <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
@@ -114,7 +114,7 @@ function NotesPanel({...props}) {
                     </Grid>
                 </Grid>
             </CardContent>
-        </NotesPanelStyled>
+        </PanelCardStyled>
     )
 }
 
