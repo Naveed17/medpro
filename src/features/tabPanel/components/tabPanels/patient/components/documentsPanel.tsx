@@ -2,7 +2,16 @@ import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 
 // material
-import {Card, CardContent, Checkbox, FormControlLabel, Typography, useMediaQuery,} from "@mui/material";
+import {
+    AppBar, Box, Button,
+    Card,
+    CardContent,
+    Checkbox,
+    FormControlLabel, Skeleton, Stack,
+    Toolbar,
+    Typography,
+    useMediaQuery,
+} from "@mui/material";
 
 //components
 import {NoDataCard, PatientDetailsDocumentCard} from "@features/card";
@@ -11,6 +20,12 @@ import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
+import PanelCardStyled from "./overrides/panelCardStyled";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import IconUrl from "@themes/urlIcon";
+
 const typeofDocs = [
     "medical-imaging",
     "analyse", "requested-analysis",
@@ -151,12 +166,9 @@ function DocumentsPanel({...props}) {
     return (
         <>
             {documents.length > 0 ? (
-                <Card
+                <PanelCardStyled
                     className={"container"}
                     sx={{
-                        tbody: {
-                            mt: 1,
-                        },
                         "& .MuiCardContent-root": {
                             background: "white"
                         },
@@ -167,7 +179,19 @@ function DocumentsPanel({...props}) {
                     }}
                 >
                     <CardContent>
-                        <Typography gutterBottom>{t("config.table.title", { ns: 'patient' })}</Typography>
+                        <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                            <Toolbar variant="dense">
+                                <Box sx={{flexGrow: 1}}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{fontWeight: "bold"}}
+                                        gutterBottom>
+                                        {t("config.table.title", { ns: 'patient' })}
+                                    </Typography>
+                                </Box>
+                            </Toolbar>
+                        </AppBar>
+
                         {isMobile ? (
                             <PatientDetailsDocumentCard
                                 data={typeofDocs.map((item) => ({
@@ -228,7 +252,7 @@ function DocumentsPanel({...props}) {
                             }}
                         />
                     </CardContent>
-                </Card>
+                </PanelCardStyled>
             ) : (
                 <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
             )}
