@@ -67,7 +67,6 @@ const subMotifCard = [
 function HistoryPanel({...props}) {
     const {previousAppointments, patient} = props;
 
-    console.log(previousAppointments);
     const {selectedApp} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const theme = useTheme();
