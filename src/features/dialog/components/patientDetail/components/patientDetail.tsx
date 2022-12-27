@@ -238,11 +238,17 @@ function PatientDetail({...props}) {
                     >
                         <Button
                             size="medium"
+                            style={{color:"black"}}
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
+
+                        <Button
+                            size="medium"
                             variant="contained"
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
                                 mr: 1,
+                                ml:1,
                                 width: {md: "auto", sm: "100%", xs: "100%"},
                             }}
                             onClick={() => {

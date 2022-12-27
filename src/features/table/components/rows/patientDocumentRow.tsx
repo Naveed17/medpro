@@ -39,6 +39,7 @@ const menuList = [
         action: "onCancel",
     },
 ];
+import KeyboardVoiceRoundedIcon from '@mui/icons-material/KeyboardVoiceRounded';
 
 export default function EnhancedTable({...props}) {
     const {checkedType, t, row, handleEvent} = props;
@@ -57,12 +58,12 @@ export default function EnhancedTable({...props}) {
                     <>
                         <TableCell>
                             <Stack spacing={1} direction="row" alignItems="center">
-                                <Checkbox
+                               {/* <Checkbox
                                     checked={checkedType.some(
                                         (item: PatientDocuments) => item.documentType === row.documentType
                                     )}
                                     inputProps={{"aria-label": "controlled"}}
-                                />
+                                />*/}
                                 <IconUrl
                                     {...(row.documentType === "photo" && {width: "30", height: "30"})}
                                     path={
@@ -70,15 +71,17 @@ export default function EnhancedTable({...props}) {
                                         row.documentType == "requested-analysis" && "ic-analyse" ||
                                         row.documentType == "analyse" && "ic-analyse" ||
                                         row.documentType == "medical-imaging" && "ic-soura" ||
+                                        row.documentType == "requested-medical-imaging" && "ic-soura" ||
                                         row.documentType === "photo" && "ic-img" ||
                                         row.documentType === "Rapport" && "ic-text" ||
                                         row.documentType === "medical-certificate" && "ic-text" ||
                                         row.documentType === "video" && "ic-video-outline" ||
+                                        row.documentType === "audio" && "ic-son" ||
                                         row.documentType !== "prescription" && "ic-pdf" || ""
                                     }/>
                                 <Box>
                                     <Typography color="text.primary" fontWeight={400}>
-                                        {row?.title}
+                                        {t(row?.title)}
                                     </Typography>
                                     <Stack spacing={1} direction="row">
                                         {row?.firstName && row?.lastName && (
@@ -113,6 +116,7 @@ export default function EnhancedTable({...props}) {
                             </Stack>
                         </TableCell>
                         <TableCell align="center">{row.createdAt}</TableCell>
+{/*
                         <TableCell align="left">
                             {row.createdBy === "Interne" ? (
                                 <Typography color="text.secondary" fontWeight={400}>
@@ -133,6 +137,7 @@ export default function EnhancedTable({...props}) {
                                 </>
                             )}
                         </TableCell>
+*/}
                         <TableCell align="right">
                             <Stack
                                 spacing={1}
@@ -140,11 +145,16 @@ export default function EnhancedTable({...props}) {
                                 justifyContent="flex-end"
                                 alignItems="center"
                             >
-                                <Button
+                                {row.documentType !== 'audio' && <Button
                                     onClick={() => handleEvent("MORE", row)}
                                     startIcon={<Icon path={"ic-voir"}/>}>
-                                    {t("table.see")}
-                                </Button>
+                                    {t("config.table.see", {ns: 'patient'})}
+                                </Button>}
+                                {row.documentType === 'audio' && <Button
+                                    onClick={() => handleEvent("LISTEN", row)}
+                                    startIcon={<KeyboardVoiceRoundedIcon/>}>
+                                    {t("config.table.listen", {ns: 'patient'})}
+                                </Button>}
                             </Stack>
                         </TableCell>
                     </>
@@ -154,7 +164,7 @@ export default function EnhancedTable({...props}) {
                             <Stack direction="row" alignItems="center">
                                 <Box>
                                     <Typography color="text.primary" fontWeight={400}>
-                                        {row?.name}
+                                        {t(row?.name)}
                                     </Typography>
                                     <Stack spacing={1} direction="row" alignItems="center">
                                         {row?.firstName && row?.lastName && (

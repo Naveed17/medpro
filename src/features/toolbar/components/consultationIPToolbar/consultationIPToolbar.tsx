@@ -22,7 +22,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import RecondingBoxStyle from '../../../card/components/consultationDetailCard/overrides/recordingBoxStyle';
 import moment from "moment-timezone";
-
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
     bitRate: 128
@@ -712,7 +712,7 @@ function ConsultationIPToolbar({...props}) {
                                     variant="contained"
                                     onClick={handleSaveDialog}
                                     //disabled={state.length === 0}
-                                    startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                    startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>
                             </DialogActions>

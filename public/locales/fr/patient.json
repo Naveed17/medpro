@@ -84,6 +84,7 @@
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
+    "upload_document": "Télécharger un document",
     "tabs": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",
@@ -141,6 +142,7 @@
       "rapport": "Rapports",
       "photo": "Photos",
       "medical-imaging": "Imagerie médicale",
+      "audio": "Audio",
       "orders": "Ordonnances",
       "analyse": "Analyses",
       "requested-analysis": "analyse demandée",
@@ -148,6 +150,7 @@
       "video": "Vidéos",
       "prescription": "Ordonnance médicale",
       "see": "Voir",
+      "listen": "Ecoutez",
       "documents": "Documents",
       "created-at": "crée le",
       "created-by": "créé par"

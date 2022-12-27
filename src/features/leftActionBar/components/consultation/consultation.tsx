@@ -29,10 +29,13 @@ import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
-import {CropImage} from "@features/cropImage";
 import {pxToRem} from "@themes/formatFontSize";
 import AddIcon from '@mui/icons-material/Add';
-import Add from "@mui/icons-material/Add";
+import Add from '@mui/icons-material/Add';
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Session} from "next-auth";
 
 function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
@@ -46,10 +49,19 @@ function Consultation() {
     const [name, setName] = useState('');
     const [note, setNote] = useState('');
     const [isNote, setIsNote] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [picture, setPicture] = useState('');
 
     const dispatch = useAppDispatch();
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const router = useRouter();
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const update = (url: RequestInfo) => {
+        const blob = fetch(url).then(r => r.blob());
+        // @ts-ignore
+        return new File([blob], "8@2x.png");
+    }
 
     useEffect(() => {
         if (patient && !lock) {
@@ -61,25 +73,41 @@ function Consultation() {
         }
     }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleDrop = (acceptedFiles: FileList) => {
-        const file = acceptedFiles[0];
-        setPicture(URL.createObjectURL(file))
-        setOpen(true);
-    };
+    const editPatientInfo = () => {
+        const params = new FormData();
+        if (patient) {
+            params.append('note', note)
+            params.append('first_name', patient.firstName)
+            params.append('last_name', patient.lastName)
+            params.append('phone', JSON.stringify(patient.contact))
+            params.append('gender', patient.gender)
+        }
+
+        triggerPatientUpdate({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: params,
+        }).then(() => {
+
+        });
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     return (
         <ConsultationStyled>
             <Box className="header">
-                <Box className="about">
+                <Box className="about"
+                     onClick={()=>{
+                    dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                }
+                }>
                     <label htmlFor="contained-button-file">
-                        <InputStyled
-                            id="contained-button-file"
-                            onChange={(e) => handleDrop(e.target.files as FileList)}
-                            type="file"
-                        />
+
                         <Avatar
-                            src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
+                            src={patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg"}
                             sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
                             <IconUrl path="ic-user-profile"/>
                         </Avatar>
@@ -92,10 +120,7 @@ function Consultation() {
                                 <Skeleton variant="text"/>
                                 <Skeleton variant="text"/>
                                 <Skeleton variant="text"/>
-                            </> : <Box style={{cursor: 'pointer'}} onClick={()=>{
-                                    dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                            }
-                            }>
+                            </> : <Box style={{cursor: 'pointer'}}>
 
                                 <Typography variant="body1" color='primary.main'
                                             sx={{fontFamily: 'Poppins'}}>{name}</Typography>
@@ -146,7 +171,12 @@ function Consultation() {
                            justifyContent={"space-between"}
                            mr={3}>
                         <Typography component="div" textTransform="capitalize"
-                                    sx={{display: 'flex', alignItems: 'center',cursor: 'pointer', '& .react-svg': {mr: 1}}}
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        '& .react-svg': {mr: 1}
+                                    }}
                                     variant="body1" color="text.primary"><Icon path="ic-doc"/>
                             {upperFirst(t("note"))}
                         </Typography>
@@ -165,7 +195,9 @@ function Consultation() {
                                 {note}
                             </Typography>
 
-                            <IconButton size={"small"} onClick={()=>{setIsNote(true)}}>
+                            <IconButton size={"small"} onClick={() => {
+                                setIsNote(true)
+                            }}>
                                 <Icon path={'ic-duotone'}/>
                             </IconButton>
                         </Stack>
@@ -186,6 +218,7 @@ function Consultation() {
                         <Button
                             onClick={() => {
                                 setIsNote(false);
+                                editPatientInfo()
                             }}
                             size="small"
                             startIcon={<Add/>}
@@ -243,18 +276,6 @@ function Consultation() {
                     ))}
                 </List>
             </Stack>
-            {/*  <Button variant="consultationIP" startIcon={<Icon path="ic-doc-color"/>}
-                    sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0,}}>
-                {upperFirst(t('patient record'))}
-            </Button>*/}
-
-            <CropImage
-                open={open}
-                img={picture}
-                setOpen={setOpen}
-                setPicture={setPicture}
-                setFieldValue={null}
-            />
         </ConsultationStyled>
     );
 }
