@@ -23,7 +23,8 @@ import {useRouter} from "next/router";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
-
+    const {data: session} = useSession();
+    const router = useRouter();
     const theme = useTheme();
     const formik = useFormik({
         enableReinitialize: true,
@@ -37,23 +38,22 @@ function PatientDetailsCard({...props}) {
         },
     });
 
-    const {values, getFieldProps, setFieldValue} = formik;
-
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {values, getFieldProps, setFieldValue} = formik;
+
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update_photo");
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const router = useRouter();
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
+        setFieldValue("picture", URL.createObjectURL(file));
         const params = new FormData();
         if (patient) {
             params.append('first_name', patient.firstName)
@@ -114,8 +114,8 @@ function PatientDetailsCard({...props}) {
                                         <IconUrl path="ic-user-profile"/>
                                     </Avatar>
                                     <IconButton
-                                        onClick={()=>{
-                                           document.getElementById('contained-button-file')?.click()
+                                        onClick={() => {
+                                            document.getElementById('contained-button-file')?.click()
                                         }}
                                         type="button"
                                         className={"import-avatar"}

@@ -174,6 +174,11 @@ function PatientDetail({...props}) {
                                 label={t("tabs.documents")}
                                 {...a11yProps(2)}
                             />
+                            <Tab
+                                disableRipple
+                                label={t("tabs.notes")}
+                                {...a11yProps(2)}
+                            />
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
@@ -204,7 +209,9 @@ function PatientDetail({...props}) {
                         <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel {...{documents, patient}} />
                         </TabPanel>
-
+                        <TabPanel padding={2} value={index} index={4}>
+                            notes
+                        </TabPanel>
                         <SpeedDial
                             sx={{
                                 position: "fixed",
