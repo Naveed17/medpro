@@ -18,13 +18,14 @@ import React, {useState} from "react";
 import {CropImage} from "@features/cropImage";
 
 function PatientDetailsCard({...props}) {
-    const {patient, onConsultation, loading} = props;
+    const {patient, onConsultation, setUploadPicture, loading} = props;
 
     const theme = useTheme();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: !loading && `${patient.firstName} ${patient.lastName}`,
+            picture: !loading ? patient.photo : "",
+            name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading ? patient.birthdate : "",
         },
         onSubmit: async (values) => {
@@ -32,20 +33,20 @@ function PatientDetailsCard({...props}) {
         },
     });
 
-    const {getFieldProps} = formik;
+    const {values, getFieldProps, setFieldValue} = formik;
 
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
 
-    const [picture, setPicture] = useState('');
-    const [open, setOpen] = useState(false);
+    const [openUploadPicture, setOpenUploadPicture] = useState(false);
 
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
-        setPicture(URL.createObjectURL(file))
-        setOpen(true);
+        setFieldValue("picture", URL.createObjectURL(file));
+        setOpenUploadPicture(true);
+        setUploadPicture(URL.createObjectURL(file));
     };
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -66,8 +67,8 @@ function PatientDetailsCard({...props}) {
                             {loading ? (
                                 <Skeleton
                                     variant="rectangular"
-                                    width={pxToRem(59)}
-                                    height={pxToRem(59)}
+                                    width={pxToRem(100)}
+                                    height={pxToRem(100)}
                                     sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                 />
                             ) : (
@@ -78,17 +79,17 @@ function PatientDetailsCard({...props}) {
                                         type="file"
                                     />
                                     <Avatar
-                                        src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
-                                        sx={{width: 80, height: 80, background: "none"}}
+                                        src={values.picture}
+                                        sx={{
+                                            width: 100, height: 100, "& svg": {
+                                                padding: 1.5
+                                            }
+                                        }}
                                     >
                                         <IconUrl path="ic-user-profile"/>
                                     </Avatar>
                                     <IconButton
-                                        sx={{
-                                            minWidth: 20
-                                        }}
                                         type="button"
-                                        size={"small"}
                                         className={"import-avatar"}
                                     >
                                         <IconUrl path="ic-return-photo"/>
@@ -106,6 +107,7 @@ function PatientDetailsCard({...props}) {
                                         style: {
                                             background: "white",
                                             fontSize: pxToRem(14),
+                                            fontWeight: "bold"
                                         },
                                     }}
                                     {...getFieldProps("name")}
@@ -118,7 +120,7 @@ function PatientDetailsCard({...props}) {
                                 <Stack
                                     className={"date-birth"}
                                     direction={"row"} alignItems="center">
-                                    <Icon path="ic-anniverssaire"/>
+                                    <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
                                     <Box
                                         sx={{
                                             input: {
@@ -161,6 +163,25 @@ function PatientDetailsCard({...props}) {
                                         </Typography>}
                                 </Stack>
                             )}
+                            {loading ?
+                                <Skeleton variant="text" width={150}/>
+                                :
+                                <Stack direction={"row"} alignItems="center">
+                                    <Typography
+                                        variant="body2"
+                                        component="span"
+                                        color={"gray"}
+                                        className="email-link">
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <>
+                                                <Icon path="ic-message-contour"/>
+                                                {patient?.email ? patient?.email : t('addMail')}
+                                            </>
+                                        )}
+                                    </Typography>
+                                </Stack>}
                         </Box>
                         <div>
                             {loading ? (
@@ -177,24 +198,6 @@ function PatientDetailsCard({...props}) {
                                     </Typography>
                                 </Stack>
                             )}
-                            <Stack direction={"row"} alignItems="flex-start" mt={0}>
-                                <Typography
-                                    variant="body2"
-                                    color="primary"
-                                    component="span"
-                                    className="email-link">
-                                    {loading ? (
-                                        <Skeleton variant="text" width={100}/>
-                                    ) : (
-                                        patient?.email && (
-                                            <>
-                                                <Icon path="ic-message-contour"/>
-                                                {patient?.email}
-                                            </>
-                                        )
-                                    )}
-                                </Typography>
-                            </Stack>
                         </div>
                         <Box
                             display="flex"
@@ -258,11 +261,11 @@ function PatientDetailsCard({...props}) {
                 </RootStyled>
             </Form>
             <CropImage
-                open={open}
-                img={picture}
-                setOpen={setOpen}
-                setPicture={setPicture}
-                setFieldValue={null}
+                {...{setFieldValue}}
+                filedName={"picture"}
+                open={openUploadPicture}
+                img={values.picture}
+                setOpen={setOpenUploadPicture}
             />
         </FormikProvider>
     );

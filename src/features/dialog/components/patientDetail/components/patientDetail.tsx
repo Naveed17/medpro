@@ -191,7 +191,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
-                            {nextAppointments?.length > 0 || previousAppointments?.length > 0? (
+                            {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard

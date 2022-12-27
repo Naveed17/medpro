@@ -37,7 +37,7 @@ const RootStyled = styled(Card)(({theme}) => ({
         minWidth: "200px"
     },
     "& .phone-handler": {
-        paddingTop: 0
+        // paddingTop: 0
     },
     "& .app-bar-header": {
         marginBottom: 18
