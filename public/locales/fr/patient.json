@@ -228,6 +228,8 @@
       "contact": "Contact",
       "zip_code": "Zip code",
       "zip_code-placeholder": "Saisir le zip code",
+      "notes": "Notes du patient",
+      "notes-placeholder": "notes",
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",

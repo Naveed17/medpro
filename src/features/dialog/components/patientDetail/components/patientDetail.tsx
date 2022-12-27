@@ -4,6 +4,7 @@ import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
     DocumentsPanel,
+    NotesPanel,
     EventType,
     Instruction,
     PersonalInfoPanel,
@@ -210,7 +211,7 @@ function PatientDetail({...props}) {
                             <DocumentsPanel {...{documents, patient}} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
-                            notes
+                            <NotesPanel loading={!patient}  {...{t, patient}} />
                         </TabPanel>
                         <SpeedDial
                             sx={{
@@ -243,10 +244,10 @@ function PatientDetail({...props}) {
                             display: {md: "block", xs: "none"},
                         }}
                     >
-                        <Button
+{/*                        <Button
                             size="medium"
-                            style={{color:"black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
+                            style={{color: "black"}}
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>*/}
 
                         <Button
                             size="medium"
@@ -255,7 +256,7 @@ function PatientDetail({...props}) {
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
                                 mr: 1,
-                                ml:1,
+                                ml: 1,
                                 width: {md: "auto", sm: "100%", xs: "100%"},
                             }}
                             onClick={() => {

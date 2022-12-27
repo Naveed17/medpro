@@ -49,7 +49,7 @@ function PatientDetailsCard({...props}) {
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update_photo");
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -216,7 +216,7 @@ function PatientDetailsCard({...props}) {
                                     </Typography>
                                 </Stack>}
                         </Box>
-                        <div>
+{/*                        <div>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
@@ -231,29 +231,7 @@ function PatientDetailsCard({...props}) {
                                     </Typography>
                                 </Stack>
                             )}
-                        </div>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{ml: {md: 1, sm: 0, xs: 0}, mt: {md: 4, sm: 1, xs: 1}}}>
-                            {loading ? (
-                                <Skeleton
-                                    variant="text"
-                                    width={100}
-                                    sx={{marginRight: 1}}/>
-                            ) : (
-                                <>
-                                    {patient?.telephone && (
-                                        <>
-                                            <Icon path="ic-tel"/>
-                                            <Typography variant="body2">
-                                                {patient?.telephone}
-                                            </Typography>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </Box>
+                        </div>*/}
                         {/* {onConsultation && (
                             <>
                                 {loading ? (
