@@ -153,7 +153,7 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}${process.env.NODE_ENV === 'development' ? "-dev" : ""}-${general_information.uuid}`);
+            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 

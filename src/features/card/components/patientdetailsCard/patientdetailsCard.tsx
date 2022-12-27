@@ -29,7 +29,7 @@ function PatientDetailsCard({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            picture: !loading ? patient.photo : "",
+            picture: {url: !loading ? patient.photo : "", file: ""},
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading ? patient.birthdate : "",
         },
@@ -53,26 +53,30 @@ function PatientDetailsCard({...props}) {
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
-        setFieldValue("picture", URL.createObjectURL(file));
+        setFieldValue("picture.url", URL.createObjectURL(file));
+        setFieldValue("picture.file", file);
+        setOpenUploadPicture(true);
+    };
+
+    const uploadPatientPicture = () => {
         const params = new FormData();
         if (patient) {
-            params.append('first_name', patient.firstName)
-            params.append('last_name', patient.lastName)
-            params.append('phone', JSON.stringify(patient.contact))
-            params.append('gender', patient.gender)
-            params.append('photo', file)
+            params.append('first_name', patient.firstName);
+            params.append('last_name', patient.lastName);
+            params.append('phone', JSON.stringify(patient.contact));
+            params.append('gender', patient.gender);
+            params.append('photo', values.picture.file);
+
+            triggerPatientUpdate({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
+                data: params,
+            });
         }
-
-        triggerPatientUpdate({
-            method: "PUT",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
-            data: params,
-        });
-
-    };
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -104,7 +108,7 @@ function PatientDetailsCard({...props}) {
                                         type="file"
                                     />
                                     <Avatar
-                                        src={values.picture}
+                                        src={values.picture.url}
                                         sx={{
                                             width: 100, height: 100, "& svg": {
                                                 padding: 1.5
@@ -291,10 +295,13 @@ function PatientDetailsCard({...props}) {
             </Form>
             <CropImage
                 {...{setFieldValue}}
-                filedName={"picture"}
+                filedName={"picture.url"}
                 open={openUploadPicture}
-                img={values.picture}
-                setOpen={setOpenUploadPicture}
+                img={values.picture.url}
+                setOpen={(status: boolean) => {
+                    setOpenUploadPicture(status);
+                    uploadPatientPicture();
+                }}
             />
         </FormikProvider>
     );

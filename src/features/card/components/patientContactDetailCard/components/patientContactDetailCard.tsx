@@ -29,6 +29,7 @@ import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import Icon from "@themes/urlIcon";
+import {PhoneRegExp} from "@app/constants";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -45,8 +46,6 @@ function PatientContactDetailCard({...props}) {
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
-    const phoneRegExp =
-        /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const RegisterPatientSchema = Yup.object().shape({
         country: Yup.string()
             .min(3, t("country-error")),
@@ -63,7 +62,7 @@ function PatientContactDetailCard({...props}) {
                         message: t("telephone-error"),
                         test: (value, ctx: any) => isValidPhoneNumber(`${ctx.from[0].value.code}${value}`),
                     })
-                    .matches(phoneRegExp, t("telephone-error"))
+                    .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
     });
