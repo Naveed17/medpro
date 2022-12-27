@@ -177,7 +177,8 @@ function PatientDetailsCard({...props}) {
                                         ) : (
                                             <>
                                                 <Icon path="ic-message-contour"/>
-                                                {patient?.email ? patient?.email : t('addMail')}
+                                                <Typography {...(!patient?.email && {color: "primary"})}
+                                                            variant={"body2"}>{patient?.email ? patient?.email : t('add-email')}</Typography>
                                             </>
                                         )}
                                     </Typography>

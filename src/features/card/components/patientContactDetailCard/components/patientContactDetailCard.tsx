@@ -244,7 +244,7 @@ function PatientContactDetailCard({...props}) {
                                                         <Stack
                                                             direction="row"
                                                             spacing={1}
-                                                            sx={{height: 22}}
+                                                            sx={{height: 30}}
                                                             alignItems="center">
                                                             <Typography
                                                                 className="label"
@@ -326,7 +326,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     )
                                 )}
-                                <Grid item md={7} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row"
                                            sx={{height: 28}}
                                            spacing={1}

@@ -40,7 +40,7 @@ const RootStyled = styled(Card)(({theme}) => ({
         // paddingTop: 0
     },
     "& .app-bar-header": {
-        marginBottom: 18
+        marginBottom: 14
     }
 }));
 export default RootStyled
