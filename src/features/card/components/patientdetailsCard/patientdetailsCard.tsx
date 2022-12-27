@@ -16,6 +16,10 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useState} from "react";
 import {CropImage} from "@features/cropImage";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
@@ -38,14 +42,41 @@ function PatientDetailsCard({...props}) {
         keyPrefix: "patient-details",
     });
 
-    const [picture, setPicture] = useState('');
+    const [picture, setPicture] = useState<File | null>(null);
     const [open, setOpen] = useState(false);
+
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update_photo");
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const router = useRouter();
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
-        setPicture(URL.createObjectURL(file))
-        setOpen(true);
+        console.log(file)
+        setPicture(file)
+
+        const params = new FormData();
+        if (patient) {
+            params.append('first_name', patient.firstName)
+            params.append('last_name', patient.lastName)
+            params.append('phone', JSON.stringify(patient.contact))
+            params.append('gender', patient.gender)
+            params.append('photo', file)
+        }
+
+        triggerPatientUpdate({
+            method: "PUT",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`
+            },
+            data: params,
+        }).then(() => {
+
+        });
+
     };
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -78,7 +109,7 @@ function PatientDetailsCard({...props}) {
                                         type="file"
                                     />
                                     <Avatar
-                                        src={picture === '' ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : picture}
+                                        src={picture === null ? patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg" : URL.createObjectURL(picture)}
                                         sx={{width: 80, height: 80, background: "none"}}
                                     >
                                         <IconUrl path="ic-user-profile"/>
@@ -87,6 +118,10 @@ function PatientDetailsCard({...props}) {
                                         sx={{
                                             minWidth: 20
                                         }}
+                                        onClick={()=>{
+                                           document.getElementById('contained-button-file')?.click()
+                                        }
+                                        }
                                         type="button"
                                         size={"small"}
                                         className={"import-avatar"}
