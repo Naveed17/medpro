@@ -136,7 +136,9 @@ function OnStepPatient({...props}) {
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
         initialValues: {
-            patientGroup: patient?.step1.patient_group,
+            fiche_id: selectedPatient
+                ? selectedPatient.fiche_id
+                : patient.step1.fiche_id,
             firstName: selectedPatient
                 ? selectedPatient.firstName
                 : patient.step1.first_name,
