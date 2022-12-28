@@ -74,7 +74,8 @@ function Patient({...props}) {
 
     const submitNewPatient = (patient: any) => {
         const form = new FormData();
-        form.append('first_name', patient.firstName)
+        form.append('fiche_id', patient.fiche_id);
+        form.append('first_name', patient.firstName);
         form.append('last_name', patient.lastName);
         form.append('phone', JSON.stringify(patient.phones.map((phoneData: any) => ({
             code: phoneData.dial.phone,
@@ -92,11 +93,19 @@ function Patient({...props}) {
         form.append('address', JSON.stringify({
             fr: patient.address
         }));
+        patient.insurance.map((insurance: InsurancesModel) => {
+            if (insurance.insurance_type === "0") {
+                delete insurance['insurance_social'];
+            }
+        });
         form.append('insurance', JSON.stringify(patient.insurance));
         form.append('email', patient.email);
         form.append('family_doctor', patient.family_doctor);
         form.append('region', patient.region);
         form.append('zip_code', patient.zip_code);
+        patient.cin && form.append('id_card', patient.cin);
+        form.append('profession', patient.profession);
+
         trigger(
             {
                 method: selectedPatient ? "PUT" : "POST",
