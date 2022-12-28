@@ -12,7 +12,7 @@ import {
     Typography, useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
-import React, {memo, useEffect, useRef, useState} from "react";
+import React, {memo, useEffect, useRef} from "react";
 import {useAppSelector} from "@app/redux/hooks";
 import {addPatientSelector, appointmentSelector} from "@features/tabPanel";
 import * as Yup from "yup";
@@ -32,7 +32,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {PhoneRegExp} from "@app/constants";
+import {PhoneRegExp, SocialInsured} from "@app/constants";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -92,17 +92,6 @@ function OnStepPatient({...props}) {
         keyPrefix: translationPrefix,
     });
 
-    const [socialInsured, setSocialInsured] = useState([
-        {grouped: "L'assuré social", key: "socialInsured", label: "L'assuré social"},
-        {grouped: "L'ascendant", key: "father", label: "Le Pére"},
-        {grouped: "L'ascendant", key: "mother", label: "La Mére"},
-        {grouped: "L'enfant", key: "child", label: "1er Enfant"},
-        {grouped: "L'enfant", key: "child", label: "2ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "3ème Enfant"},
-        {grouped: "L'enfant", key: "child", label: "Autre"},
-        {grouped: "Le conjoint", key: "partner", label: "Le conjoint"},
-    ]);
-
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
@@ -131,7 +120,60 @@ function OnStepPatient({...props}) {
                     .matches(PhoneRegExp, t("telephone-error"))
                     .required(t("telephone-error"))
             })),
-        gender: Yup.string().required(t("gender-error"))
+        gender: Yup.string().required(t("gender-error")),
+        insurance: Yup.array().of(
+            Yup.object().shape({
+                insurance_number: Yup.string()
+                    .min(3, t("assurance-num-error"))
+                    .max(50, t("assurance-num-error"))
+                    .required(t("assurance-num-error")),
+                insurance_uuid: Yup.string()
+                    .min(3, t("assurance-type-error"))
+                    .max(50, t("assurance-type-error"))
+                    .required(t("assurance-type-error")),
+                insurance_social: Yup.object().shape({
+                    firstName: Yup.string()
+                        .min(3, t("first-name-error"))
+                        .max(50, t("first-name-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("first-name-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
+                        }),
+                    lastName: Yup.string()
+                        .min(3, t("last-name-error"))
+                        .max(50, t("last-name-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("last-name-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
+                        }),
+                    birthday: Yup.string()
+                        .nullable()
+                        .min(3, t("birthday-error"))
+                        .max(50, t("birthday-error"))
+                        .test({
+                            name: 'insurance-type-test',
+                            message: t("birthday-error"),
+                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
+                        }),
+                    phone: Yup.object().shape({
+                        code: Yup.string(),
+                        value: Yup.string().test({
+                            name: 'phone-value-test',
+                            message: t("telephone-error"),
+                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
+                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
+                        }),
+                        type: Yup.string(),
+                        contact_type: Yup.string(),
+                        is_public: Yup.boolean(),
+                        is_support: Yup.boolean()
+                    })
+                }),
+                insurance_type: Yup.string(),
+                expand: Yup.boolean()
+            }))
     });
     const address = selectedPatient ? selectedPatient.address : [];
     const formik = useFormik({
@@ -167,21 +209,36 @@ function OnStepPatient({...props}) {
             address: address.length > 0 ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : patient.step2.cin,
+            profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
             family_doctor: selectedPatient ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
-                insurance_type: "",
-                expanded: false
+                insurance_social: {
+                    firstName: insurance.insuredPerson ? insurance.insuredPerson.firstName : "",
+                    lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
+                    birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
+                    phone: {
+                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : "+216",
+                        value: insurance.insuredPerson ? insurance.insuredPerson.contact.value : "",
+                        type: "phone",
+                        contact_type: contacts && contacts[0].uuid,
+                        is_public: false,
+                        is_support: false
+                    }
+                },
+                insurance_type: insurance.type.toString(),
+                expand: insurance.type.toString() !== "0"
             })) : [] as {
                 insurance_number: string;
                 insurance_uuid: string;
+                insurance_social?: InsuranceSocialModel;
                 insurance_type: string;
-                expanded: boolean;
+                expand: boolean;
             }[]
         },
         validationSchema: RegisterPatientSchema,
-        onSubmit: async (values) => {
+        onSubmit: async (values, formikHelpers) => {
             if (OnSubmit) {
                 OnSubmit({...values, contact: contacts[0], countryCode: selectedCountry});
             }
@@ -242,15 +299,33 @@ function OnStepPatient({...props}) {
         setFieldValue("phones", phones);
     };
 
-    const handleAddInsurance = () => {
+    const handleAddInsurance = (event: React.MouseEvent) => {
+        event.stopPropagation();
         const insurance = [...values.insurance, {
             insurance_uuid: "",
             insurance_number: "",
+            insurance_social: {
+                firstName: "",
+                lastName: "",
+                birthday: null,
+                phone: {
+                    code: "+216",
+                    value: "",
+                    type: "phone",
+                    contact_type: contacts[0].uuid,
+                    is_public: false,
+                    is_support: false
+                }
+            },
             insurance_type: "",
-            expanded: false
+            expand: false
         }];
         formik.setFieldValue("insurance", insurance);
     };
+
+    const getCountryByCode = (code: string) => {
+        return dialCountries.find(country => country.phone === code)
+    }
 
     const handleRemoveInsurance = (index: number) => {
         const insurance = [...values.insurance];
@@ -263,7 +338,7 @@ function OnStepPatient({...props}) {
             errors.hasOwnProperty("lastName") ||
             errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
-            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            // (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
         }
     }, [errors, touched]);
 
@@ -473,6 +548,19 @@ function OnStepPatient({...props}) {
                             }
                         }}
                         in={expanded} timeout="auto" unmountOnExit>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("fiche")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("fiche-placeholder")}
+                                type="email"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("fiche_id")}
+                            />
+                        </Box>
                         <Box>
                             <Typography
                                 variant="body2"
@@ -699,11 +787,12 @@ function OnStepPatient({...props}) {
                                 <IconButton
                                     onClick={handleAddInsurance}
                                     className="success-light"
+                                    size={"small"}
                                     sx={{
                                         mr: 1.5,
                                         "& svg": {
-                                            width: 20,
-                                            height: 20,
+                                            width: 16,
+                                            height: 16
                                         },
                                     }}
                                 >
@@ -714,9 +803,9 @@ function OnStepPatient({...props}) {
                             <Box sx={{mb: 1.5}}>
                                 <FieldArray
                                     name={"insurance"}
-                                    render={arrayHelpers => (
+                                    render={() => (
                                         values.insurance.map((
-                                            val: InsurancesModel,
+                                            val: any,
                                             index: number) => (
                                             <Card key={index} sx={{marginBottom: 2}}>
                                                 <CardHeader
@@ -729,6 +818,7 @@ function OnStepPatient({...props}) {
                                                         <IconButton
                                                             onClick={() => handleRemoveInsurance(index)}
                                                             className="error-light"
+                                                            size={"small"}
                                                             sx={{
                                                                 mr: 1.5,
                                                                 "& svg": {
@@ -748,12 +838,12 @@ function OnStepPatient({...props}) {
                                                             <Autocomplete
                                                                 size={"small"}
                                                                 {...getFieldProps(`insurance[${index}].insurance_type`)}
-                                                                onChange={(event, newValue) => {
-                                                                    setFieldValue(`insurance[${index}].insurance_type`, newValue)
-                                                                    setFieldValue(`insurance[${index}].expand`, newValue?.key !== "socialInsured")
+                                                                onChange={(event, insurance) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_type`, insurance?.value)
+                                                                    setFieldValue(`insurance[${index}].expand`, insurance?.key !== "socialInsured")
                                                                 }}
                                                                 id={"assure"}
-                                                                options={socialInsured}
+                                                                options={SocialInsured}
                                                                 groupBy={(option) => option.grouped}
                                                                 sx={{minWidth: 500}}
                                                                 renderGroup={(params) => {
@@ -767,8 +857,15 @@ function OnStepPatient({...props}) {
                                                                                 {sx: {marginLeft: 2}})}>{params.children}</GroupItems>
                                                                         </li>)
                                                                 }}
-                                                                renderInput={(params) =>
-                                                                    <TextField {...params} label={"Le malade"}/>}
+                                                                renderInput={(params) => {
+                                                                    const insurance = SocialInsured.find(insurance => insurance.value === params.inputProps.value);
+                                                                    return (<TextField {...params}
+                                                                                       inputProps={{
+                                                                                           ...params.inputProps,
+                                                                                           value: insurance?.label
+                                                                                       }}
+                                                                                       placeholder={t("patient-placeholder")}/>)
+                                                                }}
                                                             />
                                                         </Stack>
                                                     }/>
@@ -785,15 +882,32 @@ function OnStepPatient({...props}) {
                                                                     id={"assurance"}
                                                                     size="small"
                                                                     {...getFieldProps(`insurance[${index}].insurance_uuid`)}
+                                                                    error={Boolean(touched.insurance &&
+                                                                        (touched.insurance as any)[index]?.insurance_uuid &&
+                                                                        errors.insurance && (errors.insurance as any)[index]?.insurance_uuid)}
                                                                     displayEmpty
                                                                     renderValue={(selected) => {
                                                                         if (selected?.length === 0) {
                                                                             return <em>{t("assurance-placeholder")}</em>;
                                                                         }
                                                                         const insurance = insurances?.find(insurance => insurance.uuid === selected);
-                                                                        return <Typography>{insurance?.name}</Typography>
-                                                                    }}
-                                                                >
+                                                                        return (
+                                                                            <Stack direction={"row"}
+                                                                                   sx={{
+                                                                                       "& .MuiBox-root": {
+                                                                                           margin: 0
+                                                                                       }
+                                                                                   }}
+                                                                                   alignItems={"center"}>
+                                                                                {insurance?.logoUrl &&
+                                                                                    <Box component={"img"}
+                                                                                         width={20} height={20}
+                                                                                         alt={"insurance"}
+                                                                                         src={insurance?.logoUrl}/>}
+                                                                                <Typography
+                                                                                    ml={1}>{insurance?.name}</Typography>
+                                                                            </Stack>)
+                                                                    }}>
                                                                     {insurances?.map(insurance => (
                                                                         <MenuItem
                                                                             key={insurance.uuid}
@@ -806,6 +920,11 @@ function OnStepPatient({...props}) {
                                                                         </MenuItem>)
                                                                     )}
                                                                 </Select>
+                                                                {touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_uuid && (
+                                                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                                                        {(errors.insurance as any)[index].insurance_uuid}
+                                                                    </FormHelperText>
+                                                                )}
                                                             </FormControl>
                                                         </Grid>
                                                         <Grid item xs={12} md={8}>
@@ -813,6 +932,10 @@ function OnStepPatient({...props}) {
                                                                 <MyTextInput
                                                                     variant="outlined"
                                                                     placeholder={t("assurance-phone-error")}
+                                                                    error={Boolean(touched.insurance &&
+                                                                        (touched.insurance as any)[index]?.insurance_number &&
+                                                                        errors.insurance && (errors.insurance as any)[index]?.insurance_number)}
+                                                                    helperText={touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_number}
                                                                     size="small"
                                                                     fullWidth
                                                                     {...getFieldProps(`insurance[${index}].insurance_number`)}
@@ -834,6 +957,12 @@ function OnStepPatient({...props}) {
                                                             <TextField
                                                                 placeholder={t("first-name-placeholder")}
                                                                 variant="outlined"
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social.firstName)}
+                                                                helperText={
+                                                                    Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.firstName)
+                                                                        ? String((errors.insurance as any)[index].insurance_social.firstName)
+                                                                        : undefined
+                                                                }
                                                                 size="small"
                                                                 fullWidth
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.firstName`)}
@@ -847,20 +976,36 @@ function OnStepPatient({...props}) {
                                                             <TextField
                                                                 placeholder={t("last-name-placeholder")}
                                                                 variant="outlined"
+                                                                error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.lastName)}
+                                                                helperText={
+                                                                    Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.lastName)
+                                                                        ? String((errors.insurance as any)[index].insurance_social.lastName)
+                                                                        : undefined
+                                                                }
                                                                 size="small"
                                                                 fullWidth
                                                                 {...getFieldProps(`insurance[${index}].insurance_social.lastName`)}
                                                             />
                                                         </Box>
-                                                        <Box mb={1}>
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                        <Box
+                                                            mb={1}
+                                                            sx={{
+                                                                "& .MuiOutlinedInput-root button": {
+                                                                    padding: "5px",
+                                                                    minHeight: "auto",
+                                                                    height: "auto",
+                                                                    minWidth: "auto"
+                                                                }
+                                                            }}>
+                                                            < LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                 <Typography variant="body2" color="text.secondary"
                                                                             gutterBottom>
-                                                                    {t("birthdate")}
+                                                                    {t("birthday")}
                                                                 </Typography>
                                                                 <DatePicker
+                                                                    value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
                                                                     onChange={(date: Date) => {
-                                                                        console.log(date);
+                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
                                                                     }}
                                                                     inputFormat="dd/MM/yyyy"
                                                                 />
@@ -874,24 +1019,33 @@ function OnStepPatient({...props}) {
                                                             <Grid container spacing={2}>
                                                                 <Grid item md={6} lg={4} xs={12}>
                                                                     <CountrySelect
-                                                                        initCountry={{
-                                                                            code: "TN",
-                                                                            label: "Tunisia",
-                                                                            phone: "+216"
-                                                                        }}
+                                                                        initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
+                                                                            getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
+                                                                            {
+                                                                                code: "TN",
+                                                                                label: "Tunisia",
+                                                                                phone: "+216"
+                                                                            }}
                                                                         onSelect={(state: any) => {
-                                                                            setSelectedCountry(state);
+                                                                            setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                         }}/>
                                                                 </Grid>
                                                                 <Grid item md={6} lg={8} xs={12}>
                                                                     <TextField
                                                                         variant="outlined"
+                                                                        {...getFieldProps(`insurance[${index}].insurance_social.phone.value`)}
+                                                                        error={Boolean(errors.insurance && (errors.insurance as any)[index]?.insurance_social && (errors.insurance as any)[index].insurance_social?.phone?.value)}
+                                                                        helperText={
+                                                                            Boolean(touched.insurance && errors.insurance && (errors.insurance as any)[index]?.insurance_social?.phone)
+                                                                                ? String((errors.insurance as any)[index].insurance_social.phone.value)
+                                                                                : undefined
+                                                                        }
                                                                         size="small"
                                                                         fullWidth
                                                                         InputProps={{
                                                                             startAdornment: (
                                                                                 <InputAdornment position="start">
-                                                                                    {selectedCountry?.phone}
+                                                                                    {getFieldProps(`insurance[${index}].insurance_social.phone.code`)?.value}
                                                                                 </InputAdornment>
                                                                             ),
                                                                         }}
@@ -935,6 +1089,18 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("cin")}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("profession")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("profession-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("profession")}
                             />
                         </Box>
                         <Box>

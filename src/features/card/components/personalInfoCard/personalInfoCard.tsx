@@ -631,6 +631,9 @@ function PersonalInfo({...props}) {
                                                                         size="small"
                                                                         placeholder={t("assurance-placeholder")}
                                                                         {...getFieldProps(`insurances[${index}].insurance_uuid`)}
+                                                                        error={Boolean(touched.insurances &&
+                                                                            (touched.insurances as any)[index]?.insurance_uuid &&
+                                                                            errors.insurances && (errors.insurances as any)[index]?.insurance_uuid)}
                                                                         displayEmpty
                                                                         renderValue={(selected) => {
                                                                             if (selected?.length === 0) {
@@ -666,6 +669,10 @@ function PersonalInfo({...props}) {
                                                                         variant="outlined"
                                                                         disabled={!editable}
                                                                         placeholder={t("assurance-phone-error")}
+                                                                        error={Boolean(touched.insurances &&
+                                                                            (touched.insurances as any)[index]?.insurance_number &&
+                                                                            errors.insurances && (errors.insurances as any)[index]?.insurance_number)}
+                                                                        helperText={touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_number}
                                                                         size="small"
                                                                         fullWidth
                                                                         {...getFieldProps(`insurances[${index}].insurance_number`)}
@@ -711,6 +718,12 @@ function PersonalInfo({...props}) {
                                                                             <TextField
                                                                                 placeholder={t("first-name-placeholder")}
                                                                                 disabled={!editable}
+                                                                                error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social.firstName)}
+                                                                                helperText={
+                                                                                    Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.firstName)
+                                                                                        ? String((errors.insurances as any)[index].insurance_social.firstName)
+                                                                                        : undefined
+                                                                                }
                                                                                 variant="outlined"
                                                                                 size="small"
                                                                                 fullWidth
@@ -727,6 +740,12 @@ function PersonalInfo({...props}) {
                                                                             <TextField
                                                                                 placeholder={t("last-name-placeholder")}
                                                                                 disabled={!editable}
+                                                                                error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.lastName)}
+                                                                                helperText={
+                                                                                    Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.lastName)
+                                                                                        ? String((errors.insurances as any)[index].insurance_social.lastName)
+                                                                                        : undefined
+                                                                                }
                                                                                 variant="outlined"
                                                                                 size="small"
                                                                                 fullWidth
@@ -776,6 +795,12 @@ function PersonalInfo({...props}) {
                                                                             <TextField
                                                                                 disabled={!editable}
                                                                                 {...getFieldProps(`insurances[${index}].insurance_social.phone.value`)}
+                                                                                error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.phone?.value)}
+                                                                                helperText={
+                                                                                    Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.phone)
+                                                                                        ? String((errors.insurances as any)[index].insurance_social.phone.value)
+                                                                                        : undefined
+                                                                                }
                                                                                 variant="outlined"
                                                                                 size="small"
                                                                                 fullWidth
