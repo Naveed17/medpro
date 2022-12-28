@@ -204,8 +204,8 @@ function PersonalInfo({...props}) {
                         is_support: false
                     }
                 },
-                insurance_type: insurance.type.toString(),
-                expand: insurance.type.toString() !== "0"
+                insurance_type: insurance.type ? insurance.type.toString(): "",
+                expand: insurance.type ? insurance.type.toString() !== "0" : false
             })) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
