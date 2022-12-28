@@ -4,7 +4,7 @@ interface Qualifications {
             url: string;
             file: string;
         }
-        patient_group: string;
+        fiche_id: string;
         first_name: string;
         last_name: string;
         birthdate: {

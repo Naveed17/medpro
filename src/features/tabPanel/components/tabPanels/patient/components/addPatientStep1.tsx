@@ -88,7 +88,7 @@ function AddPatientStep1({...props}) {
             picture: selectedPatient
                 ? {url: selectedPatient.photo, file: ""}
                 : stepsData.step1.picture,
-            patient_group: stepsData.step1.patient_group,
+            fiche_id: stepsData.step1.fiche_id,
             first_name: selectedPatient
                 ? selectedPatient.firstName
                 : stepsData.step1.first_name,
@@ -235,34 +235,65 @@ function AddPatientStep1({...props}) {
                                         {(touched.gender && errors.gender) &&
                                             <FormHelperText color={"error"}>{String(errors.gender)}</FormHelperText>}
                                     </FormControl>
-                                    <Box>
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            gutterBottom
-                                            component="span"
-                                        >
-                                            {t("first-name")}{" "}
-                                            <Typography component="span" color="error">
-                                                *
-                                            </Typography>
-                                        </Typography>
-                                        <TextField
-                                            variant="outlined"
-                                            placeholder={t("first-name-placeholder")}
-                                            size="small"
-                                            fullWidth
-                                            {...getFieldProps("first_name")}
-                                            error={Boolean(touched.first_name && errors.first_name)}
-                                            helperText={
-                                                Boolean(touched.first_name && errors.first_name)
-                                                    ? String(errors.first_name)
-                                                    : undefined
-                                            }
-                                        />
-                                    </Box>
+                                    <Grid container spacing={1}>
+                                        <Grid item md={6} sm={6} lg={6}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span"
+                                                >
+                                                    {t("first-name")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                <TextField
+                                                    variant="outlined"
+                                                    placeholder={t("first-name-placeholder")}
+                                                    size="small"
+                                                    fullWidth
+                                                    {...getFieldProps("first_name")}
+                                                    error={Boolean(touched.first_name && errors.first_name)}
+                                                    helperText={
+                                                        Boolean(touched.first_name && errors.first_name)
+                                                            ? String(errors.first_name)
+                                                            : undefined
+                                                    }
+                                                />
+                                            </Box>
+                                        </Grid>
+                                        <Grid item md={6} sm={6} lg={6}>
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom
+                                                    component="span"
+                                                >
+                                                    {t("last-name")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
+                                                </Typography>
+                                                <TextField
+                                                    variant="outlined"
+                                                    placeholder={t("last-name-placeholder")}
+                                                    size="small"
+                                                    fullWidth
+                                                    {...getFieldProps("last_name")}
+                                                    error={Boolean(touched.last_name && errors.last_name)}
+                                                    helperText={
+                                                        Boolean(touched.last_name && errors.last_name)
+                                                            ? String(errors.last_name)
+                                                            : undefined
+                                                    }
+                                                />
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
                                 </Stack>
-
                             </Stack>
                             <Box mt={1}>
                                 <Typography
@@ -271,21 +302,18 @@ function AddPatientStep1({...props}) {
                                     gutterBottom
                                     component="span"
                                 >
-                                    {t("last-name")}{" "}
-                                    <Typography component="span" color="error">
-                                        *
-                                    </Typography>
+                                    {t("fiche")}{" "}
                                 </Typography>
                                 <TextField
                                     variant="outlined"
-                                    placeholder={t("last-name-placeholder")}
+                                    placeholder={t("fiche-placeholder")}
                                     size="small"
                                     fullWidth
-                                    {...getFieldProps("last_name")}
-                                    error={Boolean(touched.last_name && errors.last_name)}
+                                    {...getFieldProps("fiche_id")}
+                                    error={Boolean(touched.fiche_id && errors.fiche_id)}
                                     helperText={
-                                        Boolean(touched.last_name && errors.last_name)
-                                            ? String(errors.last_name)
+                                        Boolean(touched.fiche_id && errors.fiche_id)
+                                            ? String(errors.fiche_id)
                                             : undefined
                                     }
                                 />

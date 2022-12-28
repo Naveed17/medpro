@@ -1,5 +1,5 @@
 //material-ui
-import {Avatar, Badge, Box, IconButton, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
+import {Avatar, Badge, Box, Button, IconButton, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 
@@ -20,6 +20,9 @@ import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import CloseIcon from "@mui/icons-material/Close";
 
 function PatientDetailsCard({...props}) {
     const {patient, onConsultation, loading} = props;
@@ -29,9 +32,10 @@ function PatientDetailsCard({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            picture: {url: !loading ? patient.photo : "", file: ""},
+            fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
+            picture: {url: !loading && patient.photo ? patient.photo : "", file: ""},
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
-            birthdate: !loading ? patient.birthdate : "",
+            birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
         onSubmit: async (values) => {
             console.log("ok", values);
@@ -49,6 +53,7 @@ function PatientDetailsCard({...props}) {
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [editable, setEditable] = useState(false);
+    const [requestLoading, setRequestLoading] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
 
@@ -59,14 +64,16 @@ function PatientDetailsCard({...props}) {
         setOpenUploadPicture(true);
     };
 
-    const uploadPatientPicture = () => {
+    const uploadPatientDetail = () => {
+        setRequestLoading(true);
         const params = new FormData();
         if (patient) {
             params.append('first_name', patient.firstName);
             params.append('last_name', patient.lastName);
             params.append('phone', JSON.stringify(patient.contact));
             params.append('gender', patient.gender);
-            params.append('photo', values.picture.file);
+            values.picture.url.length > 0 && params.append('photo', values.picture.file);
+            values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
 
             triggerPatientUpdate({
                 method: "PUT",
@@ -75,6 +82,8 @@ function PatientDetailsCard({...props}) {
                     Authorization: `Bearer ${session?.accessToken}`
                 },
                 data: params,
+            }).then(() => {
+                setRequestLoading(false);
             });
         }
     }
@@ -230,24 +239,50 @@ function PatientDetailsCard({...props}) {
                                             <Stack direction={"row"} alignItems={"center"}>
                                                 <Icon width={"14"} height={"14"} path="ic-doc"/>
                                                 <InputBase
-                                                    readOnly={editable}
+                                                    className={"input-base-custom"}
+                                                    readOnly={!editable}
                                                     inputProps={{
                                                         style: {
-                                                            fontSize: pxToRem(12)
+                                                            fontSize: pxToRem(12),
+                                                            width: values.fiche_id.length > 0 ? "fit-content" : "240px"
                                                         },
                                                     }}
                                                     placeholder={t("fiche_placeholder")}
                                                     {...getFieldProps("fiche_id")}/>
-                                                <IconButton size="small"
-                                                            onClick={() => setEditable(true)}
-                                                            sx={{
-                                                                padding: "4px",
-                                                                "& .react-svg": {
-                                                                    margin: 0,
-                                                                }
-                                                            }}>
-                                                    <IconUrl path='ic-duotone'/>
-                                                </IconButton>
+                                                {editable ?
+                                                    <>
+                                                        <LoadingButton
+                                                            loading={requestLoading}
+                                                            onClick={() => {
+                                                                setEditable(false);
+                                                                uploadPatientDetail();
+                                                            }}
+                                                            className='btn-add'
+                                                            sx={{margin: 'auto'}}
+                                                            size='small'
+                                                            startIcon={<SaveAsIcon/>}>
+                                                            {t('register')}
+                                                        </LoadingButton>
+                                                        <Button
+                                                            size='small'
+                                                            color={"error"}
+                                                            onClick={() => setEditable(false)}
+                                                            startIcon={<CloseIcon/>}
+                                                        >
+                                                            {t(`cancel`)}
+                                                        </Button>
+                                                    </>
+                                                    :
+                                                    <IconButton size="small"
+                                                                onClick={() => setEditable(true)}
+                                                                sx={{
+                                                                    padding: "4px",
+                                                                    "& .react-svg": {
+                                                                        margin: 0,
+                                                                    }
+                                                                }}>
+                                                        <IconUrl path='ic-duotone'/>
+                                                    </IconButton>}
                                             </Stack>
                                         )}
                                     </Typography>
@@ -315,7 +350,7 @@ function PatientDetailsCard({...props}) {
                 img={values.picture.url}
                 setOpen={(status: boolean) => {
                     setOpenUploadPicture(status);
-                    uploadPatientPicture();
+                    uploadPatientDetail();
                 }}
             />
         </FormikProvider>

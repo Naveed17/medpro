@@ -73,6 +73,11 @@ const RootStyled = styled(Stack)(({theme}) => ({
         zIndex: 1,
         padding: 0,
         background: theme.palette.background.paper
+    },
+    "& .input-base-custom": {
+        "input::placeholder": {
+
+        }
     }
 }));
 export default RootStyled;
