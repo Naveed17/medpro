@@ -119,10 +119,10 @@ function ConsultationType() {
         firstPage.drawText('X', {x: width - 82, y: height - 212, size: 9})
 
         //LastName
-        firstPage.drawText('Foulen', {x: width - 337, y: height - 249, size: 9})
+        firstPage.drawText('MoHamed', {x: width - 337, y: height - 249, size: 9})
 
         //FirstName
-        firstPage.drawText('Ben foulen', {x: width - 345, y: height - 269, size: 9})
+        firstPage.drawText('ALI', {x: width - 345, y: height - 269, size: 9})
 
         //Adresse
         const adress = '13th Street. 47 W 13th St, New York, NY 10011, USA. 20 Cooper Square. 20 Cooper Square, New York.' //, NY 10003, USA. 2nd Street Dorm.
@@ -376,21 +376,6 @@ function ConsultationType() {
                                 gutterBottom>
                                 {t("preview")}
                             </Typography>
-
-                            {/*                            <div className={"page"}>
-
-                                <Header data={values} style={{width: '100%',padding:20}} ></Header>
-
-                                <img className={"page"} style={{position:"absolute"}} src={"/static/img/scan.jpg"}/>
-                                <Draggable onStop={eventHandler}
-                                           defaultPosition={{y: 173, x: 418}}
-                                           bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                                    <div style={{ padding: "1rem", width: "30%"}}>
-                                        <div className="handle">Date ../../....</div>
-                                    </div>
-                                </Draggable>
-                            </div>*/}
-
                             <DocumentPDF file={docFile} onLoadSuccess={onDocumentLoadSuccess}>
                                 {Array.from(new Array(numPages), (el, index) => (
                                     <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
