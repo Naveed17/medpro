@@ -44,6 +44,7 @@
   "patient-details": {
     "duplicate": "Détection des doublons",
     "add-email": "Ajouter l'adresse mail",
+    "fiche_placeholder": "Numéro de la fiche médicale du patient",
     "start-consultation": "Commencer la consultation",
     "view_the_consultation": "Ouvrir la consultation",
     "edit": "Modifier",
@@ -54,7 +55,9 @@
     "see-details": "Voir détails",
     "years": "Ans",
     "reason": "Motif de consultation",
-    "date": "Date du RDV"
+    "date": "Date du RDV",
+    "register": "Enregistrer",
+    "cancel": "Annuler"
   },
   "add-appointment": {
     "book-a-slot": "Réservez un créneau",
@@ -230,6 +233,8 @@
       "zip_code-placeholder": "Saisir le zip code",
       "notes": "Notes du patient",
       "notes-placeholder": "notes",
+      "fiche": "Fiche médicale",
+      "fiche-placeholder": "numéro de la fiche médicale du patient",
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",

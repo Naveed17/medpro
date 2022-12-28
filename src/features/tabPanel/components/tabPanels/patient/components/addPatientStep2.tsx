@@ -201,10 +201,11 @@ function AddPatientStep2({...props}) {
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
-        const {picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
+        const {fiche_id, picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
         picture.url.length > 0 && form.append('photo', picture.file);
+        form.append('fiche_id', fiche_id);
         form.append('first_name', first_name);
         form.append('last_name', last_name);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({

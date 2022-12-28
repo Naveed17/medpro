@@ -10,7 +10,7 @@ export const initialPatientState: MenuState = {
     stepsData: {
         step1: {
             picture: {url: "", file: ""},
-            patient_group: "",
+            fiche_id: "",
             first_name: "",
             last_name: "",
             birthdate: {
