@@ -132,6 +132,7 @@
     "table": {
       "name": "Nom du patient",
       "telephone": "Téléphone",
+      "insurance": "Assurances",
       "city": "ville",
       "id": "id",
       "nextAppointment": "Prochain RDV",

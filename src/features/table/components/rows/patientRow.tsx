@@ -19,7 +19,8 @@ import {countries} from "@features/countrySelect/countries";
 import React from "react";
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent} = props;
+    const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent, data} = props;
+    const {insurances} = data;
     const dispatch = useAppDispatch();
 
     const getCountryByCode = (code: string) => {
@@ -71,7 +72,12 @@ function PatientRow({...props}) {
                                 <>
                                     {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
                                     <Stack marginLeft={2}>
-                                        <Typography color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
+                                        <Stack direction={"row"} alignItems={"center"}>
+                                            <Typography
+                                                color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
+
+                                        </Stack>
+
                                         <Typography
                                             variant="body2"
                                             component="span"
@@ -93,6 +99,20 @@ function PatientRow({...props}) {
                         </Typography>
                     </Box>
                 </Box>
+            </TableCell>
+            <TableCell>
+                {loading ? <Skeleton variant="text"/> : (
+                    row.insurances.length > 0 ?
+                        row.insurances.map((insur: any, index: number) =>
+                            <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
+                                <Box
+                                     sx={{margin: "0 4px"}}
+                                     component="img" width={20} height={20}
+                                     src={insurances.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
+                                <Typography variant={"body2"}>{insur.insurance?.name}</Typography>
+                            </Stack>)
+                        : "-"
+                ) || "-"}
             </TableCell>
             <TableCell>
                 <Box display="flex" component="span" alignItems="center">
@@ -121,11 +141,6 @@ function PatientRow({...props}) {
                     )}
                 </Box>
             </TableCell>
-            {/*<TableCell>
-                {loading ? <Skeleton variant="text"/> : (
-                    row.address[0] ? <Typography>{row.address[0].city.name}, {row.address[0].street}</Typography> : "-"
-                ) || "-"}
-            </TableCell>*/}
             <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" sx={{float: "left"}}>
                     {loading ? (

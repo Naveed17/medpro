@@ -90,6 +90,14 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "insurance",
+        numeric: false,
+        disablePadding: true,
+        label: "insurance",
+        sortable: true,
+        align: "center",
+    },
+    {
         id: "telephone",
         numeric: true,
         disablePadding: false,
@@ -163,6 +171,13 @@ function Patient() {
     }, SWRNoValidateConfig);
 
 
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/insurances/" + router.locale
+    }, SWRNoValidateConfig);
+
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
+
     useEffect(() => {
         if (filter?.type || filter?.patient) {
             const query = prepareSearchKeys(filter as any);
@@ -226,7 +241,7 @@ function Patient() {
             <Box className="container">
                 <Box display={{xs: "none", md: "block"}}>
                     <Otable
-                        {...{t}}
+                        {...{t, insurances}}
                         headers={headCells}
                         handleEvent={handleTableActions}
                         rows={(httpPatientsResponse as HttpResponse)?.data?.list}
