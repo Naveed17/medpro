@@ -4,7 +4,6 @@ import Prescription from "./prescription";
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, t} = props;
 
-    // const drugs = ['AaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaa', '2', '3', '4', '5', '6', '7', '8Aaaaaaaaaaaaaaaaaaaa', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
     const drugs = ['X'];
     let rows: any[] = [];
     const [pages, setPages] = useState<any[]>([]);
@@ -52,7 +51,7 @@ function PreviewDialog({...props}) {
                         case "prescription":
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
-                                elx.style.maxWidth = "130mm"
+                                elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
@@ -84,7 +83,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-analysis":
                             const elx = document.createElement('p');
-                            elx.style.maxWidth = "130mm"
+                            elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                             elx.append(`• ${el.name}`)
                             rows.push({
                                 value: `• ${el.name}`,
@@ -97,7 +96,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
-                            imgLine.style.maxWidth = "130mm"
+                            imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                             imgLine.append(`• ${el['medical-imaging'].name}`)
                             rows.push({
                                 value: `• ${el['medical-imaging'].name}`,
@@ -110,11 +109,11 @@ function PreviewDialog({...props}) {
                             break;
                         case "write_certif":
                             const certifLine = document.createElement('div');
-                            certifLine.style.maxWidth = "130mm"
+                            certifLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                             var parser = new DOMParser();
                             var noeuds = parser.parseFromString(el.name, 'text/html').getElementsByTagName('body')[0];
 
-                            noeuds.childNodes.forEach(item =>{
+                            noeuds.childNodes.forEach(item => {
                                 rows.push({
                                     value: item,
                                     name: "name",
@@ -122,10 +121,9 @@ function PreviewDialog({...props}) {
                                     style: {}
                                 })
                                 certifLine.append(item.cloneNode(true))
-
                             })
 
-                                pageX.appendChild(certifLine)
+                            pageX.appendChild(certifLine)
                             setTitle("CERTIFICAT MEDICAL");
                             break;
                         case "fees":
@@ -159,7 +157,7 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width = '130mm';
+                elx.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
 
                 const header = document.createElement("tr");
                 header.innerHTML = `<td style="text-align: left !important;">ACTE</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
@@ -195,14 +193,22 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
-            } else  {
+            } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
-                    elx.style.maxWidth = "130mm"
+                    elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
-                    if (el.clientHeight >= data.content.maxHeight) {
+                    let xyz = data.content.maxHeight;
+                    if (i < rows.length -1) {
+                        const nextel = document.createElement(rows[i].element);
+                        nextel.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                        nextel.append(rows[i+1].value)
+                        el.append(nextel);
+                        xyz-=nextel.clientHeight
+                    }
+                    if (el.clientHeight >= xyz) {
                         lastPos = i + 1;
                         break;
                     }

@@ -55,13 +55,15 @@ function DocsConfig() {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 140,content:''},
+        footer: {show: false, x: 0, y: 140, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 35},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'Foulen ben foulen', x: 40, y: 55},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        size: 'portraitA5',
         content: {
             show: true,
             maxHeight: 400,
+            maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
             y: 70
@@ -159,10 +161,10 @@ function DocsConfig() {
                 setLoading(false)
             }, 1000)
 
-            setTimeout(()=>{
-                const footer =document.getElementById('footer');
+            setTimeout(() => {
+                const footer = document.getElementById('footer');
                 if (footer && docInfo.data.footer) footer.innerHTML = docInfo.data.footer.content
-            },1200)
+            }, 1200)
 
         }
     }, [httpData, setFieldValue])
@@ -258,6 +260,32 @@ function DocsConfig() {
                                         fullWidth/>
                                     <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
                                         : {data.content.x} , y : {data.content.y}</Typography>
+                                </fieldset>
+
+                                <fieldset style={{marginBottom: 10}}>
+                                    <legend>{t('paperSize')}</legend>
+                                    <ListItem style={{padding: 0, marginBottom: 5}}>
+                                        <Checkbox
+                                            checked={data.size === 'portraitA5'}
+                                            onChange={(ev) => {
+                                                data.size = 'portraitA5';
+                                                data.content.maxWidth = 130;
+                                                setData({...data})
+                                            }}
+                                        />
+                                        <ListItemText primary={t("A5")}/>
+                                    </ListItem>
+                                    <ListItem style={{padding: 0, marginBottom: 5}}>
+                                        <Checkbox
+                                            checked={data.size === 'portraitA4'}
+                                            onChange={(ev) => {
+                                                data.size = 'portraitA4';
+                                                data.content.maxWidth = 190;
+                                                setData({...data})
+                                            }}
+                                        />
+                                        <ListItemText primary={t("A4")}/>
+                                    </ListItem>
                                 </fieldset>
 
                                 {/*Import document*/}
@@ -505,12 +533,14 @@ function DocsConfig() {
 
                     <Grid item md={7}>
                         {<Box padding={2}>
-                            <Box style={{width: '148mm', margin: 'auto', paddingTop: 20}}>
+                            <Box style={{margin: 'auto', paddingTop: 20}}>
                                 <Box ref={componentRef}>
                                     <Preview  {...{eventHandler, data, values, loading}} />
-                                    {loading && <div className={"page"} style={{padding: 20}}>
-                                        {Array.from(Array(30)).map((item, key) => (<Skeleton key={key}></Skeleton>))}
-                                    </div>}
+                                    {loading &&
+                                        <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
+                                            {Array.from(Array(30)).map((item, key) => (
+                                                <Skeleton key={key}></Skeleton>))}
+                                        </div>}
                                 </Box>
                             </Box>
 

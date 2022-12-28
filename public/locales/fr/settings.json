@@ -536,7 +536,10 @@
       "nameDoc": "ORDONNANCE MEDICALE",
       "proprety": "Propriétés du modèle",
       "leftSide": "Côté gauche",
-      "rightSide": "Côté droit"
+      "rightSide": "Côté droit",
+      "paperSize": "Taille de papier",
+      "A5": "A5",
+      "A4": "A4"
     }
   }
 }

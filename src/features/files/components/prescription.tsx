@@ -12,10 +12,10 @@ const Prescription = ({...props}) => {
     return (
         <>
             {!loading && <Box>
-                {data !== undefined && <div className={"page"}>
+                {data !== undefined && <div className={data.size ?data.size : "portraitA5"}>
                     {data.background.show && data.background.content !== '' && state === undefined && id === 0 &&
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img className={"page"}
+                        <img className={data.size ? data.size:"portraitA5"}
                              style={{position: "absolute", height: '210mm', marginTop: '-2mm'}}
                              src={data.background.content} alt={'backgroud'}/>}
 
@@ -46,7 +46,7 @@ const Prescription = ({...props}) => {
                         }}
                                    defaultPosition={{x: data.date.x, y: data.date.y}}
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
-                            <div style={{width: "fit-content", border: '0 solid red'}}>
+                            <div style={{width: "fit-content"}}>
                                 {data.date.show && <div
                                     className="handle">{data.date.prefix} {state ? moment(state.createdAt).format('DD/MM/YYYY') : data.date.content} </div>}
                             </div>

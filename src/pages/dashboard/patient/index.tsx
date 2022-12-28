@@ -297,8 +297,7 @@ function Patient() {
                         bgcolor: (theme) => theme.palette.background.paper,
                         zIndex: 11,
                     },
-                }}
-            >
+                }}>
                 <CustomStepper
                     translationKey="patient"
                     prefixKey="add-patient"
