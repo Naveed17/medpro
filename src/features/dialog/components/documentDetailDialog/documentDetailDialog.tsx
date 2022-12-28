@@ -84,13 +84,15 @@ function DocumentDetailDialog({...props}) {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
+        size: 'portraitA4',
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
         footer: {show: true, x: 0, y: 140,content:''},
-        patient: {show: true, prefix: '', content: 'Foulen ben foulen', x: 120, y: 55},
+        patient: {show: true, prefix: '', content: 'MohamedALI', x: 120, y: 55},
         content: {
             show: true,
             maxHeight: 400,
+            maxWidth: 190,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
             y: 70
@@ -163,7 +165,7 @@ function DocumentDetailDialog({...props}) {
         });
 
         if (state.type === 'prescription') {
-            autoTable(doc, {
+            /*autoTable(doc, {
                 html: '#prescription',
                 useCss: true,
                 includeHiddenHtml: true,
@@ -172,7 +174,7 @@ function DocumentDetailDialog({...props}) {
             })
             addFooters(doc)
             const uri = doc.output('bloburi').toString()
-            setFile(uri)
+            setFile(uri)*/
         } else if (state.type === 'requested-analysis') {
             autoTable(doc, {
                 html: '#requested-analysis',
@@ -393,8 +395,9 @@ function DocumentDetailDialog({...props}) {
                         {state.type !== 'photo' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{eventHandler, data, values: header, state, loading, t}} />
-                                    {loading && <div className={"page"}></div>}
+                                    {data.size && <Preview  {...{eventHandler, data, values: header, state, loading, t}} />}
+                                    {!data.size && <Preview  {...{eventHandler, data, values: header, state, loading, t}} />}
+                                    {loading &&  <div className={data.size? data.size:"portraitA5"}></div>}
                                 </Box>
                             </Box>
                         }
