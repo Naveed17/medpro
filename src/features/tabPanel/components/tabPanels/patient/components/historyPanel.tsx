@@ -121,6 +121,7 @@ function HistoryPanel({...props}) {
                 doctor: card.name,
                 patient: card.patient,
                 days: card.days,
+                createdAt:card.createdAt,
                 name: 'certif',
                 type: 'write_certif'
             })
@@ -147,6 +148,7 @@ function HistoryPanel({...props}) {
                 name: card.title,
                 type: card.documentType,
                 info: info,
+                createdAt:card.createdAt,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName
             })
