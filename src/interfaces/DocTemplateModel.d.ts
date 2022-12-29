@@ -3,4 +3,5 @@ interface DocTemplateModel {
     title: string,
     content: string,
     color: string,
+    preview:string
 }

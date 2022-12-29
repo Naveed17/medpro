@@ -14,13 +14,12 @@ import {
     TextField,
     Typography
 } from '@mui/material'
-import {Document, Page} from "react-pdf";
+import {Document, Page, pdfjs} from "react-pdf";
 
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
-import {pdfjs} from "react-pdf";
 import IconUrl from '@themes/urlIcon';
 import jsPDF from "jspdf";
 import {useRequest, useRequestMutation} from "@app/axios";
@@ -43,14 +42,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const generatedDocs = ['prescription','requested-analysis','requested-medical-imaging','write_certif','fees']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
 
     const {data: {state, setOpenDialog}} = props
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const [name, setName] = useState(state.name);
-    const [date, setDate] = useState(moment(state.createdAt,'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
+    const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const {data: user} = session as Session;
     const [openAlert, setOpenAlert] = useState(false);
@@ -395,10 +394,10 @@ function DocumentDetailDialog({...props}) {
                         {state.type !== 'photo' &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-{ generatedDocs.some(doc => doc === state.type) &&
-                                        <Preview  {...{eventHandler, data, values: header, state,date, loading, t}} />
-}
-                                    { !generatedDocs.some(doc => doc === state.type) &&
+                                    {generatedDocs.some(doc => doc === state.type) &&
+                                        <Preview  {...{eventHandler, data, values: header, state, date, loading, t}} />
+                                    }
+                                    {!generatedDocs.some(doc => doc === state.type) &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -445,8 +444,12 @@ function DocumentDetailDialog({...props}) {
                                 </Typography>
                                 <TextField
                                     value={name}
-                                    onChange={(ev) => setName(ev.target.value)}
-                                    inputRef={input => input && input.focus()}
+                                    id={'name-input'}
+                                    onChange={(ev) => {
+                                        setName(ev.target.value)
+                                        document.getElementById('name-input')?.focus()
+                                    }}
+                                    //inputRef={input => input && input.focus()}
 
                                 />
                                 <Button size='small' className='btn-modi' onClick={() => rename()}>
@@ -462,14 +465,16 @@ function DocumentDetailDialog({...props}) {
                                 </Typography>
                                 <TextField
                                     value={date}
-                                    onChange={(ev) => setDate(ev.target.value)}
-                                    inputRef={input => input && input.focus()}
-
+                                    id={'date-input'}
+                                    onChange={(ev) => {
+                                        setDate(ev.target.value);
+                                        document.getElementById('date-input')?.focus()
+                                    }}
                                 />
-                                <Button size='small' className='btn-modi' onClick={() => console.log(date)}>
+                                {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
                                     <IconUrl path="ic-edit"/>
                                     {t('modifier')}
-                                </Button>
+                                </Button>*/}
                             </ListItemButton>
                         </ListItem>
                         {
