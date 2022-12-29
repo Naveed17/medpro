@@ -25,7 +25,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import React, {SyntheticEvent, useState} from "react";
+import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/react";
@@ -107,6 +107,16 @@ function PatientDetail({...props}) {
         },
     } : null);
 
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+
+    const {data: httpPatientPhotoResponse, mutate: PatientPhotoResponse} = useRequest(!patient.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
+
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -126,13 +136,15 @@ function PatientDetail({...props}) {
         }
     };
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
     const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient ? patient.documents : [];
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
+    console.log(patientPhoto);
 
     return (
         <>
@@ -245,7 +257,7 @@ function PatientDetail({...props}) {
                             display: {md: "block", xs: "none"},
                         }}
                     >
-{/*                        <Button
+                        {/*                        <Button
                             size="medium"
                             style={{color: "black"}}
                             startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>*/}

@@ -9,6 +9,7 @@ interface PatientModel {
     contact: ContactModel[];
     address?: AddressModel[];
     account: AccountModel;
+    hasPhoto: boolean;
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
     nextAppointments: [];
