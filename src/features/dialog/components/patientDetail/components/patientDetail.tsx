@@ -109,7 +109,7 @@ function PatientDetail({...props}) {
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
-    const {data: httpPatientPhotoResponse, mutate: PatientPhotoResponse} = useRequest(!patient.hasPhoto ? {
+    const {data: httpPatientPhotoResponse, mutate: PatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
         headers: {
