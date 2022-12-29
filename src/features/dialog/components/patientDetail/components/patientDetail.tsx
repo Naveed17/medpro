@@ -144,8 +144,6 @@ function PatientDetail({...props}) {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    console.log(patientPhoto);
-
     return (
         <>
             {!isAdd ? (
@@ -159,7 +157,7 @@ function PatientDetail({...props}) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient, onConsultation}}
+                        {...{patient, onConsultation, patientPhoto}}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs

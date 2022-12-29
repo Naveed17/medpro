@@ -25,7 +25,7 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
 
 function PatientDetailsCard({...props}) {
-    const {patient, onConsultation, loading} = props;
+    const {patient,patientPhoto, onConsultation, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -33,7 +33,7 @@ function PatientDetailsCard({...props}) {
         enableReinitialize: true,
         initialValues: {
             fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
-            picture: {url: !loading && patient.photo ? patient.photo : "", file: ""},
+            picture: {url: !loading && patientPhoto ? patientPhoto : "", file: ""},
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
