@@ -65,6 +65,7 @@ Open `http://localhost:3000` with your browser to see the result.
 | FCM_WEB_API_KEY        |               |
 | S3_URL        |               |
 | NEXT_PUBLIC_DEVISE        |               |
+| NEXT_PUBLIC_COUNTRY        |               |
 
 ## API
 - [useRequest](#userequestrequest-config)

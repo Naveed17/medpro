@@ -108,7 +108,7 @@ function PatientRow({...props}) {
                                 <Box
                                      sx={{margin: "0 4px"}}
                                      component="img" width={20} height={20}
-                                     src={insurances.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
+                                     src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
                                 <Typography variant={"body2"}>{insur.insurance?.name}</Typography>
                             </Stack>)
                         : "-"
