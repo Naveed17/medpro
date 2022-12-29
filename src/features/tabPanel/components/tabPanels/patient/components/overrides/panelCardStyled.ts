@@ -2,7 +2,7 @@ import {styled} from "@mui/material/styles";
 import {Card} from "@mui/material";
 
 const PanelCardStyled = styled(Card)(({theme}) => ({
-    border: "none",
+    // border: "none",
     "& .MuiSelect-select": {
         padding: "0 2rem 0 1rem"
     },

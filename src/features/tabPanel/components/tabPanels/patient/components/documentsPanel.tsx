@@ -3,28 +3,27 @@ import {useTranslation} from "next-i18next";
 
 // material
 import {
-    AppBar, Box, Button,
-    Card,
+    AppBar, Box,
     CardContent,
-    Checkbox,
-    FormControlLabel, Skeleton, Stack,
+    Checkbox, Divider,
+    FormControlLabel,
     Toolbar,
     Typography,
     useMediaQuery,
 } from "@mui/material";
 
 //components
-import {NoDataCard, PatientDetailsDocumentCard} from "@features/card";
-import {Otable} from "@features/table";
+import {DocumentCard, NoDataCard, PatientDetailsDocumentCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
 import PanelCardStyled from "./overrides/panelCardStyled";
-import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
-import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
+import {useRequest} from "@app/axios";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 const typeofDocs = [
     "medical-imaging",
@@ -35,59 +34,22 @@ const AddAppointmentCardData = {
     mainIcon: "ic-doc",
     title: "config.no-data.documents.title",
     description: "config.no-data.documents.description",
-    buttonText: "config.no-data.documents.button-text",
-    buttonIcon: "ic-doc",
-    buttonVariant: "primary",
+    buttons: [{
+        text: "config.no-data.documents.button-text",
+        icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
+        variant: "primary",
+        color: "white"
+    }]
 };
 
-// interface
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
-// table head data
-const headCells: readonly HeadCell[] = [
-    {
-        id: "documents",
-        numeric: false,
-        disablePadding: true,
-        label: "documents",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "createdAt",
-        numeric: false,
-        disablePadding: true,
-        label: "created-at",
-        align: "center",
-        sortable: true,
-    },
-    /* {
-         id: "createdBy",
-         numeric: false,
-         disablePadding: true,
-         label: "created-by",
-         align: "left",
-         sortable: true,
-     },*/
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: true,
-        label: "action",
-        align: "right",
-        sortable: false,
-    },
-];
-
 function DocumentsPanel({...props}) {
-    const {documents, patient} = props;
+    const {documents, patient, patientId, setOpenUploadDialog} = props;
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
     // filter checked array
     const [checked, setChecked] = useState<PatientDocuments[]>(documents);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -95,13 +57,19 @@ function DocumentsPanel({...props}) {
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
 
+    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
+
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.checked){
-                setSelectedTypes([...selectedTypes,value])
+            if (e.target.checked) {
+                setSelectedTypes([...selectedTypes, value])
             } else {
-                selectedTypes.splice(selectedTypes.indexOf(value),1);
+                selectedTypes.splice(selectedTypes.indexOf(value), 1);
                 setSelectedTypes([...selectedTypes])
             }
         };
@@ -153,15 +121,14 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
         }
     }
-
-
     // query media for mobile
     const isMobile = useMediaQuery("(max-width:600px)");
-
     // translation
-    const {t, ready} = useTranslation(["consultation","patient",]);
+    const {t, ready} = useTranslation(["consultation", "patient",]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
+    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     return (
         <>
@@ -186,7 +153,7 @@ function DocumentsPanel({...props}) {
                                         variant="body1"
                                         sx={{fontWeight: "bold"}}
                                         gutterBottom>
-                                        {t("config.table.title", { ns: 'patient' })}
+                                        {t("config.table.title", {ns: 'patient'})}
                                     </Typography>
                                 </Box>
                             </Toolbar>
@@ -208,10 +175,12 @@ function DocumentsPanel({...props}) {
                                     control={
                                         <Checkbox
                                             checked={selectedTypes.length === 0}
-                                            onChange={()=>{setSelectedTypes([])}}
+                                            onChange={() => {
+                                                setSelectedTypes([])
+                                            }}
                                         />
                                     }
-                                    label={t(`config.table.all`, { ns: 'patient' })}
+                                    label={t(`config.table.all`, {ns: 'patient'})}
                                 />
                                 {typeofDocs.map((type) => (
                                     <FormControlLabel
@@ -222,13 +191,14 @@ function DocumentsPanel({...props}) {
                                                 onChange={handleToggle(type)}
                                             />
                                         }
-                                        label={t(`config.table.${type}`, { ns: 'patient' })}
+                                        label={t(`config.table.${type}`, {ns: 'patient'})}
                                     />
                                 ))}
                             </>
                         )}
+                        <Divider sx={{marginBottom: 2}}/>
 
-                        <Otable
+                        {/*                        <Otable
                             headers={headCells}
                             rows={documents.filter((doc: { documentType: string; }) => {
                                 if (selectedTypes.length === 0) return true;
@@ -247,14 +217,33 @@ function DocumentsPanel({...props}) {
                                 }
                                 if (action === "LISTEN") {
                                     const audio = new Audio(document.uri)
-                                    audio.play().then(r => console.log('stoped',r));
+                                    audio.play().then(r => console.log('stoped', r));
                                 }
                             }}
-                        />
+                        />*/}
+                        <Box display='grid' sx={{
+                            gridGap: 16,
+                            gridTemplateColumns: {
+                                xs: "repeat(2,minmax(0,1fr))",
+                                md: "repeat(4,minmax(0,1fr))",
+                                lg: "repeat(5,minmax(0,1fr))",
+                            }
+                        }}>
+                            {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard {...{t}} data={card}/>
+                                </React.Fragment>
+                            )}
+                        </Box>
                     </CardContent>
                 </PanelCardStyled>
             ) : (
-                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
+                <NoDataCard t={t} ns={"patient"}
+                            onHandleClick={() => {
+                                console.log("onHandleClick");
+                                setOpenUploadDialog(true);
+                            }}
+                            data={AddAppointmentCardData}/>
             )}
 
             <Dialog action={"document_detail"}
