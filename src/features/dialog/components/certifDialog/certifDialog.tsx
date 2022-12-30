@@ -13,12 +13,22 @@ import {
     Skeleton,
     Stack,
     TextField,
+    Tooltip,
+    tooltipClasses,
     Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import Zoom from "@mui/material/Zoom";
+import {TooltipProps} from "@mui/material/Tooltip";
+import {styled} from "@mui/system";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -33,13 +43,88 @@ function CertifDialog({...props}) {
     const [title, setTitle] = useState<string>('');
     const [models, setModels] = useState<DocTemplateModel[]>([]);
 
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const router = useRouter();
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
+        <Tooltip {...props} classes={{popper: className}}/>
+    ))(({theme}) => ({
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: '#f5f5f9',
+            color: 'rgba(0, 0, 0, 0.87)',
+            maxWidth: 220,
+            border: '1px solid #dadde9',
+        },
+    }));
+
+    const {trigger} = useRequestMutation(null, "/certif-models");
+
+    const {data: httpModelResponse, mutate} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    const selectModel = (model: DocTemplateModel) => {
+        setValue(model.content);
+        setTitle(model.title)
+        setSelectedColor([model.color])
+    }
+    const saveModel = () => {
+        const form = new FormData();
+        form.append('content', value);
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        }, {
+            revalidate: true,
+            populateCache: true
+        }).then(() => {
+            mutate().then(() => {
+                const stringToHTML = new DOMParser().parseFromString(value, 'text/html').body.firstChild
+                models.push({
+                    color: selectedColor[0],
+                    name: title,
+                    title: title,
+                    preview: (stringToHTML as HTMLElement)?.innerHTML,
+                    content: value
+                });
+                setModels([...models])
+            });
+        })
+
+    }
 
     useEffect(() => {
-        data.state.content = `<p style="color:hsl(0, 0%, 0%);">Je soussigné, Dr ${data.state.name} certifie avoir examiné ce  jour : ${data.state.patient} et que son etat de sante necessite un repos de ${data.state.days} jour(s) a compter de ce jour, sauf complications ulterieures</p>`
+        if (httpModelResponse) {
+            const template: DocTemplateModel[] = [];
+            const modelsList = (httpModelResponse as HttpResponse).data;
+            modelsList.map((model: { content: string; uuid: string }) => {
+                const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
+                template.push({
+                    color: selectedColor[0],
+                    title: 'no title',
+                    name: 'no name',
+                    content: model.content,
+                    preview: (stringToHTML as HTMLElement)?.innerHTML
+                });
+            });
+            setModels(template)
+        }
+    }, [httpModelResponse, selectedColor]);
+
+    useEffect(() => {
+        /*data.state.content = `<p style="color:hsl(0, 0%, 0%);">Je soussigné, Dr ${data.state.name} certifie avoir examiné ce  jour : ${data.state.patient} et que son etat de sante necessite un repos de ${data.state.days} jour(s) a compter de ce jour, sauf complications ulterieures</p>`
         setValue(data.state.content)
-        data.setState(data.state)
+        data.setState(data.state)*/
     }, [data])
+
     const {t, ready} = useTranslation("consultation");
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -72,19 +157,28 @@ function CertifDialog({...props}) {
                             </Stack>
 
 
-                            <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                        mb={1}>{t('consultationIP.contenu')}</Typography>
+                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                            mb={1}>{t('consultationIP.contenu')}</Typography>
+                                <HtmlTooltip
+                                    title={
+                                        <React.Fragment>
+                                            <Typography color="gray" fontSize={12}>{"{patient} : nom du patient"}</Typography>
+                                            <Typography color="gray" fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
+                                        </React.Fragment>
+                                    }
+                                >
+                                    <InfoRoundedIcon/>
+                                </HtmlTooltip>
+                            </Stack>
+
                             <CKeditor
                                 name="description"
                                 value={value}
                                 onChange={(res: React.SetStateAction<string>) => {
-                                    console.log(res)
-
                                     data.state.content = res;
-
                                     data.setState(data.state)
                                     setValue(res)
-                                    //data.setState(data.state)
                                 }}
                                 editorLoaded={true}/>
                         </Box>
@@ -98,16 +192,7 @@ function CertifDialog({...props}) {
                                 size='small'
                                 disabled={title.length === 0 || value.length === 0}
                                 onClick={() => {
-                                    const stringToHTML = new DOMParser().parseFromString(value, 'text/html').body.firstChild
-
-                                    models.push({
-                                        color: selectedColor[0],
-                                        name: title,
-                                        title: title,
-                                        content: (stringToHTML as HTMLElement)?.innerHTML
-                                    });
-                                    setModels([...models])
-
+                                    saveModel();
                                 }}
                                 startIcon={<AddIcon/>}>
                             {t('consultationIP.createAsModel')}
@@ -121,7 +206,10 @@ function CertifDialog({...props}) {
                         height: '21rem'
                     }}>
                         {models.map((item, index) => (
-                            <Box key={`models-${index}`}>
+                            <Box key={`models-${index}`}
+                                 onClick={() => {
+                                     selectModel(item)
+                                 }}>
                                 <ListItem alignItems="flex-start">
                                     <ListItemAvatar>
                                         <Avatar sx={{
@@ -135,7 +223,7 @@ function CertifDialog({...props}) {
                                         className={"resume3Lines"}
                                         secondary={
                                             <React.Fragment>
-                                                {item.content}
+                                                {item.preview}
                                             </React.Fragment>
                                         }
                                     />
@@ -169,6 +257,8 @@ function CertifDialog({...props}) {
                     </List>
                 </Grid>
             </Grid>
+
+
         </Box>
     )
 }

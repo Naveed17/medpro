@@ -2,16 +2,7 @@ import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 
 // material
-import {
-    AppBar, Box, Button,
-    Card,
-    CardContent,
-    Checkbox,
-    FormControlLabel, Skeleton, Stack,
-    Toolbar,
-    Typography,
-    useMediaQuery,
-} from "@mui/material";
+import {AppBar, Box, CardContent, Checkbox, FormControlLabel, Toolbar, Typography, useMediaQuery,} from "@mui/material";
 
 //components
 import {NoDataCard, PatientDetailsDocumentCard} from "@features/card";
@@ -21,10 +12,6 @@ import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
 import PanelCardStyled from "./overrides/panelCardStyled";
-import CloseIcon from "@mui/icons-material/Close";
-import {LoadingButton} from "@mui/lab";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
-import IconUrl from "@themes/urlIcon";
 
 const typeofDocs = [
     "medical-imaging",
@@ -98,10 +85,10 @@ function DocumentsPanel({...props}) {
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-            if (e.target.checked){
-                setSelectedTypes([...selectedTypes,value])
+            if (e.target.checked) {
+                setSelectedTypes([...selectedTypes, value])
             } else {
-                selectedTypes.splice(selectedTypes.indexOf(value),1);
+                selectedTypes.splice(selectedTypes.indexOf(value), 1);
                 setSelectedTypes([...selectedTypes])
             }
         };
@@ -119,6 +106,7 @@ function DocumentsPanel({...props}) {
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,
                 days: card.days,
+                createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
                 mutate: document,
@@ -147,6 +135,7 @@ function DocumentsPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 uuidDoc: uuidDoc,
+                createdAt: card.createdAt,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: document
             })
@@ -159,7 +148,7 @@ function DocumentsPanel({...props}) {
     const isMobile = useMediaQuery("(max-width:600px)");
 
     // translation
-    const {t, ready} = useTranslation(["consultation","patient",]);
+    const {t, ready} = useTranslation(["consultation", "patient",]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -186,7 +175,7 @@ function DocumentsPanel({...props}) {
                                         variant="body1"
                                         sx={{fontWeight: "bold"}}
                                         gutterBottom>
-                                        {t("config.table.title", { ns: 'patient' })}
+                                        {t("config.table.title", {ns: 'patient'})}
                                     </Typography>
                                 </Box>
                             </Toolbar>
@@ -208,10 +197,12 @@ function DocumentsPanel({...props}) {
                                     control={
                                         <Checkbox
                                             checked={selectedTypes.length === 0}
-                                            onChange={()=>{setSelectedTypes([])}}
+                                            onChange={() => {
+                                                setSelectedTypes([])
+                                            }}
                                         />
                                     }
-                                    label={t(`config.table.all`, { ns: 'patient' })}
+                                    label={t(`config.table.all`, {ns: 'patient'})}
                                 />
                                 {typeofDocs.map((type) => (
                                     <FormControlLabel
@@ -222,7 +213,7 @@ function DocumentsPanel({...props}) {
                                                 onChange={handleToggle(type)}
                                             />
                                         }
-                                        label={t(`config.table.${type}`, { ns: 'patient' })}
+                                        label={t(`config.table.${type}`, {ns: 'patient'})}
                                     />
                                 ))}
                             </>
@@ -247,7 +238,7 @@ function DocumentsPanel({...props}) {
                                 }
                                 if (action === "LISTEN") {
                                     const audio = new Audio(document.uri)
-                                    audio.play().then(r => console.log('stoped',r));
+                                    audio.play().then(r => console.log('stoped', r));
                                 }
                             }}
                         />

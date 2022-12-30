@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import Prescription from "./prescription";
+import moment from "moment";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, t} = props;
+    const {eventHandler, data, values, state, loading,date, t} = props;
 
     const drugs = ['X'];
     let rows: any[] = [];
@@ -110,10 +111,15 @@ function PreviewDialog({...props}) {
                         case "write_certif":
                             const certifLine = document.createElement('div');
                             certifLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+                            let txt = el.name.replaceAll('{patient}',state.patient)
+                            txt = txt.replaceAll('{today}',moment().format('DD/MM/YYYY'))
                             var parser = new DOMParser();
-                            var noeuds = parser.parseFromString(el.name, 'text/html').getElementsByTagName('body')[0];
+                            var noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
+                               // console.log(item)
+                                //console.log(item[0].innerHTML.replace('{patient}', state.patient));
+
                                 rows.push({
                                     value: item,
                                     name: "name",
@@ -200,15 +206,7 @@ function PreviewDialog({...props}) {
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
-                    let xyz = data.content.maxHeight;
-                    if (i < rows.length -1) {
-                        const nextel = document.createElement(rows[i].element);
-                        nextel.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
-                        nextel.append(rows[i+1].value)
-                        el.append(nextel);
-                        xyz-=nextel.clientHeight
-                    }
-                    if (el.clientHeight >= xyz) {
+                    if (el.clientHeight >= data.content.maxHeight) {
                         lastPos = i + 1;
                         break;
                     }
@@ -263,6 +261,7 @@ function PreviewDialog({...props}) {
                         drugs,
                         title,
                         state,
+                        date,
                         loading,
                         pages
                     }}></Prescription>
