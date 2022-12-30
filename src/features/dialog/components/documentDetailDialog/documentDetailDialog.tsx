@@ -37,6 +37,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
 import Preview from "@features/files/components/preview";
 import moment from "moment";
+import ReactPlayer from "react-player";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -49,6 +50,7 @@ function DocumentDetailDialog({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const [name, setName] = useState(state.name);
+    const [note, setNote] = useState('');
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const {data: user} = session as Session;
@@ -59,6 +61,7 @@ function DocumentDetailDialog({...props}) {
 
     const {enqueueSnackbar} = useSnackbar();
 
+    console.log(state)
     const list = [
         {
             title: 'document_type',
@@ -220,8 +223,6 @@ function DocumentDetailDialog({...props}) {
             const uri = doc.output('bloburi').toString()
             setFile(uri)
         } else setFile(state.uri)
-
-        // doc.save()
     }, [state, header])
 
     function onDocumentLoadSuccess({numPages}: any) {
@@ -350,10 +351,10 @@ function DocumentDetailDialog({...props}) {
         }
     }
 
-    const rename = () => {
+    const editDoc = (attribute: string, value: string) => {
         const form = new FormData();
-        form.append('attribute', "name");
-        form.append('value', name);
+        form.append('attribute', attribute);
+        form.append('value', value);
         trigger({
             method: "PATCH",
             url: `/api/medical-entity/${medical_entity.uuid}/documents/${state.uuid}/${router.locale}`,
@@ -362,10 +363,7 @@ function DocumentDetailDialog({...props}) {
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
             enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
-
         });
-
-
     }
 
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
@@ -395,9 +393,13 @@ function DocumentDetailDialog({...props}) {
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
                                     {generatedDocs.some(doc => doc === state.type) &&
-                                        <Preview  {...{eventHandler, data, values: header, state, date, loading, t}} />
+                                        <div>
+                                            <Preview  {...{eventHandler, data, values: header, state, date, loading, t}} />
+                                            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+                                        </div>
+
                                     }
-                                    {!generatedDocs.some(doc => doc === state.type) &&
+                                    {!generatedDocs.some(doc => doc === state.type) && state.type !== 'video' &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -416,7 +418,10 @@ function DocumentDetailDialog({...props}) {
                                             </Document>
                                         </Box>
                                     }
-                                    {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+                                    {
+                                        state.type === 'video' && <ReactPlayer url={file} controls={true} />
+                                    }
+
                                 </Box>
                             </Box>
                         }
@@ -440,6 +445,26 @@ function DocumentDetailDialog({...props}) {
                         <ListItem className='secound-list'>
                             <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                 <Typography color='text.secondary'>
+                                    {t('document_note')}
+                                </Typography>
+                                <TextField
+                                    value={note}
+                                    id={'note-input'}
+                                    multiline
+                                    rows={4}
+                                    onChange={(ev) => {
+                                        setNote(ev.target.value)
+                                        document.getElementById('note-input')?.focus()
+                                    }}/>
+                                <Button size='small' className='btn-modi' onClick={() => editDoc("description", note)}>
+                                    <IconUrl path="ic-edit"/>
+                                    {t('modifier')}
+                                </Button>
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem className='secound-list'>
+                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                <Typography color='text.secondary'>
                                     {t('document_name')}
                                 </Typography>
                                 <TextField
@@ -449,10 +474,8 @@ function DocumentDetailDialog({...props}) {
                                         setName(ev.target.value)
                                         document.getElementById('name-input')?.focus()
                                     }}
-                                    //inputRef={input => input && input.focus()}
-
                                 />
-                                <Button size='small' className='btn-modi' onClick={() => rename()}>
+                                <Button size='small' className='btn-modi' onClick={() => editDoc("name", name)}>
                                     <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>

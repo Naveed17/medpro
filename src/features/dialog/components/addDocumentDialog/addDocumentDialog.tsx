@@ -153,7 +153,7 @@ function AddDocumentDialog({...props}) {
                         <UploadFile
                             files={files}
                             accept={{
-                                'image/jpeg': ['.pdf','.png','.jpeg', '.jpg','.wav']
+                                'image/jpeg': ['.pdf','.png','.jpeg', '.jpg','.wav','.mp4']
                             }}
                             onDrop={handleDrop}
                             singleFile={false}

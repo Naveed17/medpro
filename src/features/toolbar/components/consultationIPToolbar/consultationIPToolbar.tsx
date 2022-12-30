@@ -447,7 +447,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "analyse", files: []});
+                setState({name: "", description: "", type: "", files: []});
                 break;
             case "record":
                 startRecord()
