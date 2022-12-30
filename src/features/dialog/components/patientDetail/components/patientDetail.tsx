@@ -1,4 +1,4 @@
-import {Box, Button, Divider, Paper, Tab, Tabs} from "@mui/material";
+import {Box, Button, DialogActions, Divider, Paper, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
@@ -18,17 +18,20 @@ import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch} from "@app/redux/hooks";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import React, {SyntheticEvent, useEffect, useState} from "react";
+import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/react";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {Dialog} from "@features/dialog";
 
 function a11yProps(index: number) {
     return {
@@ -69,6 +72,8 @@ function PatientDetail({...props}) {
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
+    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
             title: "tabs.time-slot",
@@ -90,6 +95,9 @@ function PatientDetail({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
+
     // mutate for patient details
     const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
         method: "GET",
@@ -135,6 +143,23 @@ function PatientDetail({...props}) {
             mutate();
         }
     };
+
+    const handleUploadDocuments = () => {
+        const params = new FormData();
+        params.append("document_type", documentConfig.type);
+        documentConfig.files.map((file: File) => {
+            params.append("document", file, file.name);
+        });
+
+        triggerUploadDocuments({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            data: params,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        });
+    }
 
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
@@ -219,7 +244,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{documents, patient}} />
+                            <DocumentsPanel {...{documents, patient, patientId, setOpenUploadDialog}} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
                             <NotesPanel loading={!patient}  {...{t, patient}} />
@@ -255,10 +280,11 @@ function PatientDetail({...props}) {
                             display: {md: "block", xs: "none"},
                         }}
                     >
-                        {/*                        <Button
+                        <Button
+                            onClick={() => setOpenUploadDialog(true)}
                             size="medium"
                             style={{color: "black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>*/}
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
 
                         <Button
                             size="medium"
@@ -279,6 +305,45 @@ function PatientDetail({...props}) {
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>
+                    <Dialog
+                        action={"add_a_document"}
+                        open={openUploadDialog}
+                        data={{
+                            t,
+                            state: documentConfig,
+                            setState: setDocumentConfig
+                        }}
+                        size={"md"}
+                        direction={"ltr"}
+                        sx={{height: 400}}
+                        title={t("doc_detail_title")}
+                        dialogClose={() => {
+                            setOpenUploadDialog(false);
+                        }}
+                        onClose={() => {
+                            setOpenUploadDialog(false);
+                        }}
+                        actionDialog={
+                            <DialogActions>
+                                <Button
+                                    onClick={() => {
+                                        setOpenUploadDialog(false);
+                                    }}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("add-patient.cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        setOpenUploadDialog(false);
+                                        handleUploadDocuments();
+                                    }}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {t("add-patient.register")}
+                                </Button>
+                            </DialogActions>
+                        }
+                    />
                 </PatientDetailStyled>
             ) : (
                 <CustomStepper
