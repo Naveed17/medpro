@@ -5,7 +5,7 @@ import moment from "moment";
 import {Box} from "@mui/material";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values, state, loading, title} = props;
+    const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
 
@@ -48,7 +48,7 @@ const Prescription = ({...props}) => {
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                             <div style={{width: "fit-content"}}>
                                 {data.date.show && <div
-                                    className="handle">{data.date.prefix} {state ? moment(state.createdAt).format('DD/MM/YYYY') : data.date.content} </div>}
+                                    className="handle">{data.date.prefix} {state ? date : data.date.content} </div>}
                             </div>
                         </Draggable>
 

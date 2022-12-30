@@ -94,6 +94,7 @@ function DocumentsPanel({...props}) {
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,
                 days: card.days,
+                createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
                 mutate: document,
@@ -122,6 +123,7 @@ function DocumentsPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 uuidDoc: uuidDoc,
+                createdAt: card.createdAt,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: document
             })

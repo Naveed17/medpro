@@ -292,7 +292,6 @@ function ConsultationIPToolbar({...props}) {
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
-                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
@@ -448,7 +447,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "analyse", files: []});
+                setState({name: "", description: "", type: "", files: []});
                 break;
             case "record":
                 startRecord()
