@@ -16,7 +16,7 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {LoadingScreen} from "@features/loadingScreen";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import getDifference from "@app/hooks";
+import {getDifference} from "@app/hooks";
 
 function Acts() {
     const {data: session} = useSession();
