@@ -6,7 +6,7 @@ import {
     AppBar, Box,
     CardContent,
     Checkbox, Divider,
-    FormControlLabel,
+    FormControlLabel, Tabs, Tab,
     Toolbar,
     Typography,
     useMediaQuery,
@@ -24,6 +24,8 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {a11yProps} from "@app/hooks";
+import {TabPanel} from "@features/tabPanel";
 
 const typeofDocs = [
     "medical-imaging",
@@ -56,6 +58,7 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+    const [currentTab, setCurrentTab] = React.useState(0);
 
     const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
         method: "GET",
@@ -77,6 +80,10 @@ function DocumentsPanel({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
+
+    const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
+        setCurrentTab(newValue);
+    };
 
     const showDoc = (card: any) => {
         if (card.documentType === 'medical-certificate') {
@@ -196,7 +203,6 @@ function DocumentsPanel({...props}) {
                                 ))}
                             </>
                         )}
-                        <Divider sx={{marginBottom: 2}}/>
 
                         {/*                        <Otable
                             headers={headCells}
@@ -221,20 +227,50 @@ function DocumentsPanel({...props}) {
                                 }
                             }}
                         />*/}
-                        <Box display='grid' sx={{
-                            gridGap: 16,
-                            gridTemplateColumns: {
-                                xs: "repeat(2,minmax(0,1fr))",
-                                md: "repeat(4,minmax(0,1fr))",
-                                lg: "repeat(5,minmax(0,1fr))",
-                            }
-                        }}>
-                            {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
-                                <React.Fragment key={`doc-item-${idx}`}>
-                                    <DocumentCard {...{t}} data={card}/>
-                                </React.Fragment>
-                            )}
+
+                        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                            <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
+                                <Tab label="Documents du rendez-vous" {...a11yProps(0)} />
+                                <Tab label="Documents du patient" {...a11yProps(1)} />
+                            </Tabs>
                         </Box>
+                        <TabPanel value={currentTab} index={0}>
+                            <Box display='grid' sx={{
+                                gridGap: 16,
+                                gridTemplateColumns: {
+                                    xs: "repeat(2,minmax(0,1fr))",
+                                    md: "repeat(4,minmax(0,1fr))",
+                                    lg: "repeat(5,minmax(0,1fr))",
+                                }
+                            }}>
+                                {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard
+                                            onClick={() => {
+                                                showDoc(card)
+                                            }}
+                                            {...{t}} data={card}/>
+                                    </React.Fragment>
+                                )}
+                            </Box>
+                        </TabPanel>
+                        <TabPanel value={currentTab} index={1}>
+                            <Box display='grid' sx={{
+                                gridGap: 16,
+                                gridTemplateColumns: {
+                                    xs: "repeat(2,minmax(0,1fr))",
+                                    md: "repeat(4,minmax(0,1fr))",
+                                    lg: "repeat(5,minmax(0,1fr))",
+                                }
+                            }}>
+                                {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard {...{t}} data={card}/>
+                                    </React.Fragment>
+                                )}
+                            </Box>
+                        </TabPanel>
+
                     </CardContent>
                 </PanelCardStyled>
             ) : (
