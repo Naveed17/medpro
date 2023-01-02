@@ -226,6 +226,9 @@
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
       "add-new": "Ajouter un autre patient",
       "add-appo": "Ajouter RDV",
+      "add": "Ajouter",
+      "add-insurance": "Ajouter une assurance",
+      "add-insurance-more": "Ajouter une autre assurance",
       "register": "Enregistrer",
       "edit": "Modifier",
       "return": "Retourner à",
@@ -252,6 +255,25 @@
       "noImage": "Aucune demande imagerie",
       "noRequest": "Aucune demande",
       "noDoc": "Aucun document"
+    },
+    "error": {
+      "title": "Erreurs",
+      "loading-error": "Une erreur s'est produite pendant la phase d'importation de données.",
+      "re-upload": "corrigez l'erreur sur le fichier et essayez de l'importer à nouveau.",
+      "re-duplicate": "cliquez sur \"voir tout\" pour exposer tous les avertissements.",
+      "line": "à la ligne",
+      "missing": "est manquante",
+      "see-all": "voir tout",
+      "see-details": "Voir détails",
+      "duplicated": "patients dupliqués ont été trouvés",
+      "duplicated-row": "Erreur de duplication à la ligne",
+      "duplicated-title": "Erreur de duplication à la ligne",
+      "warning-title": "Avertissements",
+      "info-title": "Informations",
+      "warning-row": "Le patient",
+      "warning-row-detail": "a été inséré avec des avertissements",
+      "warning-insert": "patients insérés avec des avertissements ont été trouvés",
+      "fix-duplication": "Corriger la duplication"
     }
   },
   "background": {

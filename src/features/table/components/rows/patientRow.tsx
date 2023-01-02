@@ -5,7 +5,7 @@ import {
     Checkbox,
     Button,
     IconButton,
-    Skeleton, Stack
+    Skeleton, Stack, Chip
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -17,6 +17,7 @@ import WomenIcon from "@themes/overrides/icons/womenIcon";
 import MenIcon from "@themes/overrides/icons/menIcon";
 import {countries} from "@features/countrySelect/countries";
 import React from "react";
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent, data} = props;
@@ -37,7 +38,7 @@ function PatientRow({...props}) {
             key={Math.random()}
             selected={isItemSelected}
         >
-            <TableCell padding="checkbox">
+{/*            <TableCell padding="checkbox">
                 {loading ? (
                     <Skeleton variant="circular" width={28} height={28}/>
                 ) : (
@@ -49,7 +50,7 @@ function PatientRow({...props}) {
                         }}
                     />
                 )}
-            </TableCell>
+            </TableCell>*/}
             <TableCell>
                 <Box
                     display="flex"
@@ -76,6 +77,13 @@ function PatientRow({...props}) {
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
 
+                                            {row.hasInfo &&
+                                                <Chip
+                                                    sx={{marginLeft: 1, height: 26}}
+                                                    color={"info"}
+                                                    icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
+                                                    label={t("error.info-title")}/>
+                                            }
                                         </Stack>
 
                                         <Typography
@@ -106,9 +114,9 @@ function PatientRow({...props}) {
                         row.insurances.map((insur: any, index: number) =>
                             <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
                                 <Box
-                                     sx={{margin: "0 4px"}}
-                                     component="img" width={20} height={20}
-                                     src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
+                                    sx={{margin: "0 4px"}}
+                                    component="img" width={20} height={20}
+                                    src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
                                 <Typography variant={"body2"}>{insur.insurance?.name}</Typography>
                             </Stack>)
                         : "-"
