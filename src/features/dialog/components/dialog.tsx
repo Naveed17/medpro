@@ -26,7 +26,7 @@ function Dialogs({...props}) {
     const [fullWidth, setFullWidth] = useState(true);
     const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
-
+    
     return (
         <>
             <Dialog

@@ -99,7 +99,7 @@ function PatientDetail({...props}) {
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
 
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
+    const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
         headers: {
@@ -140,7 +140,7 @@ function PatientDetail({...props}) {
             setStepperData(steps);
         } else {
             setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
-            mutate();
+            mutatePatientDetails();
         }
     };
 
@@ -219,7 +219,7 @@ function PatientDetail({...props}) {
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
+                            <PersonalInfoPanel loading={!patient} {...{patient, mutatePatientDetails, mutatePatientList}} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
                             {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
@@ -244,7 +244,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{documents, patient, patientId, setOpenUploadDialog}} />
+                            <DocumentsPanel {...{documents, patient, patientId, setOpenUploadDialog, mutatePatientDetails}} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
                             <NotesPanel loading={!patient}  {...{t, patient}} />
@@ -315,7 +315,7 @@ function PatientDetail({...props}) {
                         }}
                         size={"md"}
                         direction={"ltr"}
-                        sx={{height: 400}}
+                        sx={{minHeight: 400}}
                         title={t("doc_detail_title")}
                         dialogClose={() => {
                             setOpenUploadDialog(false);
