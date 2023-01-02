@@ -5,7 +5,7 @@ import {useTranslation} from "next-i18next";
 import {
     AppBar, Box,
     CardContent,
-    Checkbox, Divider,
+    Checkbox,
     FormControlLabel, Tabs, Tab,
     Toolbar,
     Typography,
@@ -32,6 +32,12 @@ const typeofDocs = [
     "analyse", "requested-analysis",
     "prescription", "photo", "rapport", "medical-certificate", "audio"];
 
+const AddAppointmentCardWithoutButtonsData = {
+    mainIcon: "ic-doc",
+    title: "config.no-data.documents.title",
+    description: "config.no-data.documents.description"
+};
+
 const AddAppointmentCardData = {
     mainIcon: "ic-doc",
     title: "config.no-data.documents.title",
@@ -45,7 +51,7 @@ const AddAppointmentCardData = {
 };
 
 function DocumentsPanel({...props}) {
-    const {documents, patient, patientId, setOpenUploadDialog} = props;
+    const {documents, patient, patientId, setOpenUploadDialog, mutatePatientDetails} = props;
     const router = useRouter();
     const {data: session} = useSession();
 
@@ -97,7 +103,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
-                mutate: document,
+                mutate: mutatePatientDetails
             })
             setOpenDialog(true);
         } else {
@@ -125,7 +131,7 @@ function DocumentsPanel({...props}) {
                 uuidDoc: uuidDoc,
                 createdAt: card.createdAt,
                 patient: patient.firstName + ' ' + patient.lastName,
-                mutate: document
+                mutate: mutatePatientDetails
             })
             setOpenDialog(true);
         }
@@ -133,7 +139,7 @@ function DocumentsPanel({...props}) {
     // query media for mobile
     const isMobile = useMediaQuery("(max-width:600px)");
     // translation
-    const {t, ready} = useTranslation(["consultation", "patient",]);
+    const {t, ready} = useTranslation(["consultation", "patient"]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -141,7 +147,7 @@ function DocumentsPanel({...props}) {
 
     return (
         <>
-            {documents.length > 0 ? (
+            {documents.length > 0 || patientDocuments?.length > 0 ? (
                 <PanelCardStyled
                     className={"container"}
                     sx={{
@@ -237,50 +243,66 @@ function DocumentsPanel({...props}) {
                             </Tabs>
                         </Box>
                         <TabPanel value={currentTab} index={0}>
-                            <Box display='grid' sx={{
-                                gridGap: 16,
-                                gridTemplateColumns: {
-                                    xs: "repeat(2,minmax(0,1fr))",
-                                    md: "repeat(4,minmax(0,1fr))",
-                                    lg: "repeat(5,minmax(0,1fr))",
+                            <Box display='grid' className={'document-container'}
+                                 {...(documents.length > 0 && {
+                                     sx: {
+                                         gridGap: 16,
+                                         gridTemplateColumns: {
+                                             xs: "repeat(2,minmax(0,1fr))",
+                                             md: "repeat(4,minmax(0,1fr))",
+                                             lg: "repeat(5,minmax(0,1fr))",
+                                         },
+                                     }
+                                 })}>
+                                {documents.length > 0 ?
+                                    documents.filter((doc: MedicalDocuments) =>
+                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
+                                        .map((card: any, idx: number) =>
+                                            <React.Fragment key={`doc-item-${idx}`}>
+                                                <DocumentCard
+                                                    onClick={() => {
+                                                        showDoc(card)
+                                                    }}
+                                                    {...{t}} data={card}/>
+                                            </React.Fragment>
+                                        )
+                                    :
+                                    <NoDataCard t={t} ns={"patient"}
+                                                onHandleClick={() => setOpenUploadDialog(true)}
+                                                data={AddAppointmentCardWithoutButtonsData}/>
                                 }
-                            }}>
-                                {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard
-                                            onClick={() => {
-                                                showDoc(card)
-                                            }}
-                                            {...{t}} data={card}/>
-                                    </React.Fragment>
-                                )}
                             </Box>
                         </TabPanel>
                         <TabPanel value={currentTab} index={1}>
-                            <Box display='grid' sx={{
-                                gridGap: 16,
-                                gridTemplateColumns: {
-                                    xs: "repeat(2,minmax(0,1fr))",
-                                    md: "repeat(4,minmax(0,1fr))",
-                                    lg: "repeat(5,minmax(0,1fr))",
+                            <Box display='grid' className={'document-container'}
+                                 {...(patientDocuments?.length > 0 && {
+                                     sx: {
+                                         gridGap: 16,
+                                         gridTemplateColumns: {
+                                             xs: "repeat(2,minmax(0,1fr))",
+                                             md: "repeat(4,minmax(0,1fr))",
+                                             lg: "repeat(5,minmax(0,1fr))",
+                                         },
+                                     }
+                                 })}>
+                                {patientDocuments?.length > 0 ?
+                                    patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
+                                        <React.Fragment key={`doc-item-${idx}`}>
+                                            <DocumentCard {...{t}} data={card}/>
+                                        </React.Fragment>
+                                    )
+                                    :
+                                    <NoDataCard t={t} ns={"patient"}
+                                                onHandleClick={() => setOpenUploadDialog(true)}
+                                                data={AddAppointmentCardData}/>
                                 }
-                            }}>
-                                {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
-                                    <React.Fragment key={`doc-item-${idx}`}>
-                                        <DocumentCard {...{t}} data={card}/>
-                                    </React.Fragment>
-                                )}
                             </Box>
                         </TabPanel>
-
                     </CardContent>
                 </PanelCardStyled>
             ) : (
                 <NoDataCard t={t} ns={"patient"}
-                            onHandleClick={() => {
-                                console.log("onHandleClick");
-                                setOpenUploadDialog(true);
-                            }}
+                            onHandleClick={() => setOpenUploadDialog(true)}
                             data={AddAppointmentCardData}/>
             )}
 
@@ -290,7 +312,7 @@ function DocumentsPanel({...props}) {
                     size={"lg"}
                     direction={'ltr'}
                     sx={{p: 0}}
-                    title={t("config.doc_detail_title")}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
                     onClose={handleCloseDialog}
                     dialogClose={handleCloseDialog}
             />

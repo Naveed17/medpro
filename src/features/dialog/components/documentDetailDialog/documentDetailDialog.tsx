@@ -61,7 +61,6 @@ function DocumentDetailDialog({...props}) {
 
     const {enqueueSnackbar} = useSnackbar();
 
-    console.log(state)
     const list = [
         {
             title: 'document_type',

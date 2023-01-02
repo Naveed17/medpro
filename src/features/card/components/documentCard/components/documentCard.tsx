@@ -19,7 +19,7 @@ function DocumentCard({...props}) {
         }
     };
     return (
-        <DocumentCardStyled>
+        <DocumentCardStyled className={"document-card"}>
             <CardContent onClick={onClick}>
                 {/*  <Stack direction="row" alignItems="center" justifyContent="end">
 

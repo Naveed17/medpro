@@ -147,7 +147,6 @@ function Payment() {
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const handleCloseCollapse = () => setCollapse(false);
     const handleSave = () => {
-        console.log(state)
         setOpen(false)
     };
     const handleEdit = (props: any) => {
