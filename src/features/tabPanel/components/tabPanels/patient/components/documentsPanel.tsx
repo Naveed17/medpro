@@ -30,7 +30,7 @@ import {TabPanel} from "@features/tabPanel";
 const typeofDocs = [
     "medical-imaging",
     "analyse", "requested-analysis",
-    "prescription", "photo", "rapport", "medical-certificate", "audio"];
+    "prescription", "photo", "rapport", "medical-certificate", "audio", "video"];
 
 const AddAppointmentCardWithoutButtonsData = {
     mainIcon: "ic-doc",
