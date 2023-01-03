@@ -7,43 +7,31 @@ import {useAppDispatch} from "@app/redux/hooks";
 import {alpha, Theme} from '@mui/material/styles';
 import Image from "next/image";
 import {Label} from '@features/label';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
-function PaymentRow({...props}) {
+function ChequeRow({...props}) {
     const dispatch = useAppDispatch();
     const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
+    const devise = process.env.NEXT_PUBLIC_DEVISE;
     const [selected, setSelected] = useState<any>([]);
 
-    const handleChildSelect = (id: any) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
+    const edit = (props: ChequeModel) => {
+        if (selected.indexOf(props) != -1) {
+            selected.splice(selected.indexOf(props), 1)
         } else {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
+            selected.push(props);
         }
-        setSelected(newSelected);
-    };
-
-    useEffect(() => {
-        if (!isItemSelected) {
-            setSelected([])
-        }
-    }, [isItemSelected])
-
-    useEffect(() => {
-        dispatch(addBilling(selected))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected])
+        setSelected([...selected])
+    }
 
     return (
         <>
             <TableRowStyled
                 hover
-                onClick={() => !loading && handleClick(row.uuid as string)}
+                onClick={() => {
+                  /*  editMotif(row)
+                    console.log(selected)*/
+                }}
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
@@ -55,21 +43,45 @@ function PaymentRow({...props}) {
                         (row.pending && theme.palette.warning.darker)
                         || (row.amount > 0 && theme.palette.success.main)
                         || (row.amount < 0 && theme.palette.error.main)
-
-                        || theme.palette.background.paper
-                        ,
-
+                        || theme.palette.background.paper,
                         row.amount === 0 ? 1 : 0.1),
                     cursor: row.collapse ? 'pointer' : 'default'
                 }}>
-                <TableCell>
+                <TableCell padding="checkbox">
+                    {loading ? (
+                        <Skeleton variant="circular" width={28} height={28}/>
+                    ) : (
+                        <Checkbox
+                            color="primary"
+                            checked={selected.some((item: any) => item.uuid === row.uuid)}
+                            inputProps={{
+                                "aria-labelledby": labelId,
+                            }}
+                            onChange={(ev) => {
+                                //ev.stopPropagation()
+                                editMotif(row)
+                                edit(row)
+                            }}
+                        />
+                    )}
+                </TableCell>
+                <TableCell >
+                    {row ? (
+                        <Typography className="name" variant="body1" color="text.primary">
+                            {row.numero}
+                        </Typography>
+                    ) : (
+                        <Skeleton variant="text" width={100}/>
+                    )}
+                </TableCell>
+                <TableCell align={"center"}>
                     {loading ? (
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Skeleton width={20} height={30}/>
                             <Skeleton width={100}/>
                         </Stack>
                     ) : (
-                        <Stack direction='row' alignItems="center" spacing={1} sx={{
+                        <Stack direction='row' alignItems="center" justifyContent={"center"} spacing={1} sx={{
                             '.react-svg': {
                                 svg: {
                                     width: 11,
@@ -83,127 +95,15 @@ function PaymentRow({...props}) {
                             <Icon path="ic-agenda"/>
                             <Typography variant="body2">{row.date}</Typography>
                         </Stack>
-
                     )}
                 </TableCell>
-                <TableCell>
-                    {loading ? (
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Skeleton variant="circular" width={20} height={20}/>
-                            <Skeleton width={100}/>
-                        </Stack>
+                <TableCell align={"right"}>
+                    {row ? (
+                        <Typography  variant="body1" color="text.primary">
+                            {row.amount} {devise}
+                        </Typography>
                     ) : (
-                        <Stack direction='row' alignItems="center" spacing={1} sx={{
-                            '.react-svg': {
-                                svg: {
-                                    width: 11,
-                                    height: 11,
-                                    path: {
-                                        fill: theme => theme.palette.text.primary
-                                    }
-                                }
-                            }
-                        }}>
-                            <Icon path="ic-time"/>
-                            <Typography variant="body2">{row.time}</Typography>
-                        </Stack>
-
-                    )}
-                </TableCell>
-                <TableCell>
-                    {loading ? (
-
-                        <Skeleton width={80}/>
-
-                    ) : (
-                        row.name ?
-                            <Link underline="none">{row.name}</Link>
-                            : <Link underline="none">+</Link>
-
-                    )}
-                </TableCell>
-                <TableCell align={"center"}>
-                    {loading ? (
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Skeleton width={20} height={30}/>
-                            <Skeleton width={100}/>
-                        </Stack>
-                    ) : (
-                        row.insurance ?
-                            <Stack direction='row' alignItems="center" spacing={1}>
-                                <Image src={`/static/img/${row.insurance.img}.png`} width={20} height={20}
-                                       alt={row.insurance.name}/>
-                                <Typography variant="body2">{row.insurance.name}</Typography>
-                            </Stack> :
-                            <Typography>--</Typography>
-
-                    )}
-                </TableCell>
-                <TableCell align={"center"}>
-                    {loading ? (
-
-                        <Skeleton width={80}/>
-
-                    ) : (
-                        row.type ?
-                            <Typography variant="body2" color="text.primary">{t(row.type)}</Typography>
-                            : <Typography>--</Typography>
-                    )}
-                </TableCell>
-                <TableCell align="center">
-                    {loading ? (
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Skeleton width={20} height={30}/>
-                            <Skeleton width={20} height={30}/>
-
-                        </Stack>
-                    ) : (
-                        <Stack direction='row' alignItems="center" justifyContent='center' spacing={1}>
-                            {
-                                row.payment_type.map((type: string, i: number) =>
-                                    <Icon key={i} path={type}/>
-                                )
-                            }
-                        </Stack>
-
-                    )}
-                </TableCell>
-                {/*
-                <TableCell align="center">
-                    {loading ? (
-                        <Skeleton width={40} height={40}/>
-
-                    ) : (
-
-                        row.billing_status ?
-
-                            <Label className="label" variant="ghost"
-                                   color={row.billing_status === "yes" ? "success" : 'error'}>{t('table.' + row.billing_status)}</Label>
-                            : <Typography>--</Typography>
-                    )}
-                </TableCell>
-*/}
-                <TableCell align="center">
-                    {loading ? (
-                        <Skeleton width={40} height={20}/>
-
-                    ) : (
-                        row.pending ? <Stack direction='row' spacing={2} alignItems="center">
-                                <Typography color={theme => theme.palette.warning.darker} fontWeight={600}>
-                                    {row.amount}/{row.pending}
-                                </Typography>
-                                <IconButton color="primary" onClick={(e) => {
-                                    e.stopPropagation()
-                                    editMotif(row)
-                                }
-                                }>
-                                    <Icon path="ic-argent"/>
-                                </IconButton>
-                            </Stack> :
-                            <Typography
-                                color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
-                                fontWeight={700}>{row.amount} {process.env.NEXT_PUBLIC_DEVISE}</Typography>
-
+                        <Skeleton variant="text" width={100}/>
                     )}
                 </TableCell>
             </TableRowStyled>
@@ -223,7 +123,6 @@ function PaymentRow({...props}) {
                                 {
                                     row.collapse.map((col: any, idx: number) => {
                                         return <TableRow hover
-                                                         onClick={() => handleChildSelect(col)}
                                                          role="checkbox"
                                                          key={idx}
                                                          className="collapse-row"
@@ -354,4 +253,4 @@ function PaymentRow({...props}) {
     );
 }
 
-export default PaymentRow;
+export default ChequeRow;

@@ -50,7 +50,7 @@ function DocumentDetailDialog({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const [name, setName] = useState(state.name);
-    const [note, setNote] = useState('');
+    const [note, setNote] = useState(state.description);
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const {data: user} = session as Session;
