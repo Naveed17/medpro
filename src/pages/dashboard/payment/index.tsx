@@ -5,18 +5,20 @@ import {
     Box,
     Button,
     DialogActions,
-    IconButton,
+    DialogContent,
+    DialogTitle,
     List,
     ListItem,
     Stack,
+    TextField,
     Theme,
     Typography,
     useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
-import {DashLayout} from "@features/base";
-import {Otable, tableActionSelector} from "@features/table";
+import {configSelector, DashLayout} from "@features/base";
+import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
@@ -26,9 +28,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {NoDataCard, PaymentMobileCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import DialogTitle from "@mui/material/DialogTitle";
 import MuiDialog from "@mui/material/Dialog";
-import {Label} from "@features/label";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
@@ -38,6 +38,8 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import {Label} from "@features/label";
 
 
 interface HeadCell {
@@ -49,15 +51,41 @@ interface HeadCell {
     align: "left" | "right" | "center";
 }
 
-const headCells: readonly HeadCell[] = [
+const headCheques: readonly HeadCell[] = [
     {
-        id: "select-all",
+        id: "no",
         numeric: false,
         disablePadding: true,
-        label: "checkbox",
+        label: "-",
         sortable: false,
+        align: "center",
+    },
+    {
+        id: "nb-cheque",
+        numeric: false,
+        disablePadding: true,
+        label: "numcheque",
+        sortable: true,
         align: "left",
     },
+    {
+        id: "date",
+        numeric: true,
+        disablePadding: true,
+        label: "date",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "amount",
+        numeric: true,
+        disablePadding: true,
+        label: "amount",
+        sortable: true,
+        align: "right",
+    },
+]
+const headCells: readonly HeadCell[] = [
     {
         id: "date",
         numeric: false,
@@ -129,48 +157,27 @@ function Payment() {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
-    const [open, setOpen] = useState<boolean>(false);
     const [collapse, setCollapse] = useState<boolean>(false);
-    const [selected, setSelected] = useState<any>(null);
-    const {t, ready} = useTranslation("payment");
+    const {t} = useTranslation(["payment", "common"]);
     const [collapseDate, setCollapseData] = useState<any>(null);
-    const handleClose = () => setOpen(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
     const [rows, setRows] = useState<any[]>([]);
+    const [cheques, setCheques] = useState<ChequeModel[]>([
+        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200},
+        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200}
+    ]);
     const [total, setTotal] = useState(0);
-    const [select, setSelect] = useState<any[]>([]);
+    let [select, setSelect] = useState<any[]>([]);
+    let [collect, setCollect] = useState<any[]>([]);
+    let [collected, setCollected] = useState(0);
     const [toReceive, setToReceive] = useState(0);
+    const [somme, setSomme] = useState(0);
+    const [freeTrans, setFreeTrans] = useState(0);
+    const [action, setAction] = useState("");
     const {currentDate} = useAppSelector(agendaSelector);
-
-    const isOpen = Boolean(anchorEl);
+    const newVersion = false;
     const devise = process.env.NEXT_PUBLIC_DEVISE;
-    const handleCloseCollapse = () => setCollapse(false);
-    const handleSave = () => {
-        setOpen(false)
-    };
-    const handleEdit = (props: any) => {
-        console.log(props)
-        setSelected(props);
-        setOpen(true);
-    };
-
-    const [state, setState] = React.useState<any>({
-        species: false,
-        card: false,
-        cheque: false,
-        selected: "species",
-        tab3Data: [
-            {
-                amount: "",
-                carrier: "",
-                bank: "",
-                check_number: '',
-                payment_date: new Date(),
-                expiry_date: new Date(),
-            }
-        ]
-    });
+    const {direction} = useAppSelector(configSelector);
 
     const noCardData = {
         mainIcon: "ic-payment",
@@ -178,11 +185,29 @@ function Payment() {
         description: "no-data.description"
     };
 
+    const [popoverActions, setPopoverActions] = useState([
+        {
+            title: "start_the_consultation",
+            icon: <PlayCircleIcon/>,
+            action: "onConsultationStart",
+        },
+        {
+            title: "leave_waiting_room",
+            icon: <Icon color={"white"} path="ic-salle"/>,
+            action: "onLeaveWaitingRoom",
+        },
+        {
+            title: "see_patient_form",
+            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+            action: "onPatientDetail",
+        }]);
+
     const handleCollapse = (props: any) => {
-        setCollapseData(props);
+        //setCollapseData(props);
         setCollapse(true);
     };
-    const {addBilling} = useAppSelector(tableActionSelector);
+    const handleCloseCollapse = () => setCollapse(false);
+
 
     const {trigger} = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
@@ -194,11 +219,71 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {lock} = useAppSelector(appLockSelector);
 
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [deals, setDeals] = React.useState<any>({
+        cash: {
+            amount: ""
+        },
+        card: {
+            amount: ""
+        },
+        check: [{
+            amount: "",
+            carrier: "",
+            bank: "",
+            check_number: '',
+            payment_date: new Date(),
+            expiry_date: new Date(),
+        }],
+        selected: "cash"
+    });
+
+
+    const handleCheques = (props: ChequeModel) => {
+        if (collect.indexOf(props) != -1) {
+            collect.splice(collect.indexOf(props), 1)
+        } else {
+            collect.push(props);
+        }
+        setCollect([...collect])
+        let res = 0;
+        collect.map(val => res += val.amount);
+        setCollected(res + freeTrans)
+    }
+    const handleSubmit = (data: any) => {
+        console.log(selectedPayment.payments);
+        setOpenPaymentDialog(false);
+    };
+
+    const resetDialog = () => {
+        setOpenPaymentDialog(false);
+        const actions = [...popoverActions];
+        actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
+        setPopoverActions(actions);
+    };
+
     useEffect(() => {
         if (!lock) {
             dispatch(toggleSideBar(false));
         }
-    })
+    });
+
+    const openPop = (ev: string) => {
+        setAction(ev)
+        setSelectedPayment({
+            uuid: 'row?.uuid',
+            date: moment().format("DD-MM-YYYY"),
+            time: 'row?.appointment_time',
+            patient: null,
+            insurance: "",
+            type: 'row?.appointment_type.name',
+            amount: 0,
+            total: 0,
+            payments: []
+        });
+        setOpenPaymentDialog(true);
+    }
 
     const getAppointments = useCallback((query: string) => {
 
@@ -273,19 +358,6 @@ function Payment() {
         }
     }, [getAppointments, agenda, day])
 
-    const handleChange = (action: string, selected: any, checked: boolean) => {
-        let amouts = 0
-        if (action === 'checkTransaction') {
-            checked ? select.push(selected) : setSelect(select.filter(trans => trans.uuid !== selected.uuid));
-            select.map(trans => amouts += Number(trans.amount))
-            setSelect([...select])
-        } else {
-            selected.map((trans: { amount: any; }) => amouts += Number(trans.amount))
-            setSelect(selected)
-        }
-        setToReceive(amouts)
-    }
-
     return (
         <>
             <SubHeader>
@@ -294,17 +366,26 @@ function Payment() {
                     width={1}
                     justifyContent="space-between"
                     alignItems="center">
-                    <Typography
-                        textTransform={"capitalize"}>{t("path")} {'>'} {moment(day, 'DD-MM-YYYY').format('ddd DD.MM.YYYY')}</Typography>
+                    <Typography><b>Le {moment(day, 'DD-MM-YYYY').format('DD MMMM YYYY')}</b></Typography>
                     <Stack direction="row" spacing={3} alignItems="center">
+
+                        {newVersion && <>
+                            <Typography variant="subtitle2">{t("receive")}</Typography>
+                            <Typography variant="h6">{toReceive} {devise}</Typography>
+                            <Typography variant="h6">I</Typography>
+                        </>
+                        }
                         <Typography variant="subtitle2">{t("total")}</Typography>
                         <Typography variant="h6">{total} {devise}</Typography>
-                        {/*
-                        <Stack direction="row" spacing={1} alignItems="center">
+
+                        {newVersion && <Stack direction="row" spacing={1} alignItems="center">
                             <Typography variant="h6">I</Typography>
                             <Button
                                 variant="contained"
                                 color="error"
+                                onClick={() => {
+                                    openPop("btn_header_1")
+                                }}
                                 {...(isMobile && {
                                     size: "small",
                                     sx: {minWidth: 40},
@@ -319,13 +400,23 @@ function Payment() {
                                     sx: {minWidth: 40},
                                 })}
                                 onClick={() => {
-                                    setOpen(true);
-                                    setSelected(null);
+                                    openPop("btn_header_2");
                                 }}>
                                 + {!isMobile && t("btn_header_2")}
                             </Button>
-                        </Stack>
-*/}
+                            <Typography variant="h6">I</Typography>
+                            <Button
+                                variant="contained"
+                                {...(isMobile && {
+                                    size: "small",
+                                    sx: {minWidth: 40},
+                                })}
+                                onClick={() => {
+                                    handleCollapse(null)
+                                }}>
+                                {!isMobile && t("Encaisser")}
+                            </Button>
+                        </Stack>}
                     </Stack>
                 </Stack>
             </SubHeader>
@@ -337,10 +428,10 @@ function Payment() {
                         rows={rows}
                         from={"payment"}
                         t={t}
-                        handleChange={handleChange}
                         select={select}
-                        edit={handleEdit}
-                    /> : <NoDataCard t={t} ns={"payment"} data={noCardData}/>}
+                    /> : <Box style={{height: '75vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <NoDataCard t={t} ns={"payment"} data={noCardData}/>
+                    </Box>}
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack spacing={2}>
@@ -349,7 +440,6 @@ function Payment() {
                                 <PaymentMobileCard
                                     data={card}
                                     t={t}
-                                    edit={handleEdit}
                                     getCollapseData={handleCollapse}
                                 />
                             </React.Fragment>
@@ -359,45 +449,39 @@ function Payment() {
                 </MobileContainer>
             </Box>
 
-            {/*<SubFooter>
-                <Stack
-                    spacing={3}
-                    direction="row"
-                    justifyContent="flex-end"
-                    alignItems="center"
-                    width={1}>
-
-
-                    <Button variant="text-black" onClick={() => {
-                        console.log(select)
-                    }}>{t("receive")}
-                        {toReceive > 0 && <Typography> ( {toReceive} {devise} )</Typography>}
-                    </Button>
-
-                </Stack>
-            </SubFooter>*/}
             <Dialog
                 action={"payment_dialog"}
-                open={open}
-                data={{t, selected, state, setState}}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 380
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    selectedPayment, setSelectedPayment,
+                    deals, setDeals,
+                    patient: null
+                }}
                 size={"md"}
-                direction={"ltr"}
-                title={t("dialog_title")}
-                dialogClose={handleClose}
+                title={t(action)}
+                dialogClose={resetDialog}
                 actionDialog={
                     <DialogActions>
-                        <Button onClick={handleClose} startIcon={<CloseIcon/>}>
-                            {t("cancel")}
+                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
                         </Button>
                         <Button
+                            disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
-                            onClick={handleSave}
+                            onClick={handleSubmit}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("save")}
+                            {t("config.save", {ns: "common"})}
                         </Button>
                     </DialogActions>
                 }
             />
+
             <MuiDialog
                 PaperProps={{
                     style: {
@@ -413,101 +497,161 @@ function Payment() {
                         bgcolor: (theme) => theme.palette.primary.main,
                         position: "relative",
                     }}>
-                    Data
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleCloseCollapse}
-                        sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: theme.palette.grey[0],
-                        }}>
-                        <CloseIcon/>
-                    </IconButton>
-                </DialogTitle>
-
-                <List sx={{pt: 3}}>
-                    {collapseDate?.map((col: any, idx: number) => (
-                        <ListItem
-                            key={idx}
+                    {t('Encaisser')}
+                    <Button size='small' variant='contained'
                             sx={{
-                                "&:not(:last-child)": {
-                                    borderBottom: `1px solid ${theme.palette.divider}`,
-                                },
-                            }}>
-                            <Stack
+                                position: "absolute",
+                                right: 15,
+                                top: 15,
+                            }}
+                            color="warning"
+                            {...(isMobile && {
+                                fullWidth: true
+                            })}>
+                        {t("total")}
+                        <Typography fontWeight={700} component='strong' mx={1}>{collected}</Typography>{devise}
+                    </Button>
+                </DialogTitle>
+                <DialogContent dividers={true}>
+                    <Stack direction={"row"} spacing={3} alignItems={"center"} padding={2}>
+                        <Typography variant={"body1"}>
+                            {t('somme')}
+                        </Typography>
+                        <TextField
+                            type='number'
+                            fullWidth
+                            style={{width: '150px', textAlign: "center"}}
+                            value={somme}
+                            onChange={(ev) => {
+                                setSomme(Number(ev.target.value))
+                                collected -= freeTrans;
+                                collected += Number(ev.target.value);
+                                setCollected(collected)
+                                setFreeTrans(Number(ev.target.value))
+
+                            }
+                            }
+                            InputProps={{
+                                style: {
+                                    width: '150px',
+                                    textAlign: "center"
+                                }
+                            }}
+
+                            placeholder={t('---')}
+                        />
+                        <Typography variant={"body1"} color={theme.palette.grey[700]}>
+                            {devise}
+                        </Typography>
+                    </Stack>
+                    <Box className="container">
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCheques}
+                                rows={cheques}
+                                from={"chequesList"}
+                                t={t}
+                                select={collect}
+                                edit={handleCheques}
+                            />
+                        </DesktopContainer>
+                    </Box>
+                    <List sx={{pt: 3}}>
+                        {collapseDate?.map((col: any, idx: number) => (
+                            <ListItem
+                                key={idx}
                                 sx={{
-                                    ".react-svg svg": {
-                                        width: (theme) => theme.spacing(1.5),
-                                        path: {
-                                            fill: (theme) => theme.palette.text.primary,
-                                        },
+                                    "&:not(:last-child)": {
+                                        borderBottom: `1px solid ${theme.palette.divider}`,
                                     },
-                                }}
-                                direction="row"
-                                alignItems="center"
-                                justifyContent="space-between"
-                                width={1}>
-                                <Stack spacing={0.5} direction="row" alignItems="center">
-                                    <Icon path="ic-agenda-jour"/>
-                                    <Typography fontWeight={600}>{col.date}</Typography>
-                                </Stack>
-                                <Stack spacing={0.5} direction="row" alignItems="center">
-                                    <Icon path="setting/ic-time"/>
-                                    <Typography fontWeight={600} className="date">
-                                        {col.time}
-                                    </Typography>
-                                </Stack>
+                                }}>
                                 <Stack
+                                    sx={{
+                                        ".react-svg svg": {
+                                            width: (theme) => theme.spacing(1.5),
+                                            path: {
+                                                fill: (theme) => theme.palette.text.primary,
+                                            },
+                                        },
+                                    }}
                                     direction="row"
                                     alignItems="center"
-                                    justifyContent="flex-start"
-                                    spacing={1}>
-                                    {col.payment_type.map((type: any, i: number) => (
-                                        <Stack
-                                            key={i}
-                                            direction="row"
-                                            alignItems="center"
-                                            spacing={1}>
-                                            <Icon path={type.icon}/>
-                                            <Typography color="text.primary" variant="body2">
-                                                {t("table." + type.name)}
-                                            </Typography>
-                                        </Stack>
-                                    ))}
-                                </Stack>
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="flex-start"
-                                    spacing={2}>
-                                    {col.billing_status ? (
-                                        <Label
-                                            className="label"
-                                            variant="ghost"
+                                    justifyContent="space-between"
+                                    width={1}>
+                                    <Stack spacing={0.5} direction="row" alignItems="center">
+                                        <Icon path="ic-agenda-jour"/>
+                                        <Typography fontWeight={600}>{col.date}</Typography>
+                                    </Stack>
+                                    <Stack spacing={0.5} direction="row" alignItems="center">
+                                        <Icon path="setting/ic-time"/>
+                                        <Typography fontWeight={600} className="date">
+                                            {col.time}
+                                        </Typography>
+                                    </Stack>
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        justifyContent="flex-start"
+                                        spacing={1}>
+                                        {col.payment_type.map((type: any, i: number) => (
+                                            <Stack
+                                                key={i}
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={1}>
+                                                <Icon path={type.icon}/>
+                                                <Typography color="text.primary" variant="body2">
+                                                    {t("table." + type.name)}
+                                                </Typography>
+                                            </Stack>
+                                        ))}
+                                    </Stack>
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        justifyContent="flex-start"
+                                        spacing={2}>
+                                        {col.billing_status ? (
+                                            <Label
+                                                className="label"
+                                                variant="ghost"
+                                                color={
+                                                    col.billing_status === "yes" ? "success" : "error"
+                                                }>
+                                                {t("table." + col.billing_status)}
+                                            </Label>
+                                        ) : (
+                                            <Typography>--</Typography>
+                                        )}
+                                        <Typography
                                             color={
-                                                col.billing_status === "yes" ? "success" : "error"
-                                            }>
-                                            {t("table." + col.billing_status)}
-                                        </Label>
-                                    ) : (
-                                        <Typography>--</Typography>
-                                    )}
-                                    <Typography
-                                        color={
-                                            (col.amount > 0 && "success.main") ||
-                                            (col.amount < 0 && "error.main") ||
-                                            "text.primary"
-                                        }
-                                        fontWeight={700}>
-                                        {col.amount}
-                                    </Typography>
+                                                (col.amount > 0 && "success.main") ||
+                                                (col.amount < 0 && "error.main") ||
+                                                "text.primary"
+                                            }
+                                            fontWeight={700}>
+                                            {col.amount}
+                                        </Typography>
+                                    </Stack>
                                 </Stack>
-                            </Stack>
-                        </ListItem>
-                    ))}
-                </List>
+                            </ListItem>
+                        ))}
+                    </List>
+                </DialogContent>
+                <DialogActions style={{paddingBottom: 0}}>
+                    <Button onClick={() => {
+                        setCollapse(false);
+                    }} startIcon={<CloseIcon/>}>
+                        {t("config.cancel", {ns: "common"})}
+                    </Button>
+                    <Button
+                        disabled={selectedPayment && selectedPayment.payments.length === 0}
+                        variant="contained"
+                        onClick={handleSubmit}
+                        startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                        {t("config.save", {ns: "common"})}
+                    </Button>
+                </DialogActions>
             </MuiDialog>
         </>
     );

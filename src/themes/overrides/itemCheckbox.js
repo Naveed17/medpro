@@ -14,8 +14,8 @@ const RootStyled = styled(ListItem)(({ theme, }) => {
         '& .MuiListItemIcon-root': {
             minWidth: '15px',
             '& .react-svg svg': {
-                width: '10px',
-                height: '10px',
+                width: '20px',
+                height: '20px',
                 '& path': {
                     fill: theme.palette.text.primary,
                 }
