@@ -219,6 +219,8 @@ function ConsultationIPToolbar({...props}) {
                         type: "prescription",
                         info: res[0].prescription_has_drugs,
                         uuid: res[0].uuid,
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -258,6 +260,8 @@ function ConsultationIPToolbar({...props}) {
                         uri: res[1],
                         name: "requested-analysis",
                         type: "requested-analysis",
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         info: res[0].analyses,
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
@@ -298,6 +302,8 @@ function ConsultationIPToolbar({...props}) {
                         name: "requested-medical-imaging",
                         type: "requested-medical-imaging",
                         info: res[0]["medical-imaging"],
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -345,6 +351,8 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         days: state.days,
                         name: "certif",
                         type: "write_certif",
