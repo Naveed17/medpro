@@ -13,6 +13,8 @@
     "amount": "Montant",
     "check": "Chéque",
     "carrier": "Porteur",
+    "description": "Désignation",
+    "paymentMean": "Moyen de paiement",
     "bank": "Banque",
     "check_number": "Numéro de cheque",
     "payment_date": "Date de règlement ",
@@ -20,7 +22,8 @@
     "add_cheque": "Ajouter un Chéque",
     "add": "Ajouter",
     "billing": "Facturer",
-    "receive": "Réceptionner",
+    "receive": "Total a réceptionner",
+    "somme": "Somme",
     "more": "Plus",
     "table": {
         "date": "Date",
@@ -29,10 +32,12 @@
         "insurance": "Assurances",
         "type": "Type",
         "payment_type": "Type de Paiement",
+        "numcheque": "Numéro chéque",
         "billing_status": "Etat de Facturation",
         "amount": "Montant",
         "consultation": "Consultation",
         "check": "Control",
+        "-": "#",
         "yes": "Oui",
         "no": "Non",
         "credit_card": "Carte bancaire",
@@ -41,6 +46,20 @@
     },
     "no-data": {
         "title": "Aucune transaction",
-        "description": ""
+        "description": "aucune transaction pour le jour sélectionné"
+    },
+    "filter": {
+        "patient": "Patient",
+        "birthdate": "Date de naissance",
+        "gender": "Genre",
+        "male": "Homme",
+        "female": "Femme",
+        "name": "Nom & prénom",
+        "phone": "Numéro de téléphone",
+        "facturationState": "Etat de facturation",
+        "paymentType": "Type de paiement",
+        "insurance": "Assurance",
+        "yes": "Oui",
+        "no": "Non"
     }
 }

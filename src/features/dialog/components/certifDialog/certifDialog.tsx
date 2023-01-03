@@ -26,7 +26,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
-import Zoom from "@mui/material/Zoom";
 import {TooltipProps} from "@mui/material/Tooltip";
 import {styled} from "@mui/system";
 
@@ -69,12 +68,17 @@ function CertifDialog({...props}) {
 
     const selectModel = (model: DocTemplateModel) => {
         setValue(model.content);
+        data.state.content = model.content;
+        data.state.title = model.title;
+        data.setState(data.state)
         setTitle(model.title)
         setSelectedColor([model.color])
     }
     const saveModel = () => {
         const form = new FormData();
         form.append('content', value);
+        form.append('color', selectedColor[0]);
+        form.append('title', title);
         trigger({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${router.locale}`,
@@ -86,7 +90,7 @@ function CertifDialog({...props}) {
         }).then(() => {
             mutate().then(() => {
                 const stringToHTML = new DOMParser().parseFromString(value, 'text/html').body.firstChild
-                models.push({
+                models.unshift({
                     color: selectedColor[0],
                     name: title,
                     title: title,
@@ -103,24 +107,24 @@ function CertifDialog({...props}) {
         if (httpModelResponse) {
             const template: DocTemplateModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
-            modelsList.map((model: { content: string; uuid: string }) => {
+            modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
                 template.push({
-                    color: selectedColor[0],
-                    title: 'no title',
-                    name: 'no name',
+                    uuid: model.uuid,
+                    color: model.color ? model.color : '#0696D6',
+                    title: model.title ? model.title : 'Sans titre',
+                    name: model.title ? model.title : 'Sans titre',
                     content: model.content,
                     preview: (stringToHTML as HTMLElement)?.innerHTML
                 });
             });
-            setModels(template)
+            setModels(template.reverse())
         }
     }, [httpModelResponse, selectedColor]);
 
     useEffect(() => {
-        /*data.state.content = `<p style="color:hsl(0, 0%, 0%);">Je soussigné, Dr ${data.state.name} certifie avoir examiné ce  jour : ${data.state.patient} et que son etat de sante necessite un repos de ${data.state.days} jour(s) a compter de ce jour, sauf complications ulterieures</p>`
-        setValue(data.state.content)
-        data.setState(data.state)*/
+        if (data)
+            setTitle(data.state.title)
     }, [data])
 
     const {t, ready} = useTranslation("consultation");
@@ -141,6 +145,8 @@ function CertifDialog({...props}) {
                                     value={title}
                                     onChange={(ev) => {
                                         setTitle(ev.target.value)
+                                        data.state.title = ev.target.value;
+                                        data.setState(data.state)
                                     }}/>
                                 {selectedColor.map(color => (
                                     <ModelDot
@@ -163,8 +169,10 @@ function CertifDialog({...props}) {
                                 <HtmlTooltip
                                     title={
                                         <React.Fragment>
-                                            <Typography color="gray" fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                            <Typography color="gray" fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
+                                            <Typography color="gray"
+                                                        fontSize={12}>{"{patient} : nom du patient"}</Typography>
+                                            <Typography color="gray"
+                                                        fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
                                         </React.Fragment>
                                     }
                                 >

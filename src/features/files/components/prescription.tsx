@@ -1,14 +1,12 @@
 import Draggable from "react-draggable";
 import {DocHeader} from "@features/files";
 import React, {useRef} from "react";
-import moment from "moment";
 import {Box} from "@mui/material";
 
 const Prescription = ({...props}) => {
     const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     content.current?.append(pages[id].content)
-
     return (
         <>
             {!loading && <Box>
@@ -37,7 +35,7 @@ const Prescription = ({...props}) => {
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                             <div style={{width: "100%", border: '0 solid red', textAlign: "center", height: '6mm'}}>
                                 {data.title.show && <div
-                                    className="handle">{title}</div>}
+                                    className="handle">{state.title ? state.title : title}</div>}
                             </div>
                         </Draggable>
 
