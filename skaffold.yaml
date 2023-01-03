@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2beta29
+apiVersion: skaffold/v3
 kind: Config
 build:
   local:
@@ -22,17 +22,17 @@ build:
         before:
           - command: [ "bash", "-c", "envsubst < .env.local.dist  > .env" ]
 
-deploy:
+manifests:
   kustomize:
     paths:
-      - "./kustomize/overlay/generic"
-    hooks:
-      before:
-        - host:
-            command: [ "bash", "-c", " for FILE in ./kustomize/overlay/generic/*.tpl; do envsubst < $FILE > ${FILE/'.tpl'/} ; done" ]
+      - ./kustomize/overlay/generic
+  hooks:
+    before:
+      - host:
+          command: [ "bash", "-c", " for FILE in ./kustomize/overlay/generic/*.tpl; do envsubst < $FILE > ${FILE/'.tpl'/} ; done" ]
 
-      after:
-        - host:
-            command: [ "bash", "-c", "echo ::set-output name=host::'https://'${INGRESS_HOST}/" ]
-        - host:
-            command: [ "bash" , "-c", "for FILE in ./kustomize/overlay/generic/*.yaml; do [[ -e $FILE ]] && rm $FILE ; done"]
+    after:
+      - host:
+          command: [ "bash", "-c", "echo ::set-output name=host::'https://'${INGRESS_HOST}/" ]
+      - host:
+          command: [ "bash" , "-c", "for FILE in ./kustomize/overlay/generic/*.yaml; do [[ -e $FILE ]] && rm $FILE ; done"]
