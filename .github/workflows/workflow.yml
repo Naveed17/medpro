@@ -71,7 +71,7 @@ jobs:
 
   CD:
     needs: [CI,envmap]
-    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@v1.0.0
+    uses: SmartMedSA/github-workflows/.github/workflows/skaffold.yml@v1.1.0
     if: ${{ needs.envmap.outputs.enable_cd == 'true' }}
     strategy:
       matrix: ${{ fromJSON(needs.envmap.outputs.environments) }}
@@ -79,6 +79,7 @@ jobs:
       cmd:  skaffold run
       environment: ${{ matrix.envs.name }}
       workspace: ${{ matrix.envs.ws }}
+      version: "2.0.4"
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
@@ -87,6 +88,7 @@ jobs:
         INGRESS_TARGET=${{ secrets.INGRESS_TARGET }}
         INGRESS_HOST=${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
-      SKAFFOLD_KUBE_CONTEXT: ${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
-      SKAFFOLD_NAMESPACE: ${{ secrets.SKAFFOLD_NAMESPACE }}
+        SKAFFOLD_KUBE_CONTEXT=${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
+        SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
+
 
