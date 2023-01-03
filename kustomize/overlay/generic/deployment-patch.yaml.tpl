@@ -6,8 +6,8 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: med-pro-${WORKSPACE}
-      name: med-pro-${WORKSPACE}
+      app: med-pro-${ENVIRONMENT}
+      name: med-pro-${ENVIRONMENT}
   template:
     metadata:
     spec:
