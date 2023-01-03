@@ -337,6 +337,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 form.append("content", state.content);
+                form.append("title", state.title);
                 trigger({
                     method: "POST",
                     url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
@@ -353,6 +354,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: state.patient,
                         createdAt:moment().format('DD/MM/YYYY'),
                         description:"",
+                        title:state.title,
                         days: state.days,
                         name: "certif",
                         type: "write_certif",
@@ -432,25 +434,11 @@ function ConsultationIPToolbar({...props}) {
             case "write_certif":
                 setInfo("write_certif");
                 setState({
-                    name: ginfo.firstName + " " + ginfo.lastName,
+                    name: `${ginfo.firstName} ${ginfo.lastName}`,
                     days: '....',
-                    content: "",
-                    patient:
-                        appointement.patient.firstName +
-                        " " +
-                        appointement.patient.lastName,
-                });
-                break;
-            case "write_report":
-                setInfo("write_report");
-                setState({
-                    name: ginfo.firstName + " " + ginfo.lastName,
-                    days: '....',
-                    content: "",
-                    patient:
-                        appointement.patient.firstName +
-                        " " +
-                        appointement.patient.lastName,
+                    content: '',
+                    title: 'Rapport médical',
+                    patient:`${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 });
                 break;
             case "upload_document":

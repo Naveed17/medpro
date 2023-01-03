@@ -151,7 +151,7 @@ function ConsultationInProgress() {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
@@ -609,6 +609,8 @@ function ConsultationInProgress() {
                 doctor: card.name,
                 patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
+                description:card.description,
+                title:card.title,
                 createdAt:card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
@@ -637,6 +639,7 @@ function ConsultationInProgress() {
                 name: card.title,
                 type: card.documentType,
                 createdAt:card.createdAt,
+                description:card.description,
                 info: info,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName,
