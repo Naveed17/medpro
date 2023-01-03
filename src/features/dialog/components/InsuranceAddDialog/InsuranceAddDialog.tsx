@@ -17,7 +17,7 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import React, {memo} from "react";
+import React, {memo, useState} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -72,7 +72,8 @@ function InsuranceAddDialog({...props}) {
                 }
             },
             insurance_type: "",
-            expand: false
+            expand: false,
+            online: false
         }];
         setFieldValue("insurances", insurance);
     }
@@ -84,7 +85,7 @@ function InsuranceAddDialog({...props}) {
     };
 
     return (
-        values.insurances.map((insurance: any, index: number) => (
+        values.insurances.filter((insur: InsurancesModel) => !insur.online).map((insurance: any, index: number) => (
             <Grid container key={`${index}-${insurance.insurance_uuid}`}>
                 <Stack sx={{
                     width: "inherit"
@@ -219,11 +220,13 @@ function InsuranceAddDialog({...props}) {
                                         </Stack>
                                     </Grid>
                                 </Grid>
-                                <Collapse sx={{
-                                    marginTop: 2
-                                }} in={getFieldProps(`insurances[${index}].expand`).value}
-                                          timeout="auto"
-                                          unmountOnExit>
+                                <Collapse
+                                    sx={{
+                                        marginTop: 2
+                                    }}
+                                    in={getFieldProps(`insurances[${index}].expand`).value}
+                                    timeout="auto"
+                                    unmountOnExit>
                                     <CardContent sx={{paddingTop: 0}}
                                                  className={"insurance-section"}>
                                         <fieldset>

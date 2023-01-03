@@ -1,29 +1,21 @@
-import React, {memo, useState} from "react";
+import React, {useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
     AppBar,
-    Autocomplete,
     Box,
-    Button,
-    CardContent,
-    Collapse, DialogActions,
-    Divider, FormHelperText,
+    Button, DialogActions,
+    Divider,
     Grid,
     IconButton,
-    InputAdornment,
-    InputBase,
-    MenuItem,
     Paper,
     Skeleton,
     Stack,
-    TextField,
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -31,20 +23,12 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import Icon from "@themes/urlIcon";
-import Select from '@mui/material/Select';
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import {DatePicker as CustomDatePicker} from "@features/datepicker";
-import moment from "moment-timezone";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import dynamic from "next/dynamic";
-import {styled} from "@mui/material/styles";
 import {SocialInsured} from "@app/constants";
-import {countries as dialCountries} from "@features/countrySelect/countries";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
@@ -67,7 +51,6 @@ function PersonalInsuranceCard({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const [editable, setEditable] = useState(false);
     const [insuranceDialog, setInsuranceDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
     const {t, ready} = useTranslation("patient", {
@@ -76,12 +59,6 @@ function PersonalInsuranceCard({...props}) {
 
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const notEmpty = Yup.string()
-        .ensure() // Transforms undefined and null values to an empty string.
-        .test('Only Empty?', 'Cannot be only empty characters', (value) => {
-            return value.split(' ').join('').length !== 0;
-        });
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -101,6 +78,7 @@ function PersonalInsuranceCard({...props}) {
         cin: Yup.number(),
         insurances: Yup.array().of(
             Yup.object().shape({
+                insurance_key: Yup.string(),
                 insurance_number: Yup.string()
                     .min(3, t("assurance-num-error"))
                     .max(50, t("assurance-num-error"))
@@ -109,7 +87,7 @@ function PersonalInsuranceCard({...props}) {
                     .min(3, t("assurance-type-error"))
                     .max(50, t("assurance-type-error"))
                     .required(t("assurance-type-error")),
-                insurance_social: Yup.object().shape({
+                insurance_social: Yup.object().nullable().shape({
                     firstName: Yup.string()
                         .min(3, t("first-name-error"))
                         .max(50, t("first-name-error"))
@@ -150,7 +128,8 @@ function PersonalInsuranceCard({...props}) {
                     })
                 }),
                 insurance_type: Yup.string(),
-                expand: Yup.boolean()
+                expand: Yup.boolean(),
+                online: Yup.boolean()
             })
         )
     });
@@ -171,6 +150,7 @@ function PersonalInsuranceCard({...props}) {
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
             insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
+                insurance_key: insurance.uuid,
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
                 insurance_social: insurance.insuredPerson && {
@@ -187,7 +167,8 @@ function PersonalInsuranceCard({...props}) {
                     }
                 },
                 insurance_type: insurance.type ? insurance.type.toString() : "0",
-                expand: insurance.type ? insurance.type.toString() !== "0" : false
+                expand: insurance.type ? insurance.type.toString() !== "0" : false,
+                online: true
             })) : [] as InsurancesModel[]
         },
         validationSchema: RegisterPatientSchema,
@@ -196,8 +177,34 @@ function PersonalInsuranceCard({...props}) {
         },
     });
 
+    const handleResetDialogInsurance = () => {
+        setInsuranceDialog(false);
+        const insurances = [...values.insurances].map(insure => insure.insurance_key?.length > 0 ?
+            {...insure, online: true} : insure);
+        handleRemoveInsurance(insurances.findIndex((insure: InsurancesModel) => !insure.online && insure.insurance_key?.length === 0), insurances);
+    }
+
+    const handleDeleteInsurance = (insurance: InsuranceModel) => {
+        const indexInsur = values.insurances.findIndex((insur: InsurancesModel) =>
+            insur.insurance_key === insurance.uuid);
+        const insurances = handleRemoveInsurance(indexInsur);
+        handleUpdatePatient(insurances);
+    }
+
+    const handleEditInsurance = (insurance: InsuranceModel) => {
+        const insurances = [...values.insurances].map(insure => insure.insurance_key === insurance.uuid ?
+            {
+                ...insure,
+                online: false
+            } : insure)
+        insurances.sort(a => !a.online ? -1 : 1);
+        setFieldValue("insurances", insurances);
+        setInsuranceDialog(true);
+    }
+
     const handleAddInsurance = () => {
-        const insurance = [...values.insurances, {
+        const insurance = [{
+            insurance_key: "",
             insurance_uuid: "",
             insurance_number: "",
             insurance_social: {
@@ -214,18 +221,20 @@ function PersonalInsuranceCard({...props}) {
                 }
             },
             insurance_type: "",
-            expand: false
-        }];
+            expand: false,
+            online: false
+        }, ...values.insurances];
         setFieldValue("insurances", insurance);
     }
 
-    const handleRemoveInsurance = (index: number) => {
-        const insurance = [...values.insurances];
-        insurance.splice(index, 1);
-        formik.setFieldValue("insurances", insurance);
+    const handleRemoveInsurance = (index: number, insurances?: InsurancesModel[]) => {
+        const insurance = [...(insurances ? insurances : values.insurances)];
+        index >= 0 && insurance.splice(index, 1);
+        setFieldValue("insurances", insurance);
+        return insurance;
     };
 
-    const handleUpdatePatient = () => {
+    const handleUpdatePatient = (insurances?: InsurancesModel[]) => {
         setLoadingRequest(true);
         const params = new FormData();
         params.append('first_name', values.firstName);
@@ -242,12 +251,12 @@ function PersonalInsuranceCard({...props}) {
             }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
-        values.insurances.map((insurance: InsurancesModel) => {
+        (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];
             }
         });
-        params.append('insurance', JSON.stringify(values.insurances.filter(
+        params.append('insurance', JSON.stringify((insurances ? insurances : values.insurances).filter(
             (insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
@@ -263,7 +272,6 @@ function PersonalInsuranceCard({...props}) {
             data: params,
         }).then(() => {
             setLoadingRequest(false);
-            setEditable(false);
             mutatePatientDetails();
             if (mutatePatientList) {
                 mutatePatientList();
@@ -286,7 +294,13 @@ function PersonalInsuranceCard({...props}) {
                                 fontSize: 12,
                                 pt: 0
                             },
-                            p: 1.5, borderWidth: 0
+                            p: 1.5, borderWidth: 0,
+                            ...(patient?.insurances.length === 0 && {
+                                "& .MuiAppBar-root": {
+                                    borderBottom: "none"
+                                },
+                                pb: 0
+                            })
                         }}>
                         <AppBar position="static" color={"transparent"}>
                             <Toolbar variant="dense">
@@ -303,22 +317,22 @@ function PersonalInsuranceCard({...props}) {
                                     </Typography>
                                 </Box>
                                 <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingRequest}
                                         className='btn-add'
                                         onClick={() => {
                                             handleAddInsurance();
                                             setInsuranceDialog(true);
-                                            setEditable(true);
                                         }}
                                         startIcon={<AddIcon/>}
                                         size="small">
                                         {t("add")}
-                                    </Button>
+                                    </LoadingButton>
                                 </Box>
                             </Toolbar>
                         </AppBar>
                         {patient?.insurances.map((insurance: any, index: number) => (
-                            <Grid container key={`${index}-${insurance.insurance_uuid}`}>
+                            <Grid container key={`${index}-${insurance.uuid}`}>
                                 <Stack sx={{
                                     ...(index === 0 && {
                                         marginTop: 1
@@ -367,31 +381,28 @@ function PersonalInsuranceCard({...props}) {
                                                             </Typography>
                                                         </Stack>
                                                     </Grid>
-                                                    <Grid item xs={6} md={4}>
-                                                        <Stack direction={"row"} alignItems={"end"} spacing={1}
+                                                    <Grid pt={.5} pb={.5} item xs={6} md={4}>
+                                                        <Stack direction={"row"} alignItems={"start"} spacing={1}
                                                                justifyContent={"flex-end"}>
                                                             <IconButton
+                                                                disabled={loadingRequest}
                                                                 className='btn-add'
-                                                                onClick={() => {
-                                                                    handleAddInsurance();
-                                                                    setInsuranceDialog(true);
-                                                                    setEditable(true);
-                                                                }}
+                                                                onClick={() => handleEditInsurance(insurance)}
                                                                 size="small">
                                                                 <IconUrl path={"setting/edit"}/>
                                                             </IconButton>
                                                             <IconButton
+                                                                disabled={loadingRequest}
+                                                                className='icon-button'
                                                                 color={"error"}
                                                                 sx={{
-                                                                    mr: 1.5,
+                                                                    paddingTop: .4,
                                                                     "& svg": {
-                                                                        width: 20,
-                                                                        height: 20
+                                                                        width: 18,
+                                                                        height: 18
                                                                     },
                                                                 }}
-                                                                onClick={() => {
-                                                                    handleRemoveInsurance(index);
-                                                                }}
+                                                                onClick={() => handleDeleteInsurance(insurance)}
                                                                 size="small">
                                                                 <DeleteIcon/>
                                                             </IconButton>
@@ -420,9 +431,7 @@ function PersonalInsuranceCard({...props}) {
                     }}
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
-                    dialogClose={() => {
-                        setInsuranceDialog(false);
-                    }}
+                    dialogClose={handleResetDialogInsurance}
                     action={"add_insurance"}
                     open={insuranceDialog}
                     title={t(`add-insurance`)}
@@ -445,28 +454,27 @@ function PersonalInsuranceCard({...props}) {
                                     startIcon={<AddIcon/>}>
                                     {t("add-insurance-more")}
                                 </Button>
-                                <Stack direction={"row"} spacing={1.2}>
-                                    <Button
+                                <Stack direction={"row"} justifyContent={"center"} alignItems={"center"} spacing={1.2}>
+                                    <LoadingButton
+                                        loading={loadingRequest}
                                         sx={{
                                             color: theme.palette.grey[600],
                                         }}
-                                        onClick={() => {
-                                            setInsuranceDialog(false);
-                                            setFieldValue("insurances", []);
-                                        }}
+                                        onClick={handleResetDialogInsurance}
                                         startIcon={<CloseIcon/>}>
                                         {t("cancel")}
-                                    </Button>
-                                    <Button
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        loading={loadingRequest}
                                         onClick={() => {
                                             setInsuranceDialog(false);
                                             handleUpdatePatient();
                                         }}
-                                        disabled={!!errors?.insurances || values.insurances.length === 0}
+                                        disabled={!!errors?.insurances || values.insurances.filter((insur: InsurancesModel) => !insur.online).length === 0}
                                         variant="contained"
                                         startIcon={<Icon path="ic-dowlaodfile"/>}>
                                         {t("register")}
-                                    </Button>
+                                    </LoadingButton>
                                 </Stack>
                             </Stack>
                         </DialogActions>

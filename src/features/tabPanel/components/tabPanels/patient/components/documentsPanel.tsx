@@ -20,10 +20,6 @@ import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@app/axios";
-import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {a11yProps} from "@app/hooks";
 import {TabPanel} from "@features/tabPanel";
 
@@ -51,12 +47,10 @@ const AddAppointmentCardData = {
 };
 
 function DocumentsPanel({...props}) {
-    const {documents, patient, patientId, setOpenUploadDialog, mutatePatientDetails} = props;
-    const router = useRouter();
-    const {data: session} = useSession();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const {
+        documents, patient, patientId, setOpenUploadDialog,
+        mutatePatientDetails, patientDocuments
+    } = props;
 
     // filter checked array
     const [checked, setChecked] = useState<PatientDocuments[]>(documents);
@@ -65,12 +59,6 @@ function DocumentsPanel({...props}) {
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
     const [currentTab, setCurrentTab] = React.useState(0);
-
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
-        method: "GET",
-        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
 
     // handle change for checkboxes
     const handleToggle =
@@ -142,8 +130,6 @@ function DocumentsPanel({...props}) {
     const {t, ready} = useTranslation(["consultation", "patient"]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-
-    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     return (
         <>
@@ -286,9 +272,14 @@ function DocumentsPanel({...props}) {
                                      }
                                  })}>
                                 {patientDocuments?.length > 0 ?
-                                    patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
+                                    patientDocuments?.filter((doc: MedicalDocuments) =>
+                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
                                         <React.Fragment key={`doc-item-${idx}`}>
-                                            <DocumentCard {...{t}} data={card}/>
+                                            <DocumentCard
+                                                onClick={() => {
+                                                    showDoc(card)
+                                                }}
+                                                {...{t}} data={card}/>
                                         </React.Fragment>
                                     )
                                     :

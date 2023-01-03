@@ -2,36 +2,48 @@ import {Box} from '@mui/material';
 import {styled} from '@mui/material/styles';
 
 const PersonalInfoStyled = styled(Box)(({theme}) => ({
-        "& .MuiSelect-select": {
-            padding: "0 2rem 0 1rem"
+    "& .MuiSelect-select": {
+        padding: "0 2rem 0 1rem"
+    },
+    "& .MuiInputBase-root": {
+        background: "no-repeat!important",
+        "&:hover": {
+            backgroundColor: "none"
         },
-        "& .MuiInputBase-root": {
-            background: "no-repeat!important",
-            "&:hover": {
-                backgroundColor: "none"
-            },
-        },
-        "& fieldset": {
-            border: "none!important",
-            boxShadow: "none!important"
-        },
-        "& .MuiPaper-root": {
+    },
+    "& fieldset": {
+        border: "none!important",
+        boxShadow: "none!important"
+    },
+    "& .MuiPaper-root": {
+        paddingTop: 0
+    },
+    "& .MuiAppBar-root": {
+        border: "none",
+        borderBottom: "1px solid #E0E0E0",
+        height: 46,
+        marginBottom: 2,
+        "& .MuiTypography-root": {
+            fontSize: 14,
             paddingTop: 0
-        },
-        "& .MuiAppBar-root": {
-            border: "none",
-            borderBottom: "1px solid #E0E0E0",
-            height: 46,
-            marginBottom: 2,
-            "& .MuiTypography-root": {
-                fontSize: 14,
-                paddingTop: 0
-            }
-        },
-        "& .MuiToolbar-root": {
-            float: "right",
-            padding: 0
         }
+    },
+    "& .MuiToolbar-root": {
+        float: "right",
+        padding: 0
+    },
+    "& .grid-border": {
+        border: `1px solid ${theme.palette.grey['A100']}`,
+        borderRadius: 4,
+        "& .MuiInputBase-root": {
+            paddingLeft: 12
+        }
+    },
+    "& .datepicker-grid-border": {
+        "& .MuiInputBase-root": {
+            minHeight: 31
+        }
+    }
 }));
 
 export default PersonalInfoStyled

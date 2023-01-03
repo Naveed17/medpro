@@ -5,15 +5,9 @@ import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
     AppBar,
-    Autocomplete,
     Box,
     Button,
-    CardContent,
-    Collapse,
-    Divider,
     Grid,
-    IconButton,
-    InputAdornment,
     InputBase,
     MenuItem,
     Paper,
@@ -21,48 +15,25 @@ import {
     Stack,
     TextField,
     Toolbar,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequest, useRequestMutation} from "@app/axios";
+import {useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import Select from '@mui/material/Select';
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import {DatePicker} from "@mui/x-date-pickers";
-import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import dynamic from "next/dynamic";
-import {styled} from "@mui/material/styles";
-import {SocialInsured} from "@app/constants";
-import {countries as dialCountries} from "@features/countrySelect/countries";
-import Image from "next/image";
-import {isValidPhoneNumber} from "libphonenumber-js";
-
-const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
-
-const GroupHeader = styled('div')(({theme}) => ({
-    position: 'sticky',
-    top: '-8px',
-    padding: '4px 10px',
-    color: theme.palette.primary.main,
-    backgroundColor: theme.palette.background.paper
-}));
-
-const GroupItems = styled('ul')({
-    padding: 0,
-});
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -72,16 +43,12 @@ export const MyTextInput: any = memo(({...props}) => {
 MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
-    const {patient, mutate: mutatePatientData, mutatePatientList = null, loading} = props;
+    const {patient, mutatePatientDetails, mutatePatientList = null, loading} = props;
 
     const {data: session} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-
-    const {data: httpInsuranceResponse} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale
-    }, SWRNoValidateConfig);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -92,14 +59,7 @@ function PersonalInfo({...props}) {
         keyPrefix: "config.add-patient",
     });
 
-    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-
-    const notEmpty = Yup.string()
-        .ensure() // Transforms undefined and null values to an empty string.
-        .test('Only Empty?', 'Cannot be only empty characters', (value) => {
-            return value.split(' ').join('').length !== 0;
-        });
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -116,61 +76,7 @@ function PersonalInfo({...props}) {
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
-        cin: Yup.number(),
-        insurances: Yup.array().of(
-            Yup.object().shape({
-                insurance_number: Yup.string()
-                    .min(3, t("add-patient.assurance-num-error"))
-                    .max(50, t("add-patient.assurance-num-error"))
-                    .required(t("add-patient.assurance-num-error")),
-                insurance_uuid: Yup.string()
-                    .min(3, t("add-patient.assurance-type-error"))
-                    .max(50, t("add-patient.assurance-type-error"))
-                    .required(t("add-patient.assurance-type-error")),
-                insurance_social: Yup.object().shape({
-                    firstName: Yup.string()
-                        .min(3, t("add-patient.first-name-error"))
-                        .max(50, t("add-patient.first-name-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("add-patient.first-name-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.firstName
-                        }),
-                    lastName: Yup.string()
-                        .min(3, t("add-patient.last-name-error"))
-                        .max(50, t("add-patient.last-name-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("add-patient.last-name-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
-                        }),
-                    birthday: Yup.string()
-                        .nullable()
-                        .min(3, t("add-patient.birthday-error"))
-                        .max(50, t("add-patient.birthday-error"))
-                        .test({
-                            name: 'insurance-type-test',
-                            message: t("add-patient.birthday-error"),
-                            test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.birthday
-                        }),
-                    phone: Yup.object().shape({
-                        code: Yup.string(),
-                        value: Yup.string().test({
-                            name: 'phone-value-test',
-                            message: t("add-patient.telephone-error"),
-                            test: (value, ctx: any) => ctx.from[2].value.insurance_type === "0" ||
-                                isValidPhoneNumber(`${ctx.from[0].value.code}${value}`)
-                        }),
-                        type: Yup.string(),
-                        contact_type: Yup.string(),
-                        is_public: Yup.boolean(),
-                        is_support: Yup.boolean()
-                    })
-                }),
-                insurance_type: Yup.string(),
-                expand: Yup.boolean()
-            })
-        )
+        cin: Yup.number()
     });
 
     const formik = useFormik({
@@ -187,61 +93,13 @@ function PersonalInfo({...props}) {
                     ? patient.address[0].city?.name + ", " + patient.address[0].street
                     : "",
             email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : "",
-            insurances: !loading && patient.insurances.length > 0 ? patient.insurances.map((insurance: any) => ({
-                insurance_number: insurance.insuranceNumber,
-                insurance_uuid: insurance.insurance?.uuid,
-                insurance_social: insurance.insuredPerson && {
-                    firstName: insurance.insuredPerson.firstName,
-                    lastName: insurance.insuredPerson.lastName,
-                    birthday: insurance.insuredPerson.birthday,
-                    phone: {
-                        code: insurance.insuredPerson.contact.code,
-                        value: insurance.insuredPerson.contact.value,
-                        type: "phone",
-                        contact_type: patient.contact[0].uuid,
-                        is_public: false,
-                        is_support: false
-                    }
-                },
-                insurance_type: insurance.type ? insurance.type.toString(): "",
-                expand: insurance.type ? insurance.type.toString() !== "0" : false
-            })) : [] as InsurancesModel[]
+            cin: !loading && patient.idCard ? patient.idCard : ""
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
             handleUpdatePatient();
         },
     });
-
-    const handleAddInsurance = () => {
-        const insurance = [...values.insurances, {
-            insurance_uuid: "",
-            insurance_number: "",
-            insurance_social: {
-                firstName: "",
-                lastName: "",
-                birthday: null,
-                phone: {
-                    code: "+216",
-                    value: "",
-                    type: "phone",
-                    contact_type: patient.contact[0].uuid,
-                    is_public: false,
-                    is_support: false
-                }
-            },
-            insurance_type: "",
-            expand: false
-        }];
-        setFieldValue("insurances", insurance);
-    }
-
-    const handleRemoveInsurance = (index: number) => {
-        const insurance = [...values.insurances];
-        insurance.splice(index, 1);
-        formik.setFieldValue("insurances", insurance);
-    };
 
     const handleUpdatePatient = () => {
         setLoadingRequest(true);
@@ -260,13 +118,6 @@ function PersonalInfo({...props}) {
             }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
-        values.insurances.map((insurance: InsurancesModel) => {
-            if (insurance.insurance_type === "0") {
-                delete insurance['insurance_social'];
-            }
-        });
-        params.append('insurance', JSON.stringify(values.insurances.filter(
-            (insurance: InsurancesModel) => insurance.insurance_number.length > 0)));
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
@@ -282,16 +133,12 @@ function PersonalInfo({...props}) {
         }).then(() => {
             setLoadingRequest(false);
             setEditable(false);
-            mutatePatientData();
+            mutatePatientDetails();
             if (mutatePatientList) {
                 mutatePatientList();
             }
             enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
-    }
-
-    const getCountryByCode = (code: string) => {
-        return dialCountries.find(country => country.phone === code)
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
@@ -359,27 +206,38 @@ function PersonalInfo({...props}) {
                         <Grid container spacing={1.2} sx={{
                             marginTop: "0.5rem"
                         }}>
-                            <Grid item md={4} sm={6} xs={6}>
+                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={4} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
+                                    justifyItems={"center"}
                                     alignItems="center">
                                     <Grid item md={2.5} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("gender")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={7.5} sm={6} xs={6}>
+                                    <Grid
+                                        {...(editable && {
+                                            sx: {
+                                                border: `1px solid ${theme.palette.grey['A100']}`,
+                                                borderRadius: 1,
+                                                height: 31
+                                            }
+                                        })}
+                                        item md={7.5} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
                                             <Select
+                                                fullWidth
                                                 sx={{
+                                                    pl: 0,
                                                     "& .MuiSvgIcon-root": {
                                                         display: !editable ? "none" : "inline-block"
                                                     }
                                                 }}
-                                                size="small"
+                                                size="medium"
                                                 readOnly={!editable}
                                                 error={Boolean(touched.gender && errors.gender)}
                                                 {...getFieldProps("gender")}
@@ -406,7 +264,9 @@ function PersonalInfo({...props}) {
                                             {t("first-name")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={8} sm={6} xs={6}>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -435,7 +295,9 @@ function PersonalInfo({...props}) {
                                             {t("last-name")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={8} sm={6} xs={6}>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -459,7 +321,15 @@ function PersonalInfo({...props}) {
                                             {t("birthdate")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={7.5} sm={6} xs={6}>
+                                    <Grid
+                                        className={"datepicker-grid-border"}
+                                        {...(editable && {
+                                            sx: {
+                                                border: `1px solid ${theme.palette.grey['A100']}`,
+                                                borderRadius: 1
+                                            }
+                                        })}
+                                        item md={7.5} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -476,7 +346,7 @@ function PersonalInfo({...props}) {
                                                             setFieldValue("birthdate", dateInput.format("DD-MM-YYYY"))
                                                         }
                                                     }}
-                                                    renderInput={(params) => <TextField {...params} />}
+                                                    renderInput={(params) => <TextField size={"small"} {...params} />}
                                                 />
                                             </LocalizationProvider>
                                         )}
@@ -498,7 +368,9 @@ function PersonalInfo({...props}) {
                                             {t("email")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={8.5} sm={6} xs={6}>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8.5} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -527,7 +399,9 @@ function PersonalInfo({...props}) {
                                             {t("cin")}
                                         </Typography>
                                     </Grid>
-                                    <Grid item md={9} sm={6} xs={6}>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={9} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
