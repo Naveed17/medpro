@@ -78,7 +78,6 @@ jobs:
     with:
       cmd:  skaffold run
       environment: ${{ matrix.envs.name }}
-      workspace: ${{ matrix.envs.ws }}
       version: "2.0.4"
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}

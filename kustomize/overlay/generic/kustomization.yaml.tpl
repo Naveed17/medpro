@@ -1,9 +1,9 @@
 resources:
   - ../../base
-nameSuffix: -${WORKSPACE}
+nameSuffix: -${ENVIRONMENT}
 commonLabels:
-  app: med-pro-${WORKSPACE}
-  name: med-pro-${WORKSPACE}
+  app: med-pro-${ENVIRONMENT}
+  name: med-pro-${ENVIRONMENT}
   component: med-pro
 patches:
   - deployment-patch.yaml
