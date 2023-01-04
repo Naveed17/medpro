@@ -17,7 +17,7 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker as CustomDatePicker} from "@features/datepicker";
 import moment from "moment-timezone";
-import React, {memo, useState} from "react";
+import React, {memo} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -46,36 +46,12 @@ MyTextInput.displayName = "TextField";
 function InsuranceAddDialog({...props}) {
     const {data} = props;
     const {
-        insurances, values, formik, patient, loading,
+        insurances, values, formik, loading,
         getFieldProps, setFieldValue, touched, errors, t
     } = data;
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
-    }
-
-    const handleAddInsurance = () => {
-        const insurance = [...values.insurances, {
-            insurance_uuid: "",
-            insurance_number: "",
-            insurance_social: {
-                firstName: "",
-                lastName: "",
-                birthday: null,
-                phone: {
-                    code: "+216",
-                    value: "",
-                    type: "phone",
-                    contact_type: patient.contact[0].uuid,
-                    is_public: false,
-                    is_support: false
-                }
-            },
-            insurance_type: "",
-            expand: false,
-            online: false
-        }];
-        setFieldValue("insurances", insurance);
     }
 
     const handleRemoveInsurance = (index: number) => {
@@ -108,6 +84,7 @@ function InsuranceAddDialog({...props}) {
                                             <Autocomplete
                                                 size={"small"}
                                                 disablePortal
+                                                disableClearable
                                                 {...getFieldProps(`insurances[${index}].insurance_type`)}
                                                 onChange={(event, insurance: any) => {
                                                     setFieldValue(`insurances[${index}].insurance_type`, insurance?.value)
@@ -135,7 +112,7 @@ function InsuranceAddDialog({...props}) {
                                                                            ...params.inputProps,
                                                                            value: insurance?.label
                                                                        }}
-                                                                       label={t("patient")}/>)
+                                                                       placeholder={t("patient")}/>)
                                                 }}
                                             />
                                         </Stack>

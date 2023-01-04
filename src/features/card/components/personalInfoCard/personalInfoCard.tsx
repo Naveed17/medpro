@@ -76,6 +76,7 @@ function PersonalInfo({...props}) {
         email: Yup.string()
             .email('Invalid email format'),
         birthdate: Yup.string(),
+        profession: Yup.string(),
         cin: Yup.number()
     });
 
@@ -93,7 +94,8 @@ function PersonalInfo({...props}) {
                     ? patient.address[0].city?.name + ", " + patient.address[0].street
                     : "",
             email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : ""
+            cin: !loading && patient.idCard ? patient.idCard : "",
+            profession: !loading && patient.profession ? patient.profession : ""
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
@@ -118,6 +120,7 @@ function PersonalInfo({...props}) {
             }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
+        params.append('profession', values.profession);
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
@@ -203,29 +206,40 @@ function PersonalInfo({...props}) {
                                 </Box>
                             </Toolbar>
                         </AppBar>
-                        <Grid container spacing={1.2} sx={{
-                            marginTop: "0.5rem"
-                        }}>
-                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={4} sm={6} xs={6}>
+                        <Grid container spacing={1}
+                              sx={{
+                                  marginTop: "0.4rem"
+                              }}>
+                            <Grid sx={{"& .MuiGrid-item": {pt: .4}}} item md={6} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
                                     justifyItems={"center"}
                                     alignItems="center">
-                                    <Grid item md={2.5} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("gender")}
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        {...(editable && {
-                                            sx: {
-                                                border: `1px solid ${theme.palette.grey['A100']}`,
-                                                borderRadius: 1,
-                                                height: 31
-                                            }
-                                        })}
-                                        item md={7.5} sm={6} xs={6}>
+                                        {...(editable ? {
+                                                sx: {
+                                                    border: `1px solid ${theme.palette.grey['A100']}`,
+                                                    borderRadius: .5,
+                                                    height: 31,
+                                                    "& .MuiSelect-select": {
+                                                        pl: 1.5
+                                                    }
+                                                }
+                                            } :
+                                            {
+                                                sx: {
+                                                    "& .MuiSelect-select": {
+                                                        p: 0
+                                                    }
+                                                }
+                                            })}
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -249,7 +263,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={4} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -280,7 +294,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={4} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -311,25 +325,25 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={5} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={6}>
                                 <Stack
                                     direction="row"
                                     spacing={1}
                                     alignItems="center">
-                                    <Grid item md={2.5} sm={6} xs={6}>
+                                    <Grid item md={3} sm={6} xs={6}>
                                         <Typography variant="body1" color="text.secondary" noWrap>
                                             {t("birthdate")}
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        className={"datepicker-grid-border"}
+                                        className={`datepicker-grid-border ${!editable ? "datepicker-style": ""}`}
                                         {...(editable && {
-                                            sx: {
-                                                border: `1px solid ${theme.palette.grey['A100']}`,
-                                                borderRadius: 1
-                                            }
-                                        })}
-                                        item md={7.5} sm={6} xs={6}>
+                                                sx: {
+                                                    border: `1px solid ${theme.palette.grey['A100']}`,
+                                                    borderRadius: 1
+                                                }
+                                            })}
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -353,7 +367,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={7} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -370,7 +384,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={8.5} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -384,7 +398,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                 </Stack>
                             </Grid>
-                            <Grid item md={5} sm={6} xs={6}>
+                            <Grid item md={6} sm={6} xs={6}>
                                 <Stack
                                     sx={{
                                         "& .MuiInputBase-root": {
@@ -401,7 +415,7 @@ function PersonalInfo({...props}) {
                                     </Grid>
                                     <Grid
                                         {...(editable && {className: "grid-border"})}
-                                        item md={9} sm={6} xs={6}>
+                                        item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>
                                         ) : (
@@ -410,6 +424,37 @@ function PersonalInfo({...props}) {
                                                 readOnly={!editable}
                                                 error={Boolean(touched.cin && errors.cin)}
                                                 {...getFieldProps("cin")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
+                            </Grid>
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("profession")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("profession-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.cin && errors.cin)}
+                                                {...getFieldProps("profession")}
                                             />
                                         )}
                                     </Grid>

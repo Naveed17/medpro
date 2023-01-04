@@ -98,7 +98,6 @@ function PatientDetail({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
-
     // mutate for patient details
     const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
         method: "GET",
@@ -108,7 +107,7 @@ function PatientDetail({...props}) {
         },
     } : null);
 
-    const {data: httpPatientHistoryResponse, mutate: mutatePatientHistory} = useRequest(patientId ? {
+    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {
@@ -157,7 +156,6 @@ function PatientDetail({...props}) {
         documentConfig.files.map((file: File) => {
             params.append("document", file, file.name);
         });
-
         triggerUploadDocuments({
             method: "POST",
             url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
