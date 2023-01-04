@@ -1,4 +1,4 @@
-import {styled, alpha} from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import {Card} from "@mui/material";
 
 const RootStyled = styled(Card)(({theme}) => ({
@@ -41,6 +41,14 @@ const RootStyled = styled(Card)(({theme}) => ({
     },
     "& .app-bar-header": {
         marginBottom: 14
-    }
+    },
+    "& .grid-border": {
+        border: `1px solid ${theme.palette.grey['A100']}`,
+        borderRadius: 4,
+        height: 31,
+        "& .MuiInputBase-root": {
+            paddingLeft: 12
+        }
+    },
 }));
 export default RootStyled

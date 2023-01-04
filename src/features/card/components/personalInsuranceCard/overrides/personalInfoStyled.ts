@@ -32,17 +32,8 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         float: "right",
         padding: 0
     },
-    "& .grid-border": {
-        border: `1px solid ${theme.palette.grey['A100']}`,
-        borderRadius: 4,
-        "& .MuiInputBase-root": {
-            paddingLeft: 12
-        }
-    },
-    "& .datepicker-grid-border": {
-        "& .MuiInputBase-root": {
-            minHeight: 31
-        }
+    "& .icon-button": {
+        marginLeft: 0
     }
 }));
 

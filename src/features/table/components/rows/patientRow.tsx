@@ -2,10 +2,9 @@ import TableCell from "@mui/material/TableCell";
 import {
     Typography,
     Box,
-    Checkbox,
     Button,
     IconButton,
-    Skeleton, Stack
+    Skeleton, Stack, Chip, Avatar
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -13,19 +12,38 @@ import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import WomenIcon from "@themes/overrides/icons/womenIcon";
-import MenIcon from "@themes/overrides/icons/menIcon";
 import {countries} from "@features/countrySelect/countries";
 import React from "react";
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import {useRequest} from "@app/axios";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import IconUrl from "@themes/urlIcon";
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent, data} = props;
+    const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
     const {insurances} = data;
     const dispatch = useAppDispatch();
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpPatientPhotoResponse} = useRequest(row?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
 
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
     }
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     return (
         <TableRowStyled
@@ -37,19 +55,6 @@ function PatientRow({...props}) {
             key={Math.random()}
             selected={isItemSelected}
         >
-            <TableCell padding="checkbox">
-                {loading ? (
-                    <Skeleton variant="circular" width={28} height={28}/>
-                ) : (
-                    <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                            "aria-labelledby": labelId,
-                        }}
-                    />
-                )}
-            </TableCell>
             <TableCell>
                 <Box
                     display="flex"
@@ -70,12 +75,23 @@ function PatientRow({...props}) {
                                 <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
-                                    {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
+                                    <Avatar
+                                        src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                        sx={{width: 30, height: 30, borderRadius: 1}}>
+                                        <IconUrl path="ic-user-profile"/>
+                                    </Avatar>
                                     <Stack marginLeft={2}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
 
+                                            {row.hasInfo &&
+                                                <Chip
+                                                    sx={{marginLeft: 1, height: 26}}
+                                                    color={"info"}
+                                                    icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
+                                                    label={t("error.info-title")}/>
+                                            }
                                         </Stack>
 
                                         <Typography
@@ -106,9 +122,9 @@ function PatientRow({...props}) {
                         row.insurances.map((insur: any, index: number) =>
                             <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
                                 <Box
-                                     sx={{margin: "0 4px"}}
-                                     component="img" width={20} height={20}
-                                     src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
+                                    sx={{margin: "0 4px"}}
+                                    component="img" width={20} height={20}
+                                    src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
                                 <Typography variant={"body2"}>{insur.insurance?.name}</Typography>
                             </Stack>)
                         : "-"

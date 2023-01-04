@@ -115,6 +115,12 @@ function PatientDetail({...props}) {
         },
     } : null);
 
+    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
+
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
     const {data: httpPatientPhotoResponse, mutate: PatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
@@ -158,6 +164,8 @@ function PatientDetail({...props}) {
             headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
             },
+        }).then(() => {
+            mutatePatientDocuments();
         });
     }
 
@@ -166,6 +174,7 @@ function PatientDetail({...props}) {
     const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient ? patient.documents : [];
+    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -182,7 +191,7 @@ function PatientDetail({...props}) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient, onConsultation, patientPhoto}}
+                        {...{patient, onConsultation, patientPhoto, mutatePatientList}}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs
@@ -219,7 +228,11 @@ function PatientDetail({...props}) {
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel loading={!patient} {...{patient, mutatePatientDetails, mutatePatientList}} />
+                            <PersonalInfoPanel loading={!patient} {...{
+                                patient,
+                                mutatePatientDetails,
+                                mutatePatientList
+                            }} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
                             {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
@@ -244,7 +257,12 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{documents, patient, patientId, setOpenUploadDialog, mutatePatientDetails}} />
+                            <DocumentsPanel {...{
+                                documents,
+                                patient, patientId, setOpenUploadDialog,
+                                mutatePatientDetails,
+                                patientDocuments
+                            }} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
                             <NotesPanel loading={!patient}  {...{t, patient}} />

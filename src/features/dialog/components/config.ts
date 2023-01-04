@@ -235,6 +235,14 @@ const dialogData = [
             )
         ),
     },
+    {
+        action: "add_insurance",
+        component: dynamic((): any =>
+            import("@features/dialog/components/InsuranceAddDialog/InsuranceAddDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
 
 ];
 

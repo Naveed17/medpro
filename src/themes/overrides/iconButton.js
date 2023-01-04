@@ -39,7 +39,7 @@ export default function IconButton(theme) {
           },
           "&.success-light": {
             backgroundColor: alpha(theme.palette.success.main, 0.3),
-            borderRadius: "10px",
+            borderRadius: "6px",
             "&:hover": {
               backgroundColor: alpha(theme.palette.success.main, 0.6),
             },
