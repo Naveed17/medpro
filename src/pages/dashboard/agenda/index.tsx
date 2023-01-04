@@ -159,10 +159,7 @@ function Agenda() {
 
     const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
 
-    const {
-        trigger: updateAppointmentTrigger
-    } = useRequestMutation(null, "/agenda/update/appointment",
-        TriggerWithoutValidation);
+    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
 
     const {
         trigger: updateStatusTrigger
@@ -284,7 +281,6 @@ function Agenda() {
 
     useEffect(() => {
         if (openMoveDrawer) {
-            console.log("selectedEvent", selectedEvent);
             setEvent(selectedEvent as EventDef);
             setMoveDialogInfo(true);
         }

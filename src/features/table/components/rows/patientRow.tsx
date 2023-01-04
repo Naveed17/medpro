@@ -13,13 +13,18 @@ import moment from "moment-timezone";
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {countries} from "@features/countrySelect/countries";
-import React from "react";
+import React, {useCallback, useState} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+
+import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
+import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
+import {setMoveDateTime} from "@features/dialog";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
@@ -37,7 +42,7 @@ function PatientRow({...props}) {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
@@ -48,14 +53,27 @@ function PatientRow({...props}) {
     return (
         <TableRowStyled
             hover
-            onClick={() => !loading && handleClick(row.uuid as string)}
+            onClick={(event: any) => {
+                event.stopPropagation();
+                // !loading && handleClick(row.uuid as string);
+                dispatch(
+                    onOpenPatientDrawer({
+                        patientId: row.uuid,
+                        patientAction: "PATIENT_DETAILS",
+                    })
+                );
+                handleEvent("PATIENT_DETAILS", row);
+            }}
             role="checkbox"
             aria-checked={isItemSelected}
             tabIndex={-1}
             key={Math.random()}
             selected={isItemSelected}
         >
-            <TableCell>
+            <TableCell
+                onClick={(event: any) => {
+                    event.stopPropagation();
+                }}>
                 <Box
                     display="flex"
                     alignItems="center"
@@ -75,11 +93,20 @@ function PatientRow({...props}) {
                                 <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
-                                    <Avatar
-                                        src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                        sx={{width: 30, height: 30, borderRadius: 1}}>
-                                        <IconUrl path="ic-user-profile"/>
-                                    </Avatar>
+                                    <Zoom>
+                                        <Avatar
+                                            src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                            sx={{
+                                                "& .injected-svg": {
+                                                    margin: 0
+                                                },
+                                                width: 30,
+                                                height: 30,
+                                                borderRadius: 1
+                                            }}>
+                                            <IconUrl width={"30"} height={"30"} path="men-avatar"/>
+                                        </Avatar>
+                                    </Zoom>
                                     <Stack marginLeft={2}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
@@ -168,7 +195,32 @@ function PatientRow({...props}) {
                                 alignSelf: "center"
                             }
                         }}>
-                            <IconButton size="small">
+                            <IconButton
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    const appointment = {
+                                        title: `${row.lastName}  ${row.firstName}`,
+                                        publicId: row.nextAppointment.uuid,
+                                        extendedProps: {
+                                            time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                            patient: row,
+                                            motif: row.nextAppointment.consultationReason,
+                                            description: "",
+                                            meeting: false,
+                                            dur: row.nextAppointment.duration,
+                                            status: AppointmentStatus[row.nextAppointment.status]
+                                        }
+                                    }
+                                    dispatch(setSelectedEvent(appointment as any));
+                                    dispatch(setMoveDateTime({
+                                        date: new Date(appointment?.extendedProps.time),
+                                        time: moment(new Date(appointment?.extendedProps.time)).format("HH:mm"),
+                                        action: "move",
+                                        selected: false
+                                    }));
+                                    handleEvent("APPOINTMENT_MOVE", appointment);
+                                }}
+                                size="small">
                                 <Icon path="ic-historique"/>
                             </IconButton>
 
@@ -228,9 +280,6 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={140}/>
                     ) : row.previousAppointments?.dayDate ? (
                         <>
-                            <IconButton size="small">
-                                <Icon path="ic-historique"/>
-                            </IconButton>
                             <Box ml={1}>
                                 <Typography
                                     component="span"

@@ -32,6 +32,7 @@ import {EventDef} from "@fullcalendar/react";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function a11yProps(index: number) {
     return {
@@ -123,13 +124,13 @@ function PatientDetail({...props}) {
 
     const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
-    const {data: httpPatientPhotoResponse, mutate: PatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    } : null);
+    } : null, SWRNoValidateConfig);
 
     // handle tab change
     const handleStepperIndexChange = (
