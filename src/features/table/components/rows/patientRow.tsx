@@ -2,10 +2,9 @@ import TableCell from "@mui/material/TableCell";
 import {
     Typography,
     Box,
-    Checkbox,
     Button,
     IconButton,
-    Skeleton, Stack, Chip
+    Skeleton, Stack, Chip, Avatar
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -18,15 +17,35 @@ import MenIcon from "@themes/overrides/icons/menIcon";
 import {countries} from "@features/countrySelect/countries";
 import React from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import {useRequest} from "@app/axios";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import IconUrl from "@themes/urlIcon";
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, handleClick, t, labelId, loading, handleEvent, data} = props;
+    const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
     const {insurances} = data;
     const dispatch = useAppDispatch();
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpPatientPhotoResponse} = useRequest(row?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${row?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null);
 
     const getCountryByCode = (code: string) => {
         return countries.find(country => country.phone === code)
     }
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     return (
         <TableRowStyled
@@ -38,19 +57,6 @@ function PatientRow({...props}) {
             key={Math.random()}
             selected={isItemSelected}
         >
-{/*            <TableCell padding="checkbox">
-                {loading ? (
-                    <Skeleton variant="circular" width={28} height={28}/>
-                ) : (
-                    <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                            "aria-labelledby": labelId,
-                        }}
-                    />
-                )}
-            </TableCell>*/}
             <TableCell>
                 <Box
                     display="flex"
@@ -71,7 +77,11 @@ function PatientRow({...props}) {
                                 <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
-                                    {row.gender === "M" ? <MenIcon/> : <WomenIcon/>}
+                                    <Avatar
+                                        src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                        sx={{width: 30, height: 30, borderRadius: 1}}>
+                                        <IconUrl path="ic-user-profile"/>
+                                    </Avatar>
                                     <Stack marginLeft={2}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
