@@ -78,7 +78,6 @@ jobs:
     with:
       cmd:  skaffold run
       environment: ${{ matrix.envs.name }}
-      workspace: ${{ matrix.envs.ws }}
       version: "2.0.4"
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
@@ -90,5 +89,6 @@ jobs:
         NEXTAUTH_URL=https://${{ (secrets.INGRESS_HOST) || (matrix.envs.host) }}
         SKAFFOLD_KUBE_CONTEXT=${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
         SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
+        WORKSPACE=${{ matrix.envs.name }}
 
 
