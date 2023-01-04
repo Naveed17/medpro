@@ -12,8 +12,6 @@ import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import WomenIcon from "@themes/overrides/icons/womenIcon";
-import MenIcon from "@themes/overrides/icons/menIcon";
 import {countries} from "@features/countrySelect/countries";
 import React from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';

@@ -25,7 +25,7 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
 
 function PatientDetailsCard({...props}) {
-    const {patient,patientPhoto, onConsultation, loading} = props;
+    const {patient, patientPhoto, onConsultation, mutatePatientList, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -84,6 +84,7 @@ function PatientDetailsCard({...props}) {
                 data: params,
             }).then(() => {
                 setRequestLoading(false);
+                mutatePatientList();
             });
         }
     }
