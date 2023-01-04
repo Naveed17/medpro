@@ -247,6 +247,7 @@ function PatientContactDetailCard({...props}) {
                                                             sx={{height: 30}}
                                                             alignItems="center">
                                                             <Typography
+                                                                mr={2.5}
                                                                 className="label"
                                                                 variant="body2"
                                                                 color="text.secondary">
@@ -337,7 +338,7 @@ function PatientContactDetailCard({...props}) {
                                            sx={{height: 28, width: "103%"}}
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={2.5} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -347,10 +348,17 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                         <Grid
                                             sx={{
-                                                ...(editable && {
+                                                ...(editable ? {
                                                     border: `1px solid ${theme.palette.grey['A100']}`,
                                                     borderRadius: .6,
                                                     height: 31,
+                                                    "& .MuiSelect-select": {
+                                                        pl: 1.6
+                                                    }
+                                                } : {
+                                                    "& .MuiSelect-select": {
+                                                        pl: 0
+                                                    }
                                                 }),
                                                 "& .MuiInputBase-root": {
                                                     paddingLeft: 0,
@@ -410,11 +418,11 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={5} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={2.5} sm={6} xs={6}>
+                                        <Grid item md={3} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -434,6 +442,9 @@ function PatientContactDetailCard({...props}) {
                                                     paddingLeft: 0,
                                                     width: "100%",
                                                     height: "100%"
+                                                },
+                                                "& .MuiSelect-select": {
+                                                    pl: 1.6
                                                 }
                                             }}
                                             item md={8} sm={6} xs={6}>
@@ -475,7 +486,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                     </Stack>
                                 </Grid>
-                                <Grid item md={7} sm={6} xs={6}>
+                                <Grid item md={6} sm={6} xs={6}>
                                     <Stack direction="row"
                                            sx={{
                                                "& .MuiInputBase-root": {

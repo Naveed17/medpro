@@ -43,6 +43,11 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         "& .MuiInputBase-root": {
             minHeight: 31
         }
+    },
+    "& .datepicker-style": {
+        "& .MuiInputBase-input": {
+            paddingLeft: 0
+        }
     }
 }));
 
