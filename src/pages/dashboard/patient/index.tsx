@@ -104,7 +104,7 @@ const headCells: readonly HeadCell[] = [
         disablePadding: true,
         label: "insurance",
         sortable: true,
-        align: "center",
+        align: "left",
     },
     {
         id: "telephone",
