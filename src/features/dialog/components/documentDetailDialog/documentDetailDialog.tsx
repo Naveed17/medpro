@@ -21,13 +21,9 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
-import jsPDF from "jspdf";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import autoTable from 'jspdf-autotable';
-import {Certificat, Fees, Header, RequestedAnalysis} from "@features/files";
-import RequestedMedicalImaging from "@features/files/components/requested-medical-imaging/requested-medical-imaging";
 import {useAppDispatch} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
@@ -139,80 +135,9 @@ function DocumentDetailDialog({...props}) {
         }
     ];
 
-    const addFooters = (doc: any) => {
-        const pageCount = doc.internal.getNumberOfPages()
-
-        doc.setFont('helvetica', 'italic')
-        doc.setFontSize(8)
-        doc.setPage(pageCount)
-        doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
-            align: 'center'
-        })
-    }
-
     useEffect(() => {
-        const doc = new jsPDF({
-            format: 'a5'
-        });
-
-        if (state.type === 'prescription') {
-            /*autoTable(doc, {
-                html: '#prescription',
-                useCss: true,
-                includeHiddenHtml: true,
-                styles: {fillColor: [255, 255, 255]},
-                startY: 40
-            })
-            addFooters(doc)
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)*/
-        } else if (state.type === 'requested-analysis') {
-            autoTable(doc, {
-                html: '#requested-analysis',
-                useCss: true,
-                includeHiddenHtml: true,
-                styles: {fillColor: [255, 255, 255]},
-                startY: 40
-            })
-            addFooters(doc)
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else if (state.type === 'requested-medical-imaging') {
-            autoTable(doc, {
-                html: '#requested-medical-imaging',
-                useCss: true,
-                includeHiddenHtml: true,
-                styles: {fillColor: [255, 255, 255]},
-                startY: 40
-            })
-            addFooters(doc)
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else if (state.type === 'write_certif') {
-
-            autoTable(doc, {
-                html: '#certificat',
-                useCss: true,
-                includeHiddenHtml: true,
-                styles: {fillColor: [255, 255, 255]},
-                startY: 40
-            })
-            addFooters(doc)
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else if (state.type === 'fees') {
-            autoTable(doc, {
-                html: '#fees',
-                useCss: true,
-                includeHiddenHtml: true,
-                styles: {fillColor: [255, 255, 255]},
-                startY: 40
-            })
-            addFooters(doc)
-            const uri = doc.output('bloburi').toString()
-            setFile(uri)
-        } else setFile(state.uri)
-    }, [state, header])
+        setFile(state.uri)
+    }, [state])
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -314,7 +239,6 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 printNow()
-
                 /*if (file) {
                     fetch(file).then(response => {
                         response.blob().then(blob => {
@@ -334,7 +258,6 @@ function DocumentDetailDialog({...props}) {
                 router.push("/dashboard/settings/docs").then(() => {
                 })
                 break;
-
             default:
                 break;
         }
@@ -365,14 +288,6 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
-            {header && <Header data={header}/>}
-
-            {state.type === 'write_certif' && <Certificat data={state}/>}
-            {state.type === 'requested-analysis' && <RequestedAnalysis data={state}/>}
-            {state.type === 'requested-medical-imaging' &&
-                <RequestedMedicalImaging data={state}/>}
-
-            {state.type === 'fees' && <Fees data={state}></Fees>}
             <Grid container>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
@@ -424,18 +339,8 @@ function DocumentDetailDialog({...props}) {
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
-                                {
-                                    state.type === 'audio' &&
-                                    <Box padding={2}>
-                                        <AudioPlayer
-                                            autoPlay
-                                            src={file}
-                                            onPlay={e => console.log("onPlay")}
-                                        />
-                                    </Box>
-                                }
+                                {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
                             </Box>
-
                         }
                     </Stack>
                 </Grid>
@@ -444,7 +349,7 @@ function DocumentDetailDialog({...props}) {
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    {!button.disabled &&<ListItemButton
+                                    {!button.disabled && <ListItemButton
                                         className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
