@@ -132,12 +132,6 @@ function PatientContactDetailCard({...props}) {
         params.append('first_name', patient.firstName.trim());
         params.append('last_name', patient.lastName.trim());
         params.append('gender', patient.gender === 'M' ? '1' : '2');
-        params.append('insurance', JSON.stringify(patient.insurances.map(
-            (insurance: {
-                insurance: InsuranceModel,
-                insuranceNumber: string,
-                uuid: string
-            }) => ({insurance_uuid: insurance.insurance?.uuid, insurance_number: insurance.insuranceNumber}))));
         params.append('country', values.country);
         params.append('region', values.region);
         params.append('zip_code', values.zip_code);
@@ -152,6 +146,13 @@ function PatientContactDetailCard({...props}) {
         params.append('address', JSON.stringify({
             fr: values.address
         }));
+        patient.fiche_id && params.append('fiche_id', patient.fiche_id);
+        patient.email && params.append('email', patient.email);
+        patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+        patient.profession && params.append('profession', patient.profession);
+        patient.birthdate && params.append('birthdate', patient.birthdate);
+        patient.note && params.append('note', patient.note);
+        patient.idCard && params.append('idCard', patient.idCard);
 
         triggerPatientUpdate({
             method: "PUT",

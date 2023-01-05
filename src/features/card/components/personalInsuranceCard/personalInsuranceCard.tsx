@@ -251,6 +251,9 @@ function PersonalInsuranceCard({...props}) {
             }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
+        params.append('note', patient.note);
+        params.append('profession', patient.profession);
+        params.append('family_doctor', patient.family_doctor);
         (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];

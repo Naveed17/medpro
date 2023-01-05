@@ -235,6 +235,7 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
+        form.append('note', values.note);
 
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
