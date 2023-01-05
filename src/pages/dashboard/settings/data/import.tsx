@@ -35,12 +35,6 @@ import {agendaSelector} from "@features/calendar";
 
 const FileUploadProgress = dynamic(() => import("@features/fileUploadProgress/components/fileUploadProgress"));
 
-export const ImportCardData = {
-    mainIcon: "ic-upload-3",
-    title: "no-data.event.title",
-    description: "no-data.event.description"
-};
-
 const TabData = [
     {
         key: "med-pro",
