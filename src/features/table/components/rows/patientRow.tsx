@@ -87,6 +87,9 @@ function PatientRow({...props}) {
                                 display: "flex",
                                 alignItems: "center",
                                 svg: {mr: 0.5},
+                                "& [data-rmiz]": {
+                                    width: 30
+                                }
                             }}
                             color="primary">
                             {loading ? (
@@ -95,6 +98,7 @@ function PatientRow({...props}) {
                                 <>
                                     <Zoom>
                                         <Avatar
+                                            className={"zoom"}
                                             src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                             sx={{
                                                 "& .injected-svg": {
