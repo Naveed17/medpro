@@ -294,3 +294,16 @@ fieldset {
   line-clamp: 3;
   -webkit-box-orient: vertical;
 }
+
+.zoom {
+  margin: 0 auto;
+}
+
+.zoom:hover {
+  z-index: 2;
+  margin-left: 2rem;
+  -ms-transform: scale(3); /* IE 9 */
+  -webkit-transform: scale(3); /* Safari 3-8 */
+  transform: scale(3);
+  transform-origin: 50% 50%;
+}
