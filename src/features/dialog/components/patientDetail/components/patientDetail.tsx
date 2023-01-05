@@ -177,8 +177,6 @@ function PatientDetail({...props}) {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    console.log(previousAppointmentsData, patient);
-
     return (
         <>
             {!isAdd ? (
