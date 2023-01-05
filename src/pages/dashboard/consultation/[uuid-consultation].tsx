@@ -58,10 +58,8 @@ function ConsultationInProgress() {
     const theme = useTheme();
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
-    //const [file, setFile] = useState("/static/files/sample.pdf");
     const [acts, setActs] = useState<any>("");
     const [total, setTotal] = useState<number>(0);
-    //const [numPages, setNumPages] = useState<number | null>(null);
     const [documents, setDocuments] = useState([]);
     const [models, setModels] = useState<ModalModel[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);

@@ -3,7 +3,7 @@ import Prescription from "./prescription";
 import moment from "moment";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading,date, t} = props;
+    const {eventHandler, data, values, state, loading, date, t} = props;
 
     const drugs = ['X'];
     let rows: any[] = [];
@@ -111,21 +111,33 @@ function PreviewDialog({...props}) {
                         case "write_certif":
                             const certifLine = document.createElement('div');
                             certifLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
-                            let txt = el.name.replaceAll('{patient}',state.patient)
-                            txt = txt.replaceAll('{today}',moment().format('DD/MM/YYYY'))
-                            var parser = new DOMParser();
-                            var noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
+
+                            let txt = el.name.replaceAll('{patient}', state.patient)
+                            txt = txt.replaceAll('{today}', moment().format('DD/MM/YYYY'))
+                            const parser = new DOMParser();
+                            const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
-                               // console.log(item)
-                                //console.log(item[0].innerHTML.replace('{patient}', state.patient));
+                                /*const nblines = countLines(item);
+                                if ( nblines > 1 ){*/
+                                    const lines = getLines(item);
+                                    lines.map((line) =>{
+                                        rows.push({
+                                            value: line.row,
+                                            name: "name",
+                                            element: "div",
+                                            style: {}
+                                        })
+                                    })
 
-                                rows.push({
-                                    value: item,
-                                    name: "name",
-                                    element: "div",
-                                    style: {}
-                                })
+                                /*}else{
+                                    rows.push({
+                                        value: item,
+                                        name: "name",
+                                        element: "div",
+                                        style: {}
+                                    })
+                                }*/
                                 certifLine.append(item.cloneNode(true))
                             })
 
@@ -218,6 +230,40 @@ function PreviewDialog({...props}) {
 
         setPages(pages)
     }
+
+    const getLines = (element:any) => {
+        const clone = element.cloneNode(true);
+        const words = clone.innerHTML.replaceAll('&nbsp;','').split(' ');
+        const rows = []; let nbLine = 1;
+        const row = document.createElement('p');
+        row.style.lineHeight = '21px';
+        row.style.width = data.content.maxWidth ? `${data.content.maxWidth - 15}mm` : '115mm'
+        document.body.appendChild(row);
+        for(let word of words){
+            row.innerHTML += word+ ' '
+            if (row.clientHeight > 21){
+                row.innerHTML = row.innerHTML.slice(0,-1)
+                rows.push({nb:nbLine,row:row.innerHTML})
+                nbLine++
+                row.innerText = word +' '
+            }
+        }
+        rows.push({nb:nbLine,row:row.innerHTML})
+        document.body.removeChild(row);
+        return rows;
+    }
+
+/*     const countLines = (element: any) => {
+        const clone = element.cloneNode(true);
+        document.body.appendChild(clone);
+        clone.style.height = "auto";
+        clone.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm`:'130mm';
+        clone.style.lineHeight = '21px';
+        const divHeight = clone.offsetHeight
+        const lineHeight = parseInt(clone.style.lineHeight);
+         document.body.removeChild(clone);
+         return divHeight / lineHeight;
+    }*/
 
     useEffect(() => {
         const pageX = document.createElement("div")
