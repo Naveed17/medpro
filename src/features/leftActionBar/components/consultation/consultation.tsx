@@ -130,7 +130,7 @@ function Consultation() {
                             <Avatar
                                 src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                 sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
-                                <IconUrl path="ic-user-profile"/>
+                                <IconUrl width={"59"} height={"59"} path="men-avatar"/>
                             </Avatar>
                         </Zoom>
                     </label>
