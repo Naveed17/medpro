@@ -14,7 +14,7 @@ import {Session} from "next-auth";
 import {useRequestMutation} from "@app/axios";
 
 function NotesPanel({...props}) {
-    const {t, patient, loading} = props;
+    const {t, patient, mutatePatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
 
@@ -23,7 +23,7 @@ function NotesPanel({...props}) {
 
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
-    const [notes, setNotes] = useState(patient && patient?.note ? patient.note : "");
+    const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/notes");
 
@@ -55,6 +55,7 @@ function NotesPanel({...props}) {
                 data: params,
             }).then(() => {
                 setRequestLoading(false);
+                mutatePatientDetails();
             });
         }
     }

@@ -177,6 +177,8 @@ function PatientDetail({...props}) {
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
+    console.log(previousAppointmentsData, patient);
+
     return (
         <>
             {!isAdd ? (
@@ -264,7 +266,7 @@ function PatientDetail({...props}) {
                             }} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
-                            <NotesPanel loading={!patient}  {...{t, patient}} />
+                            <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />
                         </TabPanel>
                         <SpeedDial
                             sx={{
