@@ -145,16 +145,20 @@ function PatientRow({...props}) {
             </TableCell>
             <TableCell>
                 {loading ? <Skeleton variant="text"/> : (
-                    row.insurances.length > 0 ?
-                        row.insurances.map((insur: any, index: number) =>
-                            <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
-                                <Box
-                                    sx={{margin: "0 4px"}}
-                                    component="img" width={20} height={20}
-                                    src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
-                                <Typography variant={"body2"}>{insur.insurance?.name}</Typography>
-                            </Stack>)
-                        : "-"
+                    <Stack direction={"row"} alignItems={"center"}>
+                        {row.insurances.length > 0 ?
+                            (row.insurances.map((insur: any, index: number) =>
+                                <Stack key={`${row.uuid}-${index}`} direction={"row"} alignItems={"center"}>
+                                    <Box
+                                        sx={{margin: "0 4px"}}
+                                        component="img" width={20} height={20}
+                                        src={insurances?.find((insurance: any) => insurance.uuid === insur.insurance?.uuid)?.logoUrl}/>
+                                    {row.insurances.length === 1 &&
+                                        <Typography variant={"body2"}
+                                                    color={"gray"}>{insur.insurance?.name}</Typography>}
+                                </Stack>))
+                            : "-"}
+                    </Stack>
                 ) || "-"}
             </TableCell>
             <TableCell>

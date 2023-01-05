@@ -298,7 +298,7 @@ function PersonalInsuranceCard({...props}) {
                                 pt: 0
                             },
                             p: 1.5, borderWidth: 0,
-                            ...(patient?.insurances.length === 0 && {
+                            ...((loading || patient?.insurances.length === 0) && {
                                 "& .MuiAppBar-root": {
                                     borderBottom: "none"
                                 },
