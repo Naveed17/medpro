@@ -264,7 +264,7 @@ function PatientDetail({...props}) {
                             }} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
-                            <NotesPanel loading={!patient}  {...{t, patient}} />
+                            <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />
                         </TabPanel>
                         <SpeedDial
                             sx={{

@@ -14,7 +14,7 @@ import {Session} from "next-auth";
 import {useRequestMutation} from "@app/axios";
 
 function NotesPanel({...props}) {
-    const {t, patient, loading} = props;
+    const {t, patient, mutatePatientDetails, loading} = props;
     const {data: session} = useSession();
     const router = useRouter();
 
@@ -23,7 +23,7 @@ function NotesPanel({...props}) {
 
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
-    const [notes, setNotes] = useState(patient && patient?.note ? patient.note : "");
+    const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/notes");
 
@@ -36,6 +36,15 @@ function NotesPanel({...props}) {
             params.append('phone', JSON.stringify(patient.contact));
             params.append('gender', patient.gender);
             params.append('note', notes);
+            patient.email && params.append('email', patient.email);
+            patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+            patient.profession && params.append('profession', patient.profession);
+            patient.birthdate && params.append('birthdate', patient.birthdate);
+            patient.idCard && params.append('idCard', patient.idCard);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
 
             triggerPatientUpdate({
                 method: "PUT",
@@ -46,6 +55,7 @@ function NotesPanel({...props}) {
                 data: params,
             }).then(() => {
                 setRequestLoading(false);
+                mutatePatientDetails();
             });
         }
     }
@@ -108,7 +118,7 @@ function NotesPanel({...props}) {
                                 rows={6}
                                 onChange={(event) => setNotes(event.target.value)}
                                 placeholder={t("add-patient.notes-placeholder")}
-                                readOnly={!editable}
+                                disabled={!editable}
                                 defaultValue={notes}/>
                         </Grid>
                     </Grid>

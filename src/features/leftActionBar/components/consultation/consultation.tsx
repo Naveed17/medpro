@@ -28,17 +28,21 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
-import {InputStyled} from "@features/tabPanel";
 import {pxToRem} from "@themes/formatFontSize";
 import AddIcon from '@mui/icons-material/Add';
 import Add from '@mui/icons-material/Add';
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import Zoom from "react-medium-image-zoom";
 
 function Consultation() {
-    const [collapse, setCollapse] = useState<any>(-1);
+    const {data: session} = useSession();
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -49,13 +53,20 @@ function Consultation() {
     const [name, setName] = useState('');
     const [note, setNote] = useState('');
     const [isNote, setIsNote] = useState(false);
+    const [collapse, setCollapse] = useState<any>(-1);
 
-    const dispatch = useAppDispatch();
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
-    const {data: session} = useSession();
     const {data: user} = session as Session;
-    const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+
+    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     const update = (url: RequestInfo) => {
         const blob = fetch(url).then(r => r.blob());
@@ -63,24 +74,24 @@ function Consultation() {
         return new File([blob], "8@2x.png");
     }
 
-    useEffect(() => {
-        if (patient && !lock) {
-            dispatch(toggleSideBar(false));
-            setNumber(patient.contact[0])
-            setEmail(patient.email)
-            setName(`${patient.firstName} ${patient.lastName}`)
-            setLoading(false)
-        }
-    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
-
     const editPatientInfo = () => {
         const params = new FormData();
         if (patient) {
-            params.append('note', note)
-            params.append('first_name', patient.firstName)
-            params.append('last_name', patient.lastName)
-            params.append('phone', JSON.stringify(patient.contact))
-            params.append('gender', patient.gender)
+            params.append('note', note);
+            patient.fiche_id && params.append('fiche_id', patient.fiche_id);
+            patient.email && params.append('email', patient.email);
+            patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+            patient.profession && params.append('profession', patient.profession);
+            patient.birthdate && params.append('birthdate', patient.birthdate);
+            params.append('first_name', patient.firstName);
+            params.append('last_name', patient.lastName);
+            params.append('phone', JSON.stringify(patient.contact));
+            params.append('gender', patient.gender);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
+            patient.idCard && params.append('idCard', patient.idCard);
         }
 
         triggerPatientUpdate({
@@ -95,22 +106,33 @@ function Consultation() {
         });
     }
 
+    useEffect(() => {
+        if (patient && !lock) {
+            dispatch(toggleSideBar(false));
+            setNumber(patient.contact[0]);
+            setEmail(patient.email);
+            setNote(patient.note ? patient.note : "");
+            setName(`${patient.firstName} ${patient.lastName}`);
+            setLoading(false);
+        }
+    }, [patient]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <ConsultationStyled>
             <Box className="header">
-                <Box className="about"
-                     onClick={()=>{
-                    dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
-                }
-                }>
+                <Box className="about">
                     <label htmlFor="contained-button-file">
-
-                        <Avatar
-                            src={patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg"}
-                            sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
-                            <IconUrl path="ic-user-profile"/>
-                        </Avatar>
+                        <Zoom>
+                            <Avatar
+                                src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                sx={{width: 59, height: 59, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
+                                <IconUrl path="ic-user-profile"/>
+                            </Avatar>
+                        </Zoom>
                     </label>
 
                     <Box>
