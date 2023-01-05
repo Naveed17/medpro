@@ -38,12 +38,14 @@ import {useReactToPrint} from "react-to-print";
 import Preview from "@features/files/components/preview";
 import moment from "moment";
 import ReactPlayer from "react-player";
+import AudioPlayer from "react-h5-audio-player";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
+    const multimedias = ['video', 'audio', 'photo']
 
     const {data: {state, setOpenDialog}} = props
     const router = useRouter();
@@ -104,29 +106,26 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'print',
             icon: "ic-imprime",
-            disabled: state.type === 'photo'
+            disabled: multimedias.some(media => media === state.type)
         },
-        /* {
-             title: 'share',
-             icon: "ic-send"
-         },*/
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
-            disabled: state.type === 'photo'
+            disabled: multimedias.some(media => media === state.type)
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ic-menu2",
-            disabled: state.type === 'photo'
+            disabled: multimedias.some(media => media === state.type)
         },
         {
             title: 'settings',
             icon: "ic-setting",
-            disabled: state.type === 'photo'
+            disabled: multimedias.some(media => media === state.type)
         },
         {
             title: 'download',
-            icon: "ic-dowlaodfile"
+            icon: "ic-dowlaodfile",
+            disabled: multimedias.some(media => media === state.type)
         },
         {
             title: 'edit',
@@ -146,18 +145,9 @@ function DocumentDetailDialog({...props}) {
         doc.setFont('helvetica', 'italic')
         doc.setFontSize(8)
         doc.setPage(pageCount)
-        //for (let i = 1; i <= pageCount; i++) {
         doc.text('Signature', doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 30, {
             align: 'center'
         })
-
-        /*for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i)
-            doc.text('footer', 15, doc.internal.pageSize.height - 20, {
-                align: 'center'
-            })
-        }*/
-        // }
     }
 
     useEffect(() => {
@@ -386,19 +376,27 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={8}>
                     <Stack spacing={2}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
-                        {state.type !== 'photo' &&
+                        {
+                            !multimedias.some(multi => multi === state.type) &&
                             <Box style={{width: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
-                                    {generatedDocs.some(doc => doc === state.type) &&
+                                    {
+                                        generatedDocs.some(doc => doc === state.type) &&
                                         <div>
-                                            <Preview  {...{eventHandler, data, values: header, state, date, loading, t}} />
+                                            <Preview  {...{
+                                                eventHandler,
+                                                data,
+                                                values: header,
+                                                state,
+                                                date,
+                                                loading,
+                                                t
+                                            }} />
                                             {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
                                         </div>
-
                                     }
-                                    {!generatedDocs.some(doc => doc === state.type) && state.type !== 'video' &&
+                                    {
+                                        !generatedDocs.some(doc => doc === state.type) &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -417,12 +415,27 @@ function DocumentDetailDialog({...props}) {
                                             </Document>
                                         </Box>
                                     }
-                                    {
-                                        state.type === 'video' && <ReactPlayer url={file} controls={true} />
-                                    }
-
                                 </Box>
                             </Box>
+                        }
+                        {
+                            multimedias.some(multi => multi === state.type) &&
+                            <Box>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
+                                {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
+                                {
+                                    state.type === 'audio' &&
+                                    <Box padding={2}>
+                                        <AudioPlayer
+                                            autoPlay
+                                            src={file}
+                                            onPlay={e => console.log("onPlay")}
+                                        />
+                                    </Box>
+                                }
+                            </Box>
+
                         }
                     </Stack>
                 </Grid>
@@ -431,13 +444,13 @@ function DocumentDetailDialog({...props}) {
                         {
                             actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
-                                    <ListItemButton disabled={button.disabled}
-                                                    className={button.title === "delete" ? "btn-delete" : ""}>
+                                    {!button.disabled &&<ListItemButton
+                                        className={button.title === "delete" ? "btn-delete" : ""}>
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
                                         <ListItemText primary={t(button.title)}/>
-                                    </ListItemButton>
+                                    </ListItemButton>}
                                 </ListItem>
                             )
                         }
