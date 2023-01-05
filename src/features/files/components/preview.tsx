@@ -176,7 +176,7 @@ function PreviewDialog({...props}) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<td style="text-align: left !important;">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
                     elx.appendChild(line)
-                    total += state.consultationFees;
+                    total += Number(state.consultationFees);
                 }
                 for (let i = lastPos; i < rows.length; i++) {
                     const line = document.createElement("tr");

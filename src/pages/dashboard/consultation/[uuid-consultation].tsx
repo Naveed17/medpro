@@ -38,6 +38,7 @@ import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import {LoadingScreen} from "@features/loadingScreen";
 import {appLockSelector} from "@features/appLock";
+import moment from "moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -824,6 +825,7 @@ function ConsultationInProgress() {
                                                 type: 'fees',
                                                 name: 'note_fees',
                                                 info: selectedAct,
+                                                createdAt:moment().format('DD/MM/YYYY'),
                                                 consultationFees: free ? 0 : consultationFees,
                                                 patient: patient.firstName + ' ' + patient.lastName
                                             })
