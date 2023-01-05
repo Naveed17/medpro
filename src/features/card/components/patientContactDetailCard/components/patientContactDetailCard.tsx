@@ -458,7 +458,13 @@ function PatientContactDetailCard({...props}) {
                                                     disabled={!values.country && !states}
                                                     size="small"
                                                     {...getFieldProps("region")}
-                                                    displayEmpty={true}
+                                                    onChange={event => {
+                                                        const stateUuid = event.target.value;
+                                                        setFieldValue("region", stateUuid);
+                                                        const state = states?.find(state => state.uuid === stateUuid);
+                                                        state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                                    }}
+                                                    displayEmpty
                                                     sx={{
                                                         pl: 0,
                                                         "& .MuiSvgIcon-root": {
@@ -470,7 +476,6 @@ function PatientContactDetailCard({...props}) {
                                                         if (selected?.length === 0) {
                                                             return <em>{t("region-placeholder-error")}</em>;
                                                         }
-
                                                         const state = states?.find(state => state.uuid === selected);
                                                         return <Typography>{state?.name}</Typography>
                                                     }}

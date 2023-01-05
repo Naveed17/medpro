@@ -13,7 +13,6 @@ import {useRequest, useRequestMutation} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {NoDataCard} from "@features/card";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
-import {ImportCardData} from "./import";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -52,6 +51,12 @@ const headImportDataCells = [
         sortable: false
     },
 ];
+
+const ImportCardData = {
+    mainIcon: "ic-upload-3",
+    title: "no-data.title",
+    description: "no-data.description"
+};
 
 function Data() {
     const router = useRouter();
@@ -151,7 +156,7 @@ function Data() {
             </SubHeader>
             <Box className="container">
                 {(importData && importData.list.length === 0) ?
-                    <NoDataCard {...{t}} firstbackgroundonly="true" data={ImportCardData}/>
+                    <NoDataCard {...{t}} ns={"settings"} firstbackgroundonly="true" data={ImportCardData}/>
                     :
                     <Box display={{xs: "none", md: "block"}}>
                         <Otable
