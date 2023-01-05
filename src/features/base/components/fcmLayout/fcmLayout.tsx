@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {firebaseCloudMessaging} from "@app/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
@@ -20,6 +20,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 import moment from "moment-timezone";
+import {CircularProgressbarCard} from "@features/card";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -32,11 +33,12 @@ function FcmLayout({...props}) {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
+    const [translationCommon, setTranslationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -70,8 +72,16 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudMessaging.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
-            if (data.type === "no_action" && data.mode === "foreground") {
-                enqueueSnackbar(message.notification.body, {variant: "info"});
+            if (data.type === "no_action") {
+                if (data.mode === "foreground") {
+                    enqueueSnackbar(message.notification.body, {variant: "info"});
+                } else {
+                    if (data.body.hasOwnProperty('progress')) {
+                        localStorage.removeItem("import-data");
+                        closeSnackbar();
+                        enqueueSnackbar(translationCommon.import_data.end, {variant: "success"});
+                    }
+                }
             } else {
                 switch (message.data.root) {
                     case "agenda":
@@ -143,7 +153,7 @@ function FcmLayout({...props}) {
 
     useEffect(() => {
         if (medical_professional) {
-            subscribeToTopic(`${general_information.roles[0]}${process.env.NODE_ENV === 'development' ? "-dev" : ""}-${general_information.uuid}`);
+            subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -155,6 +165,20 @@ function FcmLayout({...props}) {
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
                 console.log("event for the service worker", event);
+            });
+        }
+
+        const importData = localStorage.getItem("import-data");
+        if (importData) {
+            enqueueSnackbar("Importing data in progress", {
+                persist: true,
+                preventDuplicate: true,
+                anchorOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                },
+                content: (key, message) =>
+                    <CircularProgressbarCard id={key} message={message}/>,
             });
         }
     });

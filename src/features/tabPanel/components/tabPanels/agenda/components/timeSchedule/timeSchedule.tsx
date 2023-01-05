@@ -113,7 +113,10 @@ function TimeSchedule({...props}) {
     }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onChangeReason = (event: SelectChangeEvent) => {
-        setReason(event.target.value as string);
+        const AppointmentReason = event.target.value as string;
+        setReason(AppointmentReason);
+        dispatch(setAppointmentMotif(AppointmentReason));
+
         const reason = reasons?.find(reason => event.target.value === reason.uuid);
         if (reason) {
             setDuration(reason.duration as any);
@@ -160,7 +163,6 @@ function TimeSchedule({...props}) {
     }
 
     const onNextStep = () => {
-        dispatch(setAppointmentMotif(reason));
         dispatch(setAppointmentDuration(duration));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
         dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY HH:mm').toDate()));

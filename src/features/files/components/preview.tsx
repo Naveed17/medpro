@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
 import Prescription from "./prescription";
+import moment from "moment";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, t} = props;
+    const {eventHandler, data, values, state, loading, date, t} = props;
 
-    // const drugs = ['AaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaaAaaaaaaaaaaaaaa', '2', '3', '4', '5', '6', '7', '8Aaaaaaaaaaaaaaaaaaaa', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
     const drugs = ['X'];
     let rows: any[] = [];
     const [pages, setPages] = useState<any[]>([]);
@@ -52,6 +52,7 @@ function PreviewDialog({...props}) {
                         case "prescription":
                             prescriptionRows.map((pr) => {
                                 const elx = document.createElement('p');
+                                elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                                 let val = ""
                                 switch (pr.name) {
                                     case "name":
@@ -83,6 +84,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-analysis":
                             const elx = document.createElement('p');
+                            elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                             elx.append(`• ${el.name}`)
                             rows.push({
                                 value: `• ${el.name}`,
@@ -95,6 +97,7 @@ function PreviewDialog({...props}) {
                             break;
                         case "requested-medical-imaging":
                             const imgLine = document.createElement('p');
+                            imgLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                             imgLine.append(`• ${el['medical-imaging'].name}`)
                             rows.push({
                                 value: `• ${el['medical-imaging'].name}`,
@@ -106,14 +109,38 @@ function PreviewDialog({...props}) {
                             setTitle("Imagerie médicale");
                             break;
                         case "write_certif":
-                            const certifLine = document.createElement('p');
-                            certifLine.append(`• ${el.name}`)
-                            rows.push({
-                                value: el.name,
-                                name: "name",
-                                element: "p",
-                                style: {}
+                            const certifLine = document.createElement('div');
+                            certifLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
+
+                            let txt = el.name.replaceAll('{patient}', state.patient)
+                            txt = txt.replaceAll('{today}', moment().format('DD/MM/YYYY'))
+                            const parser = new DOMParser();
+                            const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
+
+                            noeuds.childNodes.forEach(item => {
+                                /*const nblines = countLines(item);
+                                if ( nblines > 1 ){*/
+                                    const lines = getLines(item);
+                                    lines.map((line) =>{
+                                        rows.push({
+                                            value: line.row,
+                                            name: "name",
+                                            element: "div",
+                                            style: {}
+                                        })
+                                    })
+
+                                /*}else{
+                                    rows.push({
+                                        value: item,
+                                        name: "name",
+                                        element: "div",
+                                        style: {}
+                                    })
+                                }*/
+                                certifLine.append(item.cloneNode(true))
                             })
+
                             pageX.appendChild(certifLine)
                             setTitle("CERTIFICAT MEDICAL");
                             break;
@@ -148,25 +175,25 @@ function PreviewDialog({...props}) {
             if (state && state.type === 'fees') {
                 let total = 0;
                 const elx = document.createElement("table");
-                elx.style.width ='130mm';
+                elx.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
 
                 const header = document.createElement("tr");
                 header.innerHTML = `<td style="text-align: left !important;">ACTE</td><td>QTE</td><td>PU</td><td>TOTAL</td>`
-                header.style.fontSize= "12px"
-                header.style.fontWeight="bold"
-                header.style.textAlign="center"
+                header.style.fontSize = "12px"
+                header.style.fontWeight = "bold"
+                header.style.textAlign = "center"
                 elx.appendChild(header)
 
-                if (state.consultationFees > 0){
+                if (state.consultationFees > 0) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<td style="text-align: left !important;">Consultation</td><td></td><td></td><td style="text-align: center">${state.consultationFees} <span style="font-size: 10px;color: gray">${devise}</span></td>`
                     elx.appendChild(line)
-                    total+= state.consultationFees;
+                    total += Number(state.consultationFees);
                 }
                 for (let i = lastPos; i < rows.length; i++) {
                     const line = document.createElement("tr");
                     line.innerHTML = `<tr><td style="text-align: left !important;">${rows[i].value.name}</td><td>${rows[i].value.qte}</td><td>${rows[i].value.fees} <span style="font-size: 10px;color: gray">${devise}</span></td><td>${rows[i].value.total} <span style="font-size: 10px;color: gray">${devise}</span></td></tr>`
-                    line.style.textAlign="center"
+                    line.style.textAlign = "center"
                     elx.appendChild(line)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
@@ -174,19 +201,20 @@ function PreviewDialog({...props}) {
                         lastPos = i + 1;
                         break;
                     }
-                    total+=rows[i].value.total
+                    total += rows[i].value.total
                 }
 
                 const tt = document.createElement("tr");
 
                 tt.innerHTML = `<td style="text-align: left !important;">Total</td><td></td><td></td><td>${total} <span style="font-size: 10px;color: gray">${devise}</span></td>`
-                tt.style.fontWeight="bold"
-                tt.style.textAlign="center"
+                tt.style.fontWeight = "bold"
+                tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
+                    elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
@@ -202,6 +230,40 @@ function PreviewDialog({...props}) {
 
         setPages(pages)
     }
+
+    const getLines = (element:any) => {
+        const clone = element.cloneNode(true);
+        const words = clone.innerHTML.replaceAll('&nbsp;','').split(' ');
+        const rows = []; let nbLine = 1;
+        const row = document.createElement('p');
+        row.style.lineHeight = '21px';
+        row.style.width = data.content.maxWidth ? `${data.content.maxWidth - 15}mm` : '115mm'
+        document.body.appendChild(row);
+        for(let word of words){
+            row.innerHTML += word+ ' '
+            if (row.clientHeight > 21){
+                row.innerHTML = row.innerHTML.slice(0,-1)
+                rows.push({nb:nbLine,row:row.innerHTML})
+                nbLine++
+                row.innerText = word +' '
+            }
+        }
+        rows.push({nb:nbLine,row:row.innerHTML})
+        document.body.removeChild(row);
+        return rows;
+    }
+
+/*     const countLines = (element: any) => {
+        const clone = element.cloneNode(true);
+        document.body.appendChild(clone);
+        clone.style.height = "auto";
+        clone.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm`:'130mm';
+        clone.style.lineHeight = '21px';
+        const divHeight = clone.offsetHeight
+        const lineHeight = parseInt(clone.style.lineHeight);
+         document.body.removeChild(clone);
+         return divHeight / lineHeight;
+    }*/
 
     useEffect(() => {
         const pageX = document.createElement("div")
@@ -226,6 +288,10 @@ function PreviewDialog({...props}) {
             if (content) {
                 content.style.height = data.content.maxHeight + 'px'
             }
+
+            const footer = document.getElementById('footer')
+            if (footer && data.footer) footer.innerHTML = data.footer.content;
+
         }
     }, [data])
 
@@ -241,6 +307,7 @@ function PreviewDialog({...props}) {
                         drugs,
                         title,
                         state,
+                        date,
                         loading,
                         pages
                     }}></Prescription>

@@ -110,7 +110,7 @@ export const countries = [
   { code: "EC", label: "Ecuador", phone: "+593" },
   { code: "EE", label: "Estonia", phone: "+372" },
   { code: "EG", label: "Egypt", phone: "+20" },
-  { code: "EH", label: "Western Sahara", phone: "+212" },
+//  { code: "EH", label: "Western Sahara", phone: "+212" },
   { code: "ER", label: "Eritrea", phone: "+291" },
   { code: "ES", label: "Spain", phone: "+34" },
   { code: "ET", label: "Ethiopia", phone: "+251" },
@@ -227,7 +227,7 @@ export const countries = [
   { code: "LU", label: "Luxembourg", phone: "+352" },
   { code: "LV", label: "Latvia", phone: "+371" },
   { code: "LY", label: "Libya", phone: "+218" },
-  { code: "MA", label: "Morocco", phone: "+212" },
+  { code: "MA", label: "Maroc", phone: "+212" },
   { code: "MC", label: "Monaco", phone: "+377" },
   {
     code: "MD",

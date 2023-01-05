@@ -10,7 +10,6 @@ import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
-    Button,
     Card,
     CardContent,
     Checkbox,
@@ -19,10 +18,13 @@ import {
     IconButton,
     List,
     ListItem,
-    ListItemText, Skeleton,
+    ListItemText,
+    Skeleton,
     Stack,
-    TextField, Tooltip,
-    Typography, useTheme
+    TextField,
+    Tooltip,
+    Typography,
+    useTheme
 } from "@mui/material";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
@@ -34,8 +36,14 @@ import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import FileuploadProgress from "../../../../features/fileUploadProgress/components/fileUploadProgress";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import Preview from "./preview";
 import Zoom from "@mui/material/Zoom";
+import dynamic from "next/dynamic";
+import Preview from "@features/files/components/preview";
+
+const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
+    ssr: false,
+});
+
 function DocsConfig() {
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -47,12 +55,15 @@ function DocsConfig() {
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
+        footer: {show: false, x: 0, y: 140, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
-        date: {show: true, prefix: 'Le ', content: '[ ../../.... ]', x: 412, y: 35},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'Foulen ben foulen', x: 40, y: 55},
+        date: {show: true, prefix: 'Le ', content: '[ .. / .. / .... ]', x: 412, y: 35},
+        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        size: 'portraitA5',
         content: {
             show: true,
             maxHeight: 400,
+            maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
             y: 70
@@ -64,6 +75,7 @@ function DocsConfig() {
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
     const componentRef = useRef<HTMLDivElement>(null);
+
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
     })
@@ -123,7 +135,7 @@ function DocsConfig() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    },SWRNoValidateConfig);
+    }, SWRNoValidateConfig);
 
     useEffect(() => {
         if (httpData) {
@@ -138,17 +150,23 @@ function DocsConfig() {
                 setFieldValue("right3", docInfo.header.right3);
             }
 
-            if (docInfo.data)
-                setData(docInfo.data)
+            if (docInfo.data) {
+                if (docInfo.data.footer === undefined)
+                    setData({...docInfo.data, footer: {show: true, x: 0, y: 140, content: ''}})
+                else
+                    setData(docInfo.data)
+            }
 
+            setTimeout(() => {
+                setLoading(false)
+            }, 1000)
 
-            setTimeout(()=>{
-               setLoading(false)
-            },1000)
+            setTimeout(() => {
+                const footer = document.getElementById('footer');
+                if (footer && docInfo.data.footer) footer.innerHTML = docInfo.data.footer.content
+            }, 1200)
 
         }
-
-
     }, [httpData, setFieldValue])
 
     const {t, ready} = useTranslation(["settings", "common"], {
@@ -181,18 +199,6 @@ function DocsConfig() {
 
     return (
         <>
-            {/*<SubHeader>
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    width={1}
-                    alignItems="center">
-                    <Typography color="text.primary">{t("path")}</Typography>
-
-                        <Typography ml={1}>Imprimer un test</Typography>
-                    </IconButton>
-                </Stack>
-            </SubHeader>*/}
             <DesktopContainer>
                 <Grid container>
                     <Grid item md={5}>
@@ -209,13 +215,24 @@ function DocsConfig() {
                                 </Typography>
                                 <Stack direction={"row"}>
                                     <Tooltip title={t("preview")} TransitionComponent={Zoom}>
-                                        <IconButton onClick={printNow} sx={{border: "1px solid", mr: 1, borderRadius: 2, color: theme.palette.grey[400]}}>
-                                            <LocalPrintshopRoundedIcon style={{color:theme.palette.grey[400],fontSize:16}}/>
+                                        <IconButton onClick={printNow} sx={{
+                                            border: "1px solid",
+                                            mr: 1,
+                                            borderRadius: 2,
+                                            color: theme.palette.grey[400]
+                                        }}>
+                                            <LocalPrintshopRoundedIcon
+                                                style={{color: theme.palette.grey[400], fontSize: 16}}/>
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={t("save")} TransitionComponent={Zoom}>
-                                        <IconButton onClick={save} sx={{border: "1px solid", mr: 1,borderRadius: 2, color:"primary.main"}}>
-                                            <SaveRoundedIcon color={"primary"} style={{fontSize:16}}/>
+                                        <IconButton onClick={save} sx={{
+                                            border: "1px solid",
+                                            mr: 1,
+                                            borderRadius: 2,
+                                            color: "primary.main"
+                                        }}>
+                                            <SaveRoundedIcon color={"primary"} style={{fontSize: 16}}/>
                                         </IconButton>
                                     </Tooltip>
                                 </Stack>
@@ -245,6 +262,35 @@ function DocsConfig() {
                                         : {data.content.x} , y : {data.content.y}</Typography>
                                 </fieldset>
 
+                                {/*we will add it late*/}
+                                {/*
+                                <fieldset style={{marginBottom: 10}}>
+                                    <legend>{t('paperSize')}</legend>
+                                    <ListItem style={{padding: 0, marginBottom: 5}}>
+                                        <Checkbox
+                                            checked={data.size === 'portraitA5'}
+                                            onChange={(ev) => {
+                                                data.size = 'portraitA5';
+                                                data.content.maxWidth = 130;
+                                                setData({...data})
+                                            }}
+                                        />
+                                        <ListItemText primary={t("A5")}/>
+                                    </ListItem>
+                                    <ListItem style={{padding: 0, marginBottom: 5}}>
+                                        <Checkbox
+                                            checked={data.size === 'portraitA4'}
+                                            onChange={(ev) => {
+                                                data.size = 'portraitA4';
+                                                data.content.maxWidth = 190;
+                                                setData({...data})
+                                            }}
+                                        />
+                                        <ListItemText primary={t("A4")}/>
+                                    </ListItem>
+                                </fieldset>
+*/}
+
                                 {/*Import document*/}
                                 <ListItem style={{padding: 0, marginBottom: 5}}>
                                     <Checkbox
@@ -260,9 +306,7 @@ function DocsConfig() {
                                     {files.length === 0 &&
                                         <UploadFile
                                             files={files}
-                                            accept={{
-                                                'image/jpeg': ['.png', '.jpeg', '.jpg']
-                                            }}
+                                            accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
                                             onDrop={handleDrop}
                                             singleFile={true}/>}
 
@@ -368,6 +412,32 @@ function DocsConfig() {
                                     </Card>
                                 </Collapse>
 
+                                {/*Footer config*/}
+                                {data.footer && <Box>
+                                    <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                        <Checkbox
+                                            checked={data.footer?.show}
+                                            onChange={(ev) => {
+                                                data.footer.show = ev.target.checked;
+                                                setData({...data})
+                                            }}
+                                        />
+                                        <ListItemText primary={t("footer")}/>
+                                    </ListItem>
+
+                                    {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
+                                        <CKeditor
+                                            name="description"
+                                            value={data.footer.content}
+                                            onChange={(res: React.SetStateAction<string>) => {
+                                                data.footer.content = res;
+                                                setData({...data});
+                                            }}
+                                            editorLoaded={true}/>
+                                    </Collapse>}
+                                </Box>}
+
+
                                 {/*Title document*/}
                                 <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                     <Checkbox
@@ -379,7 +449,7 @@ function DocsConfig() {
                                     />
                                     <ListItemText primary={t("title")}/>
                                 </ListItem>
-{/*
+                                {/*
                                 <Collapse in={data.title.show} timeout="auto" unmountOnExit>
                                     <fieldset>
                                         <legend>{t('configTitle')}</legend>
@@ -466,12 +536,14 @@ function DocsConfig() {
 
                     <Grid item md={7}>
                         {<Box padding={2}>
-                            <Box style={{width: '148mm', margin: 'auto',paddingTop:20}}>
+                            <Box style={{margin: 'auto', paddingTop: 20}}>
                                 <Box ref={componentRef}>
-                                    <Preview  {...{eventHandler, data, values,loading}} />
-                                    {loading && <div className={"page"} style={{padding: 20}}>
-                                        {Array.from(Array(30)).map((item,key) => (<Skeleton key={key}></Skeleton>))}
-                                    </div>}
+                                    <Preview  {...{eventHandler, data, values, loading}} />
+                                    {loading &&
+                                        <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
+                                            {Array.from(Array(30)).map((item, key) => (
+                                                <Skeleton key={key}></Skeleton>))}
+                                        </div>}
                                 </Box>
                             </Box>
 

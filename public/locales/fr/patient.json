@@ -1,7 +1,7 @@
 {
   "sub-header": {
     "title": "Liste des patients",
-    "add-patient": "Ajouter un Patient"
+    "add-patient": "Ajouter Patient"
   },
   "filter": {
     "title": "Filtre",
@@ -44,6 +44,7 @@
   "patient-details": {
     "duplicate": "Détection des doublons",
     "add-email": "Ajouter l'adresse mail",
+    "fiche_placeholder": "Numéro de la fiche médicale du patient",
     "start-consultation": "Commencer la consultation",
     "view_the_consultation": "Ouvrir la consultation",
     "edit": "Modifier",
@@ -54,7 +55,9 @@
     "see-details": "Voir détails",
     "years": "Ans",
     "reason": "Motif de consultation",
-    "date": "Date du RDV"
+    "date": "Date du RDV",
+    "register": "Enregistrer",
+    "cancel": "Annuler"
   },
   "add-appointment": {
     "book-a-slot": "Réservez un créneau",
@@ -84,9 +87,11 @@
     "treatment_medication": "Traitement (médicament)",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
+    "upload_document": "Télécharger un document",
     "tabs": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",
+      "notes": "Notes",
       "fin": "Fin",
       "appointment": "RDV",
       "documents": "Documents",
@@ -127,6 +132,7 @@
     "table": {
       "name": "Nom du patient",
       "telephone": "Téléphone",
+      "insurance": "Assurances",
       "city": "ville",
       "id": "id",
       "nextAppointment": "Prochain RDV",
@@ -141,6 +147,7 @@
       "rapport": "Rapports",
       "photo": "Photos",
       "medical-imaging": "Imagerie médicale",
+      "audio": "Audio",
       "orders": "Ordonnances",
       "analyse": "Analyses",
       "requested-analysis": "analyse demandée",
@@ -148,6 +155,7 @@
       "video": "Vidéos",
       "prescription": "Ordonnance médicale",
       "see": "Voir",
+      "listen": "Ecoutez",
       "documents": "Documents",
       "created-at": "crée le",
       "created-by": "créé par"
@@ -164,6 +172,9 @@
       "mrs": "Mme",
       "date-of-birth": "Date de naissance",
       "gender": "Genre",
+      "patient": "Le malade",
+      "patient-placeholder": "Veuillez sélectionner le patient",
+      "patient-detail": "Veuillez remplir les détails du patient",
       "gender-error": "Veuillez choisir le genre.",
       "name": "Nom",
       "name-placeholder": "Tapez le nom du patient",
@@ -178,7 +189,6 @@
       "family_doctor": "Médecin traitant",
       "family_doctor-placeholder": "Tapez le nom du médecin traitant",
       "country": "Pays",
-      "profession": "Profession",
       "maritalStatus": "Etat civil",
       "country-placeholder": "pays",
       "country-placeholder-error": "Veuillez choisir le pays.",
@@ -186,8 +196,9 @@
       "month": "Mois",
       "year": "Année",
       "date-error": "Ce champ est obligatoire",
+      "phone": "Téléphone",
       "telephone": "Numéro de téléphone",
-      "telephone-error": "Ce champ est obligatoire",
+      "telephone-error": "Le numéro de téléphone est obligatoire",
       "cancel": "Annuler",
       "next": "Suivant",
       "region": "Région",
@@ -196,13 +207,18 @@
       "zip": "Code postal",
       "address": "Adresse",
       "address-placeholder": "Entrez l'adresse du patient",
-      "assurance": "Assurance",
+      "assurance": "Assurances",
+      "assurance-social": "L'assure social",
       "assurance-placeholder": "assurance",
       "assurance-phone-error": "numéro d'assurance",
+      "assurance-num-error": "Le numéro d'assurance est obligatoire",
+      "assurance-type-error": "Veuillez sélectionner l'assurance",
       "email": "E-mail",
       "email-placeholder": "Ajouter adresse e-mail",
       "cin": "CIN",
       "cin-placeholder": "Saisir la CIN du patient",
+      "profession": "Profession",
+      "profession-placeholder": "Saisir la profession du patient",
       "from": "De",
       "from-placeholder": "Saisir la date de naissance du patient",
       "added": "Patient ajouté",
@@ -210,12 +226,19 @@
       "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit,sed do eiusmod tempor",
       "add-new": "Ajouter un autre patient",
       "add-appo": "Ajouter RDV",
+      "add": "Ajouter",
+      "add-insurance": "Ajouter une assurance",
+      "add-insurance-more": "Ajouter une autre assurance",
       "register": "Enregistrer",
       "edit": "Modifier",
       "return": "Retourner à",
       "contact": "Contact",
       "zip_code": "Zip code",
       "zip_code-placeholder": "Saisir le zip code",
+      "notes": "Notes du patient",
+      "notes-placeholder": "notes",
+      "fiche": "Fiche médicale",
+      "fiche-placeholder": "numéro de la fiche médicale du patient",
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",
@@ -232,6 +255,42 @@
       "noImage": "Aucune demande imagerie",
       "noRequest": "Aucune demande",
       "noDoc": "Aucun document"
+    },
+    "error": {
+      "title": "Erreurs",
+      "loading-error": "Une erreur s'est produite pendant la phase d'importation de données.",
+      "re-upload": "corrigez l'erreur sur le fichier et essayez de l'importer à nouveau.",
+      "re-duplicate": "cliquez sur \"voir tout\" pour exposer tous les avertissements.",
+      "line": "à la ligne",
+      "missing": "est manquante",
+      "see-all": "voir tout",
+      "see-details": "Voir détails",
+      "duplicated": "patients dupliqués ont été trouvés",
+      "duplicated-row": "Erreur de duplication à la ligne",
+      "duplicated-title": "Erreur de duplication à la ligne",
+      "warning-title": "Avertissements",
+      "info-title": "Informations",
+      "warning-row": "Le patient",
+      "warning-row-detail": "a été inséré avec des avertissements",
+      "warning-insert": "patients insérés avec des avertissements ont été trouvés",
+      "fix-duplication": "Corriger la duplication"
+    },
+    "dialogs": {
+      "move-dialog": {
+        "title": "Déplacer RDV",
+        "title-duration": "Modifier la durée du RDV",
+        "sub-title": "Voulez-vous vraiment déplacer le RDV?",
+        "sub-title-duration": "Voulez-vous vraiment modifier la durée du rendez-vous ?",
+        "description": "Vous ne perdez pas l'historique et les documents concernant ce rendez-vous",
+        "garde-date": "Garder la date",
+        "time-message": "Veuillez choisir l’heure du RDV",
+        "week-day-slot": "Choisir un nouveau créneau",
+        "see-more": "Voir plus d’horaires",
+        "alert-msg": "le rendez-vous a été déplacé avec succès",
+        "alert-msg-duration": "le rendez-vous a été modifié avec succès",
+        "cancel": "Annuler",
+        "confirm": "Confirmer"
+      }
     }
   },
   "background": {

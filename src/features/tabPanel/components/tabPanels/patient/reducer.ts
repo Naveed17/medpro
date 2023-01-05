@@ -6,10 +6,11 @@ export type MenuState = {
     stepsData: AddPatient;
 };
 
-const initialState: MenuState = {
+export const initialPatientState: MenuState = {
     stepsData: {
         step1: {
-            patient_group: "",
+            picture: {url: "", file: ""},
+            fiche_id: "",
             first_name: "",
             last_name: "",
             birthdate: {
@@ -17,8 +18,14 @@ const initialState: MenuState = {
                 month: "",
                 year: "",
             },
-            country_code: null,
-            phone: "",
+            phones: [{
+                phone: "",
+                dial: {
+                    code: "TN",
+                    label: "Tunisia",
+                    phone: "+216"
+                }
+            }],
             gender: ""
         },
         step2: {
@@ -28,6 +35,7 @@ const initialState: MenuState = {
             address: "",
             email: "",
             cin: "",
+            profession: "",
             family_doctor: "",
             insurance: [],
         },
@@ -36,12 +44,12 @@ const initialState: MenuState = {
     },
 };
 
-export const addPatientReducer = createReducer(initialState, (builder) => {
+export const addPatientReducer = createReducer(initialPatientState, (builder) => {
     builder.addCase(onAddPatient, (state, action) => {
         state.stepsData = action.payload;
     }).addCase(onSubmitPatient, (state, action) => {
         state.stepsData.submit = action.payload;
     }).addCase(onResetPatient, (state, action) => {
-        return {...state, ...initialState}
+        return {...state, ...initialPatientState}
     });
 });

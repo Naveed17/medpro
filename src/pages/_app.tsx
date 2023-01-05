@@ -9,6 +9,7 @@ import {AnimatePresence} from "framer-motion";
 import {SnackbarProvider} from "notistack";
 // import global style
 import "@styles/globals.scss";
+import 'react-medium-image-zoom/dist/styles.css';
 // import moment locales
 import "moment/locale/ar-tn";
 import "moment/locale/fr";
@@ -57,7 +58,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>
-                                                <FcmLayout>
+                                                <FcmLayout {...pageProps}>
                                                     {getLayout(<Component {...pageProps} />)}
                                                 </FcmLayout>
                                             </AuthGuard>

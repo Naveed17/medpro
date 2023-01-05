@@ -139,7 +139,8 @@ const Content = ({...props}) => {
         handleClickDialog();
     };
 
-    if (!ready || status === "loading") return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready || status === "loading") return (
+        <LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
@@ -152,7 +153,7 @@ const Content = ({...props}) => {
                         {id === 1 && (
                             <Stack spacing={1} alignItems="flex-start">
                                 <List dense>
-                                    {patient?.treatment.filter((tr :any) => tr.isOtherProfessional).map((list: any, index: number) => (
+                                    {patient?.treatment.filter((tr: any) => tr.isOtherProfessional).map((list: any, index: number) => (
                                         <ListItem key={index}>
                                             <ListItemIcon>
                                                 <CircleIcon/>
@@ -160,7 +161,7 @@ const Content = ({...props}) => {
                                             <Typography
                                                 variant="body2"
                                                 color={"text.secondary"}>
-                                                {list.name} / {list.duration} {list.durationType}{" "}
+                                                {list.name} / {list.duration} {t(list.durationType)}{" "}
                                             </Typography>
                                             <IconButton
                                                 size="small"
@@ -186,15 +187,17 @@ const Content = ({...props}) => {
                                         </ListItem>
                                     ))}
 
-                                    {patient?.treatment.filter((tr :any) => !tr.isOtherProfessional).length > 0 &&<Typography fontSize={11} fontWeight={"bold"} mt={1}>{t('prescription')}</Typography>}
-                                    {patient?.treatment.filter((tr :any) => !tr.isOtherProfessional).map((list: any, index: number) => (
+                                    {patient?.treatment.filter((tr: any) => !tr.isOtherProfessional).length > 0 &&
+                                        <Typography fontSize={11} fontWeight={"bold"}
+                                                    mt={1}>{t('prescription')}</Typography>}
+                                    {patient?.treatment.filter((tr: any) => !tr.isOtherProfessional).map((list: any, index: number) => (
                                         <ListItem key={index}>
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
                                             <Typography
                                                 variant="body2">
-                                                {list.name} / {list.duration} {list.durationType}{" "}
+                                                {list.name} / {list.duration} {t(list.durationType)}{" "}
                                             </Typography>
                                             <IconButton
                                                 size="small"

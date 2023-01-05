@@ -51,7 +51,9 @@ function AddDocumentDialog({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [files]);
     const {t, ready} = useTranslation("common");
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+
     return (
         <AddDocumentDialogStyled>
             <Typography fontWeight={600} variant="subtitle2">
@@ -153,7 +155,7 @@ function AddDocumentDialog({...props}) {
                         <UploadFile
                             files={files}
                             accept={{
-                                'image/jpeg': ['.pdf','.png','.jpeg', '.jpg']
+                                'image/jpeg': ['.pdf','.png','.jpeg', '.jpg','.wav','.mp4']
                             }}
                             onDrop={handleDrop}
                             singleFile={false}

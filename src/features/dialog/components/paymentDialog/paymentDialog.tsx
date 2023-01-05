@@ -56,7 +56,6 @@ interface HeadCell {
 }
 
 const headCells: readonly HeadCell[] = [
-
     {
         id: "date",
         numeric: false,
@@ -81,8 +80,6 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "right",
     },
-
-
 ];
 
 interface TabPanelProps {
@@ -102,7 +99,6 @@ const variants = {
 
 function TabPanel(props: TabPanelProps) {
     const {children, index, ...other} = props;
-
     return (
         <motion.div
             key={index}
@@ -125,14 +121,14 @@ function PaymentDialog({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const {t, ready} = useTranslation("payment");
-
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
+    const [label, setLabel] = useState('');
 
     const validationSchema = Yup.object().shape({
         totalToPay: Yup.number(),
-        cash: Yup.object().shape({
+        /*cash: Yup.object().shape({
             amount: Yup.number().integer().lessThan(Yup.ref('totalToPay'), `amount-error ${Yup.ref('totalToPay')}`)
-        })
+        })*/
     });
 
     const formik = useFormik({
@@ -146,7 +142,7 @@ function PaymentDialog({...props}) {
         },
     });
 
-    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue, resetForm} = formik;
+    const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
     useEffect(() => {
         setSelectedPayment({
@@ -164,7 +160,6 @@ function PaymentDialog({...props}) {
             payment_date: new Date(),
             expiry_date: new Date(),
         }];
-
         setFieldValue("check", step);
     };
 
@@ -179,11 +174,11 @@ function PaymentDialog({...props}) {
     return (
         <FormikProvider value={formik}>
             <PaymentDialogStyled>
-                <Stack spacing={2}
+                {patient &&
+                    <Stack spacing={2}
                        direction={{xs: patient ? 'column' : 'row', md: 'row'}}
                        alignItems='center'
                        justifyContent={patient ? 'space-between' : 'flex-end'}>
-                    {patient &&
                         <Stack spacing={2} direction="row" alignItems='center'>
                             <Avatar sx={{width: 26, height: 26}}
                                     src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
@@ -201,8 +196,6 @@ function PaymentDialog({...props}) {
                                 </Stack>
                             </Stack>
                         </Stack>
-                    }
-
                     <Stack
                         direction={{xs: 'column', md: 'row'}}
                         alignItems="center"
@@ -240,7 +233,18 @@ function PaymentDialog({...props}) {
                             {devise}
                         </Button>
                     </Stack>
-                </Stack>
+                </Stack>}
+                {!patient && <Box>
+                    <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
+                        <TextField
+                            value={label}
+                            style={{width: "100%"}}
+                            onChange={(ev) => {
+                                setLabel(ev.target.value)
+                            }}/>
+                    <Typography style={{color: "gray"}} fontSize={12} mb={0} mt={3}>{t('paymentMean')}</Typography>
+
+                </Box>}
 
                 <FormGroup
                     row
@@ -254,6 +258,8 @@ function PaymentDialog({...props}) {
                         <FormControlLabel
                             className={method.label === deals.selected ? "selected" : ''}
                             onClick={() => {
+                                deals.selected = method.label
+                                setDeals(deals);
                                 setFieldValue("selected", method.label)
                             }}
                             key={method.label}

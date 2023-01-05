@@ -1,24 +1,28 @@
 import {
     Box,
-    Typography,
-    Stack,
+    Button,
+    Collapse,
+    DialogActions,
+    Grid,
+    IconButton,
     List,
     ListItemIcon,
-    Collapse,
-    IconButton,
-    Grid, TextField, Button, useTheme, DialogActions
+    Stack,
+    Typography,
+    useTheme
 } from '@mui/material'
-import {MotifCard, PatientHistoryCard, DocumentCard} from '@features/card'
+import {DocumentCard, MotifCard, PatientHistoryCard} from '@features/card'
 import React, {useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import IconUrl from '@themes/urlIcon'
-import {ListItemStyled, ListItemDetailsStyled, BoxFees} from "@features/tabPanel";
+import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
+import {useTranslation} from "next-i18next";
 
 const subMotifCard = [
     {
@@ -61,7 +65,7 @@ const subMotifCard = [
 ];
 
 function HistoryPanel({...props}) {
-    const {t, previousAppointments, patient} = props;
+    const {previousAppointmentsData: previousAppointments, patient} = props;
 
     const {selectedApp} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
@@ -73,14 +77,15 @@ function HistoryPanel({...props}) {
     const [dialog, setDialog] = useState<string>("");
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [filter, setfilter] = useState<any>({});
     const [collapse, setCollapse] = useState<any>('');
-    const [selected, setSelected] = useState<string>('')
     const devise = process.env.NEXT_PUBLIC_DEVISE;
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    const {t} = useTranslation("consultation");
+
 
     const DialogAction = () => {
         return (
@@ -116,6 +121,7 @@ function HistoryPanel({...props}) {
                 doctor: card.name,
                 patient: card.patient,
                 days: card.days,
+                createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif'
             })
@@ -142,6 +148,7 @@ function HistoryPanel({...props}) {
                 name: card.title,
                 type: card.documentType,
                 info: info,
+                createdAt: card.createdAt,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName
             })
@@ -153,7 +160,7 @@ function HistoryPanel({...props}) {
         <PanelStyled>
             <Box className="files-panel">
                 <Typography fontWeight={600} p={1}>
-                    {t("tabs.history")}
+                    {t("history")}
                 </Typography>
                 <Stack spacing={2}>
                     {previousAppointments && previousAppointments.map((app: any) => (
@@ -255,38 +262,11 @@ function HistoryPanel({...props}) {
                                                                                             {rs.analysis.name}
                                                                                         </Typography>
 
-                                                                                        <TextField
-                                                                                            placeholder={"--"}
-                                                                                            size="small"
-                                                                                            inputProps={{className: "input"}}
-                                                                                            onChange={(ev) => {
-                                                                                                //reqSheetChange(rs, ev, iid, idx, idxh)
-                                                                                            }}
-                                                                                            autoFocus={selected === rs.uuid + 'result'}
-                                                                                            onFocus={() => {
-                                                                                                setSelected(rs.uuid + 'result')
-                                                                                            }}
-                                                                                            onBlur={() => {
-                                                                                                setSelected('')
-                                                                                            }}
-                                                                                            value={rs.result || ""}/>
+                                                                                        <Typography
+                                                                                            fontSize={12}>{rs.result}</Typography>
                                                                                     </Stack>
                                                                                 )
                                                                             )}
-
-                                                                            <Box mt={1} mb={2} width={"fit-content"}
-                                                                                 ml={"auto"}>
-                                                                                <Button
-                                                                                    variant="contained"
-                                                                                    color={"info"}
-                                                                                    onClick={() => {
-                                                                                        //editReqSheet(apps, iid, idx)
-                                                                                    }}
-                                                                                    startIcon={<IconUrl
-                                                                                        path="ic-edit-file-pen"/>}>
-                                                                                    {t("consultationIP.save")}
-                                                                                </Button>
-                                                                            </Box>
                                                                         </Box>)) : <Box className={'boxHisto'}>
                                                                     <Typography
                                                                         className={"empty"}>{t('consultationIP.noRequest')}</Typography>

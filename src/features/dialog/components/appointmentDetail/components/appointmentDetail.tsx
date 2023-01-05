@@ -44,6 +44,7 @@ import {Session} from "next-auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
 
 function AppointmentDetail({...props}) {
     const {
@@ -196,14 +197,15 @@ function AppointmentDetail({...props}) {
                         }
                     />
 
-                    {process.env.NODE_ENV === 'development' && <Stack direction="row" spacing={2} alignItems='center' mt={2}>
-                        <Button onClick={handleQr} variant='contained' fullWidth>
-                            Qr-Code
-                        </Button>
-                        <Button variant='contained' fullWidth>
-                            {t('send_link')}
-                        </Button>
-                    </Stack>}
+                    {process.env.NODE_ENV === 'development' &&
+                        <Stack direction="row" spacing={2} alignItems='center' mt={2}>
+                            <Button onClick={handleQr} variant='contained' fullWidth>
+                                Qr-Code
+                            </Button>
+                            <Button variant='contained' fullWidth>
+                                {t('send_link')}
+                            </Button>
+                        </Stack>}
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('patient')}
                     </Typography>
@@ -275,11 +277,30 @@ function AppointmentDetail({...props}) {
                                         onClick={() => edited ? updateInstruction() : setEdited(true)}
                                         position="end">
                                         {edited ? (loading ?
-                                                <IconButton size="small"><CircularProgress size={20}/> </IconButton> :
-                                                <Button disabled={edited && instruction.length === 0} variant="outlined"
-                                                        size="small">
-                                                    {t('save')}
-                                                </Button>) :
+                                                    <IconButton size="small"><CircularProgress size={20}/> </IconButton> :
+                                                    <>
+                                                        <Button
+                                                            sx={{
+                                                                marginRight: 1
+                                                            }}
+                                                            onClick={event => {
+                                                                event.stopPropagation();
+                                                                setEdited(false);
+                                                            }}
+                                                            color={"error"}
+                                                            variant="outlined"
+                                                            size="small">
+                                                            {(t('event.cancel')).split(" ")[0]}
+                                                        </Button>
+                                                        <Button
+                                                            disabled={edited && instruction.length === 0}
+                                                            variant="outlined"
+                                                            startIcon={<SaveAsIcon color={"inherit"}/>}
+                                                            size="small">
+                                                            {t('event.save')}
+                                                        </Button>
+                                                    </>
+                                            ) :
                                             <IconButton size="small"><IconUrl path='ic-duotone'/> </IconButton>}
                                     </InputAdornment>
                                 }}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
@@ -19,8 +19,17 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import RecondingBoxStyle from '../../../card/components/consultationDetailCard/overrides/recordingBoxStyle';
+import moment from "moment-timezone";
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
+const MicRecorder = require('mic-recorder-to-mp3');
+const recorder = new MicRecorder({
+    bitRate: 128
+});
 
 function ConsultationIPToolbar({...props}) {
+
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
@@ -40,7 +49,6 @@ function ConsultationIPToolbar({...props}) {
         selectedDialog,
         setDialog,
         changes,
-        setChanges,
         appointement
     } = props;
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -55,6 +63,9 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState<string>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
+    let [record, setRecord] = useState(false);
+    let [time, setTime] = useState('00:00');
+
     const open = Boolean(anchorEl);
     const dispatch = useAppDispatch();
 
@@ -93,12 +104,83 @@ function ConsultationIPToolbar({...props}) {
             }
         ];
 
+
+
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
+    const intervalref = useRef<number | null>(null);
+
+    const startRecord = () => {
+        recorder.start().then(() => {
+            if (intervalref.current !== null) return;
+            intervalref.current = window.setInterval(() => {
+                time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                setTime(time);
+            }, 1000);
+            setRecord(true)
+        }).catch((e: any) => {
+            console.error(e);
+        });
+    }
+
+    const stopRec = () => {
+        const res = recorder.stop();
+        // @ts-ignore
+        res.getMp3().then(([buffer, blob]) => {
+            const file = new File(buffer, 'audio', {
+                type: blob.type,
+                lastModified: Date.now()
+            });
+            uploadRecord(file)
+
+            /*const player = new Audio(URL.createObjectURL(file));
+            player.play();*/
+
+            if (intervalref.current) {
+                window.clearInterval(intervalref.current);
+                intervalref.current = null;
+            }
+            setRecord(false)
+            setTime('00:00')
+            mutateDoc();
+
+        }).catch((e: any) => {
+            alert('We could not retrieve your message');
+            console.log(e);
+        });
+    }
+
+    const uploadRecord = (file: File) => {
+
+        trigger({
+            method: "GET",
+            url: `/api/private/document/types/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((res) => {
+            const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
+            if (audios.length > 0){
+                const form = new FormData();
+                form.append("type", audios[0].uuid);
+                form.append("files[]", file, file.name);
+                trigger({
+                    method: "POST",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                }).then(() => {
+                    mutateDoc();
+                });
+            }
+        });
+    }
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -137,6 +219,8 @@ function ConsultationIPToolbar({...props}) {
                         type: "prescription",
                         info: res[0].prescription_has_drugs,
                         uuid: res[0].uuid,
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -176,6 +260,8 @@ function ConsultationIPToolbar({...props}) {
                         uri: res[1],
                         name: "requested-analysis",
                         type: "requested-analysis",
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         info: res[0].analyses,
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
@@ -210,13 +296,14 @@ function ConsultationIPToolbar({...props}) {
                     setImagery([]);
                     setInfo("document_detail");
                     const res = r.data.data;
-                    console.log(res)
                     setState({
                         uuid: res[0].uuid,
                         uri: res[1],
                         name: "requested-medical-imaging",
                         type: "requested-medical-imaging",
                         info: res[0]["medical-imaging"],
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -250,6 +337,7 @@ function ConsultationIPToolbar({...props}) {
                 break;
             case "write_certif":
                 form.append("content", state.content);
+                form.append("title", state.title);
                 trigger({
                     method: "POST",
                     url: `/api/medical-entity/${medical_entity.uuid}/appointments/${appuuid}/certificates/${router.locale}`,
@@ -264,6 +352,9 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
+                        createdAt:moment().format('DD/MM/YYYY'),
+                        description:"",
+                        title:state.title,
                         days: state.days,
                         name: "certif",
                         type: "write_certif",
@@ -274,7 +365,6 @@ function ConsultationIPToolbar({...props}) {
 
                 break;
         }
-
 
 
         setlabel("documents");
@@ -344,30 +434,19 @@ function ConsultationIPToolbar({...props}) {
             case "write_certif":
                 setInfo("write_certif");
                 setState({
-                    name: ginfo.firstName + " " + ginfo.lastName,
+                    name: `${ginfo.firstName} ${ginfo.lastName}`,
                     days: '....',
-                    content: "",
-                    patient:
-                        appointement.patient.firstName +
-                        " " +
-                        appointement.patient.lastName,
-                });
-                break;
-            case "write_report":
-                setInfo("write_report");
-                setState({
-                    name: ginfo.firstName + " " + ginfo.lastName,
-                    days: '....',
-                    content: "",
-                    patient:
-                        appointement.patient.firstName +
-                        " " +
-                        appointement.patient.lastName,
+                    content: '',
+                    title: 'Rapport médical',
+                    patient:`${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 });
                 break;
             case "upload_document":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "analyse", files: []});
+                setState({name: "", description: "", type: "", files: []});
+                break;
+            case "record":
+                startRecord()
                 break;
             case "RDV":
                 handleOpen()
@@ -549,15 +628,14 @@ function ConsultationIPToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
-                        {/*<Button
-                            variant="contained"
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={() => {
-                                handleOpen();
-                            }}>
-                            {isMobile ? <IconUrl path="ic-agenda"/> : t("RDV")}
-                        </Button>*/}
+                        {record && <RecondingBoxStyle id={"record"} onClick={() => {
+                            stopRec()
+                        }} style={{width: 130, padding: 10}}>
+                            <StopCircleIcon style={{fontSize: 20, color: "white"}}/>
+                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{time}</div>
+                            <div className="recording-circle"></div>
+                        </RecondingBoxStyle>}
+
                         <Button
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}
@@ -629,7 +707,7 @@ function ConsultationIPToolbar({...props}) {
                                     variant="contained"
                                     onClick={handleSaveDialog}
                                     //disabled={state.length === 0}
-                                    startIcon={<Icon path="ic-dowlaodfile"/>}>
+                                    startIcon={<SaveRoundedIcon/>}>
                                     {t("save")}
                                 </Button>
                             </DialogActions>

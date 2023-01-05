@@ -3,138 +3,140 @@ import {useTranslation} from "next-i18next";
 
 // material
 import {
-    Card,
+    AppBar, Box,
     CardContent,
-    Typography,
-    FormControlLabel,
     Checkbox,
+    FormControlLabel, Tabs, Tab,
+    Toolbar,
+    Typography,
+    useMediaQuery,
 } from "@mui/material";
-import {useMediaQuery} from "@mui/material";
 
 //components
-import {PatientDetailsDocumentCard, NoDataCard} from "@features/card";
-import {Otable} from "@features/table";
+import {DocumentCard, NoDataCard, PatientDetailsDocumentCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 import {LoadingScreen} from "@features/loadingScreen";
+import PanelCardStyled from "./overrides/panelCardStyled";
+import Icon from "@themes/urlIcon";
+import {a11yProps} from "@app/hooks";
+import {TabPanel} from "@features/tabPanel";
 
 const typeofDocs = [
     "medical-imaging",
     "analyse", "requested-analysis",
-    "prescription", "photo", "rapport", "medical-certificate", "video"];
+    "prescription", "photo", "rapport", "medical-certificate", "audio", "video"];
+
+const AddAppointmentCardWithoutButtonsData = {
+    mainIcon: "ic-doc",
+    title: "config.no-data.documents.title",
+    description: "config.no-data.documents.description"
+};
 
 const AddAppointmentCardData = {
     mainIcon: "ic-doc",
-    title: "no-data.documents.title",
-    description: "no-data.documents.description",
-    buttonText: "no-data.documents.button-text",
-    buttonIcon: "ic-doc",
-    buttonVariant: "primary",
+    title: "config.no-data.documents.title",
+    description: "config.no-data.documents.description",
+    buttons: [{
+        text: "config.no-data.documents.button-text",
+        icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
+        variant: "primary",
+        color: "white"
+    }]
 };
 
-// interface
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
-// table head data
-const headCells: readonly HeadCell[] = [
-    {
-        id: "documents",
-        numeric: false,
-        disablePadding: true,
-        label: "documents",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "createdAt",
-        numeric: false,
-        disablePadding: true,
-        label: "created-at",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "createdBy",
-        numeric: false,
-        disablePadding: true,
-        label: "created-by",
-        align: "left",
-        sortable: true,
-    },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: true,
-        label: "action",
-        align: "right",
-        sortable: false,
-    },
-];
-
 function DocumentsPanel({...props}) {
-    const {documents, patient} = props;
+    const {
+        documents, patient, patientId, setOpenUploadDialog,
+        mutatePatientDetails, patientDocuments
+    } = props;
+
     // filter checked array
-    const [checked, setChecked] = React.useState<PatientDocuments[]>(documents);
+    const [checked, setChecked] = useState<PatientDocuments[]>(documents);
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
+    const [currentTab, setCurrentTab] = React.useState(0);
 
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
             if (e.target.checked) {
-                const filtered = documents.filter((item: PatientDocuments) => item.documentType === value);
-                if (documents.length === checked.length) {
-                    setChecked([...filtered]);
-                } else {
-                    setChecked([...checked, ...filtered]);
-                }
+                setSelectedTypes([...selectedTypes, value])
             } else {
-                const filtered = checked.filter((item) => item.documentType !== value);
-                setChecked([...filtered]);
+                selectedTypes.splice(selectedTypes.indexOf(value), 1);
+                setSelectedTypes([...selectedTypes])
             }
         };
-
-    //  handleclick all
-    const handleCheckAll = () => {
-        if (documents.length === checked.length) {
-            setChecked([]);
-        } else {
-            setChecked([...documents]);
-        }
-    };
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
 
+    const handleTabsChange = (event: React.SyntheticEvent, newValue: number) => {
+        setCurrentTab(newValue);
+    };
+
+    const showDoc = (card: any) => {
+        if (card.documentType === 'medical-certificate') {
+            setOpenDialog(true);
+            setDocument({
+                uuid: card.uuid,
+                content: card.certificate[0].content,
+                doctor: card.name,
+                patient: `${patient.firstName} ${patient.lastName}`,
+                days: card.days,
+                createdAt: card.createdAt,
+                name: 'certif',
+                type: 'write_certif',
+                mutate: mutatePatientDetails
+            })
+            setOpenDialog(true);
+        } else {
+            setOpenDialog(true);
+            let info = card
+            let uuidDoc = "";
+            switch (card.documentType) {
+                case "prescription":
+                    info = card.prescription[0].prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid
+                    break;
+                case "requested-analysis":
+                    info = card.requested_Analyses[0].analyses;
+                    break;
+                case "requested-medical-imaging":
+                    info = card.medical_imaging[0]['medical-imaging'];
+                    break;
+            }
+            setDocument({
+                uuid: card.uuid,
+                uri: card.uri,
+                name: card.title,
+                type: card.documentType,
+                info: info,
+                uuidDoc: uuidDoc,
+                createdAt: card.createdAt,
+                patient: patient.firstName + ' ' + patient.lastName,
+                mutate: mutatePatientDetails
+            })
+            setOpenDialog(true);
+        }
+    }
     // query media for mobile
     const isMobile = useMediaQuery("(max-width:600px)");
-
     // translation
-    const {t, ready} = useTranslation("patient", {
-        keyPrefix: "config",
-    });
+    const {t, ready} = useTranslation(["consultation", "patient"]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
-            {documents.length > 0 ? (
-                <Card
+            {documents.length > 0 || patientDocuments?.length > 0 ? (
+                <PanelCardStyled
                     className={"container"}
                     sx={{
-                        tbody: {
-                            mt: 1,
-                        },
                         "& .MuiCardContent-root": {
                             background: "white"
                         },
@@ -145,51 +147,65 @@ function DocumentsPanel({...props}) {
                     }}
                 >
                     <CardContent>
-                        <Typography gutterBottom>{t("table.title")}</Typography>
+                        <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
+                            <Toolbar variant="dense">
+                                <Box sx={{flexGrow: 1}}>
+                                    <Typography
+                                        variant="body1"
+                                        sx={{fontWeight: "bold"}}
+                                        gutterBottom>
+                                        {t("config.table.title", {ns: 'patient'})}
+                                    </Typography>
+                                </Box>
+                            </Toolbar>
+                        </AppBar>
+
                         {isMobile ? (
                             <PatientDetailsDocumentCard
-                                data={["all", ...typeofDocs].map((item) => ({
+                                data={typeofDocs.map((item) => ({
                                     lable: item,
                                 }))}
                                 onSellected={(v: string) => {
-                                    setChecked(
-                                        v === "all" ? documents : documents.filter((item: PatientDocuments) => item.documentType === v)
-                                    )
+                                    setChecked(documents.filter((item: PatientDocuments) => item.documentType === v))
                                 }}
                             />
                         ) : (
                             <>
                                 <FormControlLabel
+                                    key={uniqueId()}
                                     control={
                                         <Checkbox
-                                            checked={checked.length === documents.length}
-                                            onChange={handleCheckAll}
+                                            checked={selectedTypes.length === 0}
+                                            onChange={() => {
+                                                setSelectedTypes([])
+                                            }}
                                         />
                                     }
-                                    label={t("table.all")}
+                                    label={t(`config.table.all`, {ns: 'patient'})}
                                 />
                                 {typeofDocs.map((type) => (
                                     <FormControlLabel
                                         key={uniqueId()}
                                         control={
                                             <Checkbox
-                                                checked={
-                                                    checked.length === documents.length
-                                                        ? false
-                                                        : checked.some((item) => item.documentType === type)
-                                                }
+                                                checked={type === 'all' ? selectedTypes.length === 0 : selectedTypes.some(t => type === t)}
                                                 onChange={handleToggle(type)}
                                             />
                                         }
-                                        label={t(`table.${type}`)}
+                                        label={t(`config.table.${type}`, {ns: 'patient'})}
                                     />
                                 ))}
                             </>
                         )}
 
-                        <Otable
+                        {/*                        <Otable
                             headers={headCells}
-                            rows={documents}
+                            rows={documents.filter((doc: { documentType: string; }) => {
+                                if (selectedTypes.length === 0) return true;
+                                else {
+                                    return selectedTypes.some(st => st === doc.documentType)
+                                }
+                            })}
                             from={"patient-documents"}
                             t={t}
                             checkedType={checked}
@@ -197,47 +213,88 @@ function DocumentsPanel({...props}) {
                             hideHeaderOnMobile
                             handleEvent={(action: string, document: any) => {
                                 if (action === "MORE") {
-                                    if (document.documentType === 'photo') {
-                                        setIsViewerOpen(document.uri)
-                                    } else if (document.documentType === 'medical-certificate') {
-                                        setDocument({
-                                            content: document.certificate[0].content,
-                                            doctor: document.name,
-                                            patient: document.patient,
-                                            days: document.days,
-                                            name: 'certif',
-                                            type: 'write_certif'
-                                        })
-                                        setOpenDialog(true);
-                                    } else {
-                                        let info = null;
-                                        switch (document.documentType) {
-                                            case "prescription":
-                                                info = document.prescription[0].prescription_has_drugs;
-                                                break;
-                                            case "requested-analysis":
-                                                info = document.requested_Analyses[0].analyses;
-                                                break;
-                                        }
-                                        setDocument({
-                                            uuid: document.uuid,
-                                            uri: document.uri,
-                                            name: document.title,
-                                            type: document.documentType,
-                                            info,
-                                            patient: patient.firstName + ' ' + patient.lastName,
-                                            mutate: document
-                                        });
-                                        console.log(document);
-                                        setOpenDialog(true);
-                                    }
+                                    showDoc(document)
+                                }
+                                if (action === "LISTEN") {
+                                    const audio = new Audio(document.uri)
+                                    audio.play().then(r => console.log('stoped', r));
                                 }
                             }}
-                        />
+                        />*/}
+
+                        <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                            <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
+                                <Tab label="Documents du rendez-vous" {...a11yProps(0)} />
+                                <Tab label="Documents du patient" {...a11yProps(1)} />
+                            </Tabs>
+                        </Box>
+                        <TabPanel value={currentTab} index={0}>
+                            <Box display='grid' className={'document-container'}
+                                 {...(documents.length > 0 && {
+                                     sx: {
+                                         gridGap: 16,
+                                         gridTemplateColumns: {
+                                             xs: "repeat(2,minmax(0,1fr))",
+                                             md: "repeat(4,minmax(0,1fr))",
+                                             lg: "repeat(5,minmax(0,1fr))",
+                                         },
+                                     }
+                                 })}>
+                                {documents.length > 0 ?
+                                    documents.filter((doc: MedicalDocuments) =>
+                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
+                                        .map((card: any, idx: number) =>
+                                            <React.Fragment key={`doc-item-${idx}`}>
+                                                <DocumentCard
+                                                    onClick={() => {
+                                                        showDoc(card)
+                                                    }}
+                                                    {...{t}} data={card}/>
+                                            </React.Fragment>
+                                        )
+                                    :
+                                    <NoDataCard t={t} ns={"patient"}
+                                                onHandleClick={() => setOpenUploadDialog(true)}
+                                                data={AddAppointmentCardWithoutButtonsData}/>
+                                }
+                            </Box>
+                        </TabPanel>
+                        <TabPanel value={currentTab} index={1}>
+                            <Box display='grid' className={'document-container'}
+                                 {...(patientDocuments?.length > 0 && {
+                                     sx: {
+                                         gridGap: 16,
+                                         gridTemplateColumns: {
+                                             xs: "repeat(2,minmax(0,1fr))",
+                                             md: "repeat(4,minmax(0,1fr))",
+                                             lg: "repeat(5,minmax(0,1fr))",
+                                         },
+                                     }
+                                 })}>
+                                {patientDocuments?.length > 0 ?
+                                    patientDocuments?.filter((doc: MedicalDocuments) =>
+                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
+                                        <React.Fragment key={`doc-item-${idx}`}>
+                                            <DocumentCard
+                                                onClick={() => {
+                                                    showDoc(card)
+                                                }}
+                                                {...{t}} data={card}/>
+                                        </React.Fragment>
+                                    )
+                                    :
+                                    <NoDataCard t={t} ns={"patient"}
+                                                onHandleClick={() => setOpenUploadDialog(true)}
+                                                data={AddAppointmentCardData}/>
+                                }
+                            </Box>
+                        </TabPanel>
                     </CardContent>
-                </Card>
+                </PanelCardStyled>
             ) : (
-                <NoDataCard t={t} ns={"patient"} data={AddAppointmentCardData}/>
+                <NoDataCard t={t} ns={"patient"}
+                            onHandleClick={() => setOpenUploadDialog(true)}
+                            data={AddAppointmentCardData}/>
             )}
 
             <Dialog action={"document_detail"}
@@ -246,7 +303,7 @@ function DocumentsPanel({...props}) {
                     size={"lg"}
                     direction={'ltr'}
                     sx={{p: 0}}
-                    title={t("doc_detail_title")}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
                     onClose={handleCloseDialog}
                     dialogClose={handleCloseDialog}
             />

@@ -1,8 +1,7 @@
-import { Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import {Box} from '@mui/material';
+import {styled} from '@mui/material/styles';
 
-const PersonalInfoStyled = styled(Box)(({ theme }) => ({
-    mt: "0.5rem",
+const PersonalInfoStyled = styled(Box)(({theme}) => ({
     "& .MuiSelect-select": {
         padding: "0 2rem 0 1rem"
     },
@@ -17,21 +16,38 @@ const PersonalInfoStyled = styled(Box)(({ theme }) => ({
         boxShadow: "none!important"
     },
     "& .MuiPaper-root": {
-        pt: 0
+        paddingTop: 0
     },
     "& .MuiAppBar-root": {
         border: "none",
         borderBottom: "1px solid #E0E0E0",
         height: 46,
-        mb: 2,
+        marginBottom: 2,
         "& .MuiTypography-root": {
             fontSize: 14,
-            pt: 0
+            paddingTop: 0
         }
     },
     "& .MuiToolbar-root": {
         float: "right",
         padding: 0
+    },
+    "& .grid-border": {
+        border: `1px solid ${theme.palette.grey['A100']}`,
+        borderRadius: 4,
+        "& .MuiInputBase-root": {
+            paddingLeft: 12
+        }
+    },
+    "& .datepicker-grid-border": {
+        "& .MuiInputBase-root": {
+            minHeight: 31
+        }
+    },
+    "& .datepicker-style": {
+        "& .MuiInputBase-input": {
+            paddingLeft: 0
+        }
     }
 }));
 

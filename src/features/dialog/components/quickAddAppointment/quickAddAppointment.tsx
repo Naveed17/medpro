@@ -10,11 +10,13 @@ function QuickAddAppointment({...props}) {
         <QuickAddAppointmentStyled>
             <EventType select defaultType={0}/>
             <TimeSchedule select/>
-            <Patient select {...{handleAddPatient}} onPatientSearch={() => {
-                setTimeout(() => {
-                    (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
-                }, 300);
-            }}/>
+            <Patient select
+                     {...{handleAddPatient}}
+                     onPatientSearch={() => {
+                         setTimeout(() => {
+                             (bottomRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+                         }, 300);
+                     }}/>
             <div ref={bottomRef}/>
         </QuickAddAppointmentStyled>
     )

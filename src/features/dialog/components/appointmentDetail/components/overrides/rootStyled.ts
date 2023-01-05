@@ -8,6 +8,11 @@ const RootStyled = styled(Paper)(({ theme }) => ({
     boxShadow: '-5px 14px 26px rgba(0, 150, 214, 0.37)',
     border: 'none',
     borderRadius: '0px',
+    '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+        color: theme.palette.primary.main,
+        fontSize: 16,
+
+    }  ,
     '& .MuiAppBar-root': {
         border: 'none',
         borderBottom: `1px solid ${theme.palette.divider}`,

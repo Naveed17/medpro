@@ -1,19 +1,25 @@
 interface Qualifications {
     step1: {
-        patient_group: string;
+        picture: {
+            url: string;
+            file: string;
+        }
+        fiche_id: string;
         first_name: string;
         last_name: string;
-        country_code: {
-            code: string;
-            label: string;
-            phone: string;
-        } | null,
         birthdate: {
             day: string;
             month: string;
             year: string;
         };
-        phone: number | "";
+        phones: [{
+            phone: string;
+            dial: {
+                code: string;
+                label: string;
+                phone: string;
+            }
+        }];
         gender: string;
     };
     step2: {
@@ -23,6 +29,7 @@ interface Qualifications {
         address: string;
         email: string;
         cin: string;
+        profession: string;
         family_doctor: string;
         insurance: {
             insurance_number: string;

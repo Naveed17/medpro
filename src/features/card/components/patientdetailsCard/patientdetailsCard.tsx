@@ -1,49 +1,104 @@
 //material-ui
-import {
-    Box,
-    Button,
-    Typography,
-    Badge,
-    Skeleton,
-    InputBase,
-    Stack,
-    useTheme,
-} from "@mui/material";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import {Avatar, Badge, Box, Button, IconButton, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 
 // utils
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
-import {useAppSelector} from "@app/redux/hooks";
 import moment from "moment-timezone";
-import {timerSelector} from "@features/card";
 import {QrCodeScanner} from "@features/qrCodeScanner";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
+import {InputStyled} from "@features/tabPanel";
+import React, {useState} from "react";
+import {CropImage} from "@features/cropImage";
+import {useRequestMutation} from "@app/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import {LoadingButton} from "@mui/lab";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import CloseIcon from "@mui/icons-material/Close";
 
 function PatientDetailsCard({...props}) {
-    const {patient, onConsultation, loading} = props;
-
+    const {patient, patientPhoto, onConsultation, mutatePatientList, loading} = props;
+    const {data: session} = useSession();
+    const router = useRouter();
     const theme = useTheme();
-    const {isActive} = useAppSelector(timerSelector);
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            name: !loading && `${patient.firstName} ${patient.lastName}`,
-            birthdate: !loading ? patient.birthdate : "",
+            fiche_id: !loading && patient.fiche_id ? patient.fiche_id : "",
+            picture: {url: !loading && patientPhoto ? patientPhoto : "", file: ""},
+            name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
+            birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
         onSubmit: async (values) => {
             console.log("ok", values);
         },
     });
-    const {handleSubmit, values, getFieldProps} = formik;
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "patient-details",
     });
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {values, getFieldProps, setFieldValue} = formik;
+
+    const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [editable, setEditable] = useState(false);
+    const [requestLoading, setRequestLoading] = useState(false);
+
+    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
+
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setFieldValue("picture.url", URL.createObjectURL(file));
+        setFieldValue("picture.file", file);
+        setOpenUploadPicture(true);
+    };
+
+    const uploadPatientDetail = () => {
+        setRequestLoading(true);
+        const params = new FormData();
+        if (patient) {
+            params.append('first_name', patient.firstName);
+            params.append('last_name', patient.lastName);
+            params.append('phone', JSON.stringify(patient.contact));
+            params.append('gender', patient.gender);
+            values.picture.url.length > 0 && params.append('photo', values.picture.file);
+            values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
+            patient.email && params.append('email', patient.email);
+            patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+            patient.profession && params.append('profession', patient.profession);
+            patient.birthdate && params.append('birthdate', patient.birthdate);
+            patient.note && params.append('note', patient.note);
+            patient.idCard && params.append('idCard', patient.idCard);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
+
+            triggerPatientUpdate({
+                method: "PUT",
+                url: `/api/medical-entity/${medical_entity.uuid}/patients/${patient?.uuid}/${router.locale}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`
+                },
+                data: params,
+            }).then(() => {
+                setRequestLoading(false);
+                mutatePatientList();
+            });
+        }
+    }
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -54,7 +109,7 @@ function PatientDetailsCard({...props}) {
                         <Badge
                             color="success"
                             variant="dot"
-                            invisible={patient?.nextAppointments.length === 0}
+                            invisible={patient?.nextAppointments.length === 0 || loading}
                             anchorOrigin={{
                                 vertical: "bottom",
                                 horizontal: "right",
@@ -62,22 +117,37 @@ function PatientDetailsCard({...props}) {
                             {loading ? (
                                 <Skeleton
                                     variant="rectangular"
-                                    width={pxToRem(59)}
-                                    height={pxToRem(59)}
+                                    width={pxToRem(100)}
+                                    height={pxToRem(100)}
                                     sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
                                 />
                             ) : (
-                                <Box
-                                    component="img"
-                                    src={
-                                        patient?.gender === "M"
-                                            ? "/static/icons/men-avatar.svg"
-                                            : "/static/icons/women-avatar.svg"
-                                    }
-                                    width={pxToRem(59)}
-                                    height={pxToRem(59)}
-                                    sx={{borderRadius: pxToRem(10), mb: pxToRem(10), mr: 1}}
-                                />
+                                <label htmlFor="contained-button-file" style={{cursor: "pointer"}}>
+                                    <InputStyled
+                                        id="contained-button-file"
+                                        onChange={(e) => handleDrop(e.target.files as FileList)}
+                                        type="file"
+                                    />
+                                    <Avatar
+                                        src={values.picture.url}
+                                        sx={{
+                                            width: 100, height: 100, "& svg": {
+                                                padding: 1.5
+                                            }
+                                        }}
+                                    >
+                                        <IconUrl path="ic-user-profile"/>
+                                    </Avatar>
+                                    <IconButton
+                                        onClick={() => {
+                                            document.getElementById('contained-button-file')?.click()
+                                        }}
+                                        type="button"
+                                        className={"import-avatar"}
+                                    >
+                                        <IconUrl path="ic-return-photo"/>
+                                    </IconButton>
+                                </label>
                             )}
                         </Badge>
                         <Box mx={1}>
@@ -90,6 +160,7 @@ function PatientDetailsCard({...props}) {
                                         style: {
                                             background: "white",
                                             fontSize: pxToRem(14),
+                                            fontWeight: "bold"
                                         },
                                     }}
                                     {...getFieldProps("name")}
@@ -102,7 +173,7 @@ function PatientDetailsCard({...props}) {
                                 <Stack
                                     className={"date-birth"}
                                     direction={"row"} alignItems="center">
-                                    <Icon path="ic-anniverssaire"/>
+                                    <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
                                     <Box
                                         sx={{
                                             input: {
@@ -145,8 +216,90 @@ function PatientDetailsCard({...props}) {
                                         </Typography>}
                                 </Stack>
                             )}
+                            {loading ?
+                                <Skeleton variant="text" width={150}/>
+                                :
+                                <Stack direction={"row"} alignItems="center">
+                                    <Typography
+                                        variant="body2"
+                                        component="span"
+                                        color={"gray"}
+                                        className="email-link">
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <>
+                                                <Icon path="ic-message-contour"/>
+                                                <Typography {...(!patient?.email && {color: "primary"})}
+                                                            variant={"body2"}>{patient?.email ? patient?.email : t('add-email')}</Typography>
+                                            </>
+                                        )}
+                                    </Typography>
+                                </Stack>}
+                            {loading ?
+                                <Skeleton variant="text" width={150}/>
+                                :
+                                <Stack direction={"row"} alignItems="center">
+                                    <Typography
+                                        variant="body2"
+                                        component="span"
+                                        color={"gray"}>
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Icon width={"14"} height={"14"} path="ic-doc"/>
+                                                <InputBase
+                                                    className={"input-base-custom"}
+                                                    readOnly={!editable}
+                                                    inputProps={{
+                                                        style: {
+                                                            fontSize: pxToRem(12),
+                                                            width: values.fiche_id.length > 0 ? "fit-content" : "240px"
+                                                        },
+                                                    }}
+                                                    placeholder={t("fiche_placeholder")}
+                                                    {...getFieldProps("fiche_id")}/>
+                                                {editable ?
+                                                    <>
+                                                        <LoadingButton
+                                                            loading={requestLoading}
+                                                            onClick={() => {
+                                                                setEditable(false);
+                                                                uploadPatientDetail();
+                                                            }}
+                                                            className='btn-add'
+                                                            sx={{margin: 'auto'}}
+                                                            size='small'
+                                                            startIcon={<SaveAsIcon/>}>
+                                                            {t('register')}
+                                                        </LoadingButton>
+                                                        <Button
+                                                            size='small'
+                                                            color={"error"}
+                                                            onClick={() => setEditable(false)}
+                                                            startIcon={<CloseIcon/>}
+                                                        >
+                                                            {t(`cancel`)}
+                                                        </Button>
+                                                    </>
+                                                    :
+                                                    <IconButton size="small"
+                                                                onClick={() => setEditable(true)}
+                                                                sx={{
+                                                                    padding: "4px",
+                                                                    "& .react-svg": {
+                                                                        margin: 0,
+                                                                    }
+                                                                }}>
+                                                        <IconUrl path='ic-duotone'/>
+                                                    </IconButton>}
+                                            </Stack>
+                                        )}
+                                    </Typography>
+                                </Stack>}
                         </Box>
-                        <div>
+                        {/*                        <div>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
@@ -161,48 +314,8 @@ function PatientDetailsCard({...props}) {
                                     </Typography>
                                 </Stack>
                             )}
-                            <Stack direction={"row"} alignItems="flex-start" mt={0}>
-                                <Typography
-                                    variant="body2"
-                                    color="primary"
-                                    component="span"
-                                    className="email-link">
-                                    {loading ? (
-                                        <Skeleton variant="text" width={100}/>
-                                    ) : (
-                                        patient?.email && (
-                                            <>
-                                                <Icon path="ic-message-contour"/>
-                                                {patient?.email}
-                                            </>
-                                        )
-                                    )}
-                                </Typography>
-                            </Stack>
-                        </div>
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            sx={{ml: {md: 1, sm: 0, xs: 0}, mt: {md: 4, sm: 1, xs: 1}}}>
-                            {loading ? (
-                                <Skeleton
-                                    variant="text"
-                                    width={100}
-                                    sx={{marginRight: 1}}/>
-                            ) : (
-                                <>
-                                    {patient?.telephone && (
-                                        <>
-                                            <Icon path="ic-tel"/>
-                                            <Typography variant="body2">
-                                                {patient?.telephone}
-                                            </Typography>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </Box>
-                       {/* {onConsultation && (
+                        </div>*/}
+                        {/* {onConsultation && (
                             <>
                                 {loading ? (
                                     <Skeleton
@@ -241,6 +354,16 @@ function PatientDetailsCard({...props}) {
                     )}
                 </RootStyled>
             </Form>
+            <CropImage
+                {...{setFieldValue}}
+                filedName={"picture.url"}
+                open={openUploadPicture}
+                img={values.picture.url}
+                setOpen={(status: boolean) => {
+                    setOpenUploadPicture(status);
+                    uploadPatientDetail();
+                }}
+            />
         </FormikProvider>
     );
 }

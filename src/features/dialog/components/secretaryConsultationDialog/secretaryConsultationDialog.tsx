@@ -61,7 +61,7 @@ function SecretaryConsultationDialog({...props}) {
                             }}
                         />
                         <Stack direction={"row"} alignItems={"center"}>
-                            <Typography mr={1}>Montant a payé : </Typography>
+                            <Typography mr={1}>Montant à payer : </Typography>
 
                             <Label
                                 variant="filled"
@@ -132,14 +132,14 @@ function SecretaryConsultationDialog({...props}) {
                         maxWidth={{xs: "100%", md: "80%"}}
                         mx="auto"
                         width={1}>
-                        <Typography variant="subtitle1">
+                        <Typography mt={{xs:3,md:0}} variant="subtitle1">
                             {t("recap")}
                         </Typography>
 
                         <Box display='grid' sx={{
                             gridGap: 16,
                             gridTemplateColumns: {
-                                xs: "repeat(1,minmax(0,1fr))",
+                                xs: "repeat(2,minmax(0,1fr))",
                                 md: "repeat(3,minmax(0,1fr))",
                                 lg: "repeat(3,minmax(0,1fr))",
                             }

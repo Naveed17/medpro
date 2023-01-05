@@ -1,8 +1,24 @@
 export const collapse = [
+
     {
         id: 1,
         title: 'treatment_in_progress',
         icon: 'ic-medicament',
+    },
+    {
+        id: 6,
+        title: 'riskFactory',
+        icon: 'ic-recherche',
+    },
+    {
+        id: 7,
+        title: 'allergic',
+        icon: 'allergies',
+    },
+    {
+        id: 4,
+        title: 'antecedent',
+        icon: 'ic-doc',
     },
     {
         id: 2,
@@ -19,20 +35,5 @@ export const collapse = [
         title: 'consultation',
         icon: 'ic-agenda',
 
-    },
-    {
-        id: 6,
-        title: 'riskFactory',
-        icon: 'ic-recherche',
-    },
-    {
-        id: 7,
-        title: 'allergic',
-        icon: 'allergies',
-    },
-    {
-        id: 4,
-        title: 'antecedent',
-        icon: 'ic-doc',
     }
 ];

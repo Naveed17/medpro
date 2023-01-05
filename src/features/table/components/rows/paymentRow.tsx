@@ -62,23 +62,6 @@ function PaymentRow({...props}) {
                         row.amount === 0 ? 1 : 0.1),
                     cursor: row.collapse ? 'pointer' : 'default'
                 }}>
-                <TableCell padding="checkbox">
-                    {loading ? (
-                        <Skeleton variant="circular" width={28} height={28}/>
-                    ) : (
-                        <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                                "aria-labelledby": labelId,
-                            }}
-                            onChange={(ev) => {
-                                handleClick(row.uuid as string)
-                                handleChange('checkTransaction', row, ev.target.checked)
-                            }}
-                        />
-                    )}
-                </TableCell>
                 <TableCell>
                     {loading ? (
                         <Stack direction="row" spacing={1} alignItems="center">

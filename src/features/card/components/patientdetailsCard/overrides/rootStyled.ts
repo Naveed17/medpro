@@ -6,15 +6,15 @@ const RootStyled = styled(Stack)(({theme}) => ({
     display: "flex",
     alignItems: "center",
     backgroundColor: theme.palette.background.paper,
-    marginTop: theme.spacing(9),
+    marginTop: theme.spacing(6.5),
     flexDirection: "row",
     [theme.breakpoints.down("md")]: {
         flexDirection: "column",
     },
     borderBottom: `1px solid ${theme.palette.divider}`,
     "& .BaseBadge-badge": {
-        bottom: 14,
-        right: 9,
+        bottom: 5,
+        right: 2,
         height: 14,
         width: 14,
         borderRadius: "50%",
@@ -23,10 +23,9 @@ const RootStyled = styled(Stack)(({theme}) => ({
         marginRight: "5px",
     },
     "& .date-birth": {
-        marginTop: theme.spacing(.2),
         display: "flex",
         alignItems: "center",
-        svg: {marginRight: theme.spacing(0.5)},
+        marginTop: -4,
         [theme.breakpoints.down("md")]: {
             marginBottom: theme.spacing(1),
         },
@@ -55,10 +54,30 @@ const RootStyled = styled(Stack)(({theme}) => ({
     "& .email-link": {
         alignItems: "center",
         display: "flex",
-        [theme.breakpoints.up("md")]: {
-            marginLeft: theme.spacing(1),
-        },
+        marginTop: 1,
+        marginLeft: -1,
         svg: {height: 16, width: 16},
     },
+    "& .import-avatar": {
+        "& .react-svg": {
+            margin: 0
+        },
+        "& svg": {
+            width: 28,
+            height: 26
+        },
+        position: "absolute",
+        borderRadius: 8,
+        bottom: 8,
+        right: 8,
+        zIndex: 1,
+        padding: 0,
+        background: theme.palette.background.paper
+    },
+    "& .input-base-custom": {
+        "input::placeholder": {
+
+        }
+    }
 }));
 export default RootStyled;

@@ -12,8 +12,7 @@ import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplic
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 
 function DuplicateDetected({...props}) {
-    const {data, translationKey = "patient"} = props;
-    const {data: duplicatedPatients, key} = data;
+    const {data: duplicatedPatients, translationKey = "patient"} = props;
     const dispatch = useAppDispatch();
     const {fields: duplicatedFields, patient} = useAppSelector(duplicatedSelector);
     const [selectedValue, setSelectedValue] = useState<string>("1");

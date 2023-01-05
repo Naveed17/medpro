@@ -44,7 +44,7 @@ const emptyObject = {
 };
 
 function BackgroundCard({...props}) {
-    const {loading, patient, mutate} = props;
+    const {loading, patient, mutatePatientDetails} = props;
 
     const {direction} = useAppSelector(configSelector);
 
@@ -88,7 +88,7 @@ function BackgroundCard({...props}) {
             }, TriggerWithoutValidation
         ).then((r) => console.log("edit qualification", r));
 
-        mutate();
+        mutatePatientDetails();
         setOpenDialog(false);
         setInfo("");
     };
@@ -99,7 +99,6 @@ function BackgroundCard({...props}) {
             return;
         }
         setState(patient.antecedents[action]);
-        console.log(action);
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
 
@@ -118,8 +117,10 @@ function BackgroundCard({...props}) {
             return obj;
         });
         setdata(newState);
-    };
+    }
+
     const {t, ready} = useTranslation("patient", {keyPrefix: "background"});
+
     if (!ready) return <div>Loading...</div>;
 
     return (

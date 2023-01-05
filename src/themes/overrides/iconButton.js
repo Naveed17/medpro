@@ -39,7 +39,7 @@ export default function IconButton(theme) {
           },
           "&.success-light": {
             backgroundColor: alpha(theme.palette.success.main, 0.3),
-            borderRadius: "10px",
+            borderRadius: "6px",
             "&:hover": {
               backgroundColor: alpha(theme.palette.success.main, 0.6),
             },
@@ -48,6 +48,9 @@ export default function IconButton(theme) {
                 fill: theme.palette.text.primary,
               },
             },
+            "&.Mui-disabled":{
+              backgroundColor: theme.palette.grey[100]
+            }
           },
           "&.error-light": {
             border: `1px solid ${theme.palette.error.lighter}`,
@@ -61,6 +64,9 @@ export default function IconButton(theme) {
                 fill: theme.palette.error.main,
               },
             },
+            "&.Mui-disabled":{
+              backgroundColor: theme.palette.grey[100]
+            }
           },
         },
       },

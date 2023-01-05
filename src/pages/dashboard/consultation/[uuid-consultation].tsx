@@ -37,6 +37,8 @@ import {SubHeader} from "@features/subHeader";
 import {SubFooter} from "@features/subFooter";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import {LoadingScreen} from "@features/loadingScreen";
+import {appLockSelector} from "@features/appLock";
+import moment from "moment";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -56,10 +58,8 @@ function ConsultationInProgress() {
     const theme = useTheme();
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
-    //const [file, setFile] = useState("/static/files/sample.pdf");
     const [acts, setActs] = useState<any>("");
     const [total, setTotal] = useState<number>(0);
-    //const [numPages, setNumPages] = useState<number | null>(null);
     const [documents, setDocuments] = useState([]);
     const [models, setModels] = useState<ModalModel[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -116,6 +116,7 @@ function ConsultationInProgress() {
         {index: 2, name: "requested-medical-imaging", icon: "ic-soura", checked: false},
         {index: 1, name: "medical-certificate", icon: "ic-text", checked: false},
     ]);
+    const {lock} = useAppSelector(appLockSelector);
 
     const EventStepper = [
         {
@@ -149,7 +150,7 @@ function ConsultationInProgress() {
         const form = new FormData();
         form.append('status', status);
         if (params) {
-            Object.entries(params).map((param: any, index) => {
+            Object.entries(params).map((param: any) => {
                 form.append(param[0], param[1]);
             });
         }
@@ -241,7 +242,7 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (httpDocumentResponse) {
-            const data  = (httpDocumentResponse as HttpResponse).data
+            const data = (httpDocumentResponse as HttpResponse).data
             setDocuments(data);
             changes.map(change => {
                 const item = data.filter((doc: { documentType: string; }) => doc.documentType === change.name)
@@ -570,19 +571,19 @@ function ConsultationInProgress() {
     };
     const DialogAction = () => {
         return (
-            <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
+            <DialogActions  style={{justifyContent: 'space-between', width: '100%'}}>
                 <Button
                     variant="text-black"
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
-                    {t("withoutSave")}
+                    <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("withoutSave")}</Typography>
                 </Button>
                 <Stack direction={"row"} spacing={2}>
                     <Button
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        {t("cancel")}
+                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("cancel")}</Typography>
                     </Button>
                     <Button
                         variant="contained"
@@ -591,7 +592,7 @@ function ConsultationInProgress() {
                             saveConsultation()
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        {t("end_consultation")}
+                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("end_consultation")}</Typography>
                     </Button>
                 </Stack>
             </DialogActions>
@@ -605,8 +606,11 @@ function ConsultationInProgress() {
                 uuid: card.uuid,
                 content: card.certificate[0].content,
                 doctor: card.name,
-                patient: card.patient,
+                patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
+                description:card.description,
+                title:card.title,
+                createdAt:card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
                 mutate: mutateDoc,
@@ -633,6 +637,8 @@ function ConsultationInProgress() {
                 uri: card.uri,
                 name: card.title,
                 type: card.documentType,
+                createdAt:card.createdAt,
+                description:card.description,
                 info: info,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName,
@@ -736,15 +742,12 @@ function ConsultationInProgress() {
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet &&
                                 <ConsultationDetailCard
-                                    {...{changes, setChanges, uuind}}
+                                    {...{changes, setChanges, uuind,agenda:agenda?.uuid,mutateDoc,medical_entity,session,router}}
                                     exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
                 </TabPanel>
                 <TabPanel padding={1} value={value} index={"documents"}>
-                    {/*
-                    <Button onClick={sendNotification}>send</Button>
-*/}
                     <DocumentsTab
                         documents={documents}
                         setIsViewerOpen={setIsViewerOpen}
@@ -754,6 +757,9 @@ function ConsultationInProgress() {
                         selectedDialog={selectedDialog}
                         patient={patient}
                         mutateDoc={mutateDoc}
+                        router={router}
+                        session={session}
+                        trigger={trigger}
                         setOpenDialog={setOpenDialog}
                         t={t}></DocumentsTab>
                 </TabPanel>
@@ -795,7 +801,7 @@ function ConsultationInProgress() {
                     ))}
                 </Stack>
                 <Box pt={8}>
-                    <SubFooter>
+                    {!lock && <SubFooter>
                         <Stack width={1} direction={"row"} alignItems="flex-end"
                                justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
                             {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
@@ -810,12 +816,14 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant='text-black'
+                                        disabled={selectedAct.length === 0}
                                         onClick={() => {
                                             setInfo('document_detail')
                                             setState({
                                                 type: 'fees',
                                                 name: 'note_fees',
                                                 info: selectedAct,
+                                                createdAt:moment().format('DD/MM/YYYY'),
                                                 consultationFees: free ? 0 : consultationFees,
                                                 patient: patient.firstName + ' ' + patient.lastName
                                             })
@@ -855,7 +863,7 @@ function ConsultationInProgress() {
                                     : t("end_of_consultation")}
                             </Button>
                         </Stack>
-                    </SubFooter>
+                    </SubFooter>}
                 </Box>
                 <Drawer
                     anchor={"right"}
@@ -935,7 +943,7 @@ function ConsultationInProgress() {
                         display: {xs: "flex", md: "none"},
                     }}
                     variant="filter">
-                    {t('Filtrer')}
+                    {t('Fiche')}
                 </Button>
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}

@@ -11,7 +11,7 @@ const settingsData = {
             name: "acts",
             icon: "ic-generaliste",
             href: "/dashboard/settings/acts",
-            disable: false
+            disable: true
         },
         {
             name: "actfees",
@@ -96,8 +96,8 @@ const settingsData = {
             name: "import-data",
             icon: "ic-upload-3",
             fill: "default",
-            href: "/dashboard/settings/import-data",
-            disable: true
+            href: "/dashboard/settings/data",
+            disable: false
         },
         {
             name: "app_lock",

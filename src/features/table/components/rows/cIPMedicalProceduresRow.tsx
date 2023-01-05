@@ -45,6 +45,7 @@ function CIPMedicalProceduresRow({...props}) {
                     <Box className="counter-btn">
                         <IconButton
                             size="small"
+                            sx={{display:{xs:'none',md:'inline-flex'}}}
                             disabled={row.qte <= 1}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -76,6 +77,7 @@ function CIPMedicalProceduresRow({...props}) {
 
                         <IconButton
                             size="small"
+                            sx={{display:{xs:'none',md:'inline-flex'}}}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 row.qte = row.qte + 1

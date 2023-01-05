@@ -1,9 +1,10 @@
-import {Box, Button, Divider, Paper, Tab, Tabs} from "@mui/material";
+import {Box, Button, DialogActions, Divider, Paper, Tab, Tabs} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
 import {
     DocumentsPanel,
+    NotesPanel,
     EventType,
     Instruction,
     PersonalInfoPanel,
@@ -17,7 +18,7 @@ import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch} from "@app/redux/hooks";
-import {useRequest} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -28,6 +29,10 @@ import React, {SyntheticEvent, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/react";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {Dialog} from "@features/dialog";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function a11yProps(index: number) {
     return {
@@ -68,6 +73,8 @@ function PatientDetail({...props}) {
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
+    const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
         {
             title: "tabs.time-slot",
@@ -89,8 +96,10 @@ function PatientDetail({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
-    const {data: httpPatientDetailsResponse, mutate} = useRequest(patientId ? {
+    const {data: httpPatientDetailsResponse, mutate: mutatePatientDetails} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/${router.locale}`,
         headers: {
@@ -98,13 +107,29 @@ function PatientDetail({...props}) {
         },
     } : null);
 
-    const {data: httpPatientHistoryResponse, mutate: mutatePatientHistory} = useRequest(patientId ? {
+    const {data: httpPatientHistoryResponse} = useRequest(patientId ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/appointments/history/${router.locale}`,
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null);
+
+    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patientId ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
+
+    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+
+    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patientId}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     // handle tab change
     const handleStepperIndexChange = (
@@ -121,14 +146,34 @@ function PatientDetail({...props}) {
             setStepperData(steps);
         } else {
             setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
-            mutate();
+            mutatePatientDetails();
         }
     };
 
-    const patient = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+    const handleUploadDocuments = () => {
+        const params = new FormData();
+        params.append("document_type", documentConfig.type);
+        documentConfig.files.map((file: File) => {
+            params.append("document", file, file.name);
+        });
+        triggerUploadDocuments({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            data: params,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            mutatePatientDocuments();
+        });
+    }
+
     const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const previousAppointments = patient ? patient.previousAppointments : [];
+    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient ? patient.documents : [];
+    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -145,7 +190,7 @@ function PatientDetail({...props}) {
                     />
                     <PatientDetailsCard
                         loading={!patient}
-                        {...{patient, onConsultation}}
+                        {...{patient, onConsultation, patientPhoto, mutatePatientList}}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
                         <Tabs
@@ -174,14 +219,23 @@ function PatientDetail({...props}) {
                                 label={t("tabs.documents")}
                                 {...a11yProps(2)}
                             />
+                            <Tab
+                                disableRipple
+                                label={t("tabs.notes")}
+                                {...a11yProps(2)}
+                            />
                         </Tabs>
                         <Divider/>
                         <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel loading={!patient} {...{patient, mutate, mutatePatientList}} />
+                            <PersonalInfoPanel loading={!patient} {...{
+                                patient,
+                                mutatePatientDetails,
+                                mutatePatientList
+                            }} />
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={1}>
-                            {previousAppointments && previousAppointments.length > 0 ? (
-                                <HistoryPanel {...{t, previousAppointments, patient}} />
+                            {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
+                                <HistoryPanel {...{t, previousAppointmentsData, patient}} />
                             ) : (
                                 <NoDataCard
                                     t={t}
@@ -191,7 +245,7 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={1} value={index} index={2}>
-                            {nextAppointments?.length > 0 || previousAppointments?.length > 0? (
+                            {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
                                 <GroupTable from="patient" loading={!patient} data={patient}/>
                             ) : (
                                 <NoDataCard
@@ -202,9 +256,16 @@ function PatientDetail({...props}) {
                             )}
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{documents, patient}} />
+                            <DocumentsPanel {...{
+                                documents,
+                                patient, patientId, setOpenUploadDialog,
+                                mutatePatientDetails,
+                                patientDocuments
+                            }} />
                         </TabPanel>
-
+                        <TabPanel padding={2} value={index} index={4}>
+                            <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />
+                        </TabPanel>
                         <SpeedDial
                             sx={{
                                 position: "fixed",
@@ -237,12 +298,19 @@ function PatientDetail({...props}) {
                         }}
                     >
                         <Button
+                            onClick={() => setOpenUploadDialog(true)}
+                            size="medium"
+                            style={{color: "black"}}
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
+
+                        <Button
                             size="medium"
                             variant="contained"
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
                                 mr: 1,
+                                ml: 1,
                                 width: {md: "auto", sm: "100%", xs: "100%"},
                             }}
                             onClick={() => {
@@ -254,6 +322,45 @@ function PatientDetail({...props}) {
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>
+                    <Dialog
+                        action={"add_a_document"}
+                        open={openUploadDialog}
+                        data={{
+                            t,
+                            state: documentConfig,
+                            setState: setDocumentConfig
+                        }}
+                        size={"md"}
+                        direction={"ltr"}
+                        sx={{minHeight: 400}}
+                        title={t("doc_detail_title")}
+                        dialogClose={() => {
+                            setOpenUploadDialog(false);
+                        }}
+                        onClose={() => {
+                            setOpenUploadDialog(false);
+                        }}
+                        actionDialog={
+                            <DialogActions>
+                                <Button
+                                    onClick={() => {
+                                        setOpenUploadDialog(false);
+                                    }}
+                                    startIcon={<CloseIcon/>}>
+                                    {t("add-patient.cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        setOpenUploadDialog(false);
+                                        handleUploadDocuments();
+                                    }}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {t("add-patient.register")}
+                                </Button>
+                            </DialogActions>
+                        }
+                    />
                 </PatientDetailStyled>
             ) : (
                 <CustomStepper
