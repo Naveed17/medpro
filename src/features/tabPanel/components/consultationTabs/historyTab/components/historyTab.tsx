@@ -17,11 +17,14 @@ import {
 import {useAppSelector} from "@app/redux/hooks";
 import {AppointmentDetail, DialogProps, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import ListItemStyled from "./overrides/listItemStyled"
 import ListItemDetailsStyled from "./overrides/listItemDetailsStyled"
 import BoxFees from "./overrides/boxFeesStyled"
+import Image from "next/image";
+import {styled} from "@mui/material/styles";
 
 function HistoryTab({...props}) {
 
@@ -39,7 +42,8 @@ function HistoryTab({...props}) {
         showDoc,
         session,
         mutate,
-        locale
+        locale,
+        router
     } = props;
 
     const {trigger} = useRequestMutation(null, "/editRA");
@@ -101,7 +105,14 @@ function HistoryTab({...props}) {
     const [collapse, setCollapse] = useState<any>("");
     const [size, setSize] = useState<number>(3);
     const [apps, setApps] = useState<any>([]);
+    const [photos, setPhotos] = useState<any[]>([]);
     const [selected, setSelected] = useState<string>('')
+
+    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patient ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
 
     useEffect(() => {
         setApps([...appointement.latestAppointments]);
@@ -109,6 +120,21 @@ function HistoryTab({...props}) {
             dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
         }
     }, [appointement, appuuid, dispatch]);
+
+    useEffect(()=>{
+
+        if (httpPatientDocumentsResponse) {
+            setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents
+                .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
+        }
+
+        console.log(httpPatientDocumentsResponse)
+
+    },[httpPatientDocumentsResponse]);
+
+    useEffect(()=>{
+        console.log(photos);
+    },[photos]);
 
     const printFees = (app: { appointment: { acts: any[], consultation_fees: string } }) => {
         const selectedActs: {
@@ -161,7 +187,7 @@ function HistoryTab({...props}) {
         });
     }
 
-    const reqSheetChange = (rs: any,ev:any, appID: number, sheetID: number, sheetAnalysisID: number) => {
+    const reqSheetChange = (rs: any, ev: any, appID: number, sheetID: number, sheetAnalysisID: number) => {
         const data = {...rs}
         data.result = ev.target.value
         let capps = [...apps]
@@ -201,6 +227,32 @@ function HistoryTab({...props}) {
                     {t("showAll")}
                 </Button>
             )}
+
+            <Label variant="filled" color="warning">
+                {t("suivi en image")}
+            </Label>
+
+            <Box style={{overflowX:"auto",marginBottom:10}}>
+                <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                    {photos.map((photo, index) => (
+                        <Box key={`photo${index}`} width={150} height={140} borderRadius={2} style={{background: "white"}}>
+                            <Image src={photo.uri}
+                                   alt={'img'}
+                                   style={{borderRadius:"10px 10px 0 0"}}
+                                   width={150}
+                                   height={110}/>
+
+                            <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row" alignItems='center'>
+                                <Icon path="ic-agenda-jour"/>
+                                <Typography fontWeight={600} fontSize={13}>
+                                    {'30/12/2022'}
+                                </Typography>
+                            </Stack>
+
+                        </Box>
+                    ))}
+                </Stack>
+            </Box>
 
             <Stack spacing={2}>
                 {apps.map((app: any, appID: number) => (
@@ -289,14 +341,15 @@ function HistoryTab({...props}) {
                                                                     <Box key={`req-sheet-item-${reqSheetID}`}>
                                                                         {reqSheet.hasAnalysis.map(
                                                                             (rs: any, reqSheetHasAnalysisID: number) => (
-                                                                                <Stack key={`req-sheet-p-${reqSheetHasAnalysisID}`}
-                                                                                       direction={{
-                                                                                           md: "row",
-                                                                                           xs: "column"
-                                                                                       }} className={"boxHisto"}
-                                                                                       alignItems={"center"}
-                                                                                       justifyContent={"space-between"}
-                                                                                       spacing={2}>
+                                                                                <Stack
+                                                                                    key={`req-sheet-p-${reqSheetHasAnalysisID}`}
+                                                                                    direction={{
+                                                                                        md: "row",
+                                                                                        xs: "column"
+                                                                                    }} className={"boxHisto"}
+                                                                                    alignItems={"center"}
+                                                                                    justifyContent={"space-between"}
+                                                                                    spacing={2}>
                                                                                     <Typography fontSize={12}>
                                                                                         {rs.analysis.name}
                                                                                     </Typography>

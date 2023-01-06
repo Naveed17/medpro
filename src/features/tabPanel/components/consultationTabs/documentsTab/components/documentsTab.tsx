@@ -30,10 +30,10 @@ function DocumentsTab({...props}) {
         showDoc,
         router,
         session,
-        t,trigger
+        t, trigger
     } = props;
 
-    const removeDoc = () =>{
+    const removeDoc = () => {
         trigger({
             method: "DELETE",
             url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`,
@@ -130,14 +130,26 @@ function DocumentsTab({...props}) {
                                        height={250}
                                        style={{borderRadius: 10}}
                                        alt={card.title}/>
-                                <Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
+                                {/*<Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
                                             fontSize={11}>
                                     {t(card.title)}
-                                </Typography>
+                                </Typography>*/}
                             </Stack>
                         </React.Fragment>
                     )
                 }
+                {/*<React.Fragment>
+                    <Box width={190} height={190} sx={{background: '#c0c9ce45', borderRadius: 2}}>
+                        <Image src={"/static/img/add-image.png"}
+                               width={80}
+                               height={80}
+                               alt={'add album'}/>
+                        <Typography variant='subtitle2' textAlign={"center"} mt={2} whiteSpace={"nowrap"}
+                                    fontSize={11}>
+                            {'add album'}
+                        </Typography>
+                    </Box>
+                </React.Fragment>*/}
             </Box>
             {documents.length === 0 && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
