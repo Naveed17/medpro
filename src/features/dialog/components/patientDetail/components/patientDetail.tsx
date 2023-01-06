@@ -338,9 +338,7 @@ function PatientDetail({...props}) {
                         data={{
                             t,
                             state: documentConfig,
-                            setState: setDocumentConfig,
-                            loadingRequest,
-                            setLoadingRequest
+                            setState: setDocumentConfig
                         }}
                         size={"md"}
                         direction={"ltr"}
