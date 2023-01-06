@@ -1,12 +1,14 @@
 import Draggable from "react-draggable";
 import {DocHeader} from "@features/files";
-import React, {useRef} from "react";
+import React, {useEffect, useRef} from "react";
 import {Box} from "@mui/material";
 
 const Prescription = ({...props}) => {
     const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
     const content = useRef<HTMLDivElement>(null);
-    content.current?.append(pages[id].content)
+    useEffect(()=>{
+        content.current?.append(pages[id].content)
+    },[id, loading, pages])
     return (
         <>
             {!loading && <Box>
@@ -73,7 +75,7 @@ const Prescription = ({...props}) => {
                                                          style={{height: `${data.content.maxHeight}px`}}>
                                 {data.content.content}</div>}
 
-                            {state !== undefined && <div id={id} ref={content}></div>}
+                            {<div id={id} ref={content}></div>}
                         </div>
                     </Draggable>
 
