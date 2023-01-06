@@ -81,6 +81,8 @@ function ActFees() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
+    console.log(medical_professional);
+
     const {trigger} = useRequestMutation(null, "/settings/acts");
     const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
 

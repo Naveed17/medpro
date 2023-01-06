@@ -5,9 +5,31 @@ import CloseIcon from '@mui/icons-material/Close';
 import moment from "moment-timezone";
 import Icon from "@themes/urlIcon";
 import React from "react";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRequest} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import Zoom from "react-medium-image-zoom";
 
 function PatientAppointmentCard({...props}) {
     const {item: patient, listing, onReset, onEdit, ...rest} = props;
+
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     return (
         <RootStyled
@@ -15,10 +37,22 @@ function PatientAppointmentCard({...props}) {
             {...rest}
             {...{styleprops: listing?.toString()}}
         >
-            <ListItemIcon key={patient.uuid}>
-                <Avatar key={patient.uuid}
-                        src={`/static/icons/${patient.gender !== "O" ? "men" : "women"}-avatar.svg`}
-                        alt={patient.name}/>
+            <ListItemIcon key={patient.uuid} sx={{width: 30}} onClick={event => event.stopPropagation()}>
+                <Zoom>
+                    <Avatar
+                        className={"zoom-list"}
+                        src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                        sx={{
+                            "& .injected-svg": {
+                                margin: 0
+                            },
+                            width: 30,
+                            height: 30,
+                            borderRadius: 1
+                        }}>
+                        <IconUrl width={"30"} height={"30"} path="men-avatar"/>
+                    </Avatar>
+                </Zoom>
             </ListItemIcon>
             <Box>
                 <Stack spacing={.5} direction="row" alignItems='center'>
