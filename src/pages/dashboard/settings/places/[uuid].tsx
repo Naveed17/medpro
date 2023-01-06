@@ -43,6 +43,9 @@ import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
 import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {CountrySelect} from "@features/countrySelect";
+import {countries as dialCountries} from "@features/countrySelect/countries";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -122,10 +125,16 @@ function PlacesDetail() {
         city: Yup.string().required(t("lieux.new.cityReq")),
     });
 
+    const {data: httpContactResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/contact-type/" + router.locale
+    }, SWRNoValidateConfig);
+
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const contactTypes = (httpContactResponse as HttpResponse)?.data as ContactModel[];
 
     const [row, setRow] = useState<any>();
     const [check, setCheck] = useState(true);
@@ -176,6 +185,7 @@ function PlacesDetail() {
             let url: string;
             let phones: {
                 value: string;
+                code: string;
                 type: string;
                 contact_type: string;
                 is_public: boolean;
@@ -185,8 +195,9 @@ function PlacesDetail() {
                 if (value.phone)
                     phones.push({
                         value: value.phone,
+                        code: value.countryCode,
                         type: "phone",
-                        contact_type: "uuid",
+                        contact_type: contactTypes.filter(type => type.name === 'Téléphone')[0].uuid,
                         is_public: !value.hidden,
                         is_support: false,
                     });
@@ -266,32 +277,6 @@ function PlacesDetail() {
 
     const {trigger} = useRequestMutation(null, "/settings/place");
 
-    useEffect(() => {
-        if (data !== undefined) {
-            setRow((data as HttpResponse).data);
-        } else {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
-                setCords([{name: "name", points: [position.coords.latitude, position.coords.longitude]}]);
-            });
-            setHoraires([
-                {
-                    isMain: false,
-                    isVisible: false,
-                    openingHours: {
-                        MON: [],
-                        THU: [],
-                        WED: [],
-                        TUE: [],
-                        FRI: [],
-                        SAT: [],
-                        SUN: [],
-                    },
-                },
-            ]);
-        }
-    }, [data]);
-
     const getCities = (state: string) => {
         trigger(
             {
@@ -328,6 +313,36 @@ function PlacesDetail() {
         [router, session, setFieldValue, trigger]
     );
 
+    const getCountryByCode = (code: string) => {
+        return dialCountries.find(country => country.phone === code)
+    }
+
+    useEffect(() => {
+        if (data !== undefined) {
+            setRow((data as HttpResponse).data);
+        } else {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                setOuterBounds([[position.coords.latitude, position.coords.longitude]]);
+                setCords([{name: "name", points: [position.coords.latitude, position.coords.longitude]}]);
+            });
+            setHoraires([
+                {
+                    isMain: false,
+                    isVisible: false,
+                    openingHours: {
+                        MON: [],
+                        THU: [],
+                        WED: [],
+                        TUE: [],
+                        FRI: [],
+                        SAT: [],
+                        SUN: [],
+                    },
+                },
+            ]);
+        }
+    }, [data]);
+
     useEffect(() => {
         const monday = [...horaires[0].openingHours["MON"]]
 
@@ -357,6 +372,7 @@ function PlacesDetail() {
                 setOuterBounds([row.address.location.point]);
             setCords([{name: "name", points: row.address.location.point}]);
 
+            console.log(row)
             const cnts: any[] = row.contacts.length > 0 ? [] : [
                 {
                     countryCode: "",
@@ -364,10 +380,10 @@ function PlacesDetail() {
                     hidden: false,
                 },
             ];
-            console.log(row.contacts)
+            console.log(row);
             row.contacts.map((contact: ContactModel) => {
                 cnts.push({
-                    countryCode: "",
+                    countryCode: contact.code ? contact.code : "",
                     phone: contact.value,
                     hidden: !contact.isPublic,
                 });
@@ -763,6 +779,7 @@ function PlacesDetail() {
                                                         direction="row"
                                                         alignItems="center"
                                                         position="relative">
+
                                                         <TextField
                                                             variant="outlined"
                                                             placeholder="00 000 000"
@@ -774,8 +791,16 @@ function PlacesDetail() {
                                                             InputProps={{
                                                                 startAdornment: (
                                                                     <InputAdornment position="start">
-                                                                        <CountryCodeSelect
-                                                                            selected={(v: any) =>
+                                                                        <CountrySelect
+                                                                            initCountry={getFieldProps(`phone[${index}].countryCode`) ?
+                                                                                getCountryByCode(getFieldProps(`phone[${index}].countryCode`).value) :
+                                                                                {
+                                                                                    code: "TN",
+                                                                                    label: "Tunisia",
+                                                                                    phone: "+216"
+                                                                                }}
+                                                                            sx={{width: 200}}
+                                                                            onSelect={(v: any) =>
                                                                                 setFieldValue(
                                                                                     `phone[${index}].countryCode`,
                                                                                     v?.phone
