@@ -299,7 +299,7 @@ function MedicalPrescriptionDialog({...props}) {
                                     </Typography>
 
 
-                                    <Button
+                                    {models.length > 0 && <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
                                             <KeyboardArrowDownIcon/>
@@ -310,7 +310,7 @@ function MedicalPrescriptionDialog({...props}) {
                                         aria-expanded={open ? 'true' : undefined}
                                         onClick={handleClick}>
                                         {t('model_prescription')}
-                                    </Button>
+                                    </Button>}
                                     <Menu
                                         id="basic-menu"
                                         anchorEl={anchorEl}
