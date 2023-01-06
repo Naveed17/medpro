@@ -703,6 +703,7 @@ function ConsultationInProgress() {
                             showDoc,
                             setState,
                             setInfo,
+                            router,
                             setIsViewerOpen
                         }}
                         appuuid={uuind}
