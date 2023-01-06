@@ -269,7 +269,7 @@ function PatientDetail({...props}) {
                                 patient, patientId, setOpenUploadDialog,
                                 mutatePatientDetails,
                                 mutatePatientDocuments,
-                                patientDocuments
+                                patientDocuments, loadingRequest, setLoadingRequest
                             }} />
                         </TabPanel>
                         <TabPanel padding={2} value={index} index={4}>
@@ -308,6 +308,7 @@ function PatientDetail({...props}) {
                     >
                         <LoadingButton
                             loading={loadingRequest}
+                            loadingPosition="start"
                             onClick={() => setOpenUploadDialog(true)}
                             size="medium"
                             style={{color: "black"}}

@@ -9,7 +9,7 @@ import {
     FormControlLabel, Tabs, Tab,
     Toolbar,
     Typography,
-    useMediaQuery,
+    useMediaQuery, LinearProgress,
 } from "@mui/material";
 
 //components
@@ -51,7 +51,8 @@ function DocumentsPanel({...props}) {
         documents, documentViewIndex, patient,
         patientId, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
-        mutatePatientDocuments
+        mutatePatientDocuments,
+        loadingRequest, setLoadingRequest
     } = props;
 
     // filter checked array
@@ -204,6 +205,10 @@ function DocumentsPanel({...props}) {
                                 <Tab label="Documents du rendez-vous" {...a11yProps(0)} />
                                 <Tab label="Documents du patient" {...a11yProps(1)} />
                             </Tabs>
+                            <LinearProgress sx={{
+                                mt: .2,
+                                display: loadingRequest ? "block" : "none"
+                            }} color="warning"/>
                         </Box>
                         <TabPanel value={currentTab} index={0}>
                             <Box display='grid' className={'document-container'}
@@ -281,7 +286,8 @@ function DocumentsPanel({...props}) {
                         setOpenDialog, patient,
                         mutatePatientDocuments,
                         documentViewIndex: currentTab,
-                        source: "patient"
+                        source: "patient",
+                        setLoadingRequest
                     }}
                     size={"lg"}
                     direction={'ltr'}

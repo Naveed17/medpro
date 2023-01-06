@@ -43,10 +43,10 @@ function DocumentDetailDialog({...props}) {
         data: {
             state,
             setOpenDialog,
-            source = "consultation",
             patient,
-            mutatePatientDocuments,
-            documentViewIndex
+            mutatePatientDocuments = null,
+            documentViewIndex = 0,
+            setLoadingRequest = null
         }
     } = props
     const router = useRouter();
@@ -183,14 +183,16 @@ function DocumentDetailDialog({...props}) {
                 handlePrint();
                 break;
             case "delete":
+                setLoadingRequest && setLoadingRequest(true);
                 trigger({
                     method: "DELETE",
                     url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
                     state.mutate();
-                    documentViewIndex === 1 && mutatePatientDocuments();
-                    setOpenDialog(false)
+                    (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog(false);
                 });
                 break;
             case "edit":
@@ -343,7 +345,8 @@ function DocumentDetailDialog({...props}) {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                                {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
+                                {state.type === 'photo' &&
+                                    <img src={state.uri} style={{marginLeft: 20, maxWidth: "100%"}} alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
                             </Box>
