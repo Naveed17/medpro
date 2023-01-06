@@ -59,10 +59,8 @@ const TabData = [
 
 function ImportData() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
-    const theme = useTheme();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
@@ -178,12 +176,9 @@ function ImportData() {
 
     const {
         values,
-        errors,
-        touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
-        resetForm
+        setFieldValue
     } = formik;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);

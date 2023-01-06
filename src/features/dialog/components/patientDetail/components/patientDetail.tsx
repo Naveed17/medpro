@@ -33,6 +33,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {LoadingButton} from "@mui/lab";
 
 function a11yProps(index: number) {
     return {
@@ -73,6 +74,8 @@ function PatientDetail({...props}) {
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
+    const [loadingRequest, setLoadingRequest] = useState(false);
+    const [documentViewIndex, setDocumentViewIndex] = useState(0);
     const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [stepperData, setStepperData] = useState([
@@ -151,6 +154,9 @@ function PatientDetail({...props}) {
     };
 
     const handleUploadDocuments = () => {
+        setDocumentViewIndex(1);
+        index !== 3 && setIndex(3);
+        setLoadingRequest(true);
         const params = new FormData();
         params.append("document_type", documentConfig.type);
         documentConfig.files.map((file: File) => {
@@ -165,6 +171,7 @@ function PatientDetail({...props}) {
             },
         }).then(() => {
             mutatePatientDocuments();
+            setLoadingRequest(false);
         });
     }
 
@@ -258,8 +265,10 @@ function PatientDetail({...props}) {
                         <TabPanel padding={2} value={index} index={3}>
                             <DocumentsPanel {...{
                                 documents,
+                                documentViewIndex,
                                 patient, patientId, setOpenUploadDialog,
                                 mutatePatientDetails,
+                                mutatePatientDocuments,
                                 patientDocuments
                             }} />
                         </TabPanel>
@@ -297,11 +306,12 @@ function PatientDetail({...props}) {
                             display: {md: "block", xs: "none"},
                         }}
                     >
-                        <Button
+                        <LoadingButton
+                            loading={loadingRequest}
                             onClick={() => setOpenUploadDialog(true)}
                             size="medium"
                             style={{color: "black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</Button>
+                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</LoadingButton>
 
                         <Button
                             size="medium"
@@ -328,7 +338,9 @@ function PatientDetail({...props}) {
                         data={{
                             t,
                             state: documentConfig,
-                            setState: setDocumentConfig
+                            setState: setDocumentConfig,
+                            loadingRequest,
+                            setLoadingRequest
                         }}
                         size={"md"}
                         direction={"ltr"}
