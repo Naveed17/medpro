@@ -344,9 +344,8 @@ function DocumentDetailDialog({...props}) {
                         {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 {state.type === 'photo' &&
-                                    <img src={state.uri} style={{marginLeft: 20, maxWidth: "100%"}} alt={"img"}/>}
+                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}} alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
                             </Box>
