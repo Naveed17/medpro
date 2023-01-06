@@ -2,7 +2,8 @@ import {createReducer} from '@reduxjs/toolkit';
 import {
     setOngoing
 } from './actions';
-import {KeyedMutator} from "swr/_internal/dist/_internal/types";
+import {KeyedMutator} from "swr";
+
 
 export type dashLayoutState = {
     waiting_room: number;

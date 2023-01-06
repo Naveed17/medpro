@@ -39,47 +39,32 @@ import AudioPlayer from "react-h5-audio-player";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
-    const multimedias = ['video', 'audio', 'photo']
-
-    const {data: {state, setOpenDialog}} = props
+    const {
+        data: {
+            state,
+            setOpenDialog,
+            patient,
+            mutatePatientDocuments = null,
+            documentViewIndex = 0,
+            setLoadingRequest = null
+        }
+    } = props
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const {enqueueSnackbar} = useSnackbar();
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
     const [name, setName] = useState(state.name);
     const [note, setNote] = useState(state.description);
     const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
-    const {data: user} = session as Session;
     const [openAlert, setOpenAlert] = useState(false);
-
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-
-    const {enqueueSnackbar} = useSnackbar();
-
-    const list = [
-        {
-            title: 'document_type',
-            value: t(state.type),
-
-        },
-        {
-            title: 'patient',
-            value: state.patient,
-        },
-        {
-            title: 'created_by',
-            value: 'Moi',
-        }
-    ]
-
     const [file, setFile] = useState<string>('');
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
-
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, x: 0, y: 0},
@@ -98,6 +83,23 @@ function DocumentDetailDialog({...props}) {
         }
     })
 
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
+    const multimedias = ['video', 'audio', 'photo']
+    const list = [
+        {
+            title: 'document_type',
+            value: t(state.type),
+
+        },
+        {
+            title: 'patient',
+            value: state.patient,
+        },
+        {
+            title: 'created_by',
+            value: 'Moi',
+        }
+    ]
     const actionButtons = [
         {
             title: 'print',
@@ -135,13 +137,11 @@ function DocumentDetailDialog({...props}) {
         }
     ];
 
-    useEffect(() => {
-        setFile(state.uri)
-    }, [state])
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
 
-    function onDocumentLoadSuccess({numPages}: any) {
-        setNumPages(numPages);
-    }
+    const {trigger} = useRequestMutation(null, "/documents");
 
     const {data: httpHeaderData} = useRequest({
         method: "GET",
@@ -150,6 +150,10 @@ function DocumentDetailDialog({...props}) {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     });
+
+    function onDocumentLoadSuccess({numPages}: any) {
+        setNumPages(numPages);
+    }
 
     const handleClickOpen = () => {
         setOpenAlert(true);
@@ -165,20 +169,6 @@ function DocumentDetailDialog({...props}) {
         })
     };
 
-    useEffect(() => {
-        if (httpHeaderData) {
-            const docInfo = (httpHeaderData as HttpResponse).data
-            if (!docInfo.header)
-                handleClickOpen();
-            else {
-                setOpenAlert(false);
-                setData(docInfo.data)
-                setHeader(docInfo.header)
-                setLoading(false)
-            }
-        }
-    }, [httpHeaderData])
-
     const handlePrint = () => {
         printNow()
     }
@@ -187,23 +177,23 @@ function DocumentDetailDialog({...props}) {
         content: () => componentRef.current,
     })
 
-    const {trigger} = useRequestMutation(null, "/documents");
-
     const handleActions = (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
                 break;
             case "delete":
+                setLoadingRequest && setLoadingRequest(true);
                 trigger({
                     method: "DELETE",
-                    url: `/api/medical-entity/agendas/appointments/documents/${state.uuid}/${router.locale}`,
+                    url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
                     headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
                 }, {revalidate: true, populateCache: true}).then(() => {
-                    state.mutate()
-                    setOpenDialog(false)
+                    state.mutate();
+                    (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog(false);
                 });
-
                 break;
             case "edit":
                 switch (state.type) {
@@ -284,6 +274,24 @@ function DocumentDetailDialog({...props}) {
         setData({...data})
     }
 
+    useEffect(() => {
+        setFile(state.uri)
+    }, [state])
+
+    useEffect(() => {
+        if (httpHeaderData) {
+            const docInfo = (httpHeaderData as HttpResponse).data
+            if (!docInfo.header)
+                handleClickOpen();
+            else {
+                setOpenAlert(false);
+                setData(docInfo.data)
+                setHeader(docInfo.header)
+                setLoading(false)
+            }
+        }
+    }, [httpHeaderData])
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -336,8 +344,8 @@ function DocumentDetailDialog({...props}) {
                         {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                {state.type === 'photo' && <img src={state.uri} style={{marginLeft: 20}} alt={"img"}/>}
+                                {state.type === 'photo' &&
+                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}} alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
                             </Box>
