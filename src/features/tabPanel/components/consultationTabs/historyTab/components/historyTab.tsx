@@ -24,7 +24,8 @@ import ListItemStyled from "./overrides/listItemStyled"
 import ListItemDetailsStyled from "./overrides/listItemDetailsStyled"
 import BoxFees from "./overrides/boxFeesStyled"
 import Image from "next/image";
-import {styled} from "@mui/material/styles";
+import Zoom from 'react-medium-image-zoom'
+import moment from "moment/moment";
 
 function HistoryTab({...props}) {
 
@@ -108,7 +109,7 @@ function HistoryTab({...props}) {
     const [photos, setPhotos] = useState<any[]>([]);
     const [selected, setSelected] = useState<string>('')
 
-    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patient ? {
+    const {data: httpPatientDocumentsResponse} = useRequest(patient ? {
         method: "GET",
         url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
@@ -121,20 +122,12 @@ function HistoryTab({...props}) {
         }
     }, [appointement, appuuid, dispatch]);
 
-    useEffect(()=>{
-
+    useEffect(() => {
         if (httpPatientDocumentsResponse) {
             setPhotos((httpPatientDocumentsResponse as HttpResponse).data.documents
                 .filter((doc: { documentType: string; }) => doc.documentType === "photo"))
         }
-
-        console.log(httpPatientDocumentsResponse)
-
-    },[httpPatientDocumentsResponse]);
-
-    useEffect(()=>{
-        console.log(photos);
-    },[photos]);
+    }, [httpPatientDocumentsResponse]);
 
     const printFees = (app: { appointment: { acts: any[], consultation_fees: string } }) => {
         const selectedActs: {
@@ -228,32 +221,40 @@ function HistoryTab({...props}) {
                 </Button>
             )}
 
-            <Label variant="filled" color="warning">
-                {t("suivi en image")}
-            </Label>
+            {
+                photos.length > 0 &&
+                <>
+                    <Label variant="filled" color="warning">
+                        {t("suivi_image")}
+                    </Label>
+                    <Box style={{overflowX: "auto", marginBottom: 10}}>
+                        <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
+                            {photos.map((photo, index) => (
+                                <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
+                                     style={{background: "white"}}>
+                                    <Zoom>
+                                        <Image src={photo.uri}
+                                               alt={'img'}
+                                               style={{borderRadius: "10px 10px 0 0"}}
+                                               width={150}
+                                               height={110}/>
+                                    </Zoom>
 
-            <Box style={{overflowX:"auto",marginBottom:10}}>
-                <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
-                    {photos.map((photo, index) => (
-                        <Box key={`photo${index}`} width={150} height={140} borderRadius={2} style={{background: "white"}}>
-                            <Image src={photo.uri}
-                                   alt={'img'}
-                                   style={{borderRadius:"10px 10px 0 0"}}
-                                   width={150}
-                                   height={110}/>
+                                    <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row"
+                                           alignItems='center'>
+                                        <Icon path="ic-agenda-jour"/>
+                                        <Typography fontWeight={600} fontSize={13}>
+                                            {moment(photo.createdAt,'DD-MM-YYYY HH:mm').format('DD/MM/YYYY')}
+                                        </Typography>
+                                    </Stack>
 
-                            <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row" alignItems='center'>
-                                <Icon path="ic-agenda-jour"/>
-                                <Typography fontWeight={600} fontSize={13}>
-                                    {'30/12/2022'}
-                                </Typography>
-                            </Stack>
+                                </Box>
+                            ))}
+                        </Stack>
+                    </Box>
+                </>
 
-                        </Box>
-                    ))}
-                </Stack>
-            </Box>
-
+            }
             <Stack spacing={2}>
                 {apps.map((app: any, appID: number) => (
                     <PatientHistoryCard
