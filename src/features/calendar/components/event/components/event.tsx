@@ -1,14 +1,10 @@
 import {Box, Chip, Popover, Typography} from "@mui/material";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import SalleIcon from "@themes/overrides/icons/salleIcon";
 import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
-import {IconsTypes} from "@features/calendar";
-import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
 
 function Event({...props}) {
     const {event, view, t, isMobile} = props;

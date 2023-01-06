@@ -9,9 +9,31 @@ import IconUrl from "@themes/urlIcon";
 import React, {useEffect, useRef, useState} from "react";
 import {Label} from "@features/label";
 import Icon from "@themes/urlIcon";
+import {useRouter} from "next/router";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRequest} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
+
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {data: httpPatientPhotoResponse} = useRequest(data?.patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${data.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+
     const [height, setHeight] = useState(0)
     const componentRef = useRef<null | HTMLDivElement>(null);
 
@@ -114,9 +136,18 @@ function AppointmentPopoverCard({...props}) {
                 sx={{p: "0 2rem"}}
             >
                 <Box mt={.5}>
-                    <Avatar sx={{width: 24, height: 24}}
-                            src={`/static/icons/${data?.patient.gender !== "O" ?
-                                "men" : "women"}-avatar.svg`}/>
+                    <Avatar
+                        src={patientPhoto ? patientPhoto : (data?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                        sx={{
+                            "& .injected-svg": {
+                                margin: 0
+                            },
+                            width: 24,
+                            height: 24,
+                            borderRadius: 1
+                        }}>
+                        <IconUrl width={"24"} height={"24"} path="men-avatar"/>
+                    </Avatar>
                 </Box>
                 <Box>
                     <Typography
