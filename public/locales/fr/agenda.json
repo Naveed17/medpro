@@ -167,7 +167,7 @@
         "profession": "Profession",
         "profession-placeholder": "Saisir la profession du patient",
         "birthday": "Date de naissance",
-        "fiche": "Fiche médicale",
+        "fiche": "Numéro de fiche patient",
         "fiche-placeholder": "numéro de la fiche médicale du patient",
         "from": "De",
         "patient-placeholder": "Le malade",

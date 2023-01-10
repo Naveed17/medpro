@@ -215,7 +215,7 @@ function InsuranceAddDialog({...props}) {
                                                             {t("first-name")}
                                                         </Typography>
                                                         <TextField
-                                                            placeholder={t("first-name-placeholder")}
+                                                            placeholder={t("first-assure-placeholder")}
                                                             error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social.firstName)}
                                                             helperText={
                                                                 Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.firstName)
@@ -235,7 +235,7 @@ function InsuranceAddDialog({...props}) {
                                                             {t("last-name")}
                                                         </Typography>
                                                         <TextField
-                                                            placeholder={t("last-name-placeholder")}
+                                                            placeholder={t("last-assure-placeholder")}
                                                             error={Boolean(errors.insurances && (errors.insurances as any)[index]?.insurance_social && (errors.insurances as any)[index].insurance_social?.lastName)}
                                                             helperText={
                                                                 Boolean(touched.insurances && errors.insurances && (errors.insurances as any)[index]?.insurance_social?.lastName)
