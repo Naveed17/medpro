@@ -225,7 +225,7 @@ function HistoryTab({...props}) {
                 photos.length > 0 &&
                 <>
                     <Label variant="filled" color="warning">
-                        {t("suivi_image")}
+                        {t("consultationIP.suivi_image")}
                     </Label>
                     <Box style={{overflowX: "auto", marginBottom: 10}}>
                         <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
