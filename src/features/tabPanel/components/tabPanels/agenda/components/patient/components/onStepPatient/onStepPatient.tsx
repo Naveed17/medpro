@@ -1,15 +1,27 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
     Autocomplete,
-    Box, Button, Card, CardContent, CardHeader, Collapse,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Collapse,
     FormControl,
-    FormControlLabel, FormHelperText, Grid, IconButton, IconButtonProps, InputAdornment, MenuItem,
+    FormControlLabel,
+    FormHelperText,
+    Grid,
+    IconButton,
+    IconButtonProps,
+    InputAdornment,
+    MenuItem,
     Radio,
     RadioGroup,
     Select,
     Stack,
     TextField,
-    Typography, useTheme
+    Typography,
+    useTheme
 } from "@mui/material";
 import moment from "moment-timezone";
 import React, {memo, useEffect, useRef} from "react";
@@ -33,6 +45,7 @@ import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {PhoneRegExp, SocialInsured} from "@app/constants";
+import {dashLayoutSelector} from "@features/base";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -176,11 +189,13 @@ function OnStepPatient({...props}) {
             }))
     });
     const address = selectedPatient ? selectedPatient.address : [];
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+
     const formik = useFormik({
         initialValues: {
             fiche_id: selectedPatient
                 ? selectedPatient.fiche_id
-                : patient.step1.fiche_id,
+                : last_fiche_id,//patient.step1.fiche_id,
             firstName: selectedPatient
                 ? selectedPatient.firstName
                 : patient.step1.first_name,
