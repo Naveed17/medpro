@@ -175,7 +175,7 @@ function Payment() {
     const [freeTrans, setFreeTrans] = useState(0);
     const [action, setAction] = useState("");
     const {currentDate} = useAppSelector(agendaSelector);
-    const newVersion = false;
+    const newVersion = true;
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const {direction} = useAppSelector(configSelector);
 

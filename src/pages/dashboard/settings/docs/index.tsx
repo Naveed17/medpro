@@ -263,7 +263,7 @@ function DocsConfig() {
                                 </fieldset>
 
                                 {/*we will add it late*/}
-                                {/*
+
                                 <fieldset style={{marginBottom: 10}}>
                                     <legend>{t('paperSize')}</legend>
                                     <ListItem style={{padding: 0, marginBottom: 5}}>
@@ -289,7 +289,7 @@ function DocsConfig() {
                                         <ListItemText primary={t("A4")}/>
                                     </ListItem>
                                 </fieldset>
-*/}
+
 
                                 {/*Import document*/}
                                 <ListItem style={{padding: 0, marginBottom: 5}}>

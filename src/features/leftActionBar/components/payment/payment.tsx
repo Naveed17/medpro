@@ -54,7 +54,7 @@ function Payment() {
     const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
 
     const hours = locations && locations[0].openingHours[0].openingHours;
-    const newVersion = false;
+    const newVersion = true;
 
     useEffect(() => {
         const disabledDay: number[] = []

@@ -28,6 +28,7 @@ import {isValidPhoneNumber} from 'libphonenumber-js';
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
 import {PhoneRegExp} from "@app/constants";
+import {dashLayoutSelector} from "@features/base";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -54,6 +55,7 @@ function AddPatientStep1({...props}) {
     });
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
@@ -88,7 +90,7 @@ function AddPatientStep1({...props}) {
             picture: selectedPatient
                 ? {url: selectedPatient.photo, file: ""}
                 : stepsData.step1.picture,
-            fiche_id: stepsData.step1.fiche_id,
+            fiche_id: last_fiche_id,// stepsData.step1.fiche_id,
             first_name: selectedPatient
                 ? selectedPatient.firstName
                 : stepsData.step1.first_name,
