@@ -1,5 +1,5 @@
 // components
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ConsultationStyled from "./overrides/consultationStyled";
 import {
     Avatar,
@@ -37,6 +37,11 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import Zoom from "react-medium-image-zoom";
+import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
+import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
+import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
+import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
+import MicRoundedIcon from "@mui/icons-material/MicRounded";
 
 function Consultation() {
     const {data: session} = useSession();
@@ -54,9 +59,26 @@ function Consultation() {
     const [note, setNote] = useState('');
     const [isNote, setIsNote] = useState(false);
     const [collapse, setCollapse] = useState<any>(-1);
+    const [isStarted, setIsStarted] = useState(false);
+
+    const {
+        transcript,
+        listening,
+        resetTranscript
+    } = useSpeechRecognition();
+
+    let [time, setTime] = useState('00:00');
+
+    const intervalref = useRef<number | null>(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    useEffect(() => {
+        if (isStarted) {
+            setNote(transcript);
+        }
+    }, [transcript, isStarted])
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -67,12 +89,6 @@ function Consultation() {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
-
-    const update = (url: RequestInfo) => {
-        const blob = fetch(url).then(r => r.blob());
-        // @ts-ignore
-        return new File([blob], "8@2x.png");
-    }
 
     const editPatientInfo = () => {
         const params = new FormData();
@@ -226,11 +242,48 @@ function Consultation() {
                     }
 
                     {isNote && <Box mr={2}>
+                        <Stack alignItems={"end"} mt={1}>
+                            {
+                                listening && isStarted ? <RecondingBoxStyle onClick={() => {
+
+                                    if (intervalref.current) {
+                                        window.clearInterval(intervalref.current);
+                                        intervalref.current = null;
+                                    }
+                                    SpeechRecognition.stopListening();
+                                    resetTranscript();
+                                    setIsStarted(false)
+
+                                    setTime('00:00');
+                                }}>
+                                    <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                    <div className={"recording-text"}>{time}</div>
+                                    <div className="recording-circle"></div>
+
+                                </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
+                                    resetTranscript();
+                                    setIsStarted(true)
+                                    SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
+
+                                    })
+                                    if (intervalref.current !== null) return;
+                                    intervalref.current = window.setInterval(() => {
+                                        time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                                        setTime(time);
+                                    }, 1000);
+                                }}>
+                                    <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
+                                    <div className="recording-text">{t('listen')}</div>
+                                    <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                </RecondingBoxStyle>
+                            }
+                        </Stack>
+
                         <TextField inputProps={{style: {fontSize: 12, padding: 0}}}
                                    placeholder={t('writenote')}
                                    fullWidth
                                    multiline
-                                   style={{marginTop: 15}}
+                                   style={{marginTop: 5}}
                                    value={note}
                                    onChange={(val) => {
                                        setNote(val.target.value)

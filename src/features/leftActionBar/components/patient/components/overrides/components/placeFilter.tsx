@@ -35,7 +35,7 @@ interface StateProps {
 }
 
 function PlaceFilter({ ...props }) {
-    const { item, t, keyPrefix = "", OnSearch } = props;
+    const { item, t, keyPrefix = "", OnSearch,setOpend } = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
 
@@ -66,7 +66,8 @@ function PlaceFilter({ ...props }) {
 
 
     const handleChangeCity = (event: SelectChangeEvent) => {
-        setstate({ ...state, country: event.target.value });
+        setstate({country: event.target.value,states: []});
+        setOpend('');
         /*router.push({
             query: {...router.query, city: event.target.value},
         });*/

@@ -111,7 +111,16 @@ function PatientRow({...props}) {
                                             <IconUrl width={"30"} height={"30"} path="men-avatar"/>
                                         </Avatar>
                                     </Zoom>
-                                    <Stack marginLeft={2}>
+                                    <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
+                                        e.stopPropagation();
+                                        dispatch(
+                                            onOpenPatientDrawer({
+                                                patientId: row.uuid,
+                                                patientAction: "PATIENT_DETAILS",
+                                            })
+                                        );
+                                        handleEvent("PATIENT_DETAILS", row);
+                                    }}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
