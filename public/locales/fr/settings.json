@@ -466,7 +466,7 @@
       "name": "Nom",
       "source": "Source de l'export",
       "action": "Action",
-      "reset": "réinitialiser les données"
+      "reset": "Réinitialiser"
     }
   },
   "appLock": {
