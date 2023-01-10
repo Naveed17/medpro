@@ -18,6 +18,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 
 interface StateProps {
     name: string;
+    fiche_id: string;
     phone: number | string;
     birthdate: Date | null;
     gender: string | null;
@@ -28,6 +29,7 @@ function PatientFilter({...props}) {
     const [queryState, setQueryState] = useState<StateProps>({
         name: "",
         phone: "",
+        fiche_id: "",
         birthdate: null,
         gender: null
     });
@@ -84,7 +86,7 @@ function PatientFilter({...props}) {
                     i: number
                 ) => (
                     <Fragment key={`patient-filter-label-${i}`}>
-                        {lab.label === "name" || lab.label === "phone" ? (
+                        {lab.label === "name" || lab.label === "phone" || lab.label === "fiche_id" ? (
                             <>
                                 <InputLabel shrink htmlFor={lab.label} sx={{mt: 2}}>
                                     {t(`${keyPrefix}${lab.label}`)}
@@ -126,7 +128,7 @@ function PatientFilter({...props}) {
                                             }
                                         }
                                     }}
-                                    type={lab.label === "name" ? "text" : "number"}
+                                    type={lab.label === "name" || lab.label === "fiche_id" ? "text" : "number"}
                                     fullWidth
                                     placeholder={t(`${keyPrefix}${lab.placeholder}`)}
                                 />

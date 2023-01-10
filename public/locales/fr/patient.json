@@ -25,6 +25,8 @@
     "last-appointment": "Dernier rendez-vous",
     "reasons": "Motif de consultation",
     "status": "Statut",
+    "fiche_id": "Fiche patient",
+    "fiche": "Numéro fiche",
     "meetingType": "Type du RDV",
     "meeting": {
       "cabinet": "Cabinet",

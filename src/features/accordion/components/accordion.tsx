@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {Typography, Box, Paper} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Box, Typography} from "@mui/material";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Icon from "@themes/urlIcon";
@@ -25,6 +25,10 @@ function Accordion({...props}) {
     const [state, setstate] = useState<statetype>({
         expanded: defaultValue,
     });
+
+    useEffect(() => {
+        setstate({...state, expanded: defaultValue});
+    }, [defaultValue]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = React.useCallback(
         (panel: Boolean) => (event: any, newExpanded: boolean) => {
