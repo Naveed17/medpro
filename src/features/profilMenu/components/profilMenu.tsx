@@ -1,14 +1,10 @@
-import {
-    logout,
-    openMenu, ProfileMenuConfig,
-    profileMenuSelector,
-    ProfileSectionStyled
-} from "@features/profilMenu";
+import {logout, openMenu, ProfileMenuConfig, profileMenuSelector, ProfileSectionStyled} from "@features/profilMenu";
 import {
     Box,
     ClickAwayListener,
     Grow,
-    IconButton, ListItemIcon, ListItemText,
+    IconButton,
+    ListItemText,
     MenuItem,
     MenuList,
     Paper,
@@ -32,7 +28,6 @@ import {useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
-import Link from "next/link";
 import Image from "next/image";
 
 function ProfilMenu() {
@@ -202,7 +197,7 @@ function ProfilMenu() {
                                                priority
                                         />
                                         <Typography variant="body1" className="item-name">
-                                            {"Go to Med.tn"}
+                                            {"Espace patient"}
                                         </Typography>
                                     </MenuItem>
 
