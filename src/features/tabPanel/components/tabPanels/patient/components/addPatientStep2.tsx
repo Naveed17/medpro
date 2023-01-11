@@ -38,6 +38,7 @@ import {SocialInsured} from "@app/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {dashLayoutSelector} from "@features/base";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -198,9 +199,11 @@ function AddPatientStep2({...props}) {
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
+
         const {fiche_id, picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
@@ -250,6 +253,7 @@ function AddPatientStep2({...props}) {
                 const {status} = data;
                 setLoading(false);
                 if (status === "success") {
+                    mutateOnGoing && mutateOnGoing();
                     dispatch(onSubmitPatient(data.data));
                     onNext(2);
                 }
