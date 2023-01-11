@@ -1,24 +1,25 @@
 import React, {ChangeEvent, memo, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Typography,
+    Autocomplete,
     Box,
-    FormControl,
-    TextField,
-    Grid,
     Button,
-    Select,
-    MenuItem,
-    Stack,
-    IconButton,
     Card,
     CardContent,
-    Collapse,
     CardHeader,
-    Autocomplete,
-    InputAdornment, FormHelperText,
+    Collapse,
+    FormControl,
+    FormHelperText,
+    Grid,
+    IconButton,
+    InputAdornment,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -38,6 +39,7 @@ import {SocialInsured} from "@app/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {dashLayoutSelector} from "@features/base";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -198,9 +200,11 @@ function AddPatientStep2({...props}) {
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
+
         const {fiche_id, picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
@@ -235,7 +239,7 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note);
+        form.append('note', values.note ? values.note : "");
 
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -250,6 +254,7 @@ function AddPatientStep2({...props}) {
                 const {status} = data;
                 setLoading(false);
                 if (status === "success") {
+                    mutateOnGoing && mutateOnGoing();
                     dispatch(onSubmitPatient(data.data));
                     onNext(2);
                 }
