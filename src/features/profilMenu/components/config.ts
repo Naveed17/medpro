@@ -35,7 +35,7 @@ const Config = [
         path: '/dashboard/settings/profil',
         action: 'profile'
     },
-    {
+    /*{
         name: 'Switch-agenda',
         icon: 'ic-refrech',
         path: '/',
@@ -56,7 +56,7 @@ const Config = [
                 path: '/',
             },
         ]
-    },
+    },*/
     {
         name: 'Logout',
         icon: 'ic-deconnexion',
