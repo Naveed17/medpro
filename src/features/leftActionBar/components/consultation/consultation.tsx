@@ -47,7 +47,11 @@ function Consultation() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
-
+    const {
+        transcript,
+        listening,
+        resetTranscript
+    } = useSpeechRecognition();
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -60,13 +64,6 @@ function Consultation() {
     const [isNote, setIsNote] = useState(false);
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
-
-    const {
-        transcript,
-        listening,
-        resetTranscript
-    } = useSpeechRecognition();
-
     let [time, setTime] = useState('00:00');
 
     const intervalref = useRef<number | null>(null);
