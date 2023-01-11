@@ -402,7 +402,12 @@
       "medWin": "Med Win",
       "content-2": "Le format de données doit être de type tabulaire (CSV, XLSX).",
       "file": "Télécharger un fichier modèle",
-      "content-3": "Le format de données doit être de type tabulaire (CSV, XLSX)."
+      "content-3": "Le format de données doit être de type tabulaire (CSV, XLSX).",
+      "deleted": "Supprimé",
+      "progress": "En cours",
+      "success": "Importé",
+      "failed": "Échoué",
+      "error": "Échoué"
     },
     "add": "Importer",
     "path": "Paramètres > Importation de données",
@@ -465,6 +470,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
     }

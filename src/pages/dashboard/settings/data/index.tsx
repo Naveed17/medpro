@@ -35,6 +35,13 @@ const headImportDataCells = [
         align: 'left',
         sortable: true,
     }, {
+        id: 'status',
+        numeric: false,
+        disablePadding: true,
+        label: "status",
+        align: 'center',
+        sortable: true,
+    },{
         id: 'source',
         numeric: false,
         disablePadding: true,
