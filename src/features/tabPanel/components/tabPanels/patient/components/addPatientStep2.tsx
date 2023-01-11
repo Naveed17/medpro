@@ -1,24 +1,25 @@
 import React, {ChangeEvent, memo, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Typography,
+    Autocomplete,
     Box,
-    FormControl,
-    TextField,
-    Grid,
     Button,
-    Select,
-    MenuItem,
-    Stack,
-    IconButton,
     Card,
     CardContent,
-    Collapse,
     CardHeader,
-    Autocomplete,
-    InputAdornment, FormHelperText,
+    Collapse,
+    FormControl,
+    FormHelperText,
+    Grid,
+    IconButton,
+    InputAdornment,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -238,7 +239,7 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note);
+        form.append('note', values.note ? values.note : "");
 
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",

@@ -241,7 +241,7 @@
       "zip_code-placeholder": "Saisir le code postal",
       "notes": "Notes du patient",
       "notes-placeholder": "notes",
-      "fiche": "Fiche médicale",
+      "fiche": "Numéro fiche patient",
       "fiche-placeholder": "numéro de la fiche médicale du patient",
       "dialog": {
         "title": "Duplicatas détectés",
