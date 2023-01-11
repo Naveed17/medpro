@@ -1,16 +1,18 @@
 import TableCell from "@mui/material/TableCell";
 import {
-    Typography,
-    Box,
-    Stack,
-    Skeleton,
-    TableRow,
-    Collapse,
-    Table,
-    Chip,
-    AlertTitle,
     Alert,
-    List, ListItem, ListItemText
+    AlertTitle,
+    Box,
+    Chip,
+    Collapse,
+    List,
+    ListItem,
+    ListItemText,
+    Skeleton,
+    Stack,
+    Table,
+    TableRow,
+    Typography
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
@@ -29,6 +31,8 @@ import {useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {OverridableStringUnion} from "@mui/types";
+import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 
 function ImportDataRow({...props}) {
     const {
@@ -41,15 +45,19 @@ function ImportDataRow({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
+    const status = ['progress', 'success', 'error', 'failed', 'deleted']
+    const colors: OverridableStringUnion<
+        'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
+        ChipPropsColorOverrides
+    >[] = ['warning', 'success', 'error', 'error', 'info']
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
-    const [infoDuplication, setInfoDuplication] = useState<Array<{
+/*    const [infoDuplication, setInfoDuplication] = useState<Array<{
         key: string;
         row: string;
         data: PatientModel | null;
         fixed: boolean;
-    }>>([]);
+    }>>([]);*/
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
     const [expanded, setExpanded] = useState(false);
@@ -141,6 +149,18 @@ function ImportDataRow({...props}) {
                         </Stack>
                     )}
                 </TableCell>
+                <TableCell align={"center"}>
+                    {row ? (
+                        <Chip
+                            color={colors[row.status]}
+                            label={`${t('tabs.'+status[row.status])}`}/>
+                    ) : (
+                        <Stack>
+                            <Skeleton variant="text" width={100}/>
+                            <Skeleton variant="text" width={100}/>
+                        </Stack>
+                    )}
+                </TableCell>
                 <TableCell>
                     {row ? (
                         <Stack direction={"row"} alignItems={"center"}>
@@ -168,7 +188,7 @@ function ImportDataRow({...props}) {
                 <TableCell align="right">
                     {row ? (
                         <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            <LoadingButton
+                            {(row.status == 1 || row.status ==3) && <LoadingButton
                                 {...{loading}}
                                 onClick={() => {
                                     setLoadingAction(true);
@@ -180,7 +200,7 @@ function ImportDataRow({...props}) {
                                 startIcon={<RestartAltIcon/>}
                                 sx={{mr: 1}}>
                                 {t("table.reset")}
-                            </LoadingButton>
+                            </LoadingButton>}
                         </Box>
                     ) : (
                         <Stack
@@ -229,11 +249,11 @@ function ImportDataRow({...props}) {
                                                     sx={{
                                                         marginBottom: 1
                                                     }}
-                                                    action={
+                                                    /*action={
                                                         <Button variant={"contained"} color="error" size="small">
                                                             {t('load-file')}
                                                         </Button>
-                                                    }
+                                                    }*/
                                                     severity="error">
                                                     <AlertTitle>{t("error.title")}</AlertTitle>
                                                     {t("error.loading-error")} — <strong>{`${t("error.column")} acte ${t("error.missing")}, ${t("error.re-upload")}`}</strong>
