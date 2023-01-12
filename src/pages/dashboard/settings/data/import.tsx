@@ -343,7 +343,7 @@ function ImportData() {
                                                     files={files}
                                                     onDrop={handleOnDropFile}
                                                     accept={{
-                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls"]
+                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls",".xlsm"]
                                                     }}
                                                     singleFile
                                                     maxFiles={1}/>}
