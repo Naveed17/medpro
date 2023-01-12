@@ -75,6 +75,7 @@ function Patient({...props}) {
     const submitNewPatient = (patient: any) => {
         const form = new FormData();
         form.append('fiche_id', patient.fiche_id);
+        form.append('nationality', patient.nationality);
         form.append('first_name', patient.firstName);
         form.append('last_name', patient.lastName);
         form.append('phone', JSON.stringify(patient.phones.map((phoneData: any) => ({

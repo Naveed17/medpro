@@ -218,6 +218,7 @@ function OnStepPatient({...props}) {
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
+            nationality: selectedPatient ? selectedPatient.nationality : '',
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : patient.step2.country,
             region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : patient.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : patient.step2.zip_code,
@@ -686,6 +687,46 @@ function OnStepPatient({...props}) {
                                     )}
                                 </FormControl>
                             </Stack>
+                        </Box>
+                        <Box>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                            >
+                                {t("nationality")}
+                            </Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"nationality"}
+                                    size="small"
+                                    {...getFieldProps("nationality")}
+                                    displayEmpty
+                                    sx={{color: "text.secondary"}}
+                                    renderValue={selected => {
+                                        if (selected?.length === 0) {
+                                            return <em>{t("nationality")}</em>;
+                                        }
+
+                                        const country = countries?.find(country => country.uuid === selected);
+                                        return <Typography>{country?.nationality}</Typography>
+                                    }}
+                                >
+                                    {countries?.map((country) => (
+                                        <MenuItem
+                                            key={country.uuid}
+                                            value={country.uuid}>
+                                            <Image
+                                                width={20}
+                                                alt={"flags"}
+                                                height={14}
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
+                                        </MenuItem>)
+                                    )}
+                                </Select>
+                            </FormControl>
                         </Box>
                         <Box>
                             <Typography

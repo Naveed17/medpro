@@ -1,5 +1,17 @@
 //material-ui
-import {Avatar, Badge, Box, Button, IconButton, InputBase, Skeleton, Stack, Typography, useTheme,} from "@mui/material";
+import {
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    IconButton,
+    InputBase,
+    Skeleton,
+    Stack,
+    Tooltip,
+    Typography,
+    useTheme,
+} from "@mui/material";
 // styled
 import {RootStyled} from "./overrides";
 
@@ -9,7 +21,6 @@ import IconUrl from "@themes/urlIcon";
 import {pxToRem} from "@themes/formatFontSize";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import {QrCodeScanner} from "@features/qrCodeScanner";
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -23,6 +34,9 @@ import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
+import Image from "next/image";
+import {HtmlTooltip} from "@features/tooltip";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function PatientDetailsCard({...props}) {
     const {patient, patientPhoto, onConsultation, mutatePatientList, loading} = props;
@@ -154,67 +168,85 @@ function PatientDetailsCard({...props}) {
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <InputBase
-                                    readOnly
-                                    inputProps={{
-                                        style: {
-                                            background: "white",
-                                            fontSize: pxToRem(14),
-                                            fontWeight: "bold"
-                                        },
-                                    }}
-                                    {...getFieldProps("name")}
-                                />
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+
+                                    <InputBase
+                                        readOnly
+                                        inputProps={{
+                                            style: {
+                                                background: "white",
+                                                fontSize: pxToRem(14),
+                                                fontWeight: "bold"
+                                            },
+                                        }}
+                                        {...getFieldProps("name")}
+                                    />
+
+                                    {patient?.nationality &&
+                                        <Tooltip title={patient.nationality.nationality}>
+                                            <IconButton>
+                                                <Image width={15} height={14}
+                                                       alt={"flag"}
+                                                       src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
+                                            </IconButton>
+                                        </Tooltip>
+
+                                    }
+                                </Stack>
                             )}
 
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <Stack
-                                    className={"date-birth"}
-                                    direction={"row"} alignItems="center">
-                                    <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
-                                    <Box
-                                        sx={{
-                                            input: {
-                                                color: theme.palette.text.secondary,
-                                            },
-                                        }}>
-                                        <MaskedInput
-                                            readOnly
-                                            style={{
-                                                border: "none",
-                                                outline: "none",
-                                                width: 75,
-                                            }}
-                                            mask={[
-                                                /\d/,
-                                                /\d/,
-                                                "-",
-                                                /\d/,
-                                                /\d/,
-                                                "-",
-                                                /\d/,
-                                                /\d/,
-                                                /\d/,
-                                                /\d/,
-                                            ]}
-                                            placeholderChar={"\u2000"}
-                                            {...getFieldProps("birthdate")}
-                                            showMask
-                                        />
-                                    </Box>
-                                    {patient?.birthdate &&
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            component="span">
-                                            -{" "}
-                                            ({moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
-                                            {" "}
-                                            {t("years").toLowerCase()})
-                                        </Typography>}
-                                </Stack>
+                                <>
+                                    {
+                                        patient?.birthdate && <Stack
+                                            className={"date-birth"}
+                                            direction={"row"} alignItems="center">
+                                            <Icon width={"13"} height={"14"} path="ic-anniverssaire"/>
+                                            <Box
+                                                sx={{
+                                                    input: {
+                                                        color: theme.palette.text.secondary,
+                                                    },
+                                                }}>
+                                                <MaskedInput
+                                                    readOnly
+                                                    style={{
+                                                        border: "none",
+                                                        outline: "none",
+                                                        width: 75,
+                                                    }}
+                                                    mask={[
+                                                        /\d/,
+                                                        /\d/,
+                                                        "-",
+                                                        /\d/,
+                                                        /\d/,
+                                                        "-",
+                                                        /\d/,
+                                                        /\d/,
+                                                        /\d/,
+                                                        /\d/,
+                                                    ]}
+                                                    placeholderChar={"\u2000"}
+                                                    {...getFieldProps("birthdate")}
+                                                    showMask
+                                                />
+                                            </Box>
+                                            {patient?.birthdate &&
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    component="span">
+                                                    -{" "}
+                                                    ({moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), "years")}
+                                                    {" "}
+                                                    {t("years").toLowerCase()})
+                                                </Typography>}
+                                        </Stack>
+                                    }
+                                </>
                             )}
                             {loading ?
                                 <Skeleton variant="text" width={150}/>
@@ -349,7 +381,7 @@ function PatientDetailsCard({...props}) {
 
                     {patient && (
                         <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
-{/*
+                            {/*
                             <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
 */}
                         </Box>

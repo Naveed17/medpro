@@ -20,4 +20,5 @@ interface PatientWithNextAndLatestAppointment {
   latestAppointment: AppointmentModel;
   patient: Patient;
   locale: string;
+  nationality:string
 }
