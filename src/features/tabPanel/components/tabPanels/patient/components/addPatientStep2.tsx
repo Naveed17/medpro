@@ -130,6 +130,7 @@ function AddPatientStep2({...props}) {
     const formik = useFormik({
         initialValues: {
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : stepsData.step2.country,
+            nationality: selectedPatient ? selectedPatient.nationality : '',
             region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : stepsData.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
@@ -212,6 +213,7 @@ function AddPatientStep2({...props}) {
         form.append('fiche_id', fiche_id);
         form.append('first_name', first_name);
         form.append('last_name', last_name);
+        form.append('nationality', values.nationality);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
             code: phoneData.dial.phone,
             value: phoneData.phone,
@@ -309,6 +311,50 @@ function AddPatientStep2({...props}) {
                         <Typography mt={1} variant="h6" color="text.primary">
                             {t("add-patient.additional-information")}
                         </Typography>
+                        <Box>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                            >
+                                {t("add-patient.nationality")}
+                            </Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"nationality"}
+                                    disabled={!countries}
+                                    size="small"
+                                    {...getFieldProps("nationality")}
+                                    displayEmpty
+                                    sx={{color: "text.secondary"}}
+                                    renderValue={selected => {
+                                        if (selected?.length === 0) {
+                                            return <em>{t("add-patient.nationality-placeholder")}</em>;
+                                        }
+
+                                        const country = countries?.find(country => country.uuid === selected);
+                                        return (
+                                            <Stack direction={"row"}>
+                                                <Image width={20} height={14}
+                                                       alt={"flag"}
+                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                <Typography ml={1}>{country?.nationality}</Typography>
+                                            </Stack>)
+                                    }}>
+                                    {countries?.map((country) => (
+                                        <MenuItem
+                                            key={country.uuid}
+                                            value={country.uuid}>
+                                            <Image width={20} height={14}
+                                                   alt={"flag"}
+                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
+                                        </MenuItem>)
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
                         <Box>
                             <Typography
                                 variant="body2"

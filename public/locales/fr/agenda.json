@@ -125,6 +125,7 @@
         "fin": "Fin",
         "group": "Groupe",
         "gender": "Genre",
+        "nationality": "Nationalité",
         "gender-error": "Veuillez choisir le genre.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",

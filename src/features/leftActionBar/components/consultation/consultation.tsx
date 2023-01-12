@@ -29,8 +29,6 @@ import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
 import {pxToRem} from "@themes/formatFontSize";
-import AddIcon from '@mui/icons-material/Add';
-import Add from '@mui/icons-material/Add';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -41,6 +39,7 @@ import RecondingBoxStyle from "@features/card/components/consultationDetailCard/
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
+import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 
 function Consultation() {
@@ -196,31 +195,36 @@ function Consultation() {
                     </Box>
 
                 </Box>
-                <Box className="contact" ml={2}>
-                    <Stack direction={"row"}
-                           spacing={1}
-                           onClick={() => {
-                               setIsNote(!isNote)
-                           }}
-                           alignItems={"center"}
-                           justifyContent={"space-between"}
-                           mr={3}>
-                        <Typography component="div" textTransform="capitalize"
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        cursor: 'pointer',
-                                        '& .react-svg': {mr: 1}
-                                    }}
-                                    variant="body1" color="text.primary"><Icon path="ic-doc"/>
+                {patient?.fiche_id && <Stack spacing={1} mb={-2} mt={2} ml={3}>
+                    {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
+                    <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
+                </Alert>}*/}
+                    <Button variant="consultationIP" startIcon={<FolderRoundedIcon/>}
+                            sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
+                        {upperFirst(t('ficheID'))} <span style={{fontWeight:"bold"}}>{patient?.fiche_id}</span>
+                    </Button>
+                </Stack>}
+                <Box className="contact" ml={1}>
+                    <ListItem
+                        className="list-parent"
+                        style={{padding: '13px 15px 3px 0'}}
+                        onClick={() => {
+                            setIsNote(!isNote)
+                        }}>
+                        <ListItemIcon>
+                            <Icon path={'ic-text'}/>
+                        </ListItemIcon>
+                        <Typography fontWeight={700}>
                             {upperFirst(t("note"))}
                         </Typography>
-                        {!note && <AddIcon sx={{fontSize: 14, color: '#7C878E'}}/>}
-                    </Stack>
+                        <IconButton size="small" sx={{ml: "auto"}}>
+                            <Icon path="ic-expand-more"/>
+                        </IconButton>
+                    </ListItem>
+
                     {!isNote && note &&
                         <Stack direction={"row"} spacing={1} justifyContent={"space-between"}
-                               mr={3}>
-
+                               mr={2}>
                             <Typography fontStyle={"italic"}
                                         whiteSpace={'pre-line'}
                                         onClick={() => {
@@ -231,87 +235,81 @@ function Consultation() {
                             </Typography>
 
                             <IconButton size={"small"} onClick={() => {
-                                setIsNote(true)
+                                setIsNote(!isNote)
                             }}>
                                 <Icon path={'ic-duotone'}/>
                             </IconButton>
                         </Stack>
                     }
 
-                    {isNote && <Box mr={2}>
-                        <Stack alignItems={"end"} mt={1}>
-                            {
-                                listening && isStarted ? <RecondingBoxStyle onClick={() => {
+                    <Collapse in={isNote}>
+                        <Box mr={2}>
+                            <Stack alignItems={"end"} mt={1}>
+                                {
+                                    listening && isStarted ? <RecondingBoxStyle onClick={() => {
 
-                                    if (intervalref.current) {
-                                        window.clearInterval(intervalref.current);
-                                        intervalref.current = null;
-                                    }
-                                    SpeechRecognition.stopListening();
-                                    resetTranscript();
-                                    setIsStarted(false)
+                                        if (intervalref.current) {
+                                            window.clearInterval(intervalref.current);
+                                            intervalref.current = null;
+                                        }
+                                        SpeechRecognition.stopListening();
+                                        resetTranscript();
+                                        setIsStarted(false)
 
-                                    setTime('00:00');
-                                }}>
-                                    <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                    <div className={"recording-text"}>{time}</div>
-                                    <div className="recording-circle"></div>
+                                        setTime('00:00');
+                                    }}>
+                                        <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                        <div className={"recording-text"}>{time}</div>
+                                        <div className="recording-circle"></div>
 
-                                </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
-                                    resetTranscript();
-                                    setIsStarted(true)
-                                    SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
+                                    </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
+                                        resetTranscript();
+                                        setIsStarted(true)
+                                        SpeechRecognition.startListening({
+                                            continuous: true,
+                                            language: 'fr-FR'
+                                        }).then(() => {
 
-                                    })
-                                    if (intervalref.current !== null) return;
-                                    intervalref.current = window.setInterval(() => {
-                                        time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                                        setTime(time);
-                                    }, 1000);
-                                }}>
-                                    <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
-                                    <div className="recording-text">{t('listen')}</div>
-                                    <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                </RecondingBoxStyle>
-                            }
-                        </Stack>
+                                        })
+                                        if (intervalref.current !== null) return;
+                                        intervalref.current = window.setInterval(() => {
+                                            time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                                            setTime(time);
+                                        }, 1000);
+                                    }}>
+                                        <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
+                                        <div className="recording-text">{t('listen')}</div>
+                                        <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                    </RecondingBoxStyle>
+                                }
+                            </Stack>
 
-                        <TextField inputProps={{style: {fontSize: 12, padding: 0}}}
-                                   placeholder={t('writenote')}
-                                   fullWidth
-                                   multiline
-                                   style={{marginTop: 5}}
-                                   value={note}
-                                   onChange={(val) => {
-                                       setNote(val.target.value)
-                                   }
-                                   }
-                                   rows={3}/>
-                        <Button
-                            onClick={() => {
-                                setIsNote(false);
-                                editPatientInfo()
-                            }}
-                            size="small"
-                            startIcon={<Add/>}
-                            style={{paddingBottom: pxToRem(0), marginTop: 10}}>
-                            {t("save")}
-                        </Button>
-                    </Box>}
-
-
+                            <TextField inputProps={{style: {fontSize: 12, padding: 0}}}
+                                       placeholder={t('writenote')}
+                                       fullWidth
+                                       multiline
+                                       style={{marginTop: 5}}
+                                       value={note}
+                                       onChange={(val) => {
+                                           setNote(val.target.value)
+                                       }
+                                       }
+                                       rows={3}/>
+                            <Button
+                                onClick={() => {
+                                    setIsNote(false);
+                                    editPatientInfo()
+                                }}
+                                size="small"
+                                //startIcon={<Add/>}
+                                style={{paddingBottom: pxToRem(0), marginTop: 10}}>
+                                {t("save")}
+                            </Button>
+                        </Box>
+                    </Collapse>
                 </Box>
             </Box>
 
-            <Stack spacing={1} mb={1}>
-                {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
-                    <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
-                </Alert>}*/}
-                {/*<Button variant="consultationIP" startIcon={<PlayCircleFilledRoundedIcon/>}
-                        sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
-                    {upperFirst(t('consultation in progress'))}
-                </Button>*/}
-            </Stack>
             <Stack ml={-1.25}>
                 <List dense>
                     {collapseData?.map((col, idx: number) => (
