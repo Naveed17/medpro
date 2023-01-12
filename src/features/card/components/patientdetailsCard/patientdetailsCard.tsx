@@ -82,6 +82,7 @@ function PatientDetailsCard({...props}) {
         setRequestLoading(true);
         const params = new FormData();
         if (patient) {
+            console.log(patient);
             params.append('first_name', patient.firstName);
             params.append('last_name', patient.lastName);
             params.append('phone', JSON.stringify(patient.contact));
@@ -97,7 +98,9 @@ function PatientDetailsCard({...props}) {
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({
+                fr: patient?.address[0]?.street
+            }));
 
             triggerPatientUpdate({
                 method: "PUT",
