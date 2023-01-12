@@ -6,6 +6,6 @@ jobs:
   # enable job on stable branch only.
   release:
     if: github.ref == 'refs/heads/main'
-    uses: SmartMedSA/github-workflows/.github/workflows/semantic_release.yml@v1.0.0
+    uses: SmartMedSA/github-workflows/.github/workflows/semantic_release.yml@v1.6.0
     secrets:
       token: ${{ secrets.SMARTMEDBOT_PAT }}
