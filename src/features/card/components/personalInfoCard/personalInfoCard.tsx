@@ -81,8 +81,6 @@ function PersonalInfo({...props}) {
         familyDoctor:Yup.string()
     });
 
-    console.log(patient);
-
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
