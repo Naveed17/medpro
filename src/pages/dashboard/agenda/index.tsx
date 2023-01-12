@@ -905,7 +905,6 @@ function Agenda() {
                             ))}
                         </Container>
                     ))}
-
                     <FilterButton>
                         <AgendaFilter/>
                     </FilterButton>

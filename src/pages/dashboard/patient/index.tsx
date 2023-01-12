@@ -1,5 +1,5 @@
 // react
-import React, {useEffect, useState, ReactElement} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 
 // next
 import {GetStaticProps} from "next";
@@ -14,26 +14,25 @@ import {Session} from "next-auth";
 import {Box, Button, Drawer, Typography, useTheme} from "@mui/material";
 
 // redux
-import {useAppSelector, useAppDispatch} from "@app/redux/hooks";
-import {tableActionSelector} from "@features/table";
-import {configSelector} from "@features/base";
-import {onOpenPatientDrawer} from "@features/table";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import {configSelector, DashLayout} from "@features/base";
 
 // ________________________________
 import {PatientMobileCard} from "@features/card";
-import {Otable} from "@features/table";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
-import {DashLayout} from "@features/base";
 import {CustomStepper} from "@features/customStepper";
 import {useRequest, useRequestMutation} from "@app/axios";
 
 import {
     AddPatientStep1,
     AddPatientStep2,
-    AddPatientStep3, onResetPatient, setAppointmentPatient,
+    AddPatientStep3,
+    onResetPatient,
+    setAppointmentPatient,
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {AppointmentDetail, Dialog, dialogMoveSelector, PatientDetail} from "@features/dialog";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef} from "@app/hooks";
@@ -42,8 +41,6 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import {LoadingScreen} from "@features/loadingScreen";
 import {EventDef} from "@fullcalendar/react";
-
-import Zoom from 'react-medium-image-zoom';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";

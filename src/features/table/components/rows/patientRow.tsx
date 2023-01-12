@@ -87,6 +87,9 @@ function PatientRow({...props}) {
                                 display: "flex",
                                 alignItems: "center",
                                 svg: {mr: 0.5},
+                                "& [data-rmiz]": {
+                                    width: 30
+                                }
                             }}
                             color="primary">
                             {loading ? (
@@ -95,6 +98,7 @@ function PatientRow({...props}) {
                                 <>
                                     <Zoom>
                                         <Avatar
+                                            className={"zoom"}
                                             src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                                             sx={{
                                                 "& .injected-svg": {
@@ -107,7 +111,16 @@ function PatientRow({...props}) {
                                             <IconUrl width={"30"} height={"30"} path="men-avatar"/>
                                         </Avatar>
                                     </Zoom>
-                                    <Stack marginLeft={2}>
+                                    <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
+                                        e.stopPropagation();
+                                        dispatch(
+                                            onOpenPatientDrawer({
+                                                patientId: row.uuid,
+                                                patientAction: "PATIENT_DETAILS",
+                                            })
+                                        );
+                                        handleEvent("PATIENT_DETAILS", row);
+                                    }}>
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
                                                 color={"primary.main"}>{row.firstName} {row.lastName}</Typography>

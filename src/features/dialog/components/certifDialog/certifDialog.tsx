@@ -1,5 +1,5 @@
 import {useTranslation} from "next-i18next";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     Avatar,
     Box,
@@ -28,6 +28,12 @@ import {useRouter} from "next/router";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {TooltipProps} from "@mui/material/Tooltip";
 import {styled} from "@mui/system";
+import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
+import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
+import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledRounded";
+import moment from "moment-timezone";
+import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
+import MicRoundedIcon from "@mui/icons-material/MicRounded";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -41,11 +47,28 @@ function CertifDialog({...props}) {
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
     const [models, setModels] = useState<DocTemplateModel[]>([]);
+    const [isStarted, setIsStarted] = useState(false);
+    let [time, setTime] = useState('00:00');
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {
+        transcript,
+        listening,
+        resetTranscript
+    } = useSpeechRecognition();
+
+
+    const intervalref = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (isStarted) {
+            setValue(transcript)
+        }
+    }, [transcript, isStarted])
 
     const HtmlTooltip = styled(({className, ...props}: TooltipProps) => (
         <Tooltip {...props} classes={{popper: className}}/>
@@ -156,28 +179,66 @@ function CertifDialog({...props}) {
                                             if (selectedColor.length === 1)
                                                 setSelectedColor([...colors])
                                             else setSelectedColor([color])
-                                            // setFieldValue("color", color);
                                         }}>
                                     </ModelDot>
                                 ))}
                             </Stack>
 
 
-                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
-                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                            mb={1}>{t('consultationIP.contenu')}</Typography>
-                                <HtmlTooltip
-                                    title={
-                                        <React.Fragment>
-                                            <Typography color="gray"
-                                                        fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                            <Typography color="gray"
-                                                        fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
-                                        </React.Fragment>
-                                    }
-                                >
-                                    <InfoRoundedIcon/>
-                                </HtmlTooltip>
+                            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                                mb={1}>{t('consultationIP.contenu')}</Typography>
+                                    <HtmlTooltip
+                                        title={
+                                            <React.Fragment>
+                                                <Typography color="gray"
+                                                            fontSize={12}>{"{patient} : nom du patient"}</Typography>
+                                                <Typography color="gray"
+                                                            fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
+                                            </React.Fragment>
+                                        }
+                                    >
+                                        <InfoRoundedIcon style={{color: '#ccc', width: '0.7em', margin: '0 5px'}}/>
+                                    </HtmlTooltip>
+                                </Stack>
+                                {
+                                    listening && isStarted ? <RecondingBoxStyle onClick={() => {
+
+                                        if (intervalref.current) {
+                                            window.clearInterval(intervalref.current);
+                                            intervalref.current = null;
+                                        }
+                                        SpeechRecognition.stopListening();
+                                        resetTranscript();
+                                        setIsStarted(false)
+
+                                        setTime('00:00');
+                                    }}>
+                                        <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                        <div className={"recording-text"}>{time}</div>
+                                        <div className="recording-circle"></div>
+
+                                    </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
+                                        resetTranscript();
+                                        setIsStarted(true)
+                                        SpeechRecognition.startListening({
+                                            continuous: true,
+                                            language: 'fr-FR'
+                                        }).then(() => {
+
+                                        })
+                                        if (intervalref.current !== null) return;
+                                        intervalref.current = window.setInterval(() => {
+                                            time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                                            setTime(time);
+                                        }, 1000);
+                                    }}>
+                                        <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
+                                        <div className="recording-text">{t('consultationIP.listen')}</div>
+                                        <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                    </RecondingBoxStyle>
+                                }
                             </Stack>
 
                             <CKeditor
@@ -265,8 +326,6 @@ function CertifDialog({...props}) {
                     </List>
                 </Grid>
             </Grid>
-
-
         </Box>
     )
 }

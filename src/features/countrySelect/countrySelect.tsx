@@ -8,7 +8,6 @@ import {MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
     const {onSelect, initCountry = "", small, ...rest} = props;
-
     const onSelectState = useCallback(
         (state: any) => {
             onSelect(state);
@@ -21,6 +20,7 @@ function CountrySelect({...props}) {
             {...rest}
             id="country-select-demo"
             sx={{
+                ...rest.sx,
                 ...(small && {
                     ...rest.sx,
                     "& .MuiAutocomplete-input": {

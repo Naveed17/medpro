@@ -1,24 +1,25 @@
 import React, {ChangeEvent, memo, useState} from "react";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Typography,
+    Autocomplete,
     Box,
-    FormControl,
-    TextField,
-    Grid,
     Button,
-    Select,
-    MenuItem,
-    Stack,
-    IconButton,
     Card,
     CardContent,
-    Collapse,
     CardHeader,
-    Autocomplete,
-    InputAdornment, FormHelperText,
+    Collapse,
+    FormControl,
+    FormHelperText,
+    Grid,
+    IconButton,
+    InputAdornment,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -38,6 +39,7 @@ import {SocialInsured} from "@app/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
+import {dashLayoutSelector} from "@features/base";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -128,6 +130,7 @@ function AddPatientStep2({...props}) {
     const formik = useFormik({
         initialValues: {
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : stepsData.step2.country,
+            nationality: selectedPatient ? selectedPatient.nationality : '',
             region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : stepsData.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : stepsData.step2.zip_code,
             address: address.length > 0 ? address[0]?.street : stepsData.step2.address,
@@ -198,9 +201,11 @@ function AddPatientStep2({...props}) {
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
+
         const {fiche_id, picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
         const {day, month, year} = birthdate;
         const form = new FormData();
@@ -208,6 +213,7 @@ function AddPatientStep2({...props}) {
         form.append('fiche_id', fiche_id);
         form.append('first_name', first_name);
         form.append('last_name', last_name);
+        form.append('nationality', values.nationality);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
             code: phoneData.dial.phone,
             value: phoneData.phone,
@@ -235,7 +241,7 @@ function AddPatientStep2({...props}) {
         form.append('zip_code', values.zip_code);
         form.append('id_card', values.cin);
         form.append('profession', values.profession);
-        form.append('note', values.note);
+        form.append('note', values.note ? values.note : "");
 
         triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
@@ -250,6 +256,7 @@ function AddPatientStep2({...props}) {
                 const {status} = data;
                 setLoading(false);
                 if (status === "success") {
+                    mutateOnGoing && mutateOnGoing();
                     dispatch(onSubmitPatient(data.data));
                     onNext(2);
                 }
@@ -304,6 +311,50 @@ function AddPatientStep2({...props}) {
                         <Typography mt={1} variant="h6" color="text.primary">
                             {t("add-patient.additional-information")}
                         </Typography>
+                        <Box>
+                            <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                gutterBottom
+                            >
+                                {t("add-patient.nationality")}
+                            </Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id={"nationality"}
+                                    disabled={!countries}
+                                    size="small"
+                                    {...getFieldProps("nationality")}
+                                    displayEmpty
+                                    sx={{color: "text.secondary"}}
+                                    renderValue={selected => {
+                                        if (selected?.length === 0) {
+                                            return <em>{t("add-patient.nationality-placeholder")}</em>;
+                                        }
+
+                                        const country = countries?.find(country => country.uuid === selected);
+                                        return (
+                                            <Stack direction={"row"}>
+                                                <Image width={20} height={14}
+                                                       alt={"flag"}
+                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                <Typography ml={1}>{country?.nationality}</Typography>
+                                            </Stack>)
+                                    }}>
+                                    {countries?.map((country) => (
+                                        <MenuItem
+                                            key={country.uuid}
+                                            value={country.uuid}>
+                                            <Image width={20} height={14}
+                                                   alt={"flag"}
+                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Typography sx={{ml: 1}}>{country.nationality}</Typography>
+                                        </MenuItem>)
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Box>
                         <Box>
                             <Typography
                                 variant="body2"

@@ -1,12 +1,12 @@
 import {createReducer} from '@reduxjs/toolkit';
-import {
-    setOngoing
-} from './actions';
-import {KeyedMutator} from "swr/_internal/dist/_internal/types";
+import {setOngoing} from './actions';
+import {KeyedMutator} from "swr";
+
 
 export type dashLayoutState = {
     waiting_room: number;
     mutate?: KeyedMutator<any> | null;
+    last_fiche_id?: string;
     ongoing?: {
         "uuid": "string";
         "start_time": "string";
@@ -16,6 +16,7 @@ export type dashLayoutState = {
 
 const initialState: dashLayoutState = {
     waiting_room: 0,
+    last_fiche_id: "0",
     mutate: null,
     ongoing: null
 };

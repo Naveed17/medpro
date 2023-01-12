@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {Box, Button, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
+import {Box, CardContent, MenuItem, Select, Stack, TextField, Typography} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -11,27 +11,27 @@ import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
-import {styled} from '@mui/material/styles';
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import moment from "moment-timezone";
 import {pxToRem} from "@themes/formatFontSize";
-import {useRequestMutation} from "@app/axios";
 import RecondingBoxStyle from './overrides/recordingBoxStyle';
-
 
 
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
     const {exam} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
+    const [isStarted, setIsStarted] = useState(false);
+    let [time, setTime] = useState('00:00');
+
     const dispatch = useAppDispatch();
     const {
         transcript,
+        resetTranscript,
         listening,
     } = useSpeechRecognition();
 
-    let [time, setTime] = useState('00:00');
 
     const intervalref = useRef<number | null>(null);
 
@@ -49,16 +49,14 @@ function CIPPatientHistoryCard({...props}) {
 
     const {handleSubmit, values, setFieldValue} = formik;
 
-
-
-
     useEffect(() => {
         setCReason(defaultExam?.consultation_reasons)
     }, [defaultExam]);
 
     useEffect(() => {
-        setFieldValue("notes", transcript);
-    }, [setFieldValue, transcript])
+        if (isStarted)
+            setFieldValue("notes", transcript);
+    }, [isStarted, setFieldValue, transcript])
 
     useEffect(() => {
         if (exam) {
@@ -74,6 +72,16 @@ function CIPPatientHistoryCard({...props}) {
         setChanges([...changes])
     }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
+    const startListening = () => {
+        SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
+            setIsStarted(true);
+            if (intervalref.current !== null) return;
+            intervalref.current = window.setInterval(() => {
+                time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                setTime(time);
+            }, 1000);
+        })
+    }
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -147,31 +155,23 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("notes")}
                                 </Typography>
                                 {
-                                    listening ? <RecondingBoxStyle onClick={() => {
-                                        console.log('hello')
-
+                                    listening && isStarted ? <RecondingBoxStyle onClick={() => {
                                         if (intervalref.current) {
                                             window.clearInterval(intervalref.current);
                                             intervalref.current = null;
                                         }
                                         SpeechRecognition.stopListening();
-
+                                        resetTranscript();
                                         setTime('00:00');
+                                        setIsStarted(false)
                                     }}>
                                         <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
                                         <div className={"recording-text"}>{time}</div>
                                         <div className="recording-circle"></div>
 
                                     </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
-
-                                        SpeechRecognition.startListening({continuous: true}).then(() => {
-
-                                        })
-                                        if (intervalref.current !== null) return;
-                                        intervalref.current = window.setInterval(() => {
-                                            time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                                            setTime(time);
-                                        }, 1000);
+                                        resetTranscript();
+                                        startListening()
                                     }}>
                                         <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
                                         <div className="recording-text">{t('listen')}</div>

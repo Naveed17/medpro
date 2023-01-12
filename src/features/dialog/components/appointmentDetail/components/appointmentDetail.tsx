@@ -36,8 +36,8 @@ import {
     setMoveDateTime,
 } from "@features/dialog";
 import {useTranslation} from "next-i18next";
-import {useRequestMutation} from "@app/axios";
-import {TriggerWithoutValidation} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -78,6 +78,14 @@ function AppointmentDetail({...props}) {
         trigger: updateInstructionTrigger
     } = useRequestMutation(null, "/agenda/update/instruction",
         TriggerWithoutValidation);
+
+    const {data: httpPatientPhotoResponse} = useRequest(data?.extendedProps?.patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${data.extendedProps.patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
 
     const [openDialog, setOpenDialog] = React.useState<boolean>(false);
     const [instruction, setInstruction] = useState(data?.extendedProps?.instruction ? data?.extendedProps?.instruction : "");
@@ -128,6 +136,8 @@ function AppointmentDetail({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -213,9 +223,18 @@ function AppointmentDetail({...props}) {
                         <CardContent>
                             <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                                 <Stack spacing={2} direction="row" alignItems='center'>
-                                    <Avatar sx={{width: 24, height: 24}}
-                                            src={`/static/icons/${data?.extendedProps.patient?.gender !== "O" ?
-                                                "men" : "women"}-avatar.svg`}/>
+                                    <Avatar
+                                        src={patientPhoto ? patientPhoto : (data?.extendedProps?.patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                        sx={{
+                                            "& .injected-svg": {
+                                                margin: 0
+                                            },
+                                            width: 24,
+                                            height: 24,
+                                            borderRadius: 1
+                                        }}>
+                                        <IconUrl width={"24"} height={"24"} path="men-avatar"/>
+                                    </Avatar>
                                     <Typography variant="body1" color="primary" fontWeight={700}>
                                         {data?.title}
                                     </Typography>

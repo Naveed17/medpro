@@ -9,7 +9,7 @@ import {
     FormControlLabel, Tabs, Tab,
     Toolbar,
     Typography,
-    useMediaQuery,
+    useMediaQuery, LinearProgress,
 } from "@mui/material";
 
 //components
@@ -48,8 +48,11 @@ const AddAppointmentCardData = {
 
 function DocumentsPanel({...props}) {
     const {
-        documents, patient, patientId, setOpenUploadDialog,
-        mutatePatientDetails, patientDocuments
+        documents, documentViewIndex, patient,
+        patientId, setOpenUploadDialog,
+        mutatePatientDetails, patientDocuments,
+        mutatePatientDocuments,
+        loadingRequest, setLoadingRequest
     } = props;
 
     // filter checked array
@@ -58,7 +61,7 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    const [currentTab, setCurrentTab] = React.useState(0);
+    const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
 
     // handle change for checkboxes
     const handleToggle =
@@ -197,36 +200,15 @@ function DocumentsPanel({...props}) {
                                 ))}
                             </>
                         )}
-
-                        {/*                        <Otable
-                            headers={headCells}
-                            rows={documents.filter((doc: { documentType: string; }) => {
-                                if (selectedTypes.length === 0) return true;
-                                else {
-                                    return selectedTypes.some(st => st === doc.documentType)
-                                }
-                            })}
-                            from={"patient-documents"}
-                            t={t}
-                            checkedType={checked}
-                            pagination
-                            hideHeaderOnMobile
-                            handleEvent={(action: string, document: any) => {
-                                if (action === "MORE") {
-                                    showDoc(document)
-                                }
-                                if (action === "LISTEN") {
-                                    const audio = new Audio(document.uri)
-                                    audio.play().then(r => console.log('stoped', r));
-                                }
-                            }}
-                        />*/}
-
                         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                             <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
                                 <Tab label="Documents du rendez-vous" {...a11yProps(0)} />
                                 <Tab label="Documents du patient" {...a11yProps(1)} />
                             </Tabs>
+                            <LinearProgress sx={{
+                                mt: .2,
+                                display: loadingRequest ? "block" : "none"
+                            }} color="warning"/>
                         </Box>
                         <TabPanel value={currentTab} index={0}>
                             <Box display='grid' className={'document-container'}
@@ -299,7 +281,14 @@ function DocumentsPanel({...props}) {
 
             <Dialog action={"document_detail"}
                     open={openDialog}
-                    data={{state: document, setState: setDocument, setOpenDialog}}
+                    data={{
+                        state: document, setState: setDocument,
+                        setOpenDialog, patient,
+                        mutatePatientDocuments,
+                        documentViewIndex: currentTab,
+                        source: "patient",
+                        setLoadingRequest
+                    }}
                     size={"lg"}
                     direction={'ltr'}
                     sx={{p: 0}}
