@@ -1,7 +1,4 @@
-import {
-    AppBar, Box, Button, Card, CardContent, Grid, Skeleton,
-    Stack, Toolbar, Typography
-} from "@mui/material";
+import {AppBar, Box, Button, CardContent, Grid, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
@@ -44,7 +41,9 @@ function NotesPanel({...props}) {
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({
+                fr: patient?.address[0]?.street
+            }));
 
             triggerPatientUpdate({
                 method: "PUT",

@@ -109,16 +109,16 @@ function DocumentDetailDialog({...props}) {
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
             title: 'settings',
             icon: "ic-setting",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
             title: 'download',

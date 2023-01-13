@@ -51,13 +51,13 @@ const TabData = [
             label: "tabs.medWin",
             content: "tabs.content-2",
         },*/
-    {
+    /*{
         key: "med-link",
         icon: "ic-upload",
         variant: "default",
         label: "tabs.file",
         content: "tabs.content-3",
-    },
+    },*/
 ];
 
 function ImportData() {
