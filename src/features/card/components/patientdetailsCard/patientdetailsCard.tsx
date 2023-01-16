@@ -110,7 +110,7 @@ function PatientDetailsCard({...props}) {
                 data: params,
             }).then(() => {
                 setRequestLoading(false);
-                mutatePatientList();
+                mutatePatientList && mutatePatientList();
             });
         }
     }

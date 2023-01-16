@@ -339,7 +339,7 @@ function PatientContactDetailCard({...props}) {
                                            sx={{height: 28, width: "103%"}}
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={3} sm={6} xs={6}>
+                                        <Grid item md={2.8} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -367,7 +367,7 @@ function PatientContactDetailCard({...props}) {
                                                     height: "100%"
                                                 }
                                             }}
-                                            item md={8} sm={6} xs={6}>
+                                            item md={8.5} sm={6} xs={6}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -381,6 +381,7 @@ function PatientContactDetailCard({...props}) {
                                                     displayEmpty
                                                     sx={{
                                                         pl: 0,
+                                                        ml: 0,
                                                         "& .MuiSvgIcon-root": {
                                                             display: !editable ? "none" : "inline-block"
                                                         },
@@ -512,7 +513,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                         <Grid
                                             {...(editable && {className: "grid-border"})}
-                                            item md={8} sm={6} xs={6}>
+                                            item md={9.4} sm={6} xs={6}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (
@@ -536,7 +537,7 @@ function PatientContactDetailCard({...props}) {
                                     <Stack direction="row"
                                            spacing={1}
                                            alignItems="center">
-                                        <Grid item md={1.4} sm={6} xs={6}>
+                                        <Grid item md={1.5} sm={6} xs={6}>
                                             <Typography
                                                 className="label"
                                                 variant="body2"
@@ -547,7 +548,7 @@ function PatientContactDetailCard({...props}) {
                                         </Grid>
                                         <Grid
                                             {...(editable && {className: "grid-border"})}
-                                            item md={10} sm={6} xs={6}>
+                                            item md={10.5} sm={6} xs={6}>
                                             {loading ? (
                                                 <Skeleton width={100}/>
                                             ) : (

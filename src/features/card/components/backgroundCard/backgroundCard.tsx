@@ -45,19 +45,19 @@ const emptyObject = {
 
 function BackgroundCard({...props}) {
     const {loading, patient, mutatePatientDetails} = props;
+    const router = useRouter();
+    const {data: session} = useSession();
+    const dispatch = useAppDispatch();
 
     const {direction} = useAppSelector(configSelector);
 
     const [data, setdata] = useState([...cardItems]);
-    const dispatch = useAppDispatch();
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<string>("");
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
     const {trigger} = useRequestMutation(null, "/antecedent");
-    const router = useRouter();
-    const {data: session, status} = useSession();
 
     const codes: any = {
         way_of_life: "0",
@@ -86,11 +86,11 @@ function BackgroundCard({...props}) {
                     Authorization: `Bearer ${session?.accessToken}`,
                 },
             }, TriggerWithoutValidation
-        ).then((r) => console.log("edit qualification", r));
-
-        mutatePatientDetails();
-        setOpenDialog(false);
-        setInfo("");
+        ).then(() => {
+            setOpenDialog(false);
+            setInfo("");
+            mutatePatientDetails();
+        });
     };
 
     const handleOpen = (action: string) => {
@@ -101,7 +101,6 @@ function BackgroundCard({...props}) {
         setState(patient.antecedents[action]);
         setInfo(action);
         action === "add_treatment" ? setSize("lg") : setSize("sm");
-
         handleClickDialog();
     };
 
@@ -207,9 +206,6 @@ function BackgroundCard({...props}) {
                         patient_uuid: patient.uuid,
                         action: info
                     }}
-                    change={"false"}
-                    max
-                    actions
                     title={t(info)}
                     dialogClose={() => {
                         setOpenDialog(false);
