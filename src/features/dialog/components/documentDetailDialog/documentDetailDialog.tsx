@@ -24,7 +24,7 @@ import IconUrl from '@themes/urlIcon';
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import {useSnackbar} from "notistack";
@@ -35,6 +35,11 @@ import Preview from "@features/files/components/preview";
 import moment from "moment";
 import ReactPlayer from "react-player";
 import AudioPlayer from "react-h5-audio-player";
+import {Theme} from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {Dialog as CustomDialog} from "@features/dialog";
+import {configSelector} from "@features/base";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -62,6 +67,7 @@ function DocumentDetailDialog({...props}) {
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
     const [file, setFile] = useState<string>('');
+    const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
     const componentRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
@@ -82,7 +88,7 @@ function DocumentDetailDialog({...props}) {
             y: 70
         }
     })
-
+    const {direction} = useAppSelector(configSelector);
     const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees']
     const multimedias = ['video', 'audio', 'photo']
     const list = [
@@ -100,6 +106,14 @@ function DocumentDetailDialog({...props}) {
             value: 'Moi',
         }
     ]
+    const selected = {
+        title: t('askRemovedoc'),
+        subtitle: t('subtitleRemovedoc'),
+        icon: "/static/icons/ic-text.svg",
+        name1: name,
+        name2: t(state.type),
+        data: props,
+    }
     const actionButtons = [
         {
             title: 'print',
@@ -184,17 +198,7 @@ function DocumentDetailDialog({...props}) {
                 handlePrint();
                 break;
             case "delete":
-                setLoadingRequest && setLoadingRequest(true);
-                trigger({
-                    method: "DELETE",
-                    url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
-                    headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-                }, {revalidate: true, populateCache: true}).then(() => {
-                    state.mutate();
-                    (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
-                    setLoadingRequest && setLoadingRequest(false);
-                    setOpenDialog(false);
-                });
+                setOpenRemove(true)
                 break;
             case "edit":
                 switch (state.type) {
@@ -290,6 +294,23 @@ function DocumentDetailDialog({...props}) {
             }
         }
     }, [httpHeaderData])
+
+    const dialogSave = () => {
+        setLoading(true);
+        setLoadingRequest && setLoadingRequest(true);
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : (medical_entity.uuid + "/patients/" + patient?.uuid)}/documents/${state.uuid}/${router.locale}`,
+            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
+        }, {revalidate: true, populateCache: true}).then(() => {
+            state.mutate();
+            setOpenRemove(false);
+            setLoading(false);
+            (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+            setLoadingRequest && setLoadingRequest(false);
+            setOpenDialog(false);
+        });
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -443,6 +464,24 @@ function DocumentDetailDialog({...props}) {
                     </List>
                 </Grid>
             </Grid>
+
+            <CustomDialog action={"remove"}
+                          direction={direction}
+                          open={openRemove}
+                          data={selected}
+                          color={(theme: Theme) => theme.palette.error.main}
+                          title={t('removedoc')}
+                          t={t}
+                          actionDialog={
+                              <DialogActions>
+                                  <Button onClick={()=>{setOpenRemove(false);}}
+                                      startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                                  <LoadingButton variant="contained"
+                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                                 onClick={dialogSave}>{t('remove')}</LoadingButton>
+                              </DialogActions>
+                          }
+            />
 
             <Dialog
                 open={openAlert}
