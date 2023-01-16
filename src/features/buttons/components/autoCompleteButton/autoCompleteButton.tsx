@@ -63,7 +63,6 @@ function AutoCompleteButton({...props}) {
                                 </Box>
                             </ClickAwayListener>
                         }
-
                     </>
                 ) :
                 <PatientAppointmentCard

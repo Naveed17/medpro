@@ -188,13 +188,13 @@ function OnStepPatient({...props}) {
                 expand: Yup.boolean()
             }))
     });
-    const address = selectedPatient ? selectedPatient.address : [];
+    const address = selectedPatient && selectedPatient.address ? selectedPatient.address : [];
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
 
     const formik = useFormik({
         initialValues: {
             fiche_id: selectedPatient
-                ? selectedPatient.fiche_id
+                ? selectedPatient.fiche_id ? selectedPatient.fiche_id : ""
                 : last_fiche_id,//patient.step1.fiche_id,
             firstName: selectedPatient
                 ? selectedPatient.firstName
@@ -218,15 +218,15 @@ function OnStepPatient({...props}) {
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
-            nationality: selectedPatient ? selectedPatient.nationality : '',
+            nationality: selectedPatient && selectedPatient.nationality ? selectedPatient.nationality : '',
             country: address.length > 0 && address[0]?.city ? address[0]?.city?.country?.uuid : patient.step2.country,
             region: address.length > 0 && address[0]?.city ? address[0]?.city?.uuid : patient.step2.region,
             zip_code: address.length > 0 ? address[0]?.postalCode : patient.step2.zip_code,
-            address: address.length > 0 ? address[0]?.street : patient.step2.address,
+            address: address.length > 0 && address[0]?.street ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
             cin: selectedPatient ? selectedPatient?.cin : patient.step2.cin,
             profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
-            family_doctor: selectedPatient ? selectedPatient.familyDoctor : patient.step2.family_doctor,
+            family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
                 insurance_number: insurance.insuranceNumber,
                 insurance_uuid: insurance.insurance?.uuid,
@@ -243,7 +243,7 @@ function OnStepPatient({...props}) {
                         is_support: false
                     }
                 },
-                insurance_type: insurance.type ? insurance.type.toString() : "",
+                insurance_type: insurance.type ? insurance.type.toString() : "0",
                 expand: insurance.type ? insurance.type.toString() !== "0" : false
             })) : [] as {
                 insurance_number: string;
@@ -269,7 +269,7 @@ function OnStepPatient({...props}) {
 
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
-        url: "/api/public/places/countries/" + router.locale
+        url: `/api/public/places/countries/${router.locale}/?nationality=true`
     }, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({

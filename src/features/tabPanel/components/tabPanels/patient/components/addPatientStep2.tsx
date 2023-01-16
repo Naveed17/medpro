@@ -182,7 +182,7 @@ function AddPatientStep2({...props}) {
 
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
-        url: "/api/public/places/countries/" + router.locale
+        url: `/api/public/places/countries/${router.locale}/?nationality=true`
     }, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({
