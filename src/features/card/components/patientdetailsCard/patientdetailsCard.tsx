@@ -90,6 +90,7 @@ function PatientDetailsCard({...props}) {
             values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
             patient.email && params.append('email', patient.email);
             patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
+            patient.nationality && params.append('nationality', patient.nationality.uuid);
             patient.profession && params.append('profession', patient.profession);
             patient.birthdate && params.append('birthdate', patient.birthdate);
             patient.note && params.append('note', patient.note);
@@ -110,7 +111,7 @@ function PatientDetailsCard({...props}) {
                 data: params,
             }).then(() => {
                 setRequestLoading(false);
-                mutatePatientList();
+                mutatePatientList && mutatePatientList();
             });
         }
     }
@@ -170,7 +171,7 @@ function PatientDetailsCard({...props}) {
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                <Stack direction={"row"}  alignItems={"center"} justifyContent={"flex-start"}>
 
                                     <InputBase
                                         readOnly
@@ -186,11 +187,10 @@ function PatientDetailsCard({...props}) {
 
                                     {patient?.nationality &&
                                         <Tooltip title={patient.nationality.nationality}>
-                                            <IconButton>
-                                                <Image width={15} height={14}
-                                                       alt={"flag"}
-                                                       src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
-                                            </IconButton>
+                                            <Avatar
+                                                sx={{width: 20, height: 20}}
+                                                alt={"flag"}
+                                                src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
                                         </Tooltip>
 
                                     }

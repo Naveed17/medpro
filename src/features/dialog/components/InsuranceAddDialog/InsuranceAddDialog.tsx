@@ -10,7 +10,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@app/constants";
 import Select from "@mui/material/Select";
 import Icon from "@themes/urlIcon";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
@@ -275,12 +275,7 @@ function InsuranceAddDialog({...props}) {
                                                     <Grid item md={6} lg={4} xs={12}>
                                                         <CountrySelect
                                                             initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
-                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) :
-                                                                {
-                                                                    code: "TN",
-                                                                    label: "Tunisia",
-                                                                    phone: "+216"
-                                                                }}
+                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) : DefaultCountry}
                                                             onSelect={(state: any) => {
                                                                 setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
                                                             }}/>

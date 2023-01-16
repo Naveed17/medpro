@@ -1,6 +1,7 @@
 import {createReducer} from "@reduxjs/toolkit";
 import {onAddPatient, onResetPatient, onSubmitPatient} from "./actions";
 import AddPatient from "@interfaces/AddPatient";
+import {DefaultCountry} from "@app/constants";
 
 export type MenuState = {
     stepsData: AddPatient;
@@ -20,11 +21,7 @@ export const initialPatientState: MenuState = {
             },
             phones: [{
                 phone: "",
-                dial: {
-                    code: "TN",
-                    label: "Tunisia",
-                    phone: "+216"
-                }
+                dial: DefaultCountry
             }],
             gender: ""
         },

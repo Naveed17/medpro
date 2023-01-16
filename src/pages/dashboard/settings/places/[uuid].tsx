@@ -46,6 +46,7 @@ import {agendaSelector} from "@features/calendar";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {DefaultCountry} from "@app/constants";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -793,12 +794,7 @@ function PlacesDetail() {
                                                                     <InputAdornment position="start">
                                                                         <CountrySelect
                                                                             initCountry={getFieldProps(`phone[${index}].countryCode`) ?
-                                                                                getCountryByCode(getFieldProps(`phone[${index}].countryCode`).value) :
-                                                                                {
-                                                                                    code: "TN",
-                                                                                    label: "Tunisia",
-                                                                                    phone: "+216"
-                                                                                }}
+                                                                                getCountryByCode(getFieldProps(`phone[${index}].countryCode`).value) : DefaultCountry}
                                                                             sx={{width: 200}}
                                                                             onSelect={(v: any) =>
                                                                                 setFieldValue(

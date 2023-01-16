@@ -1,3 +1,5 @@
+import {countries} from "@features/countrySelect/countries";
+
 export const SocialInsured = [
     {grouped: "L'assuré social", key: "socialInsured", value: "0", label: "L'assuré social"},
     {grouped: "Le conjoint", key: "partner", value: "1", label: "Le conjoint"},
@@ -11,3 +13,5 @@ export const SocialInsured = [
 
 export const PhoneRegExp =
     /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+export const DefaultCountry = countries.find(country => country.code === process.env.NEXT_PUBLIC_COUNTRY);

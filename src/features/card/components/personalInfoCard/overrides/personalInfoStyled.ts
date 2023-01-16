@@ -48,6 +48,11 @@ const PersonalInfoStyled = styled(Box)(({theme}) => ({
         "& .MuiInputBase-input": {
             paddingLeft: 0
         }
+    },
+    "& input": {
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis"
     }
 }));
 

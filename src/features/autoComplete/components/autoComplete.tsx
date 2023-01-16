@@ -48,17 +48,14 @@ function AutoComplete({...props}) {
             <Box className="scroll-main">
                 <MenuList
                     id={"item-list"}
-                    autoFocusItem={!focus}
-                >
+                    autoFocusItem={!focus}>
                     {loading && <LinearProgress color="warning"/>}
-                    {data?.map((item: any, index: number) => (
+                    {data?.map((item: any) => (
                         <PatientAppointmentCard
-                            key={item.uuid}
-                            item={item}
-                            onClick={() => handleListItemClick(item)}/>
+                            {...{handleListItemClick, item}}
+                            key={item.uuid}/>
                     ))}
                 </MenuList>
-
             </Box>
         </RootStyled>
     );

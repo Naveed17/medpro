@@ -126,6 +126,7 @@
         "group": "Groupe",
         "gender": "Genre",
         "nationality": "Nationalité",
+        "nationality-placeholder": "Sélectionner la nationalité du patient",
         "gender-error": "Veuillez choisir le genre.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",
