@@ -92,7 +92,7 @@ function Consultation() {
             params.append('note', note);
             patient.fiche_id && params.append('fiche_id', patient.fiche_id);
             patient.email && params.append('email', patient.email);
-            patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+            patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
             patient.profession && params.append('profession', patient.profession);
             patient.birthdate && params.append('birthdate', patient.birthdate);
             params.append('first_name', patient.firstName);
@@ -102,8 +102,8 @@ function Consultation() {
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
-            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', patient?.address[0]?.street);
-            patient.idCard && params.append('idCard', patient.idCard);
+            patient?.address && patient?.address.length > 0 && patient?.address[0].street && params.append('address', JSON.stringify({fr: patient?.address[0]?.street}));
+            patient.idCard && params.append('id_card', patient.idCard);
         }
 
         triggerPatientUpdate({
@@ -199,9 +199,12 @@ function Consultation() {
                     {/*{false && <Alert icon="ic-danger" color="warning" sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
                     <Typography color="text.primary">{upperFirst(t(`duplicate detection`))}</Typography>
                 </Alert>}*/}
-                    <Button variant="consultationIP" startIcon={<FolderRoundedIcon/>}
-                            sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
-                        {upperFirst(t('ficheID'))} <span style={{fontWeight:"bold"}}>{patient?.fiche_id}</span>
+                    <Button
+                        onClick={() => {
+                            dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                        }} variant="consultationIP" startIcon={<FolderRoundedIcon/>}
+                        sx={{borderTopRightRadius: 0, borderBottomRightRadius: 0, px: 1.5}}>
+                        {upperFirst(t('ficheID'))} <span style={{fontWeight: "bold"}}>{patient?.fiche_id}</span>
                     </Button>
                 </Stack>}
                 <Box className="contact" ml={1}>

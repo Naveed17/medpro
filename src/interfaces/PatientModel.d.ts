@@ -8,7 +8,7 @@ interface PatientModel {
     gender: string;
     idCard: string;
     profession: string;
-    family_doctor: string;
+    familyDoctor: string;
     note: string;
     insurances: PatientInsuranceModel[];
     contact: ContactModel[];
