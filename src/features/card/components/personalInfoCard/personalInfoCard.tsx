@@ -55,6 +55,7 @@ function PersonalInfo({...props}) {
 
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
