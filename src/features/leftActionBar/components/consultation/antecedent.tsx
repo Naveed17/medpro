@@ -5,6 +5,7 @@ import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
 import React from "react";
+import moment from "moment";
 
 function Antecedent({...props}) {
 
@@ -14,8 +15,10 @@ function Antecedent({...props}) {
         trigger,
         medical_entity,
         mutate,
+        setSelected,
         session,
         handleOpen,
+        setOpenRemove,
         index,
         router} = props
 
@@ -51,23 +54,22 @@ function Antecedent({...props}) {
                                 <IconButton
                                     size="small"
                                     onClick={() => {
-                                        console.log(antecedent, item);
-
-                                        trigger(
-                                            {
+                                        setSelected({
+                                            title: t('askRemove'),
+                                            subtitle: t(antecedent),
+                                            icon: "/static/icons/ic-recherche.svg",
+                                            name1: item.name,
+                                            name2: "",
+                                            request: {
                                                 method: "DELETE",
                                                 url:`/api/medical-entity/${medical_entity.uuid}/patients/${patient.uuid}/antecedents/${item.uuid}/${router.locale}`,
                                                 headers: {
                                                     ContentType: "multipart/form-data",
                                                     Authorization: `Bearer ${session?.accessToken}`,
                                                 },
-                                            },
-                                            {
-                                                revalidate: true,
-                                                populateCache: true,
                                             }
-                                        ).then(() => console.log("edit qualification"));
-                                        mutate();
+                                        })
+                                        setOpenRemove(true);
                                     }}
                                     sx={{ml: "auto"}}>
                                     <Icon path="setting/icdelete"/>
