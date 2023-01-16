@@ -44,7 +44,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
-import {PhoneRegExp, SocialInsured} from "@app/constants";
+import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
@@ -235,7 +235,7 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : "+216",
+                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : DefaultCountry?.phone,
                         value: insurance.insuredPerson ? insurance.insuredPerson.contact.value : "",
                         type: "phone",
                         contact_type: contacts && contacts[0].uuid,
@@ -283,11 +283,7 @@ function OnStepPatient({...props}) {
     } : null, SWRNoValidateConfig);
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
-    const [selectedCountry, setSelectedCountry] = React.useState<any>({
-        code: "TN",
-        label: "Tunisia",
-        phone: "+216"
-    });
+    const [selectedCountry, setSelectedCountry] = React.useState<any>(DefaultCountry);
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -300,11 +296,7 @@ function OnStepPatient({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: {
-                code: "TN",
-                label: "Tunisia",
-                phone: "+216"
-            }
+            dial: DefaultCountry
         }];
         formik.setFieldValue("phones", phones);
     };
@@ -325,7 +317,7 @@ function OnStepPatient({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: "+216",
+                    code: DefaultCountry?.phone,
                     value: "",
                     type: "phone",
                     contact_type: contacts[0].uuid,
@@ -1077,11 +1069,7 @@ function OnStepPatient({...props}) {
                                                                     <CountrySelect
                                                                         initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
                                                                             getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
-                                                                            {
-                                                                                code: "TN",
-                                                                                label: "Tunisia",
-                                                                                phone: "+216"
-                                                                            }}
+                                                                            DefaultCountry}
                                                                         onSelect={(state: any) => {
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                         }}/>

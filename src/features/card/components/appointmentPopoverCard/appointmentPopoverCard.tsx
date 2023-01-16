@@ -14,6 +14,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {DefaultCountry} from "@app/constants";
 
 function AppointmentPopoverCard({...props}) {
     const {data, style, t} = props;
@@ -173,7 +174,7 @@ function AppointmentPopoverCard({...props}) {
                         component="span"
                     >
                         <CallIcon/>
-                        {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
+                        {data?.patient.contact ? data?.patient.contact[0]?.code : DefaultCountry?.phone}
                         {data?.patient.contact[0]?.value}
                     </Typography>
                 </Box>

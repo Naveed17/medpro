@@ -79,7 +79,7 @@ function PersonalInfo({...props}) {
         birthdate: Yup.string(),
         profession: Yup.string(),
         cin: Yup.number(),
-        familyDoctor:Yup.string()
+        familyDoctor: Yup.string()
     });
 
     const formik = useFormik({
@@ -129,6 +129,10 @@ function PersonalInfo({...props}) {
         params.append('address', JSON.stringify({
             fr: values.address
         }));
+        patient.nationality && params.append('nationality', patient.nationality.uuid);
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
+        patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);
 
         triggerPatientUpdate({
             method: "PUT",
@@ -340,13 +344,13 @@ function PersonalInfo({...props}) {
                                         </Typography>
                                     </Grid>
                                     <Grid
-                                        className={`datepicker-grid-border ${!editable ? "datepicker-style": ""}`}
+                                        className={`datepicker-grid-border ${!editable ? "datepicker-style" : ""}`}
                                         {...(editable && {
-                                                sx: {
-                                                    border: `1px solid ${theme.palette.grey['A100']}`,
-                                                    borderRadius: 1
-                                                }
-                                            })}
+                                            sx: {
+                                                border: `1px solid ${theme.palette.grey['A100']}`,
+                                                borderRadius: 1
+                                            }
+                                        })}
                                         item md={8} sm={6} xs={6}>
                                         {loading ? (
                                             <Skeleton variant="text"/>

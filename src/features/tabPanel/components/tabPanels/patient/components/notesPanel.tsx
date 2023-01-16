@@ -38,6 +38,7 @@ function NotesPanel({...props}) {
             patient.profession && params.append('profession', patient.profession);
             patient.birthdate && params.append('birthdate', patient.birthdate);
             patient.idCard && params.append('id_card', patient.idCard);
+            patient.nationality && params.append('nationality', patient.nationality.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);

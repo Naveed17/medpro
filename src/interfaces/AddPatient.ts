@@ -18,7 +18,7 @@ interface Qualifications {
                 code: string;
                 label: string;
                 phone: string;
-            }
+            } | undefined
         }];
         gender: string;
     };

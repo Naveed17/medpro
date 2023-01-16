@@ -28,7 +28,7 @@ import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
-import {SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@app/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
@@ -212,7 +212,7 @@ function PersonalInsuranceCard({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: "+216",
+                    code: DefaultCountry?.phone,
                     value: "",
                     type: "phone",
                     contact_type: patient.contact[0].uuid,
@@ -254,6 +254,7 @@ function PersonalInsuranceCard({...props}) {
         params.append('note', patient.note);
         params.append('profession', patient.profession);
         params.append('family_doctor', patient.family_doctor);
+        patient.nationality && params.append('nationality', patient.nationality.uuid);
         (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
             if (insurance.insurance_type === "0") {
                 delete insurance['insurance_social'];
