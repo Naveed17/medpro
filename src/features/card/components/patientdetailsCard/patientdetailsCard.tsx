@@ -82,7 +82,6 @@ function PatientDetailsCard({...props}) {
         setRequestLoading(true);
         const params = new FormData();
         if (patient) {
-            console.log(patient);
             params.append('first_name', patient.firstName);
             params.append('last_name', patient.lastName);
             params.append('phone', JSON.stringify(patient.contact));
@@ -90,11 +89,11 @@ function PatientDetailsCard({...props}) {
             values.picture.url.length > 0 && params.append('photo', values.picture.file);
             values.fiche_id?.length > 0 && params.append('fiche_id', values.fiche_id);
             patient.email && params.append('email', patient.email);
-            patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+            patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
             patient.profession && params.append('profession', patient.profession);
             patient.birthdate && params.append('birthdate', patient.birthdate);
             patient.note && params.append('note', patient.note);
-            patient.idCard && params.append('idCard', patient.idCard);
+            patient.idCard && params.append('id_card', patient.idCard);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('country', patient?.address[0]?.city?.country?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('region', patient?.address[0]?.city?.uuid);
             patient?.address && patient?.address.length > 0 && patient?.address[0].city && params.append('zip_code', patient?.address[0]?.postalCode);

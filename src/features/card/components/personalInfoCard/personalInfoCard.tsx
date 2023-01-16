@@ -55,6 +55,7 @@ function PersonalInfo({...props}) {
 
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
+
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
@@ -123,6 +124,7 @@ function PersonalInfo({...props}) {
         params.append('email', values.email);
         params.append('id_card', values.cin);
         params.append('profession', values.profession);
+        params.append('family_doctor', values.familyDoctor);
         values.birthdate.length > 0 && params.append('birthdate', values.birthdate);
         params.append('address', JSON.stringify({
             fr: values.address
