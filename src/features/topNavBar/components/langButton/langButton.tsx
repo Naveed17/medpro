@@ -34,14 +34,16 @@ function LangButton() {
     <RootStyled>
       <Button
         startIcon={<GlobeIcon />}
+/*
         endIcon={<Icon path="ic-toogle" />}
+*/
         variant="outlined"
         aria-owns={anchorEl ? "simple-menu" : undefined}
         aria-haspopup="true"
         onClick={handleClick}>
         {selected?.label}
       </Button>
-      <MenuStyled
+      {/*<MenuStyled
         id="simple-menu"
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -56,7 +58,7 @@ function LangButton() {
             <ListItemText sx={{ fontSize: 12 }}>{item[1].label}</ListItemText>
           </MenuItem>
         ))}
-      </MenuStyled>
+      </MenuStyled>*/}
     </RootStyled>
   );
 }

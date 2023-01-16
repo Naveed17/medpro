@@ -109,16 +109,16 @@ function DocumentDetailDialog({...props}) {
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         }, {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
             title: 'settings',
             icon: "ic-setting",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
         },
         {
             title: 'download',
@@ -175,6 +175,7 @@ function DocumentDetailDialog({...props}) {
 
     const printNow = useReactToPrint({
         content: () => componentRef.current,
+        documentTitle: `${t(state.type)} ${state.patient}`
     })
 
     const handleActions = (action: string) => {
@@ -228,21 +229,19 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                printNow()
-                /*if (file) {
+                if (generatedDocs.some(doc => doc == state.type))
+                    printNow();
+                else {
                     fetch(file).then(response => {
                         response.blob().then(blob => {
                             const fileURL = window.URL.createObjectURL(blob);
-                            // Setting various property values
                             let alink = document.createElement('a');
                             alink.href = fileURL;
-                            alink.download = file.split(/(\\|\/)/g).pop() as string
+                            alink.download = `${state.type} ${state.patient}`
                             alink.click();
                         })
                     })
-                } else {
-                    alert('no file to download')
-                }*/
+                }
                 break;
             case "settings":
                 router.push("/dashboard/settings/docs").then(() => {
@@ -281,9 +280,9 @@ function DocumentDetailDialog({...props}) {
     useEffect(() => {
         if (httpHeaderData) {
             const docInfo = (httpHeaderData as HttpResponse).data
-            if (!docInfo.header)
-                handleClickOpen();
-            else {
+            if (!docInfo.header) {
+                //handleClickOpen();
+            } else {
                 setOpenAlert(false);
                 setData(docInfo.data)
                 setHeader(docInfo.header)
@@ -345,7 +344,8 @@ function DocumentDetailDialog({...props}) {
                             multimedias.some(multi => multi === state.type) &&
                             <Box>
                                 {state.type === 'photo' &&
-                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}} alt={"img"}/>}
+                                    <Box component={"img"} src={state.uri} sx={{marginLeft: 2, maxWidth: "100%"}}
+                                         alt={"img"}/>}
                                 {state.type === 'video' && <ReactPlayer url={file} controls={true}/>}
                                 {state.type === 'audio' && <Box padding={2}><AudioPlayer autoPlay src={file}/></Box>}
                             </Box>

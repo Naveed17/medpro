@@ -78,7 +78,8 @@ function PersonalInfo({...props}) {
             .email('Invalid email format'),
         birthdate: Yup.string(),
         profession: Yup.string(),
-        cin: Yup.number()
+        cin: Yup.number(),
+        familyDoctor:Yup.string()
     });
 
     const formik = useFormik({
@@ -96,7 +97,8 @@ function PersonalInfo({...props}) {
                     : "",
             email: !loading && patient.email ? patient.email : "",
             cin: !loading && patient.idCard ? patient.idCard : "",
-            profession: !loading && patient.profession ? patient.profession : ""
+            profession: !loading && patient.profession ? patient.profession : "",
+            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : ""
         },
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
@@ -460,6 +462,40 @@ function PersonalInfo({...props}) {
                                         )}
                                     </Grid>
                                 </Stack>
+
+                            </Grid>
+
+                            <Grid item md={6} sm={6} xs={6}>
+                                <Stack
+                                    sx={{
+                                        "& .MuiInputBase-root": {
+                                            width: "100%"
+                                        }
+                                    }}
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center">
+                                    <Grid item md={3} sm={6} xs={6}>
+                                        <Typography variant="body1" color="text.secondary" noWrap>
+                                            {t("family_doctor")}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        {...(editable && {className: "grid-border"})}
+                                        item md={8} sm={6} xs={6}>
+                                        {loading ? (
+                                            <Skeleton variant="text"/>
+                                        ) : (
+                                            <InputBase
+                                                placeholder={t("family_doctor-placeholder")}
+                                                readOnly={!editable}
+                                                error={Boolean(touched.cin && errors.cin)}
+                                                {...getFieldProps("familyDoctor")}
+                                            />
+                                        )}
+                                    </Grid>
+                                </Stack>
+
                             </Grid>
                         </Grid>
                     </Paper>

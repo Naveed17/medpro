@@ -593,7 +593,7 @@ function Profil() {
                                     <IconButton
                                         size="small"
                                         color="primary"
-                                        onClick={() => router.push("/dashboard/settings/acts")}>
+                                        onClick={() => router.push("/dashboard/settings/actfees")}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
                                 </Stack>

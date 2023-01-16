@@ -1,22 +1,25 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
-    Typography,
+    Alert,
+    AlertTitle,
     Box,
     Card,
     CardContent,
     Grid,
+    List,
+    ListItem,
     MenuItem,
     Select,
     Stack,
-    useTheme, AlertTitle, Alert, List, ListItem
+    Typography
 } from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
-import {FormikProvider, Form, useFormik} from "formik";
+import {Form, FormikProvider, useFormik} from "formik";
 import {UploadFile} from "@features/uploadFile";
 import {SettingsTabs} from "@features/tabPanel";
 import {LoadingButton} from "@mui/lab";
@@ -25,11 +28,11 @@ import Papa from "papaparse";
 import {read, utils} from "xlsx";
 import {CircularProgressbarCard} from "@features/card";
 import {useSnackbar} from "notistack";
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@app/redux/hooks";
 import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 
@@ -42,19 +45,19 @@ const TabData = [
         label: "tabs.med",
         content: "tabs.content-1",
     },
-    {
-        key: "med-win",
-        icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
-        label: "tabs.medWin",
-        content: "tabs.content-2",
-    },
-    {
+    /*    {
+            key: "med-win",
+            icon: <Box mt={1} width={64} height={24} component="img" src={"/static/img/logo-wide.png"}/>,
+            label: "tabs.medWin",
+            content: "tabs.content-2",
+        },*/
+    /*{
         key: "med-link",
         icon: "ic-upload",
         variant: "default",
         label: "tabs.file",
         content: "tabs.content-3",
-    },
+    },*/
 ];
 
 function ImportData() {
@@ -70,6 +73,7 @@ function ImportData() {
     const {trigger: triggerImportData} = useRequestMutation(null, "/import/data");
 
     const [loading, setLoading] = useState<boolean>(false);
+    const [uriFile, setUriFile] = useState<string>("");
     const [settingsTab, setSettingsTab] = useState({
         activeTab: null,
         loading: false
@@ -78,6 +82,19 @@ function ImportData() {
         {label: "Patients", key: "1"},
         {label: "Toutes les données", key: "2"},
     ]);
+
+    const {data: httpFileResponse} = useRequest({
+        method: "GET",
+        url: `/api/public/med-link/patient/file/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`}
+    });
+
+    useEffect(() => {
+        if (httpFileResponse)
+            setUriFile((httpFileResponse as HttpResponse).data.file)
+    }, [httpFileResponse])
+
+
     const [files, setFiles] = useState<any[]>([]);
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
@@ -272,7 +289,7 @@ function ImportData() {
                                         </Grid>
                                     </Grid>
                                 </Box>}
-                                {settingsTab.activeTab === 2 && <Box mb={6} mt={2}>
+                                {settingsTab.activeTab === 1 && <Box mb={6} mt={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -287,7 +304,7 @@ function ImportData() {
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
-                                            <a href={"/static/files/Med_fichier_modele.xlsx"} download>
+                                            <a href={uriFile} download>
                                                 <Stack
                                                     sx={{
                                                         cursor: "pointer"
@@ -326,7 +343,7 @@ function ImportData() {
                                                     files={files}
                                                     onDrop={handleOnDropFile}
                                                     accept={{
-                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls"]
+                                                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".csv", ".xls",".xlsm"]
                                                     }}
                                                     singleFile
                                                     maxFiles={1}/>}

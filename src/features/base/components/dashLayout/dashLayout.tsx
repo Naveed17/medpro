@@ -94,6 +94,7 @@ function DashLayout({children}: LayoutProps) {
             dispatch(setOngoing({
                 mutate,
                 waiting_room: calendarStatus.waiting_room,
+                last_fiche_id: justNumbers(calendarStatus.last_fiche_id ? calendarStatus.last_fiche_id : '0'),
                 ...(calendarStatus.ongoing && {ongoing: calendarStatus.ongoing})
             }))
         }
@@ -107,6 +108,15 @@ function DashLayout({children}: LayoutProps) {
             }); // Force sign in to hopefully resolve error
         }
     }, [session]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const justNumbers = (chars: string) => {
+        const numsStr = chars.replace(/[^0-9]/g, '');
+        const charsStr = chars.replace(/[0-9]/, '');
+        let nb = 1;
+        if (numsStr.length > 0)
+            nb = parseInt(numsStr) + 1;
+        return charsStr + nb;
+    }
 
     return (
         <SideBarMenu>
