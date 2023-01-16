@@ -224,7 +224,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
-                    setactions(true);
+                    setactions(false);
                     setPrescription([]);
 
                     let pdoc = [...pendingDocuments];
@@ -266,7 +266,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
-                    setactions(true);
+                    setactions(false);
 
                     let pdoc = [...pendingDocuments];
                     pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -307,7 +307,7 @@ function ConsultationIPToolbar({...props}) {
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
-                    setactions(true);
+                    setactions(false);
 
                     let pdoc = [...pendingDocuments];
                     pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -360,7 +360,7 @@ function ConsultationIPToolbar({...props}) {
                         type: "write_certif",
                     });
                     setOpenDialog(true);
-                    setactions(true);
+                    setactions(false);
                 });
 
                 break;
@@ -698,7 +698,7 @@ function ConsultationIPToolbar({...props}) {
                     })}
                     dialogClose={handleCloseDialog}
                     actionDialog={
-                        action ? (
+                         action ? (
                             <DialogActions>
                                 <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                     {t("cancel")}
