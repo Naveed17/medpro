@@ -25,7 +25,6 @@ const DocumentCardStyled = styled(Card)(({theme}) => ({
             svg: {
                 width: theme.spacing(10),
                 height: theme.spacing(10),
-
             }
         },
         '.MuiTooltip-tooltip': {

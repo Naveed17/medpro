@@ -8,9 +8,15 @@ function MotifCard({...props}) {
     const {data, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
-    const getDescription = (key:string) =>{
-        const desc = models.modal.structure[0].components.find((md:any) => md.key === key)?.description
-        return desc ? desc : "";
+    const getLabel = (key:string,from:string) =>{
+        if (from ==='description') {
+            const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
+            return desc ? desc : "";
+        } else {
+            const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
+            return label ? label : "";
+
+        }
     }
     return (
         <RootStled>
@@ -29,13 +35,13 @@ function MotifCard({...props}) {
 */}
                                 </Stack>
 
-                                <List dense style={{marginLeft: 20, textTransform: 'capitalize'}}>
+                                <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
                                     {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
                                         ml !== "submit" && <ListItem key={'modelData' + idx}>
                                             <ListItemIcon>
                                                 <CircleIcon/>
                                             </ListItemIcon>
-                                            {ml} : <span style={{fontWeight:"bold",margin: '0 2px'}}>{models.data[ml] ? models.data[ml] : '--'}</span> {getDescription(ml)}
+                                            {getLabel(ml,'label')} : <span style={{fontWeight:"bold",margin: '0 2px'}}>{models.data[ml] ? models.data[ml] : '--'}</span> {getLabel(ml,'description')}
                                         </ListItem>
                                     ))}
                                 </List>
@@ -67,7 +73,6 @@ function MotifCard({...props}) {
                         </CardContent>
                     </Card>
                 </Grid>}
-
             </Grid>
         </RootStled>
     )
