@@ -314,19 +314,30 @@ function HistoryTab({...props}) {
                                                                         container
                                                                         spacing={2}
                                                                         className={"docGrid"}>
-                                                                        {app.documents.map((card: any) => (
+                                                                        {app.documents.map((data: any) => (
                                                                             <Grid
                                                                                 item
-                                                                                xs={3}
-                                                                                key={`doc-item-${card.uuid}`}>
-                                                                                <DocumentCard
-                                                                                    data={card}
-                                                                                    style={{width: 30}}
-                                                                                    onClick={() => {
-                                                                                        showDoc(card)
-                                                                                    }}
-                                                                                    t={t}
-                                                                                />
+                                                                                xs={12}
+                                                                                md={2}
+                                                                                key={`doc-item-${data.uuid}`}>
+                                                                                <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
+                                                                                    <IconUrl path={
+                                                                                        data.documentType === "prescription" && "ic-traitement" ||
+                                                                                        data.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                        data.documentType == "analyse" && "ic-analyse" ||
+                                                                                        data.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                        data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                        data.documentType === "photo" && "ic-img" ||
+                                                                                        data.documentType === "audio" && "ic-son" ||
+                                                                                        data.documentType === "Rapport" && "ic-text" ||
+                                                                                        data.documentType === "medical-certificate" && "ic-text" ||
+                                                                                        data.documentType === "video" && "ic-video-outline" ||
+                                                                                        data.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                    }/>
+                                                                                    <Typography  variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}>
+                                                                                        {t(data.title)}
+                                                                                    </Typography>
+                                                                                </Stack>
                                                                             </Grid>
                                                                         ))}
                                                                     </Grid>
@@ -431,20 +442,6 @@ function HistoryTab({...props}) {
                                                         </>}
 
                                                         {col.type === "act-fees" && <BoxFees>
-                                                            <Grid container spacing={2}>
-                                                                <Grid item xs={3}>
-                                                                    <Typography className={"feesContent"}
-                                                                    >{t('consultationIP.consultation')}</Typography>
-                                                                </Grid>
-                                                                <Grid item xs={3}></Grid>
-                                                                <Grid item xs={3}></Grid>
-                                                                <Grid item xs={3}>
-                                                                    <Typography textAlign={"right"}
-                                                                                className={"feesContent"}>{app?.appointment.consultation_fees
-                                                                        ? app?.appointment.consultation_fees
-                                                                        : "--"}</Typography>
-                                                                </Grid>
-                                                            </Grid>
                                                             {
                                                                 app?.appointment.acts.length > 0 &&
                                                                 <BoxFees>
@@ -464,6 +461,21 @@ function HistoryTab({...props}) {
                                                                         <Grid item xs={3}>
                                                                             <Typography textAlign={"right"}
                                                                                         className={"header"}>{t('consultationIP.total')}</Typography>
+                                                                        </Grid>
+                                                                    </Grid>
+
+                                                                    <Grid container spacing={2}>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography className={"feesContent"}
+                                                                            >{t('consultationIP.consultation')}</Typography>
+                                                                        </Grid>
+                                                                        <Grid item xs={3}></Grid>
+                                                                        <Grid item xs={3}></Grid>
+                                                                        <Grid item xs={3}>
+                                                                            <Typography textAlign={"right"}
+                                                                                        className={"feesContent"}>{app?.appointment.consultation_fees
+                                                                                ? app?.appointment.consultation_fees
+                                                                                : "--"}  {devise}</Typography>
                                                                         </Grid>
                                                                     </Grid>
                                                                     {app?.appointment.acts.map(
