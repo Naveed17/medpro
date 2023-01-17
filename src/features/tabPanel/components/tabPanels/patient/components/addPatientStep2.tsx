@@ -35,7 +35,7 @@ import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {CountrySelect} from "@features/countrySelect";
-import {SocialInsured} from "@app/constants";
+import {DefaultCountry, SocialInsured} from "@app/constants";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -182,7 +182,7 @@ function AddPatientStep2({...props}) {
 
     const {data: httpCountriesResponse} = useRequest({
         method: "GET",
-        url: "/api/public/places/countries/" + router.locale
+        url: `/api/public/places/countries/${router.locale}/?nationality=true`
     }, SWRNoValidateConfig);
 
     const {data: httpInsuranceResponse} = useRequest({
@@ -215,7 +215,7 @@ function AddPatientStep2({...props}) {
         form.append('last_name', last_name);
         form.append('nationality', values.nationality);
         form.append('phone', JSON.stringify(phones.map(phoneData => ({
-            code: phoneData.dial.phone,
+            code: phoneData.dial?.phone,
             value: phoneData.phone,
             type: "phone",
             contact_type: contacts[0].uuid,
@@ -277,7 +277,7 @@ function AddPatientStep2({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: "+216",
+                    code: DefaultCountry?.phone,
                     value: "",
                     type: "phone",
                     contact_type: contacts[0].uuid,
@@ -685,12 +685,7 @@ function AddPatientStep2({...props}) {
                                                         <Grid item md={6} lg={4} xs={12}>
                                                             <CountrySelect
                                                                 initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
-                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
-                                                                    {
-                                                                        code: "TN",
-                                                                        label: "Tunisia",
-                                                                        phone: "+216"
-                                                                    }}
+                                                                    getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) : DefaultCountry}
                                                                 onSelect={(state: any) => {
                                                                     setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                 }}/>

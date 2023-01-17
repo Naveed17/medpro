@@ -5,10 +5,10 @@ import moment from "moment-timezone";
 import PaperStyled from "./overrides/paperStyled";
 import React from "react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {DefaultCountry} from "@app/constants";
 
 function AppointmentPatientCard({...props}) {
     const {data, style} = props;
-
     return (
         <PaperStyled sx={style}>
             <Stack
@@ -46,7 +46,7 @@ function AppointmentPatientCard({...props}) {
                         component="span"
                     >
                         <CallIcon/>
-                        {data?.patient.contact ? data?.patient.contact[0]?.code : "+216"}
+                        {data?.patient.contact ? data?.patient.contact[0]?.code : DefaultCountry?.phone}
                         {data?.patient.contact[0]?.value}
                     </Typography>
                 </Box>

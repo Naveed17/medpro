@@ -27,7 +27,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {isValidPhoneNumber} from 'libphonenumber-js';
 import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
-import {PhoneRegExp} from "@app/constants";
+import {DefaultCountry, PhoneRegExp} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 
 export const PhoneCountry: any = memo(({...props}) => {
@@ -107,11 +107,7 @@ function AddPatientStep1({...props}) {
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [{
                     phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
-                    dial: {
-                        code: "TN",
-                        label: "Tunisia",
-                        phone: "+216"
-                    }
+                    dial: DefaultCountry
                 }] : stepsData.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
@@ -129,11 +125,7 @@ function AddPatientStep1({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: {
-                code: "TN",
-                label: "Tunisia",
-                phone: "+216"
-            }
+            dial: DefaultCountry
         }];
         formik.setFieldValue("phones", phones);
     };

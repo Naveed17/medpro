@@ -50,5 +50,10 @@ const RootStyled = styled(Card)(({theme}) => ({
             paddingLeft: 12
         }
     },
+    "& input": {
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis"
+    }
 }));
 export default RootStyled
