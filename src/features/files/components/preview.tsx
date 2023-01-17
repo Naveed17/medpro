@@ -233,7 +233,8 @@ function PreviewDialog({...props}) {
 
     const getLines = (element:any) => {
         const clone = element.cloneNode(true);
-        const words = clone.innerHTML.replaceAll('&nbsp;','').split(' ');
+        console.log(clone)
+        const words = clone.innerText.replaceAll('&nbsp;','').split(' ');
         const rows = []; let nbLine = 1;
         const row = document.createElement('p');
         row.style.lineHeight = '21px';
@@ -250,6 +251,7 @@ function PreviewDialog({...props}) {
         }
         rows.push({nb:nbLine,row:row.innerHTML})
         document.body.removeChild(row);
+        console.log(rows)
         return rows;
     }
 

@@ -54,7 +54,7 @@ const Prescription = ({...props}) => {
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                             <div style={{width: "fit-content"}}>
                                 {data.date.show && <div
-                                    className="handle">{data.date.prefix} {state ? date : data.date.content} </div>}
+                                    className="handle" style={{whiteSpace: 'break-spaces'}}>{data.date.prefix} {state ? date : data.date.content} </div>}
                             </div>
                         </Draggable>
 
