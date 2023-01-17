@@ -6,7 +6,7 @@ import {
     Card,
     IconButton,
     ListItemButton, ListItemText, List, Skeleton,
-    Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField
+    Menu, MenuItem, Box, DialogActions, createFilterOptions, Autocomplete, TextField, useMediaQuery
 } from '@mui/material'
 import {useFormik, Form, FormikProvider} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
@@ -23,6 +23,7 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingScreen} from "@features/loadingScreen";
 import {NoDataCard} from "@features/card";
+import {Theme} from "@mui/material/styles";
 
 const filter = createFilterOptions<any>();
 
@@ -36,6 +37,10 @@ function BalanceSheetDialog({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const {data} = props;
+
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
 
     const [model, setModel] = useState<string>('');
     const [modals, setModels] = useState<any[]>([]);
@@ -174,7 +179,7 @@ function BalanceSheetDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Stack direction="row" alignItems="center">
-                                    <Typography>{t('please_name_the_balance_sheet')}</Typography>
+                                    {!isMobile && <Typography>{t('please_name_the_balance_sheet')}</Typography>}
                                     {modals.length > 0 && <Button
                                         sx={{ml: 'auto'}}
                                         endIcon={
@@ -358,7 +363,7 @@ function BalanceSheetDialog({...props}) {
                     size={"sm"}
                     direction={'ltr'}
                     actions={true}
-                    title={t('Personaliser les modèles du bilan')}
+                    title={t('bilanModelName')}
                     dialogClose={handleCloseDialog}
                     actionDialog={
                         <DialogActions>

@@ -464,7 +464,7 @@ function HistoryTab({...props}) {
                                                                         </Grid>
                                                                     </Grid>
 
-                                                                    <Grid container spacing={2}>
+                                                                    <Grid container spacing={2} pb={1} pt={1} style={{borderBottom:'1px dashed gray'}}>
                                                                         <Grid item xs={3}>
                                                                             <Typography className={"feesContent"}
                                                                             >{t('consultationIP.consultation')}</Typography>
@@ -480,8 +480,8 @@ function HistoryTab({...props}) {
                                                                     </Grid>
                                                                     {app?.appointment.acts.map(
                                                                         (act: any, idx: number) => (
-                                                                            <Grid container key={`fees-${idx}`}
-                                                                                  spacing={2}>
+                                                                            <Grid container pb={1} pt={1} style={{borderBottom:'1px dashed gray'}} key={`fees-${idx}`}
+                                                                                  spacing={2} alignItems="center">
                                                                                 <Grid item xs={3}>
                                                                                     <Typography
                                                                                         className={"feesContent"}>{act.name}</Typography>

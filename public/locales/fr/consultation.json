@@ -245,6 +245,8 @@
     "balance_sheet_model": "Modèle du bilan",
     "save_template": "Enregistrer le modèle",
     "modelName": "Personaliser les modèles de l'ordonnance médicale",
+    "bilanModelName": "Personaliser les modèles du bilan",
+    "imgModelName": "Personaliser les modèles de l'imagerie",
     "namedModel": "Veuiller nommé le modèle",
     "createAsModel": "Enregistrer Modèle",
     "editModel": "Modifier",

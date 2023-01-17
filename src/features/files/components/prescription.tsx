@@ -1,7 +1,8 @@
 import Draggable from "react-draggable";
 import {DocHeader} from "@features/files";
 import React, {useEffect, useRef} from "react";
-import {Box} from "@mui/material";
+import {Box, useMediaQuery} from "@mui/material";
+import {Theme} from "@mui/material/styles";
 
 const Prescription = ({...props}) => {
     const {eventHandler, data, pages, id, values, state, loading,date, title} = props;
@@ -9,10 +10,15 @@ const Prescription = ({...props}) => {
     useEffect(()=>{
         content.current?.append(pages[id].content)
     },[id, loading, pages])
+
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
+
     return (
         <>
             {!loading && <Box>
-                {data !== undefined && <div className={data.size ?data.size : "portraitA5"}>
+                {data !== undefined && <div className={data.size ?data.size : "portraitA5"} style={{zoom:isMobile ?'40%':'',marginBottom:isMobile ?80:'',marginLeft:isMobile?30:''}}>
                     {data.background.show && data.background.content !== '' && state === undefined && id === 0 &&
                         // eslint-disable-next-line @next/next/no-img-element
                         <img className={data.size ? data.size:"portraitA5"}

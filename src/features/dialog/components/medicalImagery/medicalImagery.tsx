@@ -302,7 +302,7 @@ function MedicalImageryDialog({...props}) {
                     size={"sm"}
                     direction={'ltr'}
                     actions={true}
-                    title={t('Personaliser les modèles du bilan')}
+                    title={t('imgModelName')}
                     dialogClose={handleCloseDialog}
                     actionDialog={
                         <DialogActions>
