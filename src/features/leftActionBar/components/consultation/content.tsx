@@ -32,6 +32,9 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
 import {LoadingScreen} from "@features/loadingScreen";
+import {Theme} from "@mui/material/styles";
+import {LoadingButton} from "@mui/lab";
+import {configSelector} from "@features/base";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -46,7 +49,11 @@ const Content = ({...props}) => {
     const {mutate, mutateDoc} = useAppSelector(consultationSelector);
     const {trigger} = useRequestMutation(null, "/antecedent");
     const router = useRouter();
+    const [selected, setSelected] = useState<any>();
+    const [openRemove, setOpenRemove] = useState(false);
     const {data: session, status} = useSession();
+    const {direction} = useAppSelector(configSelector);
+
     const codes: any = {
         way_of_life: "0",
         allergic: "1",
@@ -123,6 +130,16 @@ const Content = ({...props}) => {
         setInfo("");
     };
 
+    const dialogSave = () => {
+        trigger(
+            selected.request,
+            {revalidate: true, populateCache: true}
+        ).then(() => {
+            mutate();
+        });
+        setOpenRemove(false);
+    }
+
     const handleOpen = (action: string) => {
         if (action === "consultation") {
             dispatch(resetAppointment());
@@ -166,8 +183,13 @@ const Content = ({...props}) => {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => {
-                                                    trigger(
-                                                        {
+                                                    setSelected({
+                                                        title: t('askRemoveTrait'),
+                                                        subtitle: t('subtitleRemoveTrait'),
+                                                        icon: "/static/icons/ic-medicament.svg",
+                                                        name1: list.name,
+                                                        name2: `${list.duration} ${t(list.durationType)}`,
+                                                        request: {
                                                             method: "PATCH",
                                                             url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                             headers: {
@@ -175,11 +197,9 @@ const Content = ({...props}) => {
                                                                     "application/x-www-form-urlencoded",
                                                                 Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        },
-                                                        {revalidate: true, populateCache: true}
-                                                    ).then(() => {
-                                                        mutate();
-                                                    });
+                                                        }
+                                                    })
+                                                    setOpenRemove(true);
                                                 }}
                                                 sx={{ml: "auto"}}>
                                                 <Icon path="setting/icdelete"/>
@@ -202,8 +222,13 @@ const Content = ({...props}) => {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => {
-                                                    trigger(
-                                                        {
+                                                    setSelected({
+                                                        title: t('askRemoveTrait'),
+                                                        subtitle: t('subtitleRemoveTrait'),
+                                                        icon: "/static/icons/ic-medicament.svg",
+                                                        name1: list.name,
+                                                        name2: `${list.duration} ${t(list.durationType)}`,
+                                                        request: {
                                                             method: "PATCH",
                                                             url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
                                                             headers: {
@@ -211,11 +236,9 @@ const Content = ({...props}) => {
                                                                     "application/x-www-form-urlencoded",
                                                                 Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        },
-                                                        {revalidate: true, populateCache: true}
-                                                    ).then(() => {
-                                                        mutate();
-                                                    });
+                                                        }
+                                                    })
+                                                    setOpenRemove(true);
                                                 }}
                                                 sx={{ml: "auto"}}>
                                                 <Icon path="setting/icdelete"/>
@@ -340,8 +363,13 @@ const Content = ({...props}) => {
                                                 color="error"
                                                 size="small"
                                                 onClick={() => {
-                                                    trigger(
-                                                        {
+                                                    setSelected({
+                                                        title: t('askRemoveBilan'),
+                                                        subtitle: t('subtitleRemoveBilan'),
+                                                        icon: "/static/icons/ic-analyse.svg",
+                                                        name1: t('balance_sheet_pending'),
+                                                        name2: moment(ra?.appointment, "DD-MM-YYYY").format("MMM DD/YYYY"),
+                                                        request: {
                                                             method: "DELETE",
                                                             url: `/api/medical-entity/${medical_entity.uuid}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
                                                             headers: {
@@ -349,11 +377,9 @@ const Content = ({...props}) => {
                                                                     "application/x-www-form-urlencoded",
                                                                 Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        },
-                                                        {revalidate: true, populateCache: true}
-                                                    ).then(() => {
-                                                        mutate();
-                                                    });
+                                                        }
+                                                    })
+                                                    setOpenRemove(true);
                                                 }}
                                                 startIcon={<Icon path="setting/icdelete"/>}>
                                                 {t("ignore")}
@@ -371,6 +397,8 @@ const Content = ({...props}) => {
                                        patient={patient}
                                        trigger={trigger}
                                        mutate={mutate}
+                                       setSelected={setSelected}
+                                       setOpenRemove={setOpenRemove}
                                        session={session}
                                        handleOpen={handleOpen}
                                        router={router}
@@ -382,6 +410,8 @@ const Content = ({...props}) => {
                                        trigger={trigger}
                                        mutate={mutate}
                                        session={session}
+                                       setSelected={setSelected}
+                                       setOpenRemove={setOpenRemove}
                                        handleOpen={handleOpen}
                                        router={router}
                                        medical_entity={medical_entity}></Antecedent>
@@ -444,8 +474,13 @@ const Content = ({...props}) => {
                                                 color="error"
                                                 size="small"
                                                 onClick={() => {
-                                                    trigger(
-                                                        {
+                                                    setSelected({
+                                                        title: t('askRemoveImg'),
+                                                        subtitle: t('subtitleRemoveImg'),
+                                                        icon: "/static/icons/ic-soura.svg",
+                                                        name1: t('medical_imaging_pending'),
+                                                        name2: moment(ri?.appointment.dayDate, "DD-MM-YYYY").format("MMM DD/YYYY"),
+                                                        request: {
                                                             method: "DELETE",
                                                             url: `/api/medical-entity/${medical_entity.uuid}/appointment/${router.query['uuid-consultation']}/medical-imaging/${ri.uuid}/${router.locale}`,
                                                             headers: {
@@ -453,14 +488,9 @@ const Content = ({...props}) => {
                                                                     "application/x-www-form-urlencoded",
                                                                 Authorization: `Bearer ${session?.accessToken}`,
                                                             },
-                                                        },
-                                                        {
-                                                            revalidate: true,
-                                                            populateCache: true,
                                                         }
-                                                    ).then(() => {
-                                                        mutate();
-                                                    });
+                                                    })
+                                                    setOpenRemove(true);
                                                 }}
                                                 startIcon={<Icon path="setting/icdelete"/>}>
                                                 {t("ignore")}
@@ -484,12 +514,34 @@ const Content = ({...props}) => {
                         mutate={mutate}
                         session={session}
                         index={index}
+                        setSelected={setSelected}
+                        setOpenRemove={setOpenRemove}
                         key={`card-content-${antecedent}${index}`}
                         handleOpen={handleOpen}
                         router={router}
                         medical_entity={medical_entity}></Antecedent>
                 ))
             )}
+
+            <Dialog action={"remove"}
+                    direction={direction}
+                    open={openRemove}
+                    data={selected}
+                    color={(theme: Theme) => theme.palette.error.main}
+                    title={t('removedoc')}
+                    t={t}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={() => {
+                                setOpenRemove(false);
+                            }}
+                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                            <LoadingButton variant="contained"
+                                           sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                           onClick={dialogSave}>{t('remove')}</LoadingButton>
+                        </DialogActions>
+                    }
+            />
 
             {info && (
                 <Dialog
@@ -504,7 +556,7 @@ const Content = ({...props}) => {
                     change={false}
                     max
                     size={size}
-                    direction={"ltr"}
+                    direction={direction}
                     actions={true}
                     title={t(info)}
                     dialogClose={() => {
