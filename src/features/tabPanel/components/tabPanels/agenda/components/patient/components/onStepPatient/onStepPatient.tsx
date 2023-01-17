@@ -289,6 +289,13 @@ function OnStepPatient({...props}) {
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
+    useEffect(() => {
+        if (countries) {
+            setFieldValue("nationality", countries.find(country =>
+                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid)
+        }
+    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
@@ -702,7 +709,13 @@ function OnStepPatient({...props}) {
                                         }
 
                                         const country = countries?.find(country => country.uuid === selected);
-                                        return <Typography>{country?.nationality}</Typography>
+                                        return (
+                                            <Stack direction={"row"}>
+                                                <Image width={20} height={14}
+                                                       alt={"flag"}
+                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                <Typography ml={1}>{country?.nationality}</Typography>
+                                            </Stack>)
                                     }}
                                 >
                                     {countries?.map((country) => (
@@ -719,6 +732,20 @@ function OnStepPatient({...props}) {
                                     )}
                                 </Select>
                             </FormControl>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("address")}
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                rows={3}
+                                placeholder={t("address-placeholder")}
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("address")}
+                            />
                         </Box>
                         <Box>
                             <Typography
@@ -745,7 +772,7 @@ function OnStepPatient({...props}) {
                                         return <Typography>{country?.name}</Typography>
                                     }}
                                 >
-                                    {countries?.map((country) => (
+                                    {countries?.filter(country => country.hasState).map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
@@ -815,20 +842,6 @@ function OnStepPatient({...props}) {
                                     />
                                 </Grid>
                             </Grid>
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("address")}
-                            </Typography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                rows={3}
-                                placeholder={t("address-placeholder")}
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("address")}
-                            />
                         </Box>
                         <Box>
                             <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>

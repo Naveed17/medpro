@@ -1,6 +1,8 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
 import {PaletteColor, Palette} from "@mui/material";
+import {DatePointApi} from "@fullcalendar/common";
+import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {
     type LayoutProps = {
@@ -83,5 +85,14 @@ declare module "@mui/material/styles" {
     interface Theme {
         customShadows: CustomShadowType;
     }
+}
 
+declare module "@fullcalendar/interaction" {
+    interface MouseTouchEvent extends MouseEvent {
+        changedTouches: Touch[]
+    }
+
+    interface DateClickTouchArg extends DateClickArg {
+        jsEvent: MouseTouchEvent
+    }
 }

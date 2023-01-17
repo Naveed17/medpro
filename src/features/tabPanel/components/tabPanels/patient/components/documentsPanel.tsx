@@ -49,12 +49,15 @@ const AddAppointmentCardData = {
 function DocumentsPanel({...props}) {
     const {
         documents, documentViewIndex, patient,
-        patientId, setOpenUploadDialog,
+        patientId, roles, setOpenUploadDialog,
         mutatePatientDetails, patientDocuments,
         mutatePatientDocuments,
         loadingRequest, setLoadingRequest
     } = props;
-
+    // query media for mobile
+    const isMobile = useMediaQuery("(max-width:600px)");
+    // translation
+    const {t, ready} = useTranslation(["consultation", "patient"]);
     // filter checked array
     const [checked, setChecked] = useState<PatientDocuments[]>(documents);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -63,6 +66,73 @@ function DocumentsPanel({...props}) {
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
 
+    const tabsContent = [
+        {
+            title: "Documents du rendez-vous",
+            children: <Box display='grid' className={'document-container'}
+                           {...(documents.length > 0 && {
+                               sx: {
+                                   gridGap: 16,
+                                   gridTemplateColumns: {
+                                       xs: "repeat(2,minmax(0,1fr))",
+                                       md: "repeat(4,minmax(0,1fr))",
+                                       lg: "repeat(5,minmax(0,1fr))",
+                                   },
+                               }
+                           })}>
+                {documents.length > 0 ?
+                    documents.filter((doc: MedicalDocuments) =>
+                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
+                        .map((card: any, idx: number) =>
+                            <React.Fragment key={`doc-item-${idx}`}>
+                                <DocumentCard
+                                    onClick={() => {
+                                        showDoc(card)
+                                    }}
+                                    {...{t}} data={card}/>
+                            </React.Fragment>
+                        )
+                    :
+                    <NoDataCard t={t} ns={"patient"}
+                                onHandleClick={() => setOpenUploadDialog(true)}
+                                data={AddAppointmentCardWithoutButtonsData}/>
+                }
+            </Box>,
+            permission: ["ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "Documents du patient",
+            children: <Box display='grid' className={'document-container'}
+                           {...(patientDocuments?.length > 0 && {
+                               sx: {
+                                   gridGap: 16,
+                                   gridTemplateColumns: {
+                                       xs: "repeat(2,minmax(0,1fr))",
+                                       md: "repeat(4,minmax(0,1fr))",
+                                       lg: "repeat(5,minmax(0,1fr))",
+                                   },
+                               }
+                           })}>
+                {patientDocuments?.length > 0 ?
+                    patientDocuments?.filter((doc: MedicalDocuments) =>
+                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
+                        <React.Fragment key={`doc-item-${idx}`}>
+                            <DocumentCard
+                                onClick={() => {
+                                    showDoc(card)
+                                }}
+                                {...{t}} data={card}/>
+                        </React.Fragment>
+                    )
+                    :
+                    <NoDataCard t={t} ns={"patient"}
+                                onHandleClick={() => setOpenUploadDialog(true)}
+                                data={AddAppointmentCardData}/>
+                }
+            </Box>,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        }
+    ].filter(tab => tab.permission.includes(roles[0]));
     // handle change for checkboxes
     const handleToggle =
         (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +161,7 @@ function DocumentsPanel({...props}) {
                 doctor: card.name,
                 patient: `${patient.firstName} ${patient.lastName}`,
                 days: card.days,
-                description:card.description,
+                description: card.description,
                 createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
@@ -121,7 +191,7 @@ function DocumentsPanel({...props}) {
                 type: card.documentType,
                 info: info,
                 uuidDoc: uuidDoc,
-                description:card.description,
+                description: card.description,
                 createdAt: card.createdAt,
                 patient: patient.firstName + ' ' + patient.lastName,
                 mutate: mutatePatientDetails
@@ -129,10 +199,6 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
         }
     }
-    // query media for mobile
-    const isMobile = useMediaQuery("(max-width:600px)");
-    // translation
-    const {t, ready} = useTranslation(["consultation", "patient"]);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -204,75 +270,20 @@ function DocumentsPanel({...props}) {
                         )}
                         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                             <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
-                                <Tab label="Documents du rendez-vous" {...a11yProps(0)} />
-                                <Tab label="Documents du patient" {...a11yProps(1)} />
+                                {tabsContent.map((tabHeader, tabHeaderIndex) =>
+                                    <Tab key={`tabHeaderIndex-${tabHeaderIndex}`}
+                                         label={tabHeader.title} {...a11yProps(tabHeaderIndex)} />)}
                             </Tabs>
                             <LinearProgress sx={{
                                 mt: .2,
                                 display: loadingRequest ? "block" : "none"
                             }} color="warning"/>
                         </Box>
-                        <TabPanel value={currentTab} index={0}>
-                            <Box display='grid' className={'document-container'}
-                                 {...(documents.length > 0 && {
-                                     sx: {
-                                         gridGap: 16,
-                                         gridTemplateColumns: {
-                                             xs: "repeat(2,minmax(0,1fr))",
-                                             md: "repeat(4,minmax(0,1fr))",
-                                             lg: "repeat(5,minmax(0,1fr))",
-                                         },
-                                     }
-                                 })}>
-                                {documents.length > 0 ?
-                                    documents.filter((doc: MedicalDocuments) =>
-                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
-                                        .map((card: any, idx: number) =>
-                                            <React.Fragment key={`doc-item-${idx}`}>
-                                                <DocumentCard
-                                                    onClick={() => {
-                                                        showDoc(card)
-                                                    }}
-                                                    {...{t}} data={card}/>
-                                            </React.Fragment>
-                                        )
-                                    :
-                                    <NoDataCard t={t} ns={"patient"}
-                                                onHandleClick={() => setOpenUploadDialog(true)}
-                                                data={AddAppointmentCardWithoutButtonsData}/>
-                                }
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={currentTab} index={1}>
-                            <Box display='grid' className={'document-container'}
-                                 {...(patientDocuments?.length > 0 && {
-                                     sx: {
-                                         gridGap: 16,
-                                         gridTemplateColumns: {
-                                             xs: "repeat(2,minmax(0,1fr))",
-                                             md: "repeat(4,minmax(0,1fr))",
-                                             lg: "repeat(5,minmax(0,1fr))",
-                                         },
-                                     }
-                                 })}>
-                                {patientDocuments?.length > 0 ?
-                                    patientDocuments?.filter((doc: MedicalDocuments) =>
-                                        selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                        <React.Fragment key={`doc-item-${idx}`}>
-                                            <DocumentCard
-                                                onClick={() => {
-                                                    showDoc(card)
-                                                }}
-                                                {...{t}} data={card}/>
-                                        </React.Fragment>
-                                    )
-                                    :
-                                    <NoDataCard t={t} ns={"patient"}
-                                                onHandleClick={() => setOpenUploadDialog(true)}
-                                                data={AddAppointmentCardData}/>
-                                }
-                            </Box>
-                        </TabPanel>
+                        {tabsContent.map((tabContent, tabContentIndex) =>
+                            <TabPanel key={`tabContentIndex-${tabContentIndex}`} value={currentTab}
+                                      index={tabContentIndex}>
+                                {tabContent.children}
+                            </TabPanel>)}
                     </CardContent>
                 </PanelCardStyled>
             ) : (

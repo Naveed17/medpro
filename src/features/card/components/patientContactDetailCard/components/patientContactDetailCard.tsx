@@ -408,7 +408,7 @@ function PatientContactDetailCard({...props}) {
                                                             </Stack>)
                                                     }}
                                                 >
-                                                    {countries_api?.map((country) => (
+                                                    {countries_api?.filter(country => country.hasState).map((country) => (
                                                         <MenuItem
                                                             key={country.uuid}
                                                             value={country.uuid}>

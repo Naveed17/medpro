@@ -70,6 +70,7 @@ function PatientDetail({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {data: session} = useSession();
+    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
@@ -95,10 +96,11 @@ function PatientDetail({...props}) {
             disabled: true,
         }
     ]);
-    const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
     // mutate for patient details
@@ -134,6 +136,73 @@ function PatientDetail({...props}) {
         },
     } : null, SWRNoValidateConfig);
 
+    const nextAppointments = patient ? patient.nextAppointments : [];
+    const previousAppointments = patient ? patient.previousAppointments : [];
+    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+    const documents = patient ? patient.documents : [];
+    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
+
+    const tabsContent = [
+        {
+            title: "tabs.personal-info",
+            children: <PersonalInfoPanel loading={!patient} {...{
+                patient,
+                mutatePatientDetails,
+                mutatePatientList
+            }} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.history",
+            children: <>
+                {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
+                    <HistoryPanel {...{t, previousAppointmentsData, patient}} />
+                ) : (
+                    <NoDataCard
+                        t={t}
+                        ns={"patient"}
+                        data={AddConsultationCardData}
+                    />
+                )}
+            </>,
+            permission: ["ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.appointment",
+            children: <>
+                {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
+                    <GroupTable from="patient" loading={!patient} data={patient}/>
+                ) : (
+                    <NoDataCard
+                        t={t}
+                        ns={"patient"}
+                        data={AddAppointmentCardData}
+                    />
+                )}
+            </>,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.documents",
+            children: <DocumentsPanel {...{
+                documents,
+                roles,
+                documentViewIndex,
+                patient, patientId, setOpenUploadDialog,
+                mutatePatientDetails,
+                mutatePatientDocuments,
+                patientDocuments, loadingRequest, setLoadingRequest
+            }} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        },
+        {
+            title: "tabs.notes",
+            children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        }
+    ].filter(tab => tab.permission.includes(roles[0]));
+
     // handle tab change
     const handleStepperIndexChange = (
         event: SyntheticEvent,
@@ -154,8 +223,9 @@ function PatientDetail({...props}) {
     };
 
     const handleUploadDocuments = () => {
-        setDocumentViewIndex(1);
-        index !== 3 && setIndex(3);
+        const documentTabIndex = tabsContent.findIndex(tab => tab.title === "tabs.documents");
+        setDocumentViewIndex(roles.includes('ROLE_SECRETARY') ? 0 : 1);
+        index !== documentTabIndex && setIndex(documentTabIndex);
         setLoadingRequest(true);
         const params = new FormData();
         params.append("document_type", documentConfig.type);
@@ -174,13 +244,6 @@ function PatientDetail({...props}) {
             setLoadingRequest(false);
         });
     }
-
-    const nextAppointments = patient ? patient.nextAppointments : [];
-    const previousAppointments = patient ? patient.previousAppointments : [];
-    const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
-    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
-    const documents = patient ? patient.documents : [];
-    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -206,75 +269,24 @@ function PatientDetail({...props}) {
                             variant="scrollable"
                             aria-label="basic tabs example"
                             className="tabs-bg-white">
-                            <Tab
-                                disableRipple
-                                label={t("tabs.personal-info")}
-                                {...a11yProps(0)}
-                            />
-                            <Tab
-                                disableRipple
-                                label={t("tabs.history")}
-                                {...a11yProps(1)}
-                            />
-                            <Tab
-                                disableRipple
-                                label={t("tabs.appointment")}
-                                {...a11yProps(1)}
-                            />
-                            <Tab
-                                disableRipple
-                                label={t("tabs.documents")}
-                                {...a11yProps(2)}
-                            />
-                            <Tab
-                                disableRipple
-                                label={t("tabs.notes")}
-                                {...a11yProps(2)}
-                            />
+                            {tabsContent.map((tabHeader, tabHeaderIndex) => (
+                                <Tab
+                                    key={`tabHeader-${tabHeaderIndex}`}
+                                    disableRipple
+                                    label={t(tabHeader.title)}
+                                    {...a11yProps(tabHeaderIndex)}
+                                />)
+                            )}
                         </Tabs>
                         <Divider/>
-                        <TabPanel padding={1} value={index} index={0}>
-                            <PersonalInfoPanel loading={!patient} {...{
-                                patient,
-                                mutatePatientDetails,
-                                mutatePatientList
-                            }} />
-                        </TabPanel>
-                        <TabPanel padding={1} value={index} index={1}>
-                            {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                                <HistoryPanel {...{t, previousAppointmentsData, patient}} />
-                            ) : (
-                                <NoDataCard
-                                    t={t}
-                                    ns={"patient"}
-                                    data={AddConsultationCardData}
-                                />
-                            )}
-                        </TabPanel>
-                        <TabPanel padding={1} value={index} index={2}>
-                            {nextAppointments?.length > 0 || previousAppointments?.length > 0 ? (
-                                <GroupTable from="patient" loading={!patient} data={patient}/>
-                            ) : (
-                                <NoDataCard
-                                    t={t}
-                                    ns={"patient"}
-                                    data={AddAppointmentCardData}
-                                />
-                            )}
-                        </TabPanel>
-                        <TabPanel padding={2} value={index} index={3}>
-                            <DocumentsPanel {...{
-                                documents,
-                                documentViewIndex,
-                                patient, patientId, setOpenUploadDialog,
-                                mutatePatientDetails,
-                                mutatePatientDocuments,
-                                patientDocuments, loadingRequest, setLoadingRequest
-                            }} />
-                        </TabPanel>
-                        <TabPanel padding={2} value={index} index={4}>
-                            <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />
-                        </TabPanel>
+                        {tabsContent.map((tabContent, tabContentIndex) => (
+                            <TabPanel
+                                key={`tabContent-${tabContentIndex}`}
+                                padding={1} value={index} index={tabContentIndex}>
+                                {tabContent.children}
+                            </TabPanel>
+                        ))}
+
                         <SpeedDial
                             sx={{
                                 position: "fixed",
@@ -292,6 +304,7 @@ function PatientDetail({...props}) {
                             ]}
                         />
                     </Box>
+
                     <Paper
                         className={"action-buttons"}
                         sx={{
@@ -333,6 +346,7 @@ function PatientDetail({...props}) {
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>
+
                     <Dialog
                         action={"add_a_document"}
                         open={openUploadDialog}
