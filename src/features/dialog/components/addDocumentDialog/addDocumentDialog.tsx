@@ -60,7 +60,7 @@ function AddDocumentDialog({...props}) {
                 {t("type_of_document")}
             </Typography>
             <Stack maxWidth="90%" m="auto" width="100%">
-                <Grid container spacing={2} mt={2} margin={"auto"}>
+                <Grid container spacing={1} mt={2} margin={"auto"}>
                     {loading
                         ? Array.from(new Array(6)).map((val, idx) => (
                             <Grid key={"loading-card-" + idx} item xs={6} md={2}>
@@ -94,6 +94,16 @@ function AddDocumentDialog({...props}) {
                             )
                         )}
                 </Grid>
+            </Stack>
+            <Stack mt={2} ml={3}>
+                <UploadFile
+                    files={files}
+                    accept={{
+                        'image/jpeg': ['.pdf', '.png', '.jpeg', '.jpg', '.wav', '.mp4']
+                    }}
+                    onDrop={handleDrop}
+                    singleFile={false}
+                />
             </Stack>
             <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
                 <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
@@ -152,17 +162,8 @@ function AddDocumentDialog({...props}) {
                         </Typography>
                     </Grid>*/}
                     <Grid item xs={12} lg={12}>
-                        <UploadFile
-                            files={files}
-                            accept={{
-                                'image/jpeg': ['.pdf', '.png', '.jpeg', '.jpg', '.wav', '.mp4']
-                            }}
-                            onDrop={handleDrop}
-                            singleFile={false}
-                        />
-
                         {files.length > 0 && <Typography
-                            mt={5}
+                            mt={1}
                             mb={1}
                             color="text.secondary"
                             variant="body2"

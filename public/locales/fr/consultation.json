@@ -86,6 +86,7 @@
     "title":"Titre",
     "record": "Enregistrer un audio",
     "contenu": "Contenu",
+    "audio": "Audio",
     "listen": "Ecoutez",
     "suivi_image": "Suivi en images",
     "name": "Nom",
@@ -245,6 +246,8 @@
     "balance_sheet_model": "Modèle du bilan",
     "save_template": "Enregistrer le modèle",
     "modelName": "Personaliser les modèles de l'ordonnance médicale",
+    "bilanModelName": "Personaliser les modèles du bilan",
+    "imgModelName": "Personaliser les modèles de l'imagerie",
     "namedModel": "Veuiller nommé le modèle",
     "createAsModel": "Enregistrer Modèle",
     "editModel": "Modifier",
@@ -270,7 +273,10 @@
     "removedoc": "Supprimer un document",
     "askRemovedoc": "Vous voulez supprimer ce document ?",
     "subtitleRemovedoc": "ce document sera définitivement supprimé",
-    "remove": "Supprimer"
+    "remove": "Supprimer",
+    "askRemovemodel": "Vous voulez supprimer ce modèle",
+    "subtitleRemovemodel": "",
+    "model": "modèle"
   },
   "table": {
     "acts": "Actes",

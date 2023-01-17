@@ -267,7 +267,7 @@ function DocumentDetailDialog({...props}) {
             headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
         }, {revalidate: true, populateCache: true}).then(() => {
             state.mutate()
-            enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+            //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
         });
     }
 
@@ -398,14 +398,11 @@ function DocumentDetailDialog({...props}) {
                                     id={'note-input'}
                                     multiline
                                     rows={4}
+                                    onBlur={()=>{editDoc("description", note)}}
                                     onChange={(ev) => {
                                         setNote(ev.target.value)
                                         document.getElementById('note-input')?.focus()
                                     }}/>
-                                <Button size='small' className='btn-modi' onClick={() => editDoc("description", note)}>
-                                    <IconUrl path="ic-edit"/>
-                                    {t('modifier')}
-                                </Button>
                             </ListItemButton>
                         </ListItem>
                         <ListItem className='secound-list'>
@@ -416,15 +413,12 @@ function DocumentDetailDialog({...props}) {
                                 <TextField
                                     value={name}
                                     id={'name-input'}
+                                    onBlur={() => editDoc("name", name)}
                                     onChange={(ev) => {
                                         setName(ev.target.value)
                                         document.getElementById('name-input')?.focus()
                                     }}
                                 />
-                                <Button size='small' className='btn-modi' onClick={() => editDoc("name", name)}>
-                                    <IconUrl path="ic-edit"/>
-                                    {t('modifier')}
-                                </Button>
                             </ListItemButton>
                         </ListItem>
                         <ListItem className='secound-list'>

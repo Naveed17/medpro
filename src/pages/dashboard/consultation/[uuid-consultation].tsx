@@ -666,7 +666,9 @@ function ConsultationInProgress() {
                     setInfo={setInfo}
                     changes={changes}
                     setChanges={setChanges}
+                    setPatientShow={() => setFilterDrawer(!drawer)}
                     appointement={appointement}
+                    patient={patient}
                     selectedAct={selectedAct}
                     selectedModel={selectedModel}
                     selectedDialog={selectedDialog}
@@ -803,7 +805,7 @@ function ConsultationInProgress() {
                 </Stack>
                 <Box pt={8}>
                     {!lock && <SubFooter>
-                        <Stack width={1} direction={"row"} alignItems="flex-end"
+                        <Stack width={1} spacing={{xs:1,md:0}} padding={{xs:1,md:0}} direction={{xs:'column',md:'row'}} alignItems="flex-end"
                                justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
                             {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
                                 <Typography variant="subtitle1">
@@ -932,20 +934,7 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
-                <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
-                    onClick={() => setFilterDrawer(!drawer)}
-                    sx={{
-                        position: "fixed",
-                        bottom: 70,
-                        transform: "translateX(-50%)",
-                        left: "50%",
-                        zIndex: 999,
-                        display: {xs: "flex", md: "none"},
-                    }}
-                    variant="filter">
-                    {t('Fiche')}
-                </Button>
+
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
