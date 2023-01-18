@@ -829,7 +829,7 @@ function Agenda() {
     const handleCloseFab = () => setOpenFabAdd(false);
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
-        switch (action) {
+        switch (action.key) {
             case "quick-add" :
                 handleAddAppointment("quick-add");
                 break;
