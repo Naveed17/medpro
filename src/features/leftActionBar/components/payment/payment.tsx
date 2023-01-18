@@ -17,6 +17,11 @@ const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Payment() {
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
 
     const paymentTypes = [
         {
@@ -41,20 +46,135 @@ function Payment() {
         },
 
     ]
-
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const locations = agendaConfig?.locations;
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
-    const router = useRouter();
-    const {data: session} = useSession();
     const headers = {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
     }
-    const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
+
+
+    const {data: httpInsuranceResponse} = useRequest({
+        method: "GET",
+        url: "/api/public/insurances/" + router.locale,
+        headers
+    });
+    const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
+
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "facturation",
+                icon: "ic-invoice",
+                title: "facturationState",
+            },
+            expanded: true,
+            children: (
+                <Stack direction={"row"}>
+                    <FormControlLabel
+                        label={t('yes')}
+                        control={
+                            <Checkbox
+                                checked={false}
+                                // onChange={handleChange1}
+                            />
+                        }
+                    />
+                    <FormControlLabel
+                        label={t('no')}
+                        control={
+                            <Checkbox
+                                checked={false}
+                            />
+                        }
+                    />
+                </Stack>
+            ),
+        },
+        {
+            heading: {
+                id: "paymentType",
+                icon: "ic-argent",
+                title: "paymentType",
+            },
+            expanded: true,
+            children: (
+                <Box>
+                    {paymentTypes.map((item: any, index: number) => (
+                        <ItemCheckbox
+                            key={`pt${index}`}
+                            data={item}
+                            checked={
+                                false
+                            }
+                            onChange={(v: any) => {
+                                console.log(v)
+                            }}
+                        ></ItemCheckbox>))}
+                </Box>
+            ),
+        },
+        {
+            heading: {
+                id: "insurance",
+                icon: "ic-assurance",
+                title: "insurance",
+            },
+            expanded: false,
+            children: (
+                <Box>
+                    {insurances.map((item: any, index: number) => (
+                        <ItemCheckbox
+                            key={index}
+                            data={item}
+                            checked={
+                                false
+                            }
+                            onChange={(v: any) => {
+                                console.log(v)
+                            }}
+                        ></ItemCheckbox>))}
+                </Box>
+            ),
+        },
+        {
+            heading: {
+                id: "patient",
+                icon: "ic-patient",
+                title: "patient",
+            },
+            expanded: false,
+            children: (
+                <FilterRootStyled>
+                    <PatientFilter
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            console.log(data)
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "fiche_id", placeholder: "fiche"},
+                                    {label: "name", placeholder: "name"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                    {label: "phone", placeholder: "phone"},
+                                ],
+                            },
+                        }} t={t}/>
+                </FilterRootStyled>
+            ),
+        }
+    ]);
 
     const hours = locations && locations[0].openingHours[0].openingHours;
-    const newVersion = process.env.NODE_ENV === 'development';
+    const dev = process.env.NODE_ENV === 'development';
 
     useEffect(() => {
         const disabledDay: number[] = []
@@ -66,138 +186,20 @@ function Payment() {
         setDisabledDay(disabledDay);
     }, [hours]);
 
-    const {data} = useRequest({
-        method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-        headers
-    });
-
-    useEffect(() => {
-        if (data !== undefined)
-            setInsurances((data as any).data);
-    }, [data]);
-
-    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
-
     return (
         <BoxStyled>
             <CalendarPickers
                 renderDay
                 {...{notes}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
-
-            {newVersion && <Accordion
+            {dev && <Accordion
                 translate={{
                     t: t,
                     ready: ready,
                 }}
                 defaultValue={""}
-                data={[
-                    {
-                        heading: {
-                            id: "facturation",
-                            icon: "ic-invoice",
-                            title: "facturationState",
-                        },
-                        children: (
-                            <Stack direction={"row"}>
-                                <FormControlLabel
-                                    label={t('yes')}
-                                    control={
-                                        <Checkbox
-                                            checked={false}
-                                            // onChange={handleChange1}
-                                        />
-                                    }
-                                />
-                                <FormControlLabel
-                                    label={t('no')}
-                                    control={
-                                        <Checkbox
-                                            checked={false}
-                                        />
-                                    }
-                                />
-                            </Stack>
-                        ),
-                    },
-                    {
-                        heading: {
-                            id: "paymentType",
-                            icon: "ic-argent",
-                            title: "paymentType",
-                        },
-                        children: (
-                            <Box>
-                                {paymentTypes.map((item: any, index: number) => (
-                                    <ItemCheckbox
-                                        key={`pt${index}`}
-                                        data={item}
-                                        checked={
-                                            false
-                                        }
-                                        onChange={(v: any) => {
-                                            console.log(v)
-                                        }}
-                                    ></ItemCheckbox>))}
-                            </Box>
-                        ),
-                    },
-                    {
-                        heading: {
-                            id: "insurance",
-                            icon: "ic-assurance",
-                            title: "insurance",
-                        },
-                        children: (
-                            <Box>
-                                {insurances.map((item: any, index: number) => (
-                                    <ItemCheckbox
-                                        key={index}
-                                        data={item}
-                                        checked={
-                                            false
-                                        }
-                                        onChange={(v: any) => {
-                                            console.log(v)
-                                        }}
-                                    ></ItemCheckbox>))}
-                            </Box>
-                        ),
-                    },
-                    {
-                        heading: {
-                            id: "patient",
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        children: (
-                            <FilterRootStyled>
-                                <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => {
-                                        console.log(data)
-                                    }}
-                                    item={{
-                                        heading: {
-                                            icon: "ic-patient",
-                                            title: "patient",
-                                        },
-                                        gender: {
-                                            heading: "gender",
-                                            genders: ["male", "female"],
-                                        },
-                                        textField: {
-                                            labels: [
-                                                {label: "name", placeholder: "name"},
-                                                {label: "birthdate", placeholder: "--/--/----"},
-                                                {label: "phone", placeholder: "phone"},
-                                            ],
-                                        },
-                                    }} t={t}/>
-                            </FilterRootStyled>
-                        ),
-                    }
-                ]}
+                data={accordionData}
+                setData={setAccordionData}
             />}
 
         </BoxStyled>

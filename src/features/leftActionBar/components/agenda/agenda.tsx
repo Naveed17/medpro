@@ -18,7 +18,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {agendaSelector, AppointmentStatus, DayOfWeek, setAppointmentTypes, setView} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, DayOfWeek, setView} from "@features/calendar";
 import moment from "moment-timezone";
 import {Checkbox, Typography} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -34,8 +34,6 @@ function Agenda() {
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -50,6 +48,124 @@ function Agenda() {
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
     const locations = agendaConfig?.locations;
     const openingHours = locations && locations[0].openingHours[0].openingHours;
+
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "patient",
+                icon: "ic-patient",
+                title: "patient",
+            },
+            expanded: true,
+            children: (
+                <FilterRootStyled>
+                    <PatientFilter
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            dispatch(setView("listWeek"));
+                            dispatch(setFilter({patient: data.query}));
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "fiche_id", placeholder: "fiche"},
+                                    {label: "name", placeholder: "name"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                    {label: "phone", placeholder: "phone"},
+                                ],
+                            },
+                        }} t={t}/>
+                </FilterRootStyled>
+            ),
+        },
+        {
+            heading: {
+                id: "meetingType",
+                icon: "ic-agenda-jour-color",
+                title: "meetingType",
+            },
+            expanded: false,
+            children: types?.map((item, index) => (
+                <React.Fragment key={index}>
+                    <SidebarCheckbox
+                        label={"name"}
+                        checkState={item.checked}
+                        translate={{
+                            t: t,
+                            ready: ready,
+                        }}
+                        data={item}
+                        onChange={(selected: boolean) => {
+                            if (selected && !query?.type?.includes(item.uuid)) {
+                                dispatch(setFilter({
+                                    type:
+                                        item.uuid + (query?.type ? `,${query.type}` : "")
+                                }));
+                            } else {
+                                const sp = query?.type?.split(",") as string[];
+                                dispatch(setFilter({
+                                    type:
+                                        sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                }))
+                            }
+                        }}/>
+                </React.Fragment>
+            ))
+        },
+        {
+            heading: {
+                id: "meetingStatus",
+                icon: "ic-agenda-jour-color",
+                title: "meetingStatus",
+            },
+            expanded: false,
+            children: Object.values(AppointmentStatus).map((status) =>
+                status.icon &&
+                <React.Fragment key={status.key}>
+                    <SidebarCheckboxStyled
+                        component='label' htmlFor={status.key}
+                        sx={{
+                            "& .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16
+                            }
+                        }} styleprops={""}>
+                        <Checkbox
+                            size="small"
+                            id={status.key}
+                            onChange={event => {
+                                const selected = event.target.checked;
+                                const statusKey = Object.entries(AppointmentStatus).find((value, index) => value[1].key === status.key);
+                                if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
+                                    dispatch(setFilter({
+                                        status:
+                                            (statusKey && statusKey[0]) as string + (query?.status ? `,${query.status}` : "")
+                                    }));
+                                } else {
+                                    const sp = query?.status?.split(",") as string[];
+                                    dispatch(setFilter({
+                                        status:
+                                            sp.length > 1 ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "") : undefined
+                                    }))
+                                }
+                            }}
+                            name={status.key}
+                        />
+                        {status.icon}
+                        <Typography ml={1}>{status.value}</Typography>
+                    </SidebarCheckboxStyled>
+                </React.Fragment>
+            )
+        }
+    ]);
 
     useEffect(() => {
         const disabledDay: number[] = []
@@ -77,125 +193,14 @@ function Agenda() {
                 renderDay
                 {...{notes}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
-            {<Accordion
+            <Accordion
                 translate={{
                     t: t,
                     ready: ready,
                 }}
-                defaultValue={query?.type !== undefined ? "meetingType" : ""}
-                data={[
-                    {
-                        heading: {
-                            id: "patient",
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        children: (
-                            <FilterRootStyled>
-                                <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => {
-                                        dispatch(setView("listWeek"));
-                                        dispatch(setFilter({patient: data.query}));
-                                    }}
-                                    item={{
-                                        heading: {
-                                            icon: "ic-patient",
-                                            title: "patient",
-                                        },
-                                        gender: {
-                                            heading: "gender",
-                                            genders: ["male", "female"],
-                                        },
-                                        textField: {
-                                            labels: [
-                                                {label: "name", placeholder: "name"},
-                                                {label: "birthdate", placeholder: "--/--/----"},
-                                                {label: "phone", placeholder: "phone"},
-                                            ],
-                                        },
-                                    }} t={t}/>
-                            </FilterRootStyled>
-                        ),
-                    },
-                    {
-                        heading: {
-                            id: "meetingType",
-                            icon: "ic-agenda-jour-color",
-                            title: "meetingType",
-                        },
-                        children: types?.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    label={"name"}
-                                    checkState={item.checked}
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item}
-                                    onChange={(selected: boolean) => {
-                                        if (selected && !query?.type?.includes(item.uuid)) {
-                                            dispatch(setFilter({
-                                                type:
-                                                    item.uuid + (query?.type ? `,${query.type}` : "")
-                                            }));
-                                        } else {
-                                            const sp = query?.type?.split(",") as string[];
-                                            dispatch(setFilter({
-                                                type:
-                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
-                                            }))
-                                        }
-                                    }}/>
-                            </React.Fragment>
-                        ))
-                    },
-                    {
-                        heading: {
-                            id: "meetingStatus",
-                            icon: "ic-agenda-jour-color",
-                            title: "meetingStatus",
-                        },
-                        children: Object.values(AppointmentStatus).map((status) =>
-                            status.icon &&
-                            <React.Fragment key={status.key}>
-                                <SidebarCheckboxStyled
-                                    component='label' htmlFor={status.key}
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            width: 16,
-                                            height: 16
-                                        }
-                                    }} styleprops={""}>
-                                    <Checkbox
-                                        size="small"
-                                        id={status.key}
-                                        onChange={event => {
-                                            const selected = event.target.checked;
-                                            const statusKey = Object.entries(AppointmentStatus).find((value, index) => value[1].key === status.key);
-                                            if (selected && !query?.status?.includes((statusKey && statusKey[0]) as string)) {
-                                                dispatch(setFilter({
-                                                    status:
-                                                        (statusKey && statusKey[0]) as string + (query?.status ? `,${query.status}` : "")
-                                                }));
-                                            } else {
-                                                const sp = query?.status?.split(",") as string[];
-                                                dispatch(setFilter({
-                                                    status:
-                                                        sp.length > 1 ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "") : undefined
-                                                }))
-                                            }
-                                        }}
-                                        name={status.key}
-                                    />
-                                    {status.icon}
-                                    <Typography ml={1}>{status.value}</Typography>
-                                </SidebarCheckboxStyled>
-                            </React.Fragment>
-                        )
-                    }
-                ]}
-            />}
+                data={accordionData}
+                setData={setAccordionData}
+            />
         </BoxStyled>
     )
 }

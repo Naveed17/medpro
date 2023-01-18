@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Typography} from "@mui/material";
 import WaitingRoomStyled from "./overrides/waitingRoomStyle";
 import {Accordion} from '@features/accordion';
@@ -10,14 +10,10 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {
-    ActionBarState,
-    FilterRootStyled,
     leftActionBarSelector,
-    PatientFilter,
     setFilter
 } from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {setView} from "@features/calendar";
 import {LoadingScreen} from "@features/loadingScreen";
 
 function WaitingRoom() {
@@ -31,13 +27,49 @@ function WaitingRoom() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
+    const {data: httpAppointmentTypesResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "meetingType",
+                icon: "ic-agenda-jour-color",
+                title: "meetingType",
+            },
+            expanded: true,
+            children: types?.map((item, index) => (
+                <React.Fragment key={index}>
+                    <SidebarCheckbox
+                        label={"name"}
+                        translate={{
+                            t: t,
+                            ready: ready,
+                        }}
+                        data={item}
+                        onChange={(selected: boolean) => {
+                            if (selected && !query?.type?.includes(item.uuid)) {
+                                dispatch(setFilter({
+                                    type:
+                                        item.uuid + (query?.type ? `,${query.type}` : "")
+                                }));
+                            } else {
+                                const sp = query?.type?.split(",") as string[];
+                                dispatch(setFilter({
+                                    type:
+                                        sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                }))
+                            }
+                        }}/>
+                </React.Fragment>
+            ))
+        },
+    ]);
 
     useEffect(() => {
         types?.map(type => {
@@ -64,42 +96,8 @@ function WaitingRoom() {
                     t: t,
                     ready: ready,
                 }}
-                defaultValue={"meetingType"}
-                data={[
-                    {
-                        heading: {
-                            id: "meetingType",
-                            icon: "ic-agenda-jour-color",
-                            title: "meetingType",
-                        },
-                        children: types?.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    label={"name"}
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item}
-                                    onChange={(selected: boolean) => {
-                                        if (selected && !query?.type?.includes(item.uuid)) {
-                                            dispatch(setFilter({
-                                                type:
-                                                    item.uuid + (query?.type ? `,${query.type}` : "")
-                                            }));
-                                        } else {
-                                            const sp = query?.type?.split(",") as string[];
-                                            dispatch(setFilter({
-                                                type:
-                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
-                                            }))
-                                        }
-                                    }}/>
-                            </React.Fragment>
-                        ))
-                    },
-                ]
-                }
+                data={accordionData}
+                setData={setAccordionData}
             />
         </WaitingRoomStyled>
     )

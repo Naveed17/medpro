@@ -3,7 +3,7 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete,
+    Autocomplete, Avatar,
     Box,
     Button,
     Card,
@@ -206,8 +206,10 @@ function AddPatientStep2({...props}) {
 
     useEffect(() => {
         if (countries) {
-            setFieldValue("nationality", countries.find(country =>
-                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid)
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid;
+            setFieldValue("nationality", defaultCountry);
+            setFieldValue("country", defaultCountry);
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -293,7 +295,7 @@ function AddPatientStep2({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "",
+            insurance_type: "0",
             expand: false
         }];
         formik.setFieldValue("insurance", insurance);
@@ -343,20 +345,34 @@ function AddPatientStep2({...props}) {
 
                                         const country = countries?.find(country => country.uuid === selected);
                                         return (
-                                            <Stack direction={"row"}>
-                                                <Image width={20} height={14}
-                                                       alt={"flag"}
-                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
-                                                <Typography ml={1}>{country?.nationality}</Typography>
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.nationality}</Typography>
                                             </Stack>)
                                     }}>
                                     {countries?.map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image width={20} height={14}
-                                                   alt={"flag"}
-                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
+                                                alt={"flags"}
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                         </MenuItem>)
                                     )}
@@ -400,20 +416,34 @@ function AddPatientStep2({...props}) {
                                         }
                                         const country = countries?.find(country => country.uuid === selected);
                                         return (
-                                            <Stack direction={"row"}>
-                                                <Image width={20} height={14}
-                                                       alt={"flag"}
-                                                       src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
-                                                <Typography ml={1}>{country?.name}</Typography>
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.name}</Typography>
                                             </Stack>)
                                     }}>
                                     {countries?.filter(country => country.hasState).map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image width={20} height={14}
-                                                   alt={"flag"}
-                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
+                                                alt={"flags"}
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                         </MenuItem>)
                                     )}
@@ -478,12 +508,13 @@ function AddPatientStep2({...props}) {
                                 <IconButton
                                     onClick={handleAddInsurance}
                                     className="success-light"
+                                    size={"small"}
                                     sx={{
                                         mr: 1.5,
                                         "& svg": {
-                                            width: 20,
-                                            height: 20,
-                                        },
+                                            width: 16,
+                                            height: 16
+                                        }
                                     }}
                                 >
                                     <Icon path="ic-plus"/>

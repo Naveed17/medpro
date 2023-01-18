@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {Box, Typography} from "@mui/material";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
@@ -7,34 +7,24 @@ import RootStyled from "./overrides/accordionStyled";
 import {upperFirst} from "lodash";
 import {LoadingScreen} from "@features/loadingScreen";
 
-interface statetype {
-    expanded: boolean | any;
-}
-
-
 function Accordion({...props}) {
     const {
         children,
         data,
+        setData,
         badge,
         translate,
-        defaultValue,
     } = props;
 
     const {t, ready} = translate;
-    const [state, setstate] = useState<statetype>({
-        expanded: defaultValue,
-    });
-
-    useEffect(() => {
-        setstate({...state, expanded: defaultValue});
-    }, [defaultValue]);// eslint-disable-line react-hooks/exhaustive-deps
 
     const handleChange = React.useCallback(
-        (panel: Boolean) => (event: any, newExpanded: boolean) => {
-            setstate({...state, expanded: newExpanded ? panel : ""});
+        (panel: number) => (event: any, newExpanded: boolean) => {
+            const updatedData = [...data];
+            updatedData[panel].expanded = newExpanded;
+            setData(updatedData)
         },
-        [state]
+        [data, setData]
     );
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -44,8 +34,8 @@ function Accordion({...props}) {
                 disableGutters
                 elevation={0}
                 square
-                expanded={state.expanded === item.heading.title}
-                onChange={handleChange(item.heading.title)}
+                expanded={item.expanded} //state.expanded === item.heading.title
+                onChange={handleChange(index)}
                 key={`collapse-${index}`}
             >
                 <MuiAccordionSummary

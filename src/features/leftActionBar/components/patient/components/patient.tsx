@@ -17,14 +17,14 @@ function Patient() {
     const {t, ready} = useTranslation("patient");
 
     const [opened, setOpend] = useState("patient");
-
-    const dataPatient = [
+    const [dataPatient, setDataPatient] =  useState([
         {
             heading: {
                 id: collapse[0].heading.title,
                 icon: collapse[0].heading.icon,
                 title: t(collapse[0].heading.title.toLowerCase()),
             },
+            expanded: true,
             children: (
                 <FilterRootStyled>
                     <PatientFilter
@@ -56,16 +56,15 @@ function Patient() {
                         t={t}/>
                 </FilterRootStyled>)
         }
-
-
-    ]
-    const dataPlace = [
+    ]);
+    const [dataPlace, setDataPlace] =  useState([
         {
             heading: {
                 id: collapse[1].heading.title,
                 icon: collapse[1].heading.icon,
                 title: t(collapse[1].heading.title.toLowerCase()),
             },
+            expanded: true,
             children: (
                 <FilterRootStyled>
                     <PlaceFilter
@@ -84,9 +83,8 @@ function Patient() {
                 </FilterRootStyled>
             )
         }
+    ]);
 
-
-    ]
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -100,8 +98,8 @@ function Patient() {
                 >
                     {t(`filter.title`)}
                 </Typography>
-                <Accordion translate={{t, ready}} data={dataPatient} defaultValue={opened}/>
-                <Accordion translate={{t, ready}} data={dataPlace} defaultValue={"place"}/>
+                <Accordion translate={{t, ready}} data={dataPatient} setData={setDataPatient}/>
+                <Accordion translate={{t, ready}} data={dataPlace} setData={setDataPlace} />
             </FilterContainerStyles>
         </div>
     );
