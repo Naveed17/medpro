@@ -1,5 +1,5 @@
 // components
-import {ActionBarState, BoxStyled, FilterRootStyled, PatientFilter} from "@features/leftActionBar";
+import {ActionBarState, BoxStyled, FilterRootStyled, PatientFilter, setFilter} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppSelector} from "@app/redux/hooks";
@@ -12,6 +12,7 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
+import {SidebarCheckbox} from "@features/sidebarCheckbox";
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -61,117 +62,7 @@ function Payment() {
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
-    const [accordionData, setAccordionData] = useState<any[]>([
-        {
-            heading: {
-                id: "facturation",
-                icon: "ic-invoice",
-                title: "facturationState",
-            },
-            expanded: true,
-            children: (
-                <Stack direction={"row"}>
-                    <FormControlLabel
-                        label={t('yes')}
-                        control={
-                            <Checkbox
-                                checked={false}
-                                // onChange={handleChange1}
-                            />
-                        }
-                    />
-                    <FormControlLabel
-                        label={t('no')}
-                        control={
-                            <Checkbox
-                                checked={false}
-                            />
-                        }
-                    />
-                </Stack>
-            ),
-        },
-        {
-            heading: {
-                id: "paymentType",
-                icon: "ic-argent",
-                title: "paymentType",
-            },
-            expanded: true,
-            children: (
-                <Box>
-                    {paymentTypes.map((item: any, index: number) => (
-                        <ItemCheckbox
-                            key={`pt${index}`}
-                            data={item}
-                            checked={
-                                false
-                            }
-                            onChange={(v: any) => {
-                                console.log(v)
-                            }}
-                        ></ItemCheckbox>))}
-                </Box>
-            ),
-        },
-        {
-            heading: {
-                id: "insurance",
-                icon: "ic-assurance",
-                title: "insurance",
-            },
-            expanded: false,
-            children: (
-                <Box>
-                    {insurances.map((item: any, index: number) => (
-                        <ItemCheckbox
-                            key={index}
-                            data={item}
-                            checked={
-                                false
-                            }
-                            onChange={(v: any) => {
-                                console.log(v)
-                            }}
-                        ></ItemCheckbox>))}
-                </Box>
-            ),
-        },
-        {
-            heading: {
-                id: "patient",
-                icon: "ic-patient",
-                title: "patient",
-            },
-            expanded: false,
-            children: (
-                <FilterRootStyled>
-                    <PatientFilter
-                        OnSearch={(data: { query: ActionBarState }) => {
-                            console.log(data)
-                        }}
-                        item={{
-                            heading: {
-                                icon: "ic-patient",
-                                title: "patient",
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
-                            textField: {
-                                labels: [
-                                    {label: "fiche_id", placeholder: "fiche"},
-                                    {label: "name", placeholder: "name"},
-                                    {label: "birthdate", placeholder: "--/--/----"},
-                                    {label: "phone", placeholder: "phone"},
-                                ],
-                            },
-                        }} t={t}/>
-                </FilterRootStyled>
-            ),
-        }
-    ]);
+    const [accordionData, setAccordionData] = useState<any[]>([]);
 
     const hours = locations && locations[0].openingHours[0].openingHours;
     const dev = process.env.NODE_ENV === 'development';
@@ -185,6 +76,122 @@ function Payment() {
         });
         setDisabledDay(disabledDay);
     }, [hours]);
+
+    useEffect(() => {
+        if (insurances) {
+            setAccordionData([
+                {
+                    heading: {
+                        id: "facturation",
+                        icon: "ic-invoice",
+                        title: "facturationState",
+                    },
+                    expanded: true,
+                    children: (
+                        <Stack direction={"row"}>
+                            <FormControlLabel
+                                label={t('yes')}
+                                control={
+                                    <Checkbox
+                                        checked={false}
+                                        // onChange={handleChange1}
+                                    />
+                                }
+                            />
+                            <FormControlLabel
+                                label={t('no')}
+                                control={
+                                    <Checkbox
+                                        checked={false}
+                                    />
+                                }
+                            />
+                        </Stack>
+                    ),
+                },
+                {
+                    heading: {
+                        id: "paymentType",
+                        icon: "ic-argent",
+                        title: "paymentType",
+                    },
+                    expanded: true,
+                    children: (
+                        <Box>
+                            {paymentTypes.map((item: any, index: number) => (
+                                <ItemCheckbox
+                                    key={`pt${index}`}
+                                    data={item}
+                                    checked={
+                                        false
+                                    }
+                                    onChange={(v: any) => {
+                                        console.log(v)
+                                    }}
+                                ></ItemCheckbox>))}
+                        </Box>
+                    ),
+                },
+                {
+                    heading: {
+                        id: "insurance",
+                        icon: "ic-assurance",
+                        title: "insurance",
+                    },
+                    expanded: false,
+                    children: (
+                        <Box>
+                            {insurances?.map((item: any, index: number) => (
+                                <ItemCheckbox
+                                    key={index}
+                                    data={item}
+                                    checked={
+                                        false
+                                    }
+                                    onChange={(v: any) => {
+                                        console.log(v)
+                                    }}
+                                ></ItemCheckbox>))}
+                        </Box>
+                    ),
+                },
+                {
+                    heading: {
+                        id: "patient",
+                        icon: "ic-patient",
+                        title: "patient",
+                    },
+                    expanded: false,
+                    children: (
+                        <FilterRootStyled>
+                            <PatientFilter
+                                OnSearch={(data: { query: ActionBarState }) => {
+                                    console.log(data)
+                                }}
+                                item={{
+                                    heading: {
+                                        icon: "ic-patient",
+                                        title: "patient",
+                                    },
+                                    gender: {
+                                        heading: "gender",
+                                        genders: ["male", "female"],
+                                    },
+                                    textField: {
+                                        labels: [
+                                            {label: "fiche_id", placeholder: "fiche"},
+                                            {label: "name", placeholder: "name"},
+                                            {label: "birthdate", placeholder: "--/--/----"},
+                                            {label: "phone", placeholder: "phone"},
+                                        ],
+                                    },
+                                }} t={t}/>
+                        </FilterRootStyled>
+                    ),
+                }
+            ])
+        }
+    }, [insurances]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <BoxStyled>
