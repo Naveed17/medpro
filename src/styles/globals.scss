@@ -314,3 +314,12 @@ fieldset {
   -webkit-transform: scale(2.4); /* Safari 3-8 */
   transform: scale(2.4);
 }
+
+.mobile-badge{
+  background: #FFD400;
+  font-size: 12px;
+  padding: 0 5px;
+  border-radius: 2rem;
+  height: 1.2rem;
+  width: 1.2rem;
+}

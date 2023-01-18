@@ -235,9 +235,9 @@ function FcmLayout({...props}) {
                     </> :
                     <AgendaPopupAction
                         data={{
-                            id: notificationData?.patient.uuid,
-                            name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
-                            phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
+                            id: notificationData?.appointment.patient.uuid,
+                            name: `${notificationData?.appointment.patient.firstName} ${notificationData?.appointment.patient.lastName}`,
+                            phone: `${notificationData?.appointment.patient.contact[0]?.code} ${notificationData?.appointment.patient.contact[0]?.value}`,
                             date: notificationData?.appointment.dayDate,
                             time: notificationData?.appointment.startTime
                         }}
@@ -245,9 +245,9 @@ function FcmLayout({...props}) {
                             handleClose();
                             const event = {
                                 publicId: notificationData?.appointment?.uuid,
-                                title: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
+                                title: `${notificationData?.appointment.patient.firstName} ${notificationData?.appointment.patient.lastName}`,
                                 extendedProps: {
-                                    patient: notificationData?.patient,
+                                    patient: notificationData?.appointment.patient,
                                     type: notificationData?.type,
                                     status: AppointmentStatus[notificationData?.appointment?.status],
                                     time: moment(`${notificationData?.appointment.dayDate} ${notificationData?.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()

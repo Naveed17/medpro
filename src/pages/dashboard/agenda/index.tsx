@@ -69,9 +69,10 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
 
 const actions = [
-    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide'},
-    {icon: <AddOutlinedIcon/>, name: 'Ajout complet'}
+    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
+    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'full-add'}
 ];
+
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
 });
@@ -826,6 +827,17 @@ function Agenda() {
 
     const handleOpenFab = () => setOpenFabAdd(true);
     const handleCloseFab = () => setOpenFabAdd(false);
+    const handleActionFab = (action: any) => {
+        setOpenFabAdd(false);
+        switch (action.key) {
+            case "quick-add" :
+                handleAddAppointment("quick-add");
+                break;
+            case "full-add" :
+                handleAddAppointment("full-add");
+                break;
+        }
+    }
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -917,7 +929,7 @@ function Agenda() {
                                                     icon={action.icon}
                                                     tooltipTitle={action.name}
                                                     tooltipOpen
-                                                    onClick={handleCloseFab}
+                                                    onClick={() => handleActionFab(action)}
                                                 />
                                             ))}
                                         </SpeedDial>
