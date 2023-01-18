@@ -27,7 +27,6 @@ import {useSession} from "next-auth/react";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
-import {useSnackbar} from "notistack";
 import Dialog from "@mui/material/Dialog";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useReactToPrint} from "react-to-print";
@@ -57,8 +56,6 @@ function DocumentDetailDialog({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
-    const {enqueueSnackbar} = useSnackbar();
-
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
     const [name, setName] = useState(state.name);
@@ -168,10 +165,6 @@ function DocumentDetailDialog({...props}) {
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
     }
-
-    const handleClickOpen = () => {
-        setOpenAlert(true);
-    };
 
     const handleClose = () => {
         setOpenAlert(false);

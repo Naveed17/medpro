@@ -223,7 +223,6 @@ const Content = ({...props}) => {
     } : null);
 
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
-    console.log(patientDocuments);
 
     if (!ready || status === "loading") return (
         <LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -572,8 +571,7 @@ const Content = ({...props}) => {
             ) : id === 8 ? (
                 <>
                     {patientDocuments && patientDocuments.map((pdoc: any, idx: number) => (
-                        <React.Fragment key={`doc-patient-${idx}`}>
-                            <ListItem onClick={()=>{showDoc(pdoc)}}>
+                            <Stack spacing={2} direction={"row"} alignItems={"center"} key={`doc-patient-${idx}`} onClick={()=>{showDoc(pdoc)}}>
                                 <IconUrl width={25} height={25} path={
                                     pdoc.documentType === "prescription" && "ic-traitement" ||
                                     pdoc.documentType == "requested-analysis" && "ic-analyse" ||
@@ -587,9 +585,8 @@ const Content = ({...props}) => {
                                     pdoc.documentType === "video" && "ic-video-outline" ||
                                     pdoc.documentType !== "prescription" && "ic-pdf" || ""
                                 }/>
-                                <ListItemText primary={pdoc.title} sx={{marginLeft:1,marginRight:1,cursor:'pointer'}} secondary={t(pdoc.documentType)}/>
-                            </ListItem>
-                        </React.Fragment>
+                                <ListItemText primary={pdoc.title} sx={{cursor:'pointer'}} secondary={t(pdoc.documentType)}/>
+                            </Stack>
                     ))}
                 </>
             ) : (
