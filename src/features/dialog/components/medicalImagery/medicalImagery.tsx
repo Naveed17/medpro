@@ -278,6 +278,18 @@ function MedicalImageryDialog({...props}) {
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
+                                    <Box padding={1}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder={t("note")}
+                                            value={item.note}
+                                            onChange={event => {
+                                                //console.log(event)
+                                                item.note = event.target.value;
+                                            }}
+                                        />
+                                    </Box>
+
                                 </Card>
                             ))
                             : <Card className='loading-card'>

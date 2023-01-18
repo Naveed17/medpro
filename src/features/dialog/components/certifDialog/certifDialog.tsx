@@ -3,9 +3,11 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     Avatar,
     Box,
-    Button, DialogActions,
+    Button,
+    DialogActions,
     Divider,
-    Grid, IconButton,
+    Grid,
+    IconButton,
     List,
     ListItem,
     ListItemAvatar,
@@ -34,7 +36,6 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import moment from "moment-timezone";
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
-import Icon from "@themes/icon";
 import IconUrl from "@themes/urlIcon";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -169,6 +170,15 @@ function CertifDialog({...props}) {
         });
     }
 
+    const addVal = (val: string) => {
+        console.log(value);
+        const doc = new DOMParser().parseFromString(value, 'text/html')
+        console.log(doc)
+        doc.body.innerText += ' ' + val;
+        setValue(doc.body.innerHTML.toString());
+
+    }
+
     const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -210,10 +220,18 @@ function CertifDialog({...props}) {
                                     <HtmlTooltip
                                         title={
                                             <React.Fragment>
-                                                <Typography color="gray"
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{patient}')
+                                                }}
                                                             fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                                <Typography color="gray"
-                                                            fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{doctor}')
+                                                }}
+                                                            fontSize={12}>{"{doctor} : nom du médecin"}</Typography>
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{aujourd\'hui}')
+                                                }}
+                                                            fontSize={12}>{"{aujourd'hui} :date d'aujourd'hui"}</Typography>
                                             </React.Fragment>
                                         }
                                     >
@@ -375,7 +393,9 @@ function CertifDialog({...props}) {
                           t={t}
                           actionDialog={
                               <DialogActions>
-                                  <Button onClick={()=>{setOpenRemove(false);}}
+                                  <Button onClick={() => {
+                                      setOpenRemove(false);
+                                  }}
                                           startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
                                   <LoadingButton variant="contained"
                                                  sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
