@@ -109,10 +109,10 @@ function PreviewDialog({...props}) {
                                 style: {color: "black"}
                             })
 
-                            if (el['medical-imaging'].note) {
-                                imgLine.append(`• ${el['medical-imaging'].note}`)
+                            if (el.note) {
+                                imgLine.append(`• ${el.note}`)
                                 rows.push({
-                                    value: `${el['medical-imaging'].note}`,
+                                    value: `${el.note}`,
                                     name: "note",
                                     element: "p",
                                     style: {color: "gray", fontSize: "10px"}
@@ -249,7 +249,6 @@ function PreviewDialog({...props}) {
 
     const getLines = (element: any) => {
         const clone = element.cloneNode(true);
-        console.log(clone)
         const words = clone.innerText.replaceAll('&nbsp;', '').split(' ');
         const rows = [];
         let nbLine = 1;
@@ -268,7 +267,6 @@ function PreviewDialog({...props}) {
         }
         rows.push({nb: nbLine, row: row.innerHTML})
         document.body.removeChild(row);
-        console.log(rows)
         return rows;
     }
 
