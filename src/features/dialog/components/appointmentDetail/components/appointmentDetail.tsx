@@ -193,7 +193,7 @@ function AppointmentDetail({...props}) {
                         {t('time_slot')}
                     </Typography>
                     <AppointmentCard
-                        t={t}
+                        {...{t, roles}}
                         onDataUpdated={OnDataUpdated}
                         data={
                             {

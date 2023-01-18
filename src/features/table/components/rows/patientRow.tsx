@@ -183,13 +183,16 @@ function PatientRow({...props}) {
                             {(row.contact.length > 0 ? <Stack direction={"row"}>
                                 {row.contact[0].code &&
                                     <>
-                                        <Box mt={0.3}
-                                             width={20}
-                                             height={14}
-                                             component="img"
-                                             src={`https://flagcdn.com/${getCountryByCode(row.contact[0].code)?.code.toLowerCase()}.svg`}
+                                        <Avatar
+                                            sx={{
+                                                width: 24,
+                                                height: 16,
+                                                borderRadius: 0.4,
+                                                ml: 0
+                                            }}
+                                            alt="flag"
+                                            src={`https://flagcdn.com/${getCountryByCode(row.contact[0].code)?.code.toLowerCase()}.svg`}
                                         />
-
                                         <Typography variant={"body2"} color={"primary"}
                                                     sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
                                     </>

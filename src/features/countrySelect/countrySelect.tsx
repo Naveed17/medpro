@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
 import {countries} from "./countries";
-import {MenuItem, Typography} from "@mui/material";
+import {Avatar, MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
     const {onSelect, initCountry = "", small, ...rest} = props;
@@ -43,13 +43,14 @@ function CountrySelect({...props}) {
             isOptionEqualToValue={(option, value) => option.label === value.label}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
-                    <Image
-                        loading="lazy"
-                        width={24}
-                        height={14}
-                        style={{marginLeft: 2}}
-                        src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
+                    <Avatar
+                        sx={{
+                            width: 26,
+                            height: 18,
+                            borderRadius: 0.4
+                        }}
                         alt={initCountry && initCountry.label}
+                        src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
                     />
                     <Typography sx={{ml: 1}}>{option.label}</Typography>
                 </MenuItem>
@@ -57,17 +58,21 @@ function CountrySelect({...props}) {
             renderInput={(params) => {
                 params.InputProps.startAdornment = initCountry && (
                     <InputAdornment position="start">
-                        <Image
-                            loading="lazy"
-                            width={24}
-                            height={16}
-                            src={`https://flagcdn.com/${initCountry && initCountry.code.toLowerCase()}.svg`}
+                        <Avatar
+                            sx={{
+                                width: 24,
+                                height: 16,
+                                borderRadius: 0.4,
+                                ml: ".5rem",
+                                mr: -.8
+                            }}
                             alt={initCountry && initCountry.label}
+                            src={`https://flagcdn.com/${initCountry && initCountry.code.toLowerCase()}.svg`}
                         />
                     </InputAdornment>
                 );
 
-                return <TextField {...params} variant="outlined" fullWidth/>;
+                return <TextField {...params} sx={{paddingLeft: 0}} variant="outlined" fullWidth/>;
             }}
         />
     );

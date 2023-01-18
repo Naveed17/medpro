@@ -23,6 +23,8 @@
     "search": "Recherche",
     "appointment": "Rendez-vous",
     "type": "Type",
+    "fiche_id": "Fiche patient",
+    "fiche": "Numéro fiche",
     "next-appointment": "Prochain rendez-vous",
     "last-appointment": "Dernier rendez-vous",
     "reasons": "Motif de consultation",

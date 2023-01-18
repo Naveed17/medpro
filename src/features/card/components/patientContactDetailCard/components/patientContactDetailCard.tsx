@@ -266,6 +266,9 @@ function PatientContactDetailCard({...props}) {
                                                                         "& .MuiInputAdornment-root": {
                                                                             width: 20
                                                                         },
+                                                                        "& .MuiAvatar-root": {
+                                                                            ml: 0
+                                                                        },
                                                                         ...(!editable && {
                                                                             "& .MuiAutocomplete-endAdornment": {
                                                                                 display: "none"
@@ -398,23 +401,34 @@ function PatientContactDetailCard({...props}) {
                                                         const country = countries_api?.find(country => country.uuid === selected);
                                                         return (
                                                             <Stack direction={"row"} alignItems={"center"}>
-                                                                <Box
-                                                                    component={"img"}
-                                                                    width={20}
-                                                                    height={14}
-                                                                    alt={"flag"}
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: 0,
+                                                                        mr: ".5rem"
+                                                                    }}
+                                                                    alt="flag"
+                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                                />
                                                                 <Typography ml={1}>{country?.name}</Typography>
                                                             </Stack>)
                                                     }}
                                                 >
-                                                    {countries_api?.map((country) => (
+                                                    {countries_api?.filter(country => country.hasState).map((country) => (
                                                         <MenuItem
                                                             key={country.uuid}
                                                             value={country.uuid}>
-                                                            <Image width={20} height={14}
-                                                                   alt={"flag"}
-                                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />
                                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                                         </MenuItem>)
                                                     )}
@@ -634,12 +648,17 @@ function PatientContactDetailCard({...props}) {
                                                         const country = countries_api?.find(country => country.uuid === selected);
                                                         return (
                                                             <Stack direction={"row"} alignItems={"center"}>
-                                                                <Box
-                                                                    component={"img"}
-                                                                    width={20}
-                                                                    height={14}
-                                                                    alt={"flag"}
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: 0,
+                                                                        mr: ".5rem"
+                                                                    }}
+                                                                    alt="flag"
+                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                                />
                                                                 <Typography ml={1}>{country?.nationality}</Typography>
                                                             </Stack>)
                                                     }}>
@@ -647,9 +666,15 @@ function PatientContactDetailCard({...props}) {
                                                         <MenuItem
                                                             key={country.uuid}
                                                             value={country.uuid}>
-                                                            <Image width={20} height={14}
-                                                                   alt={"flag"}
-                                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />
                                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                                         </MenuItem>)
                                                     )}

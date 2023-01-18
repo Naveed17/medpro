@@ -15,7 +15,7 @@ import {useAppSelector} from "@app/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
 function AppointmentCard({...props}) {
-    const {data, onDataUpdated, t, ...rest} = props;
+    const {data, onDataUpdated = null, t, roles} = props;
     const router = useRouter();
     const {data: session} = useSession();
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -23,13 +23,13 @@ function AppointmentCard({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpConsultReasonResponse, error: errorHttpConsultReason} = useRequest({
+    const {data: httpConsultReasonResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/consultation-reasons/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
+    const {data: httpAppointmentTypesResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
@@ -60,6 +60,7 @@ function AppointmentCard({...props}) {
         });
     }
 
+
     return (
         <RootStyled>
             <CardContent>
@@ -78,69 +79,71 @@ function AppointmentCard({...props}) {
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Box sx={{width: "100%"}}>
                         <List>
-                            {data.type && <ListItem>
-                                <Typography fontWeight={400}>
-                                    {t('consultation_type')}
-                                </Typography>
-                                <FormControl fullWidth size="small">
-                                    <Select
-                                        labelId="select-type"
-                                        id="select-type"
-                                        value={typeEvent}
-                                        displayEmpty
-                                        onChange={event => {
-                                            updateDetails({type: event.target.value as string});
-                                            setTypeEvent(event.target.value as string)
-                                        }}
-                                        sx={{
-                                            "& .MuiSelect-select svg": {
-                                                position: "absolute",
-                                                border: .1,
-                                                borderColor: 'divider',
-                                                borderRadius: '50%',
-                                                p: 0.05
-                                            },
-                                            "& .MuiTypography-root": {
-                                                ml: 4
-                                            }
-                                        }}
-                                        renderValue={selected => {
-                                            if (selected.length === 0) {
-                                                return <em>{t("stepper-1.type-placeholder")}</em>;
-                                            }
+                            {(data.type && !roles.includes('ROLE_SECRETARY') ||
+                                    data.type && data?.type.name !== "Contrôl" && roles.includes('ROLE_SECRETARY')) &&
+                                <ListItem>
+                                    <Typography fontWeight={400}>
+                                        {t('consultation_type')}
+                                    </Typography>
+                                    <FormControl fullWidth size="small">
+                                        <Select
+                                            labelId="select-type"
+                                            id="select-type"
+                                            value={typeEvent}
+                                            displayEmpty
+                                            onChange={event => {
+                                                updateDetails({type: event.target.value as string});
+                                                setTypeEvent(event.target.value as string)
+                                            }}
+                                            sx={{
+                                                "& .MuiSelect-select svg": {
+                                                    position: "absolute",
+                                                    border: .1,
+                                                    borderColor: 'divider',
+                                                    borderRadius: '50%',
+                                                    p: 0.05
+                                                },
+                                                "& .MuiTypography-root": {
+                                                    ml: 4
+                                                }
+                                            }}
+                                            renderValue={selected => {
+                                                if (selected.length === 0) {
+                                                    return <em>{t("stepper-1.type-placeholder")}</em>;
+                                                }
 
-                                            const type = types?.find(type => type.uuid === selected);
-                                            return (
-                                                <Box sx={{display: "inline-flex"}}>
+                                                const type = types?.find(type => type.uuid === selected);
+                                                return (
+                                                    <Box sx={{display: "inline-flex"}}>
+                                                        <FiberManualRecordIcon
+                                                            fontSize="small"
+                                                            sx={{
+                                                                color: type?.color,
+                                                            }}
+                                                        />
+                                                        <Typography>{type?.name}</Typography>
+                                                    </Box>
+                                                )
+                                            }}>
+                                            {types?.map((type) => (
+                                                <MenuItem value={type.uuid} key={type.uuid}>
                                                     <FiberManualRecordIcon
                                                         fontSize="small"
                                                         sx={{
-                                                            color: type?.color,
+                                                            border: .1,
+                                                            borderColor: 'divider',
+                                                            borderRadius: '50%',
+                                                            p: 0.05,
+                                                            mr: 1,
+                                                            color: type.color
                                                         }}
                                                     />
-                                                    <Typography>{type?.name}</Typography>
-                                                </Box>
-                                            )
-                                        }}>
-                                        {types?.map((type) => (
-                                            <MenuItem value={type.uuid} key={type.uuid}>
-                                                <FiberManualRecordIcon
-                                                    fontSize="small"
-                                                    sx={{
-                                                        border: .1,
-                                                        borderColor: 'divider',
-                                                        borderRadius: '50%',
-                                                        p: 0.05,
-                                                        mr: 1,
-                                                        color: type.color
-                                                    }}
-                                                />
-                                                {type.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </ListItem>}
+                                                    {type.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </ListItem>}
                             {reasons && <ListItem>
                                 <Typography fontWeight={400}>
                                     {t('consultation_reson')}

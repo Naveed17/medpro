@@ -1,6 +1,6 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete,
+    Autocomplete, Avatar,
     Box,
     Button,
     Card,
@@ -34,7 +34,6 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
@@ -325,7 +324,7 @@ function OnStepPatient({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "",
+            insurance_type: "0",
             expand: false
         }];
         formik.setFieldValue("insurance", insurance);
@@ -346,9 +345,18 @@ function OnStepPatient({...props}) {
             errors.hasOwnProperty("lastName") ||
             errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
-            // (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
         }
     }, [errors, touched]);
+
+    useEffect(() => {
+        if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid;
+            !(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
+            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
+        }
+    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -702,23 +710,55 @@ function OnStepPatient({...props}) {
                                         }
 
                                         const country = countries?.find(country => country.uuid === selected);
-                                        return <Typography>{country?.nationality}</Typography>
+                                        return (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.nationality}</Typography>
+                                            </Stack>)
                                     }}
                                 >
                                     {countries?.map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image
-                                                width={20}
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
                                                 alt={"flags"}
-                                                height={14}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                         </MenuItem>)
                                     )}
                                 </Select>
                             </FormControl>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("address")}
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                rows={3}
+                                placeholder={t("address-placeholder")}
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("address")}
+                            />
                         </Box>
                         <Box>
                             <Typography
@@ -742,18 +782,36 @@ function OnStepPatient({...props}) {
                                         }
 
                                         const country = countries?.find(country => country.uuid === selected);
-                                        return <Typography>{country?.name}</Typography>
+                                        return (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.name}</Typography>
+                                            </Stack>)
                                     }}
                                 >
-                                    {countries?.map((country) => (
+                                    {countries?.filter(country => country.hasState).map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image
-                                                width={20}
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
                                                 alt={"flags"}
-                                                height={14}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                         </MenuItem>)
                                     )}
@@ -815,20 +873,6 @@ function OnStepPatient({...props}) {
                                     />
                                 </Grid>
                             </Grid>
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("address")}
-                            </Typography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                rows={3}
-                                placeholder={t("address-placeholder")}
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("address")}
-                            />
                         </Box>
                         <Box>
                             <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>

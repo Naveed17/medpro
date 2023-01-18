@@ -5,8 +5,8 @@ import {
     Hidden,
     IconButton,
     Stack,
-    SvgIcon, Theme,
-    Tooltip, Typography, useMediaQuery,
+    SvgIcon,
+    Tooltip, Typography,
     useTheme
 } from "@mui/material";
 
@@ -31,7 +31,6 @@ function CalendarToolbar({...props}) {
     const {OnToday, OnAddAppointment, OnClickDatePrev, OnClickDateNext} = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const isRTL = theme.direction === "rtl";
 
     const {view, currentDate} = useAppSelector(agendaSelector);
@@ -67,7 +66,7 @@ function CalendarToolbar({...props}) {
                             </IconButton>
                         </Tooltip>
 
-                        {!isMobile && <Box
+                        <Box
                             className="action-header-main"
                             sx={{
                                 "& .MuiSvgIcon-root": {
@@ -91,7 +90,7 @@ function CalendarToolbar({...props}) {
                             >
                                 <ArrowForwardIosIcon fontSize="small"/>
                             </IconButton>
-                        </Box>}
+                        </Box>
 
                         <Button className="Current-date" variant="text-transparent">
                             <Typography variant="body2" component={"span"}>
@@ -102,17 +101,43 @@ function CalendarToolbar({...props}) {
                 </Hidden>
 
                 <Hidden smUp>
-                    <Button className="Current-date"
+                    <Stack direction={"row"} sx={{
+                        position: "absolute",
+                        top: "0.6rem",
+                        left: "0.5rem"
+                    }}>
+                        <Box
+                            className="action-header-main"
                             sx={{
-                                position: "absolute",
-                                top: "0.6rem",
-                                left: "0.5rem"
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16
+                                },
+                                svg: {
+                                    transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
+                                },
                             }}
-                            variant="text-transparent">
-                        <Typography variant="body2" component={"span"}>
-                            {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM' : 'Do MMMM')}
-                        </Typography>
-                    </Button>
+                        >
+                            <IconButton
+                                onClick={OnClickDatePrev}
+                                aria-label="back"
+                            >
+                                <ArrowBackIosNewIcon fontSize="small"/>
+                            </IconButton>
+                            <IconButton
+                                onClick={OnClickDateNext}
+                                aria-label="next"
+                            >
+                                <ArrowForwardIosIcon fontSize="small"/>
+                            </IconButton>
+                        </Box>
+                        <Button className="Current-date"
+                                variant="text-transparent">
+                            <Typography variant="body2" component={"span"}>
+                                {moment(currentDate.date).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM' : 'Do MMMM')}
+                            </Typography>
+                        </Button>
+                    </Stack>
                 </Hidden>
             </Box>
 
@@ -129,7 +154,7 @@ function CalendarToolbar({...props}) {
                         onSelect={(viewOption: string) => viewOption !== "listWeek" && handleViewChange(viewOption)}
                     />
 
-                    <CalendarAddButton
+                    {/*<CalendarAddButton
                         sx={{
                             padding: "8px",
                             "& .MuiButton-startIcon": {
@@ -140,7 +165,7 @@ function CalendarToolbar({...props}) {
                             }
                         }}
                         onClickEvent={OnAddAppointment}
-                    />
+                    />*/}
                 </Stack>
             </Hidden>
             <Hidden smDown>

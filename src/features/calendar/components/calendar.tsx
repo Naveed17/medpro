@@ -9,7 +9,7 @@ import React, {useEffect, useRef, useState} from "react";
 
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, {DateClickArg} from "@fullcalendar/interaction";
+import interactionPlugin, {DateClickArg, DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 
 import moment from "moment-timezone";
@@ -74,7 +74,7 @@ function Calendar({...props}) {
     const [date, setDate] = useState(currentDate.date);
     const [calendarHeight, setCalendarHeight] = useState("80vh");
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
-    const [slotInfo, setSlotInfo] = useState<DateClickArg | null>(null);
+    const [slotInfo, setSlotInfo] = useState<DateClickTouchArg | null>(null);
     const [slotInfoPopover, setSlotInfoPopover] = useState(false);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
@@ -345,7 +345,7 @@ function Calendar({...props}) {
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => OnEventChange(info)}
                                 dateClick={(info) => {
-                                    setSlotInfo(info);
+                                    setSlotInfo(info as DateClickTouchArg);
                                     setSlotInfoPopover(true);
                                 }}
                                 showNonCurrentDates={true}
@@ -377,8 +377,8 @@ function Calendar({...props}) {
                                         setSlotInfoPopover(false);
                                     }}
                                     anchorPosition={{
-                                        top: slotInfo?.jsEvent.pageY as number,
-                                        left: slotInfo?.jsEvent.pageX as number
+                                        top: (isMobile ? slotInfo?.jsEvent.changedTouches[0]?.pageY : slotInfo?.jsEvent.pageY) as number,
+                                        left: (isMobile ? slotInfo?.jsEvent.changedTouches[0].pageX : slotInfo?.jsEvent.pageX) as number
                                     }}
                                     anchorOrigin={{
                                         vertical: 'top',
@@ -400,17 +400,19 @@ function Calendar({...props}) {
                                                 ml: -0.5,
                                                 mr: 1,
                                             },
-                                            '&:before': {
-                                                content: '""',
-                                                display: 'block',
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 14,
-                                                width: 10,
-                                                height: 10,
-                                                bgcolor: 'background.paper',
-                                                transform: 'translateY(-50%) rotate(45deg)',
-                                                zIndex: 0,
+                                            ...!isMobile && {
+                                                '&:before': {
+                                                    content: '""',
+                                                    display: 'block',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 14,
+                                                    width: 10,
+                                                    height: 10,
+                                                    bgcolor: 'background.paper',
+                                                    transform: 'translateY(-50%) rotate(45deg)',
+                                                    zIndex: 0,
+                                                }
                                             },
                                         },
                                     }}

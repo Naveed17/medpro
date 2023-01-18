@@ -188,7 +188,7 @@ function PatientDetailsCard({...props}) {
                                     {patient?.nationality &&
                                         <Tooltip title={patient.nationality.nationality}>
                                             <Avatar
-                                                sx={{width: 20, height: 20}}
+                                                sx={{width: 20, height: 20, borderRadius: 4}}
                                                 alt={"flag"}
                                                 src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
                                         </Tooltip>

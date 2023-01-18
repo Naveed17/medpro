@@ -54,6 +54,8 @@
         "gender": "Genre",
         "male": "Homme",
         "female": "Femme",
+        "fiche_id": "Fiche patient",
+        "fiche": "Numéro fiche",
         "name": "Nom & prénom",
         "phone": "Numéro de téléphone",
         "facturationState": "Etat de facturation",
