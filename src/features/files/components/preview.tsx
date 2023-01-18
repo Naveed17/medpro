@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from "react";
 import Prescription from "./prescription";
 import moment from "moment";
+import {useSession} from "next-auth/react";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
+
+    const {data: session} = useSession();
 
     const drugs = ['X'];
     let rows: any[] = [];
@@ -103,8 +106,19 @@ function PreviewDialog({...props}) {
                                 value: `• ${el['medical-imaging'].name}`,
                                 name: "name",
                                 element: "p",
-                                style: {color: "gray"}
+                                style: {color: "black"}
                             })
+
+                            if (el['medical-imaging'].note) {
+                                imgLine.append(`• ${el['medical-imaging'].note}`)
+                                rows.push({
+                                    value: `${el['medical-imaging'].note}`,
+                                    name: "note",
+                                    element: "p",
+                                    style: {color: "gray", fontSize: "10px"}
+                                })
+                            }
+
                             pageX.appendChild(imgLine)
                             setTitle("Imagerie médicale");
                             break;
@@ -113,22 +127,24 @@ function PreviewDialog({...props}) {
                             certifLine.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '130mm'
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
-                            txt = txt.replaceAll('{today}', moment().format('DD/MM/YYYY'))
+                            txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                            txt = txt.replaceAll('{doctor}', session?.user?.name)
+                            txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
                                 /*const nblines = countLines(item);
                                 if ( nblines > 1 ){*/
-                                    const lines = getLines(item);
-                                    lines.map((line) =>{
-                                        rows.push({
-                                            value: line.row,
-                                            name: "name",
-                                            element: "div",
-                                            style: {}
-                                        })
+                                const lines = getLines(item);
+                                lines.map((line) => {
+                                    rows.push({
+                                        value: line.row,
+                                        name: "name",
+                                        element: "div",
+                                        style: {}
                                     })
+                                })
 
                                 /*}else{
                                     rows.push({
@@ -231,39 +247,42 @@ function PreviewDialog({...props}) {
         setPages(pages)
     }
 
-    const getLines = (element:any) => {
+    const getLines = (element: any) => {
         const clone = element.cloneNode(true);
-        const words = clone.innerHTML.replaceAll('&nbsp;','').split(' ');
-        const rows = []; let nbLine = 1;
+        console.log(clone)
+        const words = clone.innerText.replaceAll('&nbsp;', '').split(' ');
+        const rows = [];
+        let nbLine = 1;
         const row = document.createElement('p');
         row.style.lineHeight = '21px';
         row.style.width = data.content.maxWidth ? `${data.content.maxWidth - 15}mm` : '115mm'
         document.body.appendChild(row);
-        for(let word of words){
-            row.innerHTML += word+ ' '
-            if (row.clientHeight > 21){
-                row.innerHTML = row.innerHTML.slice(0,-1)
-                rows.push({nb:nbLine,row:row.innerHTML})
+        for (let word of words) {
+            row.innerHTML += word + ' '
+            if (row.clientHeight > 21) {
+                row.innerHTML = row.innerHTML.slice(0, -1)
+                rows.push({nb: nbLine, row: row.innerHTML})
                 nbLine++
-                row.innerText = word +' '
+                row.innerText = word + ' '
             }
         }
-        rows.push({nb:nbLine,row:row.innerHTML})
+        rows.push({nb: nbLine, row: row.innerHTML})
         document.body.removeChild(row);
+        console.log(rows)
         return rows;
     }
 
-/*     const countLines = (element: any) => {
-        const clone = element.cloneNode(true);
-        document.body.appendChild(clone);
-        clone.style.height = "auto";
-        clone.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm`:'130mm';
-        clone.style.lineHeight = '21px';
-        const divHeight = clone.offsetHeight
-        const lineHeight = parseInt(clone.style.lineHeight);
-         document.body.removeChild(clone);
-         return divHeight / lineHeight;
-    }*/
+    /*     const countLines = (element: any) => {
+            const clone = element.cloneNode(true);
+            document.body.appendChild(clone);
+            clone.style.height = "auto";
+            clone.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm`:'130mm';
+            clone.style.lineHeight = '21px';
+            const divHeight = clone.offsetHeight
+            const lineHeight = parseInt(clone.style.lineHeight);
+             document.body.removeChild(clone);
+             return divHeight / lineHeight;
+        }*/
 
     useEffect(() => {
         const pageX = document.createElement("div")
