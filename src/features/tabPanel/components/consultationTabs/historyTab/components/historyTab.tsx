@@ -321,7 +321,7 @@ function HistoryTab({...props}) {
                                                                                 md={2}
                                                                                 key={`doc-item-${data.uuid}`}>
                                                                                 <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
-                                                                                    <IconUrl path={
+                                                                                    <IconUrl height={25} width={25} path={
                                                                                         data.documentType === "prescription" && "ic-traitement" ||
                                                                                         data.documentType == "requested-analysis" && "ic-analyse" ||
                                                                                         data.documentType == "analyse" && "ic-analyse" ||
