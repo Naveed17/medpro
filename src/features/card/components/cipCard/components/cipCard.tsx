@@ -3,7 +3,7 @@ import CipCardStyled from './overrides/cipCardStyle'
 import PlayCircleRoundedIcon from '@mui/icons-material/PlayCircleRounded';
 import {Label} from '@features/label';
 import {IconButton, Stack, Typography, Box} from '@mui/material';
-import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {useAppSelector} from "@app/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
@@ -12,7 +12,6 @@ import {useSession} from "next-auth/react";
 
 function CipCard() {
     const {data: session} = useSession();
-    const dispatch = useAppDispatch();
     const router = useRouter();
 
     const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
@@ -39,13 +38,13 @@ function CipCard() {
 
     const handleConsultation = () => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        if (router.pathname !== "/dashboard/consultation/[uuid-consultation]") {
+        if (router.asPath !== slugConsultation) {
             router.replace(slugConsultation, slugConsultation, {locale: router.locale});
         }
     }
 
     return (
-        <CipCardStyled {...(!roles.includes('ROLE_SECRETARY') && {onClick:handleConsultation})}>
+        <CipCardStyled {...(!roles.includes('ROLE_SECRETARY') && {onClick: handleConsultation})}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 1.7}}>
                 <IconButton size="small">
                     <PlayCircleRoundedIcon/>
