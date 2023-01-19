@@ -310,7 +310,15 @@ function AddPatientStep2({...props}) {
     return (
         <FormikProvider value={formik}>
             <Stack
-                sx={{height: "100%"}}
+                sx={{
+                    height: "100%",
+                    "& .insurance-label": {
+                        width: 160,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                    }
+                }}
                 component={Form}
                 autoComplete="off"
                 noValidate
@@ -610,10 +618,16 @@ function AddPatientStep2({...props}) {
                                                                 const insurance = insurances?.find(insurance => insurance.uuid === selected);
                                                                 return (
                                                                     <Stack direction={"row"}>
-                                                                        <Image width={20} height={14}
-                                                                               alt={"insurance"}
-                                                                               src={insurance?.logoUrl as string}/>
-                                                                        <Typography
+                                                                        {insurance && <Avatar
+                                                                            sx={{
+                                                                                width: 20,
+                                                                                height: 20,
+                                                                                borderRadius: 0.4
+                                                                            }}
+                                                                            alt={"insurance"}
+                                                                            src={insurance.logoUrl}
+                                                                        />}
+                                                                        <Typography className={"insurance-label"}
                                                                             ml={1}>{insurance?.name}</Typography>
                                                                     </Stack>)
                                                             }}
@@ -622,9 +636,15 @@ function AddPatientStep2({...props}) {
                                                                 <MenuItem
                                                                     key={insurance.uuid}
                                                                     value={insurance.uuid}>
-                                                                    <Box key={insurance.uuid}
-                                                                         component="img" width={30} height={30}
-                                                                         src={insurance.logoUrl}/>
+                                                                    <Avatar
+                                                                        sx={{
+                                                                            width: 20,
+                                                                            height: 20,
+                                                                            borderRadius: 0.4
+                                                                        }}
+                                                                        alt={"insurance"}
+                                                                        src={insurance.logoUrl}
+                                                                    />
                                                                     <Typography
                                                                         sx={{ml: 1}}>{insurance.name}</Typography>
                                                                 </MenuItem>)

@@ -1,5 +1,5 @@
 import {
-    Autocomplete,
+    Autocomplete, Avatar,
     Box,
     CardContent, Collapse, Divider, FormHelperText,
     Grid,
@@ -144,10 +144,15 @@ function InsuranceAddDialog({...props}) {
                                                     return (
                                                         <Stack direction={"row"}>
                                                             {insurance?.logoUrl &&
-                                                                <Box component={"img"}
-                                                                     width={20} height={20}
-                                                                     alt={"insurance"}
-                                                                     src={insurance?.logoUrl}/>}
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 20,
+                                                                        height: 20,
+                                                                        borderRadius: 0.4
+                                                                    }}
+                                                                    alt="insurance"
+                                                                    src={insurance?.logoUrl}
+                                                                />}
                                                             <Typography
                                                                 ml={1}>{insurance?.name}</Typography>
                                                         </Stack>)
@@ -157,10 +162,15 @@ function InsuranceAddDialog({...props}) {
                                                     <MenuItem
                                                         key={insurance.uuid}
                                                         value={insurance.uuid}>
-                                                        <Box key={insurance.uuid}
-                                                             component="img" width={30}
-                                                             height={30}
-                                                             src={insurance.logoUrl}/>
+                                                        <Avatar
+                                                            sx={{
+                                                                width: 20,
+                                                                height: 20,
+                                                                borderRadius: 0.4
+                                                            }}
+                                                            alt={"insurance"}
+                                                            src={insurance.logoUrl}
+                                                        />
                                                         <Typography
                                                             sx={{ml: 1}}>{insurance.name}</Typography>
                                                     </MenuItem>)

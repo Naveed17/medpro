@@ -23,7 +23,6 @@ import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import Image from "next/image";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
