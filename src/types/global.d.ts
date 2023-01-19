@@ -1,7 +1,6 @@
 import {CustomShadowType} from "@themes/shadows";
 import React from "react";
 import {PaletteColor, Palette} from "@mui/material";
-import {DatePointApi} from "@fullcalendar/common";
 import {DateClickArg} from "@fullcalendar/interaction";
 
 declare global {
@@ -78,6 +77,10 @@ declare module "@mui/material" {
 
     interface ThemeOptions {
         customShadows?: CustomShadowType;
+    }
+
+    interface IconButtonPropsColorOverrides {
+        white: true;
     }
 }
 

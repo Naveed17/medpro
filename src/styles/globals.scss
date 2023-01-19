@@ -229,6 +229,12 @@ fieldset {
   font-family: "Poppins", serif;
 }
 
+.snackbar-notification-action svg {
+  fill: white;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
 #ReactSimpleImageViewer {
   z-index: 9999;
 }
@@ -315,7 +321,7 @@ fieldset {
   transform: scale(2.4);
 }
 
-.mobile-badge{
+.mobile-badge {
   background: #FFD400;
   font-size: 12px;
   padding: 0 5px;
