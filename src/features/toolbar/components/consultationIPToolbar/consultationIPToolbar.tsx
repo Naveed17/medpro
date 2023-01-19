@@ -31,7 +31,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import RecondingBoxStyle from '../../../card/components/consultationDetailCard/overrides/recordingBoxStyle';
+import RecondingBoxStyle from '@features/card/components/consultationDetailCard/overrides/recordingBoxStyle';
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
@@ -44,16 +44,9 @@ const recorder = new MicRecorder({
 });
 
 function ConsultationIPToolbar({...props}) {
-
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-    const {t, ready} = useTranslation("consultation", {
-        keyPrefix: "consultationIP",
-    });
-
     const {
-        selected,
+        selectedTab,
+        setSelectedTab,
         appuuid,
         mutate,
         agenda,
@@ -68,68 +61,40 @@ function ConsultationIPToolbar({...props}) {
         changes,
         appointement
     } = props;
+
+    const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
+    const {t, ready} = useTranslation("consultation", {
+        keyPrefix: "consultationIP",
+    });
+    const {trigger} = useRequestMutation(null, "/drugs");
+    const router = useRouter();
+    const {data: session} = useSession();
+    const intervalref = useRef<number | null>(null);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState(appointement.latestAppointments.length === 0 ? "consultation form" : "patient history");
     const [info, setInfo] = useState<null | string>("");
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
-    const [label, setlabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
-    const [lastTabs, setLastTabs] = useState<string>("");
+    const [lastTabs, setLastTabs] = useState<string | null>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     let [record, setRecord] = useState(false);
     let [time, setTime] = useState('00:00');
-
+    const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
-    const dispatch = useAppDispatch();
+    const hasLatestAppointments = appointement.latestAppointments.length === 0;
 
-    let tabsData = [
-        {
-            label: "patient_history",
-            value: "patient history"
-        },
-        {
-            label: "consultation_form",
-            value: "consultation form"
-        },
-        {
-            label: "documents",
-            value: "documents"
-        },
-        {
-            label: "medical_procedures",
-            value: "medical procedures"
-        },
-    ];
+    const [tabsData, setTabsData] = useState<any[]>([]);
 
-    if (appointement.latestAppointments.length === 0)
-        tabsData = [
-            {
-                label: "consultation_form",
-                value: "consultation form"
-            },
-            {
-                label: "documents",
-                value: "documents"
-            },
-            {
-                label: "medical_procedures",
-                value: "medical procedures"
-            }
-        ];
-
-
-
-    const {trigger} = useRequestMutation(null, "/drugs");
-    const router = useRouter();
-    const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
-    const intervalref = useRef<number | null>(null);
 
     const startRecord = () => {
         recorder.start().then(() => {
@@ -181,7 +146,7 @@ function ConsultationIPToolbar({...props}) {
             },
         }).then((res) => {
             const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
-            if (audios.length > 0){
+            if (audios.length > 0) {
                 const form = new FormData();
                 form.append("type", audios[0].uuid);
                 form.append("files[]", file, file.name);
@@ -383,10 +348,8 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
-
-        setlabel("documents");
-        selected("documents")
-        setValue("documents")
+        setLabel("documents");
+        setSelectedTab("documents");
 
         setOpenDialog(false);
         setInfo(null);
@@ -478,7 +441,7 @@ function ConsultationIPToolbar({...props}) {
     };
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setValue(newValue);
+        setSelectedTab(newValue);
     };
 
     useEffect(() => {
@@ -511,7 +474,6 @@ function ConsultationIPToolbar({...props}) {
     }, [checkUp, dialog, prescription, setDialog]);
 
     useEffect(() => {
-        selected(label);
         if (lastTabs === "consultation_form") {
             const btn = document.getElementsByClassName("sub-btn")[1];
             const examBtn = document.getElementsByClassName("sub-exam")[0];
@@ -519,9 +481,43 @@ function ConsultationIPToolbar({...props}) {
             (btn as HTMLElement)?.click();
             (examBtn as HTMLElement)?.click();
         }
-        setLastTabs(label);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tabs]);
+        setLastTabs(selectedTab);
+    }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+        setTabsData(hasLatestAppointments ? [
+            {
+                label: "consultation_form",
+                value: "consultation form"
+            },
+            {
+                label: "documents",
+                value: "documents"
+            },
+            {
+                label: "medical_procedures",
+                value: "medical procedures"
+            }
+        ] : [
+            {
+                label: "patient_history",
+                value: "patient history"
+            },
+            {
+                label: "consultation_form",
+                value: "consultation form"
+            },
+            {
+                label: "documents",
+                value: "documents"
+            },
+            {
+                label: "medical_procedures",
+                value: "medical procedures"
+            },
+        ]);
+    }, [tabs, appointement]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const handleOpen = () => {
@@ -540,6 +536,7 @@ function ConsultationIPToolbar({...props}) {
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
+
     if (!ready) return <>toolbar loading..</>;
 
     return (
@@ -551,7 +548,7 @@ function ConsultationIPToolbar({...props}) {
                     alignItems="flex-end"
                     width={1}>
                     <Tabs
-                        value={value}
+                        value={selectedTab}
                         onChange={handleChange}
                         sx={
                             {
@@ -567,16 +564,16 @@ function ConsultationIPToolbar({...props}) {
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({label, value}, index) => (
+                        {tabsData.map((tab, index) => (
                             <Tab
                                 onFocus={() => {
                                     setTabs(index);
-                                    setlabel(label);
+                                    setLabel(tab.label);
                                 }}
                                 className="custom-tab"
-                                key={label}
-                                value={value}
-                                label={t(label)}
+                                key={tab.label}
+                                value={tab.label}
+                                label={t(tab.label)}
                             />
                         ))}
                     </Tabs>
@@ -639,8 +636,8 @@ function ConsultationIPToolbar({...props}) {
                     </Stack>}
                 </Stack>
 
-                {isMobile  &&<Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
-                    {patient &&<Stack onClick={()=>setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
+                {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
+                    {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
                         <Zoom>
                             <Avatar
                                 src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}

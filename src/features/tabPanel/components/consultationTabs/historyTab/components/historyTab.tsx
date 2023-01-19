@@ -116,8 +116,8 @@ function HistoryTab({...props}) {
     } : null);
 
     useEffect(() => {
-        setApps([...appointement.latestAppointments]);
-        if (appointement.latestAppointments.length > 0) {
+        setApps(appointement ? [...appointement.latestAppointments] : []);
+        if (appointement?.latestAppointments.length > 0) {
             dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
         }
     }, [appointement, appuuid, dispatch]);
