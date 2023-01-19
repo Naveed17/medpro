@@ -4,7 +4,7 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar,
+    AppBar, Avatar,
     Box,
     Button, DialogActions,
     Divider,
@@ -354,10 +354,15 @@ function PersonalInsuranceCard({...props}) {
                                                             const insur = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
                                                             return (<Stack direction={"row"}>
                                                                 {insur?.logoUrl &&
-                                                                    <Box component={"img"}
-                                                                         width={20} height={20}
-                                                                         alt={"insurance"}
-                                                                         src={insur?.logoUrl}/>}
+                                                                    <Avatar
+                                                                        sx={{
+                                                                            width: 20,
+                                                                            height: 20,
+                                                                            borderRadius: 0.4
+                                                                        }}
+                                                                        alt="insurance"
+                                                                        src={insur?.logoUrl}
+                                                                    />}
                                                                 <Typography
                                                                     ml={1}>{insur?.name}</Typography>
                                                             </Stack>)
