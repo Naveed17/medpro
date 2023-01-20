@@ -29,6 +29,8 @@ import IconUrl from "@themes/urlIcon";
 import {CropImage} from "@features/cropImage";
 import {DefaultCountry, PhoneRegExp} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return (
@@ -47,9 +49,15 @@ function AddPatientStep1({...props}) {
         translationKey = "patient",
         translationPrefix = "config.add-patient",
     } = props;
-    const {stepsData} = useAppSelector(addPatientSelector);
+
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+
+    const {stepsData} = useAppSelector(addPatientSelector);
     const {t, ready} = useTranslation(translationKey, {
         keyPrefix: translationPrefix,
     });
@@ -107,7 +115,7 @@ function AddPatientStep1({...props}) {
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [{
                     phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
-                    dial: DefaultCountry
+                    dial: doctor_country
                 }] : stepsData.step1.phones,
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
@@ -125,7 +133,7 @@ function AddPatientStep1({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: DefaultCountry
+            dial: doctor_country
         }];
         formik.setFieldValue("phones", phones);
     };

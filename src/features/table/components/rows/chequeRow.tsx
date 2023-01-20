@@ -1,17 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {Checkbox, Collapse, IconButton, Link, Skeleton, Stack, Table, TableRow, Typography} from "@mui/material";
-import {addBilling, TableRowStyled} from "@features/table";
+import {Checkbox, Collapse, Skeleton, Stack, Table, TableRow, Typography} from "@mui/material";
+import { TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 // redux
-import {useAppDispatch} from "@app/redux/hooks";
 import {alpha, Theme} from '@mui/material/styles';
-import Image from "next/image";
+
 import {Label} from '@features/label';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 
 function ChequeRow({...props}) {
-    const dispatch = useAppDispatch();
-    const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
+    const {row, isItemSelected, t, labelId, loading, editMotif} = props;
     const devise = process.env.NEXT_PUBLIC_DEVISE;
     const [selected, setSelected] = useState<any>([]);
 
