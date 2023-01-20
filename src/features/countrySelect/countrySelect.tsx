@@ -1,10 +1,9 @@
 import React, {useCallback} from "react";
-import Image from "next/image";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
 import {countries} from "./countries";
-import {MenuItem, Typography} from "@mui/material";
+import {Avatar, MenuItem, Typography} from "@mui/material";
 
 function CountrySelect({...props}) {
     const {onSelect, initCountry = "", small, ...rest} = props;
@@ -40,34 +39,40 @@ function CountrySelect({...props}) {
             options={countries}
             autoHighlight
             disableClearable
-            isOptionEqualToValue={(option, value) => option.label === value.label}
+            getOptionLabel={(option: any) => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
-                    <Image
-                        loading="lazy"
-                        width={24}
-                        height={14}
-                        style={{marginLeft: 2}}
+                    <Avatar
+                        sx={{
+                            width: 26,
+                            height: 18,
+                            borderRadius: 0.4
+                        }}
+                        alt={initCountry && initCountry.name}
                         src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
-                        alt={initCountry && initCountry.label}
                     />
-                    <Typography sx={{ml: 1}}>{option.label}</Typography>
+                    <Typography sx={{ml: 1}}>{option.name}</Typography>
                 </MenuItem>
             )}
             renderInput={(params) => {
                 params.InputProps.startAdornment = initCountry && (
                     <InputAdornment position="start">
-                        <Image
-                            loading="lazy"
-                            width={24}
-                            height={16}
+                        <Avatar
+                            sx={{
+                                width: 24,
+                                height: 16,
+                                borderRadius: 0.4,
+                                ml: ".5rem",
+                                mr: -.8
+                            }}
+                            alt={initCountry && initCountry.name}
                             src={`https://flagcdn.com/${initCountry && initCountry.code.toLowerCase()}.svg`}
-                            alt={initCountry && initCountry.label}
                         />
                     </InputAdornment>
                 );
 
-                return <TextField {...params} variant="outlined" fullWidth/>;
+                return <TextField {...params} sx={{paddingLeft: 0}} variant="outlined" fullWidth/>;
             }}
         />
     );

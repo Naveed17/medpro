@@ -6,7 +6,7 @@ import {store} from "@app/redux/store";
 import React, {ReactElement, ReactNode} from "react";
 import {NextPage} from "next";
 import {AnimatePresence} from "framer-motion";
-import {SnackbarProvider} from "notistack";
+import {SnackbarProvider, useSnackbar} from "notistack";
 // import global style
 import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
@@ -22,6 +22,8 @@ import moment from "moment-timezone";
 import Head from "next/head";
 import {FcmLayout} from "@features/base";
 import ErrorBoundary from "@features/errorBoundary";
+import {IconButton} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -30,6 +32,18 @@ interface MyAppProps extends AppProps {
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
 };
+
+const CloseSnackbarAction = ({id}: any) => {
+    const {closeSnackbar} = useSnackbar()
+    return (
+        <IconButton
+            className={"snackbar-notification-action"}
+            onClick={() => {
+                closeSnackbar(id)
+            }}>
+            <CloseIcon/>
+        </IconButton>)
+}
 
 function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     // Use the dashLayout defined at the page level, if available
@@ -40,6 +54,7 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
+                              action={key => <CloseSnackbarAction id={key}/>}
                               maxSnack={3}
                               anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
                 <AppThemeProvider>

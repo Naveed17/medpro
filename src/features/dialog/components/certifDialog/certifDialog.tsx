@@ -4,8 +4,10 @@ import {
     Avatar,
     Box,
     Button,
+    DialogActions,
     Divider,
     Grid,
+    IconButton,
     List,
     ListItem,
     ListItemAvatar,
@@ -34,6 +36,13 @@ import PauseCircleFilledRoundedIcon from "@mui/icons-material/PauseCircleFilledR
 import moment from "moment-timezone";
 import PlayCircleFilledRoundedIcon from "@mui/icons-material/PlayCircleFilledRounded";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
+import IconUrl from "@themes/urlIcon";
+import {Theme} from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import {LoadingButton} from "@mui/lab";
+import {Dialog as CustomDialog} from "@features/dialog";
+import {useAppSelector} from "@app/redux/hooks";
+import {configSelector} from "@features/base";
 
 const CKeditor = dynamic(() => import('@features/CKeditor/ckEditor'), {
     ssr: false,
@@ -49,11 +58,13 @@ function CertifDialog({...props}) {
     const [models, setModels] = useState<DocTemplateModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
-
+    const [openRemove, setOpenRemove] = useState(false);
+    const {direction} = useAppSelector(configSelector);
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const [selected, setSelected] = useState<any>();
 
     const {
         transcript,
@@ -150,6 +161,24 @@ function CertifDialog({...props}) {
             setTitle(data.state.title)
     }, [data])
 
+    const dialogSave = () => {
+        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
+            mutate().then(r => {
+                setOpenRemove(false);
+                console.log('place removed successfully', r);
+            });
+        });
+    }
+
+    const addVal = (val: string) => {
+        console.log(value);
+        const doc = new DOMParser().parseFromString(value, 'text/html')
+        console.log(doc)
+        doc.body.innerText += ' ' + val;
+        setValue(doc.body.innerHTML.toString());
+
+    }
+
     const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -184,7 +213,6 @@ function CertifDialog({...props}) {
                                 ))}
                             </Stack>
 
-
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
@@ -192,10 +220,18 @@ function CertifDialog({...props}) {
                                     <HtmlTooltip
                                         title={
                                             <React.Fragment>
-                                                <Typography color="gray"
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{patient}')
+                                                }}
                                                             fontSize={12}>{"{patient} : nom du patient"}</Typography>
-                                                <Typography color="gray"
-                                                            fontSize={12}>{"{today} :date d'aujourd'hui"}</Typography>
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{doctor}')
+                                                }}
+                                                            fontSize={12}>{"{doctor} : nom du médecin"}</Typography>
+                                                <Typography color="gray" style={{cursor: 'pointer'}} onClick={() => {
+                                                    addVal('{aujourd\'hui}')
+                                                }}
+                                                            fontSize={12}>{"{aujourd'hui} :date d'aujourd'hui"}</Typography>
                                             </React.Fragment>
                                         }
                                     >
@@ -275,10 +311,7 @@ function CertifDialog({...props}) {
                         height: '21rem'
                     }}>
                         {models.map((item, index) => (
-                            <Box key={`models-${index}`}
-                                 onClick={() => {
-                                     selectModel(item)
-                                 }}>
+                            <Box key={`models-${index}`}>
                                 <ListItem alignItems="flex-start">
                                     <ListItemAvatar>
                                         <Avatar sx={{
@@ -288,6 +321,9 @@ function CertifDialog({...props}) {
                                         }}>{item.title[0]}</Avatar>
                                     </ListItemAvatar>
                                     <ListItemText
+                                        onClick={() => {
+                                            selectModel(item)
+                                        }}
                                         primary={item.title}
                                         className={"resume3Lines"}
                                         secondary={
@@ -296,6 +332,27 @@ function CertifDialog({...props}) {
                                             </React.Fragment>
                                         }
                                     />
+                                    <IconButton size="small"
+                                                onClick={() => {
+                                                    setSelected({
+                                                        title: t('consultationIP.askRemovemodel'),
+                                                        subtitle: t('consultationIP.subtitleRemovemodel'),
+                                                        icon: "/static/icons/ic-text.svg",
+                                                        name1: item.title,
+                                                        name2: t('consultationIP.model'),
+                                                        request: {
+                                                            method: "DELETE",
+                                                            url: `/api/medical-entity/${medical_entity.uuid}/certificate-modals/${item.uuid}`,
+                                                            headers: {
+                                                                ContentType: 'application/x-www-form-urlencoded',
+                                                                Authorization: `Bearer ${session?.accessToken}`
+                                                            },
+                                                        }
+                                                    })
+                                                    setOpenRemove(true);
+                                                }}>
+                                        <IconUrl path="setting/icdelete"/>
+                                    </IconButton>
                                 </ListItem>
                                 <Divider variant="inset" component="li"/>
                             </Box>
@@ -326,6 +383,26 @@ function CertifDialog({...props}) {
                     </List>
                 </Grid>
             </Grid>
+
+            <CustomDialog action={"remove"}
+                          direction={direction}
+                          open={openRemove}
+                          data={selected}
+                          color={(theme: Theme) => theme.palette.error.main}
+                          title={t('consultationIP.removedoc')}
+                          t={t}
+                          actionDialog={
+                              <DialogActions>
+                                  <Button onClick={() => {
+                                      setOpenRemove(false);
+                                  }}
+                                          startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
+                                  <LoadingButton variant="contained"
+                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                                 onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
+                              </DialogActions>
+                          }
+            />
         </Box>
     )
 }

@@ -278,6 +278,18 @@ function MedicalImageryDialog({...props}) {
                                             <Icon path="setting/icdelete"/>
                                         </IconButton>
                                     </Stack>
+                                    <Box padding={1}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder={t("note")}
+                                            value={item.note}
+                                            onChange={event => {
+                                                //console.log(event)
+                                                item.note = event.target.value;
+                                            }}
+                                        />
+                                    </Box>
+
                                 </Card>
                             ))
                             : <Card className='loading-card'>
@@ -302,7 +314,7 @@ function MedicalImageryDialog({...props}) {
                     size={"sm"}
                     direction={'ltr'}
                     actions={true}
-                    title={t('Personaliser les modèles du bilan')}
+                    title={t('imgModelName')}
                     dialogClose={handleCloseDialog}
                     actionDialog={
                         <DialogActions>

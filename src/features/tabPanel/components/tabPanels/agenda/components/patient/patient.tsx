@@ -106,7 +106,6 @@ function Patient({...props}) {
         form.append('zip_code', patient.zip_code);
         patient.cin && form.append('id_card', patient.cin);
         patient.note && form.append('note', patient.note);
-        patient.nationality && form.append('nationality', patient.nationality.uuid);
         form.append('profession', patient.profession);
 
         trigger(

@@ -7,10 +7,12 @@ import {
     List,
     ListItem,
     ListItemIcon,
+    ListItemText,
     Stack,
     Typography,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -22,7 +24,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -53,6 +55,11 @@ const Content = ({...props}) => {
     const [openRemove, setOpenRemove] = useState(false);
     const {data: session, status} = useSession();
     const {direction} = useAppSelector(configSelector);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)
+        .medical_entity as MedicalEntityModel;
+    const [document, setDocument] = useState<any>();
+    const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
 
     const codes: any = {
         way_of_life: "0",
@@ -66,6 +73,10 @@ const Content = ({...props}) => {
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
+
+    const handleCloseDialogDoc = () => {
+        setOpenDialogDoc(false);
+    }
     const handleCloseDialog = () => {
         const form = new FormData();
         if (codes[info]) {
@@ -156,11 +167,66 @@ const Content = ({...props}) => {
         handleClickDialog();
     };
 
+    const showDoc = (card: any) => {
+        if (card.documentType === 'medical-certificate') {
+            setOpenDialogDoc(true);
+            setDocument({
+                uuid: card.uuid,
+                content: card.certificate[0].content,
+                doctor: card.name,
+                patient: `${patient.firstName} ${patient.lastName}`,
+                days: card.days,
+                description: card.description,
+                createdAt: card.createdAt,
+                name: 'certif',
+                type: 'write_certif',
+                mutate: mutatePatientDocuments()
+            })
+            setOpenDialogDoc(true);
+        } else {
+            setOpenDialogDoc(true);
+            let info = card
+            let uuidDoc = "";
+            switch (card.documentType) {
+                case "prescription":
+                    info = card.prescription[0].prescription_has_drugs;
+                    uuidDoc = card.prescription[0].uuid
+                    break;
+                case "requested-analysis":
+                    info = card.requested_Analyses[0].analyses;
+                    break;
+                case "requested-medical-imaging":
+                    info = card.medical_imaging[0]['medical-imaging'];
+                    break;
+            }
+            setDocument({
+                uuid: card.uuid,
+                uri: card.uri,
+                name: card.title,
+                type: card.documentType,
+                info: info,
+                uuidDoc: uuidDoc,
+                description: card.description,
+                createdAt: card.createdAt,
+                patient: patient.firstName + ' ' + patient.lastName,
+                mutate: mutatePatientDocuments
+            })
+            setOpenDialogDoc(true);
+        }
+    }
+
+
+    const {data: httpPatientDocumentsResponse, mutate: mutatePatientDocuments} = useRequest(patient ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient.uuid}/documents/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    } : null);
+
+    const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
+
     if (!ready || status === "loading") return (
         <LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
+
 
     return (
         <React.Fragment>
@@ -502,6 +568,27 @@ const Content = ({...props}) => {
                         </ContentStyled>
                     ))}
                 </>
+            ) : id === 8 ? (
+                <>
+                    {patientDocuments && patientDocuments.map((pdoc: any, idx: number) => (
+                            <Stack spacing={2} direction={"row"} alignItems={"center"} key={`doc-patient-${idx}`} onClick={()=>{showDoc(pdoc)}}>
+                                <IconUrl width={25} height={25} path={
+                                    pdoc.documentType === "prescription" && "ic-traitement" ||
+                                    pdoc.documentType == "requested-analysis" && "ic-analyse" ||
+                                    pdoc.documentType == "analyse" && "ic-analyse" ||
+                                    pdoc.documentType == "medical-imaging" && "ic-soura" ||
+                                    pdoc.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                    pdoc.documentType === "photo" && "ic-img" ||
+                                    pdoc.documentType === "audio" && "ic-son" ||
+                                    pdoc.documentType === "Rapport" && "ic-text" ||
+                                    pdoc.documentType === "medical-certificate" && "ic-text" ||
+                                    pdoc.documentType === "video" && "ic-video-outline" ||
+                                    pdoc.documentType !== "prescription" && "ic-pdf" || ""
+                                }/>
+                                <ListItemText primary={pdoc.title} sx={{cursor:'pointer'}} secondary={t(pdoc.documentType)}/>
+                            </Stack>
+                    ))}
+                </>
             ) : (
                 patient &&
                 Object.keys(patient.antecedents).map((antecedent, index) => (
@@ -583,7 +670,25 @@ const Content = ({...props}) => {
                     }
                 />
             )}
+
+            <Dialog action={"document_detail"}
+                    open={openDialogDoc}
+                    data={{
+                        state: document, setState: setDocument,
+                        setOpenDialog, patient,
+                        mutatePatientDocuments,
+                        source: "patient"
+                    }}
+                    size={"lg"}
+                    direction={'ltr'}
+                    sx={{p: 0}}
+                    title={t("doc_detail_title")}
+                    onClose={handleCloseDialogDoc}
+                    dialogClose={handleCloseDialogDoc}
+            />
         </React.Fragment>
+
+
     );
 };
 export default Content;

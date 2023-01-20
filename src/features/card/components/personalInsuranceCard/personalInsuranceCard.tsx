@@ -4,7 +4,7 @@ import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
 import {
-    AppBar,
+    AppBar, Avatar,
     Box,
     Button, DialogActions,
     Divider,
@@ -50,6 +50,8 @@ function PersonalInsuranceCard({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
 
     const [insuranceDialog, setInsuranceDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
@@ -212,7 +214,7 @@ function PersonalInsuranceCard({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: DefaultCountry?.phone,
+                    code: doctor_country?.phone,
                     value: "",
                     type: "phone",
                     contact_type: patient.contact[0].uuid,
@@ -354,10 +356,15 @@ function PersonalInsuranceCard({...props}) {
                                                             const insur = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
                                                             return (<Stack direction={"row"}>
                                                                 {insur?.logoUrl &&
-                                                                    <Box component={"img"}
-                                                                         width={20} height={20}
-                                                                         alt={"insurance"}
-                                                                         src={insur?.logoUrl}/>}
+                                                                    <Avatar
+                                                                        sx={{
+                                                                            width: 20,
+                                                                            height: 20,
+                                                                            borderRadius: 0.4
+                                                                        }}
+                                                                        alt="insurance"
+                                                                        src={insur?.logoUrl}
+                                                                    />}
                                                                 <Typography
                                                                     ml={1}>{insur?.name}</Typography>
                                                             </Stack>)

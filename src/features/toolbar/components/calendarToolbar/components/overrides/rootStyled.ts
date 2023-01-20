@@ -19,7 +19,7 @@ const RootStyled = styled("div")(({ theme }) => ({
     flexDirection: "row",
     padding: theme.spacing(1.75, 0),
     justifyContent: "space-between",
-  },
+  }
 }));
 
 export default RootStyled;

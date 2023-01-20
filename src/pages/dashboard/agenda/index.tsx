@@ -4,16 +4,16 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {MutableRefObject, ReactElement, useCallback, useEffect, useRef, useState} from "react";
 import {useRouter} from "next/router";
 import {
-    Alert,
+    Alert, Backdrop,
     Box,
     Button,
     Container,
-    Drawer,
-    LinearProgress, Paper,
+    Drawer, Fab,
+    LinearProgress, Paper, SpeedDial, SpeedDialAction,
     Theme,
     Typography,
     useMediaQuery,
-    useTheme
+    useTheme, Zoom
 } from "@mui/material";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
 import {SubHeader} from "@features/subHeader";
@@ -62,6 +62,16 @@ import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/sideBarMenu";
 import {prepareSearchKeys} from "@app/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
+
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import {alpha} from "@mui/material/styles";
+
+const actions = [
+    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
+    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'full-add'}
+];
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
     ssr: false
@@ -141,6 +151,8 @@ function Agenda() {
     const [startTime, setStartTime] = useState("08:00:00");
     const [endTime, setEndTime] = useState("20:00:00");
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
+    const [openFabAdd, setOpenFabAdd] = useState(false);
+
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     let events: MutableRefObject<EventModal[]> = useRef([]);
@@ -149,7 +161,10 @@ function Agenda() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
-
+    const transitionDuration = {
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
     const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
     const {
@@ -499,7 +514,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: waiting_room + 1}))
+                dispatch(setOngoing({waiting_room: waiting_room + 1}));
             });
     }
 
@@ -810,6 +825,20 @@ function Agenda() {
         });
     }
 
+    const handleOpenFab = () => setOpenFabAdd(true);
+    const handleCloseFab = () => setOpenFabAdd(false);
+    const handleActionFab = (action: any) => {
+        setOpenFabAdd(false);
+        switch (action.key) {
+            case "quick-add" :
+                handleAddAppointment("quick-add");
+                break;
+            case "full-add" :
+                handleAddAppointment("full-add");
+                break;
+        }
+    }
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
@@ -840,6 +869,8 @@ function Agenda() {
                     </AnimatePresence>}
             </SubHeader>
             <Box>
+                <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
+                          open={openFabAdd}/>
                 <LinearProgress sx={{
                     visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
@@ -871,6 +902,38 @@ function Agenda() {
                                     OnSelectDate={onSelectDate}
                                     OnViewChange={onViewChange}
                                     OnRangeChange={handleOnRangeChange}/>
+                                {isMobile &&
+                                    <Zoom
+                                        in={!loading}
+                                        timeout={transitionDuration}
+                                        style={{
+                                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                        }}
+                                        unmountOnExit
+                                    >
+                                        <SpeedDial
+                                            ariaLabel="SpeedDial tooltip Add"
+                                            sx={{
+                                                position: 'absolute',
+                                                bottom: 16,
+                                                right: 16
+                                            }}
+                                            icon={<SpeedDialIcon/>}
+                                            onClose={handleCloseFab}
+                                            onOpen={handleOpenFab}
+                                            open={openFabAdd}
+                                        >
+                                            {actions.map((action) => (
+                                                <SpeedDialAction
+                                                    key={action.name}
+                                                    icon={action.icon}
+                                                    tooltipTitle={action.name}
+                                                    tooltipOpen
+                                                    onClick={() => handleActionFab(action)}
+                                                />
+                                            ))}
+                                        </SpeedDial>
+                                    </Zoom>}
                             </motion.div>
                         </AnimatePresence>
                     }

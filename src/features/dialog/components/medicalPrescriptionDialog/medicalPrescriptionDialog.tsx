@@ -17,7 +17,7 @@ import {
     Skeleton,
     Stack,
     TextField,
-    Typography
+    Typography, useMediaQuery
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import MedicalPrescriptionDialogStyled from './overrides/medicalPrescriptionDialogStyle';
@@ -39,6 +39,7 @@ import {useSnackbar} from "notistack";
 import {useAppSelector} from "@app/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
+import {Theme} from "@mui/material/styles";
 
 function MedicalPrescriptionDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
@@ -66,6 +67,9 @@ function MedicalPrescriptionDialog({...props}) {
         durationType: Yup.string().required()
     });
 
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
     const handleSaveDialog = () => {
 
         const form = new FormData();
@@ -292,11 +296,11 @@ function MedicalPrescriptionDialog({...props}) {
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
                                 <Stack direction={"row"} alignItems="center">
-                                    <Typography>{t('seeking_to_name_the_drug')}
+                                    {!isMobile &&<Typography>{t('seeking_to_name_the_drug')}
                                         <Typography component="span" color="error">
                                             *
                                         </Typography>
-                                    </Typography>
+                                    </Typography>}
 
 
                                     {models.length > 0 && <Button

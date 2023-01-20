@@ -116,8 +116,8 @@ function HistoryTab({...props}) {
     } : null);
 
     useEffect(() => {
-        setApps([...appointement.latestAppointments]);
-        if (appointement.latestAppointments.length > 0) {
+        setApps(appointement ? [...appointement.latestAppointments] : []);
+        if (appointement?.latestAppointments.length > 0) {
             dispatch(SetSelectedApp(appointement.latestAppointments[0].appointment.uuid))
         }
     }, [appointement, appuuid, dispatch]);
@@ -321,7 +321,7 @@ function HistoryTab({...props}) {
                                                                                 md={2}
                                                                                 key={`doc-item-${data.uuid}`}>
                                                                                 <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
-                                                                                    <IconUrl path={
+                                                                                    <IconUrl height={25} width={25} path={
                                                                                         data.documentType === "prescription" && "ic-traitement" ||
                                                                                         data.documentType == "requested-analysis" && "ic-analyse" ||
                                                                                         data.documentType == "analyse" && "ic-analyse" ||
@@ -464,7 +464,7 @@ function HistoryTab({...props}) {
                                                                         </Grid>
                                                                     </Grid>
 
-                                                                    <Grid container spacing={2}>
+                                                                    <Grid container spacing={2} pb={1} pt={1} style={{borderBottom:'1px dashed gray'}}>
                                                                         <Grid item xs={3}>
                                                                             <Typography className={"feesContent"}
                                                                             >{t('consultationIP.consultation')}</Typography>
@@ -480,8 +480,8 @@ function HistoryTab({...props}) {
                                                                     </Grid>
                                                                     {app?.appointment.acts.map(
                                                                         (act: any, idx: number) => (
-                                                                            <Grid container key={`fees-${idx}`}
-                                                                                  spacing={2}>
+                                                                            <Grid container pb={1} pt={1} style={{borderBottom:'1px dashed gray'}} key={`fees-${idx}`}
+                                                                                  spacing={2} alignItems="center">
                                                                                 <Grid item xs={3}>
                                                                                     <Typography
                                                                                         className={"feesContent"}>{act.name}</Typography>

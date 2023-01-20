@@ -7,7 +7,7 @@ export default function Switch(theme) {
         root: {
           "& .MuiSpeedDialAction-staticTooltip": {
             "& .MuiSpeedDialAction-staticTooltipLabel": {
-              minWidth: "200px",
+              minWidth: "max-content",
               textAlign: "right",
               boxShadow: theme.customShadows.speedDial,
             },

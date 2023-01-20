@@ -1,5 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Button, DialogActions, MenuItem, Stack, Tab, Tabs, useMediaQuery,} from "@mui/material";
+import {
+    Avatar,
+    Button,
+    DialogActions,
+    MenuItem,
+    Stack,
+    Tab,
+    Tabs,
+    tabsClasses,
+    Typography,
+    useMediaQuery,
+} from "@mui/material";
 import ConsultationIPToolbarStyled from "./overrides/consultationIPToolbarStyle";
 import StyledMenu from "./overrides/menuStyle";
 import {useTranslation} from "next-i18next";
@@ -7,7 +18,7 @@ import {documentButtonList} from "./config";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -20,25 +31,22 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {SetSelectedDialog} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-import RecondingBoxStyle from '../../../card/components/consultationDetailCard/overrides/recordingBoxStyle';
+import RecondingBoxStyle from '@features/card/components/consultationDetailCard/overrides/recordingBoxStyle';
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
+import Zoom from "react-medium-image-zoom";
+import IconUrl from "@themes/urlIcon";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
     bitRate: 128
 });
 
 function ConsultationIPToolbar({...props}) {
-
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
-    const {t, ready} = useTranslation("consultation", {
-        keyPrefix: "consultationIP",
-    });
-
     const {
-        selected,
+        selectedTab,
+        setSelectedTab,
         appuuid,
         mutate,
         agenda,
@@ -46,73 +54,47 @@ function ConsultationIPToolbar({...props}) {
         setPendingDocuments,
         pendingDocuments,
         dialog,
+        patient,
         selectedDialog,
         setDialog,
+        setPatientShow,
         changes,
         appointement
     } = props;
+
+    const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("md")
+    );
+    const {t, ready} = useTranslation("consultation", {
+        keyPrefix: "consultationIP",
+    });
+    const {trigger} = useRequestMutation(null, "/drugs");
+    const router = useRouter();
+    const {data: session} = useSession();
+    const intervalref = useRef<number | null>(null);
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [value, setValue] = useState(appointement.latestAppointments.length === 0 ? "consultation form" : "patient history");
     const [info, setInfo] = useState<null | string>("");
     const [state, setState] = useState<any>();
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [tabs, setTabs] = useState(0);
-    const [label, setlabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
-    const [lastTabs, setLastTabs] = useState<string>("");
+    const [lastTabs, setLastTabs] = useState<string | null>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
     let [record, setRecord] = useState(false);
     let [time, setTime] = useState('00:00');
-
+    const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
-    const dispatch = useAppDispatch();
+    const hasLatestAppointments = appointement.latestAppointments.length === 0;
 
-    let tabsData = [
-        {
-            label: "patient_history",
-            value: "patient history"
-        },
-        {
-            label: "consultation_form",
-            value: "consultation form"
-        },
-        {
-            label: "documents",
-            value: "documents"
-        },
-        {
-            label: "medical_procedures",
-            value: "medical procedures"
-        },
-    ];
+    const [tabsData, setTabsData] = useState<any[]>([]);
 
-    if (appointement.latestAppointments.length === 0)
-        tabsData = [
-            {
-                label: "consultation_form",
-                value: "consultation form"
-            },
-            {
-                label: "documents",
-                value: "documents"
-            },
-            {
-                label: "medical_procedures",
-                value: "medical procedures"
-            }
-        ];
-
-
-
-    const {trigger} = useRequestMutation(null, "/drugs");
-    const router = useRouter();
-    const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
-    const intervalref = useRef<number | null>(null);
 
     const startRecord = () => {
         recorder.start().then(() => {
@@ -164,7 +146,7 @@ function ConsultationIPToolbar({...props}) {
             },
         }).then((res) => {
             const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
-            if (audios.length > 0){
+            if (audios.length > 0) {
                 const form = new FormData();
                 form.append("type", audios[0].uuid);
                 form.append("files[]", file, file.name);
@@ -219,8 +201,8 @@ function ConsultationIPToolbar({...props}) {
                         type: "prescription",
                         info: res[0].prescription_has_drugs,
                         uuid: res[0].uuid,
-                        createdAt:moment().format('DD/MM/YYYY'),
-                        description:"",
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -260,8 +242,8 @@ function ConsultationIPToolbar({...props}) {
                         uri: res[1],
                         name: "requested-analysis",
                         type: "requested-analysis",
-                        createdAt:moment().format('DD/MM/YYYY'),
-                        description:"",
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
                         info: res[0].analyses,
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
@@ -302,8 +284,8 @@ function ConsultationIPToolbar({...props}) {
                         name: "requested-medical-imaging",
                         type: "requested-medical-imaging",
                         info: res[0]["medical-imaging"],
-                        createdAt:moment().format('DD/MM/YYYY'),
-                        description:"",
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
                         patient: res[0].patient.firstName + " " + res[0].patient.lastName,
                     });
                     setOpenDialog(true);
@@ -352,9 +334,9 @@ function ConsultationIPToolbar({...props}) {
                         content: state.content,
                         doctor: state.name,
                         patient: state.patient,
-                        createdAt:moment().format('DD/MM/YYYY'),
-                        description:"",
-                        title:state.title,
+                        createdAt: moment().format('DD/MM/YYYY'),
+                        description: "",
+                        title: state.title,
                         days: state.days,
                         name: "certif",
                         type: "write_certif",
@@ -366,10 +348,8 @@ function ConsultationIPToolbar({...props}) {
                 break;
         }
 
-
-        setlabel("documents");
-        selected("documents")
-        setValue("documents")
+        setLabel("documents");
+        setSelectedTab("documents");
 
         setOpenDialog(false);
         setInfo(null);
@@ -438,7 +418,7 @@ function ConsultationIPToolbar({...props}) {
                     days: '....',
                     content: '',
                     title: 'Rapport médical',
-                    patient:`${appointement.patient.firstName} ${appointement.patient.lastName}`,
+                    patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 });
                 break;
             case "upload_document":
@@ -461,7 +441,7 @@ function ConsultationIPToolbar({...props}) {
     };
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setValue(newValue);
+        setSelectedTab(newValue);
     };
 
     useEffect(() => {
@@ -494,7 +474,6 @@ function ConsultationIPToolbar({...props}) {
     }, [checkUp, dialog, prescription, setDialog]);
 
     useEffect(() => {
-        selected(label);
         if (lastTabs === "consultation_form") {
             const btn = document.getElementsByClassName("sub-btn")[1];
             const examBtn = document.getElementsByClassName("sub-exam")[0];
@@ -502,127 +481,103 @@ function ConsultationIPToolbar({...props}) {
             (btn as HTMLElement)?.click();
             (examBtn as HTMLElement)?.click();
         }
-        setLastTabs(label);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tabs]);
+        setLastTabs(selectedTab);
+    }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+        setTabsData(hasLatestAppointments ? [
+            {
+                label: "consultation_form",
+                value: "consultation form"
+            },
+            {
+                label: "documents",
+                value: "documents"
+            },
+            {
+                label: "medical_procedures",
+                value: "medical procedures"
+            }
+        ] : [
+            {
+                label: "patient_history",
+                value: "patient history"
+            },
+            {
+                label: "consultation_form",
+                value: "consultation form"
+            },
+            {
+                label: "documents",
+                value: "documents"
+            },
+            {
+                label: "medical_procedures",
+                value: "medical procedures"
+            },
+        ]);
+    }, [tabs, appointement]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     const handleOpen = () => {
         dispatch(resetAppointment());
         dispatch(setAppointmentPatient(appointement?.patient));
         dispatch(openDrawer({type: "add", open: true}));
     };
+
+    const {data: httpPatientPhotoResponse} = useRequest(patient?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+
+
     if (!ready) return <>toolbar loading..</>;
 
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
-                <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    {/* <Button
-            variant="contained"
-            onClick={() => {
-              setInfo("add_vaccin");
-              setOpenDialog(true);
-            }}>
-            {t("vaccine")}
-          </Button>
-          <Button onClick={handleClickReport} variant="contained">
-            {t("report")}
-          </Button>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorReport}
-            open={openReport}
-            onClose={handleCloseAnchor}
-            sx={{
-              "& .MuiPaper-root": {
-                borderRadius: 0,
-                borderBottomLeftRadius: 8,
-                borderBottomRightRadius: 8,
-                marginTop: (theme) => theme.spacing(1),
-                minWidth: 150,
-                backgroundColor: (theme) => theme.palette.text.primary,
-              },
-            }}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
-            }}>
-            {reportMenu.map((item, idx) => (
-              <MenuItem
-                onClick={() => handleCloseAnchor(item.value)}
-                key={idx}
-                sx={{
-                  color: (theme) => theme.palette.grey[0],
-                  ".react-svg": {
-                    mr: 1,
-                    svg: {
-                      width: 12,
-                      height: 12,
-                      path: { fill: (theme) => theme.palette.grey[0] },
-                    },
-                  },
-                }}>
-                <Icon path={item.icon} />
-                {t(item.value)}
-              </MenuItem>
-            ))}
-          </Menu> */}
-                </Stack>
                 <Stack
                     direction="row"
                     minHeight="inherit"
                     alignItems="flex-end"
                     width={1}>
                     <Tabs
-                        value={value}
+                        value={selectedTab}
                         onChange={handleChange}
-                        sx={{width: {xs: "70%", md: "70%"}}}
+                        sx={
+                            {
+                                width: {xs: "100%", md: "70%"},
+                                [`& .${tabsClasses.scrollButtons}`]: {
+                                    '&.Mui-disabled': {opacity: 0.5},
+                                }
+                            }
+                        }
                         variant={isMobile ? "scrollable" : "standard"}
                         allowScrollButtonsMobile={isMobile}
+                        scrollButtons={true}
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map(({label, value}, index) => (
+                        {tabsData.map((tab, index) => (
                             <Tab
                                 onFocus={() => {
                                     setTabs(index);
-                                    setlabel(label);
+                                    setLabel(tab.label);
                                 }}
                                 className="custom-tab"
-                                key={label}
-                                value={value}
-                                label={t(label)}
+                                key={tab.label}
+                                value={tab.label}
+                                label={t(tab.label)}
                             />
                         ))}
                     </Tabs>
-                    {/* <LoadingButton
-            loading={loading}
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              const btn = document.getElementsByClassName("sub-btn")[1];
-              const examBtn = document.getElementsByClassName("sub-exam")[0];
-
-              (btn as HTMLElement)?.click();
-              (examBtn as HTMLElement)?.click();
-
-              setLoading(true);
-
-              setTimeout(() => {
-                setEnd(true);
-                setLoading(false);
-              }, 3000);
-            }}
-            className="action-button">
-            {!loading && appointement?.status == 5 ? (
-              <Icon path="ic-edit" />
-            ) : (
-              <Icon path="ic-check" />
-            )}
-            {appointement?.status == 5
-              ? t("edit_of_consultation")
-              : t("end_of_consultation")}
-          </LoadingButton> */}
-                    <Stack
+                    {!isMobile && <Stack
                         direction="row"
                         spacing={1}
                         mb={1}
@@ -678,9 +633,87 @@ function ConsultationIPToolbar({...props}) {
                                 </MenuItem>
                             ))}
                         </StyledMenu>
-                    </Stack>
+                    </Stack>}
                 </Stack>
+
+                {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
+                    {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
+                        <Zoom>
+                            <Avatar
+                                src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
+                                <IconUrl width={"40"} height={"40"} path="men-avatar"/>
+                            </Avatar>
+                        </Zoom>
+                        <Stack>
+                            <Typography variant="body1" color='primary.main'
+                                        sx={{fontFamily: 'Poppins'}}>{patient.firstName} {patient.lastName}</Typography>
+                            <Typography variant="body2" color="text.secondary">{patient.fiche_id}</Typography>
+                        </Stack>
+                    </Stack>}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        mb={1}
+                        justifyContent="flex-end"
+                        sx={{width: {xs: "30%", md: "30%"}}}>
+                        {record && <Button
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={() => {
+                                stopRec()
+                            }}
+                            variant="contained"
+                            color="primary">
+                            {time}
+                        </Button>
+                        }
+                        <Button
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={handleClick}
+                            variant="contained"
+                            endIcon={!record && <KeyboardArrowDownIcon/>}
+                            color="warning">
+                            {
+                                isMobile ? <AddIcon/> :
+                                    <>
+                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
+                                    </>
+                            }
+                        </Button>
+                        <StyledMenu
+                            id="basic-menu"
+                            elevation={0}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            MenuListProps={{
+                                "aria-labelledby": "basic-button",
+                            }}>
+                            {documentButtonList.map((item, index) => (
+                                <MenuItem
+                                    key={`document-button-list-${index}`}
+                                    onClick={() => handleClose(item.label)}>
+                                    <Icon path={item.icon}/>
+                                    {t(item.label)}
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                </MenuItem>
+                            ))}
+                        </StyledMenu>
+                    </Stack>
+                </Stack>}
             </ConsultationIPToolbarStyled>
+
             {info && (
                 <Dialog
                     action={info}
@@ -698,7 +731,7 @@ function ConsultationIPToolbar({...props}) {
                     })}
                     dialogClose={handleCloseDialog}
                     actionDialog={
-                         action ? (
+                        action ? (
                             <DialogActions>
                                 <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                     {t("cancel")}

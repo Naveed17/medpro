@@ -35,5 +35,11 @@ export const collapse = [
         title: 'consultation',
         icon: 'ic-agenda',
 
+    },
+    {
+        id: 8,
+        title: 'documents',
+        icon: 'ic-download',
+
     }
 ];

@@ -229,6 +229,12 @@ fieldset {
   font-family: "Poppins", serif;
 }
 
+.snackbar-notification-action svg {
+  fill: white;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
 #ReactSimpleImageViewer {
   z-index: 9999;
 }
@@ -313,4 +319,13 @@ fieldset {
   -ms-transform: scale(2.4); /* IE 9 */
   -webkit-transform: scale(2.4); /* Safari 3-8 */
   transform: scale(2.4);
+}
+
+.mobile-badge {
+  background: #FFD400;
+  font-size: 12px;
+  padding: 0 5px;
+  border-radius: 2rem;
+  height: 1.2rem;
+  width: 1.2rem;
 }

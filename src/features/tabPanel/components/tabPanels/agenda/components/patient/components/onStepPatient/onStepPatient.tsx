@@ -1,6 +1,6 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete,
+    Autocomplete, Avatar,
     Box,
     Button,
     Card,
@@ -34,7 +34,6 @@ import {useRequest} from "@app/axios";
 import {useRouter} from "next/router";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {LoadingScreen} from "@features/loadingScreen";
@@ -46,9 +45,10 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
-
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -98,13 +98,17 @@ function OnStepPatient({...props}) {
         translationKey = "patient",
         translationPrefix = "add-patient",
     } = props;
+
+    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const topRef = useRef(null);
-    const {t, ready} = useTranslation(translationKey, {
-        keyPrefix: translationPrefix,
-    });
 
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
@@ -214,7 +218,10 @@ function OnStepPatient({...props}) {
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
                     phone: contact.value,
                     dial: dialCountries.find(dial => dial.phone === contact.code)
-                })) : patient.step1.phones,
+                })) : [{
+                    phone: "",
+                    dial: doctor_country
+                }],
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
@@ -235,7 +242,7 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : DefaultCountry?.phone,
+                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
                         value: insurance.insuredPerson ? insurance.insuredPerson.contact.value : "",
                         type: "phone",
                         contact_type: contacts && contacts[0].uuid,
@@ -283,7 +290,7 @@ function OnStepPatient({...props}) {
     } : null, SWRNoValidateConfig);
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
-    const [selectedCountry, setSelectedCountry] = React.useState<any>(DefaultCountry);
+    const [selectedCountry] = React.useState<any>(doctor_country);
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -296,7 +303,7 @@ function OnStepPatient({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: DefaultCountry
+            dial: doctor_country
         }];
         formik.setFieldValue("phones", phones);
     };
@@ -317,7 +324,7 @@ function OnStepPatient({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: DefaultCountry?.phone,
+                    code: doctor_country?.phone,
                     value: "",
                     type: "phone",
                     contact_type: contacts[0].uuid,
@@ -325,7 +332,7 @@ function OnStepPatient({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "",
+            insurance_type: "0",
             expand: false
         }];
         formik.setFieldValue("insurance", insurance);
@@ -346,9 +353,18 @@ function OnStepPatient({...props}) {
             errors.hasOwnProperty("lastName") ||
             errors.hasOwnProperty("phones") ||
             errors.hasOwnProperty("gender")) {
-            // (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
         }
     }, [errors, touched]);
+
+    useEffect(() => {
+        if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
+            !(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
+            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
+        }
+    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -702,23 +718,55 @@ function OnStepPatient({...props}) {
                                         }
 
                                         const country = countries?.find(country => country.uuid === selected);
-                                        return <Typography>{country?.nationality}</Typography>
+                                        return (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.nationality}</Typography>
+                                            </Stack>)
                                     }}
                                 >
                                     {countries?.map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image
-                                                width={20}
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
                                                 alt={"flags"}
-                                                height={14}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                         </MenuItem>)
                                     )}
                                 </Select>
                             </FormControl>
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("address")}
+                            </Typography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                rows={3}
+                                placeholder={t("address-placeholder")}
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("address")}
+                            />
                         </Box>
                         <Box>
                             <Typography
@@ -742,18 +790,36 @@ function OnStepPatient({...props}) {
                                         }
 
                                         const country = countries?.find(country => country.uuid === selected);
-                                        return <Typography>{country?.name}</Typography>
+                                        return (
+                                            <Stack direction={"row"} alignItems={"center"}>
+                                                <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4,
+                                                        ml: 0,
+                                                        mr: ".5rem"
+                                                    }}
+                                                    alt="flag"
+                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                />
+                                                <Typography>{country?.name}</Typography>
+                                            </Stack>)
                                     }}
                                 >
-                                    {countries?.map((country) => (
+                                    {countries?.filter(country => country.hasState).map((country) => (
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Image
-                                                width={20}
+                                            <Avatar
+                                                sx={{
+                                                    width: 26,
+                                                    height: 18,
+                                                    borderRadius: 0.4
+                                                }}
                                                 alt={"flags"}
-                                                height={14}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                            />
                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                         </MenuItem>)
                                     )}
@@ -815,20 +881,6 @@ function OnStepPatient({...props}) {
                                     />
                                 </Grid>
                             </Grid>
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("address")}
-                            </Typography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                rows={3}
-                                placeholder={t("address-placeholder")}
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("address")}
-                            />
                         </Box>
                         <Box>
                             <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>
@@ -1069,7 +1121,7 @@ function OnStepPatient({...props}) {
                                                                     <CountrySelect
                                                                         initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
                                                                             getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
-                                                                            DefaultCountry}
+                                                                            doctor_country}
                                                                         onSelect={(state: any) => {
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                         }}/>

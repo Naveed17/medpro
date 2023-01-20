@@ -1,7 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
-import {CipMedicProCard} from "@features/card";
 
 function FeesTab({...props}) {
 

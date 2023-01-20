@@ -1,8 +1,8 @@
-import React, {useEffect} from "react";
-import {Typography} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Checkbox, Typography} from "@mui/material";
 import WaitingRoomStyled from "./overrides/waitingRoomStyle";
 import {Accordion} from '@features/accordion';
-import {SidebarCheckbox} from '@features/sidebarCheckbox';
+import {SidebarCheckbox, SidebarCheckboxStyled} from '@features/sidebarCheckbox';
 import {useTranslation} from "next-i18next";
 import {useRequest} from "@app/axios";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
@@ -12,13 +12,12 @@ import {useRouter} from "next/router";
 import {
     ActionBarState,
     FilterRootStyled,
-    leftActionBarSelector,
-    PatientFilter,
+    leftActionBarSelector, PatientFilter,
     setFilter
 } from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {setView} from "@features/calendar";
 import {LoadingScreen} from "@features/loadingScreen";
+import {AppointmentStatus, setView} from "@features/calendar";
 
 function WaitingRoom() {
     const {data: session} = useSession();
@@ -31,13 +30,15 @@ function WaitingRoom() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {data: httpAppointmentTypesResponse, error: errorHttpAppointmentTypes} = useRequest({
+    const {data: httpAppointmentTypesResponse} = useRequest({
         method: "GET",
         url: "/api/medical-entity/" + medical_entity.uuid + "/appointments/types/" + router.locale,
         headers: {Authorization: `Bearer ${session?.accessToken}`}
     }, SWRNoValidateConfig);
 
     const types = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
+
+    const [accordionData, setAccordionData] = useState<any[]>([]);
 
     useEffect(() => {
         types?.map(type => {
@@ -46,6 +47,46 @@ function WaitingRoom() {
             })
         })
     });
+
+    useEffect(() => {
+        if (types) {
+            setAccordionData([
+                {
+                    heading: {
+                        id: "meetingType",
+                        icon: "ic-agenda-jour-color",
+                        title: "meetingType",
+                    },
+                    expanded: true,
+                    children: types?.map((item, index) => (
+                        <React.Fragment key={index}>
+                            <SidebarCheckbox
+                                label={"name"}
+                                translate={{
+                                    t: t,
+                                    ready: ready,
+                                }}
+                                data={item}
+                                onChange={(selected: boolean) => {
+                                    if (selected && !query?.type?.includes(item.uuid)) {
+                                        dispatch(setFilter({
+                                            type:
+                                                item.uuid + (query?.type ? `,${query.type}` : "")
+                                        }));
+                                    } else {
+                                        const sp = query?.type?.split(",") as string[];
+                                        dispatch(setFilter({
+                                            type:
+                                                sp?.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
+                                        }))
+                                    }
+                                }}/>
+                        </React.Fragment>
+                    ))
+                },
+            ])
+        }
+    }, [types]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -64,42 +105,8 @@ function WaitingRoom() {
                     t: t,
                     ready: ready,
                 }}
-                defaultValue={"meetingType"}
-                data={[
-                    {
-                        heading: {
-                            id: "meetingType",
-                            icon: "ic-agenda-jour-color",
-                            title: "meetingType",
-                        },
-                        children: types?.map((item, index) => (
-                            <React.Fragment key={index}>
-                                <SidebarCheckbox
-                                    label={"name"}
-                                    translate={{
-                                        t: t,
-                                        ready: ready,
-                                    }}
-                                    data={item}
-                                    onChange={(selected: boolean) => {
-                                        if (selected && !query?.type?.includes(item.uuid)) {
-                                            dispatch(setFilter({
-                                                type:
-                                                    item.uuid + (query?.type ? `,${query.type}` : "")
-                                            }));
-                                        } else {
-                                            const sp = query?.type?.split(",") as string[];
-                                            dispatch(setFilter({
-                                                type:
-                                                    sp.length > 1 ? query?.type?.replace(`${item.uuid},`, "") : undefined
-                                            }))
-                                        }
-                                    }}/>
-                            </React.Fragment>
-                        ))
-                    },
-                ]
-                }
+                data={accordionData}
+                setData={setAccordionData}
             />
         </WaitingRoomStyled>
     )

@@ -377,49 +377,55 @@ function ConsultationInProgress() {
     useEffect(() => {
         const acts: { act_uuid: any; name: string; qte: any; price: any }[] = [];
         if (end) {
-            selectedAct.map(
-                (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
-                    acts.push({
-                        act_uuid: act.uuid,
-                        name: act.act.name,
-                        qte: act.qte,
-                        price: act.fees,
-                    });
-                }
-            );
-            const form = new FormData();
-            form.append("acts", JSON.stringify(acts));
-            form.append("modal_uuid", selectedModel.default_modal.uuid);
-            form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
-            form.append("notes", exam.notes);
-            form.append("diagnostic", exam.diagnosis);
-            form.append("treatment", exam.treatment);
-            form.append("consultation_reason", exam.motif);
-            form.append("fees", total.toString());
-            form.append("consultation_fees", consultationFees.toString());
-            form.append("status", "5");
+            if (appointement?.status !== 5) {
+                selectedAct.map(
+                    (act: { uuid: any; act: { name: string }; qte: any; fees: any }) => {
+                        acts.push({
+                            act_uuid: act.uuid,
+                            name: act.act.name,
+                            qte: act.qte,
+                            price: act.fees,
+                        });
+                    }
+                );
+                const form = new FormData();
+                form.append("acts", JSON.stringify(acts));
+                form.append("modal_uuid", selectedModel.default_modal.uuid);
+                form.append("modal_data", localStorage.getItem("Modeldata" + uuind) as string);
+                form.append("notes", exam.notes);
+                form.append("diagnostic", exam.diagnosis);
+                form.append("treatment", exam.treatment);
+                form.append("consultation_reason", exam.motif);
+                form.append("fees", total.toString());
+                form.append("consultation_fees", consultationFees.toString());
+                form.append("status", "5");
 
-            trigger({
-                method: "PUT",
-                url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
-                data: form,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            }).then((r: any) => {
-                console.log("end consultation", r);
-                dispatch(setTimer({isActive: false}));
-                mutate().then(() => {
-                    localStorage.removeItem("Modeldata" + uuind);
-                    localStorage.removeItem(`consultation-data-${uuind}`);
-                    localStorage.removeItem(`consultation-fees`);
-                    localStorage.removeItem(`consultation-acts`);
-                    router.push("/dashboard/agenda").then(() => {
-                        setActions(false);
+                trigger({
+                    method: "PUT",
+                    url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda?.uuid}/appointments/${uuind}/data/${router.locale}`,
+                    data: form,
+                    headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                    },
+                }).then((r: any) => {
+                    console.log("end consultation", r);
+                    dispatch(setTimer({isActive: false}));
+                    mutate().then(() => {
+                        localStorage.removeItem("Modeldata" + uuind);
+                        localStorage.removeItem(`consultation-data-${uuind}`);
+                        localStorage.removeItem(`consultation-fees`);
+                        localStorage.removeItem(`consultation-acts`);
+                        router.push("/dashboard/agenda").then(() => {
+                            setActions(false);
+                        })
+                        sendNotification()
                     })
-                    sendNotification()
-                })
-            });
+                });
+            } else {
+                router.push("/dashboard/agenda").then(() => {
+                    setActions(false);
+                });
+            }
         }
         setEnd(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -536,7 +542,6 @@ function ConsultationInProgress() {
         setOpenDialog(false);
         setInfo(null);
         setActions(false);
-
     };
 
     const leave = () => {
@@ -564,26 +569,28 @@ function ConsultationInProgress() {
         (examBtn as HTMLElement)?.click();
         setEnd(true)
     }
-    const handleClick = () => {
+
+    const endConsultation = () => {
         setInfo("secretary_consultation_alert");
         setOpenDialog(true);
         setActions(true);
-    };
+    }
+
     const DialogAction = () => {
         return (
-            <DialogActions  style={{justifyContent: 'space-between', width: '100%'}}>
+            <DialogActions style={{justifyContent: 'space-between', width: '100%'}}>
                 <Button
                     variant="text-black"
                     onClick={leave}
                     startIcon={<LogoutRoundedIcon/>}>
-                    <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("withoutSave")}</Typography>
+                    <Typography sx={{display: {xs: 'none', md: 'flex'}}}>{t("withoutSave")}</Typography>
                 </Button>
                 <Stack direction={"row"} spacing={2}>
                     <Button
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("cancel")}</Typography>
+                        <Typography sx={{display: {xs: 'none', md: 'flex'}}}>{t("cancel")}</Typography>
                     </Button>
                     <Button
                         variant="contained"
@@ -592,7 +599,7 @@ function ConsultationInProgress() {
                             saveConsultation()
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        <Typography sx={{display:{xs:'none',md:'flex'}}}>{t("end_consultation")}</Typography>
+                        <Typography sx={{display: {xs: 'none', md: 'flex'}}}>{t("end_consultation")}</Typography>
                     </Button>
                 </Stack>
             </DialogActions>
@@ -608,9 +615,9 @@ function ConsultationInProgress() {
                 doctor: card.name,
                 patient: `${appointement.patient.firstName} ${appointement.patient.lastName}`,
                 days: card.days,
-                description:card.description,
-                title:card.title,
-                createdAt:card.createdAt,
+                description: card.description,
+                title: card.title,
+                createdAt: card.createdAt,
                 name: 'certif',
                 type: 'write_certif',
                 mutate: mutateDoc,
@@ -637,8 +644,8 @@ function ConsultationInProgress() {
                 uri: card.uri,
                 name: card.title,
                 type: card.documentType,
-                createdAt:card.createdAt,
-                description:card.description,
+                createdAt: card.createdAt,
+                description: card.description,
                 info: info,
                 uuidDoc: uuidDoc,
                 patient: patient.firstName + ' ' + patient.lastName,
@@ -666,7 +673,9 @@ function ConsultationInProgress() {
                     setInfo={setInfo}
                     changes={changes}
                     setChanges={setChanges}
+                    setPatientShow={() => setFilterDrawer(!drawer)}
                     appointement={appointement}
+                    patient={patient}
                     selectedAct={selectedAct}
                     selectedModel={selectedModel}
                     selectedDialog={selectedDialog}
@@ -674,7 +683,8 @@ function ConsultationInProgress() {
                     agenda={agenda?.uuid}
                     setDialog={setDialog}
                     endingDocuments={setPendingDocuments}
-                    selected={(v: string) => setValue(v)}
+                    selectedTab={value}
+                    setSelectedTab={setValue}
                 />}
             </SubHeader>
 
@@ -743,7 +753,16 @@ function ConsultationInProgress() {
                         <Grid item xs={12} md={7} style={{paddingLeft: 10}}>
                             {sheet &&
                                 <ConsultationDetailCard
-                                    {...{changes, setChanges, uuind,agenda:agenda?.uuid,mutateDoc,medical_entity,session,router}}
+                                    {...{
+                                        changes,
+                                        setChanges,
+                                        uuind,
+                                        agenda: agenda?.uuid,
+                                        mutateDoc,
+                                        medical_entity,
+                                        session,
+                                        router
+                                    }}
                                     exam={sheet.exam}/>}
                         </Grid>
                     </Grid>
@@ -803,7 +822,8 @@ function ConsultationInProgress() {
                 </Stack>
                 <Box pt={8}>
                     {!lock && <SubFooter>
-                        <Stack width={1} direction={"row"} alignItems="flex-end"
+                        <Stack width={1} spacing={{xs: 1, md: 0}} padding={{xs: 1, md: 0}}
+                               direction={{xs: 'column', md: 'row'}} alignItems="flex-end"
                                justifyContent={value === 'medical_procedures' ? "space-between" : "flex-end"}>
                             {value === 'medical_procedures' && <Stack direction='row' alignItems={"center"}>
                                 <Typography variant="subtitle1">
@@ -824,7 +844,7 @@ function ConsultationInProgress() {
                                                 type: 'fees',
                                                 name: 'note_fees',
                                                 info: selectedAct,
-                                                createdAt:moment().format('DD/MM/YYYY'),
+                                                createdAt: moment().format('DD/MM/YYYY'),
                                                 consultationFees: free ? 0 : consultationFees,
                                                 patient: patient.firstName + ' ' + patient.lastName
                                             })
@@ -840,21 +860,7 @@ function ConsultationInProgress() {
                                 </Stack>
                             </Stack>}
                             <Button
-                                onClick={() => {
-
-                                    /*const btn = document.getElementsByClassName("sub-btn")[1];
-                                    const examBtn = document.getElementsByClassName("sub-exam")[0];
-
-                                    (btn as HTMLElement)?.click();
-                                    (examBtn as HTMLElement)?.click();
-
-                                    setOnsave(true)
-                                    setEnd(true)*/
-
-                                    if (appointement?.status == 5) {
-                                        saveConsultation()
-                                    } else handleClick()
-                                }}
+                                onClick={appointement?.status == 5 ? saveConsultation : endConsultation}
                                 color={"error"}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
@@ -866,6 +872,7 @@ function ConsultationInProgress() {
                         </Stack>
                     </SubFooter>}
                 </Box>
+
                 <Drawer
                     anchor={"right"}
                     open={openAddDrawer}
@@ -891,6 +898,7 @@ function ConsultationInProgress() {
                     title={null}>
                     <ConsultationFilter/>
                 </DrawerBottom>
+
                 <Stack
                     direction={{md: "row", xs: "column"}}
                     position="fixed"
@@ -932,20 +940,7 @@ function ConsultationInProgress() {
                         />
                     </Box>
                 </Drawer>
-                <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
-                    onClick={() => setFilterDrawer(!drawer)}
-                    sx={{
-                        position: "fixed",
-                        bottom: 70,
-                        transform: "translateX(-50%)",
-                        left: "50%",
-                        zIndex: 999,
-                        display: {xs: "flex", md: "none"},
-                    }}
-                    variant="filter">
-                    {t('Fiche')}
-                </Button>
+
                 <DrawerBottom
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}

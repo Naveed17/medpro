@@ -8,7 +8,7 @@ import {
     ListItemText,
     Hidden,
     Toolbar,
-    useMediaQuery, Badge
+    useMediaQuery, Badge, Chip, Typography
 } from "@mui/material";
 import {Theme} from '@mui/material/styles'
 // utils
@@ -118,7 +118,7 @@ function SideBarMenu({children}: LayoutProps) {
                                         vertical: 'bottom',
                                         horizontal: 'right',
                                     }}
-                                    invisible={item.badge === undefined}
+                                    invisible={item.badge === undefined || isMobile}
                                     color="warning"
                                     badgeContent={item.badge}>
                                     <ListItemIcon>
@@ -126,6 +126,8 @@ function SideBarMenu({children}: LayoutProps) {
                                     </ListItemIcon>
                                 </Badge>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)}/>
+                                {(isMobile && item.badge !== undefined && item.badge > 0) &&
+                                    <Typography className={"mobile-badge"}>{item.badge}</Typography>}
                             </ListItem>
                         </a>
                     </Hidden>

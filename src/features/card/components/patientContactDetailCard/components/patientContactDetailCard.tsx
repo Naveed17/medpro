@@ -23,7 +23,6 @@ import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import Image from "next/image";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -43,6 +42,11 @@ function PatientContactDetailCard({...props}) {
     const {t, ready} = useTranslation("patient", {
         keyPrefix: "config.add-patient",
     });
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
 
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
@@ -85,7 +89,7 @@ function PatientContactDetailCard({...props}) {
                         value: contact.value
                     }))
                     : [{
-                        code: DefaultCountry?.phone,
+                        code: doctor_country?.phone,
                         value: ""
                     }]
         },
@@ -109,11 +113,8 @@ function PatientContactDetailCard({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const handleAddPhone = () => {
-        const phone = [...values.phones, {code: DefaultCountry?.phone, value: ""}];
+        const phone = [...values.phones, {code: doctor_country?.phone, value: ""}];
         setFieldValue("phones", phone);
     }
 
@@ -266,6 +267,9 @@ function PatientContactDetailCard({...props}) {
                                                                         "& .MuiInputAdornment-root": {
                                                                             width: 20
                                                                         },
+                                                                        "& .MuiAvatar-root": {
+                                                                            ml: 0
+                                                                        },
                                                                         ...(!editable && {
                                                                             "& .MuiAutocomplete-endAdornment": {
                                                                                 display: "none"
@@ -276,9 +280,9 @@ function PatientContactDetailCard({...props}) {
                                                                     small
                                                                     readOnly={!editable}
                                                                     initCountry={{
-                                                                        code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : DefaultCountry?.code,
-                                                                        label: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.label : DefaultCountry?.label,
-                                                                        phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : DefaultCountry?.phone
+                                                                        code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                        name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                        phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
                                                                     }}
                                                                     onSelect={(state: any) => {
                                                                         setFieldValue(`phones[${index}].code`, state.phone);
@@ -398,23 +402,34 @@ function PatientContactDetailCard({...props}) {
                                                         const country = countries_api?.find(country => country.uuid === selected);
                                                         return (
                                                             <Stack direction={"row"} alignItems={"center"}>
-                                                                <Box
-                                                                    component={"img"}
-                                                                    width={20}
-                                                                    height={14}
-                                                                    alt={"flag"}
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: 0,
+                                                                        mr: ".5rem"
+                                                                    }}
+                                                                    alt="flag"
+                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                                />
                                                                 <Typography ml={1}>{country?.name}</Typography>
                                                             </Stack>)
                                                     }}
                                                 >
-                                                    {countries_api?.map((country) => (
+                                                    {countries_api?.filter(country => country.hasState).map((country) => (
                                                         <MenuItem
                                                             key={country.uuid}
                                                             value={country.uuid}>
-                                                            <Image width={20} height={14}
-                                                                   alt={"flag"}
-                                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />
                                                             <Typography sx={{ml: 1}}>{country.name}</Typography>
                                                         </MenuItem>)
                                                     )}
@@ -634,12 +649,17 @@ function PatientContactDetailCard({...props}) {
                                                         const country = countries_api?.find(country => country.uuid === selected);
                                                         return (
                                                             <Stack direction={"row"} alignItems={"center"}>
-                                                                <Box
-                                                                    component={"img"}
-                                                                    width={20}
-                                                                    height={14}
-                                                                    alt={"flag"}
-                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>
+                                                                <Avatar
+                                                                    sx={{
+                                                                        width: 24,
+                                                                        height: 16,
+                                                                        borderRadius: 0.4,
+                                                                        ml: 0,
+                                                                        mr: ".5rem"
+                                                                    }}
+                                                                    alt="flag"
+                                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                                />
                                                                 <Typography ml={1}>{country?.nationality}</Typography>
                                                             </Stack>)
                                                     }}>
@@ -647,9 +667,15 @@ function PatientContactDetailCard({...props}) {
                                                         <MenuItem
                                                             key={country.uuid}
                                                             value={country.uuid}>
-                                                            <Image width={20} height={14}
-                                                                   alt={"flag"}
-                                                                   src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>
+                                                            <Avatar
+                                                                sx={{
+                                                                    width: 26,
+                                                                    height: 18,
+                                                                    borderRadius: 0.4
+                                                                }}
+                                                                alt={"flags"}
+                                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
+                                                            />
                                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                                         </MenuItem>)
                                                     )}
