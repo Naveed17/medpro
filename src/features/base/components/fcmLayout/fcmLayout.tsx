@@ -69,7 +69,7 @@ function FcmLayout({...props}) {
 
     const handleClose = () => {
         setOpenDialog(false);
-    };
+    }
 
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
