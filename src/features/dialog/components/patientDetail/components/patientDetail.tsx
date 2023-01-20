@@ -230,7 +230,7 @@ function PatientDetail({...props}) {
         const params = new FormData();
         params.append("document_type", documentConfig.type);
         documentConfig.files.map((file: File) => {
-            params.append("document", file, file.name);
+            params.append("document[]", file, file.name);
         });
         triggerUploadDocuments({
             method: "POST",

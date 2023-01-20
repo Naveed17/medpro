@@ -17,7 +17,7 @@ function CipCard() {
     const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>
 
     const [time, setTime] = useState<number>(moment().diff(moment(initTimer, "HH:mm"), "seconds"));
 

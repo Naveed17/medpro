@@ -514,7 +514,7 @@ function Agenda() {
             () => {
                 refreshData();
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: waiting_room + 1}))
+                dispatch(setOngoing({waiting_room: waiting_room + 1}));
             });
     }
 
