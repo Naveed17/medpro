@@ -43,6 +43,11 @@ function PatientContactDetailCard({...props}) {
         keyPrefix: "config.add-patient",
     });
 
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+
     const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
@@ -84,7 +89,7 @@ function PatientContactDetailCard({...props}) {
                         value: contact.value
                     }))
                     : [{
-                        code: DefaultCountry?.phone,
+                        code: doctor_country?.phone,
                         value: ""
                     }]
         },
@@ -108,11 +113,8 @@ function PatientContactDetailCard({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-
     const handleAddPhone = () => {
-        const phone = [...values.phones, {code: DefaultCountry?.phone, value: ""}];
+        const phone = [...values.phones, {code: doctor_country?.phone, value: ""}];
         setFieldValue("phones", phone);
     }
 
@@ -278,9 +280,9 @@ function PatientContactDetailCard({...props}) {
                                                                     small
                                                                     readOnly={!editable}
                                                                     initCountry={{
-                                                                        code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : DefaultCountry?.code,
-                                                                        label: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.label : DefaultCountry?.label,
-                                                                        phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : DefaultCountry?.phone
+                                                                        code: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.code : doctor_country?.code,
+                                                                        name: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.name : doctor_country?.name,
+                                                                        phone: getCountryByCode(values.phones[index].code) ? getCountryByCode(values.phones[index].code)?.phone : doctor_country?.phone
                                                                     }}
                                                                     onSelect={(state: any) => {
                                                                         setFieldValue(`phones[${index}].code`, state.phone);

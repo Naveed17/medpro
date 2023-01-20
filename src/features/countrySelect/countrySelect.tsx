@@ -1,5 +1,4 @@
 import React, {useCallback} from "react";
-import Image from "next/image";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -40,7 +39,8 @@ function CountrySelect({...props}) {
             options={countries}
             autoHighlight
             disableClearable
-            isOptionEqualToValue={(option, value) => option.label === value.label}
+            getOptionLabel={(option: any) => option.name}
+            isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
                     <Avatar
@@ -49,10 +49,10 @@ function CountrySelect({...props}) {
                             height: 18,
                             borderRadius: 0.4
                         }}
-                        alt={initCountry && initCountry.label}
+                        alt={initCountry && initCountry.name}
                         src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
                     />
-                    <Typography sx={{ml: 1}}>{option.label}</Typography>
+                    <Typography sx={{ml: 1}}>{option.name}</Typography>
                 </MenuItem>
             )}
             renderInput={(params) => {
@@ -66,7 +66,7 @@ function CountrySelect({...props}) {
                                 ml: ".5rem",
                                 mr: -.8
                             }}
-                            alt={initCountry && initCountry.label}
+                            alt={initCountry && initCountry.name}
                             src={`https://flagcdn.com/${initCountry && initCountry.code.toLowerCase()}.svg`}
                         />
                     </InputAdornment>

@@ -50,6 +50,8 @@ function PersonalInsuranceCard({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
 
     const [insuranceDialog, setInsuranceDialog] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
@@ -212,7 +214,7 @@ function PersonalInsuranceCard({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: DefaultCountry?.phone,
+                    code: doctor_country?.phone,
                     value: "",
                     type: "phone",
                     contact_type: patient.contact[0].uuid,

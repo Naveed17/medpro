@@ -29,7 +29,6 @@ import {useSession} from "next-auth/react";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
-import Image from "next/image";
 import {styled} from "@mui/material/styles";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import {DatePicker} from "@features/datepicker";
@@ -130,6 +129,8 @@ function AddPatientStep2({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
 
     const formik = useFormik({
         initialValues: {
@@ -207,7 +208,7 @@ function AddPatientStep2({...props}) {
     useEffect(() => {
         if (countries) {
             const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid;
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             setFieldValue("nationality", defaultCountry);
             setFieldValue("country", defaultCountry);
         }
@@ -287,7 +288,7 @@ function AddPatientStep2({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: DefaultCountry?.phone,
+                    code: doctor_country?.phone,
                     value: "",
                     type: "phone",
                     contact_type: contacts[0].uuid,
