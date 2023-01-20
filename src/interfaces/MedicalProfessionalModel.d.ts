@@ -9,4 +9,5 @@ interface MedicalProfessionalModel {
   civility: CivilityModel;
   languages: MedicalProfessionalLanguageModel[];
   specialities: MedicalProfessionalSpecialityModel[];
+  country: CountryModel;
 }

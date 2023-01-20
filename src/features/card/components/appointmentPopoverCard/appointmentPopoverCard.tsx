@@ -24,6 +24,8 @@ function AppointmentPopoverCard({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
 
     const {data: httpPatientPhotoResponse} = useRequest(data?.patient?.hasPhoto ? {
         method: "GET",
@@ -174,7 +176,7 @@ function AppointmentPopoverCard({...props}) {
                         component="span"
                     >
                         <CallIcon/>
-                        {data?.patient.contact ? data?.patient.contact[0]?.code : DefaultCountry?.phone}
+                        {data?.patient.contact ? data?.patient.contact[0]?.code : doctor_country?.phone}
                         {data?.patient.contact[0]?.value}
                     </Typography>
                 </Box>

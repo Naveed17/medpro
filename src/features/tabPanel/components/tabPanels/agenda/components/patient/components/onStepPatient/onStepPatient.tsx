@@ -45,9 +45,10 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
-
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -97,13 +98,17 @@ function OnStepPatient({...props}) {
         translationKey = "patient",
         translationPrefix = "add-patient",
     } = props;
+
+    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const topRef = useRef(null);
-    const {t, ready} = useTranslation(translationKey, {
-        keyPrefix: translationPrefix,
-    });
 
+    const {data: user} = session as Session;
+    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
 
@@ -213,7 +218,10 @@ function OnStepPatient({...props}) {
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
                     phone: contact.value,
                     dial: dialCountries.find(dial => dial.phone === contact.code)
-                })) : patient.step1.phones,
+                })) : [{
+                    phone: "",
+                    dial: doctor_country
+                }],
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : patient.step1.gender,
@@ -234,7 +242,7 @@ function OnStepPatient({...props}) {
                     lastName: insurance.insuredPerson ? insurance.insuredPerson.lastName : "",
                     birthday: insurance.insuredPerson ? insurance.insuredPerson.birthday : null,
                     phone: {
-                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : DefaultCountry?.phone,
+                        code: insurance.insuredPerson ? insurance.insuredPerson.contact.code : doctor_country?.phone,
                         value: insurance.insuredPerson ? insurance.insuredPerson.contact.value : "",
                         type: "phone",
                         contact_type: contacts && contacts[0].uuid,
@@ -282,7 +290,7 @@ function OnStepPatient({...props}) {
     } : null, SWRNoValidateConfig);
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
-    const [selectedCountry, setSelectedCountry] = React.useState<any>(DefaultCountry);
+    const [selectedCountry] = React.useState<any>(doctor_country);
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -295,7 +303,7 @@ function OnStepPatient({...props}) {
     const handleAddPhone = () => {
         const phones = [...values.phones, {
             phone: "",
-            dial: DefaultCountry
+            dial: doctor_country
         }];
         formik.setFieldValue("phones", phones);
     };
@@ -316,7 +324,7 @@ function OnStepPatient({...props}) {
                 lastName: "",
                 birthday: null,
                 phone: {
-                    code: DefaultCountry?.phone,
+                    code: doctor_country?.phone,
                     value: "",
                     type: "phone",
                     contact_type: contacts[0].uuid,
@@ -352,7 +360,7 @@ function OnStepPatient({...props}) {
     useEffect(() => {
         if (countries) {
             const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === DefaultCountry?.code.toLowerCase())?.uuid;
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid;
             !(selectedPatient && selectedPatient.nationality) && setFieldValue("nationality", defaultCountry);
             !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
         }
@@ -1113,7 +1121,7 @@ function OnStepPatient({...props}) {
                                                                     <CountrySelect
                                                                         initCountry={getFieldProps(`insurance[${index}].insurance_social.phone.code`) ?
                                                                             getCountryByCode(getFieldProps(`insurance[${index}].insurance_social.phone.code`).value) :
-                                                                            DefaultCountry}
+                                                                            doctor_country}
                                                                         onSelect={(state: any) => {
                                                                             setFieldValue(`insurance[${index}].insurance_social.phone.code`, state.phone)
                                                                         }}/>

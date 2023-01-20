@@ -16,7 +16,7 @@ interface Qualifications {
             phone: string;
             dial: {
                 code: string;
-                label: string;
+                name: string;
                 phone: string;
             } | undefined
         }];
