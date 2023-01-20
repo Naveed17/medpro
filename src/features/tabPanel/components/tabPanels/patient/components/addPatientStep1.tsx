@@ -116,7 +116,10 @@ function AddPatientStep1({...props}) {
                 [{
                     phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
                     dial: doctor_country
-                }] : stepsData.step1.phones,
+                }] : [{
+                    phone: "",
+                    dial: doctor_country
+                }],
             gender: selectedPatient
                 ? selectedPatient.gender === "M" ? "1" : "2"
                 : stepsData.step1.gender,
