@@ -119,6 +119,7 @@ function TimeSchedule({...props}) {
 
         const reason = reasons?.find(reason => event.target.value === reason.uuid);
         if (reason) {
+            dispatch(setAppointmentDuration(reason.duration as any));
             setDuration(reason.duration as any);
         }
 
@@ -129,6 +130,7 @@ function TimeSchedule({...props}) {
     };
 
     const onChangeDuration = (event: SelectChangeEvent) => {
+        dispatch(setAppointmentDuration(event.target.value as string));
         setDuration(event.target.value as string);
     };
 
@@ -163,7 +165,6 @@ function TimeSchedule({...props}) {
     }
 
     const onNextStep = () => {
-        dispatch(setAppointmentDuration(duration));
         const dateTime = `${moment(date).format('DD-MM-YYYY')} ${time}`;
         dispatch(setAppointmentDate(moment(dateTime, 'DD-MM-YYYY HH:mm').toDate()));
         dispatch(setStepperIndex(2));

@@ -16,11 +16,13 @@ import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined
 import * as React from "react";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
+import {useState} from "react";
 
 function ConsultationPopupAction({...props}) {
     const {data, OnSchedule} = props
 
     const {t, ready} = useTranslation("common");
+    const [instruction] = useState(`${data.control ? `Contrôle médical apres ${data.nextAppointment} jours \r\n`: ""} ${data.instruction}`);
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -66,7 +68,7 @@ function ConsultationPopupAction({...props}) {
                         </ListItem>
                         <ListItem>
                             <textarea rows={6} readOnly
-                                      defaultValue={data.instruction}/>
+                                      defaultValue={instruction}/>
                         </ListItem>
                     </List>
                 </Card>

@@ -15,12 +15,13 @@ import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {AppointmentStatus, openDrawer, setLastUpdate, setSelectedEvent, setStepperIndex} from "@features/calendar";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {CircularProgressbarCard} from "@features/card";
+import {CircularProgressbarCard, setTimer} from "@features/card";
+import {dashLayoutSelector} from "@features/base";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -34,11 +35,14 @@ function FcmLayout({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+
+    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [fcmToken, setFcmToken] = useState("");
-    const [translationCommon, setTranslationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
+    const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -65,7 +69,7 @@ function FcmLayout({...props}) {
 
     const handleClose = () => {
         setOpenDialog(false);
-    };
+    }
 
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
@@ -87,10 +91,36 @@ function FcmLayout({...props}) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
                         if (data.type === "popup") {
+                            if (!data.body.appointment) {
+                                dispatch(setTimer({isActive: false}));
+                            }
                             setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
                             setOpenDialog(true);
                             setNotificationData(data.body);
                         }
+                        break;
+                    case "waiting-room":
+                        dispatch(setLastUpdate(data));
+                        mutateOnGoing && mutateOnGoing();
+                        break;
+                    case "consultation":
+                        dispatch(setLastUpdate(data));
+                        const event = {
+                            publicId: data.body.appointment?.uuid,
+                            title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
+                            extendedProps: {
+                                patient: data.body.appointment.patient,
+                                type: data.body.type,
+                                status: AppointmentStatus[data.body.appointment?.status],
+                                time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+                            }
+                        } as any;
+                        dispatch(setTimer({
+                            isActive: true,
+                            isPaused: false,
+                            event,
+                            startTime: moment(data.body.appointment.dayDate, "DD-MM-YYYY").format("HH:mm")
+                        }));
                         break;
                 }
             }
@@ -164,7 +194,7 @@ function FcmLayout({...props}) {
         // Event listener that listens for the push notification event in the background
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener("message", (event) => {
-                console.log("event for the service worker", event);
+                process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
             });
         }
 
@@ -220,7 +250,8 @@ function FcmLayout({...props}) {
                                     phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
                                     fees: notificationData?.fees,
                                     instruction: notificationData?.instruction,
-                                    control: notificationData?.nextApp
+                                    nextAppointment: notificationData?.nextApp,
+                                    control: notificationData?.control
                                 }}
                                 OnSchedule={() => {
                                     handleClose();

@@ -17,7 +17,7 @@ function CipCard() {
     const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>
 
     const [time, setTime] = useState<number>(moment().diff(moment(initTimer, "HH:mm"), "seconds"));
 
@@ -52,11 +52,11 @@ function CipCard() {
                 <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
                     {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}
                 </Typography>
-                <Box className={'timer-card'}>
+                {process.env.NODE_ENV === 'development' && <Box className={'timer-card'}>
                     <Typography color="common.white" variant='caption'>
                         {moment().hour(0).minute(0).second(moment().diff(moment(initTimer, "HH:mm"), "seconds") as unknown as number).format('HH : mm : ss')}
                     </Typography>
-                </Box>
+                </Box>}
                 <Label color='warning' variant='filled' className='label'>
                     En consultation
                 </Label>
