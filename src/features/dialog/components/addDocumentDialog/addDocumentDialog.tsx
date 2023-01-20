@@ -48,6 +48,7 @@ function AddDocumentDialog({...props}) {
     useEffect(() => {
         data.state.files = files;
         data.setState(data.state);
+        data.handleUpdateFiles && data.handleUpdateFiles(files);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [files]);
     const {t, ready} = useTranslation("common");

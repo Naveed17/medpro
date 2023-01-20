@@ -242,9 +242,9 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" &&
             eventMenu?.extendedProps.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED" || eventMenu?.extendedProps.status.key === "ON_GOING") ||
             action === "onDelete" &&
-            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED") ||
+            (eventMenu?.extendedProps.status.key === "CANCELED" || eventMenu?.extendedProps.status.key === "FINISHED" || eventMenu?.extendedProps.status.key === "ON_GOING") ||
             action === "onMove" &&
             moment().isAfter(eventMenu?.extendedProps.time) ||
             action === "onPatientNoShow" &&

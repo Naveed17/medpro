@@ -76,6 +76,7 @@ function PatientDetail({...props}) {
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
     const [loadingRequest, setLoadingRequest] = useState(false);
+    const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
     const [openUploadDialog, setOpenUploadDialog] = useState<boolean>(false);
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
@@ -350,10 +351,16 @@ function PatientDetail({...props}) {
                     <Dialog
                         action={"add_a_document"}
                         open={openUploadDialog}
+
                         data={{
                             t,
                             state: documentConfig,
-                            setState: setDocumentConfig
+                            setState: setDocumentConfig,
+                            handleUpdateFiles: (files: any[]) => {
+                                if (files.length > 0) {
+                                    setLoadingFiles(false);
+                                }
+                            }
                         }}
                         size={"md"}
                         direction={"ltr"}
@@ -375,6 +382,7 @@ function PatientDetail({...props}) {
                                     {t("add-patient.cancel")}
                                 </Button>
                                 <Button
+                                    disabled={loadingFiles}
                                     variant="contained"
                                     onClick={() => {
                                         setOpenUploadDialog(false);

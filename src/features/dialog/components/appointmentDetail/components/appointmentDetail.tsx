@@ -423,7 +423,8 @@ function AppointmentDetail({...props}) {
                                 color="error"
                                 sx={{
                                     display: (data?.extendedProps.status.key === "CANCELED" ||
-                                        data?.extendedProps.status.key === "FINISHED") ? "none" : "flex",
+                                        data?.extendedProps.status.key === "FINISHED" ||
+                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex",
                                     '& svg': {
                                         width: 16,
                                         height: 16
@@ -438,7 +439,9 @@ function AppointmentDetail({...props}) {
                                 {...{loading}}
                                 onClick={() => SetDeleteDialog(true)}
                                 sx={{
-                                    display: data?.extendedProps.status.key === "FINISHED" ? "none" : "flex"
+                                    display: (data?.extendedProps.status.key === "CANCELED" ||
+                                        data?.extendedProps.status.key === "FINISHED" ||
+                                        data?.extendedProps.status.key === "ON_GOING") ? "none" : "flex"
                                 }}
                                 fullWidth
                                 variant='contained-white'
