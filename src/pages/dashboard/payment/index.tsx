@@ -42,6 +42,7 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
 import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
 import {DefaultCountry} from "@app/constants";
+import {setCashBox, setInsurances,setPaymentTypes} from "@features/leftActionBar/components/payment/actions";
 
 
 interface HeadCell {
@@ -190,7 +191,6 @@ function Payment() {
     const {t} = useTranslation(["payment", "common"]);
     const [collapseDate, setCollapseData] = useState<any>(null);
     const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
-    const [PaymentTypes, setPaymentTypes] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
     const [cheques, setCheques] = useState<ChequeModel[]>([
         {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200},
@@ -235,7 +235,7 @@ function Payment() {
     const dispatch = useAppDispatch();
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
-    const {selectedBox} = useAppSelector(cashBoxSelector);
+    const {selectedBox,query,paymentTypes} = useAppSelector(cashBoxSelector);
 
     const {trigger} = useRequestMutation(null, "/payment/cashbox", {revalidate: true, populateCache: false});
 
@@ -397,7 +397,10 @@ function Payment() {
 
     useEffect(() => {
         if (httpMedicalProfessionalResponse) {
-            setPaymentTypes((httpMedicalProfessionalResponse as HttpResponse).data[0].payments);
+            console.log((httpMedicalProfessionalResponse as HttpResponse).data[0]);
+            dispatch(setInsurances((httpMedicalProfessionalResponse as HttpResponse).data[0].insurances));
+            dispatch(setPaymentTypes((httpMedicalProfessionalResponse as HttpResponse).data[0].payments));
+
             deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
             setDeals({...deals});
         }
@@ -430,6 +433,10 @@ function Payment() {
             getAppointments(queryPath)
         }
     }, [getAppointments, agenda, day])
+
+    useEffect(()=>{
+        console.log(query)
+    },[query])
 
     return (
         <>
@@ -533,7 +540,7 @@ function Payment() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    deals, setDeals, PaymentTypes,
+                    deals, setDeals, paymentTypes,
                     patient: null
                 }}
                 size={"md"}

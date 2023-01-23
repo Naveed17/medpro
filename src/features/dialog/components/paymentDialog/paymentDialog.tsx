@@ -33,21 +33,6 @@ import {DefaultCountry} from "@app/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 
-/*const PaymentTypes = [
-    {
-        icon: 'ic-argent',
-        label: 'cash'
-    },
-    {
-        icon: 'ic-card',
-        label: 'card'
-    },
-    {
-        icon: 'ic-cheque',
-        label: 'check'
-    },
-
-]*/
 
 interface HeadCell {
     disablePadding: boolean;
@@ -124,7 +109,7 @@ function PaymentDialog({...props}) {
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
 
-    const {patient, selectedPayment, setSelectedPayment, deals, setDeals, PaymentTypes} = data;
+    const {patient, selectedPayment, setSelectedPayment, deals, setDeals, paymentTypes} = data;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
@@ -261,7 +246,7 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {PaymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
+                    {paymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
                         <FormControlLabel
                             className={method.slug === deals.selected ? "selected" : ''}
                             onClick={() => {
@@ -278,7 +263,7 @@ function PaymentDialog({...props}) {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img style={{width: 16}} src={method.logoUrl} alt={'payment means'}/>
                                     {
-                                        !isMobile && PaymentTypes.length !== 6 &&
+                                        !isMobile && paymentTypes.length !== 6 &&
                                         <Typography>{t(method.name)}</Typography>
                                     }
 
@@ -322,7 +307,7 @@ function PaymentDialog({...props}) {
                                                             time: moment().format("HH:mm"),
                                                             patient: patient,
                                                             designation: label,
-                                                            payment_type: PaymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
+                                                            payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
                                                             amount: values.cash?.amount
                                                         }]);
                                                         setLabel("");
@@ -485,7 +470,7 @@ function PaymentDialog({...props}) {
                                                         date: moment().format("DD-MM-YYYY"),
                                                         time: moment().format("HH:mm"),
                                                         patient: patient,
-                                                        payment_type: PaymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
+                                                        payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
                                                         amount: ck.amount
                                                     });
                                                 });
