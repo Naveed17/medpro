@@ -221,7 +221,7 @@ function PersonalInsuranceCard({...props}) {
                     is_support: false
                 }
             },
-            insurance_type: "",
+            insurance_type: "0",
             expand: false,
             online: false
         }, ...values.insurances];

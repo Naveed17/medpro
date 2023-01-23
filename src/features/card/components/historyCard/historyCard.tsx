@@ -51,7 +51,7 @@ export default function HistoryCard({...props}) {
                 <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
                     <Button className="btn-more" onClick={() => {
                         const event = {
-                            title: `${patient.lastName}  ${patient.firstName}`,
+                            title: `${patient.firstName}  ${patient.lastName}`,
                             publicId: row.uuid,
                             extendedProps: {
                                 time: moment(`${row.dayDate} ${row.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),

@@ -28,7 +28,7 @@ function RdvCard({...props}) {
 
     const onAppointmentView = () => {
         const event: any = {
-            title: `${patient.lastName}  ${patient.firstName}`,
+            title: `${patient.firstName}  ${patient.lastName}`,
             publicId: inner.uuid,
             extendedProps: {
                 time: moment(`${inner.dayDate} ${inner.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),

@@ -264,8 +264,8 @@ function PersonalInfo({...props}) {
                                                 error={Boolean(touched.gender && errors.gender)}
                                                 {...getFieldProps("gender")}
                                             >
-                                                <MenuItem value={1}>Mr</MenuItem>
-                                                <MenuItem value={2}>Mrs</MenuItem>
+                                                <MenuItem value={1}>{t("mr")}</MenuItem>
+                                                <MenuItem value={2}>{t("mrs")}</MenuItem>
                                             </Select>
                                         )}
                                     </Grid>

@@ -47,6 +47,7 @@ import {DefaultCountry, PhoneRegExp, SocialInsured} from "@app/constants";
 import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import _ from "lodash";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -138,6 +139,11 @@ function OnStepPatient({...props}) {
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error")),
+        birthdate: Yup.object().shape({
+            day: Yup.string(),
+            month: Yup.string(),
+            year: Yup.string()
+        }),
         insurance: Yup.array().of(
             Yup.object().shape({
                 insurance_number: Yup.string()
@@ -269,6 +275,9 @@ function OnStepPatient({...props}) {
     });
     const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps} = formik;
 
+    const [expanded, setExpanded] = React.useState(!!selectedPatient);
+    const [selectedCountry] = React.useState<any>(doctor_country);
+
     const {data: httpContactResponse} = useRequest({
         method: "GET",
         url: "/api/public/contact-type/" + router.locale
@@ -289,8 +298,6 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, SWRNoValidateConfig);
 
-    const [expanded, setExpanded] = React.useState(!!selectedPatient);
-    const [selectedCountry] = React.useState<any>(doctor_country);
     const contacts = (httpContactResponse as HttpResponse)?.data as ContactModel[];
     const countries = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const insurances = (httpInsuranceResponse as HttpResponse)?.data as InsuranceModel[];
@@ -389,6 +396,20 @@ function OnStepPatient({...props}) {
                         <Typography mt={1} variant="h6" color="text.primary" sx={{mb: 1, overflow: "visible"}}>
                             {t("personal-info")}
                         </Typography>
+
+                        <Box mb={2}>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("fiche")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("fiche-placeholder")}
+                                type="email"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("fiche_id")}
+                            />
+                        </Box>
                         <FormControl component="fieldset" error={Boolean(touched.gender && errors.gender)}>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("gender")} {" "}
@@ -573,19 +594,6 @@ function OnStepPatient({...props}) {
                         }}
                         in={expanded} timeout="auto" unmountOnExit>
                         <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("fiche")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("fiche-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("fiche_id")}
-                            />
-                        </Box>
-                        <Box>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -595,7 +603,38 @@ function OnStepPatient({...props}) {
                                 {t("date-of-birth")}
                             </Typography>
                             <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
-                                <FormControl size="small" fullWidth>
+                                <FormControl
+                                    sx={{
+                                        "& .MuiOutlinedInput-root button": {
+                                            padding: "5px",
+                                            mr: "2px",
+                                            minHeight: "auto",
+                                            height: "auto",
+                                            minWidth: "auto"
+                                        }
+                                    }}
+                                    error={Boolean(touched.birthdate && errors.birthdate)}
+                                    size="small" fullWidth>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <DatePicker
+                                            value={`${values.birthdate.day}-${values.birthdate.month}-${values.birthdate.year}`}
+                                            inputFormat="dd/MM/yyyy"
+                                            onChange={(date: Date) => {
+                                                setFieldValue("birthdate", {
+                                                    day: moment(date).format("DD"),
+                                                    month: moment(date).format("MM"),
+                                                    year: moment(date).format("YYYY"),
+                                                })
+                                            }}
+                                        />
+                                    </LocalizationProvider>
+                                    {touched.birthdate && errors.birthdate && (
+                                        <FormHelperText error sx={{px: 2, mx: 0}}>
+                                            {touched.birthdate.day && errors.birthdate.day}
+                                        </FormHelperText>
+                                    )}
+                                </FormControl>
+                                {/*<FormControl size="small" fullWidth>
                                     <Select
                                         labelId="demo-simple-select-label"
                                         id={"day"}
@@ -693,7 +732,7 @@ function OnStepPatient({...props}) {
                                             {touched.birthdate.year && errors.birthdate.year}
                                         </FormHelperText>
                                     )}
-                                </FormControl>
+                                </FormControl>*/}
                             </Stack>
                         </Box>
                         <Box>
@@ -754,134 +793,137 @@ function OnStepPatient({...props}) {
                                 </Select>
                             </FormControl>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("address")}
-                            </Typography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                rows={3}
-                                placeholder={t("address-placeholder")}
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("address")}
-                            />
-                        </Box>
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                gutterBottom
-                            >
-                                {t("country")}
-                            </Typography>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id={"country"}
+                        <fieldset style={{marginBottom: 10}}>
+                            <legend style={{fontWeight: "bold"}}>{t("address-group")}</legend>
+                            <Box>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    {t("address")}
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    multiline
+                                    rows={3}
+                                    placeholder={t("address-placeholder")}
                                     size="small"
-                                    {...getFieldProps("country")}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}
-                                    renderValue={selected => {
-                                        if (selected?.length === 0) {
-                                            return <em>{t("country-placeholder")}</em>;
-                                        }
+                                    fullWidth
+                                    {...getFieldProps("address")}
+                                />
+                            </Box>
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                >
+                                    {t("country")}
+                                </Typography>
+                                <FormControl fullWidth>
+                                    <Select
+                                        labelId="demo-simple-select-label"
+                                        id={"country"}
+                                        size="small"
+                                        {...getFieldProps("country")}
+                                        displayEmpty
+                                        sx={{color: "text.secondary"}}
+                                        renderValue={selected => {
+                                            if (selected?.length === 0) {
+                                                return <em>{t("country-placeholder")}</em>;
+                                            }
 
-                                        const country = countries?.find(country => country.uuid === selected);
-                                        return (
-                                            <Stack direction={"row"} alignItems={"center"}>
+                                            const country = countries?.find(country => country.uuid === selected);
+                                            return (
+                                                <Stack direction={"row"} alignItems={"center"}>
+                                                    <Avatar
+                                                        sx={{
+                                                            width: 26,
+                                                            height: 18,
+                                                            borderRadius: 0.4,
+                                                            ml: 0,
+                                                            mr: ".5rem"
+                                                        }}
+                                                        alt="flag"
+                                                        src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                    />
+                                                    <Typography>{country?.name}</Typography>
+                                                </Stack>)
+                                        }}
+                                    >
+                                        {countries?.filter(country => country.hasState).map((country) => (
+                                            <MenuItem
+                                                key={country.uuid}
+                                                value={country.uuid}>
                                                 <Avatar
                                                     sx={{
                                                         width: 26,
                                                         height: 18,
-                                                        borderRadius: 0.4,
-                                                        ml: 0,
-                                                        mr: ".5rem"
+                                                        borderRadius: 0.4
                                                     }}
-                                                    alt="flag"
-                                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
+                                                    alt={"flags"}
+                                                    src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
                                                 />
-                                                <Typography>{country?.name}</Typography>
-                                            </Stack>)
-                                    }}
-                                >
-                                    {countries?.filter(country => country.hasState).map((country) => (
-                                        <MenuItem
-                                            key={country.uuid}
-                                            value={country.uuid}>
-                                            <Avatar
-                                                sx={{
-                                                    width: 26,
-                                                    height: 18,
-                                                    borderRadius: 0.4
-                                                }}
-                                                alt={"flags"}
-                                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                            />
-                                            <Typography sx={{ml: 1}}>{country.name}</Typography>
-                                        </MenuItem>)
-                                    )}
-                                </Select>
-                            </FormControl>
-                        </Box>
-                        <Box>
-                            <Grid container spacing={2}>
-                                <Grid item md={6} xs={12}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        gutterBottom
-                                    >
-                                        {t("region")}
-                                    </Typography>
-                                    <FormControl fullWidth>
-                                        <Select
-                                            labelId="demo-simple-select-label"
-                                            id={"region"}
-                                            disabled={!values.country}
-                                            size="small"
-                                            {...getFieldProps("region")}
-                                            displayEmpty={true}
-                                            sx={{color: "text.secondary"}}
-                                            renderValue={selected => {
-                                                if (selected?.length === 0) {
-                                                    return <em>{t("region-placeholder")}</em>;
-                                                }
-
-                                                const state = states?.find(state => state.uuid === selected);
-                                                return <Typography>{state?.name}</Typography>
-                                            }}
+                                                <Typography sx={{ml: 1}}>{country.name}</Typography>
+                                            </MenuItem>)
+                                        )}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <Box>
+                                <Grid container spacing={2}>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            gutterBottom
                                         >
-                                            {states?.map((state) => (
-                                                <MenuItem
-                                                    key={state.uuid}
-                                                    value={state.uuid}>
-                                                    {state.name}
-                                                </MenuItem>)
-                                            )}
-                                        </Select>
-                                    </FormControl>
+                                            {t("region")}
+                                        </Typography>
+                                        <FormControl fullWidth>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id={"region"}
+                                                disabled={!values.country}
+                                                size="small"
+                                                {...getFieldProps("region")}
+                                                displayEmpty={true}
+                                                sx={{color: "text.secondary"}}
+                                                renderValue={selected => {
+                                                    if (selected?.length === 0) {
+                                                        return <em>{t("region-placeholder")}</em>;
+                                                    }
+
+                                                    const state = states?.find(state => state.uuid === selected);
+                                                    return <Typography>{state?.name}</Typography>
+                                                }}
+                                            >
+                                                {states?.map((state) => (
+                                                    <MenuItem
+                                                        key={state.uuid}
+                                                        value={state.uuid}>
+                                                        {state.name}
+                                                    </MenuItem>)
+                                                )}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item md={6} xs={12}>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            gutterBottom
+                                        >
+                                            {t("zip")}
+                                        </Typography>
+                                        <TextField
+                                            variant="outlined"
+                                            placeholder="10004"
+                                            size="small"
+                                            fullWidth
+                                            {...getFieldProps("zip_code")}
+                                        />
+                                    </Grid>
                                 </Grid>
-                                <Grid item md={6} xs={12}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        gutterBottom
-                                    >
-                                        {t("zip")}
-                                    </Typography>
-                                    <TextField
-                                        variant="outlined"
-                                        placeholder="10004"
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("zip_code")}
-                                    />
-                                </Grid>
-                            </Grid>
-                        </Box>
+                            </Box>
+                        </fieldset>
                         <Box>
                             <Typography sx={{mt: 1.5, mb: 1, textTransform: "capitalize"}}>
                                 <IconButton
@@ -1108,7 +1150,7 @@ function OnStepPatient({...props}) {
                                                                     minWidth: "auto"
                                                                 }
                                                             }}>
-                                                            < LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                 <Typography variant="body2" color="text.secondary"
                                                                             gutterBottom>
                                                                     {t("birthday")}

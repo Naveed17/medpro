@@ -192,7 +192,6 @@ function PatientDetailsCard({...props}) {
                                                 alt={"flag"}
                                                 src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
                                         </Tooltip>
-
                                     }
                                 </Stack>
                             )}
