@@ -14,12 +14,13 @@ import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
 
 function WaitingRoomRow({...props}) {
-    const {row, t, handleEvent} = props;
+    const {row, t, handleEvent, data} = props;
+    const {doctor_country} = data;
     const theme = useTheme();
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [openTooltip, setOpenTooltip] = useState(false);
     const [actions, setActions] = useState<boolean>(false);
+    const currency = doctor_country.currency?.name
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -222,7 +223,7 @@ function WaitingRoomRow({...props}) {
                                                spacing={1}>
                                 <PlayCircleRoundedIcon color="success"/>
                                 <Typography variant="body2">
-                                    {row.fees} {process.env.NEXT_PUBLIC_DEVISE}
+                                    {row.fees} {currency}
                                 </Typography>
                             </Stack> : "--"}
                         </>

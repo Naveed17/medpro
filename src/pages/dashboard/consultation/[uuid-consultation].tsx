@@ -39,6 +39,8 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import {LoadingScreen} from "@features/loadingScreen";
 import {appLockSelector} from "@features/appLock";
 import moment from "moment";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -56,6 +58,9 @@ WidgetForm.displayName = "widget-form";
 
 function ConsultationInProgress() {
     const theme = useTheme();
+    const router = useRouter();
+    const {data: session} = useSession();
+
     const [filterdrawer, setFilterDrawer] = useState(false);
     const [value, setValue] = useState<string>("consultation_form");
     const [acts, setActs] = useState<any>("");
@@ -136,12 +141,13 @@ function ConsultationInProgress() {
         },
     ];
 
-    const router = useRouter();
-    const {data: session} = useSession();
     const {trigger} = useRequestMutation(null, "/endConsultation");
 
     const uuind = router.query["uuid-consultation"];
-    const medical_entity = (session?.data as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const {trigger: updateStatusTrigger} = useRequestMutation(null,
         "/agenda/update/appointment/status", TriggerWithoutValidation);
@@ -407,8 +413,8 @@ function ConsultationInProgress() {
                     headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
                     },
-                }).then((r: any) => {
-                    console.log("end consultation", r);
+                }).then(() => {
+                    console.log("end consultation");
                     dispatch(setTimer({isActive: false}));
                     mutate().then(() => {
                         localStorage.removeItem("Modeldata" + uuind);
@@ -830,7 +836,7 @@ function ConsultationInProgress() {
                                     <span>{t('total')} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {total} {process.env.NEXT_PUBLIC_DEVISE}
+                                    {total} {devise}
                                 </Typography>
                                 <Stack direction='row' alignItems="center" display={{xs: 'none', md: "block"}}
                                        spacing={2}>

@@ -105,8 +105,8 @@ function OnStepPatient({...props}) {
     const topRef = useRef(null);
 
     const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
@@ -1000,10 +1000,15 @@ function OnStepPatient({...props}) {
                                                                                    }}
                                                                                    alignItems={"center"}>
                                                                                 {insurance?.logoUrl &&
-                                                                                    <Box component={"img"}
-                                                                                         width={20} height={20}
-                                                                                         alt={"insurance"}
-                                                                                         src={insurance?.logoUrl}/>}
+                                                                                    <Avatar
+                                                                                        sx={{
+                                                                                            width: 20,
+                                                                                            height: 20,
+                                                                                            borderRadius: 0.4
+                                                                                        }}
+                                                                                        alt="insurance"
+                                                                                        src={insurance?.logoUrl}
+                                                                                    />}
                                                                                 <Typography
                                                                                     ml={1}>{insurance?.name}</Typography>
                                                                             </Stack>)
@@ -1012,9 +1017,15 @@ function OnStepPatient({...props}) {
                                                                         <MenuItem
                                                                             key={insurance.uuid}
                                                                             value={insurance.uuid}>
-                                                                            <Box key={insurance.uuid}
-                                                                                 component="img" width={30} height={30}
-                                                                                 src={insurance.logoUrl}/>
+                                                                            <Avatar
+                                                                                sx={{
+                                                                                    width: 20,
+                                                                                    height: 20,
+                                                                                    borderRadius: 0.4
+                                                                                }}
+                                                                                alt={"insurance"}
+                                                                                src={insurance.logoUrl}
+                                                                            />
                                                                             <Typography
                                                                                 sx={{ml: 1}}>{insurance.name}</Typography>
                                                                         </MenuItem>)

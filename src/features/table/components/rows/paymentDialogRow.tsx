@@ -7,11 +7,20 @@ import {
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import React from "react";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 
 function PaymentDialogRow({...props}) {
     const {row, loading, handleEvent, t, key, index} = props;
     const theme = useTheme();
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     return (
         <TableRowStyled
@@ -49,7 +58,7 @@ function PaymentDialogRow({...props}) {
                 ) : (
                     <Typography
                         variant="body2"
-                        color={"primary"}>{row.amount} {process.env.NEXT_PUBLIC_DEVISE}</Typography>
+                        color={"primary"}>{row.amount} {devise}</Typography>
                 )}
             </TableCell>
             <TableCell align="right">

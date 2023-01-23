@@ -1,8 +1,18 @@
 import React, {useEffect} from "react";
 import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
 import {Otable} from "@features/table";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function FeesTab({...props}) {
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     interface HeadCell {
         disablePadding: boolean;
@@ -94,7 +104,7 @@ function FeesTab({...props}) {
                            size="small"
                            InputProps={{
                                endAdornment: <InputAdornment
-                                   position="end">{process.env.NEXT_PUBLIC_DEVISE}</InputAdornment>,
+                                   position="end">{devise}</InputAdornment>,
                                style: {width: 120, backgroundColor: "white"}
                            }}
                            onChange={(ev) => {

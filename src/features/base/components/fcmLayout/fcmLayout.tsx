@@ -100,11 +100,16 @@ function FcmLayout({...props}) {
                         }
                         break;
                     case "waiting-room":
+                        // refresh agenda
                         dispatch(setLastUpdate(data));
+                        // refresh on going api
                         mutateOnGoing && mutateOnGoing();
                         break;
                     case "consultation":
+                        // refresh agenda
                         dispatch(setLastUpdate(data));
+                        // refresh on going api
+                        mutateOnGoing && mutateOnGoing();
                         const event = {
                             publicId: data.body.appointment?.uuid,
                             title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
@@ -115,6 +120,7 @@ function FcmLayout({...props}) {
                                 time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
                             }
                         } as any;
+                        // start consultation timer
                         dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
