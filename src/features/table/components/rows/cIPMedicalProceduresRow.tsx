@@ -6,12 +6,21 @@ import React, {useState} from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled"
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function CIPMedicalProceduresRow({...props}) {
     const {row, isItemSelected, handleClick, editMotif} = props;
     const theme = useTheme() as Theme;
     const [fees, setFees] = useState<number>(row.fees)
-    const devise = process.env.NEXT_PUBLIC_DEVISE
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<string>('');
 

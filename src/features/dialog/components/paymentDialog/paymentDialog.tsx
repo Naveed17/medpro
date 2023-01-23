@@ -29,6 +29,9 @@ import AddIcon from "@mui/icons-material/Add";
 import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 const PaymentTypes = [
     {
@@ -118,9 +121,17 @@ function TabPanel(props: TabPanelProps) {
 function PaymentDialog({...props}) {
     const {data} = props;
     const {patient, selectedPayment, setSelectedPayment, deals, setDeals} = data;
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+
     const {t, ready} = useTranslation("payment");
+
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
     const [label, setLabel] = useState('');
 
@@ -167,7 +178,6 @@ function PaymentDialog({...props}) {
         const filter = values.check.filter((item: any) => item !== props)
         setFieldValue("check", filter);
     }
-
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 

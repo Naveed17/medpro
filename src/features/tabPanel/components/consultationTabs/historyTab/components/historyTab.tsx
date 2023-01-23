@@ -26,6 +26,9 @@ import BoxFees from "./overrides/boxFeesStyled"
 import Image from "next/image";
 import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function HistoryTab({...props}) {
 
@@ -49,7 +52,8 @@ function HistoryTab({...props}) {
 
     const {trigger} = useRequestMutation(null, "/editRA");
 
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const subMotifCard = [
         {

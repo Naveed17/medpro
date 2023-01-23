@@ -99,13 +99,16 @@ function PatientFilter({...props}) {
                                                 query: {
                                                     ...queryState,
                                                     ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                    [lab.label]: (e.target as HTMLInputElement).value,
+                                                    [lab.label]: (e.target as HTMLInputElement).value
                                                 },
                                             });
                                         } else if (e.target.value.length === 0) {
                                             const query = _.omit(queryState, [lab.label]);
                                             OnSearch({
-                                                query,
+                                                query: {
+                                                    ...query,
+                                                    ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
+                                                }
                                             });
                                         }
                                     }}
@@ -123,7 +126,10 @@ function PatientFilter({...props}) {
                                             } else {
                                                 const query = _.omit(queryState, [lab.label]);
                                                 OnSearch({
-                                                    query,
+                                                    query: {
+                                                        ...query,
+                                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
+                                                    }
                                                 });
                                             }
                                         }

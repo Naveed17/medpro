@@ -21,6 +21,8 @@ import React, {memo} from "react";
 import dynamic from "next/dynamic";
 import {styled} from "@mui/material/styles";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
@@ -49,6 +51,12 @@ function InsuranceAddDialog({...props}) {
         insurances, values, formik, loading,
         getFieldProps, setFieldValue, touched, errors, t
     } = data;
+
+    const {data: session} = useSession();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -285,7 +293,7 @@ function InsuranceAddDialog({...props}) {
                                                     <Grid item md={6} lg={4} xs={12}>
                                                         <CountrySelect
                                                             initCountry={getFieldProps(`insurances[${index}].insurance_social.phone.code`) ?
-                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) : DefaultCountry}
+                                                                getCountryByCode(getFieldProps(`insurances[${index}].insurance_social.phone.code`).value) : doctor_country}
                                                             onSelect={(state: any) => {
                                                                 setFieldValue(`insurances[${index}].insurance_social.phone.code`, state.phone)
                                                             }}/>

@@ -40,6 +40,7 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
+import {DefaultCountry} from "@app/constants";
 
 
 interface HeadCell {
@@ -157,67 +158,22 @@ function Payment() {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
-    const [collapse, setCollapse] = useState<boolean>(false);
+    const {data: session} = useSession();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+
+    const {config: agenda} = useAppSelector(agendaSelector);
+    const {lock} = useAppSelector(appLockSelector);
     const {t} = useTranslation(["payment", "common"]);
-    const [collapseDate, setCollapseData] = useState<any>(null);
-    const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
-    const [rows, setRows] = useState<any[]>([]);
-    const [cheques, setCheques] = useState<ChequeModel[]>([
-        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200},
-        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200}
-    ]);
-    const [total, setTotal] = useState(0);
-    let [select, setSelect] = useState<any[]>([]);
-    let [collect, setCollect] = useState<any[]>([]);
-    let [collected, setCollected] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
-    const [somme, setSomme] = useState(0);
-    const [freeTrans, setFreeTrans] = useState(0);
-    const [action, setAction] = useState("");
     const {currentDate} = useAppSelector(agendaSelector);
-    const newVersion = process.env.NODE_ENV === 'development';
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
     const {direction} = useAppSelector(configSelector);
 
-    const noCardData = {
-        mainIcon: "ic-payment",
-        title: "no-data.title",
-        description: "no-data.description"
-    };
-
-    const [popoverActions, setPopoverActions] = useState([
-        {
-            title: "start_the_consultation",
-            icon: <PlayCircleIcon/>,
-            action: "onConsultationStart",
-        },
-        {
-            title: "leave_waiting_room",
-            icon: <Icon color={"white"} path="ic-salle"/>,
-            action: "onLeaveWaitingRoom",
-        },
-        {
-            title: "see_patient_form",
-            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
-            action: "onPatientDetail",
-        }]);
-
-    const handleCollapse = (props: any) => {
-        //setCollapseData(props);
-        setCollapse(true);
-    };
-    const handleCloseCollapse = () => setCollapse(false);
-
-
-    const {trigger} = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
-
-    const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const router = useRouter();
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const dispatch = useAppDispatch();
-    const {lock} = useAppSelector(appLockSelector);
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
+    const {trigger} = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -239,6 +195,52 @@ function Payment() {
         selected: "cash"
     });
 
+    const [collapse, setCollapse] = useState<boolean>(false);
+    const [collapseDate, setCollapseData] = useState<any>(null);
+    const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
+    const [rows, setRows] = useState<any[]>([]);
+    const [cheques, setCheques] = useState<ChequeModel[]>([
+        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200},
+        {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200}
+    ]);
+    const [total, setTotal] = useState(0);
+    let [select, setSelect] = useState<any[]>([]);
+    let [collect, setCollect] = useState<any[]>([]);
+    let [collected, setCollected] = useState(0);
+    const [toReceive, setToReceive] = useState(0);
+    const [somme, setSomme] = useState(0);
+    const [freeTrans, setFreeTrans] = useState(0);
+    const [action, setAction] = useState("");
+    const [popoverActions, setPopoverActions] = useState([
+        {
+            title: "start_the_consultation",
+            icon: <PlayCircleIcon/>,
+            action: "onConsultationStart",
+        },
+        {
+            title: "leave_waiting_room",
+            icon: <Icon color={"white"} path="ic-salle"/>,
+            action: "onLeaveWaitingRoom",
+        },
+        {
+            title: "see_patient_form",
+            icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+            action: "onPatientDetail",
+        }]);
+
+    const newVersion = process.env.NODE_ENV === 'development';
+    const noCardData = {
+        mainIcon: "ic-payment",
+        title: "no-data.title",
+        description: "no-data.description"
+    };
+
+    const handleCollapse = (props: any) => {
+        //setCollapseData(props);
+        setCollapse(true);
+    };
+
+    const handleCloseCollapse = () => setCollapse(false);
 
     const handleCheques = (props: ChequeModel) => {
         if (collect.indexOf(props) != -1) {
@@ -251,6 +253,7 @@ function Payment() {
         collect.map(val => res += val.amount);
         setCollected(res + freeTrans)
     }
+
     const handleSubmit = (data: any) => {
         console.log(selectedPayment.payments);
         setOpenPaymentDialog(false);
@@ -262,12 +265,6 @@ function Payment() {
         actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
-
-    useEffect(() => {
-        if (!lock) {
-            dispatch(toggleSideBar(false));
-        }
-    });
 
     const openPop = (ev: string) => {
         setAction(ev)
@@ -349,8 +346,15 @@ function Payment() {
     }, [agenda, medical_entity.uuid, router, session, trigger, dispatch]);
 
     useEffect(() => {
+        if (!lock) {
+            dispatch(toggleSideBar(false));
+        }
+    });
+
+    useEffect(() => {
         setDay(moment(currentDate.date).format('DD-MM-YYYY'))
     }, [currentDate])
+
     useEffect(() => {
         if (agenda) {
             const queryPath = `format=week&page=1&limit=50&start_date=${day}&end_date=${day}`

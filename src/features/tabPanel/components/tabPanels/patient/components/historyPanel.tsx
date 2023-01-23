@@ -23,6 +23,9 @@ import {configSelector} from "@features/base";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 const subMotifCard = [
     {
@@ -72,13 +75,20 @@ function HistoryPanel({...props}) {
     const theme = useTheme();
     const dispatch = useAppDispatch();
 
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions, setActions] = useState<boolean>(false);
     const [dialog, setDialog] = useState<string>("");
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [collapse, setCollapse] = useState<any>('');
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+
 
     const handleCloseDialog = () => {
         setOpenDialog(false);

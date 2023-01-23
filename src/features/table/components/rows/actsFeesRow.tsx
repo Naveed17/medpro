@@ -4,13 +4,23 @@ import {TableRowStyled} from "@features/table";
 import React, {useState} from "react";
 import IconUrl from "@themes/urlIcon";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function ActFeesRow({...props}) {
     const {row, editMotif,data} = props;
     const [act] = useState("");
     const [fees, setFees] = useState("");
     const [edit, setEdit] = useState('');
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     return (
         <TableRowStyled>
             <TableCell>

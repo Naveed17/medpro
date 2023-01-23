@@ -2,10 +2,19 @@ import React from "react";
 import {Avatar, TextField, Typography, Stack} from "@mui/material";
 import RootStyled from "./overrides/rootSyled";
 import {Label} from "@features/label";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function EndConsultationDialog({...props}) {
     const {data: {t}} = props;
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
     const imgUrl = null;
 
     return (
