@@ -129,8 +129,7 @@ function AddPatientStep2({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const formik = useFormik({
         initialValues: {

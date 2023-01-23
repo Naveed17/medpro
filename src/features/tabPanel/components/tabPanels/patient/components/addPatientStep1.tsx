@@ -54,8 +54,8 @@ function AddPatientStep1({...props}) {
     const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
-    const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
-    const doctor_country = (medical_professional.country ? medical_professional.country : DefaultCountry);
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {stepsData} = useAppSelector(addPatientSelector);
     const {t, ready} = useTranslation(translationKey, {

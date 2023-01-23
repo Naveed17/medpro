@@ -31,6 +31,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog, PatientDetail} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
+import {DefaultCountry} from "@app/constants";
 
 export const headCells = [
     {
@@ -167,7 +168,8 @@ function WaitingRoom() {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
     const {data: httpAgendasResponse} = useRequest({
         method: "GET",
@@ -350,6 +352,7 @@ function WaitingRoom() {
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 && <Otable
+                                       {...{doctor_country}}
                                         headers={headCells}
                                         rows={waitingRooms}
                                         from={"waitingRoom"}

@@ -20,6 +20,9 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import CheckIcon from '@mui/icons-material/Check';
 import IconUrl from "@themes/urlIcon";
 import {Label} from "@features/label";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 const limit = 255;
 
@@ -27,6 +30,13 @@ function SecretaryConsultationDialog({...props}) {
     const {
         data: {t, changes, total, instruction, setInstruction, meeting, setMeeting, checkedNext, setCheckedNext},
     } = props;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInstruction(event.target.value.slice(0, limit));
@@ -74,7 +84,7 @@ function SecretaryConsultationDialog({...props}) {
                                     fontWeight={600}>
                                     {total}
                                 </Typography>
-                                {process.env.NEXT_PUBLIC_DEVISE}
+                                {devise}
                             </Label>
 
                         </Stack>

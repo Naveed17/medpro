@@ -2,9 +2,19 @@ import { CardContent, Link, Stack, Typography } from '@mui/material'
 import Icon from '@themes/urlIcon';
 import React from 'react'
 import PaymentDialogMobileCardStyled from './overrides/paymentDialogMobileCardStyle'
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function PaymentMobileCard({ ...props }) {
     const { data, t } = props;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     return (
         <PaymentDialogMobileCardStyled>
@@ -32,7 +42,7 @@ function PaymentMobileCard({ ...props }) {
                             </Typography>
                         </Stack>
                         <Link underline="none">
-                            {data.amount} {process.env.NEXT_PUBLIC_DEVISE}
+                            {data.amount} {devise}
                         </Link>
 
                     </Stack>

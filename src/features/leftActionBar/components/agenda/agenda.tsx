@@ -167,7 +167,7 @@ function Agenda() {
                                             const sp = query?.status?.split(",") as string[];
                                             dispatch(setFilter({
                                                 status:
-                                                    sp.length > 1 ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "") : undefined
+                                                    sp?.length > 1 ? query?.status?.replace(`${(statusKey && statusKey[0]) as string},`, "") : undefined
                                             }))
                                         }
                                     }}

@@ -1,10 +1,19 @@
 import React from "react";
 import moment from "moment/moment";
 import TableStyled from "../../overrides/tableStyled";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function Fees({...props}) {
     const {data} = props;
-    const devise = process.env.NEXT_PUBLIC_DEVISE
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     return (
         <TableStyled hidden={true} id="fees">
             <tbody>

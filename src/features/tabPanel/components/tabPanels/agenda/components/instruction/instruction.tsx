@@ -62,6 +62,7 @@ function Instruction({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {trigger} = useRequestMutation(null, "/calendar/addPatient");
 
@@ -210,7 +211,7 @@ function Instruction({...props}) {
                                         color: "warning",
                                         disabled: !isTodayAppointment()
                                     },
-                                    {
+                                    ...(!roles.includes('ROLE_SECRETARY') ? [{
                                         icon: "play",
                                         action: "onConsultationStart",
                                         variant: "contained",
@@ -221,7 +222,7 @@ function Instruction({...props}) {
                                         },
                                         title: t("start_the_consultation"),
                                         color: "warning"
-                                    }
+                                    }] : [])
                                 ]
                             }}
                         />
@@ -261,7 +262,7 @@ function Instruction({...props}) {
                             {t("stepper-3.reminder")}
                         </Typography>
                         <Grid container spacing={2} mb={2}>
-                            <Grid item md={6} sm={12} xs={12}>
+                            <Grid item md={12} sm={12} xs={12}>
                                 <Typography variant="body1" color="text.primary" mb={1}>
                                     {t("stepper-3.sms-reminder")}
                                 </Typography>
@@ -273,7 +274,7 @@ function Instruction({...props}) {
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item md={6} sm={12} xs={12}>
+                           {/* <Grid item md={6} sm={12} xs={12}>
                                 <Typography variant="body1" color="text.primary" mb={1}>
                                     {t("stepper-3.sms-type")}
                                 </Typography>
@@ -281,11 +282,11 @@ function Instruction({...props}) {
                                     <Select id="demo-simple-select" value={rappelType}
                                             onChange={handleRappelTypeChange}>
                                         <MenuItem value="2">Sms</MenuItem>
-                                        {/*<MenuItem value="1">E-mail</MenuItem>
-                                        <MenuItem value="3">Notification</MenuItem>*/}
+                                        <MenuItem value="1">E-mail</MenuItem>
+                                        <MenuItem value="3">Notification</MenuItem>
                                     </Select>
                                 </FormControl>
-                            </Grid>
+                            </Grid>*/}
                         </Grid>
 
 

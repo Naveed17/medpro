@@ -7,10 +7,20 @@ import {alpha, Theme} from '@mui/material/styles';
 
 import {Label} from '@features/label';
 import React, {useState} from 'react';
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function ChequeRow({...props}) {
     const {row, isItemSelected, t, labelId, loading, editMotif} = props;
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const [selected, setSelected] = useState<any>([]);
 
     const edit = (props: ChequeModel) => {

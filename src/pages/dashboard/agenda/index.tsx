@@ -434,7 +434,6 @@ function Agenda() {
                 if (!isActive) {
                     const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
                     router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        mutateOnGoing && mutateOnGoing();
                         dispatch(setTimer({
                             isActive: true,
                             isPaused: false,
@@ -444,7 +443,7 @@ function Agenda() {
                         updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
                             start_date: moment().format("DD-MM-YYYY"),
                             start_time: moment().format("HH:mm")
-                        });
+                        }).then(() => mutateOnGoing && mutateOnGoing());
                     });
                 } else {
                     setError(true);
@@ -550,12 +549,13 @@ function Agenda() {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                mutateOnGoing && mutateOnGoing();
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
                 updateAppointmentStatus(event?.publicId ? event?.publicId : (event as any)?.id, "4", {
                     start_date: moment().format("DD-MM-YYYY"),
                     start_time: moment().format("HH:mm")
+                }).then(() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                    dispatch(setTimer({isActive: true, isPaused: false, event, startTime: moment().format("HH:mm")}));
+                    mutateOnGoing && mutateOnGoing();
                 });
             })
         } else {

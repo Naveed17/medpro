@@ -1,8 +1,19 @@
-import { Typography, Button, Grid } from "@mui/material";
+import {Typography, Button, Grid} from "@mui/material";
 import CipMedicProCardStyled from './overrides/cipMedicProCardStyle';
-function CipMedicProCard({ ...props }) {
-    const { row, t } = props
-    const devise = process.env.NEXT_PUBLIC_DEVISE
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {DefaultCountry} from "@app/constants";
+
+function CipMedicProCard({...props}) {
+    const {row, t} = props;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     return (
         <CipMedicProCardStyled>
             <Grid container spacing={3}>
@@ -12,7 +23,7 @@ function CipMedicProCard({ ...props }) {
                     </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                    <Button sx={{ mr: 1 }} size="small" variant="outlined" color="info">
+                    <Button sx={{mr: 1}} size="small" variant="outlined" color="info">
                         {row.defaultAmount}
                     </Button>
                     {devise}
@@ -41,4 +52,5 @@ function CipMedicProCard({ ...props }) {
         </CipMedicProCardStyled>
     )
 }
+
 export default CipMedicProCard

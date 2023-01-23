@@ -25,6 +25,7 @@ import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvide
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {useSnackbar} from "notistack";
 import {LoadingScreen} from "@features/loadingScreen";
+import {DefaultCountry} from "@app/constants";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -67,8 +68,9 @@ const headCells: readonly HeadCell[] = [
 function ActFees() {
     const {data: session} = useSession();
     const theme = useTheme();
-    const devise = process.env.NEXT_PUBLIC_DEVISE;
     const router = useRouter();
+
+    const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
 
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false)
@@ -80,6 +82,8 @@ function ActFees() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const medical_professional = (user as UserDataResponse).medical_professional as MedicalProfessionalModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const {trigger} = useRequestMutation(null, "/settings/acts");
     const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
@@ -222,7 +226,7 @@ function ActFees() {
     };
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
-    const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
+
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (

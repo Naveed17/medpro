@@ -2,11 +2,18 @@ import React, {useEffect, useState} from "react";
 import Prescription from "./prescription";
 import moment from "moment";
 import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function PreviewDialog({...props}) {
     const {eventHandler, data, values, state, loading, date, t} = props;
 
     const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const drugs = ['X'];
     let rows: any[] = [];
@@ -19,7 +26,6 @@ function PreviewDialog({...props}) {
         {name: 'note', style: {color: 'gray', 'font-size': '12px', 'margin-top': 0}}
     ];
 
-    const devise = process.env.NEXT_PUBLIC_DEVISE
     const createPageContent = (pageX: HTMLDivElement, list: any) => {
 
         if (pageX) {

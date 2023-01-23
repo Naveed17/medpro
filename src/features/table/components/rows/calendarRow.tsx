@@ -15,14 +15,26 @@ import Icon from "@themes/urlIcon";
 import {sideBarSelector} from "@features/sideBarMenu";
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import {LoadingButton} from "@mui/lab";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader} = props;
     const {spinner} = data;
+
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {data: session} = useSession();
+
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
     const {config} = useAppSelector(agendaSelector);
+
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -219,7 +231,7 @@ function CalendarRow({...props}) {
                                    alignItems="center">
                                 <PointOfSaleIcon color="success"/>
                                 <Typography ml={1} variant="body2">
-                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${process.env.NEXT_PUBLIC_DEVISE}`}
+                                    {data?.fees === "0" ? "Gratuite" : `${data?.fees} ${devise}`}
                                 </Typography>
                             </Stack>
                         </Box> : "--"}

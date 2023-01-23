@@ -8,10 +8,21 @@ import {alpha, Theme} from '@mui/material/styles';
 import Image from "next/image";
 import {Label} from '@features/label';
 import {useEffect, useState} from 'react';
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {DefaultCountry} from "@app/constants";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {row, isItemSelected, handleClick, t, labelId, loading, editMotif, handleChange} = props;
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const [selected, setSelected] = useState<any>([]);
 
     const handleChildSelect = (id: any) => {
@@ -202,7 +213,7 @@ function PaymentRow({...props}) {
                             </Stack> :
                             <Typography
                                 color={(row.amount > 0 && 'success.main' || row.amount < 0 && 'error.main') || 'text.primary'}
-                                fontWeight={700}>{row.amount} {process.env.NEXT_PUBLIC_DEVISE}</Typography>
+                                fontWeight={700}>{row.amount} {devise}</Typography>
 
                     )}
                 </TableCell>
