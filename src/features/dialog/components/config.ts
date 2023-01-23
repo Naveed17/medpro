@@ -26,6 +26,14 @@ const dialogData = [
         ),
     },
     {
+        action: "createCashBox",
+        component: dynamic((): any =>
+            import("@features/dialog/components/createCashBox/createCashBoxDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "langues",
         component: dynamic((): any =>
             import("@features/dialog/components/languesDialog/languesDialog").then(

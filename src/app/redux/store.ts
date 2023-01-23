@@ -14,6 +14,7 @@ import {timerReducer} from "@features/card";
 import {DashLayoutReducer} from "@features/base";
 import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
+import {CashboxReducer} from "@features/leftActionBar/components/payment/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -28,6 +29,7 @@ export const store = configureStore({
         tableState: tableReducer,
         qsSidebar: QsSidebarReducer,
         agenda: AgendaReducer,
+        cashBox: CashboxReducer,
         appointment: appointmentReducer,
         dialog: DialogReducer,
         dialogMove: dialogMoveAppointmentReducer,

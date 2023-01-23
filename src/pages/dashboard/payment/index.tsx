@@ -32,7 +32,7 @@ import MuiDialog from "@mui/material/Dialog";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
-import {useRequestMutation} from "@app/axios";
+import {useRequest, useRequestMutation} from "@app/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -40,6 +40,7 @@ import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {Label} from "@features/label";
+import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
 import {DefaultCountry} from "@app/constants";
 
 
@@ -158,22 +159,13 @@ function Payment() {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
-    const {data: session} = useSession();
-    const router = useRouter();
-    const dispatch = useAppDispatch();
 
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const {lock} = useAppSelector(appLockSelector);
-    const {t} = useTranslation(["payment", "common"]);
-    const {currentDate} = useAppSelector(agendaSelector);
-    const {direction} = useAppSelector(configSelector);
+    const noCardData = {
+        mainIcon: "ic-payment",
+        title: "no-data.title",
+        description: "no-data.description"
+    };
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const devise = doctor_country.currency?.name;
-
-    const {trigger} = useRequestMutation(null, "/agenda/appointment", {revalidate: true, populateCache: false});
 
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -194,10 +186,11 @@ function Payment() {
         }],
         selected: "cash"
     });
-
     const [collapse, setCollapse] = useState<boolean>(false);
+    const {t} = useTranslation(["payment", "common"]);
     const [collapseDate, setCollapseData] = useState<any>(null);
     const [day, setDay] = useState(moment().format('DD-MM-YYYY'));
+    const [PaymentTypes, setPaymentTypes] = useState([]);
     const [rows, setRows] = useState<any[]>([]);
     const [cheques, setCheques] = useState<ChequeModel[]>([
         {uuid: 'x', numero: '111111111', date: '23/21/2022', amount: 200},
@@ -205,6 +198,7 @@ function Payment() {
     ]);
     const [total, setTotal] = useState(0);
     let [select, setSelect] = useState<any[]>([]);
+    const [filter, setFilter] = useState('');
     let [collect, setCollect] = useState<any[]>([]);
     let [collected, setCollected] = useState(0);
     const [toReceive, setToReceive] = useState(0);
@@ -227,21 +221,39 @@ function Payment() {
             icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
             action: "onPatientDetail",
         }]);
-
+    const {currentDate} = useAppSelector(agendaSelector);
     const newVersion = process.env.NODE_ENV === 'development';
-    const noCardData = {
-        mainIcon: "ic-payment",
-        title: "no-data.title",
-        description: "no-data.description"
-    };
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
+    const router = useRouter();
+    const {config: agenda} = useAppSelector(agendaSelector);
+    const dispatch = useAppDispatch();
+    const {lock} = useAppSelector(appLockSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {selectedBox} = useAppSelector(cashBoxSelector);
+
+    const {trigger} = useRequestMutation(null, "/payment/cashbox", {revalidate: true, populateCache: false});
+
+    const {
+        data: httpMedicalProfessionalResponse,
+    } = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity.uuid}/professionals/${router.locale}`,
+        headers: {Authorization: `Bearer ${session?.accessToken}`},
+    });
+
+
 
     const handleCollapse = (props: any) => {
         //setCollapseData(props);
         setCollapse(true);
     };
-
     const handleCloseCollapse = () => setCollapse(false);
-
     const handleCheques = (props: ChequeModel) => {
         if (collect.indexOf(props) != -1) {
             collect.splice(collect.indexOf(props), 1)
@@ -253,19 +265,47 @@ function Payment() {
         collect.map(val => res += val.amount);
         setCollected(res + freeTrans)
     }
-
     const handleSubmit = (data: any) => {
+        console.log(action);
         console.log(selectedPayment.payments);
+        const trans_data: TransactionDataModel[] = [];
+        selectedPayment.payments.map((sp: any) => {
+            console.log(sp)
+            trans_data.push({
+                payment_means: sp.payment_type[0].uuid,
+                //insurance: "value",
+                amount: sp.amount,
+                status_transaction: "1",
+                type_transaction: action === 'btn_header_2' ?'IN': 'OUT',
+                payment_date: sp.date,
+                data: {label: sp.designation}
+            })
+        })
+        const form = new FormData();
+        form.append("type_transaction", action === 'btn_header_2' ?'IN': 'OUT');
+        form.append("status_transaction", "1");
+        form.append("amount", "100");
+        form.append("rest_amount", "0");
+        form.append("transaction_data", JSON.stringify(trans_data));
+
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox?.uuid}/transactions/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r: any) => {
+            console.log(r.data.data)
+        });
         setOpenPaymentDialog(false);
     };
-
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];
         actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
-
     const openPop = (ev: string) => {
         setAction(ev)
         setSelectedPayment({
@@ -345,6 +385,10 @@ function Payment() {
         });
     }, [agenda, medical_entity.uuid, router, session, trigger, dispatch]);
 
+    const generateFilter =() => {
+        return  `?start_date=${day}&end_date=${day}`
+    }
+
     useEffect(() => {
         if (!lock) {
             dispatch(toggleSideBar(false));
@@ -352,9 +396,34 @@ function Payment() {
     });
 
     useEffect(() => {
-        setDay(moment(currentDate.date).format('DD-MM-YYYY'))
-    }, [currentDate])
+        if (httpMedicalProfessionalResponse) {
+            setPaymentTypes((httpMedicalProfessionalResponse as HttpResponse).data[0].payments);
+            deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
+            setDeals({...deals});
+        }
+    }, [httpMedicalProfessionalResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (selectedBox) {
+            setTotal(selectedBox.total);
+            setToReceive(selectedBox.total_insurance);
+            const filterQuery = generateFilter();
+
+            trigger({
+                method: "GET",
+                url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${selectedBox.uuid}/transactions/${router.locale}${filterQuery}`,
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                },
+            }).then((r: any) => {
+                console.log(r.data.data)
+            });
+        }
+    }, [day, selectedBox])
+    useEffect(() => {
+        setDay(moment(currentDate.date).format('DD-MM-YYYY'))
+        //console.log(currentDate)
+    }, [currentDate])
     useEffect(() => {
         if (agenda) {
             const queryPath = `format=week&page=1&limit=50&start_date=${day}&end_date=${day}`
@@ -464,7 +533,7 @@ function Payment() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    deals, setDeals,
+                    deals, setDeals, PaymentTypes,
                     patient: null
                 }}
                 size={"md"}

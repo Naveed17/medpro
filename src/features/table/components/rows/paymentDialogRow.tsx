@@ -70,9 +70,10 @@ function PaymentDialogRow({...props}) {
                             <Stack key={i} direction="row" alignItems="center"
                                    justifyContent={"flex-end"}
                                    spacing={1}>
-                                <Icon path={type.icon}/>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img width={10} src={type.logoUrl} alt={'payment means icon'}/>
                                 <Typography color="text.primary"
-                                            variant="body2">{t(type.label)}</Typography>
+                                            variant="body2">{t(type.name)}</Typography>
                             </Stack>
                         )}
                         <IconButton
