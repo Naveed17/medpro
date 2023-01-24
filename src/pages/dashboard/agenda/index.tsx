@@ -224,7 +224,7 @@ function Agenda() {
                         end: moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").add(appointment.duration, "minutes").toDate(),
                         title: appointment.patient.firstName + ' ' + appointment.patient.lastName,
                         allDay: horsWork,
-                        editable: AppointmentStatus[appointment.status].key !== "FINISHED" && !horsWork,
+                        editable: AppointmentStatus[appointment.status].key !== "FINISHED",
                         borderColor: appointment.type?.color,
                         patient: appointment.patient,
                         fees: appointment.fees,
@@ -368,16 +368,18 @@ function Agenda() {
 
     const onEventChange = (info: EventChangeArg) => {
         const startDate = moment(info.event._instance?.range.start);
-        const endDate = moment(info.event._instance?.range.end);
-        const duration = endDate.diff(startDate, "minutes");
+        const endDate = info.oldEvent._def.allDay ?
+            moment(info.event._instance?.range.start).add(info.event._def.extendedProps.dur, "minutes") : moment(info.event._instance?.range.end);
+        const duration = info.oldEvent._def.allDay ? info.oldEvent._def.extendedProps.dur : endDate.diff(startDate, "minutes");
         const oldStartDate = moment(info.oldEvent._instance?.range.start);
         const oldEndDate = moment(info.oldEvent._instance?.range.end);
-        const oldDuration = oldEndDate.diff(oldStartDate, "minutes");
+        const oldDuration = info.oldEvent._def.allDay ? info.oldEvent._def.extendedProps.dur : oldEndDate.diff(oldStartDate, "minutes");
         const defEvent = {
             ...info.event._def,
             extendedProps: {
                 newDate: startDate,
                 oldDate: oldStartDate,
+                allDay: info.oldEvent._def.allDay,
                 duration,
                 oldDuration,
                 onDurationChanged: oldDuration !== duration,
@@ -1123,7 +1125,7 @@ function Agenda() {
                                 <Typography sx={{textAlign: "center"}}
                                             margin={2}>
                                     {!event?.extendedProps.onDurationChanged ? <>
-                                        {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")} {" => "}
+                                        {event?.extendedProps.oldDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format(`DD-MM-YYYY ${event?.extendedProps.allDay ? '' : 'HH:mm'}`)} {" => "}
                                         {event?.extendedProps.newDate.clone().subtract(event?.extendedProps.from ? 0 : 1, 'hours').format("DD-MM-YYYY HH:mm")}
                                     </> : <>
                                         {humanizeDuration(event?.extendedProps.oldDuration * 60000)} {" => "}
