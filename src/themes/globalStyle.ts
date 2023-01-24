@@ -39,7 +39,7 @@ export const GlobleStyles = styled("div")(({ theme }) => ({
       padding: "30px 8px",
     },
     [theme.breakpoints.down("sm")]: {
-      padding: "40px 8px",
+      padding: "14px 8px",
     },
   },
 }));

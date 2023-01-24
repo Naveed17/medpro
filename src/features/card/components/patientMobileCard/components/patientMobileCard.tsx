@@ -1,4 +1,4 @@
-import {ReactElement, useState} from "react";
+import React, {Fragment, ReactElement, useState} from "react";
 import RootStyled from "./overrides/rootStyled";
 
 // next-i18next
@@ -8,104 +8,141 @@ import {useTranslation} from "next-i18next";
 import {
     Grid,
     Typography,
-    IconButton,
     Button,
     Box,
     Skeleton,
-    Paper,
+    Paper, Tooltip, Avatar, Badge, styled, Stack,
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-
 // components
 import {
     AppointmentFilter,
     PlaceFilter,
     PatientFilter,
     FilterRootStyled,
-    RightActionData,
+    RightActionData, ActionBarState, setFilter,
 } from "@features/leftActionBar";
-import {Popover} from "@features/popover";
 import {DrawerBottom} from "@features/drawerBottom";
 import {Accordion} from "@features/accordion/components";
-
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {LoadingScreen} from "@features/loadingScreen";
+import {ConditionalWrapper} from "@app/hooks";
+import Zoom from "react-medium-image-zoom";
+import IconUrl from "@themes/urlIcon";
+import {useRequest} from "@app/axios";
+import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {useRouter} from "next/router";
+import PhoneRoundedIcon from '@mui/icons-material/PhoneRounded';
+import rightActionData from "@features/leftActionBar/components/patient/components/data";
 
-const menuList = [
-    {
-        title: "Patient Details",
-        icon: <CheckRoundedIcon/>,
-        action: "onOpenPatientDrawer",
-    },
-    {
-        title: "Edit Patient",
-        icon: <CheckRoundedIcon/>,
-        action: "onOpenEditPatient",
-    },
-    {
-        title: "Cancel",
-        icon: <CheckRoundedIcon/>,
-        action: "onCancel",
-    },
-];
+const SmallAvatar = styled(Avatar)(({theme}) => ({
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    border: `2px solid ${theme.palette.background.paper}`
+}));
 
 const CardSection = ({...props}) => {
-    const {v, theme, onOpenPatientDetails, loading} = props;
+    const {data, theme, onOpenPatientDetails, loading} = props;
+    const {data: session} = useSession();
+    const router = useRouter();
 
-    const [openTooltip, setOpenTooltip] = useState(false);
-    const onClickTooltipItem = (item: {
-        title: string;
-        icon: ReactElement;
-        action: string;
-    }) => {
-        switch (item.action) {
-            case "onOpenPatientDrawer":
-                onOpenPatientDetails({patientId: v.uuid});
-                break;
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-            default:
-                break;
-        }
-    };
+    const {data: httpPatientPhotoResponse} = useRequest(data?.hasPhoto ? {
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/patients/${data?.uuid}/documents/profile-photo/${router.locale}`,
+        headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    } : null, SWRNoValidateConfig);
+
+    const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
+
     return (
         <Paper key={Math.random()} className="card-main">
             <Grid container>
-                <Grid item md={11} sm={11} xs={11}>
+                <Grid item xs={12}
+                      onClick={() => onOpenPatientDetails(data)}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
                     ) : (
-                        <>
-                            <Typography className="heading" variant="body1" component="div">
-                                <Icon path={"ic-f"}/>
-                                {v.firstName}
-                            </Typography>
-                        </>
+                        <Stack direction={"row"} justifyContent={"space-between"}>
+                            <Stack direction={"row"} spacing={1.2}>
+                                <Badge
+                                    overlap="circular"
+                                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                    {...(data.nationality && {
+                                        badgeContent:
+                                            <Tooltip title={data.nationality.nationality}>
+                                                <SmallAvatar
+                                                    {...(data.hasPhoto && {
+                                                        sx: {
+                                                            marginRight: -0.2
+                                                        }
+                                                    })}
+                                                    alt={"flag"}
+                                                    src={`https://flagcdn.com/${data.nationality.code}.svg`}/>
+                                            </Tooltip>
+                                    })}
+                                >
+                                    <ConditionalWrapper
+                                        condition={data.hasPhoto}
+                                        wrapper={(children: any) => <Zoom>{children}</Zoom>}
+                                    >
+                                        <Fragment>
+                                            <Avatar
+                                                {...(data.hasPhoto && {className: "zoom"})}
+                                                src={patientPhoto ? patientPhoto : (data?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                                sx={{
+                                                    "& .injected-svg": {
+                                                        margin: 0
+                                                    },
+                                                    width: 36,
+                                                    height: 36,
+                                                    borderRadius: 1
+                                                }}>
+                                                <IconUrl width={"36"} height={"36"} path="men-avatar"/>
+                                            </Avatar>
+                                        </Fragment>
+                                    </ConditionalWrapper>
+                                </Badge>
+                                <Stack direction={"column"}>
+                                    <Typography className="heading" variant="body1" component="div">
+                                        {data.firstName} {data.lastName}
+                                    </Typography>
+                                    <Stack direction={"row"} alignItems={"center"}>
+                                        <Icon path="ic-anniverssaire" className="d-inline-block mr-1"/>
+                                        <Typography
+                                            variant={"caption"}>{data.nextAppointment?.dayDate || "-"}</Typography>
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                            {!loading && <Grid item>
+                                <Button size={"small"} onClick={(event) => event.stopPropagation()}
+                                        variant="contained"
+                                        startIcon={<PhoneRoundedIcon/>}>
+                                    <a className="phone-call" href={`tel:${data?.contact[0]?.code}${data?.contact[0]?.value}`}>
+                                        <Typography variant={"body2"}>
+                                            <span>{data?.contact[0]?.value}</span>
+                                        </Typography>
+                                    </a>
+                                </Button>
+                            </Grid>}
+                        </Stack>
                     )}
 
-                    <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        component="div"
-                        lineHeight="18px"
-                    >
-                        {loading ? (
-                            <Skeleton variant="text" width={100}/>
-                        ) : (
-                            <>
-                                <Icon path="ic-anniverssaire" className="d-inline-block mr-1"/>
-                                {v.nextAppointment?.dayDate || "-"}
-                            </>
-                        )}
-                    </Typography>
                     <Box
                         className="border-left-sec"
                         sx={{
                             borderLeft: `5px solid ${
-                                v?.isParent
+                                data?.isParent
                                     ? theme.palette.success.main
                                     : theme.palette.warning.main
                             }`,
@@ -115,25 +152,25 @@ const CardSection = ({...props}) => {
                             size="small"
                             className="button"
                             startIcon={
-                                v?.isParent ? (
+                                data?.isParent ? (
                                     <Icon path="ic-agenda"/>
                                 ) : (
                                     <Icon path="ic-historique"/>
                                 )
                             }
                             sx={{
-                                color: v?.isParent ? "primary" : "text.secondary",
+                                color: data?.isParent ? "primary" : "text.secondary",
                             }}
                         >
                             {loading ? (
                                 <Skeleton variant="text" width={100}/>
-                            ) : v.isParent ? (
+                            ) : data.isParent ? (
                                 "Add Apointment"
                             ) : (
                                 "Next Appointment"
                             )}
                         </Button>
-                        {!loading && !v.isParent && (
+                        {!loading && !data.isParent && (
                             <Typography
                                 display="inline"
                                 variant="body2"
@@ -142,95 +179,111 @@ const CardSection = ({...props}) => {
                                 component="div"
                             >
                                 <Icon path="ic-agenda"/>
-                                {v.nextAppointment?.dayDate || "-"}
+                                {data.nextAppointment?.dayDate || "-"}
                                 <Icon path="ic-time"/>
-                                {v.nextAppointment?.startTime || "-"}
+                                {data.nextAppointment?.startTime || "-"}
                             </Typography>
                         )}
                     </Box>
                 </Grid>
-                <Grid item md={1} sm={1} xs={1}>
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="end"
-                        height="100%"
-                    >
-                        <Popover
-                            open={openTooltip}
-                            handleClose={() => setOpenTooltip(false)}
-                            menuList={menuList}
-                            onClickItem={onClickTooltipItem}
-                            button={
-                                loading ? (
-                                    <Skeleton variant="circular" width={20} height={20}/>
-                                ) : (
-                                    <IconButton
-                                        onClick={() => {
-                                            setOpenTooltip(true);
-                                        }}
-                                        sx={{display: "block", ml: "auto"}}
-                                        size="small"
-                                    >
-                                        <Icon path="more-vert"/>
-                                    </IconButton>
-                                )
-                            }
-                        />
-                    </Box>
-                </Grid>
+
             </Grid>
         </Paper>
     );
 };
 
 function PatientMobileCard({...props}) {
-    const {PatiendData, loading} = props;
+    const {PatientData, handleEvent, loading} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const router = useRouter();
+    const {collapse} = RightActionData.filter;
+    const {t, ready} = useTranslation("patient");
 
     const [open, setopen] = useState(false);
+    const [dataPatient, setDataPatient] =  useState([
+        {
+            heading: {
+                id: collapse[0].heading.title,
+                icon: collapse[0].heading.icon,
+                title: t(collapse[0].heading.title.toLowerCase()),
+            },
+            expanded: true,
+            children: (
+                <FilterRootStyled>
+                    <PatientFilter
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            router.replace('/dashboard/patient?page=1', "/dashboard/patient",
+                                {shallow: true}).then(() => {
+                                dispatch(setFilter({patient: data.query}));
+                            });
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "fiche_id", placeholder: "fiche"},
+                                    {label: "name", placeholder: "name"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                    {label: "phone", placeholder: "phone"},
+                                ],
+                            },
+                        }}
+                        keyPrefix={"filter."}
+                        t={t}/>
+                </FilterRootStyled>)
+        },
+        {
+            heading: {
+                id: collapse[1].heading.title,
+                icon: collapse[1].heading.icon,
+                title: t(collapse[1].heading.title.toLowerCase()),
+            },
+            expanded: true,
+            children: (
+                <FilterRootStyled>
+                    <PlaceFilter
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            router.replace('/dashboard/patient?page=1', "/dashboard/patient",
+                                {shallow: true}).then(() => {
+                                dispatch(setFilter({patient: data.query}));
+                            });
+                            dispatch(setFilter({patient: data.query}));
+                        }}
+                        item={collapse[1]}
+                        t={t} keyPrefix={"filter."}/>
+                </FilterRootStyled>
+            )
+        }
+    ]);
 
     const handleClickOpen = () => {
         setopen(true);
     };
-    const {collapse} = RightActionData.filter;
-    const {t, ready} = useTranslation("patient", {keyPrefix: "filter"});
+
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
-    const data = collapse.map((item) => {
-        return {
-            heading: {
-                id: item.heading.title,
-                icon: item.heading.icon,
-                title: item.heading.title,
-            },
-            children: (
-                <FilterRootStyled>
-                    {item.heading.title === "patient" ? (
-                        <PatientFilter item={item} t={t}/>
-                    ) : item.heading.title === "place" ? (
-                        <PlaceFilter item={item} t={t}/>
-                    ) : (
-                        <AppointmentFilter item={item} t={t}/>
-                    )}
-                </FilterRootStyled>
-            ),
-        };
-    });
-
     return (
         <RootStyled>
-            {(loading ? Array.from(new Array(5)) : PatiendData)?.map((v: any) => (
+            {(loading ? Array.from(new Array(5)) : PatientData)?.map((data: any, index: number) => (
                 <CardSection
-                    v={v}
-                    key={Math.random()}
-                    theme={theme}
-                    onOpenPatientDetails={(val: { patientId: number | string }) => {
-                        dispatch(onOpenPatientDrawer(val));
+                    {...{data, theme, loading}}
+                    key={index}
+                    onOpenPatientDetails={(data: PatientModel) => {
+                        dispatch(onOpenPatientDrawer({
+                            patientId: data.uuid,
+                            patientAction: "PATIENT_DETAILS",
+                        }));
+                        handleEvent("PATIENT_DETAILS", data);
                     }}
-                    loading={loading}
                 />
             ))}
             <Button
@@ -249,9 +302,8 @@ function PatientMobileCard({...props}) {
             >
                 <Accordion
                     translate={{t, ready}}
-                    badge={null}
-                    data={data}
-                    defaultValue={"patient"}
+                    data={dataPatient}
+                    setData={setDataPatient}
                 />
             </DrawerBottom>
         </RootStyled>

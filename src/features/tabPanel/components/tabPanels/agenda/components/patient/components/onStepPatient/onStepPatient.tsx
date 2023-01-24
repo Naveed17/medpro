@@ -759,7 +759,7 @@ function OnStepPatient({...props}) {
                                         const country = countries?.find(country => country.uuid === selected);
                                         return (
                                             <Stack direction={"row"} alignItems={"center"}>
-                                                <Avatar
+                                                {country?.code && <Avatar
                                                     sx={{
                                                         width: 26,
                                                         height: 18,
@@ -769,7 +769,7 @@ function OnStepPatient({...props}) {
                                                     }}
                                                     alt="flag"
                                                     src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                />
+                                                />}
                                                 <Typography>{country?.nationality}</Typography>
                                             </Stack>)
                                     }}
@@ -778,7 +778,7 @@ function OnStepPatient({...props}) {
                                         <MenuItem
                                             key={country.uuid}
                                             value={country.uuid}>
-                                            <Avatar
+                                            {country?.code && <Avatar
                                                 sx={{
                                                     width: 26,
                                                     height: 18,
@@ -786,7 +786,7 @@ function OnStepPatient({...props}) {
                                                 }}
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                            />
+                                            />}
                                             <Typography sx={{ml: 1}}>{country.nationality}</Typography>
                                         </MenuItem>)
                                     )}
@@ -833,7 +833,7 @@ function OnStepPatient({...props}) {
                                             const country = countries?.find(country => country.uuid === selected);
                                             return (
                                                 <Stack direction={"row"} alignItems={"center"}>
-                                                    <Avatar
+                                                    {country?.code && <Avatar
                                                         sx={{
                                                             width: 26,
                                                             height: 18,
@@ -843,7 +843,7 @@ function OnStepPatient({...props}) {
                                                         }}
                                                         alt="flag"
                                                         src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}
-                                                    />
+                                                    />}
                                                     <Typography>{country?.name}</Typography>
                                                 </Stack>)
                                         }}
@@ -852,7 +852,7 @@ function OnStepPatient({...props}) {
                                             <MenuItem
                                                 key={country.uuid}
                                                 value={country.uuid}>
-                                                <Avatar
+                                                {country?.code && <Avatar
                                                     sx={{
                                                         width: 26,
                                                         height: 18,
@@ -860,7 +860,7 @@ function OnStepPatient({...props}) {
                                                     }}
                                                     alt={"flags"}
                                                     src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}
-                                                />
+                                                />}
                                                 <Typography sx={{ml: 1}}>{country.name}</Typography>
                                             </MenuItem>)
                                         )}

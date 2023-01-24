@@ -12,7 +12,7 @@ import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import React, {Fragment, useCallback, useEffect, useState} from "react";
+import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
@@ -23,6 +23,7 @@ import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
+import {ConditionalWrapper} from "@app/hooks";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
     width: 20,
@@ -30,11 +31,6 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
     borderRadius: 20,
     border: `2px solid ${theme.palette.background.paper}`
 }));
-
-const ConditionalWrapper = ({...props}) => {
-    const {condition, wrapper, children} = props;
-    return condition ? wrapper(children) : children;
-}
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
@@ -109,6 +105,11 @@ function PatientRow({...props}) {
                                             badgeContent:
                                                 <Tooltip title={row.nationality.nationality}>
                                                     <SmallAvatar
+                                                        {...(row.hasPhoto && {
+                                                            sx: {
+                                                                marginRight: -1.6
+                                                            }
+                                                        })}
                                                         alt={"flag"}
                                                         src={`https://flagcdn.com/${row.nationality.code}.svg`}/>
                                                 </Tooltip>
