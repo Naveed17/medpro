@@ -1,0 +1,145 @@
+import {Box, Button, Checkbox, DialogActions, FormControlLabel, IconButton, Stack, useTheme} from "@mui/material";
+import {setCashBox} from "@features/leftActionBar/components/payment/actions";
+import IconUrl from "@themes/urlIcon";
+import Add from "@mui/icons-material/Add";
+import React, {useEffect, useState} from "react";
+import {useTranslation} from "next-i18next";
+import DateFilter from "@features/leftActionBar/components/payment/overrides/dateFilter";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Dialog} from "@features/dialog";
+import CloseIcon from "@mui/icons-material/Close";
+import Icon from "@themes/urlIcon";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
+import {cashBoxSelector} from "@features/leftActionBar/components/payment/selectors";
+
+function BoxsesFilter ({...props}){
+    const {t} = useTranslation('payment', {keyPrefix: 'filter'});
+    const {selectedBox, query} = useAppSelector(cashBoxSelector);
+
+    const {cashboxes, setCashboxes} = props;
+    const theme = useTheme();
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [cashName, setCashName] = useState("");
+
+    const {trigger} = useRequestMutation(null, "/payment/cashbox", {revalidate: true, populateCache: false});
+
+    const {data: httpBoxesResponse, mutate} = useRequest({
+        method: "GET",
+        url: `/api/medical-entity/${medical_entity?.uuid}/cash-boxes/${router.locale}`,
+        headers: {
+            ContentType: "multipart/form-data",
+            Authorization: `Bearer ${session?.accessToken}`,
+        },
+    });
+
+    useEffect(() => {
+        if (httpBoxesResponse) {
+            setCashboxes((httpBoxesResponse as HttpResponse).data)
+        }
+    }, [httpBoxesResponse, setCashboxes]);
+
+    const removeCash = (uuid: string) => {
+        trigger({
+            method: "DELETE",
+            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${uuid}/${router.locale}`,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r: any) => {
+            console.log(r)
+            setOpenDialog(false);
+            mutate().then(() => setCashName(''));
+        });
+    }
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    }
+    const handleSaveDialog = () => {
+        const form = new FormData();
+        form.append("name", cashName);
+
+        trigger({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/cash-boxes/${router.locale}`,
+            data: form,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then((r: any) => {
+            console.log(r)
+            setOpenDialog(false);
+            mutate().then(() => setCashName(''));
+        });
+    }
+
+
+    return(
+        <Box>
+            {cashboxes.map((cb:any, id:number) => (
+                <Stack direction={"row"} justifyContent={"space-between"} key={`cash-box-${id}`}>
+                    <FormControlLabel
+                        label={`${cb.name}`}
+                        control={
+                            <Checkbox
+                                checked={cb.uuid === selectedBox?.uuid}
+                                onChange={() => {
+                                    dispatch(setCashBox(cb));
+                                }}
+                            />
+                        }
+                    />
+                    <IconButton size={"small"} onClick={() => {
+                        removeCash(cb.uuid)
+                    }} style={{width: 25, height: 25}}>
+                        <IconUrl path='icdelete' width={15} height={15}
+                                 color={theme.palette.error.main}/>
+                    </IconButton>
+                </Stack>
+
+            ))}
+            <Button
+                onClick={() => {
+                    setOpenDialog(true);
+                }}
+                size="small"
+                startIcon={<Add/>}>
+                {t('add')}
+            </Button>
+
+            <Dialog action={'createCashBox'}
+                    open={openDialog}
+                    data={{cashName, setCashName}}
+                    change={false}
+                    max
+                    size={"sm"}
+                    direction={'ltr'}
+                    actions={true}
+                    title={t('newCash')}
+                    dialogClose={handleCloseDialog}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog}
+                                    startIcon={<CloseIcon/>}>
+                                {t('cancel')}
+                            </Button>
+                            <Button variant="contained"
+                                    onClick={handleSaveDialog}
+                                    disabled={cashName.length === 0}
+                                    startIcon={<Icon
+                                        path='ic-dowlaodfile'/>}>
+                                {t('save')}
+                            </Button>
+                        </DialogActions>
+                    }/>
+        </Box>
+    )
+}
+export default BoxsesFilter

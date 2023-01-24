@@ -237,11 +237,11 @@ function HistoryTab({...props}) {
                                 <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
                                      style={{background: "white"}}>
                                     <Zoom>
-                                        <Image src={photo.uri}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={photo.uri}
                                                alt={'img'}
-                                               style={{borderRadius: "10px 10px 0 0"}}
-                                               width={150}
-                                               height={110}/>
+                                               style={{borderRadius: "10px 10px 0 0",width:150,height:110}}
+                                               />
                                     </Zoom>
 
                                     <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row"
@@ -325,19 +325,24 @@ function HistoryTab({...props}) {
                                                                                 md={2}
                                                                                 key={`doc-item-${data.uuid}`}>
                                                                                 <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
-                                                                                    <IconUrl height={25} width={25} path={
-                                                                                        data.documentType === "prescription" && "ic-traitement" ||
-                                                                                        data.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                        data.documentType == "analyse" && "ic-analyse" ||
-                                                                                        data.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                        data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                        data.documentType === "photo" && "ic-img" ||
-                                                                                        data.documentType === "audio" && "ic-son" ||
-                                                                                        data.documentType === "Rapport" && "ic-text" ||
-                                                                                        data.documentType === "medical-certificate" && "ic-text" ||
-                                                                                        data.documentType === "video" && "ic-video-outline" ||
-                                                                                        data.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                    }/>
+                                                                                    {data.documentType !== 'photo' && <IconUrl height={25} width={25}
+                                                                                              path={
+                                                                                                  data.documentType === "prescription" && "ic-traitement" ||
+                                                                                                  data.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                                  data.documentType == "analyse" && "ic-analyse" ||
+                                                                                                  data.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                                  data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                                  data.documentType === "audio" && "ic-son" ||
+                                                                                                  data.documentType === "Rapport" && "ic-text" ||
+                                                                                                  data.documentType === "medical-certificate" && "ic-text" ||
+                                                                                                  data.documentType === "video" && "ic-video-outline" ||
+                                                                                                  data.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                              }/>}
+                                                                                    {data.documentType === 'photo' &&<Image width={25}
+                                                                                                                            height={25}
+                                                                                                                            src={data.uri}
+                                                                                                                            style={{borderRadius:5}}
+                                                                                                                            alt={'photo history'}/>}
                                                                                     <Typography  variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}>
                                                                                         {t(data.title)}
                                                                                     </Typography>

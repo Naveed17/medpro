@@ -60,7 +60,7 @@ function CipMedicProCard({...props}) {
                     <Button
                         onClick={(e) => {
                             const event = {
-                                title: `${patient.lastName}  ${patient.firstName}`,
+                                title: `${patient.firstName}  ${patient.lastName}`,
                                 publicId: row.uuid,
                                 extendedProps: {
                                     time: moment(`${row.dayDate} ${row.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),

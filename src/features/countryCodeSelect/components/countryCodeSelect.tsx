@@ -32,25 +32,25 @@ function CountryCodeSelect({...props}) {
                     {...props}
                     key={option.code}
                 >
-                    <Image
+                    {option.code && <Image
                         src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                         alt={option.code}
                         width={20}
                         height={14}
-                    />
+                    />}
                     {option?.phone}
                 </Box>
             )}
             renderInput={(params: any) => {
                 params.InputProps.startAdornment = (
                     <InputAdornment position="start">
-                        <Image
+                        {state?.code && <Image
                             style={{marginLeft: 3}}
                             alt={"flag"}
-                            src={`https://flagcdn.com/${state && state.code.toLowerCase()}.svg`}
+                            src={`https://flagcdn.com/${state.code.toLowerCase()}.svg`}
                             width={27}
                             height={15}
-                        />
+                        />}
                     </InputAdornment>
                 );
                 return <TextField {...params} variant="outlined" fullWidth/>;

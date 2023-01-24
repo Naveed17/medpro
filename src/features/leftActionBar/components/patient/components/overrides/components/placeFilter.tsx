@@ -130,11 +130,11 @@ function PlaceFilter({ ...props }) {
                         const country = countries?.find(country => country.uuid === selected);
                         return (
                             <Stack direction={"row"}>
-                                <Image
+                                {country?.code && <Image
                                     alt={"flag"}
                                     width={20}
                                     height={14}
-                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`} />
+                                    src={`https://flagcdn.com/${country?.code.toLowerCase()}.svg`}/>}
                                 <Typography ml={1}>{country?.name}</Typography>
                             </Stack>)
                     }}
@@ -143,11 +143,11 @@ function PlaceFilter({ ...props }) {
                         <MenuItem
                             key={country.uuid}
                             value={country.uuid}>
-                            <Image
+                            {country?.code && <Image
                                 alt={"flag"}
                                 width={20}
                                 height={14}
-                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`} />
+                                src={`https://flagcdn.com/${country.code.toLowerCase()}.svg`}/>}
                             <Typography sx={{ ml: 1 }}>{country.name}</Typography>
                         </MenuItem>)
                     )}

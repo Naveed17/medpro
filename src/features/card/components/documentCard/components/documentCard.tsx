@@ -1,4 +1,4 @@
-import {CardContent, Stack, Typography} from '@mui/material'
+import {Card, CardContent, Stack, Typography} from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import React, {ReactElement, useState} from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
@@ -19,9 +19,10 @@ function DocumentCard({...props}) {
         }
     };
     return (
-        <DocumentCardStyled className={"document-card"}>
-            <CardContent onClick={onClick}>
-                {/*  <Stack direction="row" alignItems="center" justifyContent="end">
+        <>
+            {data.documentType !== "photo" && <DocumentCardStyled className={"document-card"}>
+                <CardContent onClick={onClick}>
+                    {/*  <Stack direction="row" alignItems="center" justifyContent="end">
 
                     <Label variant='filled' color='warning'>{t("consultationIP." + "in_progress")}</Label>
 
@@ -67,30 +68,41 @@ function DocumentCard({...props}) {
 
                 </Stack>
                 */}
-                <Stack spacing={2} className="document-detail" alignItems="center">
-                    <IconUrl path={
-                        data.documentType === "prescription" && "ic-traitement" ||
-                        data.documentType == "requested-analysis" && "ic-analyse" ||
-                        data.documentType == "analyse" && "ic-analyse" ||
-                        data.documentType == "medical-imaging" && "ic-soura" ||
-                        data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                        data.documentType === "photo" && "ic-img" ||
-                        data.documentType === "audio" && "ic-son" ||
-                        data.documentType === "Rapport" && "ic-text" ||
-                        data.documentType === "medical-certificate" && "ic-text" ||
-                        data.documentType === "video" && "ic-video-outline" ||
-                        data.documentType !== "prescription" && "ic-pdf" || ""
-                    }/>
-                    <Typography className={"sub-title"} variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={11}>
-                        {t(data.title)}
-                    </Typography>
-                    <Typography textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}
-                                style={{marginTop: 0,color:"grey"}}>
-                        {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                    </Typography>
-                </Stack>
-            </CardContent>
-        </DocumentCardStyled>
+                    <Stack spacing={2} className="document-detail" alignItems="center">
+                        <IconUrl path={
+                            data.documentType === "prescription" && "ic-traitement" ||
+                            data.documentType == "requested-analysis" && "ic-analyse" ||
+                            data.documentType == "analyse" && "ic-analyse" ||
+                            data.documentType == "medical-imaging" && "ic-soura" ||
+                            data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                            data.documentType === "photo" && "ic-img" ||
+                            data.documentType === "audio" && "ic-son" ||
+                            data.documentType === "Rapport" && "ic-text" ||
+                            data.documentType === "medical-certificate" && "ic-text" ||
+                            data.documentType === "video" && "ic-video-outline" ||
+                            data.documentType !== "prescription" && "ic-pdf" || ""
+                        }/>
+                        <Typography className={"sub-title"} variant='subtitle2' textAlign={"center"}
+                                    whiteSpace={"nowrap"}
+                                    fontSize={11}>
+                            {t(data.title)}
+                        </Typography>
+                        <Typography textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}
+                                    style={{marginTop: 0, color: "grey"}}>
+                            {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
+                        </Typography>
+                    </Stack>
+                </CardContent>
+            </DocumentCardStyled>}
+            {data.documentType === "photo" &&
+                <Card onClick={onClick} style={{border:0,boxShadow:"none"}}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={data.uri}
+                         style={{borderRadius: 5,width:'100%',height:'100%'}}
+                         alt={'photo history'}/>
+                </Card>
+            }
+        </>
     )
 }
 

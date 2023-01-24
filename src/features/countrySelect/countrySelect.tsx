@@ -43,7 +43,7 @@ function CountrySelect({...props}) {
             isOptionEqualToValue={(option, value) => option.name === value.name}
             renderOption={(props, option) => (
                 <MenuItem  {...props}>
-                    <Avatar
+                    {option?.code && <Avatar
                         sx={{
                             width: 26,
                             height: 18,
@@ -51,14 +51,14 @@ function CountrySelect({...props}) {
                         }}
                         alt={initCountry && initCountry.name}
                         src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
-                    />
+                    />}
                     <Typography sx={{ml: 1}}>{option.name}</Typography>
                 </MenuItem>
             )}
             renderInput={(params) => {
                 params.InputProps.startAdornment = initCountry && (
                     <InputAdornment position="start">
-                        <Avatar
+                        {initCountry?.code && <Avatar
                             sx={{
                                 width: 24,
                                 height: 16,
@@ -66,9 +66,9 @@ function CountrySelect({...props}) {
                                 ml: ".5rem",
                                 mr: -.8
                             }}
-                            alt={initCountry && initCountry.name}
-                            src={`https://flagcdn.com/${initCountry && initCountry.code.toLowerCase()}.svg`}
-                        />
+                            alt={initCountry.name}
+                            src={`https://flagcdn.com/${initCountry.code.toLowerCase()}.svg`}
+                        />}
                     </InputAdornment>
                 );
 

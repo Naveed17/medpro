@@ -4,7 +4,7 @@ import {
     Box,
     Button,
     IconButton,
-    Skeleton, Stack, Chip, Avatar
+    Skeleton, Stack, Chip, Avatar, Tooltip, Badge, styled
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
@@ -12,19 +12,25 @@ import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import {countries} from "@features/countrySelect/countries";
-import React, {useCallback, useState} from "react";
+import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-
 import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
+import {ConditionalWrapper} from "@app/hooks";
+
+const SmallAvatar = styled(Avatar)(({theme}) => ({
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    border: `2px solid ${theme.palette.background.paper}`
+}));
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
@@ -43,10 +49,6 @@ function PatientRow({...props}) {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
-
-    const getCountryByCode = (code: string) => {
-        return countries.find(country => country.phone === code)
-    }
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
@@ -96,21 +98,45 @@ function PatientRow({...props}) {
                                 <Skeleton variant="text" width={100}/>
                             ) : (
                                 <>
-                                    <Zoom>
-                                        <Avatar
-                                            className={"zoom"}
-                                            src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                            sx={{
-                                                "& .injected-svg": {
-                                                    margin: 0
-                                                },
-                                                width: 30,
-                                                height: 30,
-                                                borderRadius: 1
-                                            }}>
-                                            <IconUrl width={"30"} height={"30"} path="men-avatar"/>
-                                        </Avatar>
-                                    </Zoom>
+                                    <Badge
+                                        overlap="circular"
+                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                        {...(row.nationality && {
+                                            badgeContent:
+                                                <Tooltip title={row.nationality.nationality}>
+                                                    <SmallAvatar
+                                                        {...(row.hasPhoto && {
+                                                            sx: {
+                                                                marginRight: -1.6
+                                                            }
+                                                        })}
+                                                        alt={"flag"}
+                                                        src={`https://flagcdn.com/${row.nationality.code}.svg`}/>
+                                                </Tooltip>
+                                        })}
+                                    >
+                                        <ConditionalWrapper
+                                            condition={row.hasPhoto}
+                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}
+                                        >
+                                            <Fragment>
+                                                <Avatar
+                                                    {...(row.hasPhoto && {className: "zoom"})}
+                                                    src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                                    sx={{
+                                                        "& .injected-svg": {
+                                                            margin: 0
+                                                        },
+                                                        width: 36,
+                                                        height: 36,
+                                                        borderRadius: 1
+                                                    }}>
+                                                    <IconUrl width={"36"} height={"36"} path="men-avatar"/>
+                                                </Avatar>
+                                            </Fragment>
+                                        </ConditionalWrapper>
+                                    </Badge>
+
                                     <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch(
@@ -182,20 +208,8 @@ function PatientRow({...props}) {
                         <>
                             {(row.contact.length > 0 ? <Stack direction={"row"}>
                                 {row.contact[0].code &&
-                                    <>
-                                        <Avatar
-                                            sx={{
-                                                width: 24,
-                                                height: 16,
-                                                borderRadius: 0.4,
-                                                ml: 0
-                                            }}
-                                            alt="flag"
-                                            src={`https://flagcdn.com/${getCountryByCode(row.contact[0].code)?.code.toLowerCase()}.svg`}
-                                        />
-                                        <Typography variant={"body2"} color={"primary"}
-                                                    sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
-                                    </>
+                                    <Typography variant={"body2"} color={"primary"}
+                                                sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
                                 }
                                 <Typography variant={"body2"} color={"primary"}
                                             sx={{ml: 0.6}}>{row.contact[0].value}</Typography>

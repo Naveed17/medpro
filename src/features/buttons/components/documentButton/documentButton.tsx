@@ -18,6 +18,8 @@ function DocumentButton({ ...props }) {
     selected,
     notifications,
     handleOnClick,
+    acceptedFormat,
+    handleChange,
     loading = false,
     height,
     paddingTop,
@@ -50,8 +52,10 @@ function DocumentButton({ ...props }) {
         </>
       ) : (
         <>
+
           <div style={{ width: "fit-content", margin: "auto" }}>
             <Box component={"img"} src={icon} width="30px" height="30px" />
+              <input type="file" accept={acceptedFormat} multiple={true} onChange={handleChange} style={{width:'100%',height:'100%',position:'absolute',left:0,top:0,opacity:0}}/>
           </div>
 
           <Typography variant="body2">{capitalize(t(lable))}</Typography>
