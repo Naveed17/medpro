@@ -97,13 +97,14 @@ function AddDocumentDialog({...props}) {
                                 </Grid>
                             ))
                             : types.map(
-                                (item: { logo: string; name: string; uuid: string }, index) => (
+                                (item: any, index) => (
                                     <Grid key={index} item xs={6} md={6}>
                                         <DocumentButton
                                             icon={item.logo}
                                             active={data.state.type}
                                             t={t}
                                             lable={item.name}
+                                            acceptedFormat={item.acceptedFormat}
                                             uuid={item.uuid}
                                             selected={type}
                                             handleChange={handleChange}
