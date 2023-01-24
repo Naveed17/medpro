@@ -230,8 +230,8 @@ function PatientDetail({...props}) {
         setLoadingRequest(true);
         const params = new FormData();
         params.append("document_type", documentConfig.type);
-        documentConfig.files.map((file: File) => {
-            params.append("document[]", file, file.name);
+        documentConfig.files.map((file: any) => {
+            params.append(`document[${file.type}]`, file.file, file.name);
         });
         triggerUploadDocuments({
             method: "POST",

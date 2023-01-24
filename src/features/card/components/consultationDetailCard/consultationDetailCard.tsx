@@ -152,7 +152,7 @@ function CIPPatientHistoryCard({...props}) {
                         <Box>
                             {<Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
                                 <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
-                                    {t("notes")}
+                                    {t("notes")} {isStarted ?'trie':'false'}
                                 </Typography>
                                 {
                                     listening && isStarted ? <RecondingBoxStyle onClick={() => {
