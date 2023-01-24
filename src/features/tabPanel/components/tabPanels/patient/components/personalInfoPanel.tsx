@@ -1,15 +1,26 @@
 // ______________________________
 import {PersonalInfoCard, BackgroundCard, PatientDetailContactCard, PersonalInsuranceCard} from "@features/card";
-import { Stack } from "@mui/material";
+import {Stack} from "@mui/material";
+import {useState} from "react";
 
-function PersonInfoPanel({ ...props }) {
-  return (
-    <Stack spacing={2} className={"container"}>
-      <PersonalInfoCard {...props} />
-      <PersonalInsuranceCard {...props} />
-      <PatientDetailContactCard {...props} />
-      <BackgroundCard {...props} />
-    </Stack>
-  );
+function PersonInfoPanel({...props}) {
+    const [editable, setEditable] = useState(false);
+    const [currentSection, setCurrentSection] = useState("");
+
+    return (
+        <Stack spacing={2} className={"container"}>
+            <PersonalInfoCard {...{
+                editable, setEditable,
+                currentSection, setCurrentSection, ...props
+            }} />
+            <PersonalInsuranceCard {...{editable, ...props}} />
+            <PatientDetailContactCard {...{
+                editable, setEditable,
+                currentSection, setCurrentSection, ...props
+            }} />
+            <BackgroundCard {...props} />
+        </Stack>
+    );
 }
+
 export default PersonInfoPanel;

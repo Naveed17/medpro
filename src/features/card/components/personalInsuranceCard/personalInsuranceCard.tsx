@@ -36,7 +36,7 @@ import IconUrl from "@themes/urlIcon";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function PersonalInsuranceCard({...props}) {
-    const {patient, mutatePatientDetails, mutatePatientList = null, loading} = props;
+    const {patient, mutatePatientDetails, mutatePatientList = null, loading, editable} = props;
 
     const {data: session} = useSession();
     const theme = useTheme();
@@ -252,9 +252,9 @@ function PersonalInsuranceCard({...props}) {
             }))));
         params.append('email', values.email);
         params.append('id_card', values.cin);
-        params.append('note', patient.note);
-        params.append('profession', patient.profession);
-        params.append('family_doctor', patient.family_doctor);
+        patient.note && params.append('note', patient.note);
+        patient.profession && params.append('profession', patient.profession);
+        patient.family_doctor && params.append('family_doctor', patient.family_doctor);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
         (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
             if (insurance.insurance_type === "0") {
@@ -323,6 +323,7 @@ function PersonalInsuranceCard({...props}) {
                                 </Box>
                                 <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                                     <LoadingButton
+                                        disabled={editable}
                                         loading={loadingRequest}
                                         className='btn-add'
                                         onClick={() => {
@@ -391,7 +392,7 @@ function PersonalInsuranceCard({...props}) {
                                                             </Typography>
                                                         </Stack>
                                                     </Grid>
-                                                    <Grid pt={.5} pb={.5} item xs={6} md={4}>
+                                                    {!editable && <Grid pt={.5} pb={.5} item xs={6} md={4}>
                                                         <Stack direction={"row"} alignItems={"start"} spacing={1}
                                                                justifyContent={"flex-end"}>
                                                             <IconButton
@@ -417,7 +418,7 @@ function PersonalInsuranceCard({...props}) {
                                                                 <DeleteIcon/>
                                                             </IconButton>
                                                         </Stack>
-                                                    </Grid>
+                                                    </Grid>}
                                                 </Grid>
                                                 {(values.insurances.length - 1) !== index &&
                                                     <Divider sx={{marginBottom: 1}}/>}

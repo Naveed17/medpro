@@ -43,7 +43,10 @@ export const MyTextInput: any = memo(({...props}) => {
 MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
-    const {patient, mutatePatientDetails, mutatePatientList = null, loading} = props;
+    const {
+        patient, mutatePatientDetails, mutatePatientList = null,
+        loading, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
+    } = props;
 
     const {data: session} = useSession();
     const router = useRouter();
@@ -53,7 +56,6 @@ function PersonalInfo({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const [editable, setEditable] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {t, ready} = useTranslation("patient", {
@@ -153,6 +155,8 @@ function PersonalInfo({...props}) {
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
+    const editable = currentSection === "PersonalInfo" && defaultEditStatus;
+    const disableActions = defaultEditStatus && currentSection !== "PersonalInfo";
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -205,9 +209,16 @@ function PersonalInfo({...props}) {
                                             </LoadingButton>
                                         </Stack>
                                         :
-                                        <Button onClick={() => setEditable(true)}
-                                                startIcon={<IconUrl path={"setting/edit"}/>}
-                                                color="primary" size="small">
+                                        <Button
+                                            disabled={disableActions}
+                                            onClick={() => {
+                                                setCurrentSection("PersonalInfo");
+                                                setEditable(true);
+                                            }}
+                                            startIcon={<IconUrl
+                                                {...(disableActions && {color: "white"})}
+                                                path={"setting/edit"}/>}
+                                            color="primary" size="small">
                                             {t("edit")}
                                         </Button>
                                     }

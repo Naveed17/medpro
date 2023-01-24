@@ -25,9 +25,10 @@ import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 
 const SmallAvatar = styled(Avatar)(({theme}) => ({
-    width: 22,
-    height: 22,
-    border: `2px solid ${theme.palette.background.paper}`,
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    border: `2px solid ${theme.palette.background.paper}`
 }));
 
 const ConditionalWrapper = ({...props}) => {
@@ -42,8 +43,6 @@ function PatientRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
 
-    const [isZoomed, setIsZoomed] = useState(!!row?.hasPhoto);
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
@@ -54,11 +53,6 @@ function PatientRow({...props}) {
             Authorization: `Bearer ${session?.accessToken}`,
         },
     } : null, SWRNoValidateConfig);
-
-    const handleZoomChange = useCallback((shouldZoom: boolean) => {
-        console.log(shouldZoom);
-        setIsZoomed(shouldZoom)
-    }, [])
 
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
