@@ -300,8 +300,7 @@ function ConsultationIPToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append("files[]", file.file, file.name);
-                    form.append("types[]", file.type);
+                    form.append(`files[${file.type}][]`, file.file, file.name);
                 });
 
                 trigger({
