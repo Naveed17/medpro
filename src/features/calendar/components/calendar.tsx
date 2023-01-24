@@ -302,8 +302,15 @@ function Calendar({...props}) {
                                 events={events}
                                 ref={calendarRef}
                                 datesSet={OnRangeChange}
+                                defaultTimedEventDuration="00:15"
+                                allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
                                 allDayContent={(event) => ""}
+                                eventDrop={(eventDrop) => {
+                                    if (eventDrop.event._def.allDay) {
+                                        eventDrop.revert();
+                                    }
+                                }}
                                 moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
                                     <Event {...{event, openingHours, view, isMobile}} t={translation}/>
@@ -343,7 +350,7 @@ function Calendar({...props}) {
                                     })
                                 }
                                 eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
-                                eventChange={(info) => OnEventChange(info)}
+                                eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
                                     setSlotInfoPopover(true);
@@ -361,7 +368,6 @@ function Calendar({...props}) {
                                 eventMaxStack={1}
                                 eventDisplay="block"
                                 headerToolbar={false}
-                                allDayMaintainDuration
                                 eventResizableFromStart
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"
