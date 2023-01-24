@@ -1,8 +1,8 @@
 import { Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 const AddDocumentDialogStyled = styled(Stack)(({ theme }) => ({
-    maxWidth: 1025,
-    width: "100%",
+    //maxWidth: 1025,
+    //width: "100%",
     margin: 'auto',
     '.MuiButton-root': {
         svg: {

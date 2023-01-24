@@ -7,7 +7,7 @@ import {
     IconButton,
     List,
     ListItemIcon,
-    Stack,
+    Stack, TextField,
     Typography,
     useTheme
 } from '@mui/material'
@@ -26,6 +26,7 @@ import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import Image from "next/image";
 
 const subMotifCard = [
     {
@@ -68,7 +69,7 @@ const subMotifCard = [
 ];
 
 function HistoryPanel({...props}) {
-    const {previousAppointmentsData: previousAppointments, patient} = props;
+    const {previousAppointmentsData: previousAppointments, patient,mutate} = props;
 
     const {selectedApp} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
@@ -134,7 +135,8 @@ function HistoryPanel({...props}) {
                 days: card.days,
                 createdAt: card.createdAt,
                 name: 'certif',
-                type: 'write_certif'
+                type: 'write_certif',
+                mutate: mutate()
             })
             setOpenDialog(true);
         } else {
@@ -162,7 +164,8 @@ function HistoryPanel({...props}) {
                 createdAt: card.createdAt,
                 description:card.description,
                 uuidDoc: uuidDoc,
-                patient: patient.firstName + ' ' + patient.lastName
+                patient: patient.firstName + ' ' + patient.lastName,
+                mutate: mutate()
             })
             setOpenDialog(true);
         }
@@ -184,7 +187,7 @@ function HistoryPanel({...props}) {
                             <Collapse
                                 in={app.appointment.uuid === selectedApp}>
                                 <Stack spacing={2}>
-                                    <MotifCard data={app} {...{t}}/>
+                                    <MotifCard data={app} t={t}/>
                                     <List dense>
                                         {subMotifCard.map((col: any, indx: number) => (
                                             <React.Fragment key={`list-item-${indx}`}>
@@ -215,9 +218,8 @@ function HistoryPanel({...props}) {
                                                                                 <Stack direction={"row"}>
                                                                                     <Typography
                                                                                         className={"treamtementDetail"}>• {treatment.dosage}</Typography>
-                                                                                    <Typography
-                                                                                        className={"treamtementDetail"}
-                                                                                        ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
+                                                                                    <Typography className={"treamtementDetail"}
+                                                                                                ml={1}>• {treatment.duration}{" "}{t(treatment.durationType)}</Typography>
                                                                                 </Stack>
                                                                             </Box>
                                                                         )
@@ -234,19 +236,35 @@ function HistoryPanel({...props}) {
                                                                             container
                                                                             spacing={2}
                                                                             className={"docGrid"}>
-                                                                            {app.documents.map((card: any) => (
+                                                                            {app.documents.map((data: any) => (
                                                                                 <Grid
                                                                                     item
-                                                                                    xs={3}
-                                                                                    key={`doc-item-${card.uuid}`}>
-                                                                                    <DocumentCard
-                                                                                        {...{t}}
-                                                                                        data={card}
-                                                                                        style={{width: 30}}
-                                                                                        onClick={() => {
-                                                                                            showDoc(card)
-                                                                                        }}
-                                                                                    />
+                                                                                    xs={12}
+                                                                                    md={4}
+                                                                                    key={`doc-item-${data.uuid}`}>
+                                                                                    <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
+                                                                                        {data.documentType !== 'photo' && <IconUrl height={25} width={25}
+                                                                                                                                   path={
+                                                                                                                                       data.documentType === "prescription" && "ic-traitement" ||
+                                                                                                                                       data.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                                                                       data.documentType == "analyse" && "ic-analyse" ||
+                                                                                                                                       data.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                                                                       data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                                                                       data.documentType === "audio" && "ic-son" ||
+                                                                                                                                       data.documentType === "Rapport" && "ic-text" ||
+                                                                                                                                       data.documentType === "medical-certificate" && "ic-text" ||
+                                                                                                                                       data.documentType === "video" && "ic-video-outline" ||
+                                                                                                                                       data.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                                                                   }/>}
+                                                                                        {data.documentType === 'photo' &&<Image width={25}
+                                                                                                                                height={25}
+                                                                                                                                src={data.uri}
+                                                                                                                                style={{borderRadius:5}}
+                                                                                                                                alt={'photo history'}/>}
+                                                                                        <Typography  variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}>
+                                                                                            {t(data.title)}
+                                                                                        </Typography>
+                                                                                    </Stack>
                                                                                 </Grid>
                                                                             ))}
                                                                         </Grid>
@@ -258,24 +276,24 @@ function HistoryPanel({...props}) {
 
                                                             {col.type === "req-sheet" && <>
                                                                 {app?.appointment.requestedAnalyses.length > 0 ? app?.appointment.requestedAnalyses.map(
-                                                                    (reqSheet: any, idx: number) => (
-                                                                        <Box key={`req-sheet-item-${idx}`}>
+                                                                    (reqSheet: any, reqSheetID: number) => (
+                                                                        <Box key={`req-sheet-item-${reqSheetID}`}>
                                                                             {reqSheet.hasAnalysis.map(
-                                                                                (rs: any, idxh: number) => (
-                                                                                    <Stack key={`req-sheet-p-${idxh}`}
-                                                                                           direction={{
-                                                                                               md: "row",
-                                                                                               xs: "column"
-                                                                                           }} className={"boxHisto"}
-                                                                                           alignItems={"center"}
-                                                                                           justifyContent={"space-between"}
-                                                                                           spacing={2}>
+                                                                                (rs: any, reqSheetHasAnalysisID: number) => (
+                                                                                    <Stack
+                                                                                        key={`req-sheet-p-${reqSheetHasAnalysisID}`}
+                                                                                        direction={{
+                                                                                            md: "row",
+                                                                                            xs: "column"
+                                                                                        }} className={"boxHisto"}
+                                                                                        alignItems={"center"}
+                                                                                        justifyContent={"space-between"}
+                                                                                        spacing={2}>
                                                                                         <Typography fontSize={12}>
                                                                                             {rs.analysis.name}
                                                                                         </Typography>
 
-                                                                                        <Typography
-                                                                                            fontSize={12}>{rs.result}</Typography>
+                                                                                        <Typography>{rs.result}</Typography>
                                                                                     </Stack>
                                                                                 )
                                                                             )}
@@ -283,6 +301,8 @@ function HistoryPanel({...props}) {
                                                                     <Typography
                                                                         className={"empty"}>{t('consultationIP.noRequest')}</Typography>
                                                                 </Box>}
+
+
                                                             </>}
 
                                                             {col.type === "req-medical-imaging" && <>
@@ -307,7 +327,7 @@ function HistoryPanel({...props}) {
                                                                                                             style={{width: 30}}
                                                                                                             onClick={() => {
                                                                                                                 showDoc(card)
-                                                                                                            }} {...{t}}/>
+                                                                                                            }} t={t}/>
                                                                                                     </Grid>
                                                                                                 ))}
                                                                                         </Grid>}
@@ -321,20 +341,6 @@ function HistoryPanel({...props}) {
                                                             </>}
 
                                                             {col.type === "act-fees" && <BoxFees>
-                                                                <Grid container spacing={2}>
-                                                                    <Grid item xs={3}>
-                                                                        <Typography className={"feesContent"}
-                                                                        >{t('consultationIP.consultation')}</Typography>
-                                                                    </Grid>
-                                                                    <Grid item xs={3}></Grid>
-                                                                    <Grid item xs={3}></Grid>
-                                                                    <Grid item xs={3}>
-                                                                        <Typography textAlign={"right"}
-                                                                                    className={"feesContent"}>{app?.appointment.consultation_fees
-                                                                            ? app?.appointment.consultation_fees
-                                                                            : "--"}</Typography>
-                                                                    </Grid>
-                                                                </Grid>
                                                                 {
                                                                     app?.appointment.acts.length > 0 &&
                                                                     <BoxFees>
@@ -356,10 +362,25 @@ function HistoryPanel({...props}) {
                                                                                             className={"header"}>{t('consultationIP.total')}</Typography>
                                                                             </Grid>
                                                                         </Grid>
+
+                                                                        <Grid container spacing={2} pb={1} pt={1} style={{borderBottom:'1px dashed gray'}}>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography className={"feesContent"}
+                                                                                >{t('consultationIP.consultation')}</Typography>
+                                                                            </Grid>
+                                                                            <Grid item xs={3}></Grid>
+                                                                            <Grid item xs={3}></Grid>
+                                                                            <Grid item xs={3}>
+                                                                                <Typography textAlign={"right"}
+                                                                                            className={"feesContent"}>{app?.appointment.consultation_fees
+                                                                                    ? app?.appointment.consultation_fees
+                                                                                    : "--"}  {devise}</Typography>
+                                                                            </Grid>
+                                                                        </Grid>
                                                                         {app?.appointment.acts.map(
                                                                             (act: any, idx: number) => (
-                                                                                <Grid container key={`fees-${idx}`}
-                                                                                      spacing={2}>
+                                                                                <Grid container pb={1} pt={1} style={{borderBottom:'1px dashed gray'}} key={`fees-${idx}`}
+                                                                                      spacing={2} alignItems="center">
                                                                                     <Grid item xs={3}>
                                                                                         <Typography
                                                                                             className={"feesContent"}>{act.name}</Typography>
@@ -389,19 +410,8 @@ function HistoryPanel({...props}) {
                                                                             <Typography textAlign={"right"} mr={2}
                                                                                         fontWeight={"bold"}
                                                                                         fontSize={18}>
-                                                                                Total
-                                                                                : {app.appointment.fees} {devise} |
+                                                                                Total : {app.appointment.fees} {devise} |
                                                                             </Typography>
-                                                                            <Button
-                                                                                variant="contained"
-                                                                                color={"info"}
-                                                                                onClick={() => {
-                                                                                    //printFees(app)
-                                                                                }}
-                                                                                startIcon={<IconUrl
-                                                                                    path="ic-imprime"/>}>
-                                                                                {t("consultationIP.print")}
-                                                                            </Button>
                                                                         </Stack>
                                                                     </BoxFees>
                                                                 }

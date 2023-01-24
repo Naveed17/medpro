@@ -158,7 +158,7 @@ function PatientDetail({...props}) {
             title: "tabs.history",
             children: <>
                 {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                    <HistoryPanel {...{t, previousAppointmentsData, patient}} />
+                    <HistoryPanel {...{t, previousAppointmentsData, patient,mutatePatientDocuments}} />
                 ) : (
                     <NoDataCard
                         t={t}
