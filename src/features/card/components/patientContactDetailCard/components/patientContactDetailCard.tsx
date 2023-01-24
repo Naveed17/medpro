@@ -33,7 +33,10 @@ import {DefaultCountry, PhoneRegExp} from "@app/constants";
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
-    const {patient, mutatePatientDetails, mutatePatientList = null, loading} = props;
+    const {
+        patient, mutatePatientDetails, mutatePatientList = null, loading,
+        editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
+    } = props;
     const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
@@ -47,7 +50,7 @@ function PatientContactDetailCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
 
-    const [editable, setEditable] = useState(false);
+
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const RegisterPatientSchema = Yup.object().shape({
@@ -176,6 +179,8 @@ function PatientContactDetailCard({...props}) {
 
     const countries_api = (httpCountriesResponse as HttpResponse)?.data as CountryModel[];
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
+    const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
+    const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
@@ -222,9 +227,16 @@ function PatientContactDetailCard({...props}) {
                                                 </LoadingButton>
                                             </Stack>
                                             :
-                                            <Button onClick={() => setEditable(true)}
-                                                    startIcon={<IconUrl path={"setting/edit"}/>}
-                                                    color="primary" size="small">
+                                            <Button
+                                                disabled={disableActions}
+                                                onClick={() => {
+                                                    setCurrentSection("PatientContactDetailCard");
+                                                    setEditable(true)
+                                                }}
+                                                startIcon={<IconUrl
+                                                    {...(disableActions && {color: "white"})}
+                                                    path={"setting/edit"}/>}
+                                                color="primary" size="small">
                                                 {t("edit")}
                                             </Button>
                                         }

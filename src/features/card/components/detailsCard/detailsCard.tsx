@@ -77,7 +77,7 @@ export default function DetailsCard({...props}) {
                                         lineHeight={1}
                                         variant="body1"
                                     >
-                                        {item.patient.lastName} {item.patient.firstName}
+                                        {item.patient.firstName} {item.patient.lastName}
                                     </Typography>
                                 </Stack>
 

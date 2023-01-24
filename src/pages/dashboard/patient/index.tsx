@@ -186,7 +186,7 @@ function Patient() {
         headers: {
             Authorization: `Bearer ${session?.accessToken}`,
         },
-    }, SWRNoValidateConfig);
+    });
 
     const {data: httpInsuranceResponse} = useRequest({
         method: "GET",

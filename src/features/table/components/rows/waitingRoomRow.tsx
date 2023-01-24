@@ -209,7 +209,7 @@ function WaitingRoomRow({...props}) {
                                     handleEvent({action: "PATIENT_DETAILS", row, event});
                                 }}
                                 color="primary" sx={{ml: 0.6, cursor: "pointer"}}>
-                                {row.patient.lastName} {row.patient.firstName}
+                                {row.patient.firstName} {row.patient.lastName}
                             </Typography>
                         </Box>
                     ) : (
