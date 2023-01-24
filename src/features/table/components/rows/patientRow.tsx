@@ -12,14 +12,14 @@ import moment from "moment-timezone";
 // redux
 import {useAppDispatch} from "@app/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {Fragment, useCallback, useEffect, useState} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import {useRequest} from "@app/axios";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
-import {Controlled as ControlledZoom} from 'react-medium-image-zoom'
+import Zoom from 'react-medium-image-zoom'
 import IconUrl from "@themes/urlIcon";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
@@ -29,6 +29,11 @@ const SmallAvatar = styled(Avatar)(({theme}) => ({
     height: 22,
     border: `2px solid ${theme.palette.background.paper}`,
 }));
+
+const ConditionalWrapper = ({...props}) => {
+    const {condition, wrapper, children} = props;
+    return condition ? wrapper(children) : children;
+}
 
 function PatientRow({...props}) {
     const {row, isItemSelected, handleClick, t, loading, handleEvent, data} = props;
@@ -115,21 +120,26 @@ function PatientRow({...props}) {
                                                 </Tooltip>
                                         })}
                                     >
-                                        <ControlledZoom isZoomed={patientPhoto}>
-                                            <Avatar
-                                                {...(row.hasPhoto && {className: "zoom"})}
-                                                src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                                sx={{
-                                                    "& .injected-svg": {
-                                                        margin: 0
-                                                    },
-                                                    width: 36,
-                                                    height: 36,
-                                                    borderRadius: 1
-                                                }}>
-                                                <IconUrl width={"36"} height={"36"} path="men-avatar"/>
-                                            </Avatar>
-                                        </ControlledZoom>
+                                        <ConditionalWrapper
+                                            condition={row.hasPhoto}
+                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}
+                                        >
+                                            <Fragment>
+                                                <Avatar
+                                                    {...(row.hasPhoto && {className: "zoom"})}
+                                                    src={patientPhoto ? patientPhoto : (row?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                                    sx={{
+                                                        "& .injected-svg": {
+                                                            margin: 0
+                                                        },
+                                                        width: 36,
+                                                        height: 36,
+                                                        borderRadius: 1
+                                                    }}>
+                                                    <IconUrl width={"36"} height={"36"} path="men-avatar"/>
+                                                </Avatar>
+                                            </Fragment>
+                                        </ConditionalWrapper>
                                     </Badge>
 
                                     <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
