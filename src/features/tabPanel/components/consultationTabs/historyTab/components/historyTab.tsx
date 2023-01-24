@@ -237,11 +237,11 @@ function HistoryTab({...props}) {
                                 <Box key={`photo${index}`} width={150} height={140} borderRadius={2}
                                      style={{background: "white"}}>
                                     <Zoom>
-                                        <Image src={photo.uri}
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={photo.uri}
                                                alt={'img'}
-                                               style={{borderRadius: "10px 10px 0 0"}}
-                                               width={150}
-                                               height={110}/>
+                                               style={{borderRadius: "10px 10px 0 0",width:150,height:110}}
+                                               />
                                     </Zoom>
 
                                     <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row"
