@@ -37,6 +37,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {configSelector} from "@features/base";
+import Image from "next/image";
 
 const Content = ({...props}) => {
     const {id, patient} = props;
@@ -571,22 +572,34 @@ const Content = ({...props}) => {
             ) : id === 8 ? (
                 <>
                     {patientDocuments && patientDocuments.map((pdoc: any, idx: number) => (
-                            <Stack spacing={2} direction={"row"} alignItems={"center"} key={`doc-patient-${idx}`} onClick={()=>{showDoc(pdoc)}}>
-                                <IconUrl width={25} height={25} path={
-                                    pdoc.documentType === "prescription" && "ic-traitement" ||
-                                    pdoc.documentType == "requested-analysis" && "ic-analyse" ||
-                                    pdoc.documentType == "analyse" && "ic-analyse" ||
-                                    pdoc.documentType == "medical-imaging" && "ic-soura" ||
-                                    pdoc.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                    pdoc.documentType === "photo" && "ic-img" ||
-                                    pdoc.documentType === "audio" && "ic-son" ||
-                                    pdoc.documentType === "Rapport" && "ic-text" ||
-                                    pdoc.documentType === "medical-certificate" && "ic-text" ||
-                                    pdoc.documentType === "video" && "ic-video-outline" ||
-                                    pdoc.documentType !== "prescription" && "ic-pdf" || ""
-                                }/>
-                                <ListItemText primary={pdoc.title} sx={{cursor:'pointer'}} secondary={t(pdoc.documentType)}/>
-                            </Stack>
+                        <Stack spacing={2} direction={"row"} alignItems={"center"} key={`doc-patient-${idx}`} pl={2}
+                               onClick={() => {
+                                   showDoc(pdoc)
+                               }}>
+                            {pdoc.documentType !== "photo" && <IconUrl width={25} height={25} path={
+                                pdoc.documentType === "prescription" && "ic-traitement" ||
+                                pdoc.documentType == "requested-analysis" && "ic-analyse" ||
+                                pdoc.documentType == "analyse" && "ic-analyse" ||
+                                pdoc.documentType == "medical-imaging" && "ic-soura" ||
+                                pdoc.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                pdoc.documentType === "photo" && "ic-img" ||
+                                pdoc.documentType === "audio" && "ic-son" ||
+                                pdoc.documentType === "Rapport" && "ic-text" ||
+                                pdoc.documentType === "medical-certificate" && "ic-text" ||
+                                pdoc.documentType === "video" && "ic-video-outline" ||
+                                pdoc.documentType !== "prescription" && "ic-pdf" || ""
+                            }/>}
+
+                            {pdoc.documentType === 'photo' && <Image width={30}
+                                                                     height={30}
+                                                                     src={pdoc.uri}
+                                                                     style={{borderRadius: 5}}
+                                                                     alt={'photo history'}/>}
+
+
+                            <ListItemText primary={pdoc.title} sx={{cursor: 'pointer'}}
+                                          secondary={t(pdoc.documentType)}/>
+                        </Stack>
                     ))}
                 </>
             ) : (

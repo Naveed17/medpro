@@ -6,7 +6,7 @@ import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
 import {ModelDot} from "@features/modelDot";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
+import { SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
 import {LoadingScreen} from "@features/loadingScreen";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
@@ -20,7 +20,7 @@ import RecondingBoxStyle from './overrides/recordingBoxStyle';
 
 function CIPPatientHistoryCard({...props}) {
     const {exam: defaultExam, changes, setChanges, uuind, agenda, mutateDoc, medical_entity, session, router} = props
-    const {exam} = useAppSelector(consultationSelector);
+    const {exam,listen} = useAppSelector(consultationSelector);
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
@@ -75,6 +75,7 @@ function CIPPatientHistoryCard({...props}) {
     const startListening = () => {
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
             setIsStarted(true);
+            dispatch(SetListen('observation'));
             if (intervalref.current !== null) return;
             intervalref.current = window.setInterval(() => {
                 time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
@@ -154,30 +155,33 @@ function CIPPatientHistoryCard({...props}) {
                                 <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
                                     {t("notes")}
                                 </Typography>
-                                {
-                                    listening && isStarted ? <RecondingBoxStyle onClick={() => {
-                                        if (intervalref.current) {
-                                            window.clearInterval(intervalref.current);
-                                            intervalref.current = null;
-                                        }
-                                        SpeechRecognition.stopListening();
-                                        resetTranscript();
-                                        setTime('00:00');
-                                        setIsStarted(false)
-                                    }}>
-                                        <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                        <div className={"recording-text"}>{time}</div>
-                                        <div className="recording-circle"></div>
+                                {(listen ==='' || listen === 'observation') && <>
+                                    {
+                                        listening && isStarted ? <RecondingBoxStyle onClick={() => {
+                                            if (intervalref.current) {
+                                                window.clearInterval(intervalref.current);
+                                                intervalref.current = null;
+                                            }
+                                            SpeechRecognition.stopListening();
+                                            resetTranscript();
+                                            setTime('00:00');
+                                            setIsStarted(false)
+                                            dispatch(SetListen(''));
+                                        }}>
+                                            <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                            <div className={"recording-text"}>{time}</div>
+                                            <div className="recording-circle"></div>
 
-                                    </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
-                                        resetTranscript();
-                                        startListening()
-                                    }}>
-                                        <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
-                                        <div className="recording-text">{t('listen')}</div>
-                                        <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
-                                    </RecondingBoxStyle>
-                                }
+                                        </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
+                                            resetTranscript();
+                                            startListening()
+                                        }}>
+                                            <PlayCircleFilledRoundedIcon style={{fontSize: 16, color: "white"}}/>
+                                            <div className="recording-text">{t('listen')}</div>
+                                            <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
+                                        </RecondingBoxStyle>
+                                    }
+                                </>}
                             </Stack>}
                             <TextField
                                 fullWidth
