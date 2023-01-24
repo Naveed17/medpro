@@ -24,7 +24,8 @@ import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
 import {useRequest, useRequestMutation} from "@app/axios";
-
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
 import {
     AddPatientStep1,
     AddPatientStep2,
@@ -306,25 +307,28 @@ function Patient() {
                 />
             </SubHeader>
             <Box className="container">
-                <Box display={{xs: "none", md: "block"}}>
-                    <Otable
-                        {...{t, insurances}}
-                        headers={headCells}
+                <DesktopContainer>
+                    <Box display={{xs: "none", md: "block"}}>
+                        <Otable
+                            {...{t, insurances}}
+                            headers={headCells}
+                            handleEvent={handleTableActions}
+                            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
+                            total={(httpPatientsResponse as HttpResponse)?.data?.total}
+                            totalPages={(httpPatientsResponse as HttpResponse)?.data?.totalPages}
+                            from={"patient"}
+                            pagination
+                            loading={!Boolean(httpPatientsResponse)}
+                        />
+                    </Box>
+                </DesktopContainer>
+                <MobileContainer>
+                    <PatientMobileCard
+                        ready={ready}
                         handleEvent={handleTableActions}
-                        rows={(httpPatientsResponse as HttpResponse)?.data?.list}
-                        from={"patient"}
-                        pagination
-                        total={(httpPatientsResponse as HttpResponse)?.data?.total}
-                        totalPages={
-                            (httpPatientsResponse as HttpResponse)?.data?.totalPages
-                        }
-                        loading={!Boolean(httpPatientsResponse)}
+                        PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
                     />
-                </Box>
-                <PatientMobileCard
-                    ready={ready}
-                    PatiendData={(httpPatientsResponse as HttpResponse)?.data?.list}
-                />
+                </MobileContainer>
             </Box>
 
             <Dialog

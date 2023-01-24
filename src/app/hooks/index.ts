@@ -16,3 +16,8 @@ export function a11yProps(index: number) {
         "aria-controls": `simple-tabpanel-${index}`,
     };
 }
+
+export const ConditionalWrapper = ({...props}) => {
+    const {condition, wrapper, children} = props;
+    return condition ? wrapper(children) : children;
+}

@@ -13,7 +13,7 @@ import {
     Toolbar,
     IconButton,
     Box,
-    Popover
+    Popover, useMediaQuery
 } from "@mui/material";
 
 // config
@@ -43,6 +43,7 @@ import {useSnackbar} from "notistack";
 import {useTranslation} from "next-i18next";
 import {agendaSelector} from "@features/calendar";
 import {LoadingScreen} from "@features/loadingScreen";
+import {Theme} from "@mui/material/styles";
 
 const ProfilMenuIcon = dynamic(
     () => import("@features/profilMenu/components/profilMenu")
@@ -59,7 +60,7 @@ function TopNavBar({...props}) {
     const {pendingAppointments} = useAppSelector(agendaSelector);
     const {isActive, isPaused} = useAppSelector(timerSelector);
     const {ongoing} = useAppSelector(dashLayoutSelector);
-
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {t, ready} = useTranslation("common");
 
     const router = useRouter();
@@ -248,12 +249,12 @@ function TopNavBar({...props}) {
                                 </IconButton>
                             </Badge>
                         </MenuList>
-                        <LangButton/>
-                        <MenuList className="topbar-account">
-                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
+                        {/*<LangButton/>*/}
+                        {!isMobile && <MenuList className="topbar-account">
+                            <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenuIcon/>
                             </MenuItem>
-                        </MenuList>
+                        </MenuList>}
                     </Toolbar>
                 </NavbarStyled>
             ) : (
@@ -271,9 +272,9 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-                        <MenuList className="topbar-nav">
+{/*                        <MenuList className="topbar-nav">
                             <LangButton/>
-                        </MenuList>
+                        </MenuList>*/}
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
