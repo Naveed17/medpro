@@ -11,8 +11,8 @@ import {
     IconButton,
     InputAdornment,
     Stack,
-    TextField,
-    Typography,
+    TextField, Theme,
+    Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -106,6 +106,10 @@ function ActFees() {
         url: `/api/medical-entity/${medical_entity?.uuid}/professionals/${router.locale}`,
         headers: {Authorization: `Bearer ${session?.accessToken}`},
     }, SWRNoValidateConfig);
+
+    const isMobile = useMediaQuery((theme: Theme) =>
+        theme.breakpoints.down("sm")
+    );
 
     useEffect(() => {
         if (httpMPResponse) {
@@ -235,12 +239,17 @@ function ActFees() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t('path')}</p>
                 </RootStyled>
+                {
+                    !create && isMobile &&
+                    <Button variant="contained" color={"success"}
+                            onClick={() => handleCreate()}>{t("add_a_new_act")}</Button>
+                }
 
-                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                {!isMobile && <Stack direction={"row"} spacing={1} alignItems={"center"}>
                     {
                         !create &&
-                            <Button variant="contained" color={"success"}
-                                    onClick={() => handleCreate()}>{t("add_a_new_act")}</Button>
+                        <Button variant="contained" color={"success"}
+                                onClick={() => handleCreate()}>{t("add_a_new_act")}</Button>
                     }
                     <span>|</span>
                     <Typography>
@@ -263,8 +272,33 @@ function ActFees() {
                         <SaveRoundedIcon color={"primary"}/>
                     </IconButton>
 
-                </Stack>
+                </Stack>}
             </SubHeader>
+
+            {isMobile && <Box padding={2}>
+                <Stack spacing={1} padding={2} style={{
+                    background: "white",
+                    borderRadius: 10
+                }}>
+                    <Typography>
+                        {t("consultation")}
+                    </Typography>
+                    <TextField id="outlined-basic"
+                               value={consultationFees}
+                               InputProps={{
+                                   endAdornment: <InputAdornment position="end">{devise}</InputAdornment>,
+                               }}
+                               onChange={(ev) => {
+                                   setConsultationFees(Number(ev.target.value))
+                               }}
+                               variant="outlined"/>
+                    <Button variant={"contained"} onClick={() => {
+                        editFees()
+                    }}>
+                        <Typography>{t('save')}</Typography>
+                    </Button>
+                </Stack>
+            </Box>}
             <Box sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}, 'table': {tableLayout: 'fixed'}}}>
                 {create && <Stack
                     style={{
@@ -276,9 +310,9 @@ function ActFees() {
                     spacing={2}
                     mb={2}>
                     <Typography style={{color: theme.palette.grey[400], fontSize: 10}}>{t('newAct')}</Typography>
-                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                    <Stack direction={isMobile ?"column":"row"} alignItems={"center"} spacing={2}>
                         <Autocomplete
-                            sx={{width: "44%"}}
+                            sx={{width: isMobile ?"100%":"44%"}}
                             size="small"
                             value={newFees.act}
                             onChange={(event, newValue) => {
@@ -345,7 +379,7 @@ function ActFees() {
                                    label={t('price')}
                                    InputProps={{
                                        endAdornment: <InputAdornment position="end">{devise}</InputAdornment>,
-                                       style: {width: 150, backgroundColor: "white"}
+                                       style: {width: isMobile ? '':150, backgroundColor: "white"}
                                    }}
                                    onChange={(ev) => {
                                        newFees.fees = ev.target.value

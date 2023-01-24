@@ -22,7 +22,7 @@ import Content from "./content";
 import {collapse as collapseData} from "./config";
 import {upperFirst} from "lodash";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {consultationSelector} from "@features/toolbar";
+import {consultationSelector, SetListen} from "@features/toolbar";
 import moment from "moment-timezone";
 import {toggleSideBar} from "@features/sideBarMenu";
 import {appLockSelector} from "@features/appLock";
@@ -64,6 +64,7 @@ function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
+    const {listen} = useAppSelector(consultationSelector);
 
     const intervalref = useRef<number | null>(null);
 
@@ -247,7 +248,7 @@ function Consultation() {
 
                     <Collapse in={isNote}>
                         <Box mr={2}>
-                            <Stack alignItems={"end"} mt={1}>
+                            {(listen === '' || listen === 'note') && <Stack alignItems={"end"} mt={1}>
                                 {
                                     listening && isStarted ? <RecondingBoxStyle onClick={() => {
 
@@ -258,7 +259,7 @@ function Consultation() {
                                         SpeechRecognition.stopListening();
                                         resetTranscript();
                                         setIsStarted(false)
-
+                                        dispatch(SetListen(''));
                                         setTime('00:00');
                                     }}>
                                         <PauseCircleFilledRoundedIcon style={{fontSize: 14, color: "white"}}/>
@@ -268,6 +269,7 @@ function Consultation() {
                                     </RecondingBoxStyle> : <RecondingBoxStyle onClick={() => {
                                         resetTranscript();
                                         setIsStarted(true)
+                                        dispatch(SetListen('note'));
                                         SpeechRecognition.startListening({
                                             continuous: true,
                                             language: 'fr-FR'
@@ -285,7 +287,7 @@ function Consultation() {
                                         <MicRoundedIcon style={{fontSize: 14, color: "white"}}/>
                                     </RecondingBoxStyle>
                                 }
-                            </Stack>
+                            </Stack>}
 
                             <TextField inputProps={{style: {fontSize: 12, padding: 0}}}
                                        placeholder={t('writenote')}

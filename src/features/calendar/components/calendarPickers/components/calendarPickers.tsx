@@ -13,7 +13,7 @@ import {PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 type CalendarPickerView = "day" | "month" | "year";
 
 function CalendarPickers({...props}) {
-    const {notes} = props;
+    const {notes,disabled} = props;
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData} = useAppSelector(agendaSelector);
     const dispatch = useAppDispatch();
@@ -36,6 +36,7 @@ function CalendarPickers({...props}) {
             >
                 <StaticDatePicker
                     {...props}
+                    disabled={disabled}
                     renderDay={(day, _value, DayComponentProps) => {
                         const note = notes.find((note: any) => note.date === moment(day).format('DD-MM-YYYY'));
                         const isSelected = !DayComponentProps.outsideCurrentMonth && note;

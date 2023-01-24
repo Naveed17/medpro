@@ -29,25 +29,10 @@ import AddIcon from "@mui/icons-material/Add";
 import moment from "moment-timezone";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
-const PaymentTypes = [
-    {
-        icon: 'ic-argent',
-        label: 'cash'
-    },
-    {
-        icon: 'ic-card',
-        label: 'card'
-    },
-    {
-        icon: 'ic-cheque',
-        label: 'check'
-    },
-
-]
 
 interface HeadCell {
     disablePadding: boolean;
@@ -120,20 +105,17 @@ function TabPanel(props: TabPanelProps) {
 
 function PaymentDialog({...props}) {
     const {data} = props;
-    const {patient, selectedPayment, setSelectedPayment, deals, setDeals} = data;
-
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
 
+    const {patient, selectedPayment, setSelectedPayment, deals, setDeals, paymentTypes} = data;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
-    const {data: session} = useSession();
-
-    const {data: user} = session as Session;
+    const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
+    const [label, setLabel] = useState('');
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-
-    const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
-    const [label, setLabel] = useState('');
 
     const validationSchema = Yup.object().shape({
         totalToPay: Yup.number(),
@@ -186,9 +168,9 @@ function PaymentDialog({...props}) {
             <PaymentDialogStyled>
                 {patient &&
                     <Stack spacing={2}
-                       direction={{xs: patient ? 'column' : 'row', md: 'row'}}
-                       alignItems='center'
-                       justifyContent={patient ? 'space-between' : 'flex-end'}>
+                           direction={{xs: patient ? 'column' : 'row', md: 'row'}}
+                           alignItems='center'
+                           justifyContent={patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
                             <Avatar sx={{width: 26, height: 26}}
                                     src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
@@ -206,52 +188,52 @@ function PaymentDialog({...props}) {
                                 </Stack>
                             </Stack>
                         </Stack>
-                    <Stack
-                        direction={{xs: 'column', md: 'row'}}
-                        alignItems="center"
-                        justifyContent={{xs: 'center', md: 'flex-start'}}
-                        sx={{
-                            "& .MuiButtonBase-root": {
-                                fontWeight: "bold",
-                                fontSize: 16
+                        <Stack
+                            direction={{xs: 'column', md: 'row'}}
+                            alignItems="center"
+                            justifyContent={{xs: 'center', md: 'flex-start'}}
+                            sx={{
+                                "& .MuiButtonBase-root": {
+                                    fontWeight: "bold",
+                                    fontSize: 16
+                                }
+                            }}
+                            spacing={1}>
+                            {(selectedPayment && selectedPayment.amount) &&
+                                <Button size='small' variant='contained' color="error"
+                                        {...(isMobile && {
+                                            fullWidth: true
+                                        })}
+                                >
+                                    {t("btn_remain")}
+                                    <Typography
+                                        fontWeight={700}
+                                        component='strong'
+                                        mx={1}>{values.totalToPay}</Typography>
+                                    {devise}
+                                </Button>
                             }
-                        }}
-                        spacing={1}>
-                        {(selectedPayment && selectedPayment.amount) &&
-                            <Button size='small' variant='contained' color="error"
+
+                            <Button size='small' variant='contained' color="warning"
                                     {...(isMobile && {
                                         fullWidth: true
                                     })}
                             >
-                                {t("btn_remain")}
-                                <Typography
-                                    fontWeight={700}
-                                    component='strong'
-                                    mx={1}>{values.totalToPay}</Typography>
+                                {t("total")}
+                                <Typography fontWeight={700} component='strong'
+                                            mx={1}>{selectedPayment ? selectedPayment.total : 0}</Typography>
                                 {devise}
                             </Button>
-                        }
-
-                        <Button size='small' variant='contained' color="warning"
-                                {...(isMobile && {
-                                    fullWidth: true
-                                })}
-                        >
-                            {t("total")}
-                            <Typography fontWeight={700} component='strong'
-                                        mx={1}>{selectedPayment ? selectedPayment.total : 0}</Typography>
-                            {devise}
-                        </Button>
-                    </Stack>
-                </Stack>}
+                        </Stack>
+                    </Stack>}
                 {!patient && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
-                        <TextField
-                            value={label}
-                            style={{width: "100%"}}
-                            onChange={(ev) => {
-                                setLabel(ev.target.value)
-                            }}/>
+                    <TextField
+                        value={label}
+                        style={{width: "100%"}}
+                        onChange={(ev) => {
+                            setLabel(ev.target.value)
+                        }}/>
                     <Typography style={{color: "gray"}} fontSize={12} mb={0} mt={3}>{t('paymentMean')}</Typography>
 
                 </Box>}
@@ -264,23 +246,25 @@ function PaymentDialog({...props}) {
                             borderColor: 'divider'
                         }
                     })}>
-                    {PaymentTypes.map((method: { icon: string; label: string }) =>
+                    {paymentTypes.map((method: { logoUrl: string; name: string, slug: string }) =>
                         <FormControlLabel
-                            className={method.label === deals.selected ? "selected" : ''}
+                            className={method.slug === deals.selected ? "selected" : ''}
                             onClick={() => {
-                                deals.selected = method.label
+                                deals.selected = method.slug
                                 setDeals(deals);
-                                setFieldValue("selected", method.label)
+                                setFieldValue("selected", method.slug)
                             }}
-                            key={method.label}
+                            key={method.name}
                             control={
-                                <Checkbox checked={values.selected === method.label} name={t(method.label)}/>
+                                <Checkbox checked={values.selected === method.slug} name={t(method.name)}/>
                             }
                             label={
                                 <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                    <IconUrl path={method.icon}/>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img style={{width: 16}} src={method.logoUrl} alt={'payment means'}/>
                                     {
-                                        !isMobile && <Typography>{t(method.label)}</Typography>
+                                        !isMobile && paymentTypes.length !== 6 &&
+                                        <Typography>{t(method.name)}</Typography>
                                     }
 
                                 </Stack>
@@ -292,6 +276,11 @@ function PaymentDialog({...props}) {
                     {(() => {
                         switch (values.selected) {
                             case 'cash':
+                            case 'online':
+                            case 'promissory_note':
+                            case 'transfert':
+                            case 'card':
+                            case 'credit_card':
                                 return <TabPanel index={0}>
                                     <Stack px={{xs: 2, md: 4}} minHeight={200} justifyContent="center">
                                         <Box width={1}>
@@ -317,47 +306,11 @@ function PaymentDialog({...props}) {
                                                             date: moment().format("DD-MM-YYYY"),
                                                             time: moment().format("HH:mm"),
                                                             patient: patient,
-                                                            payment_type: [PaymentTypes[0]],
+                                                            designation: label,
+                                                            payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
                                                             amount: values.cash?.amount
                                                         }]);
-                                                        resetForm();
-                                                    }}
-                                                    sx={{marginTop: 2}}
-                                                    startIcon={<AddIcon/>}
-                                                    variant={"contained"}>
-                                                <Typography> {t('add')}</Typography>
-                                            </Button>
-                                        </Box>
-                                    </Stack>
-                                </TabPanel>
-                            case 'card':
-                                return <TabPanel index={1}>
-                                    <Stack px={4} minHeight={200} justifyContent="center">
-                                        <Box width={1}>
-                                            <Typography gutterBottom>
-                                                {t('enter_the_amount')}
-                                            </Typography>
-                                            <Stack direction='row' spacing={2} alignItems="center">
-                                                <TextField
-                                                    type='number'
-                                                    fullWidth
-                                                    {...getFieldProps("card.amount")}
-                                                    error={Boolean(touched?.card && errors?.card)}
-                                                />
-                                                <Typography>
-                                                    {devise}
-                                                </Typography>
-                                            </Stack>
-                                            <Button color={"success"}
-                                                    disabled={values.card.amount === ""}
-                                                    onClick={() => {
-                                                        setPayments([...payments, {
-                                                            date: moment().format("DD-MM-YYYY"),
-                                                            time: moment().format("HH:mm"),
-                                                            patient: patient,
-                                                            payment_type: [PaymentTypes[1]],
-                                                            amount: values.card?.amount
-                                                        }]);
+                                                        setLabel("");
                                                         resetForm();
                                                     }}
                                                     sx={{marginTop: 2}}
@@ -369,7 +322,7 @@ function PaymentDialog({...props}) {
                                     </Stack>
                                 </TabPanel>
                             case 'check':
-                                return <TabPanel index={3}>
+                                return <TabPanel index={0}>
                                     <Stack p={4} minHeight={200} justifyContent="center">
                                         <Typography gutterBottom>
                                             {t('enter_the_amount')}
@@ -517,7 +470,7 @@ function PaymentDialog({...props}) {
                                                         date: moment().format("DD-MM-YYYY"),
                                                         time: moment().format("HH:mm"),
                                                         patient: patient,
-                                                        payment_type: [PaymentTypes[2]],
+                                                        payment_type: paymentTypes.filter((p: { slug: any; }) => p.slug === deals.selected),
                                                         amount: ck.amount
                                                     });
                                                 });
