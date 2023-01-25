@@ -38,6 +38,10 @@ import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
+import {unsubscribeTopic} from "@app/hooks";
+import axios from "axios";
+import {logout} from "@features/profilMenu";
+import {Session} from "next-auth";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -45,14 +49,16 @@ function SideBarMenu({children}: LayoutProps) {
     const router = useRouter();
     const dispatch = useAppDispatch();
 
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
+    const {data: user} = session as Session;
+    const general_information = (user as UserDataResponse).general_information;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {waiting_room} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
+    const {t, ready} = useTranslation("menu");
 
     let container: any = useRef<HTMLDivElement>(null);
-
     const [menuItems, setMenuItems] = useState(sidebarItems);
 
     useEffect(() => {
@@ -78,10 +84,17 @@ function SideBarMenu({children}: LayoutProps) {
         dispatch(toggleMobileBar(true));
     }
 
-
-    const {t, ready} = useTranslation("menu");
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
-
+    const handleLogout = async () => {
+        await unsubscribeTopic({general_information});
+        // Log out from keycloak session
+        const {
+            data: {path}
+        } = await axios({
+            url: "/api/auth/logout",
+            method: "GET"
+        });
+        dispatch(logout({redirect: true, path}));
+    }
 
     const handleSettingRoute = () => {
         isMobile ? router.push("/dashboard/settings") :
@@ -148,6 +161,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </ListItem>
                 <Hidden smUp>
                     <ListItem
+                        onClick={() => handleLogout()}
                         disableRipple
                         button>
                         <ListItemIcon>
@@ -159,6 +173,8 @@ function SideBarMenu({children}: LayoutProps) {
             </List>
         </div>
     );
+
+    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <MainMenuStyled>

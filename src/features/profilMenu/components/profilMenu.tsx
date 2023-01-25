@@ -29,6 +29,7 @@ import {Session} from "next-auth";
 import {TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {LoadingScreen} from "@features/loadingScreen";
 import Image from "next/image";
+import {unsubscribeTopic} from "@app/hooks";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -44,9 +45,9 @@ function ProfilMenu() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const {data: user} = session as Session;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const general_information = (session?.data as UserDataResponse).general_information;
+    const general_information = (user as UserDataResponse).general_information;
 
     const {trigger} = useRequestMutation(null, "/settings");
 
@@ -72,25 +73,7 @@ function ProfilMenu() {
     const handleMenuItem = async (action: string) => {
         switch (action) {
             case 'logout':
-                // Unsubscribe from Topic
-                const {data: fcm_api_key} = await axios({
-                    url: "/api/helper/server_env",
-                    method: "POST",
-                    data: {
-                        key: "FCM_WEB_API_KEY"
-                    }
-                });
-                axios({
-                    url: "https://iid.googleapis.com/iid/v1:batchRemove",
-                    method: "POST",
-                    headers: {
-                        Authorization: `key=${fcm_api_key}`
-                    },
-                    data: {
-                        to: `/topics/${general_information.roles[0]}-${general_information.uuid}`,
-                        registration_tokens: [localStorage.getItem("fcm_token")]
-                    }
-                });
+                await unsubscribeTopic({general_information});
                 // Log out from keycloak session
                 const {
                     data: {path}
