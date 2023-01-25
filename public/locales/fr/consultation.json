@@ -290,6 +290,7 @@
   },
   "table": {
     "acts": "Actes",
+    "title": "Titre",
     "default_amount": "Montant par défaut",
     "amount": "Montant",
     "time": "Heure",

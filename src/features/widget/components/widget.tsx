@@ -90,7 +90,6 @@ function Widget({...props}) {
 
     useEffect(() => {
         if (modal) setValue(modal.default_modal);
-        console.log(models);
     }, [modal]);
 
     const handleClickAway = () => {
@@ -151,7 +150,7 @@ function Widget({...props}) {
                             <MenuList>
                                 {models &&
                                     models.map((item: any, idx: number) => (
-                                        <>
+                                        <Box key={'widgt-x-'+idx}>
                                             {item.isEnabled && <MenuItem
                                                 key={`model-item-${idx}`}
                                                 onClick={() => handleClick(item)}>
@@ -170,7 +169,7 @@ function Widget({...props}) {
                                                     overflow: 'hidden'
                                                 }}>{item.label}</ListItemText>
                                             </MenuItem>}
-                                        </>
+                                        </Box>
                                     ))}
                             </MenuList>
                         </Paper>
