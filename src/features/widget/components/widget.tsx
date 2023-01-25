@@ -90,6 +90,7 @@ function Widget({...props}) {
 
     useEffect(() => {
         if (modal) setValue(modal.default_modal);
+        console.log(models);
     }, [modal]);
 
     const handleClickAway = () => {
@@ -150,24 +151,26 @@ function Widget({...props}) {
                             <MenuList>
                                 {models &&
                                     models.map((item: any, idx: number) => (
-                                        <MenuItem
-                                            key={`model-item-${idx}`}
-                                            onClick={() => handleClick(item)}>
-                                            <ListItemIcon>
-                                                <ModelDot
-                                                    color={item.color}
-                                                    selected={false}
-                                                    size={21}
-                                                    sizedot={13}
-                                                    padding={3}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText style={{
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden'
-                                            }}>{item.label}</ListItemText>
-                                        </MenuItem>
+                                        <>
+                                            {item.isEnabled && <MenuItem
+                                                key={`model-item-${idx}`}
+                                                onClick={() => handleClick(item)}>
+                                                <ListItemIcon>
+                                                    <ModelDot
+                                                        color={item.color}
+                                                        selected={false}
+                                                        size={21}
+                                                        sizedot={13}
+                                                        padding={3}
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText style={{
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden'
+                                                }}>{item.label}</ListItemText>
+                                            </MenuItem>}
+                                        </>
                                     ))}
                             </MenuList>
                         </Paper>

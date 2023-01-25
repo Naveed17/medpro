@@ -865,10 +865,6 @@ function ConsultationInProgress() {
                                     </Button>
                                 </Stack>
                             </Stack>}
-                            <Button onClick={()=>{
-                                endConsultation()
-                            }
-                            }>ok</Button>
                             <Button
                                 onClick={appointement?.status == 5 ? saveConsultation : endConsultation}
                                 color={"error"}
