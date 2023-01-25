@@ -400,7 +400,7 @@ function Calendar({...props}) {
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
 
-                            <StyledMenu
+                            {slotInfo && <StyledMenu
                                 open={!!slotInfoPopover}
                                 anchorReference="anchorPosition"
                                 onClose={() => {
@@ -463,7 +463,7 @@ function Calendar({...props}) {
                                     <AddOutlinedIcon/>
                                     Ajout complet
                                 </MenuItem>
-                            </StyledMenu>
+                            </StyledMenu>}
 
                             <Menu
                                 open={contextMenu !== null}
