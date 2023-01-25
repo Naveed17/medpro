@@ -1,4 +1,4 @@
-import {Box, Button, DialogActions, Divider, Paper, Tab, Tabs} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Paper, Tab, Tabs, useTheme} from "@mui/material";
 import {PatientDetailsToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {NoDataCard, PatientDetailsCard} from "@features/card";
@@ -34,6 +34,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {Dialog} from "@features/dialog";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 import {LoadingButton} from "@mui/lab";
+import {alpha} from "@mui/material/styles";
 
 function a11yProps(index: number) {
     return {
@@ -69,12 +70,14 @@ function PatientDetail({...props}) {
 
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const theme = useTheme();
     const {data: session} = useSession();
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
 
     // state hook for tabs
     const [index, setIndex] = useState<number>(currentStepper);
     const [isAdd, setIsAdd] = useState<boolean>(isAddAppointment);
+    const [openFabAdd, setOpenFabAdd] = useState(false);
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [loadingFiles, setLoadingFiles] = useState(true);
     const [documentViewIndex, setDocumentViewIndex] = useState(0);
@@ -137,13 +140,71 @@ function PatientDetail({...props}) {
         },
     } : null, SWRNoValidateConfig);
 
+    const handleOpenFab = () => setOpenFabAdd(true);
+
+    const handleCloseFab = () => setOpenFabAdd(false);
+
+    const handleActionFab = (fabAction: any) => {
+        setOpenFabAdd(false);
+        console.log(fabAction.action)
+        switch (fabAction.action) {
+            case "add-appointment" :
+                dispatch(setAppointmentPatient(patient as any));
+                setIsAdd(!isAdd)
+                break;
+            case "import-document":
+                setOpenUploadDialog(true);
+                break;
+        }
+    }
+
+    // handle tab change
+    const handleStepperIndexChange = (
+        event: SyntheticEvent,
+        newValue: number
+    ) => {
+        setIndex(newValue);
+    };
+
+    const submitStepper = (index: number) => {
+        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
+        if (stepperData.length !== index) {
+            steps[index].disabled = false;
+            setStepperData(steps);
+        } else {
+            setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
+            mutatePatientDetails();
+        }
+    };
+
+    const handleUploadDocuments = () => {
+        const documentTabIndex = tabsContent.findIndex(tab => tab.title === "tabs.documents");
+        setDocumentViewIndex(roles.includes('ROLE_SECRETARY') ? 0 : 1);
+        index !== documentTabIndex && setIndex(documentTabIndex);
+        setLoadingRequest(true);
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`document[${file.type}][]`, file.file, file.name);
+        });
+        triggerUploadDocuments({
+            method: "POST",
+            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
+            data: params,
+            headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+            },
+        }).then(() => {
+            mutatePatientDocuments();
+            setLoadingRequest(false);
+        });
+    }
+
     const nextAppointments = patient ? patient.nextAppointments : [];
     const previousAppointments = patient ? patient.previousAppointments : [];
     const previousAppointmentsData = (httpPatientHistoryResponse as HttpResponse)?.data;
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
     const documents = patient ? patient.documents : [];
     const patientDocuments = (httpPatientDocumentsResponse as HttpResponse)?.data;
-
     const tabsContent = [
         {
             title: "tabs.personal-info",
@@ -158,7 +219,7 @@ function PatientDetail({...props}) {
             title: "tabs.history",
             children: <>
                 {previousAppointmentsData && previousAppointmentsData.length > 0 ? (
-                    <HistoryPanel {...{t, previousAppointmentsData, patient,mutatePatientDocuments}} />
+                    <HistoryPanel {...{t, previousAppointmentsData, patient, mutatePatientDocuments}} />
                 ) : (
                     <NoDataCard
                         t={t}
@@ -204,53 +265,13 @@ function PatientDetail({...props}) {
         }
     ].filter(tab => tab.permission.includes(roles[0]));
 
-    // handle tab change
-    const handleStepperIndexChange = (
-        event: SyntheticEvent,
-        newValue: number
-    ) => {
-        setIndex(newValue);
-    };
-
-    const submitStepper = (index: number) => {
-        const steps: any = stepperData.map((stepper, index) => ({...stepper}));
-        if (stepperData.length !== index) {
-            steps[index].disabled = false;
-            setStepperData(steps);
-        } else {
-            setStepperData(steps.map((stepper: any) => ({...stepper, disabled: true})));
-            mutatePatientDetails();
-        }
-    };
-
-    const handleUploadDocuments = () => {
-        const documentTabIndex = tabsContent.findIndex(tab => tab.title === "tabs.documents");
-        setDocumentViewIndex(roles.includes('ROLE_SECRETARY') ? 0 : 1);
-        index !== documentTabIndex && setIndex(documentTabIndex);
-        setLoadingRequest(true);
-        const params = new FormData();
-        documentConfig.files.map((file: any) => {
-            params.append(`document[${file.type}][]`, file.file, file.name);
-        });
-        triggerUploadDocuments({
-            method: "POST",
-            url: `/api/medical-entity/${medical_entity.uuid}/patients/${patientId}/documents/${router.locale}`,
-            data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            mutatePatientDocuments();
-            setLoadingRequest(false);
-        });
-    }
-
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
 
     return (
         <>
-            {!isAdd ? (
+            {!isAdd ?
                 <PatientDetailStyled height={!isAdd ? "100%" : 0}>
+                    <Backdrop open={openFabAdd}/>
                     {" "}
                     <PatientDetailsToolbar
                         onClose={() => {
@@ -294,13 +315,13 @@ function PatientDetail({...props}) {
                                 right: 16,
                                 display: {md: "none", xs: "flex"},
                             }}
-                            onClick={() => {
-                                dispatch(setAppointmentPatient(patient as any));
-                                setIsAdd(!isAdd)
-                            }}
+                            onClose={handleCloseFab}
+                            onOpen={handleOpenFab}
+                            open={openFabAdd}
+                            handleitemclick={handleActionFab}
                             actions={[
-                                {icon: <SpeedDialIcon/>, name: t("tabs.add-appo")},
-                                {icon: <CloudUploadIcon/>, name: t("tabs.import")},
+                                {icon: <SpeedDialIcon/>, name: t("tabs.add-appo"), action: "add-appointment"},
+                                {icon: <CloudUploadIcon/>, name: t("tabs.import"), action: "import-document"},
                             ]}
                         />
                     </Box>
@@ -394,35 +415,35 @@ function PatientDetail({...props}) {
                         }
                     />
                 </PatientDetailStyled>
-            ) : (
-                <CustomStepper
-                    {...{stepperData, t}}
-                    modal={"patient"}
-                    OnSubmitStepper={submitStepper}
-                    OnAction={(action: string, event: EventDef) => {
-                        switch (action) {
-                            case "close":
-                                if (patientId) {
-                                    setIsAdd(false);
-                                } else {
-                                    dispatch(onOpenPatientDrawer({patientId: ""}));
-                                    onCloseDialog(false);
-                                }
-                                mutatePatientList && mutatePatientList();
-                                break;
-                            case "onConsultationStart":
-                                onConsultation && onConsultation(event);
-                                break;
-                        }
-                    }}
-                    onBackButton={(index: number) => {
-                        return index === 0 && setIsAdd(false)
-                    }}
-                    scroll
-                    minWidth={726}
-                    onClickCancel={() => setIsAdd(false)}
-                />
-            )}
+                : (
+                    <CustomStepper
+                        {...{stepperData, t}}
+                        modal={"patient"}
+                        OnSubmitStepper={submitStepper}
+                        OnAction={(action: string, event: EventDef) => {
+                            switch (action) {
+                                case "close":
+                                    if (patientId) {
+                                        setIsAdd(false);
+                                    } else {
+                                        dispatch(onOpenPatientDrawer({patientId: ""}));
+                                        onCloseDialog(false);
+                                    }
+                                    mutatePatientList && mutatePatientList();
+                                    break;
+                                case "onConsultationStart":
+                                    onConsultation && onConsultation(event);
+                                    break;
+                            }
+                        }}
+                        onBackButton={(index: number) => {
+                            return index === 0 && setIsAdd(false)
+                        }}
+                        scroll
+                        minWidth={726}
+                        onClickCancel={() => setIsAdd(false)}
+                    />
+                )}
         </>
     );
 }

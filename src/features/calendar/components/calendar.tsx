@@ -94,8 +94,6 @@ function Calendar({...props}) {
     const [anchorEl, setAnchorEl] = React.useState<EventTarget | null>(null);
     const [loading, setLoading] = useState(true);
 
-    console.log("slotInfoPopover", slotInfoPopover);
-
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
@@ -513,7 +511,6 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
-
                         </Box>
                     )}
                 </CalendarStyled>

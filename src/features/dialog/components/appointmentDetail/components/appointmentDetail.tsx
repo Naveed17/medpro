@@ -27,6 +27,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 
@@ -45,6 +46,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {LoadingButton} from "@mui/lab";
 import {LoadingScreen} from "@features/loadingScreen";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
+import {countries as dialCountries} from "@features/countrySelect/countries";
 
 function AppointmentDetail({...props}) {
     const {
@@ -69,9 +71,9 @@ function AppointmentDetail({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>;
 
-    const {t, ready} = useTranslation("common")
+    const {t, ready} = useTranslation("common");
     const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
 
     const {
@@ -137,6 +139,10 @@ function AppointmentDetail({...props}) {
         setOpenDialog(false);
     };
 
+    const getCountryByCode = (code: string) => {
+        return dialCountries.find(country => country.phone === code)
+    }
+
     const patientPhoto = (httpPatientPhotoResponse as HttpResponse)?.data.photo;
 
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -188,34 +194,7 @@ function AppointmentDetail({...props}) {
                             </Typography>
                         </Stack>
                     ))}
-                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors?.length > 1 ? 0 : 2}} variant="body1"
-                                fontWeight={600}>
-                        {t('time_slot')}
-                    </Typography>
-                    <AppointmentCard
-                        {...{t, roles}}
-                        onDataUpdated={OnDataUpdated}
-                        data={
-                            {
-                                uuid: data?.publicId ? data?.publicId : (data as any)?.id,
-                                date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
-                                time: moment(data?.extendedProps.time).format("HH:mm"),
-                                motif: data?.extendedProps.motif,
-                                status: data?.extendedProps.status,
-                                type: data?.extendedProps.type
-                            }
-                        }
-                    />
 
-                    {process.env.NODE_ENV === 'development' &&
-                        <Stack direction="row" spacing={2} alignItems='center' mt={2}>
-                            <Button onClick={handleQr} variant='contained' fullWidth>
-                                Qr-Code
-                            </Button>
-                            <Button variant='contained' fullWidth>
-                                {t('send_link')}
-                            </Button>
-                        </Stack>}
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('patient')}
                     </Typography>
@@ -262,22 +241,63 @@ function AppointmentDetail({...props}) {
                                         {data?.extendedProps.patient?.email}
                                     </Link>
                                 </ListItem>}
-                                {data?.extendedProps.patient?.phone && <ListItem>
+                                {data?.extendedProps.patient?.contact.length > 0 && <ListItem>
                                     <IconUrl path='ic-tel'/>
-                                    {data?.extendedProps.patient?.phone.ccode &&
-                                        <Box component='img'
-                                             src={`https://flagcdn.com/${data?.extendedProps.patient?.phone.ccode}.svg`}
-                                             srcSet={`https://flagcdn.com/${data?.extendedProps.patient?.phone.ccode}.svg 2x`}
-                                             sx={{width: 13, ml: 1}}/>}
-                                    <Link underline="none" href={`tel:${data?.extendedProps.patient?.phone}`}
+                                    {data?.extendedProps.patient?.contact[0].code &&
+                                        <Avatar
+                                            sx={{
+                                                width: 18,
+                                                height: 14,
+                                                borderRadius: 0.4,
+                                                ml: ".5rem"
+                                            }}
+                                            alt="flag"
+                                            src={`https://flagcdn.com/${getCountryByCode(data.extendedProps.patient.contact[0].code)?.code.toLowerCase()}.svg`}
+                                        />}
+                                    <Link underline="none"
+                                          href={`tel:${data?.extendedProps.patient.contact[0].code}${data?.extendedProps.patient.contact[0].value}`}
                                           sx={{ml: 1, fontSize: 11}}
                                           variant="caption" color="text.secondary" fontWeight={400}>
-                                        {data.extendedProps.patient?.phone}
+                                        <Stack direction={"row"} alignItems={"center"}>
+                                            {data?.extendedProps.patient.contact[0].value}
+                                            <KeyboardArrowRightRoundedIcon color={"disabled"} fontSize={"small"}/>
+                                        </Stack>
                                     </Link>
+
                                 </ListItem>}
                             </List>
                         </CardContent>
                     </Card>
+
+                    <Typography sx={{mb: 1, mt: data?.extendedProps.hasErrors?.length > 1 ? 0 : 2}} variant="body1"
+                                fontWeight={600}>
+                        {t('time_slot')}
+                    </Typography>
+                    <AppointmentCard
+                        {...{t, roles}}
+                        onDataUpdated={OnDataUpdated}
+                        data={
+                            {
+                                uuid: data?.publicId ? data?.publicId : (data as any)?.id,
+                                date: moment(data?.extendedProps.time).format("DD-MM-YYYY"),
+                                time: moment(data?.extendedProps.time).format("HH:mm"),
+                                motif: data?.extendedProps.motif,
+                                status: data?.extendedProps.status,
+                                type: data?.extendedProps.type
+                            }
+                        }
+                    />
+
+                    {process.env.NODE_ENV === 'development' &&
+                        <Stack direction="row" spacing={2} alignItems='center' mt={2}>
+                            <Button onClick={handleQr} variant='contained' fullWidth>
+                                Qr-Code
+                            </Button>
+                            <Button variant='contained' fullWidth>
+                                {t('send_link')}
+                            </Button>
+                        </Stack>}
+
                     <Typography sx={{mt: 2, mb: 1}} variant="body1" fontWeight={600}>
                         {t('insctruction')}
                     </Typography>
