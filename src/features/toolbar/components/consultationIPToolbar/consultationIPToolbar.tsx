@@ -484,7 +484,8 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+       // setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+        console.log(appointement)
         setTabsData(hasLatestAppointments ? [
             {
                 label: "consultation_form",
