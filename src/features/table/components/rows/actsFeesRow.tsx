@@ -30,7 +30,7 @@ function ActFeesRow({...props}) {
                 {edit === row?.uuid ? <TextField
                     placeholder={'--'}
                     type="number"
-                    value={fees ? fees : row?.fees || 0}
+                    value={fees ? fees : row?.fees || ''}
                     onChange={(e) => {
                         setFees(e.target.value);
                     }}
@@ -44,7 +44,7 @@ function ActFeesRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        {edit === row.uuid ? <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                        {edit === row.uuid ? <IconButton size="small" disabled={fees.length === 0} sx={{mr: {md: 1}}} onClick={() => {
                             editMotif(row,fees);
                             setTimeout(()=>{
                                 setEdit('')
@@ -52,7 +52,7 @@ function ActFeesRow({...props}) {
                             }}>
                                 <SaveRoundedIcon color={"primary"}/>
                             </IconButton> :
-                            <IconButton size="small" sx={{mr: {md: 1}}} onClick={() => {
+                            <IconButton size="small" sx={{mr: {md: 1}}}   onClick={() => {
                                 console.log("click")
                                 setEdit(row.uuid)
                             }}>

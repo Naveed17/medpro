@@ -148,8 +148,7 @@ function ConsultationIPToolbar({...props}) {
             const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
             if (audios.length > 0) {
                 const form = new FormData();
-                form.append("type", audios[0].uuid);
-                form.append("files[]", file, file.name);
+                form.append(`files[${audios[0].uuid}][]`, file, file.name);
                 trigger({
                     method: "POST",
                     url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
@@ -484,7 +483,8 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+       // setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+        //console.log(appointement)
         setTabsData(hasLatestAppointments ? [
             {
                 label: "consultation_form",
@@ -541,6 +541,82 @@ function ConsultationIPToolbar({...props}) {
     return (
         <>
             <ConsultationIPToolbarStyled minHeight="inherit" width={1}>
+                {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
+                    {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
+                        <Zoom>
+                            <Avatar
+                                src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                                sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
+                                <IconUrl width={"40"} height={"40"} path="men-avatar"/>
+                            </Avatar>
+                        </Zoom>
+                        <Stack>
+                            <Typography variant="body1" color='primary.main'
+                                        sx={{fontFamily: 'Poppins'}}>{patient.firstName} {patient.lastName}</Typography>
+                            <Typography variant="body2" color="text.secondary">{patient.fiche_id}</Typography>
+                        </Stack>
+                    </Stack>}
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        mb={1}
+                        justifyContent="flex-end"
+                        sx={{width: {xs: "30%", md: "30%"}}}>
+                        {record && <Button
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={() => {
+                                stopRec()
+                            }}
+                            variant="contained"
+                            color="primary">
+                            {time}
+                        </Button>
+                        }
+                        <Button
+                            sx={{minWidth: 35}}
+                            size={isMobile ? "small" : "medium"}
+                            onClick={handleClick}
+                            variant="contained"
+                            endIcon={!record && <KeyboardArrowDownIcon/>}
+                            color="warning">
+                            {
+                                isMobile ? <AddIcon/> :
+                                    <>
+                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
+                                    </>
+                            }
+                        </Button>
+                        <StyledMenu
+                            id="basic-menu"
+                            elevation={0}
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "right",
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "right",
+                            }}
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            MenuListProps={{
+                                "aria-labelledby": "basic-button",
+                            }}>
+                            {documentButtonList.map((item, index) => (
+                                <MenuItem
+                                    key={`document-button-list-${index}`}
+                                    onClick={() => handleClose(item.label)}>
+                                    <Icon path={item.icon}/>
+                                    {t(item.label)}
+                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                </MenuItem>
+                            ))}
+                        </StyledMenu>
+                    </Stack>
+                </Stack>}
                 <Stack
                     direction="row"
                     minHeight="inherit"
@@ -634,83 +710,6 @@ function ConsultationIPToolbar({...props}) {
                         </StyledMenu>
                     </Stack>}
                 </Stack>
-
-                {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
-                    {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
-                        <Zoom>
-                            <Avatar
-                                src={patientPhoto ? patientPhoto : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
-                                <IconUrl width={"40"} height={"40"} path="men-avatar"/>
-                            </Avatar>
-                        </Zoom>
-                        <Stack>
-                            <Typography variant="body1" color='primary.main'
-                                        sx={{fontFamily: 'Poppins'}}>{patient.firstName} {patient.lastName}</Typography>
-                            <Typography variant="body2" color="text.secondary">{patient.fiche_id}</Typography>
-                        </Stack>
-                    </Stack>}
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        mb={1}
-                        justifyContent="flex-end"
-                        sx={{width: {xs: "30%", md: "30%"}}}>
-                        {record && <Button
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={() => {
-                                stopRec()
-                            }}
-                            variant="contained"
-                            color="primary">
-                            {time}
-                        </Button>
-                        }
-                        <Button
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={handleClick}
-                            variant="contained"
-                            endIcon={!record && <KeyboardArrowDownIcon/>}
-                            color="warning">
-                            {
-                                isMobile ? <AddIcon/> :
-                                    <>
-                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
-                                    </>
-                            }
-                        </Button>
-                        <StyledMenu
-                            id="basic-menu"
-                            elevation={0}
-                            anchorOrigin={{
-                                vertical: "bottom",
-                                horizontal: "right",
-                            }}
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            MenuListProps={{
-                                "aria-labelledby": "basic-button",
-                            }}>
-                            {documentButtonList.map((item, index) => (
-                                <MenuItem
-                                    key={`document-button-list-${index}`}
-                                    onClick={() => handleClose(item.label)}>
-                                    <Icon path={item.icon}/>
-                                    {t(item.label)}
-                                    {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: { index: number; }) => ch.index === index).checked &&
-                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
-                                </MenuItem>
-                            ))}
-                        </StyledMenu>
-                    </Stack>
-                </Stack>}
             </ConsultationIPToolbarStyled>
 
             {info && (

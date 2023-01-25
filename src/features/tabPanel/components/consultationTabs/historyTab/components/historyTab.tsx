@@ -26,8 +26,6 @@ import BoxFees from "./overrides/boxFeesStyled"
 import Image from "next/image";
 import Zoom from 'react-medium-image-zoom'
 import moment from "moment/moment";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
 
 function HistoryTab({...props}) {
@@ -239,16 +237,16 @@ function HistoryTab({...props}) {
                                     <Zoom>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={photo.uri}
-                                               alt={'img'}
-                                               style={{borderRadius: "10px 10px 0 0",width:150,height:110}}
-                                               />
+                                             alt={'img'}
+                                             style={{borderRadius: "10px 10px 0 0", width: 150, height: 110}}
+                                        />
                                     </Zoom>
 
                                     <Stack spacing={0.5} width={"fit-content"} margin={"auto"} direction="row"
                                            alignItems='center'>
                                         <Icon path="ic-agenda-jour"/>
                                         <Typography fontWeight={600} fontSize={13}>
-                                            {moment(photo.createdAt,'DD-MM-YYYY HH:mm').format('DD/MM/YYYY')}
+                                            {moment(photo.createdAt, 'DD-MM-YYYY HH:mm').format('DD/MM/YYYY')}
                                         </Typography>
                                     </Stack>
 
@@ -287,7 +285,7 @@ function HistoryTab({...props}) {
                                                     </IconButton>
                                                 </ListItemStyled>
 
-                                                <Collapse in={collapse === col.id} sx={{width: 1}}>
+                                                <Collapse in={app.appointment.uuid === selectedApp} sx={{width: 1}}>
                                                     <ListItemDetailsStyled sx={{p: 0}}>
                                                         {col.type === "treatment" && <>
                                                             {
@@ -324,26 +322,40 @@ function HistoryTab({...props}) {
                                                                                 xs={12}
                                                                                 md={2}
                                                                                 key={`doc-item-${data.uuid}`}>
-                                                                                <Stack direction={"row"} style={{background:"white"}} borderRadius={1} padding={1} spacing={1} onClick={()=>{showDoc(data)}} alignItems="center">
-                                                                                    {data.documentType !== 'photo' && <IconUrl height={25} width={25}
-                                                                                              path={
-                                                                                                  data.documentType === "prescription" && "ic-traitement" ||
-                                                                                                  data.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                                  data.documentType == "analyse" && "ic-analyse" ||
-                                                                                                  data.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                                  data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                                  data.documentType === "audio" && "ic-son" ||
-                                                                                                  data.documentType === "Rapport" && "ic-text" ||
-                                                                                                  data.documentType === "medical-certificate" && "ic-text" ||
-                                                                                                  data.documentType === "video" && "ic-video-outline" ||
-                                                                                                  data.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                              }/>}
-                                                                                    {data.documentType === 'photo' &&<Image width={25}
-                                                                                                                            height={25}
-                                                                                                                            src={data.uri}
-                                                                                                                            style={{borderRadius:5}}
-                                                                                                                            alt={'photo history'}/>}
-                                                                                    <Typography  variant='subtitle2' textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}>
+                                                                                <Stack direction={"row"}
+                                                                                       style={{background: "white"}}
+                                                                                       borderRadius={1} padding={1}
+                                                                                       spacing={1} onClick={() => {
+                                                                                    showDoc(data)
+                                                                                }} alignItems="center">
+                                                                                    {data.documentType !== 'photo' &&
+                                                                                        <IconUrl height={25} width={25}
+                                                                                                 path={
+                                                                                                     data.documentType === "prescription" && "ic-traitement" ||
+                                                                                                     data.documentType == "requested-analysis" && "ic-analyse" ||
+                                                                                                     data.documentType == "analyse" && "ic-analyse" ||
+                                                                                                     data.documentType == "medical-imaging" && "ic-soura" ||
+                                                                                                     data.documentType == "requested-medical-imaging" && "ic-soura" ||
+                                                                                                     data.documentType === "audio" && "ic-son" ||
+                                                                                                     data.documentType === "Rapport" && "ic-text" ||
+                                                                                                     data.documentType === "medical-certificate" && "ic-text" ||
+                                                                                                     data.documentType === "video" && "ic-video-outline" ||
+                                                                                                     data.documentType !== "prescription" && "ic-pdf" || ""
+                                                                                                 }/>}
+                                                                                    {data.documentType === 'photo' &&
+                                                                                        <Image width={25}
+                                                                                               height={25}
+                                                                                               src={data.uri}
+                                                                                               style={{borderRadius: 5}}
+                                                                                               alt={'photo history'}/>}
+                                                                                    <Typography variant='subtitle2'
+                                                                                                textAlign={"center"}
+                                                                                                whiteSpace={"nowrap"}
+                                                                                                display={"block"}
+                                                                                                maxWidth={"60%"}
+                                                                                                overflow={"hidden !important"}
+                                                                                                textOverflow={'ellipsis'}
+                                                                                                fontSize={9}>
                                                                                         {t(data.title)}
                                                                                     </Typography>
                                                                                 </Stack>
@@ -473,7 +485,8 @@ function HistoryTab({...props}) {
                                                                         </Grid>
                                                                     </Grid>
 
-                                                                    <Grid container spacing={2} pb={1} pt={1} style={{borderBottom:'1px dashed gray'}}>
+                                                                    <Grid container spacing={2} pb={1} pt={1}
+                                                                          style={{borderBottom: '1px dashed gray'}}>
                                                                         <Grid item xs={3}>
                                                                             <Typography className={"feesContent"}
                                                                             >{t('consultationIP.consultation')}</Typography>
@@ -484,12 +497,14 @@ function HistoryTab({...props}) {
                                                                             <Typography textAlign={"right"}
                                                                                         className={"feesContent"}>{app?.appointment.consultation_fees
                                                                                 ? app?.appointment.consultation_fees
-                                                                                : "--"}  {devise}</Typography>
+                                                                                : "--"} {devise}</Typography>
                                                                         </Grid>
                                                                     </Grid>
                                                                     {app?.appointment.acts.map(
                                                                         (act: any, idx: number) => (
-                                                                            <Grid container pb={1} pt={1} style={{borderBottom:'1px dashed gray'}} key={`fees-${idx}`}
+                                                                            <Grid container pb={1} pt={1}
+                                                                                  style={{borderBottom: '1px dashed gray'}}
+                                                                                  key={`fees-${idx}`}
                                                                                   spacing={2} alignItems="center">
                                                                                 <Grid item xs={3}>
                                                                                     <Typography

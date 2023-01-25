@@ -101,14 +101,21 @@ function SecretaryConsultationDialog({...props}) {
                             {checkedNext && (
                                 <>
                                     <InputBase
-                                        inputProps={{
-                                            readOnly: true,
-                                        }}
+                                        type={"number"}
                                         value={meeting}
+                                        placeholder={'-'}
+                                        onClick={(e)=>{
+                                            e.stopPropagation();
+                                        }}
+                                        onChange={(e)=>{
+                                            if (e.target.value.length === 0 )
+                                                setMeeting(e.target.value)
+                                            else setMeeting(Number(e.target.value))
+                                        }}
                                         startAdornment={
                                             <IconButton
                                                 size="small"
-                                                disabled={meeting <= 1}
+                                                disabled={meeting <= 1 || meeting.length == 0}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setMeeting(meeting - 1);
@@ -119,6 +126,7 @@ function SecretaryConsultationDialog({...props}) {
                                         endAdornment={
                                             <IconButton
                                                 size="small"
+                                                disabled={meeting.length == 0}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setMeeting(meeting + 1);

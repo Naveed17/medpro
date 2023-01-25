@@ -74,6 +74,7 @@
   },
   "end of consultation": "fin de la consultation",
   "cancel": "Annuler",
+  "note": "Note: ",
   "showAll": "Afficher tout...",
   "notes": "observations",
   "hint text": "Texte d'indice",
@@ -290,6 +291,7 @@
   },
   "table": {
     "acts": "Actes",
+    "title": "Titre",
     "default_amount": "Montant par défaut",
     "amount": "Montant",
     "time": "Heure",
