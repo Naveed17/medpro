@@ -39,7 +39,7 @@ function AddDocumentDialog({...props}) {
     }, [httpTypeResponse]);
 
     const handleRemove = (file: any) => {
-        setFiles(files.filter((_file: any) => _file !== file));
+        setFiles(files.filter((_file: any) => _file.file !== file));
     };
 
     useEffect(() => {

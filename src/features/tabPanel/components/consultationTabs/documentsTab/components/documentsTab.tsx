@@ -8,6 +8,9 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import ReorderIcon from '@mui/icons-material/Reorder';
 import AppsIcon from '@mui/icons-material/Apps';
+import fileDownload from 'js-file-download';
+import axios from "axios";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 function DocumentsTab({...props}) {
 
     const noCardData = {
@@ -96,6 +99,16 @@ function DocumentsTab({...props}) {
                         <DocumentCard data={selectedAudio} t={t}/>
                     </Box>
                     <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
+                        <IconButton onClick={() => {
+                            axios.get(selectedAudio.uri, {
+                                responseType: 'blob',
+                            })
+                                .then((res) => {
+                                    fileDownload(res.data, "medlink.mp3");
+                                })
+                        }}>
+                            <CloudDownloadIcon color={"primary"}/>
+                        </IconButton>
                         <IconButton color={"error"} onClick={() => removeDoc()}>
                             <DeleteOutlineRoundedIcon/>
                         </IconButton>

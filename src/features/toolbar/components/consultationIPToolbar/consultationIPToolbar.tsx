@@ -148,8 +148,7 @@ function ConsultationIPToolbar({...props}) {
             const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
             if (audios.length > 0) {
                 const form = new FormData();
-                form.append("type", audios[0].uuid);
-                form.append("files[]", file, file.name);
+                form.append(`files[${audios[0].uuid}][]`, file, file.name);
                 trigger({
                     method: "POST",
                     url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,

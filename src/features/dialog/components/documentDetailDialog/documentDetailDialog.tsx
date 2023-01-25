@@ -134,7 +134,6 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'download',
             icon: "ic-dowlaodfile",
-            disabled: multimedias.some(media => media === state.type)
         },
         {
             title: 'edit',
