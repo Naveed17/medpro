@@ -383,8 +383,8 @@ function Calendar({...props}) {
                                         setSlotInfoPopover(false);
                                     }}
                                     anchorPosition={{
-                                        top: (isMobile ? slotInfo?.jsEvent.changedTouches[0]?.pageY : slotInfo?.jsEvent.pageY) as number,
-                                        left: (isMobile ? slotInfo?.jsEvent.changedTouches[0].pageX : slotInfo?.jsEvent.pageX) as number
+                                        top: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0]?.pageY : slotInfo?.jsEvent.pageY) as number,
+                                        left: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0].pageX : slotInfo?.jsEvent.pageX) as number
                                     }}
                                     anchorOrigin={{
                                         vertical: 'top',

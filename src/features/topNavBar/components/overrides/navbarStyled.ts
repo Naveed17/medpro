@@ -48,7 +48,7 @@ const NavbarStyled = styled(AppBar)(({ theme }) => ({
       },
       [theme.breakpoints.down("sm")]: {
         "&:not(:last-child)": {
-          marginRight: 12,
+          marginRight: 0,
         },
       },
       "&:nth-of-type(3)": {
