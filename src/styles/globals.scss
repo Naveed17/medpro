@@ -323,9 +323,12 @@ fieldset {
 
 .mobile-badge {
   background: #FFD400;
-  font-size: 12px;
   padding: 0 5px;
   border-radius: 2rem;
   height: 1.2rem;
   width: 1.2rem;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  position: relative;
 }

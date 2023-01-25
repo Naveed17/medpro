@@ -5,9 +5,6 @@ const DetailCardStyled = styled(Card)(({ theme }) => ({
     margin: "0.5rem",
     overflow: "visible",
     padding: theme.spacing(1, 1.5),
-    '&:not(style)+:not(style)': {
-        marginLeft: '0 !important',
-    },
     '& .consultation-details': {
         '& .date-container': {
             "& .react-svg": {
