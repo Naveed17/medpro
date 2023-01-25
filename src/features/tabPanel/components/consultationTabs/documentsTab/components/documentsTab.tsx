@@ -58,7 +58,7 @@ function DocumentsTab({...props}) {
             <Box display='grid' sx={{
                 gridGap: 16,
                 gridTemplateColumns: {
-                    xs: "repeat(2,minmax(0,1fr))",
+                    xs: `repeat(${mode ? 1:2},minmax(0,1fr))`,
                     md: "repeat(4,minmax(0,1fr))",
                     lg: `repeat(${mode ? 1:5},minmax(0,1fr))`,
                 }

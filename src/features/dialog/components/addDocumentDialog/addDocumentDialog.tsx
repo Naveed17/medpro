@@ -69,7 +69,14 @@ function AddDocumentDialog({...props}) {
         setTimeout(() => {
             setFiles([...files, ...docs]);
             setLoad(false);
-        }, 1000)
+
+        }, 1000);
+
+        setTimeout(() => {
+            const el = document.getElementById("label")
+            if (el)
+                el.scrollIntoView(true);
+        }, 1500);
 
     }
     const {t, ready} = useTranslation("common");
@@ -146,6 +153,7 @@ function AddDocumentDialog({...props}) {
                                 {files.length > 0 && <Typography
                                     mt={1}
                                     mb={1}
+                                    id={"label"}
                                     color="text.secondary"
                                     variant="body2"
                                     fontWeight={400}>
