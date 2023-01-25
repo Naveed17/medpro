@@ -446,7 +446,7 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: instruction,
                     control: checkedNext,
-                    nextApp: meeting,
+                    nextApp: meeting ? meeting : "0",
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,
@@ -865,6 +865,10 @@ function ConsultationInProgress() {
                                     </Button>
                                 </Stack>
                             </Stack>}
+                            <Button onClick={()=>{
+                                endConsultation()
+                            }
+                            }>ok</Button>
                             <Button
                                 onClick={appointement?.status == 5 ? saveConsultation : endConsultation}
                                 color={"error"}
