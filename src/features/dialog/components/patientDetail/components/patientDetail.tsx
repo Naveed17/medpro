@@ -146,7 +146,6 @@ function PatientDetail({...props}) {
 
     const handleActionFab = (fabAction: any) => {
         setOpenFabAdd(false);
-        console.log(fabAction.action)
         switch (fabAction.action) {
             case "add-appointment" :
                 dispatch(setAppointmentPatient(patient as any));
