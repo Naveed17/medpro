@@ -75,7 +75,7 @@ function TopNavBar({...props}) {
 
     const popovers: { [key: string]: EmotionJSX.Element } = {
         "appointment-stats": <AppointmentStatsPopover/>,
-        notification: <NotificationPopover onClose={() =>  setAnchorEl(null)}/>,
+        notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
     };
 
     useEffect(() => {
@@ -272,7 +272,7 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-{/*                        <MenuList className="topbar-nav">
+                        {/*                        <MenuList className="topbar-nav">
                             <LangButton/>
                         </MenuList>*/}
 
