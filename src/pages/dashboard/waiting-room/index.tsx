@@ -352,7 +352,7 @@ function WaitingRoom() {
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 && <Otable
-                                       {...{doctor_country}}
+                                        {...{doctor_country}}
                                         headers={headCells}
                                         rows={waitingRooms}
                                         from={"waitingRoom"}
@@ -428,7 +428,11 @@ function WaitingRoom() {
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
-                    <DetailsCard waitingRoom rows={waitingRooms} t={t}/>
+                    <DetailsCard
+                        {...{t}}
+                        waitingRoom
+                        handleEvent={handleTableActions}
+                        rows={waitingRooms}/>
                 </MobileContainer>
             </Box>
 
