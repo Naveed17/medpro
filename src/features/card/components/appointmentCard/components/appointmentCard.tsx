@@ -66,14 +66,21 @@ function AppointmentCard({...props}) {
             <CardContent>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>
                     <Label variant='filled'
-                           color={
-                               data?.status.key === "CONFIRMED"
-                                   ? "success"
-                                   : data?.status.key === "CANCELED"
-                                       ? "error"
-                                       : "primary"
-                           }>
-                        {data.status.value}
+                           sx={{
+                               "& .MuiSvgIcon-root": {
+                                   width: 16,
+                                   height: 16,
+                                   pl: 0
+                               }
+                           }}
+                           color={data?.status?.classColor}>
+                        {data?.status?.icon}
+                        <Typography
+                            sx={{
+                                fontSize: 10,
+                                ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
+                            }}
+                        >{data?.status?.value}</Typography>
                     </Label>
                 </Stack>
                 <Stack spacing={2} direction="row" justifyContent='space-between' alignItems='center'>

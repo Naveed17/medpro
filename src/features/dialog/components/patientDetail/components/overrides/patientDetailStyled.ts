@@ -1,4 +1,4 @@
-import {styled} from "@mui/material/styles";
+import {alpha, styled} from "@mui/material/styles";
 import {Stack} from "@mui/material";
 
 const PatientDetailStyled = styled(Stack)(({theme}) => ({
@@ -12,6 +12,10 @@ const PatientDetailStyled = styled(Stack)(({theme}) => ({
                 marginBottom: "6rem"
             }
         }
+    },
+    "& .MuiBackdrop-root": {
+        zIndex: 114,
+        backgroundColor: alpha(theme.palette.common.white, 0.9)
     }
 }));
 export default PatientDetailStyled;

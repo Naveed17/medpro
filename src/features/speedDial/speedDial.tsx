@@ -8,13 +8,13 @@ interface SpeedDialProps {
   name: string;
 }
 export default function SpeedDialTooltipOpen({ ...props }) {
-  const { actions, onClick } = props;
+  const { actions, handleitemclick } = props;
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const onClickAction = (action: SpeedDialProps) => () => {
-    onClick(action);
+    handleitemclick(action);
     setOpen(false);
   };
 
