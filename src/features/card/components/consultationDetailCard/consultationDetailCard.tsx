@@ -24,6 +24,7 @@ function CIPPatientHistoryCard({...props}) {
     const [cReason, setCReason] = useState<ConsultationReasonModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
+    let [oldNote, setOldNote] = useState('');
 
     const dispatch = useAppDispatch();
     const {
@@ -55,8 +56,8 @@ function CIPPatientHistoryCard({...props}) {
 
     useEffect(() => {
         if (isStarted)
-            setFieldValue("notes", transcript);
-    }, [isStarted, setFieldValue, transcript])
+            setFieldValue("notes", oldNote+ ' ' +transcript);
+    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (exam) {
@@ -76,6 +77,7 @@ function CIPPatientHistoryCard({...props}) {
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
             setIsStarted(true);
             dispatch(SetListen('observation'));
+            setOldNote(values.notes);
             if (intervalref.current !== null) return;
             intervalref.current = window.setInterval(() => {
                 time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
@@ -186,7 +188,7 @@ function CIPPatientHistoryCard({...props}) {
                             <TextField
                                 fullWidth
                                 multiline
-                                rows={9}
+                                rows={10}
                                 value={values.notes}
                                 onChange={event => {
                                     setFieldValue("notes", event.target.value);
@@ -207,6 +209,8 @@ function CIPPatientHistoryCard({...props}) {
                                 id={"diagnosis"}
                                 size="small"
                                 value={values.diagnosis}
+                                multiline={true}
+                                rows={10}
                                 onChange={event => {
                                     setFieldValue("diagnosis", event.target.value);
                                     localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
@@ -216,7 +220,7 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 sx={{color: "text.secondary"}}/>
                         </Box>
-                        <Box>
+                        {/*<Box>
                             <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
                                 {t("treatment")}
                             </Typography>
@@ -234,7 +238,7 @@ function CIPPatientHistoryCard({...props}) {
                                     }));
                                 }}
                             />
-                        </Box>
+                        </Box>*/}
                     </Stack>
                 </FormikProvider>
             </CardContent>
