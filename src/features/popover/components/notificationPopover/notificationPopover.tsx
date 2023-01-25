@@ -3,7 +3,7 @@ import React from "react";
 import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import {Box, Typography} from "@mui/material";
+import {Box, Typography, useMediaQuery} from "@mui/material";
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
@@ -15,6 +15,7 @@ import moment from "moment-timezone";
 import {useRouter} from "next/router";
 import {LoadingScreen} from "@features/loadingScreen";
 import {setMoveDateTime} from "@features/dialog";
+import {Theme} from "@mui/material/styles";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -37,6 +38,7 @@ function NotificationPopover({...props}) {
     const {onClose} = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const {t, ready} = useTranslation("common");
     const {pendingAppointments} = useAppSelector(agendaSelector);
@@ -90,7 +92,7 @@ function NotificationPopover({...props}) {
     return (
         <Box
             sx={{
-                width: 400,
+                width: isMobile ? 320 : 400,
                 p: 2,
                 "& .MuiSvgIcon-root": {
                     width: 60,

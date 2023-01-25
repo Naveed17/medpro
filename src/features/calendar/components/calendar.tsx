@@ -72,7 +72,7 @@ function Calendar({...props}) {
     const [slotMinTime, setSlotMinTime] = useState(8);
     const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [date, setDate] = useState(currentDate.date);
-    const [calendarHeight, setCalendarHeight] = useState("80vh");
+    const [calendarHeight, setCalendarHeight] = useState(!isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122))));
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [slotInfo, setSlotInfo] = useState<DateClickTouchArg | null>(null);
     const [slotInfoPopover, setSlotInfoPopover] = useState(false);
