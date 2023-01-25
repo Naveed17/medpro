@@ -193,7 +193,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </div>
             </Box>
             <Box className="body-main">
-                <Toolbar sx={{minHeight: isMobile ? 76 : 56}}/>
+                <Toolbar sx={{minHeight: isMobile ? 66 : 56}}/>
                 <Box
                     component="main">
                     {children}
