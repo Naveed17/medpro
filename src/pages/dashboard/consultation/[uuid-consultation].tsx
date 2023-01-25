@@ -446,7 +446,7 @@ function ConsultationInProgress() {
                     fees: total,
                     instruction: instruction,
                     control: checkedNext,
-                    nextApp: meeting,
+                    nextApp: meeting ? meeting : "0",
                     patient: {
                         uuid: patient.uuid,
                         email: patient.email,

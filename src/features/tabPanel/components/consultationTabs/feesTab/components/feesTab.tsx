@@ -1,9 +1,10 @@
 import React, {useEffect} from "react";
-import {Box, Checkbox, InputAdornment, Stack, TextField, Typography} from "@mui/material";
-import {Otable} from "@features/table";
+import {Box, Checkbox, Stack, Table, TableBody, TableCell, TableContainer, Typography} from "@mui/material";
+import {Otable, TableRowStyled} from "@features/table";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@app/constants";
+import InputBaseStyled from "@features/table/components/overrides/inputBaseStyled";
 
 function FeesTab({...props}) {
 
@@ -36,7 +37,7 @@ function FeesTab({...props}) {
             id: "acts",
             numeric: false,
             disablePadding: true,
-            label: "acts",
+            label: "title",
             sortable: true,
             align: "left",
         },
@@ -46,7 +47,7 @@ function FeesTab({...props}) {
             disablePadding: true,
             label: "quality",
             sortable: true,
-            align: "center",
+            align: "right",
         },
         {
             id: "amount",
@@ -54,7 +55,7 @@ function FeesTab({...props}) {
             disablePadding: false,
             label: "amount",
             sortable: true,
-            align: "left",
+            align: "right",
         },
         {
             id: "total",
@@ -88,41 +89,70 @@ function FeesTab({...props}) {
 
     return (
         <>
-            <Stack direction={"row"} alignItems={"center"}
-                   style={{
-                       background: "white",
-                       padding: '10px 15px',
-                       borderRadius: 10
-                   }} spacing={2} mb={2}>
-                <Checkbox
-                    color="primary"
-                    onChange={(ev) => setFree(!ev.target.checked)}
-                    checked={!free}/>
-                <Typography>Consultation</Typography>
-                <TextField id="outlined-basic"
-                           value={consultationFees}
-                           size="small"
-                           InputProps={{
-                               endAdornment: <InputAdornment
-                                   position="end">{devise}</InputAdornment>,
-                               style: {width: 120, backgroundColor: "white"}
-                           }}
-                           onChange={(ev) => {
-                               setConsultationFees(Number(ev.target.value))
-                               localStorage.setItem("consultation-fees", ev.target.value);
-                           }}
-                           variant="outlined"/>
-            </Stack>
-
             <Box>
                 <Otable
                     headers={headCells}
-                    rows={acts}
-                    select={selectedUuid}
+                    rows={[]}
                     from={"CIP-medical-procedures"}
-                    t={t}
-                    edit={editAct}
-                    handleChange={setTotal}/>
+                    t={t}/>
+
+                <TableContainer sx={{mt:-2}}>
+                    <Table
+                        stickyHeader
+                        aria-labelledby="tableTitle"
+                        size={"medium"}>
+                        <TableBody>
+                            <TableRowStyled
+                                className={'cip-medical-proce-row'}
+                                hover
+                                tabIndex={-1}
+                                key={Math.random()}
+                            >
+                                <TableCell padding="checkbox">
+                                    <Checkbox
+                                        color="primary"
+                                        onChange={(ev) => setFree(!ev.target.checked)}
+                                        checked={!free}/>
+                                </TableCell>
+                                <TableCell>
+                                    <Typography>Consultation</Typography>
+                                </TableCell>
+                                <TableCell></TableCell>
+                                <TableCell>
+
+                                </TableCell>
+                                <TableCell align={"right"}>
+                                    {free ? <Typography pr={3} color={"gray"} fontSize={12}>{consultationFees} {devise}</Typography>:<Stack pr={3} direction={"row"} alignItems={"center"} justifyContent={"end"}>
+                                        <InputBaseStyled
+                                            size="small"
+                                            value={consultationFees}
+                                            placeholder={'--'}
+                                            autoFocus={true}
+
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(ev) => {
+                                                setConsultationFees(Number(ev.target.value))
+                                                localStorage.setItem("consultation-fees", ev.target.value);
+                                            }}
+                                        />
+                                        <Typography color={"gray"} fontSize={12}>{devise}</Typography>
+                                    </Stack>}
+                                </TableCell>
+                            </TableRowStyled>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+                <Box sx={{marginTop: '-7px'}}>
+                    <Otable
+                        headers={[]}
+                        rows={acts}
+                        select={selectedUuid}
+                        from={"CIP-medical-procedures"}
+                        t={t}
+                        edit={editAct}
+                        handleChange={setTotal}/>
+                </Box>
             </Box>
             {/*<Stack spacing={2} display={{xs: "block", md: 'none'}}>
                 {

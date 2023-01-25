@@ -50,6 +50,7 @@
     "formik": "^2.2.9",
     "framer-motion": "^6.3.4",
     "humanize-duration": "^3.27.3",
+    "js-file-download": "^0.4.12",
     "jsonwebtoken": "^9.0.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
