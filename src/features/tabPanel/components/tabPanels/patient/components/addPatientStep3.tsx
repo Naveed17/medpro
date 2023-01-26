@@ -1,7 +1,7 @@
 import {SuccessCard} from "@features/card/";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
-import {addPatientSelector, onAddPatient} from "@features/tabPanel";
+import {addPatientSelector, onAddPatient, onResetPatient} from "@features/tabPanel";
 import {useTheme} from "@mui/material";
 import {LoadingScreen} from "@features/loadingScreen";
 
@@ -11,19 +11,6 @@ function AddPatientStep3({...props}) {
     const theme = useTheme();
 
     const {stepsData} = useAppSelector(addPatientSelector);
-
-    const initialStep = {
-        patient_group: "",
-        first_name: "",
-        last_name: "",
-        birthdate: {
-            day: "01",
-            month: "01",
-            year: "1970",
-        },
-        phone: "",
-        gender: "1",
-    };
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config.add-patient"});
     if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
@@ -54,7 +41,7 @@ function AddPatientStep3({...props}) {
             onClickTextButton={(action: string) => {
                 switch (action) {
                     case "onAddPatient":
-                        dispatch(onAddPatient({step1: initialStep}));
+                        dispatch(onResetPatient());
                         break;
                     case "onAddAppointment":
                         if (OnCustomAction) {
