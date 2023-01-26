@@ -254,7 +254,7 @@ function PersonalInsuranceCard({...props}) {
         params.append('id_card', values.cin);
         patient.note && params.append('note', patient.note);
         patient.profession && params.append('profession', patient.profession);
-        patient.family_doctor && params.append('family_doctor', patient.family_doctor);
+        patient.familyDoctor && params.append('family_doctor', patient.familyDoctor);
         patient.nationality && params.append('nationality', patient.nationality.uuid);
         (insurances ? insurances : values.insurances).map((insurance: InsurancesModel) => {
             if (insurance.insurance_type === "0") {

@@ -470,6 +470,12 @@ function AddPatientStep2({...props}) {
                                             disabled={!values.country && !states}
                                             size="small"
                                             {...getFieldProps("region")}
+                                            onChange={event => {
+                                                const stateUuid = event.target.value;
+                                                setFieldValue("region", stateUuid);
+                                                const state = states?.find(state => state.uuid === stateUuid);
+                                                state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                            }}
                                             displayEmpty={true}
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
