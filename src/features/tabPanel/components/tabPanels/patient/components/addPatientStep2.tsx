@@ -169,9 +169,7 @@ function AddPatientStep2({...props}) {
             }[]
         },
         validationSchema: RegisterSchema,
-        onSubmit: async (values) => {
-            handleChange(null, values);
-        },
+        onSubmit: async (values) => handleChange(null, values)
     });
 
     const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors} = formik;
@@ -215,9 +213,7 @@ function AddPatientStep2({...props}) {
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
-
         const {fiche_id, picture, first_name, last_name, birthdate, phones, gender} = stepsData.step1;
-        const {day, month, year} = birthdate;
         const form = new FormData();
         picture.url.length > 0 && form.append('photo', picture.file);
         form.append('fiche_id', fiche_id);
@@ -233,8 +229,8 @@ function AddPatientStep2({...props}) {
             is_support: false
         }))));
         form.append('gender', gender);
-        if (day && month && year) {
-            form.append('birthdate', `${day}-${month}-${year}`);
+        if (birthdate) {
+            form.append('birthdate', `${birthdate.day}-${birthdate.month}-${birthdate.year}`);
         }
         form.append('address', JSON.stringify({
             fr: values.address
@@ -474,6 +470,12 @@ function AddPatientStep2({...props}) {
                                             disabled={!values.country && !states}
                                             size="small"
                                             {...getFieldProps("region")}
+                                            onChange={event => {
+                                                const stateUuid = event.target.value;
+                                                setFieldValue("region", stateUuid);
+                                                const state = states?.find(state => state.uuid === stateUuid);
+                                                state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                            }}
                                             displayEmpty={true}
                                             sx={{color: "text.secondary"}}
                                             renderValue={selected => {
@@ -628,7 +630,7 @@ function AddPatientStep2({...props}) {
                                                                             src={insurance.logoUrl}
                                                                         />}
                                                                         <Typography className={"insurance-label"}
-                                                                            ml={1}>{insurance?.name}</Typography>
+                                                                                    ml={1}>{insurance?.name}</Typography>
                                                                     </Stack>)
                                                             }}
                                                         >

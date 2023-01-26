@@ -236,7 +236,7 @@ function OnStepPatient({...props}) {
             zip_code: address.length > 0 ? address[0]?.postalCode : patient.step2.zip_code,
             address: address.length > 0 && address[0]?.street ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
-            cin: selectedPatient ? selectedPatient?.cin : patient.step2.cin,
+            cin: selectedPatient ? selectedPatient?.idCard : patient.step2.cin,
             profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -775,6 +775,12 @@ function OnStepPatient({...props}) {
                                                 disabled={!values.country}
                                                 size="small"
                                                 {...getFieldProps("region")}
+                                                onChange={event => {
+                                                    const stateUuid = event.target.value;
+                                                    setFieldValue("region", stateUuid);
+                                                    const state = states?.find(state => state.uuid === stateUuid);
+                                                    state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                                }}
                                                 displayEmpty={true}
                                                 sx={{color: "text.secondary"}}
                                                 renderValue={selected => {
@@ -1041,19 +1047,18 @@ function OnStepPatient({...props}) {
                                                                     minWidth: "auto"
                                                                 }
                                                             }}>
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                <Typography variant="body2" color="text.secondary"
-                                                                            gutterBottom>
-                                                                    {t("birthday")}
-                                                                </Typography>
-                                                                <DatePicker
-                                                                    value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                                    onChange={(date: Date) => {
-                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                    }}
-                                                                    inputFormat="dd/MM/yyyy"
-                                                                />
-                                                            </LocalizationProvider>
+
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("birthday")}
+                                                            </Typography>
+                                                            <DatePicker
+                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
+                                                                onChange={(date: Date) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                }}
+                                                                inputFormat="dd/MM/yyyy"
+                                                            />
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"

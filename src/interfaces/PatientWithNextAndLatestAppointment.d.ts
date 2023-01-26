@@ -6,6 +6,7 @@ interface PatientWithNextAndLatestAppointment {
     lastName: string;
     email: string;
     birthdate: string;
+    idCard: string;
     account: AccountModel;
     gender: string;
     cin: string;
