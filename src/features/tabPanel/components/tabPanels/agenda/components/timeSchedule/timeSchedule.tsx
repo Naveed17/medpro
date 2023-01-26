@@ -406,7 +406,7 @@ function TimeSchedule({...props}) {
                                                 maxTime={new Date(0, 0, 0, 20, 0)}
                                                 minTime={new Date(0, 0, 0, 8)}
                                                 shouldDisableTime={(timeValue, clockType) => {
-                                                    return clockType === "minutes" && (timeValue % parseInt(duration as string) !== 0);
+                                                    return clockType === "minutes" && (timeValue % 5 !== 0);
                                                 }}
                                                 displayStaticWrapperAs="mobile"
                                                 value={customTime}
