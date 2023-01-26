@@ -214,7 +214,7 @@ function AppointmentDetail({...props}) {
                                         }}>
                                         <IconUrl width={"24"} height={"24"} path="men-avatar"/>
                                     </Avatar>
-                                    <Typography variant="body1" color="primary" fontWeight={700}>
+                                    <Typography className={"user-name"} variant="body1" color="primary" fontWeight={700}>
                                         {data?.title}
                                     </Typography>
                                 </Stack>
