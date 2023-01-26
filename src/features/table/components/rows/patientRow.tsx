@@ -79,7 +79,7 @@ function PatientRow({...props}) {
                 <Box
                     display="flex"
                     alignItems="center"
-                    sx={{img: {borderRadius: "4px"}}}
+                    sx={{img: {borderRadius: "4px"},  minWidth: 200}}
                 >
                     <Box ml={1}>
                         <Typography

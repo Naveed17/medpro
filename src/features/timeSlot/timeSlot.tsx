@@ -62,7 +62,7 @@ export default function TimeSlot({...props}) {
                 )
             }
             {seeMore && (
-                <Button variant="outlined"
+                <Button variant="text"
                         onClick={OnShowMore}
                         color="primary" fullWidth>
                     {seeMoreText}

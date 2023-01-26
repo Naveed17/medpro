@@ -1,7 +1,7 @@
 import {alpha, styled} from '@mui/material/styles';
-import { Paper } from "@mui/material";
+import {Paper} from "@mui/material";
 
-const RootStyled = styled(Paper)(({ theme }) => ({
+const RootStyled = styled(Paper)(({theme}) => ({
     height: '100%',
     minWidth: "29vw",
     backgroundColor: theme.palette.background.default,
@@ -12,7 +12,7 @@ const RootStyled = styled(Paper)(({ theme }) => ({
         color: theme.palette.primary.main,
         fontSize: 16,
 
-    }  ,
+    },
     '& .MuiAppBar-root': {
         border: 'none',
         borderBottom: `1px solid ${theme.palette.divider}`,
@@ -37,7 +37,7 @@ const RootStyled = styled(Paper)(({ theme }) => ({
     },
     "& .MuiInputBase-root": {
         alignItems: "flex-start",
-        "& fieldset": { border: 0 },
+        "& fieldset": {border: 0},
         "&:hover": {
             fieldset: {
                 border: "none",
@@ -76,9 +76,16 @@ const RootStyled = styled(Paper)(({ theme }) => ({
                 fill: theme.palette.error.main,
             },
         },
-        "& span":{
+        "& span": {
             padding: "0 .2rem"
         }
+    },
+    "& .MuiListItem-root": {
+        paddingTop: 2,
+        paddingBottom: 2
+    },
+    "& .user-name": {
+        marginLeft: 8
     }
 }))
 
