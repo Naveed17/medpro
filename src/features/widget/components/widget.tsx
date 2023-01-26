@@ -41,14 +41,14 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         cmp = [...modal];
     }
 
-   /* Previous data
-   cmp.map(spec => {
-        spec.components.map(composant =>{
-            const old = composant.description? composant.description :''
-            composant.description = `${old} (90${old})`
-        })
-    })
-    console.log(cmp)*/
+    /* Previous data
+    cmp.map(spec => {
+         spec.components.map(composant =>{
+             const old = composant.description? composant.description :''
+             composant.description = `${old} (90${old})`
+         })
+     })
+     console.log(cmp)*/
 
     return (
         <>
@@ -112,7 +112,7 @@ function Widget({...props}) {
     };
     return (
         <>
-            <ConsultationModalStyled sx={{height:{xs:'30vh',md:'99.7vh'}}}>
+            <ConsultationModalStyled sx={{height: {xs: '30vh', md: '43.7rem'}}}>
                 <Stack
                     spacing={1}
                     p={2}
@@ -139,7 +139,7 @@ function Widget({...props}) {
 
                 </Stack>
 
-                <CardContent sx={{bgcolor: alpha(value?.color, 0.1),overflowX:'scroll'}}>
+                <CardContent sx={{bgcolor: alpha(value?.color, 0.1), overflowX: 'scroll'}}>
                     <motion.div
                         hidden={!open}
                         variants={variants}
@@ -150,20 +150,26 @@ function Widget({...props}) {
                             <MenuList>
                                 {models &&
                                     models.map((item: any, idx: number) => (
-                                        <MenuItem
-                                            key={`model-item-${idx}`}
-                                            onClick={() => handleClick(item)}>
-                                            <ListItemIcon>
-                                                <ModelDot
-                                                    color={item.color}
-                                                    selected={false}
-                                                    size={21}
-                                                    sizedot={13}
-                                                    padding={3}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText style={{textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden'}}>{item.label}</ListItemText>
-                                        </MenuItem>
+                                        <Box key={'widgt-x-'+idx}>
+                                            {item.isEnabled && <MenuItem
+                                                key={`model-item-${idx}`}
+                                                onClick={() => handleClick(item)}>
+                                                <ListItemIcon>
+                                                    <ModelDot
+                                                        color={item.color}
+                                                        selected={false}
+                                                        size={21}
+                                                        sizedot={13}
+                                                        padding={3}
+                                                    />
+                                                </ListItemIcon>
+                                                <ListItemText style={{
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden'
+                                                }}>{item.label}</ListItemText>
+                                            </MenuItem>}
+                                        </Box>
                                     ))}
                             </MenuList>
                         </Paper>

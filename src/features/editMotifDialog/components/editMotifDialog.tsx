@@ -284,6 +284,7 @@ function EditMotifDialog({ ...props }) {
                 </Select>
               </FormControl>
 
+{/*
               <Stack spacing={2} direction={{ xs: "column", lg: "row" }}>
                 <Box width={1}>
                   <FormControl size="small" fullWidth>
@@ -341,6 +342,7 @@ function EditMotifDialog({ ...props }) {
                   </FormControl>
                 </Box>
               </Stack>
+*/}
             </Stack>
           </CardContent>
         </Card>

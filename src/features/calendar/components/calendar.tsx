@@ -1,6 +1,16 @@
 import FullCalendar, {EventDef, VUIEvent} from "@fullcalendar/react"; // => request placed at the top
 
-import {Box, IconButton, Menu, MenuItem, Theme, useMediaQuery, useTheme} from "@mui/material";
+import {
+    Backdrop,
+    Box,
+    ClickAwayListener,
+    IconButton,
+    Menu,
+    MenuItem,
+    Theme,
+    useMediaQuery,
+    useTheme
+} from "@mui/material";
 
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
@@ -35,6 +45,7 @@ import {useSwipeable} from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
+import {alpha} from "@mui/material/styles";
 
 function Calendar({...props}) {
     const {
@@ -72,10 +83,10 @@ function Calendar({...props}) {
     const [slotMinTime, setSlotMinTime] = useState(8);
     const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [date, setDate] = useState(currentDate.date);
-    const [calendarHeight, setCalendarHeight] = useState("80vh");
+    const [calendarHeight, setCalendarHeight] = useState(!isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122))));
     const [daysOfWeek, setDaysOfWeek] = useState<BusinessHoursInput[]>([]);
     const [slotInfo, setSlotInfo] = useState<DateClickTouchArg | null>(null);
-    const [slotInfoPopover, setSlotInfoPopover] = useState(false);
+    const [slotInfoPopover, setSlotInfoPopover] = useState<boolean | null>(null);
     const [contextMenu, setContextMenu] = React.useState<{
         mouseX: number;
         mouseY: number;
@@ -269,8 +280,18 @@ function Calendar({...props}) {
 
     return (
         <Box bgcolor="#F0FAFF">
+            {isMobile && <ClickAwayListener onClickAway={() => {
+                if (slotInfoPopover) {
+                    setSlotInfoPopover(false);
+                }
+            }}>
+                <Backdrop className={"backdrop-calendar"}
+                          sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
+                          open={!!slotInfoPopover}/>
+            </ClickAwayListener>}
             <RootStyled>
                 <CalendarStyled>
+
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
@@ -353,7 +374,9 @@ function Calendar({...props}) {
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
-                                    setSlotInfoPopover(true);
+                                    setTimeout(() => {
+                                        setSlotInfoPopover(true);
+                                    }, 100)
                                 }}
                                 showNonCurrentDates={true}
                                 rerenderDelay={8}
@@ -375,71 +398,70 @@ function Calendar({...props}) {
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
 
-                            {slotInfo &&
-                                <StyledMenu
-                                    open={slotInfoPopover}
-                                    anchorReference="anchorPosition"
-                                    onClose={() => {
-                                        setSlotInfoPopover(false);
-                                    }}
-                                    anchorPosition={{
-                                        top: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0]?.pageY : slotInfo?.jsEvent.pageY) as number,
-                                        left: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0].pageX : slotInfo?.jsEvent.pageX) as number
-                                    }}
-                                    anchorOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'left',
-                                    }}
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'left',
-                                    }}
-                                    PaperProps={{
-                                        elevation: 0,
-                                        sx: {
-                                            overflow: 'visible',
-                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                                            mt: 1.5,
-                                            '& .MuiAvatar-root': {
-                                                width: 32,
-                                                height: 32,
-                                                ml: -0.5,
-                                                mr: 1,
-                                            },
-                                            ...!isMobile && {
-                                                '&:before': {
-                                                    content: '""',
-                                                    display: 'block',
-                                                    position: 'absolute',
-                                                    top: 0,
-                                                    left: 14,
-                                                    width: 10,
-                                                    height: 10,
-                                                    bgcolor: 'background.paper',
-                                                    transform: 'translateY(-50%) rotate(45deg)',
-                                                    zIndex: 0,
-                                                }
-                                            },
+                            {slotInfo && <StyledMenu
+                                open={!!slotInfoPopover}
+                                anchorReference="anchorPosition"
+                                onClose={() => {
+                                    setSlotInfoPopover(false);
+                                }}
+                                anchorPosition={{
+                                    top: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0]?.pageY : slotInfo?.jsEvent.pageY) as number,
+                                    left: ((isMobile && slotInfo?.jsEvent.changedTouches) ? slotInfo?.jsEvent.changedTouches[0].pageX : slotInfo?.jsEvent.pageX) as number
+                                }}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                PaperProps={{
+                                    elevation: 0,
+                                    sx: {
+                                        overflow: 'visible',
+                                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                        mt: 1.5,
+                                        '& .MuiAvatar-root': {
+                                            width: 32,
+                                            height: 32,
+                                            ml: -0.5,
+                                            mr: 1,
                                         },
-                                    }}
-                                >
-                                    <MenuItem onClick={() => {
-                                        setSlotInfoPopover(false);
-                                        OnAddAppointment("quick-add");
-                                        OnSelectDate(slotInfo);
-                                    }} disableRipple>
-                                        <FastForwardOutlinedIcon/>
-                                        Ajout rapide
-                                    </MenuItem>
-                                    <MenuItem onClick={() => {
-                                        setSlotInfoPopover(false);
-                                        OnAddAppointment("full-add");
-                                        OnSelectDate(slotInfo);
-                                    }} disableRipple>
-                                        <AddOutlinedIcon/>
-                                        Ajout complet
-                                    </MenuItem>
-                                </StyledMenu>}
+                                        ...!isMobile && {
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'background.paper',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+                                            }
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem onClick={() => {
+                                    setSlotInfoPopover(false);
+                                    OnAddAppointment("quick-add");
+                                    OnSelectDate(slotInfo);
+                                }} disableRipple>
+                                    <FastForwardOutlinedIcon/>
+                                    Ajout rapide
+                                </MenuItem>
+                                <MenuItem onClick={() => {
+                                    setSlotInfoPopover(false);
+                                    OnAddAppointment("full-add");
+                                    OnSelectDate(slotInfo);
+                                }} disableRipple>
+                                    <AddOutlinedIcon/>
+                                    Ajout complet
+                                </MenuItem>
+                            </StyledMenu>}
 
                             <Menu
                                 open={contextMenu !== null}
@@ -489,7 +511,6 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
-
                         </Box>
                     )}
                 </CalendarStyled>

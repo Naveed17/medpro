@@ -65,6 +65,7 @@ function CertifDialog({...props}) {
     const router = useRouter();
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const [selected, setSelected] = useState<any>();
+    let [oldNote, setOldNote] = useState('');
 
     const {
         transcript,
@@ -77,7 +78,7 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (isStarted) {
-            setValue(transcript)
+            setValue(oldNote+ ' '+transcript)
         }
     }, [transcript, isStarted])
 
@@ -247,6 +248,7 @@ function CertifDialog({...props}) {
                                         }
                                         SpeechRecognition.stopListening();
                                         resetTranscript();
+                                        setOldNote(value)
                                         setIsStarted(false)
 
                                         setTime('00:00');

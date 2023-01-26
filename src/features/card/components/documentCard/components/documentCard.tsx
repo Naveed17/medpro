@@ -6,7 +6,7 @@ import moment from "moment/moment";
 
 function DocumentCard({...props}) {
     const [openTooltip, setOpenTooltip] = useState<boolean>(false);
-    const {data, onClick, t} = props;
+    const {data, onClick, mode, t} = props;
     const onClickTooltipItem = (item: {
         title: string;
         icon: ReactElement | null;
@@ -68,7 +68,10 @@ function DocumentCard({...props}) {
 
                 </Stack>
                 */}
-                    <Stack spacing={2} className="document-detail" alignItems="center">
+                    <Stack spacing={2}
+                           direction={mode ? "row" : "column"}
+                           className="document-detail"
+                           alignItems="center">
                         <IconUrl path={
                             data.documentType === "prescription" && "ic-traitement" ||
                             data.documentType == "requested-analysis" && "ic-analyse" ||
@@ -82,23 +85,30 @@ function DocumentCard({...props}) {
                             data.documentType === "video" && "ic-video-outline" ||
                             data.documentType !== "prescription" && "ic-pdf" || ""
                         }/>
-                        <Typography className={"sub-title"} variant='subtitle2' textAlign={"center"}
-                                    whiteSpace={"nowrap"}
-                                    fontSize={11}>
-                            {t(data.title)}
-                        </Typography>
-                        <Typography textAlign={"center"} whiteSpace={"nowrap"} fontSize={9}
-                                    style={{marginTop: 0, color: "grey"}}>
-                            {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
-                        </Typography>
+                        <Stack direction={"column"}>
+                            <Typography className={"sub-title"} variant='subtitle2'
+                                        textAlign={mode ? "left" : "center"}
+                                        whiteSpace={"nowrap"}
+                                        fontSize={11}>
+                                {t(data.title)}
+                            </Typography>
+                            <Typography textAlign={mode ? "left" : "center"} whiteSpace={"nowrap"} fontSize={9}
+                                        style={{marginTop: 0, color: "grey"}}>
+                                {moment(data.createdAt, 'DD-MM-YYYY').format('DD-MM-YYYY')}
+                            </Typography>
+                            {mode && <Typography textAlign={mode ? "left" : "center"} whiteSpace={"nowrap"} fontSize={9}
+                                         style={{marginTop: 0, color: "grey"}}>
+                                {t('note') + data.description}
+                            </Typography>}
+                        </Stack>
                     </Stack>
                 </CardContent>
             </DocumentCardStyled>}
             {data.documentType === "photo" &&
-                <Card onClick={onClick} style={{border:0,boxShadow:"none"}}>
+                <Card onClick={onClick} style={{border: 0, boxShadow: "none"}}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={data.uri}
-                         style={{borderRadius: 5,width:'100%',height:'100%'}}
+                         style={{borderRadius: 5, width: '100%', height: '100%'}}
                          alt={'photo history'}/>
                 </Card>
             }

@@ -6,7 +6,11 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-
+import ReorderIcon from '@mui/icons-material/Reorder';
+import AppsIcon from '@mui/icons-material/Apps';
+import fileDownload from 'js-file-download';
+import axios from "axios";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 function DocumentsTab({...props}) {
 
     const noCardData = {
@@ -18,6 +22,7 @@ function DocumentsTab({...props}) {
     };
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
+    const [mode, setMode] = useState(false);
 
     const {
         documents,
@@ -45,19 +50,27 @@ function DocumentsTab({...props}) {
     }
     return (
         <>
+            <Stack direction={"row"} mb={2} spacing={1} justifyContent={"end"}>
+                <IconButton onClick={()=>{setMode(true)}}  style={{background:"white",borderRadius:10}}>
+                    <ReorderIcon color={!mode ? "info":"primary"}/>
+                </IconButton>
+                <IconButton onClick={()=>{setMode(false)}}  style={{background:"white",borderRadius:10}}>
+                    <AppsIcon color={mode ? "info":"primary"}/>
+                </IconButton>
+            </Stack>
             <Box display='grid' sx={{
                 gridGap: 16,
                 gridTemplateColumns: {
-                    xs: "repeat(2,minmax(0,1fr))",
+                    xs: `repeat(${mode ? 1:2},minmax(0,1fr))`,
                     md: "repeat(4,minmax(0,1fr))",
-                    lg: "repeat(5,minmax(0,1fr))",
+                    lg: `repeat(${mode ? 1:5},minmax(0,1fr))`,
                 }
             }}>
                 {
                     selectedAudio === null &&
                     documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                         <React.Fragment key={`doc-item-${idx}`}>
-                            <DocumentCard data={card} onClick={() => {
+                            <DocumentCard data={card} mode={mode} onClick={() => {
                                 card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
                             }} t={t}/>
                         </React.Fragment>
@@ -86,6 +99,16 @@ function DocumentsTab({...props}) {
                         <DocumentCard data={selectedAudio} t={t}/>
                     </Box>
                     <Stack justifyContent={"flex-end"} direction={"row"} alignItems={"center"}>
+                        <IconButton onClick={() => {
+                            axios.get(selectedAudio.uri, {
+                                responseType: 'blob',
+                            })
+                                .then((res) => {
+                                    fileDownload(res.data, "medlink.mp3");
+                                })
+                        }}>
+                            <CloudDownloadIcon color={"primary"}/>
+                        </IconButton>
                         <IconButton color={"error"} onClick={() => removeDoc()}>
                             <DeleteOutlineRoundedIcon/>
                         </IconButton>

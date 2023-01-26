@@ -64,6 +64,8 @@ function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     let [time, setTime] = useState('00:00');
+    let [oldNote, setOldNote] = useState('');
+
     const {listen} = useAppSelector(consultationSelector);
 
     const intervalref = useRef<number | null>(null);
@@ -73,9 +75,9 @@ function Consultation() {
 
     useEffect(() => {
         if (isStarted) {
-            setNote(transcript);
+            setNote(oldNote + ' ' + transcript);
         }
-    }, [transcript, isStarted])
+    }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
 
@@ -270,6 +272,7 @@ function Consultation() {
                                         resetTranscript();
                                         setIsStarted(true)
                                         dispatch(SetListen('note'));
+                                        setOldNote(note);
                                         SpeechRecognition.startListening({
                                             continuous: true,
                                             language: 'fr-FR'

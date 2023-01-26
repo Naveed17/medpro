@@ -4,16 +4,46 @@ import {
     Typography,
     IconButton,
     Box,
-    Stack
+    Stack, DialogActions, Button
 } from "@mui/material";
 import {useTheme} from "@mui/material/styles";
 import Icon from "@themes/urlIcon";
 import DetailCardStyled from "./overrides/detailCardStyle";
 import CircleIcon from '@mui/icons-material/Circle';
+import {Dialog} from "@features/dialog";
+import React, {useState} from "react";
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function DetailsCard({...props}) {
-    const {rows, waitingRoom, t} = props;
+    const {rows, waitingRoom, t, handleEvent} = props;
     const theme = useTheme();
+
+    const [info, setInfo] = useState<null | string>(null);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [actions, setActions] = useState<boolean>(false);
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setInfo(null)
+    }
+
+    const DialogAction = () => {
+        return (
+            <DialogActions>
+                <Button onClick={handleCloseDialog}
+                        startIcon={<CloseIcon/>}>
+                    {t('table.cancel')}
+                </Button>
+                <Button variant="contained"
+                        onClick={handleCloseDialog}
+                        startIcon={<Icon
+                            path='ic-check'/>}>
+                    {t('table.end_consultation')}
+                </Button>
+            </DialogActions>
+        )
+    }
+
     return (
         <>
             {rows?.map((item: any, i: number) => (
@@ -84,78 +114,36 @@ export default function DetailsCard({...props}) {
                             </Grid>
                             <Grid item md={2} sm={2} xs={1}>
                                 <Box display="flex" alignItems="center" height="100%">
-                                    <IconButton sx={{display: "block", ml: "auto"}} size="small">
+                                    <IconButton
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            handleEvent({action: "OPEN-POPOVER", row: item, event});
+                                        }}
+                                        sx={{display: "block", ml: "auto"}}
+                                        size="small">
                                         <Icon path="more-vert"/>
                                     </IconButton>
                                 </Box>
                             </Grid>
                         </Grid>
                     }
-                    {/* {item.consultation_reason && (<>
-                        <Stack className="consultation-details" direction="row" alignItems='center'>
-                            <Stack spacing={1} justifyContent="flex-start" alignItems='flex-start'>
-                                <Button
-
-                                    size="small"
-                                    color="primary"
-                                    sx={{
-                                        '& .react-svg svg': {
-                                            width: 15,
-                                        }
-                                    }}
-                                    startIcon={
-                                        item.type === "cabinet" ? <Icon path="ic-cabinet" /> :
-                                            item.type === "teleconsultation" ? <Icon path="ic-video-red" />
-                                                :
-                                                null
-
-                                    }
-                                >
-                                    {item.consultation_reason.name}
-                                </Button>
-                                <Stack direction='row' spacing={2}>
-                                    <Stack direction="row" alignItems='center' className="date-container">
-                                        <Icon path="ic-agenda" />
-                                        <Typography
-                                            variant="body2"
-                                            color="textSecondary"
-                                        >
-                                            12/12/2019
-                                        </Typography>
-
-                                    </Stack>
-                                    <Stack direction="row" alignItems='center' className="time-container">
-                                        <Icon path="ic-time" />
-                                        <Typography
-                                            variant="body2"
-                                            color="textSecondary"
-
-                                        >
-                                            20:00
-                                        </Typography>
-
-                                    </Stack>
-                                    <Stack direction="row" alignItems={'center'} className="document-container" ml="auto">
-                                        <Typography
-                                            variant="body2"
-                                            color="textSecondary"
-                                        >
-
-                                            Document
-                                        </Typography>
-                                        <Link href="/">
-                                            <Icon path="iconfinder_link-2_2561254 1" />
-                                        </Link>
-                                    </Stack>
-                                </Stack>
-                            </Stack>
-                            <IconButton sx={{ display: "block", ml: "auto" }} size="small">
-                                <Icon path="more-vert" />
-                            </IconButton>
-                        </Stack>
-                    </>)}*/}
                 </DetailCardStyled>
-            ))
+            ))}
+            {info &&
+                <Dialog action={info}
+                        open={openDialog}
+                        size={"lg"}
+                        color={info === "secretary_consultation_alert" && theme.palette.error.main}
+                        direction={'ltr'}
+                        title={t("table.end_consultation")}
+                        dialogClose={handleCloseDialog}
+                        onClose={handleCloseDialog}
+                        {...(actions && {
+                            actionDialog: <DialogAction/>,
+                            onClose: false,
+                        })}
+
+                />
             }
         </>
     );

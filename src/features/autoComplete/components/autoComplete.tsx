@@ -2,12 +2,16 @@ import React, {useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import MenuList from "@mui/material/MenuList";
-import {Button, Divider, InputBase, LinearProgress, Paper} from "@mui/material";
+import {Button, Divider, IconButton, InputBase, LinearProgress, Paper, Theme, useMediaQuery} from "@mui/material";
 import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
+import IconUrl from "@themes/urlIcon";
 
 function AutoComplete({...props}) {
     const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;
+
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+
     const [focus, setFocus] = useState(true);
 
     const handleListItemClick = ({...props}) => {
@@ -36,14 +40,22 @@ function AutoComplete({...props}) {
                     inputProps={{'aria-label': 'Chercher un patient'}}
                 />
                 <Divider sx={{height: 28, m: 0.5}} orientation="vertical"/>
-                <Button
+                {isMobile ?
+                    <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={onAddPatient}>
+                        <AddIcon/>
+                    </IconButton>
+                    :
+                    <Button
                     onClick={onAddPatient}
                     size={"small"}
                     color="primary"
                     sx={{m: .5}} aria-label="directions">
                     <AddIcon/>
                     {t('stepper-2.add_button')}
-                </Button>
+                </Button>}
             </Paper>
             <Box className="scroll-main">
                 <MenuList
