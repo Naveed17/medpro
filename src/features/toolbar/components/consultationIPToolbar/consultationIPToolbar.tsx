@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Avatar,
     Button,
@@ -18,24 +18,24 @@ import {documentButtonList} from "./config";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {useRequest, useRequestMutation} from "@app/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
-import {useAppDispatch} from "@app/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {Theme} from "@mui/material/styles";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {SetSelectedDialog} from "@features/toolbar";
+import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import RecondingBoxStyle from '@features/card/components/consultationDetailCard/overrides/recordingBoxStyle';
 import moment from "moment-timezone";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import Zoom from "react-medium-image-zoom";
-import IconUrl from "@themes/urlIcon";
 import {SWRNoValidateConfig} from "@app/swr/swrProvider";
 
 const MicRecorder = require('mic-recorder-to-mp3');
@@ -72,7 +72,7 @@ function ConsultationIPToolbar({...props}) {
     const {trigger} = useRequestMutation(null, "/drugs");
     const router = useRouter();
     const {data: session} = useSession();
-    const intervalref = useRef<number | null>(null);
+    //const intervalref = useRef<number | null>(null);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -84,26 +84,34 @@ function ConsultationIPToolbar({...props}) {
     const [lastTabs, setLastTabs] = useState<string | null>("");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [action, setactions] = useState<boolean>(false);
-    let [record, setRecord] = useState(false);
-    let [time, setTime] = useState('00:00');
     const [label, setLabel] = useState<string>(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
     const open = Boolean(anchorEl);
     const hasLatestAppointments = appointement.latestAppointments.length === 0;
 
     const [tabsData, setTabsData] = useState<any[]>([]);
+    const {record, timer} = useAppSelector(consultationSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const ginfo = (session?.data as UserDataResponse).general_information;
+    let [time, setTime] = useState(timer);
+
+    useEffect(() => {
+        setTime(timer)
+    }, [timer])
 
     const startRecord = () => {
         recorder.start().then(() => {
-            if (intervalref.current !== null) return;
-            intervalref.current = window.setInterval(() => {
-                time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
-                setTime(time);
-            }, 1000);
-            setRecord(true)
+            //console.log(intervalref.current)
+            /*if (intervalref.current !== null) window.clearInterval(intervalref.current);
+            else {
+                intervalref.current = window.setInterval(() => {
+                    time = moment(time, 'mm:ss').add(1, 'second').format('mm:ss')
+                    dispatch(SetTimer(time))
+                    console.log(intervalref)
+                }, 1000);
+            }*/
+            dispatch(SetRecord(true))
         }).catch((e: any) => {
             console.error(e);
         });
@@ -112,7 +120,7 @@ function ConsultationIPToolbar({...props}) {
     const stopRec = () => {
         const res = recorder.stop();
         // @ts-ignore
-        res.getMp3().then(([buffer, blob]) => {
+        res?.getMp3().then(([buffer, blob]) => {
             const file = new File(buffer, 'audio', {
                 type: blob.type,
                 lastModified: Date.now()
@@ -122,12 +130,12 @@ function ConsultationIPToolbar({...props}) {
             /*const player = new Audio(URL.createObjectURL(file));
             player.play();*/
 
-            if (intervalref.current) {
+            /*if (intervalref.current) {
                 window.clearInterval(intervalref.current);
                 intervalref.current = null;
-            }
-            setRecord(false)
-            setTime('00:00')
+            }*/
+            dispatch(SetRecord(false))
+            dispatch(SetTimer('00:00'))
             mutateDoc();
 
         }).catch((e: any) => {
@@ -483,7 +491,7 @@ function ConsultationIPToolbar({...props}) {
     }, [tabs]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-       // setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
+        // setSelectedTab(appointement.latestAppointments.length === 0 ? "consultation_form" : "patient_history");
         //console.log(appointement)
         setTabsData(hasLatestAppointments ? [
             {
@@ -570,7 +578,7 @@ function ConsultationIPToolbar({...props}) {
                             }}
                             variant="contained"
                             color="primary">
-                            {time}
+                            {t('stop')}
                         </Button>
                         }
                         <Button
@@ -662,7 +670,7 @@ function ConsultationIPToolbar({...props}) {
                             stopRec()
                         }} style={{width: 130, padding: 10}}>
                             <StopCircleIcon style={{fontSize: 20, color: "white"}}/>
-                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{time}</div>
+                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{t('stop')}</div>
                             <div className="recording-circle"></div>
                         </RecondingBoxStyle>}
 

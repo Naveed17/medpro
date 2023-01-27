@@ -131,14 +131,14 @@ function HistoryTab({...props}) {
         }
     }, [httpPatientDocumentsResponse]);
 
-    const printFees = (app: { appointment: { acts: any[], consultation_fees: string } }) => {
+    const printFees = (app: any) => {
         const selectedActs: {
             uuid: string,
             act: { name: string }
             qte: string
             fees: string;
         }[] = [];
-        app?.appointment.acts.map((act) => {
+        app?.appointment.acts.map((act: { act_uuid: any; name: any; price: any; qte: any; }) => {
             selectedActs.push({
                 uuid: act.act_uuid,
                 act: {name: act.name},
@@ -146,13 +146,13 @@ function HistoryTab({...props}) {
                 qte: act.qte
             })
         });
-
         setInfo("document_detail");
         setState({
             type: "fees",
             name: "note_fees",
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
+            createdAt: moment(app.appointment.dayDate,"DD-MM-YYYY").format('DD/MM/YYYY'),
             patient: `${patient.firstName}   ${patient.lastName}`,
         });
         setOpenDialog(true);
