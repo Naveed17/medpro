@@ -24,7 +24,7 @@ function MoveAppointmentDialog() {
 
     const {t} = useTranslation(['agenda', 'common']);
 
-    const {config: agendaConfig, selectedEvent: data} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {date: moveDialogDate, time: moveDialogTime, limit: initLimit, action} = useAppSelector(dialogMoveSelector);
 
     const [loading, setLoading] = useState(true);

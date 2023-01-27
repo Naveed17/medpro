@@ -81,9 +81,13 @@ function FcmLayout({...props}) {
                     enqueueSnackbar(message.notification.body, {variant: "info"});
                 } else {
                     if (data.body.hasOwnProperty('progress')) {
-                        localStorage.removeItem("import-data");
-                        closeSnackbar();
-                        enqueueSnackbar(translationCommon.import_data.end, {variant: "success"});
+                        if (data.body.progress === -1 || data.body.progress === 100) {
+                            localStorage.removeItem("import-data");
+                            closeSnackbar();
+                            enqueueSnackbar((data.body.progress === -1 ?
+                                    translationCommon.import_data.failed : translationCommon.import_data.end),
+                                {variant: data.body.progress === -1 ? "error" : "success"});
+                        }
                     }
                 }
             } else {

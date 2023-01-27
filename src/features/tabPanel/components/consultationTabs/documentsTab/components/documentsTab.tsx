@@ -52,10 +52,10 @@ function DocumentsTab({...props}) {
         <>
             <Stack direction={"row"} mb={2} spacing={1} justifyContent={"end"}>
                 <IconButton onClick={()=>{setMode(true)}}  style={{background:"white",borderRadius:10}}>
-                    <ReorderIcon color={!mode ? "info":"primary"}/>
+                    <ReorderIcon color={mode ? "info":"primary"}/>
                 </IconButton>
                 <IconButton onClick={()=>{setMode(false)}}  style={{background:"white",borderRadius:10}}>
-                    <AppsIcon color={mode ? "info":"primary"}/>
+                    <AppsIcon color={!mode ? "info":"primary"}/>
                 </IconButton>
             </Stack>
             <Box display='grid' sx={{
