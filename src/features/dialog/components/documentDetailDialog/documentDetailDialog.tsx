@@ -286,6 +286,7 @@ function DocumentDetailDialog({...props}) {
             const docInfo = (httpHeaderData as HttpResponse).data
             if (!docInfo.header) {
                 //handleClickOpen();
+                setLoading(false)
             } else {
                 setOpenAlert(false);
                 setData(docInfo.data)
