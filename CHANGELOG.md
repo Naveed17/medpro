@@ -1,3 +1,10 @@
+## [4.7.2](https://github.com/SmartMedSA/med-pro/compare/v4.7.1...v4.7.2) (2023-01-27)
+
+
+### Bug Fixes
+
+* confirm online appointment bug ([f23e24d](https://github.com/SmartMedSA/med-pro/commit/f23e24d4d6fc58acca5fa8c31301252e0feea498))
+
 ## [4.7.1](https://github.com/SmartMedSA/med-pro/compare/v4.7.0...v4.7.1) (2023-01-27)
 
 
