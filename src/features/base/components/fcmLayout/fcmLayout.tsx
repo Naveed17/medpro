@@ -10,11 +10,18 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
-import {useRequest} from "@app/axios";
-import {SWRNoValidateConfig} from "@app/swr/swrProvider";
+import {useRequest, useRequestMutation} from "@app/axios";
+import {SWRNoValidateConfig, TriggerWithoutValidation} from "@app/swr/swrProvider";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
-import {AppointmentStatus, openDrawer, setLastUpdate, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {
+    agendaSelector,
+    AppointmentStatus,
+    openDrawer,
+    setLastUpdate,
+    setSelectedEvent,
+    setStepperIndex
+} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
@@ -37,6 +44,7 @@ function FcmLayout({...props}) {
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
 
     const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
@@ -46,6 +54,11 @@ function FcmLayout({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+
+    const {
+        trigger: updateStatusTrigger
+    } = useRequestMutation(null, "/agenda/update/appointment/status",
+        TriggerWithoutValidation);
 
     const {data: httpProfessionalsResponse} = useRequest({
         method: "GET",
@@ -190,13 +203,22 @@ function FcmLayout({...props}) {
         }
     }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const updateAppointmentStatus = (appointmentUUid: string, status: string) => {
+        const form = new FormData();
+        form.append('status', status);
+        return updateStatusTrigger({
+            method: "PATCH",
+            url: `/api/medical-entity/${medical_entity.uuid}/agendas/${agendaConfig?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`,
+            data: form,
+            headers: {Authorization: `Bearer ${session?.accessToken}`}
+        });
+    }
 
     useEffect(() => {
         if (medical_professional) {
             subscribeToTopic(`${general_information.roles[0]}-${general_information.uuid}`);
         }
     }, [medical_professional, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
-
 
     useEffect(() => {
         setToken();
@@ -298,6 +320,10 @@ function FcmLayout({...props}) {
                                 dispatch(setSelectedEvent(event));
                                 dispatch(openDrawer({type: "view", open: true}));
                             });
+                        }}
+                        OnConfirm={() => {
+                            handleClose();
+                            updateAppointmentStatus(notificationData?.appointment?.uuid, "1");
                         }}
                     />}
             </Dialog>
