@@ -12,7 +12,7 @@ import {
     Stack,
     Table,
     TableRow,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import Button from "@mui/material/Button";
@@ -34,6 +34,11 @@ import {Session} from "next-auth";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 
+type ChipColors = OverridableStringUnion<
+'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
+ChipPropsColorOverrides
+>;
+
 function ImportDataRow({...props}) {
     const {
         row, loading = false, t, handleEvent, data
@@ -42,14 +47,12 @@ function ImportDataRow({...props}) {
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
-    const colors: OverridableStringUnion<
-        'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
-        ChipPropsColorOverrides
-    >[] = ['warning', 'success', 'error', 'error', 'info']
+    const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
     const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
 
 /*    const [infoDuplication, setInfoDuplication] = useState<Array<{
