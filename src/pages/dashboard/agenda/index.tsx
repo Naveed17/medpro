@@ -559,6 +559,7 @@ function Agenda() {
             setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+            dispatch(openDrawer({type: "view", open: false}));
             // update pending notifications status
             config?.mutate[1]();
         });
