@@ -1,3 +1,13 @@
+## [4.7.1](https://github.com/SmartMedSA/med-pro/compare/v4.7.0...v4.7.1) (2023-01-27)
+
+
+### Bug Fixes
+
+* download multimedia files ([748c88b](https://github.com/SmartMedSA/med-pro/commit/748c88b7b51361478de0d1f3b87d61397dc048e7))
+* import data notification ([b5f5528](https://github.com/SmartMedSA/med-pro/commit/b5f552812c24839a7edea3aa45ae8ccd8c9da886))
+* no payment means crash ([df9aac9](https://github.com/SmartMedSA/med-pro/commit/df9aac9d9f284db83ff7dc72e6f7e2618514ae82))
+* recorder persist ([d0a9d42](https://github.com/SmartMedSA/med-pro/commit/d0a9d42ab75f94705728eee5d5adee4ef2abfcc5))
+
 # [4.7.0](https://github.com/SmartMedSA/med-pro/compare/v4.6.0...v4.7.0) (2023-01-26)
 
 
