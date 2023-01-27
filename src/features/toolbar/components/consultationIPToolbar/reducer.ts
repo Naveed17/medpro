@@ -9,7 +9,7 @@ import {
     SetSelectedApp,
     SetSelectedDialog,
     SetSubmit,
-    SetAppointement, SetListen
+    SetAppointement, SetListen, SetRecord, SetTimer
 } from './actions';
 
 export type MenuState = {
@@ -24,6 +24,8 @@ export type MenuState = {
     selectedDialog: any
     selectedApp: string
     listen: string;
+    record : boolean;
+    timer : string;
 };
 
 const initialState: MenuState = {
@@ -42,7 +44,9 @@ const initialState: MenuState = {
     selectedApp: '',
     appointement:null,
     selectedDialog: null,
-    listen:''
+    listen:'',
+    record: false,
+    timer:'00:00'
 };
 
 export const ConsultationReducer = createReducer(initialState, builder => {
@@ -79,6 +83,12 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetListen, (state, action) => {
             state.listen = action.payload;
+        })
+        .addCase(SetRecord, (state, action) => {
+            state.record = action.payload;
+        })
+        .addCase(SetTimer, (state, action) => {
+            state.timer = action.payload;
         })
 
 });

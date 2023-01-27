@@ -401,8 +401,10 @@ function Payment() {
             dispatch(setInsurances((httpMedicalProfessionalResponse as HttpResponse).data[0].insurances));
             dispatch(setPaymentTypes((httpMedicalProfessionalResponse as HttpResponse).data[0].payments));
 
-            deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
-            setDeals({...deals});
+            if ((httpMedicalProfessionalResponse as HttpResponse).data[0].payments.length > 0) {
+                deals.selected = (httpMedicalProfessionalResponse as HttpResponse).data[0].payments[0].slug;
+                setDeals({...deals});
+            }
         }
     }, [httpMedicalProfessionalResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 

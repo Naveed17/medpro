@@ -53,6 +53,8 @@
     "birthdate": "Date de naissance",
     "gender": "Genre",
     "male": "Homme",
+    "noInsurance": "Aucune assurance",
+    "nopaymentMeans": "Aucun moyen de paiement",
     "female": "Femme",
     "name": "Nom & prénom",
     "phone": "Numéro de téléphone",

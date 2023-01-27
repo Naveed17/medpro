@@ -6,7 +6,7 @@ import {useAppDispatch, useAppSelector} from "@app/redux/hooks";
 import {agendaSelector, DayOfWeek} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
-import {Box, Checkbox, FormControlLabel, Stack} from "@mui/material";
+import {Box, Checkbox, FormControlLabel, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
@@ -150,6 +150,7 @@ function Payment() {
                                                 console.log(item.uuid);
                                             }}
                                         ></ItemCheckbox>))}
+                                    {paymentTypes.length === 0 && <Typography fontSize={12} textAlign={"center"} color={"gray"}>{t('nopaymentMeans')}</Typography>}
                                 </Box>
                             ),
                         },
@@ -173,6 +174,7 @@ function Payment() {
                                                 console.log(item.uuid);
                                             }}
                                         ></ItemCheckbox>))}
+                                    {insurances.length === 0 && <Typography fontSize={12} textAlign={"center"} color={"gray"}>{t('noInsurance')}</Typography>}
                                 </Box>
                             ),
                         },

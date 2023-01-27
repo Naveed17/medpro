@@ -98,7 +98,7 @@ function DocumentCard({...props}) {
                             </Typography>
                             {mode && <Typography textAlign={mode ? "left" : "center"} whiteSpace={"nowrap"} fontSize={9}
                                          style={{marginTop: 0, color: "grey"}}>
-                                {t('note') + data.description}
+                                {data.description && <Typography fontSize={13}>{t('note') + data.description}</Typography>}
                             </Typography>}
                         </Stack>
                     </Stack>
