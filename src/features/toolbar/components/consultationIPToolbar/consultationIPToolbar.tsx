@@ -578,7 +578,7 @@ function ConsultationIPToolbar({...props}) {
                             }}
                             variant="contained"
                             color="primary">
-                            STOP
+                            {t('stop')}
                         </Button>
                         }
                         <Button
@@ -670,7 +670,7 @@ function ConsultationIPToolbar({...props}) {
                             stopRec()
                         }} style={{width: 130, padding: 10}}>
                             <StopCircleIcon style={{fontSize: 20, color: "white"}}/>
-                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{'Stop'}</div>
+                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{t('stop')}</div>
                             <div className="recording-circle"></div>
                         </RecondingBoxStyle>}
 
