@@ -114,6 +114,9 @@ function FcmLayout({...props}) {
                             setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog")
                             setOpenDialog(true);
                             setNotificationData(data.body);
+                        } else if (data.body.action === "update") {
+                            // update pending notifications status
+                            agendaConfig?.mutate[1]();
                         }
                         break;
                     case "waiting-room":

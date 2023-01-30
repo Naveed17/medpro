@@ -638,6 +638,7 @@ function Agenda() {
                 enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
                     "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
             }
+            dispatch(openDrawer({type: "view", open: false}));
             refreshData();
             setMoveDialog(false);
             // update pending notifications status
