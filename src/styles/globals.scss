@@ -85,12 +85,14 @@ main {
     width: 0;
   }
 
-  .form-radio{
+  .form-radio {
     display: contents;
+
     .form-check {
       label {
         display: flex;
         width: fit-content;
+
         input {
           width: 20px;
           height: 20px;
@@ -346,4 +348,8 @@ fieldset {
   text-align: center;
   vertical-align: middle;
   position: relative;
+}
+
+.time-picker-schedule {
+  margin-right: -1rem
 }

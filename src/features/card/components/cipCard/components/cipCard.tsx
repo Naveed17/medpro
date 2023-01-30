@@ -50,7 +50,7 @@ function CipCard() {
                     <PlayCircleRoundedIcon/>
                 </IconButton>
                 <Typography className={"timer-text"} color="common.white" display={{xs: 'none', md: "block"}}>
-                    {event?.extendedProps.patient.firstName} {event?.extendedProps.patient.lastName}
+                    {event?.extendedProps.patient.lastName} {event?.extendedProps.patient.firstName}
                 </Typography>
                 {process.env.NODE_ENV === 'development' && <Box className={'timer-card'}>
                     <Typography color="common.white" variant='caption'>

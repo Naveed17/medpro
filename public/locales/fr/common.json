@@ -34,6 +34,7 @@
     "description": "importer les rendez vous, patients... a partir de med.tn ou d'un fichier csv.",
     "button": "importer",
     "end": "L'importation des données se termine avec succès",
+    "failed": "L'importation de données se termine par un échec",
     "duplicated-patient": {
       "personal-info": "Informations personnelles",
       "additional-information": "Informations supplémentaires",

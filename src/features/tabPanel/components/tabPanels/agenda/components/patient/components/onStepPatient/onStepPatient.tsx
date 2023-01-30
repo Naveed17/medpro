@@ -213,12 +213,11 @@ function OnStepPatient({...props}) {
                 ? selectedPatient.lastName
                 : patient.step1.last_name,
             birthdate: selectedPatient?.birthdate
-                ? {
+                && {
                     day: selectedPatient.birthdate.split("-")[0] as string,
                     month: selectedPatient.birthdate.split("-")[1] as string,
                     year: selectedPatient.birthdate.split("-")[2] as string,
-                }
-                : patient.step1.birthdate,
+                },
             phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
                 selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
@@ -237,7 +236,7 @@ function OnStepPatient({...props}) {
             zip_code: address.length > 0 ? address[0]?.postalCode : patient.step2.zip_code,
             address: address.length > 0 && address[0]?.street ? address[0]?.street : patient.step2.address,
             email: selectedPatient ? selectedPatient.email : patient.step2.email,
-            cin: selectedPatient ? selectedPatient?.cin : patient.step2.cin,
+            cin: selectedPatient ? selectedPatient?.idCard : patient.step2.cin,
             profession: selectedPatient ? selectedPatient?.profession : patient.step2.profession,
             family_doctor: selectedPatient && selectedPatient.familyDoctor ? selectedPatient.familyDoctor : patient.step2.family_doctor,
             insurance: selectedPatient ? selectedPatient.insurances.map((insurance: any) => insurance.insurance && ({
@@ -607,132 +606,24 @@ function OnStepPatient({...props}) {
                                     sx={{
                                         "& .MuiOutlinedInput-root button": {
                                             padding: "5px",
-                                            mr: "2px",
                                             minHeight: "auto",
                                             height: "auto",
                                             minWidth: "auto"
                                         }
                                     }}
-                                    error={Boolean(touched.birthdate && errors.birthdate)}
                                     size="small" fullWidth>
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <DatePicker
-                                            value={`${values.birthdate.day}-${values.birthdate.month}-${values.birthdate.year}`}
-                                            inputFormat="dd/MM/yyyy"
-                                            onChange={(date: Date) => {
-                                                setFieldValue("birthdate", {
-                                                    day: moment(date).format("DD"),
-                                                    month: moment(date).format("MM"),
-                                                    year: moment(date).format("YYYY"),
-                                                })
-                                            }}
-                                        />
-                                    </LocalizationProvider>
-                                    {touched.birthdate && errors.birthdate && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {touched.birthdate.day && errors.birthdate.day}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                                {/*<FormControl size="small" fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id={"day"}
-                                        {...getFieldProps("birthdate.day")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={(value: string) => {
-                                            if (value?.length === 0) {
-                                                return <em>{t("day")}</em>;
-                                            }
-
-                                            return <Typography>{value}</Typography>
+                                    <DatePicker
+                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                        inputFormat="dd/MM/yyyy"
+                                        onChange={(date: Date) => {
+                                            setFieldValue("birthdate", {
+                                                day: moment(date).format("DD"),
+                                                month: moment(date).format("MM"),
+                                                year: moment(date).format("YYYY"),
+                                            })
                                         }}
-                                        error={Boolean(touched.birthdate && errors.birthdate)}
-                                    >
-                                        {Array.from(
-                                            Array(
-                                                moment(
-                                                    `1970-01`,
-                                                    "YYYY-MM"
-                                                ).daysInMonth()
-                                            ).keys()
-                                        ).map((v, i) => (
-                                            <MenuItem
-                                                key={i + 1}
-                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
-                                            >
-                                                <Typography>{i + 1}</Typography>
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {touched.birthdate && errors.birthdate && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {touched.birthdate.day && errors.birthdate.day}
-                                        </FormHelperText>
-                                    )}
+                                    />
                                 </FormControl>
-                                <FormControl size="small" fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id={"day"}
-                                        {...getFieldProps("birthdate.month")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={(value) => {
-                                            if (value?.length === 0) {
-                                                return <em>{t("month")}</em>;
-                                            }
-                                            return <Typography>{moment.monthsShort()[parseInt(value) - 1]}</Typography>
-                                        }}
-                                        error={Boolean(touched.birthdate && errors.birthdate)}
-                                    >
-                                        {moment.monthsShort().map((v, i) => (
-                                            <MenuItem
-                                                key={i + 1}
-                                                value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}
-                                            >
-                                                <Typography>{v}</Typography>
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {touched.birthdate && errors.birthdate && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {touched.birthdate.month && errors.birthdate.month}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                                <FormControl size="small" fullWidth>
-                                    <Select
-                                        labelId="demo-simple-select-label"
-                                        id={"day"}
-                                        {...getFieldProps("birthdate.year")}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}
-                                        renderValue={(value) => {
-                                            if (value?.length === 0) {
-                                                return <em>{t("year")}</em>;
-                                            }
-
-                                            return <Typography>{value}</Typography>
-                                        }}
-                                        error={Boolean(touched.birthdate && errors.birthdate)}
-                                    >
-                                        {Array.from(Array(80).keys()).map((v, i) => (
-                                            <MenuItem
-                                                key={i}
-                                                value={`${moment().year() - 80 + i + 1}`}
-                                            >
-                                                <Typography>{moment().year() - 80 + i + 1}</Typography>
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                    {touched.birthdate && errors.birthdate && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {touched.birthdate.year && errors.birthdate.year}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>*/}
                             </Stack>
                         </Box>
                         <Box>
@@ -884,6 +775,12 @@ function OnStepPatient({...props}) {
                                                 disabled={!values.country}
                                                 size="small"
                                                 {...getFieldProps("region")}
+                                                onChange={event => {
+                                                    const stateUuid = event.target.value;
+                                                    setFieldValue("region", stateUuid);
+                                                    const state = states?.find(state => state.uuid === stateUuid);
+                                                    state.zipCode && setFieldValue("zip_code", state.zipCode);
+                                                }}
                                                 displayEmpty={true}
                                                 sx={{color: "text.secondary"}}
                                                 renderValue={selected => {
@@ -1150,19 +1047,18 @@ function OnStepPatient({...props}) {
                                                                     minWidth: "auto"
                                                                 }
                                                             }}>
-                                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                                <Typography variant="body2" color="text.secondary"
-                                                                            gutterBottom>
-                                                                    {t("birthday")}
-                                                                </Typography>
-                                                                <DatePicker
-                                                                    value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY")}
-                                                                    onChange={(date: Date) => {
-                                                                        setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
-                                                                    }}
-                                                                    inputFormat="dd/MM/yyyy"
-                                                                />
-                                                            </LocalizationProvider>
+
+                                                            <Typography variant="body2" color="text.secondary"
+                                                                        gutterBottom>
+                                                                {t("birthday")}
+                                                            </Typography>
+                                                            <DatePicker
+                                                                value={moment(getFieldProps(`insurance[${index}].insurance_social.birthday`).value, "DD-MM-YYYY").toDate()}
+                                                                onChange={(date: Date) => {
+                                                                    setFieldValue(`insurance[${index}].insurance_social.birthday`, moment(date).format('DD-MM-YYYY'));
+                                                                }}
+                                                                inputFormat="dd/MM/yyyy"
+                                                            />
                                                         </Box>
                                                         <Box>
                                                             <Typography variant="body2" color="text.secondary"

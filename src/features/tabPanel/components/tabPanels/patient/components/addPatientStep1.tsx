@@ -38,6 +38,9 @@ import { DefaultCountry, PhoneRegExp } from "@app/constants";
 import { dashLayoutSelector } from "@features/base";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import { DatePicker } from "@features/datepicker";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers";
 
 export const PhoneCountry: any = memo(({ ...props }) => {
   return <CountrySelect {...props} />;
@@ -100,6 +103,11 @@ function AddPatientStep1({ ...props }) {
           .required(t("telephone-error")),
       })
     ),
+    birthdate: Yup.object().shape({
+      day: Yup.string(),
+      month: Yup.string(),
+      year: Yup.string(),
+    }),
     gender: Yup.string().required(t("gender-error")),
   });
 
@@ -115,13 +123,11 @@ function AddPatientStep1({ ...props }) {
       last_name: selectedPatient
         ? selectedPatient.lastName
         : stepsData.step1.last_name,
-      birthdate: selectedPatient?.birthdate
-        ? {
-            day: selectedPatient.birthdate.split("-")[0] as string,
-            month: selectedPatient.birthdate.split("-")[1] as string,
-            year: selectedPatient.birthdate.split("-")[2] as string,
-          }
-        : stepsData.step1.birthdate,
+      birthdate: selectedPatient?.birthdate && {
+        day: selectedPatient.birthdate.split("-")[0] as string,
+        month: selectedPatient.birthdate.split("-")[1] as string,
+        year: selectedPatient.birthdate.split("-")[2] as string,
+      },
       phones: selectedPatient?.contact?.find(
         (contact: ContactModel) => contact.type === "phone"
       )
@@ -291,7 +297,7 @@ function AddPatientStep1({ ...props }) {
                       )}
                     </FormControl>
                     <Grid container spacing={1}>
-                      <Grid item xs={12} md={6} sm={6} lg={6}>
+                      <Grid item md={6} xs={12} lg={6}>
                         <Box>
                           <Typography
                             variant="body2"
@@ -320,7 +326,7 @@ function AddPatientStep1({ ...props }) {
                           />
                         </Box>
                       </Grid>
-                      <Grid item xs={12} md={6} sm={12} lg={6}>
+                      <Grid item md={6} xs={12} lg={6}>
                         <Box>
                           <Typography
                             variant="body2"
@@ -378,7 +384,15 @@ function AddPatientStep1({ ...props }) {
             </>
           )}
 
-          <Box>
+          <Box
+            sx={{
+              "& .MuiOutlinedInput-root button": {
+                padding: "5px",
+                minHeight: "auto",
+                height: "auto",
+                minWidth: "auto",
+              },
+            }}>
             <Typography
               variant="body2"
               color="text.secondary"
@@ -386,102 +400,24 @@ function AddPatientStep1({ ...props }) {
               component="span">
               {t("date-of-birth")}
             </Typography>
-            <Stack spacing={3} direction={{ xs: "column", lg: "row" }}>
-              <FormControl size="small" fullWidth>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id={"day"}
-                  {...getFieldProps("birthdate.day")}
-                  displayEmpty
-                  sx={{ color: "text.secondary" }}
-                  renderValue={(value: string) => {
-                    if (value?.length === 0) {
-                      return <em>{t("day")}</em>;
-                    }
-
-                    return <Typography>{value}</Typography>;
-                  }}
-                  error={Boolean(touched.birthdate && errors.birthdate)}>
-                  {Array.from(
-                    Array(moment(`1970-01`, "YYYY-MM").daysInMonth()).keys()
-                  ).map((v, i) => (
-                    <MenuItem
-                      key={i + 1}
-                      value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}>
-                      <Typography>{i + 1}</Typography>
-                    </MenuItem>
-                  ))}
-                </Select>
-                {touched.birthdate && errors.birthdate && (
-                  <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.birthdate.day && errors.birthdate.day}
-                  </FormHelperText>
-                )}
-              </FormControl>
-              <FormControl size="small" fullWidth>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id={"day"}
-                  {...getFieldProps("birthdate.month")}
-                  displayEmpty={true}
-                  sx={{ color: "text.secondary" }}
-                  renderValue={(value) => {
-                    if (value?.length === 0) {
-                      return <em>{t("month")}</em>;
-                    }
-                    return (
-                      <Typography>
-                        {moment.monthsShort()[parseInt(value) - 1]}
-                      </Typography>
-                    );
-                  }}
-                  error={Boolean(touched.birthdate && errors.birthdate)}>
-                  {moment.monthsShort().map((v, i) => (
-                    <MenuItem
-                      key={i + 1}
-                      value={i + 1 > 9 ? `${i + 1}` : `0${i + 1}`}>
-                      <Typography>{v}</Typography>
-                    </MenuItem>
-                  ))}
-                </Select>
-                {touched.birthdate && errors.birthdate && (
-                  <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.birthdate.month && errors.birthdate.month}
-                  </FormHelperText>
-                )}
-              </FormControl>
-              <FormControl size="small" fullWidth>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id={"day"}
-                  {...getFieldProps("birthdate.year")}
-                  displayEmpty
-                  autoFocus
-                  renderValue={(value) => {
-                    if (value?.length === 0) {
-                      return <em>{t("year")}</em>;
-                    }
-
-                    return <Typography>{value}</Typography>;
-                  }}
-                  error={Boolean(touched.birthdate && errors.birthdate)}>
-                  {Array.from(Array(80).keys())
-                    .reverse()
-                    .map((v, i) => (
-                      <MenuItem
-                        key={i}
-                        value={`${moment().year() - 80 + i + 1}`}>
-                        <Typography>{moment().year() - 80 + i + 1}</Typography>
-                      </MenuItem>
-                    ))}
-                </Select>
-                {touched.birthdate && errors.birthdate && (
-                  <FormHelperText error sx={{ px: 2, mx: 0 }}>
-                    {touched.birthdate.year && errors.birthdate.year}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Stack>
+            <DatePicker
+              value={
+                values.birthdate
+                  ? moment(
+                      `${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`,
+                      "DD/MM/YYYY"
+                    ).toDate()
+                  : null
+              }
+              inputFormat="dd/MM/yyyy"
+              onChange={(date: Date) => {
+                setFieldValue("birthdate", {
+                  day: moment(date).format("DD"),
+                  month: moment(date).format("MM"),
+                  year: moment(date).format("YYYY"),
+                });
+              }}
+            />
           </Box>
           <Box>
             {values.phones.map((phoneObject, index: number) => (
@@ -496,8 +432,8 @@ function AddPatientStep1({ ...props }) {
                     *
                   </Typography>
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={5} md={4}>
+                <Grid container spacing={{ xs: 1, md: 2 }}>
+                  <Grid item xs={6} md={4}>
                     <PhoneCountry
                       initCountry={getFieldProps(`phones[${index}].dial`).value}
                       onSelect={(state: any) =>
@@ -505,7 +441,7 @@ function AddPatientStep1({ ...props }) {
                       }
                     />
                   </Grid>
-                  <Grid item xs={5} md={6}>
+                  <Grid item xs={6} md={7}>
                     <TextField
                       variant="outlined"
                       size="small"
@@ -529,7 +465,7 @@ function AddPatientStep1({ ...props }) {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item xs={12} md={1}>
                     {index === 0 ? (
                       <IconButton
                         onClick={handleAddPhone}

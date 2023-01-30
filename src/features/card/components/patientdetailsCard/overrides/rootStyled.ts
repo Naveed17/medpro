@@ -25,7 +25,9 @@ const RootStyled = styled(Stack)(({ theme }) => ({
   "& .date-birth": {
     display: "flex",
     alignItems: "center",
-    marginTop: -4,
+    backgroundColor: theme.palette.background.paper,
+    marginTop: theme.spacing(8),
+    flexDirection: "row",
     [theme.breakpoints.down("md")]: {
       marginBottom: theme.spacing(1),
     },

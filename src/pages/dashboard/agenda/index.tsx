@@ -67,6 +67,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
+import {BusinessHoursInput} from "@fullcalendar/common";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'quick-add'},
@@ -148,8 +149,8 @@ function Agenda() {
     ]);
     const [date, setDate] = useState(currentDate.date);
     const [event, setEvent] = useState<EventDef>();
-    const [startTime, setStartTime] = useState("08:00:00");
-    const [endTime, setEndTime] = useState("20:00:00");
+    const [slotMinTime, setSlotMinTime] = useState(8);
+    const [slotMaxTime, setSlotMaxTime] = useState(20);
     const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
@@ -188,14 +189,14 @@ function Agenda() {
             let hasError: boolean[] = [];
             hasDayWorkHours[1].map((time: { end_time: string, start_time: string }) => {
                     hasError.push(!moment(date).isBetween(
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.start_time}`, "DD-MM-YYYY HH:mm"),
-                        moment(`${moment(date).format("DD-MM-YYYY")} ${time.end_time}`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMinTime.toString().padStart(2, "0")}:00`, "DD-MM-YYYY HH:mm"),
+                        moment(`${moment(date).format("DD-MM-YYYY")} ${slotMaxTime}:00`, "DD-MM-YYYY HH:mm"), "minutes", '[)'));
                 }
             );
             return hasError.every(error => error);
         }
         return true;
-    }, [openingHours]);
+    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = useCallback((query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
         setLoading(true);
@@ -332,6 +333,22 @@ function Agenda() {
         }
     }, [filter, getAppointments, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (openingHours) {
+            Object.entries(openingHours).map((openingHours: any) => {
+                openingHours[1].map((openingHour: { start_time: string, end_time: string }) => {
+                    const min = moment.duration(openingHour?.start_time).asHours();
+                    const max = moment.duration(openingHour?.end_time).asHours();
+                    if (min < slotMinTime) {
+                        setSlotMinTime(min);
+                    }
+                    if (max > slotMaxTime) {
+                        setSlotMaxTime(max);
+                    }
+                })
+            });
+        }
+    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
         dispatch(resetFilterPatient());
@@ -542,6 +559,7 @@ function Agenda() {
             setLoading(false);
             refreshData();
             enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+            dispatch(openDrawer({type: "view", open: false}));
             // update pending notifications status
             config?.mutate[1]();
         });

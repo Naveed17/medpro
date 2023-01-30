@@ -92,6 +92,7 @@ function WeekDayPicker({...props}) {
                             onClick={(event) => handleDateChange(v)}
                         >
                             <Typography
+                                sx={{textTransform: "capitalize"}}
                                 variant="body2"
                                 color={
                                     date.getTime() === v.getTime()
@@ -100,7 +101,7 @@ function WeekDayPicker({...props}) {
                                 }
                                 pb={1}
                             >
-                                {v.toString().slice(0, 3)}
+                                {moment(v).format("ddd").replace(".", "")}
                             </Typography>
                             <Typography
                                 variant="body2"

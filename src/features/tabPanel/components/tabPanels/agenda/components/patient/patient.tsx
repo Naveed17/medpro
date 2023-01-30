@@ -87,7 +87,7 @@ function Patient({...props}) {
             is_support: false
         }))));
         form.append('gender', patient.gender);
-        if (patient.birthdate.day && patient.birthdate.month && patient.birthdate.year) {
+        if (patient.birthdate) {
             form.append('birthdate',
                 `${patient.birthdate.day}-${patient.birthdate.month}-${patient.birthdate.year}`);
         }
